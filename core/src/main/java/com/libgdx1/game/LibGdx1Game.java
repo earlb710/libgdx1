@@ -11,7 +11,7 @@ public class LibGdx1Game extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		// Create a simple colored texture programmatically
+		// Set the clear color to blue
 		Gdx.gl.glClearColor(0.2f, 0.3f, 0.8f, 1);
 	}
 
