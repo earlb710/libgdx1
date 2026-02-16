@@ -6,10 +6,12 @@ import com.badlogic.gdx.Screen;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     private UserManager userManager;
+    private ProfileManager profileManager;
 
     @Override
     public void create() {
         userManager = new UserManager();
+        profileManager = new ProfileManager();
         
         // Check if user exists, if not show login screen
         if (userManager.hasUser()) {
@@ -21,6 +23,10 @@ public class Main extends Game {
     
     public UserManager getUserManager() {
         return userManager;
+    }
+    
+    public ProfileManager getProfileManager() {
+        return profileManager;
     }
     
     @Override

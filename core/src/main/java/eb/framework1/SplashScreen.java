@@ -164,8 +164,12 @@ public class SplashScreen implements Screen {
             int mouseY = getFlippedMouseY();
             
             if (playButton.contains(mouseX, mouseY)) {
-                // Start the game
-                game.setScreen(new MainScreen(game));
+                // Check if profiles exist, show selection or creation screen
+                if (game.getProfileManager().hasProfiles()) {
+                    game.setScreen(new ProfileSelectionScreen(game));
+                } else {
+                    game.setScreen(new ProfileCreationScreen(game));
+                }
             } else if (quitButton.contains(mouseX, mouseY)) {
                 // Quit the application
                 Gdx.app.exit();
