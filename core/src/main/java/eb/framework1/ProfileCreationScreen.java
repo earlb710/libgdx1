@@ -20,12 +20,10 @@ public class ProfileCreationScreen implements Screen {
     private GlyphLayout glyphLayout;
     
     // Input fields
-    private StringBuilder profileNameInput;
     private StringBuilder characterNameInput;
     private int selectedGender; // 0 = Male, 1 = Female
     private int selectedDifficulty; // 0 = Easy, 1 = Normal, 2 = Hard
     
-    private int currentField; // 0 = profile name, 1 = character name
     private boolean cursorVisible;
     private float cursorTimer;
     private static final float CURSOR_BLINK_TIME = 0.5f;
@@ -50,11 +48,9 @@ public class ProfileCreationScreen implements Screen {
     
     public ProfileCreationScreen(Main game) {
         this.game = game;
-        this.profileNameInput = new StringBuilder();
         this.characterNameInput = new StringBuilder();
         this.selectedGender = 0;
         this.selectedDifficulty = 1; // Default to Normal
-        this.currentField = 0;
         this.cursorVisible = true;
         this.cursorTimer = 0;
     }
@@ -80,12 +76,12 @@ public class ProfileCreationScreen implements Screen {
         cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
         
         // Gender buttons
-        int genderY = centerY - 50;
+        int genderY = centerY + 10;
         genderMaleButton = new Rectangle(centerX + 50, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         genderFemaleButton = new Rectangle(centerX + 160, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         
         // Difficulty buttons
-        int diffY = centerY - 120;
+        int diffY = centerY - 60;
         diffEasyButton = new Rectangle(centerX + 50, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         diffNormalButton = new Rectangle(centerX + 160, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         diffHardButton = new Rectangle(centerX + 270, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -94,11 +90,7 @@ public class ProfileCreationScreen implements Screen {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyTyped(char character) {
-                if (character == '\t') {
-                    // Switch between fields
-                    currentField = (currentField + 1) % 2;
-                    return true;
-                } else if (character == '\r' || character == '\n') {
+                if (character == '\r' || character == '\n') {
                     // Enter key - create profile
                     if (canCreateProfile()) {
                         createProfile();
@@ -106,25 +98,19 @@ public class ProfileCreationScreen implements Screen {
                     return true;
                 } else if (character == '\b') {
                     // Backspace
-                    StringBuilder input = getCurrentInput();
-                    if (input.length() > 0) {
-                        input.deleteCharAt(input.length() - 1);
+                    if (characterNameInput.length() > 0) {
+                        characterNameInput.deleteCharAt(characterNameInput.length() - 1);
                     }
                     return true;
                 } else if (Character.isLetterOrDigit(character) || character == ' ') {
-                    StringBuilder input = getCurrentInput();
-                    if (input.length() < MAX_INPUT_LENGTH) {
-                        input.append(character);
+                    if (characterNameInput.length() < MAX_INPUT_LENGTH) {
+                        characterNameInput.append(character);
                     }
                     return true;
                 }
                 return false;
             }
         });
-    }
-    
-    private StringBuilder getCurrentInput() {
-        return currentField == 0 ? profileNameInput : characterNameInput;
     }
     
     @Override
@@ -148,26 +134,20 @@ public class ProfileCreationScreen implements Screen {
                       Gdx.graphics.getHeight() - 50);
         
         int centerX = Gdx.graphics.getWidth() / 2;
-        int startY = Gdx.graphics.getHeight() / 2 + 100;
-        
-        // Profile Name field
-        font.getData().setScale(1.2f);
-        font.draw(batch, "Profile Name:", centerX - 300, startY);
-        String profileText = profileNameInput.toString();
-        if (currentField == 0 && cursorVisible) profileText += "|";
-        font.draw(batch, profileText, centerX + 50, startY);
+        int startY = Gdx.graphics.getHeight() / 2 + 150;
         
         // Character Name field
-        font.draw(batch, "Character Name:", centerX - 300, startY - 70);
+        font.getData().setScale(1.2f);
+        font.draw(batch, "Character Name:", centerX - 300, startY);
         String characterText = characterNameInput.toString();
-        if (currentField == 1 && cursorVisible) characterText += "|";
-        font.draw(batch, characterText, centerX + 50, startY - 70);
+        if (cursorVisible) characterText += "|";
+        font.draw(batch, characterText, centerX + 50, startY);
         
         // Gender label and selection
-        font.draw(batch, "Gender:", centerX - 300, startY - 140);
+        font.draw(batch, "Gender:", centerX - 300, startY - 70);
         
         // Difficulty label and selection
-        font.draw(batch, "Difficulty:", centerX - 300, startY - 210);
+        font.draw(batch, "Difficulty:", centerX - 300, startY - 140);
         
         batch.end();
         
@@ -255,21 +235,18 @@ public class ProfileCreationScreen implements Screen {
     }
     
     private boolean canCreateProfile() {
-        String profileName = profileNameInput.toString().trim();
         String characterName = characterNameInput.toString().trim();
-        return profileName.length() >= MIN_INPUT_LENGTH && 
-               characterName.length() >= MIN_INPUT_LENGTH;
+        return characterName.length() >= MIN_INPUT_LENGTH;
     }
     
     private void createProfile() {
-        String profileName = profileNameInput.toString().trim();
         String characterName = characterNameInput.toString().trim();
         String gender = selectedGender == 0 ? "Male" : "Female";
         String difficulty = selectedDifficulty == 0 ? "Easy" : 
                           (selectedDifficulty == 1 ? "Normal" : "Hard");
         
         try {
-            Profile profile = game.getProfileManager().createProfile(profileName, characterName, gender, difficulty);
+            Profile profile = game.getProfileManager().createProfile(characterName, gender, difficulty);
             game.getProfileManager().selectProfile(profile);
             game.setScreen(new MainScreen(game));
         } catch (Exception e) {

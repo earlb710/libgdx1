@@ -34,7 +34,7 @@ public class ProfileManager {
             if (profileData != null) {
                 for (String data : profileData) {
                     ProfileData pd = json.fromJson(ProfileData.class, data);
-                    profiles.add(new Profile(pd.name, pd.characterName, pd.gender, pd.difficulty));
+                    profiles.add(new Profile(pd.characterName, pd.gender, pd.difficulty));
                 }
             }
         } catch (Exception e) {
@@ -58,7 +58,6 @@ public class ProfileManager {
         List<ProfileData> dataList = new ArrayList<>();
         for (Profile profile : profiles) {
             ProfileData pd = new ProfileData();
-            pd.name = profile.getName();
             pd.characterName = profile.getCharacterName();
             pd.gender = profile.getGender();
             pd.difficulty = profile.getDifficulty();
@@ -76,23 +75,23 @@ public class ProfileManager {
         preferences.flush();
     }
     
-    public void createProfile(String name, String characterName, String gender, String difficulty) {
-        // Check if profile name already exists
+    public Profile createProfile(String characterName, String gender, String difficulty) {
+        // Check if character name already exists (case-insensitive)
         for (Profile profile : profiles) {
-            if (profile.getName().equalsIgnoreCase(name)) {
-                throw new IllegalArgumentException("Profile with name '" + name + "' already exists");
+            if (profile.getCharacterName().equalsIgnoreCase(characterName)) {
+                throw new IllegalArgumentException("Character with name '" + characterName + "' already exists");
             }
         }
         
-        Profile newProfile = new Profile(name, characterName, gender, difficulty);
+        Profile newProfile = new Profile(characterName, gender, difficulty);
         profiles.add(newProfile);
         saveProfiles();
         return newProfile;
     }
     
-    public Profile getProfileByName(String name) {
+    public Profile getProfileByName(String characterName) {
         for (Profile profile : profiles) {
-            if (profile.getName().equalsIgnoreCase(name)) {
+            if (profile.getCharacterName().equalsIgnoreCase(characterName)) {
                 return profile;
             }
         }
@@ -125,7 +124,6 @@ public class ProfileManager {
     
     // Helper class for JSON serialization
     private static class ProfileData {
-        public String name;
         public String characterName;
         public String gender;
         public String difficulty;
