@@ -17,6 +17,7 @@ This document describes the splash screen implementation for "Veritas Detegere" 
 ## SplashScreen Features
 
 ### Visual Elements
+- **Logo**: Game logo (logo.png) displayed above the title
 - **Title**: "Veritas Detegere" in gold color (scale 3.0x)
 - **Subtitle**: "A Detective Game" in light gray (scale 1.5x)
 - **Play Button**: Rectangular button with hover effect that starts the game
@@ -50,9 +51,10 @@ This document describes the splash screen implementation for "Veritas Detegere" 
 - Rectangle-based hit detection for button clicks
 
 #### Resource Management
-- All resources (fonts, batch, shape renderer) initialized in `show()`
+- All resources (logo texture, fonts, batch, shape renderer) initialized in `show()`
 - Proper disposal of all resources in `dispose()` with null checks
 - Separate fonts for title, subtitle, and buttons to avoid state mutation
+- Logo texture loaded from assets/logo.png
 
 #### Screen Lifecycle
 - Proper implementation of all Screen interface methods

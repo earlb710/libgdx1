@@ -1,6 +1,8 @@
 ┌──────────────────────────────────────────────────────────────┐
 │                                                              │
 │                                                              │
+│                      [LOGO IMAGE]                            │
+│                    (centered above title)                    │
 │                                                              │
 │                    Veritas Detegere                          │
 │                   (in gold, large text)                      │
