@@ -25,7 +25,7 @@ public class ProfileSelectionScreen implements Screen {
     private Rectangle newProfileButton;
     private Rectangle backButton;
     
-    private static final int BUTTON_WIDTH = 400;
+    private static final int BUTTON_WIDTH = 380;  // Reduced to fit portrait mode better
     private static final int BUTTON_HEIGHT = 60;
     private static final int BUTTON_SPACING = 20;
     

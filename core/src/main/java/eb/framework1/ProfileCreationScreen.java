@@ -75,16 +75,17 @@ public class ProfileCreationScreen implements Screen {
         createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
         cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
         
-        // Gender buttons
+        // Gender buttons - positioned to fit in portrait mode (480 width)
         int genderY = centerY + 10;
-        genderMaleButton = new Rectangle(centerX + 50, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        genderFemaleButton = new Rectangle(centerX + 160, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+        int genderStartX = centerX - SMALL_BUTTON_WIDTH - 10;
+        genderMaleButton = new Rectangle(genderStartX, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+        genderFemaleButton = new Rectangle(centerX + 10, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         
-        // Difficulty buttons
+        // Difficulty buttons - stacked vertically to fit in portrait mode
         int diffY = centerY - 60;
-        diffEasyButton = new Rectangle(centerX + 50, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        diffNormalButton = new Rectangle(centerX + 160, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        diffHardButton = new Rectangle(centerX + 270, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+        diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+        diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 60, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+        diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 120, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
         
         // Set up input processor
         Gdx.input.setInputProcessor(new InputAdapter() {
@@ -129,25 +130,31 @@ public class ProfileCreationScreen implements Screen {
         batch.begin();
         
         // Title
-        labelFont.draw(batch, "Create New Profile", 
-                      Gdx.graphics.getWidth() / 2 - 150, 
+        labelFont.getData().setScale(1.5f);
+        String titleText = "Create Profile";
+        glyphLayout.setText(labelFont, titleText);
+        labelFont.draw(batch, titleText, 
+                      (Gdx.graphics.getWidth() - glyphLayout.width) / 2, 
                       Gdx.graphics.getHeight() - 50);
+        labelFont.getData().setScale(2.0f);
         
         int centerX = Gdx.graphics.getWidth() / 2;
-        int startY = Gdx.graphics.getHeight() / 2 + 150;
+        int startY = Gdx.graphics.getHeight() / 2 + 180;
         
         // Character Name field
+        font.getData().setScale(1.0f);
+        font.draw(batch, "Character Name:", 20, startY);
         font.getData().setScale(1.2f);
-        font.draw(batch, "Character Name:", centerX - 300, startY);
         String characterText = characterNameInput.toString();
         if (cursorVisible) characterText += "|";
-        font.draw(batch, characterText, centerX + 50, startY);
+        font.draw(batch, characterText, 20, startY - 30);
         
-        // Gender label and selection
-        font.draw(batch, "Gender:", centerX - 300, startY - 70);
+        // Gender label
+        font.getData().setScale(1.0f);
+        font.draw(batch, "Gender:", 20, startY - 100);
         
-        // Difficulty label and selection
-        font.draw(batch, "Difficulty:", centerX - 300, startY - 140);
+        // Difficulty label
+        font.draw(batch, "Difficulty:", 20, startY - 250);
         
         batch.end();
         
