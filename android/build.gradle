@@ -33,7 +33,7 @@ android {
   defaultConfig {
     applicationId 'eb.framework1'
     minSdkVersion 21
-    targetSdkVersion 35
+    targetSdkVersion 34
     versionCode 1
     versionName "1.0"
   }
