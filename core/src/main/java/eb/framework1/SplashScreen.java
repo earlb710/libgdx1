@@ -3,6 +3,7 @@ package eb.framework1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,6 +19,7 @@ public class SplashScreen implements Screen {
     private BitmapFont buttonFont;
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
+    private Texture logo;
     
     // Game title
     private static final String GAME_TITLE = "Veritas Detegere";
@@ -43,6 +45,7 @@ public class SplashScreen implements Screen {
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         this.glyphLayout = new GlyphLayout();
+        this.logo = new Texture("logo.png");
         
         // Create fonts
         this.titleFont = new BitmapFont();
@@ -84,8 +87,13 @@ public class SplashScreen implements Screen {
         // Clear screen with dark background
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
         
-        // Draw title and subtitle
+        // Draw logo, title and subtitle
         batch.begin();
+        
+        // Logo above title
+        float logoX = (Gdx.graphics.getWidth() - logo.getWidth()) / 2;
+        float logoY = Gdx.graphics.getHeight() / 2 + 220;
+        batch.draw(logo, logoX, logoY);
         
         // Title: "Veritas Detegere"
         glyphLayout.setText(titleFont, GAME_TITLE);
@@ -203,6 +211,9 @@ public class SplashScreen implements Screen {
         }
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
+        }
+        if (logo != null) {
+            logo.dispose();
         }
     }
 }
