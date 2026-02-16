@@ -43,16 +43,16 @@
     ┌────────────────────────┐  ┌─────────────────────────┐
     │ ProfileCreationScreen  │  │ ProfileSelectionScreen  │
     │                        │  │                         │
-    │ Profile Name: [____]   │  │ ┌─────────────────────┐ │
-    │ Character Name: [____] │  │ │ Profile1            │ │
-    │                        │  │ │ Hero (Male) - Normal│ │
-    │ Gender:                │  │ └─────────────────────┘ │
-    │  [Male] [Female]       │  │                         │
-    │                        │  │ ┌─────────────────────┐ │
-    │ Difficulty:            │  │ │ Profile2            │ │
-    │  [Easy][Normal][Hard]  │  │ │ Mage (Female) - Hard│ │
-    │                        │  │ └─────────────────────┘ │
-    │ [Create] [Cancel]      │  │                         │
+    │ Character Name: [____] │  │ ┌─────────────────────┐ │
+    │                        │  │ │ Hero                │ │
+    │ Gender:                │  │ │ Male - Normal       │ │
+    │  [Male] [Female]       │  │ └─────────────────────┘ │
+    │                        │  │                         │
+    │ Difficulty:            │  │ ┌─────────────────────┐ │
+    │  [Easy][Normal][Hard]  │  │ │ Mage                │ │
+    │                        │  │ │ Female - Hard       │ │
+    │ [Create] [Cancel]      │  │ └─────────────────────┘ │
+    └────────────────────────┘  │                         │
     │                        │  │ [+ Create New Profile]  │
     └────────────────────────┘  │ [Back]                  │
                    │            └─────────────────────────┘
@@ -102,21 +102,20 @@
   - User clicks "Create New Profile" from selection
 - **Purpose**: Create game profile
 - **Inputs**:
-  - Profile Name (save identifier)
-  - Character Name (in-game name)
+  - Character Name (serves as both profile identifier and in-game name)
   - Gender: Male / Female
   - Difficulty: Easy / Normal / Hard
 - **Actions**:
   - Create: Save profile and start game
   - Cancel: Back to selection (if profiles exist) or splash
-- **Features**: Tab key switches fields, Enter creates
+- **Features**: Enter creates profile, visual hover effects
 
 ### 4. ProfileSelectionScreen
 - **When**: Profiles exist and user clicks Play
 - **Purpose**: Choose which profile to play
 - **Display**: List of profiles with:
-  - Profile name
-  - Character name, gender, difficulty
+  - Character name (profile identifier)
+  - Gender and difficulty
 - **Actions**:
   - Click profile: Select and start game
   - Create New: Go to creation screen

@@ -7,8 +7,7 @@ This document describes the profile selection and creation system for the Verita
 
 ### Profile System
 - **Profile Data**: Each profile contains:
-  - Profile Name (2-20 characters)
-  - Character Name (2-20 characters)
+  - Character Name (2-20 characters) - serves as both profile identifier and in-game name
   - Gender (Male/Female)
   - Difficulty (Easy/Normal/Hard)
 
@@ -41,24 +40,20 @@ This document describes the profile selection and creation system for the Verita
 **Purpose**: Create a new game profile
 
 **Features**:
-- Two text input fields:
-  - Profile Name (identifier for save file)
-  - Character Name (in-game character name)
+- Character Name input field (serves as both profile identifier and in-game character name)
 - Gender selection buttons (Male/Female)
 - Difficulty selection buttons (Easy/Normal/Hard)
-- Tab key to switch between input fields
 - Visual feedback with hover effects
-- Create button (enabled when both names have 2+ characters)
+- Create button (enabled when character name has 2+ characters)
 - Cancel button (returns to profile list if profiles exist, splash otherwise)
 
 **Keyboard Shortcuts**:
-- Tab: Switch between profile name and character name fields
 - Enter: Create profile (if valid)
 - Backspace: Delete character
 
 **Validation**:
-- Both names must be 2-20 characters
-- Profile name must be unique (case-insensitive)
+- Character name must be 2-20 characters
+- Character name must be unique (case-insensitive)
 - All fields are required
 
 ### ProfileSelectionScreen
@@ -75,8 +70,8 @@ This document describes the profile selection and creation system for the Verita
 
 **Profile Display Format**:
 ```
-[Profile Name]
-CharacterName (Gender) - Difficulty
+[Character Name]
+Gender - Difficulty
 ```
 
 ## Technical Implementation
@@ -85,19 +80,19 @@ CharacterName (Gender) - Difficulty
 Simple data class storing profile information with validation.
 
 ```java
-Profile(String name, String characterName, String gender, String difficulty)
+Profile(String characterName, String gender, String difficulty)
 ```
 
 ### Class: ProfileManager
 Manages all profile operations:
 
 **Methods**:
-- `createProfile(name, characterName, gender, difficulty)` → Profile
+- `createProfile(characterName, gender, difficulty)` → Profile
 - `selectProfile(profile)` → void
 - `getSelectedProfile()` → Profile
 - `getProfiles()` → List<Profile>
 - `hasProfiles()` → boolean
-- `getProfileByName(name)` → Profile
+- `getProfileByName(characterName)` → Profile
 
 **Storage**:
 - Preferences key: "framework1.profiles"
@@ -138,10 +133,10 @@ Profiles are stored in LibGDX Preferences with the following structure:
 ```json
 {
   "profiles": [
-    "{\"name\":\"Profile1\",\"characterName\":\"Hero\",\"gender\":\"Male\",\"difficulty\":\"Normal\"}",
-    "{\"name\":\"Profile2\",\"characterName\":\"Warrior\",\"gender\":\"Female\",\"difficulty\":\"Hard\"}"
+    "{\"characterName\":\"Hero\",\"gender\":\"Male\",\"difficulty\":\"Normal\"}",
+    "{\"characterName\":\"Warrior\",\"gender\":\"Female\",\"difficulty\":\"Hard\"}"
   ],
-  "selectedProfile": "Profile1"
+  "selectedProfile": "Hero"
 }
 ```
 
