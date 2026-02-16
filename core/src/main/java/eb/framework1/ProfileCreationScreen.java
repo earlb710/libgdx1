@@ -244,7 +244,12 @@ public class ProfileCreationScreen implements Screen {
                     createProfile();
                 }
             } else if (cancelButton.contains(mouseX, mouseY)) {
-                game.setScreen(new SplashScreen(game));
+                // Return to profile selection if profiles exist, otherwise splash screen
+                if (game.getProfileManager().hasProfiles()) {
+                    game.setScreen(new ProfileSelectionScreen(game));
+                } else {
+                    game.setScreen(new SplashScreen(game));
+                }
             }
         }
     }
@@ -264,10 +269,7 @@ public class ProfileCreationScreen implements Screen {
                           (selectedDifficulty == 1 ? "Normal" : "Hard");
         
         try {
-            game.getProfileManager().createProfile(profileName, characterName, gender, difficulty);
-            Profile profile = game.getProfileManager().getProfiles().get(
-                game.getProfileManager().getProfiles().size() - 1
-            );
+            Profile profile = game.getProfileManager().createProfile(profileName, characterName, gender, difficulty);
             game.getProfileManager().selectProfile(profile);
             game.setScreen(new MainScreen(game));
         } catch (Exception e) {

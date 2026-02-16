@@ -42,11 +42,11 @@ public class ProfileManager {
             profiles = new ArrayList<>();
         }
         
-        // Load selected profile
+        // Load selected profile - use case-insensitive comparison for consistency
         String selectedName = preferences.getString(KEY_SELECTED_PROFILE, null);
         if (selectedName != null) {
             for (Profile profile : profiles) {
-                if (profile.getName().equals(selectedName)) {
+                if (profile.getName().equalsIgnoreCase(selectedName)) {
                     selectedProfile = profile;
                     break;
                 }
@@ -87,6 +87,16 @@ public class ProfileManager {
         Profile newProfile = new Profile(name, characterName, gender, difficulty);
         profiles.add(newProfile);
         saveProfiles();
+        return newProfile;
+    }
+    
+    public Profile getProfileByName(String name) {
+        for (Profile profile : profiles) {
+            if (profile.getName().equalsIgnoreCase(name)) {
+                return profile;
+            }
+        }
+        return null;
     }
     
     public void selectProfile(Profile profile) {

@@ -141,9 +141,7 @@ public class ProfileSelectionScreen implements Screen {
             font.draw(batch, profile.getName(), button.x + 20, button.y + button.height - 15);
             font.getData().setScale(1.0f);
             font.draw(batch, 
-                     "Character: " + profile.getCharacterName() + " | " + 
-                     profile.getGender() + " | " + 
-                     profile.getDifficulty(),
+                     profile.getCharacterName() + " (" + profile.getGender() + ") - " + profile.getDifficulty(),
                      button.x + 20, button.y + 20);
             font.getData().setScale(1.5f);
             batch.end();
