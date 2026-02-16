@@ -1,47 +1,33 @@
-# libgdx1
-A Java Libgdx game framework to see what is possible.
+# Framework1
 
-## About
-This project is a game framework built using libGDX, a cross-platform game development framework for Java.
+A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
-## Project Structure
-- **core**: Contains the main game logic and code that is shared across all platforms
-- **desktop**: Contains the desktop-specific launcher and configuration
+This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
 
-## Requirements
-- Java 17 or higher
-- Gradle (included via wrapper)
+## Platforms
 
-## Building the Project
-To build the project, run:
-```bash
-./gradlew build
-```
+- `core`: Main module with the application logic shared by all platforms.
+- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
 
-## Running the Game
-To run the desktop version:
-```bash
-./gradlew desktop:run
-```
+## Gradle
 
-## Creating a Distribution
-To create a distributable JAR file:
-```bash
-./gradlew desktop:dist
-```
-The JAR file will be located in `desktop/build/libs/`
+This project uses [Gradle](https://gradle.org/) to manage dependencies.
+The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
+Useful Gradle tasks and flags:
 
-## IDE Setup
-### IntelliJ IDEA
-1. Import the project as a Gradle project
-2. Select the root `build.gradle` file
-3. Run the desktop configuration
+- `--continue`: when using this flag, errors will not stop the tasks from running.
+- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
+- `--offline`: when using this flag, cached dependency archives will be used.
+- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
+- `build`: builds sources and archives of every project.
+- `cleanEclipse`: removes Eclipse project data.
+- `cleanIdea`: removes IntelliJ project data.
+- `clean`: removes `build` folders, which store compiled classes and built archives.
+- `eclipse`: generates Eclipse project data.
+- `idea`: generates IntelliJ project data.
+- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
+- `lwjgl3:run`: starts the application.
+- `test`: runs unit tests (if any).
 
-### Eclipse
-1. Run `./gradlew eclipse` to generate Eclipse project files
-2. Import as existing project
-
-## Resources
-- [libGDX Documentation](https://libgdx.com/dev/)
-- [libGDX Wiki](https://libgdx.com/wiki/)
-
+Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
+For example, `core:clean` removes `build` folder only from the `core` project.

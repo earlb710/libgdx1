@@ -1,12 +1,36 @@
-apply plugin: "java-library"
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-core'
 
-sourceSets.main.java.srcDirs = [ "src/main/java/" ]
+dependencies {
+  api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+  api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
+  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+  api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  api "com.crashinvaders.vfx:gdx-vfx-core:$gdxVfxCoreVersion"
+  api "com.esotericsoftware.spine:spine-libgdx:$spineRuntimeVersion"
+  api "com.github.crykn.guacamole:core:$guacamoleVersion"
+  api "com.github.crykn.guacamole:gdx:$guacamoleVersion"
+  api "com.github.crykn:libgdx-screenmanager:$screenManagerVersion"
+  api "com.github.czyzby:noise4j:$noise4jVersion"
+  api "com.github.tommyettinger:anim8-gdx:$anim8Version"
+  api "com.github.tommyettinger:cringe:$cringeVersion"
+  api "com.github.tommyettinger:gdx-TinyVG:$tinyVGVersion"
+  api "com.github.tommyettinger:libgdx-utils-box2d:$utilsBox2dVersion"
+  api "com.github.tommyettinger:libgdx-utils:$utilsVersion"
+  api "com.github.tommyettinger:make_some_noise:$makeSomeNoiseVersion"
+  api "com.github.tommyettinger:regexodus:$regExodusVersion"
+  api "com.github.tommyettinger:sjInGameConsole:$inGameConsoleVersion"
+  api "com.rafaskoberg.gdx:typing-label:$typingLabelVersion"
+  api "com.squidpony:squidlib-util:$squidlibUtilVersion"
+  api "com.squidpony:squidlib:$squidlibVersion"
+  api "com.sudoplay.joise:joise:$joiseVersion"
+  api "net.onedaybeard.artemis:artemis-odb:$artemisOdbVersion"
+  api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
+  api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
 
-eclipse.project.name = appName + "-core"
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}
