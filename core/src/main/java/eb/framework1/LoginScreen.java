@@ -19,6 +19,7 @@ public class LoginScreen implements Screen {
     private boolean cursorVisible;
     private float cursorTimer;
     private static final float CURSOR_BLINK_TIME = 0.5f;
+    // Maximum username length to prevent UI overflow and keep usernames manageable
     private static final int MAX_USERNAME_LENGTH = 20;
     
     public LoginScreen(Main game) {
@@ -112,7 +113,8 @@ public class LoginScreen implements Screen {
     
     private void login() {
         String username = usernameInput.toString().trim();
-        if (!username.isEmpty() && username.length() >= 2) {
+        // Username is already validated in keyTyped handler (minimum 2 characters)
+        if (username.length() >= 2) {
             game.getUserManager().setCurrentUser(username);
             game.setScreen(new MainScreen(game));
         }
