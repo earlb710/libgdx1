@@ -41,11 +41,18 @@ This document describes the profile selection and creation system for the Verita
 
 **Features**:
 - Character Name input field (serves as both profile identifier and in-game character name)
-- Gender selection buttons (Male/Female)
-- Difficulty selection buttons (Easy/Normal/Hard)
+- Gender selection buttons (Male/Female) - positioned horizontally
+- Difficulty selection buttons (Easy/Normal/Hard) - stacked vertically for portrait mode
 - Visual feedback with hover effects
 - Create button (enabled when character name has 2+ characters)
 - Cancel button (returns to profile list if profiles exist, splash otherwise)
+
+**Layout (Portrait Mode 480x640)**:
+- Labels on left side (x=20)
+- Input field below character name label
+- Gender buttons side-by-side (horizontal)
+- Difficulty buttons stacked (vertical)
+- All elements fit within screen bounds
 
 **Keyboard Shortcuts**:
 - Enter: Create profile (if valid)

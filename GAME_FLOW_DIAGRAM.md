@@ -49,9 +49,12 @@
     │  [Male] [Female]       │  │ └─────────────────────┘ │
     │                        │  │                         │
     │ Difficulty:            │  │ ┌─────────────────────┐ │
-    │  [Easy][Normal][Hard]  │  │ │ Mage                │ │
-    │                        │  │ │ Female - Hard       │ │
-    │ [Create] [Cancel]      │  │ └─────────────────────┘ │
+    │  [Easy]                │  │ │ Mage                │ │
+    │  [Normal]              │  │ │ Female - Hard       │ │
+    │  [Hard]                │  │ └─────────────────────┘ │
+    │                        │  │                         │
+    │ [Create] [Cancel]      │  │ [+ Create New Profile]  │
+    └────────────────────────┘  │ [Back]                  │
     └────────────────────────┘  │                         │
     │                        │  │ [+ Create New Profile]  │
     └────────────────────────┘  │ [Back]                  │
@@ -103,12 +106,13 @@
 - **Purpose**: Create game profile
 - **Inputs**:
   - Character Name (serves as both profile identifier and in-game name)
-  - Gender: Male / Female
-  - Difficulty: Easy / Normal / Hard
+  - Gender: Male / Female (horizontal buttons)
+  - Difficulty: Easy / Normal / Hard (vertical stack for portrait mode)
 - **Actions**:
   - Create: Save profile and start game
   - Cancel: Back to selection (if profiles exist) or splash
 - **Features**: Enter creates profile, visual hover effects
+- **Layout**: Optimized for portrait mode (480x640)
 
 ### 4. ProfileSelectionScreen
 - **When**: Profiles exist and user clicks Play
