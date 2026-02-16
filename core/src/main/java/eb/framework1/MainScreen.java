@@ -12,12 +12,12 @@ public class MainScreen implements Screen {
     
     public MainScreen(Main game) {
         this.game = game;
-        this.batch = new SpriteBatch();
-        this.image = new Texture("libgdx.png");
     }
     
     @Override
     public void show() {
+        this.batch = new SpriteBatch();
+        this.image = new Texture("libgdx.png");
     }
     
     @Override
@@ -46,7 +46,11 @@ public class MainScreen implements Screen {
     
     @Override
     public void dispose() {
-        batch.dispose();
-        image.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
+        if (image != null) {
+            image.dispose();
+        }
     }
 }

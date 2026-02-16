@@ -23,14 +23,18 @@ public class LoginScreen implements Screen {
     
     public LoginScreen(Main game) {
         this.game = game;
+        this.usernameInput = new StringBuilder();
+        this.cursorVisible = true;
+        this.cursorTimer = 0;
+    }
+    
+    @Override
+    public void show() {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.setColor(Color.WHITE);
         this.font.getData().setScale(2.0f);
         this.shapeRenderer = new ShapeRenderer();
-        this.usernameInput = new StringBuilder();
-        this.cursorVisible = true;
-        this.cursorTimer = 0;
         
         // Set up input processor
         Gdx.input.setInputProcessor(new InputAdapter() {
@@ -57,10 +61,6 @@ public class LoginScreen implements Screen {
                 return false;
             }
         });
-    }
-    
-    @Override
-    public void show() {
     }
     
     @Override
@@ -138,8 +138,14 @@ public class LoginScreen implements Screen {
     
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
-        shapeRenderer.dispose();
+        if (batch != null) {
+            batch.dispose();
+        }
+        if (font != null) {
+            font.dispose();
+        }
+        if (shapeRenderer != null) {
+            shapeRenderer.dispose();
+        }
     }
 }
