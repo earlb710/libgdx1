@@ -105,65 +105,53 @@ public class SplashScreen implements Screen {
     }
     
     private void drawButtons() {
+        int mouseY = getFlippedMouseY();
         int mouseX = Gdx.input.getX();
-        int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Flip Y coordinate
         
         // Draw Play button
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        if (playButton.contains(mouseX, mouseY)) {
-            shapeRenderer.setColor(buttonHoverColor);
-        } else {
-            shapeRenderer.setColor(buttonColor);
-        }
-        shapeRenderer.rect(playButton.x, playButton.y, playButton.width, playButton.height);
-        shapeRenderer.end();
-        
-        // Draw Play button border
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(playButton.x, playButton.y, playButton.width, playButton.height);
-        shapeRenderer.end();
+        drawButton(playButton, mouseX, mouseY);
+        drawButtonText(playButton, "PLAY");
         
         // Draw Quit button
+        drawButton(quitButton, mouseX, mouseY);
+        drawButtonText(quitButton, "QUIT");
+    }
+    
+    private void drawButton(Rectangle button, int mouseX, int mouseY) {
+        // Draw filled button
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        if (quitButton.contains(mouseX, mouseY)) {
+        if (button.contains(mouseX, mouseY)) {
             shapeRenderer.setColor(buttonHoverColor);
         } else {
             shapeRenderer.setColor(buttonColor);
         }
-        shapeRenderer.rect(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
+        shapeRenderer.rect(button.x, button.y, button.width, button.height);
         shapeRenderer.end();
         
-        // Draw Quit button border
+        // Draw button border
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
+        shapeRenderer.rect(button.x, button.y, button.width, button.height);
         shapeRenderer.end();
-        
-        // Draw button text
+    }
+    
+    private void drawButtonText(Rectangle button, String text) {
         batch.begin();
-        
-        // Play button text
-        String playText = "PLAY";
-        glyphLayout.setText(buttonFont, playText);
-        float playTextX = playButton.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
-        float playTextY = playButton.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
-        buttonFont.draw(batch, playText, playTextX, playTextY);
-        
-        // Quit button text
-        String quitText = "QUIT";
-        glyphLayout.setText(buttonFont, quitText);
-        float quitTextX = quitButton.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
-        float quitTextY = quitButton.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
-        buttonFont.draw(batch, quitText, quitTextX, quitTextY);
-        
+        glyphLayout.setText(buttonFont, text);
+        float textX = button.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
+        float textY = button.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
+        buttonFont.draw(batch, text, textX, textY);
         batch.end();
+    }
+    
+    private int getFlippedMouseY() {
+        return Gdx.graphics.getHeight() - Gdx.input.getY();
     }
     
     private void handleInput() {
         if (Gdx.input.justTouched()) {
             int mouseX = Gdx.input.getX();
-            int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Flip Y coordinate
+            int mouseY = getFlippedMouseY();
             
             if (playButton.contains(mouseX, mouseY)) {
                 // Start the game
