@@ -18,6 +18,7 @@ public class ProfileCreationScreen implements Screen {
     private BitmapFont labelFont;
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
+    private boolean initialized = false;
     
     // Input fields
     private StringBuilder characterNameInput;
@@ -131,7 +132,8 @@ public class ProfileCreationScreen implements Screen {
                 }
             });
             
-            Gdx.app.log("ProfileCreationScreen", "show() completed successfully");
+            initialized = true;
+            Gdx.app.log("ProfileCreationScreen", "show() completed successfully - screen ready to render");
         } catch (Exception e) {
             Gdx.app.error("ProfileCreationScreen", "Error in show(): " + e.getMessage(), e);
             throw e;
@@ -140,6 +142,13 @@ public class ProfileCreationScreen implements Screen {
     
     @Override
     public void render(float delta) {
+        // Skip rendering if not initialized yet
+        if (!initialized) {
+            Gdx.app.log("ProfileCreationScreen", "render() called but not initialized yet, skipping");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         handleInput();
         
         // Update cursor

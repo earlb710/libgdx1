@@ -20,6 +20,7 @@ public class SplashScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
     private Texture logo;
+    private boolean initialized = false;
     
     // Game title
     private static final String GAME_TITLE = "Veritas Detegere";
@@ -37,50 +38,77 @@ public class SplashScreen implements Screen {
     private Color buttonTextColor = Color.WHITE;
     
     public SplashScreen(Main game) {
+        Gdx.app.log("SplashScreen", "Constructor called");
         this.game = game;
     }
     
     @Override
     public void show() {
-        this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
-        this.glyphLayout = new GlyphLayout();
-        this.logo = new Texture("logo.png");
-        
-        // Create fonts
-        this.titleFont = new BitmapFont();
-        this.titleFont.setColor(Color.GOLD);
-        this.titleFont.getData().setScale(3.0f);
-        
-        this.subtitleFont = new BitmapFont();
-        this.subtitleFont.setColor(Color.LIGHT_GRAY);
-        this.subtitleFont.getData().setScale(1.5f);
-        
-        this.buttonFont = new BitmapFont();
-        this.buttonFont.setColor(buttonTextColor);
-        this.buttonFont.getData().setScale(2.0f);
-        
-        // Initialize button positions (will be properly set in resize)
-        int centerX = Gdx.graphics.getWidth() / 2;
-        int centerY = Gdx.graphics.getHeight() / 2;
-        
-        playButton = new Rectangle(
-            centerX - BUTTON_WIDTH / 2,
-            centerY - 20,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT
-        );
-        
-        quitButton = new Rectangle(
-            centerX - BUTTON_WIDTH / 2,
-            centerY - 100,
-            BUTTON_WIDTH,
-            BUTTON_HEIGHT
-        );
+        Gdx.app.log("SplashScreen", "show() called - initializing resources");
+        try {
+            this.batch = new SpriteBatch();
+            Gdx.app.log("SplashScreen", "SpriteBatch created");
+            
+            this.shapeRenderer = new ShapeRenderer();
+            Gdx.app.log("SplashScreen", "ShapeRenderer created");
+            
+            this.glyphLayout = new GlyphLayout();
+            Gdx.app.log("SplashScreen", "GlyphLayout created");
+            
+            this.logo = new Texture("logo.png");
+            Gdx.app.log("SplashScreen", "Logo texture loaded");
+            
+            // Create fonts
+            this.titleFont = new BitmapFont();
+            this.titleFont.setColor(Color.GOLD);
+            this.titleFont.getData().setScale(3.0f);
+            Gdx.app.log("SplashScreen", "Title font created");
+            
+            this.subtitleFont = new BitmapFont();
+            this.subtitleFont.setColor(Color.LIGHT_GRAY);
+            this.subtitleFont.getData().setScale(1.5f);
+            Gdx.app.log("SplashScreen", "Subtitle font created");
+            
+            this.buttonFont = new BitmapFont();
+            this.buttonFont.setColor(buttonTextColor);
+            this.buttonFont.getData().setScale(2.0f);
+            Gdx.app.log("SplashScreen", "Button font created");
+            
+            // Initialize button positions (will be properly set in resize)
+            int centerX = Gdx.graphics.getWidth() / 2;
+            int centerY = Gdx.graphics.getHeight() / 2;
+            
+            playButton = new Rectangle(
+                centerX - BUTTON_WIDTH / 2,
+                centerY - 20,
+                BUTTON_WIDTH,
+                BUTTON_HEIGHT
+            );
+            
+            quitButton = new Rectangle(
+                centerX - BUTTON_WIDTH / 2,
+                centerY - 100,
+                BUTTON_WIDTH,
+                BUTTON_HEIGHT
+            );
+            
+            initialized = true;
+            Gdx.app.log("SplashScreen", "Initialization complete - screen ready to render");
+        } catch (Exception e) {
+            Gdx.app.error("SplashScreen", "Error during initialization: " + e.getMessage(), e);
+            throw e;
+        }
     }
     
     @Override
     public void render(float delta) {
+        // Skip rendering if not initialized yet
+        if (!initialized) {
+            Gdx.app.log("SplashScreen", "render() called but not initialized yet, skipping");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         // Handle input
         handleInput();
         
@@ -211,6 +239,7 @@ public class SplashScreen implements Screen {
     
     @Override
     public void hide() {
+        Gdx.app.log("SplashScreen", "hide() called");
     }
     
     @Override

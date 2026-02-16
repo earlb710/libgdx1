@@ -19,6 +19,7 @@ public class ProfileSelectionScreen implements Screen {
     private BitmapFont titleFont;
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
+    private boolean initialized = false;
     
     private List<Profile> profiles;
     private List<Rectangle> profileButtons;
@@ -68,7 +69,8 @@ public class ProfileSelectionScreen implements Screen {
             Gdx.app.log("ProfileSelectionScreen", "Creating buttons...");
             createButtons();
             
-            Gdx.app.log("ProfileSelectionScreen", "show() completed successfully");
+            initialized = true;
+            Gdx.app.log("ProfileSelectionScreen", "show() completed successfully - screen ready to render");
         } catch (Exception e) {
             Gdx.app.error("ProfileSelectionScreen", "Error in show(): " + e.getMessage(), e);
             throw e;
@@ -115,6 +117,13 @@ public class ProfileSelectionScreen implements Screen {
     
     @Override
     public void render(float delta) {
+        // Skip rendering if not initialized yet
+        if (!initialized) {
+            Gdx.app.log("ProfileSelectionScreen", "render() called but not initialized yet, skipping");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         handleInput();
         
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);

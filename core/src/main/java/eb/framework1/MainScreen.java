@@ -9,6 +9,7 @@ public class MainScreen implements Screen {
     private Main game;
     private SpriteBatch batch;
     private Texture image;
+    private boolean initialized = false;
     
     public MainScreen(Main game) {
         this.game = game;
@@ -18,10 +19,17 @@ public class MainScreen implements Screen {
     public void show() {
         this.batch = new SpriteBatch();
         this.image = new Texture("libgdx.png");
+        initialized = true;
     }
     
     @Override
     public void render(float delta) {
+        // Skip rendering if not initialized yet
+        if (!initialized) {
+            ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+            return;
+        }
+        
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         batch.begin();
         batch.draw(image, 140, 210);

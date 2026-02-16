@@ -18,6 +18,7 @@ public class LoginScreen implements Screen {
     private StringBuilder usernameInput;
     private boolean cursorVisible;
     private float cursorTimer;
+    private boolean initialized = false;
     private static final float CURSOR_BLINK_TIME = 0.5f;
     // Minimum username length for validation
     private static final int MIN_USERNAME_LENGTH = 2;
@@ -64,10 +65,18 @@ public class LoginScreen implements Screen {
                 return false;
             }
         });
+        
+        initialized = true;
     }
     
     @Override
     public void render(float delta) {
+        // Skip rendering if not initialized yet
+        if (!initialized) {
+            ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+            return;
+        }
+        
         // Update cursor blinking
         cursorTimer += delta;
         if (cursorTimer >= CURSOR_BLINK_TIME) {
