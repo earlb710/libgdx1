@@ -74,11 +74,11 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Creating fonts...");
             this.font = new BitmapFont();
             this.font.setColor(Color.WHITE);
-            this.font.getData().setScale(1.5f);
+            this.font.getData().setScale(4.5f); // 3x larger (was 1.5f)
             
             this.labelFont = new BitmapFont();
             this.labelFont.setColor(Color.GOLD);
-            this.labelFont.getData().setScale(2.0f);
+            this.labelFont.getData().setScale(6.0f); // 3x larger (was 2.0f)
             
             Gdx.app.log("ProfileCreationScreen", "Getting screen dimensions...");
             int centerX = Gdx.graphics.getWidth() / 2;

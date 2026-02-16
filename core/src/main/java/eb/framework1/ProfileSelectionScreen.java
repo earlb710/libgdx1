@@ -57,11 +57,11 @@ public class ProfileSelectionScreen implements Screen {
             Gdx.app.log("ProfileSelectionScreen", "Creating fonts...");
             this.font = new BitmapFont();
             this.font.setColor(Color.WHITE);
-            this.font.getData().setScale(1.5f);
+            this.font.getData().setScale(4.5f); // 3x larger (was 1.5f)
             
             this.titleFont = new BitmapFont();
             this.titleFont.setColor(Color.GOLD);
-            this.titleFont.getData().setScale(2.5f);
+            this.titleFont.getData().setScale(7.5f); // 3x larger (was 2.5f)
             
             Gdx.app.log("ProfileSelectionScreen", "Loading profiles...");
             loadProfiles();
