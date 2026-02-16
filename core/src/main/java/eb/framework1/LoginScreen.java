@@ -19,6 +19,8 @@ public class LoginScreen implements Screen {
     private boolean cursorVisible;
     private float cursorTimer;
     private static final float CURSOR_BLINK_TIME = 0.5f;
+    // Minimum username length for validation
+    private static final int MIN_USERNAME_LENGTH = 2;
     // Maximum username length to prevent UI overflow and keep usernames manageable
     private static final int MAX_USERNAME_LENGTH = 20;
     
@@ -43,7 +45,7 @@ public class LoginScreen implements Screen {
             public boolean keyTyped(char character) {
                 if (character == '\r' || character == '\n') {
                     // Enter key
-                    if (usernameInput.toString().trim().length() >= 2) {
+                    if (usernameInput.toString().trim().length() >= MIN_USERNAME_LENGTH) {
                         login();
                     }
                     return true;
@@ -95,7 +97,7 @@ public class LoginScreen implements Screen {
         
         // Instructions
         font.getData().setScale(1.0f);
-        font.draw(batch, "Press ENTER to login (minimum 2 characters)", 
+        font.draw(batch, "Press ENTER to login (minimum " + MIN_USERNAME_LENGTH + " characters)", 
                   Gdx.graphics.getWidth() / 2 - 170, 
                   Gdx.graphics.getHeight() / 2 - 100);
         font.getData().setScale(2.0f);

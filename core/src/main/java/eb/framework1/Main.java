@@ -1,6 +1,7 @@
 package eb.framework1;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Screen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
@@ -20,5 +21,15 @@ public class Main extends Game {
     
     public UserManager getUserManager() {
         return userManager;
+    }
+    
+    @Override
+    public void setScreen(Screen screen) {
+        // Dispose old screen before setting new one
+        Screen oldScreen = getScreen();
+        super.setScreen(screen);
+        if (oldScreen != null) {
+            oldScreen.dispose();
+        }
     }
 }

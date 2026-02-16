@@ -13,6 +13,10 @@ public class UserManager {
     public UserManager() {
         preferences = Gdx.app.getPreferences(PREFS_NAME);
         currentUser = preferences.getString(KEY_USERNAME, null);
+        // Ensure loaded username is trimmed for consistency
+        if (currentUser != null) {
+            currentUser = currentUser.trim();
+        }
     }
     
     public boolean hasUser() {
