@@ -126,6 +126,13 @@ public class ProfileSelectionScreen implements Screen {
         
         handleInput();
         
+        // Check again after handleInput - might have started screen transition
+        if (!initialized) {
+            Gdx.app.log("ProfileSelectionScreen", "Screen transition started, skipping render");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
         
         batch.begin();

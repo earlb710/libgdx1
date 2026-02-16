@@ -112,6 +112,13 @@ public class SplashScreen implements Screen {
         // Handle input
         handleInput();
         
+        // Check again after handleInput - might have started screen transition
+        if (!initialized) {
+            Gdx.app.log("SplashScreen", "Screen transition started, skipping render");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         // Clear screen with dark background
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
         

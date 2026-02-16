@@ -84,6 +84,12 @@ public class LoginScreen implements Screen {
             cursorTimer = 0;
         }
         
+        // Check again - screen transition might have started from input handler
+        if (!initialized) {
+            ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+            return;
+        }
+        
         // Clear screen
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         

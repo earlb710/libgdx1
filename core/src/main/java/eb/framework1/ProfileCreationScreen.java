@@ -151,6 +151,13 @@ public class ProfileCreationScreen implements Screen {
         
         handleInput();
         
+        // Check again after handleInput - might have started screen transition
+        if (!initialized) {
+            Gdx.app.log("ProfileCreationScreen", "Screen transition started, skipping render");
+            ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+            return;
+        }
+        
         // Update cursor
         cursorTimer += delta;
         if (cursorTimer >= CURSOR_BLINK_TIME) {
