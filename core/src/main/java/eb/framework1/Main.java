@@ -25,11 +25,20 @@ public class Main extends Game {
     
     @Override
     public void setScreen(Screen screen) {
-        // Dispose old screen before setting new one
+        // Dispose old screen before setting new one to prevent resource leaks
+        // Note: LibGDX Game class does NOT automatically dispose screens
         Screen oldScreen = getScreen();
-        if (oldScreen != null) {
-            oldScreen.dispose();
+        try {
+            super.setScreen(screen);
+            if (oldScreen != null) {
+                oldScreen.dispose();
+            }
+        } catch (Exception e) {
+            // If setting new screen fails, restore old screen
+            if (oldScreen != null) {
+                super.setScreen(oldScreen);
+            }
+            throw e;
         }
-        super.setScreen(screen);
     }
 }

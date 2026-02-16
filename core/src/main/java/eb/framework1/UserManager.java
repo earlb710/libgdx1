@@ -36,6 +36,9 @@ public class UserManager {
             throw new IllegalArgumentException("Username cannot be null");
         }
         currentUser = username.trim();
+        if (currentUser.isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty");
+        }
         preferences.putString(KEY_USERNAME, currentUser);
         preferences.flush();
     }
