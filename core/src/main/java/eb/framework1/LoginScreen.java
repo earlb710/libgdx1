@@ -112,12 +112,10 @@ public class LoginScreen implements Screen {
     }
     
     private void login() {
-        String username = usernameInput.toString().trim();
         // Username is already validated in keyTyped handler (minimum 2 characters)
-        if (username.length() >= 2) {
-            game.getUserManager().setCurrentUser(username);
-            game.setScreen(new MainScreen(game));
-        }
+        String username = usernameInput.toString().trim();
+        game.getUserManager().setCurrentUser(username);
+        game.setScreen(new MainScreen(game));
     }
     
     @Override

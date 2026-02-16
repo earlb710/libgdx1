@@ -24,6 +24,9 @@ public class UserManager {
     }
     
     public void setCurrentUser(String username) {
+        if (username == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
         currentUser = username.trim();
         preferences.putString(KEY_USERNAME, currentUser);
         preferences.flush();
