@@ -127,6 +127,8 @@ public class LoginScreen implements Screen {
         String username = usernameInput.toString().trim();
         if (username.length() >= MIN_USERNAME_LENGTH) {
             game.getUserManager().setCurrentUser(username);
+            // Stop rendering before transition
+            initialized = false;
             game.setScreen(new SplashScreen(game));
         }
     }

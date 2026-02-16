@@ -264,6 +264,8 @@ public class ProfileCreationScreen implements Screen {
                     createProfile();
                 }
             } else if (cancelButton.contains(mouseX, mouseY)) {
+                // Stop rendering before transition
+                initialized = false;
                 // Return to profile selection if profiles exist, otherwise splash screen
                 if (game.getProfileManager().hasProfiles()) {
                     game.setScreen(new ProfileSelectionScreen(game));
@@ -288,6 +290,8 @@ public class ProfileCreationScreen implements Screen {
         try {
             Profile profile = game.getProfileManager().createProfile(characterName, gender, difficulty);
             game.getProfileManager().selectProfile(profile);
+            // Stop rendering before transition
+            initialized = false;
             game.setScreen(new MainScreen(game));
         } catch (Exception e) {
             Gdx.app.error("ProfileCreation", "Error creating profile: " + e.getMessage());

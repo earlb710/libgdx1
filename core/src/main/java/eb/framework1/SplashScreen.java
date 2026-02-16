@@ -194,6 +194,10 @@ public class SplashScreen implements Screen {
             if (playButton.contains(mouseX, mouseY)) {
                 Gdx.app.log("SplashScreen", "Play button clicked!");
                 try {
+                    // Stop rendering this screen before transitioning
+                    initialized = false;
+                    Gdx.app.log("SplashScreen", "Stopped rendering (initialized = false)");
+                    
                     // Check if profiles exist, show selection or creation screen
                     Gdx.app.log("SplashScreen", "Checking if profiles exist...");
                     boolean hasProfiles = game.getProfileManager().hasProfiles();
@@ -210,10 +214,13 @@ public class SplashScreen implements Screen {
                     }
                 } catch (Exception e) {
                     Gdx.app.error("SplashScreen", "Error handling Play button click: " + e.getMessage(), e);
+                    // Re-enable rendering if screen transition failed
+                    initialized = true;
                 }
             } else if (quitButton.contains(mouseX, mouseY)) {
                 // Quit the application
                 Gdx.app.log("SplashScreen", "Quit button clicked");
+                initialized = false; // Stop rendering before exit
                 Gdx.app.exit();
             }
         }

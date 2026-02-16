@@ -243,6 +243,8 @@ public class ProfileSelectionScreen implements Screen {
                 if (profileButtons.get(i).contains(mouseX, mouseY)) {
                     Profile selectedProfile = profiles.get(i);
                     game.getProfileManager().selectProfile(selectedProfile);
+                    // Stop rendering before transition
+                    initialized = false;
                     game.setScreen(new MainScreen(game));
                     return;
                 }
@@ -250,12 +252,16 @@ public class ProfileSelectionScreen implements Screen {
             
             // Check new profile button
             if (newProfileButton.contains(mouseX, mouseY)) {
+                // Stop rendering before transition
+                initialized = false;
                 game.setScreen(new ProfileCreationScreen(game));
                 return;
             }
             
             // Check back button
             if (backButton.contains(mouseX, mouseY)) {
+                // Stop rendering before transition
+                initialized = false;
                 game.setScreen(new SplashScreen(game));
                 return;
             }
