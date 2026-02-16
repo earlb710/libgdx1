@@ -1,32 +1,24 @@
 package eb.framework1;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.Game;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+public class Main extends Game {
+    private UserManager userManager;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        userManager = new UserManager();
+        
+        // Check if user exists, if not show login screen
+        if (userManager.hasUser()) {
+            setScreen(new MainScreen(this));
+        } else {
+            setScreen(new LoginScreen(this));
+        }
     }
-
-    @Override
-    public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
-    }
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        image.dispose();
+    
+    public UserManager getUserManager() {
+        return userManager;
     }
 }
