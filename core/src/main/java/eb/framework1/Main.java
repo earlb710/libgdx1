@@ -13,7 +13,7 @@ public class Main extends Game {
         
         // Check if user exists, if not show login screen
         if (userManager.hasUser()) {
-            setScreen(new MainScreen(this));
+            setScreen(new SplashScreen(this));
         } else {
             setScreen(new LoginScreen(this));
         }

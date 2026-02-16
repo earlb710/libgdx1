@@ -118,7 +118,7 @@ public class LoginScreen implements Screen {
         String username = usernameInput.toString().trim();
         if (username.length() >= MIN_USERNAME_LENGTH) {
             game.getUserManager().setCurrentUser(username);
-            game.setScreen(new MainScreen(game));
+            game.setScreen(new SplashScreen(game));
         }
     }
     
