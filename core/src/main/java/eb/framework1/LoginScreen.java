@@ -2,6 +2,7 @@ package eb.framework1;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -18,6 +19,7 @@ public class LoginScreen implements Screen {
     private boolean cursorVisible;
     private float cursorTimer;
     private static final float CURSOR_BLINK_TIME = 0.5f;
+    private static final int MAX_USERNAME_LENGTH = 20;
     
     public LoginScreen(Main game) {
         this.game = game;
@@ -30,7 +32,31 @@ public class LoginScreen implements Screen {
         this.cursorVisible = true;
         this.cursorTimer = 0;
         
-        Gdx.input.setInputProcessor(null);
+        // Set up input processor
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean keyTyped(char character) {
+                if (character == '\r' || character == '\n') {
+                    // Enter key
+                    if (usernameInput.length() > 0) {
+                        login();
+                    }
+                    return true;
+                } else if (character == '\b') {
+                    // Backspace
+                    if (usernameInput.length() > 0) {
+                        usernameInput.deleteCharAt(usernameInput.length() - 1);
+                    }
+                    return true;
+                } else if (Character.isLetterOrDigit(character) || character == ' ') {
+                    if (usernameInput.length() < MAX_USERNAME_LENGTH) {
+                        usernameInput.append(character);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
     }
     
     @Override
@@ -39,9 +65,6 @@ public class LoginScreen implements Screen {
     
     @Override
     public void render(float delta) {
-        // Handle input
-        handleInput();
-        
         // Update cursor blinking
         cursorTimer += delta;
         if (cursorTimer >= CURSOR_BLINK_TIME) {
@@ -85,32 +108,6 @@ public class LoginScreen implements Screen {
                           Gdx.graphics.getHeight() / 2 - 30, 
                           320, 40);
         shapeRenderer.end();
-    }
-    
-    private void handleInput() {
-        // Handle text input
-        for (int i = 0; i < 256; i++) {
-            if (Gdx.input.isKeyJustPressed(i)) {
-                if (i == Input.Keys.ENTER) {
-                    if (usernameInput.length() > 0) {
-                        login();
-                    }
-                } else if (i == Input.Keys.BACKSPACE) {
-                    if (usernameInput.length() > 0) {
-                        usernameInput.deleteCharAt(usernameInput.length() - 1);
-                    }
-                } else if (i == Input.Keys.SPACE) {
-                    if (usernameInput.length() < 20) {
-                        usernameInput.append(' ');
-                    }
-                } else {
-                    char c = (char) i;
-                    if (Character.isLetterOrDigit(c) && usernameInput.length() < 20) {
-                        usernameInput.append(c);
-                    }
-                }
-            }
-        }
     }
     
     private void login() {
