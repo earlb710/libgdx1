@@ -114,10 +114,7 @@ public class LoginScreen implements Screen {
         String username = usernameInput.toString().trim();
         if (!username.isEmpty()) {
             game.getUserManager().setCurrentUser(username);
-            Screen nextScreen = new MainScreen(game);
-            game.setScreen(nextScreen);
-            // Dispose this screen after transitioning
-            dispose();
+            game.setScreen(new MainScreen(game));
         }
     }
     
@@ -141,8 +138,6 @@ public class LoginScreen implements Screen {
     
     @Override
     public void dispose() {
-        // Clear input processor
-        Gdx.input.setInputProcessor(null);
         batch.dispose();
         font.dispose();
         shapeRenderer.dispose();
