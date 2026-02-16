@@ -164,14 +164,28 @@ public class SplashScreen implements Screen {
             int mouseY = getFlippedMouseY();
             
             if (playButton.contains(mouseX, mouseY)) {
-                // Check if profiles exist, show selection or creation screen
-                if (game.getProfileManager().hasProfiles()) {
-                    game.setScreen(new ProfileSelectionScreen(game));
-                } else {
-                    game.setScreen(new ProfileCreationScreen(game));
+                Gdx.app.log("SplashScreen", "Play button clicked!");
+                try {
+                    // Check if profiles exist, show selection or creation screen
+                    Gdx.app.log("SplashScreen", "Checking if profiles exist...");
+                    boolean hasProfiles = game.getProfileManager().hasProfiles();
+                    Gdx.app.log("SplashScreen", "Has profiles: " + hasProfiles);
+                    
+                    if (hasProfiles) {
+                        Gdx.app.log("SplashScreen", "Creating ProfileSelectionScreen...");
+                        game.setScreen(new ProfileSelectionScreen(game));
+                        Gdx.app.log("SplashScreen", "ProfileSelectionScreen created and set");
+                    } else {
+                        Gdx.app.log("SplashScreen", "Creating ProfileCreationScreen...");
+                        game.setScreen(new ProfileCreationScreen(game));
+                        Gdx.app.log("SplashScreen", "ProfileCreationScreen created and set");
+                    }
+                } catch (Exception e) {
+                    Gdx.app.error("SplashScreen", "Error handling Play button click: " + e.getMessage(), e);
                 }
             } else if (quitButton.contains(mouseX, mouseY)) {
                 // Quit the application
+                Gdx.app.log("SplashScreen", "Quit button clicked");
                 Gdx.app.exit();
             }
         }

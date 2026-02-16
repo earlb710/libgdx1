@@ -35,36 +35,59 @@ public class ProfileSelectionScreen implements Screen {
     private Color newButtonHoverColor = new Color(0.3f, 0.6f, 0.4f, 1f);
     
     public ProfileSelectionScreen(Main game) {
+        Gdx.app.log("ProfileSelectionScreen", "Constructor called");
         this.game = game;
+        Gdx.app.log("ProfileSelectionScreen", "Constructor completed successfully");
     }
     
     @Override
     public void show() {
-        this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
-        this.glyphLayout = new GlyphLayout();
-        
-        this.font = new BitmapFont();
-        this.font.setColor(Color.WHITE);
-        this.font.getData().setScale(1.5f);
-        
-        this.titleFont = new BitmapFont();
-        this.titleFont.setColor(Color.GOLD);
-        this.titleFont.getData().setScale(2.5f);
-        
-        loadProfiles();
-        createButtons();
+        Gdx.app.log("ProfileSelectionScreen", "show() called");
+        try {
+            Gdx.app.log("ProfileSelectionScreen", "Creating SpriteBatch...");
+            this.batch = new SpriteBatch();
+            
+            Gdx.app.log("ProfileSelectionScreen", "Creating ShapeRenderer...");
+            this.shapeRenderer = new ShapeRenderer();
+            
+            Gdx.app.log("ProfileSelectionScreen", "Creating GlyphLayout...");
+            this.glyphLayout = new GlyphLayout();
+            
+            Gdx.app.log("ProfileSelectionScreen", "Creating fonts...");
+            this.font = new BitmapFont();
+            this.font.setColor(Color.WHITE);
+            this.font.getData().setScale(1.5f);
+            
+            this.titleFont = new BitmapFont();
+            this.titleFont.setColor(Color.GOLD);
+            this.titleFont.getData().setScale(2.5f);
+            
+            Gdx.app.log("ProfileSelectionScreen", "Loading profiles...");
+            loadProfiles();
+            
+            Gdx.app.log("ProfileSelectionScreen", "Creating buttons...");
+            createButtons();
+            
+            Gdx.app.log("ProfileSelectionScreen", "show() completed successfully");
+        } catch (Exception e) {
+            Gdx.app.error("ProfileSelectionScreen", "Error in show(): " + e.getMessage(), e);
+            throw e;
+        }
     }
     
     private void loadProfiles() {
+        Gdx.app.log("ProfileSelectionScreen", "loadProfiles() called");
         profiles = game.getProfileManager().getProfiles();
+        Gdx.app.log("ProfileSelectionScreen", "Loaded " + profiles.size() + " profiles");
     }
     
     private void createButtons() {
+        Gdx.app.log("ProfileSelectionScreen", "createButtons() called");
         profileButtons = new ArrayList<>();
         
         int centerX = Gdx.graphics.getWidth() / 2;
         int startY = Gdx.graphics.getHeight() / 2 + 100;
+        Gdx.app.log("ProfileSelectionScreen", "Screen: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
         
         for (int i = 0; i < profiles.size(); i++) {
             int y = startY - (i * (BUTTON_HEIGHT + BUTTON_SPACING));

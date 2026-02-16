@@ -18,36 +18,57 @@ public class ProfileManager {
     private Json json;
     
     public ProfileManager() {
-        preferences = Gdx.app.getPreferences(PREFS_NAME);
-        json = new Json();
-        json.setOutputType(JsonWriter.OutputType.json);
-        loadProfiles();
+        Gdx.app.log("ProfileManager", "Constructor called");
+        try {
+            Gdx.app.log("ProfileManager", "Getting preferences...");
+            preferences = Gdx.app.getPreferences(PREFS_NAME);
+            
+            Gdx.app.log("ProfileManager", "Creating JSON parser...");
+            json = new Json();
+            json.setOutputType(JsonWriter.OutputType.json);
+            
+            Gdx.app.log("ProfileManager", "Loading profiles...");
+            loadProfiles();
+            
+            Gdx.app.log("ProfileManager", "Constructor completed successfully");
+        } catch (Exception e) {
+            Gdx.app.error("ProfileManager", "Error in constructor: " + e.getMessage(), e);
+            throw e;
+        }
     }
     
     private void loadProfiles() {
+        Gdx.app.log("ProfileManager", "loadProfiles() called");
         profiles = new ArrayList<>();
         String profilesJson = preferences.getString(KEY_PROFILES, "[]");
+        Gdx.app.log("ProfileManager", "Profiles JSON: " + profilesJson);
         
         try {
             // Parse JSON array of profiles
             String[] profileData = json.fromJson(String[].class, profilesJson);
+            Gdx.app.log("ProfileManager", "Parsed profile data array, length: " + (profileData != null ? profileData.length : "null"));
+            
             if (profileData != null) {
                 for (String data : profileData) {
                     ProfileData pd = json.fromJson(ProfileData.class, data);
                     profiles.add(new Profile(pd.characterName, pd.gender, pd.difficulty));
                 }
             }
+            Gdx.app.log("ProfileManager", "Loaded " + profiles.size() + " profiles successfully");
         } catch (Exception e) {
-            Gdx.app.error("ProfileManager", "Error loading profiles: " + e.getMessage());
+            Gdx.app.error("ProfileManager", "Error loading profiles: " + e.getMessage(), e);
             profiles = new ArrayList<>();
         }
         
         // Load selected profile - use case-insensitive comparison for consistency
         String selectedName = preferences.getString(KEY_SELECTED_PROFILE, null);
+        Gdx.app.log("ProfileManager", "Selected profile name: " + selectedName);
+        
         if (selectedName != null) {
             for (Profile profile : profiles) {
                 if (profile.getName().equalsIgnoreCase(selectedName)) {
                     selectedProfile = profile;
+                    Gdx.app.log("ProfileManager", "Found selected profile: " + profile.getName());
                     break;
                 }
             }
@@ -119,7 +140,9 @@ public class ProfileManager {
     }
     
     public boolean hasProfiles() {
-        return !profiles.isEmpty();
+        boolean result = !profiles.isEmpty();
+        Gdx.app.log("ProfileManager", "hasProfiles() returning: " + result);
+        return result;
     }
     
     // Helper class for JSON serialization

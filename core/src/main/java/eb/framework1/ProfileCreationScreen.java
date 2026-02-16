@@ -47,71 +47,95 @@ public class ProfileCreationScreen implements Screen {
     private Color selectedButtonColor = new Color(0.5f, 0.6f, 0.7f, 1f);
     
     public ProfileCreationScreen(Main game) {
+        Gdx.app.log("ProfileCreationScreen", "Constructor called");
         this.game = game;
         this.characterNameInput = new StringBuilder();
         this.selectedGender = 0;
         this.selectedDifficulty = 1; // Default to Normal
         this.cursorVisible = true;
         this.cursorTimer = 0;
+        Gdx.app.log("ProfileCreationScreen", "Constructor completed successfully");
     }
     
     @Override
     public void show() {
-        this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
-        this.glyphLayout = new GlyphLayout();
-        
-        this.font = new BitmapFont();
-        this.font.setColor(Color.WHITE);
-        this.font.getData().setScale(1.5f);
-        
-        this.labelFont = new BitmapFont();
-        this.labelFont.setColor(Color.GOLD);
-        this.labelFont.getData().setScale(2.0f);
-        
-        int centerX = Gdx.graphics.getWidth() / 2;
-        int centerY = Gdx.graphics.getHeight() / 2;
-        
-        createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
-        cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
-        
-        // Gender buttons - positioned to fit in portrait mode (480 width)
-        int genderY = centerY + 10;
-        int genderStartX = centerX - SMALL_BUTTON_WIDTH - 10;
-        genderMaleButton = new Rectangle(genderStartX, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        genderFemaleButton = new Rectangle(centerX + 10, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        
-        // Difficulty buttons - stacked vertically to fit in portrait mode
-        int diffY = centerY - 60;
-        diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 60, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 120, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-        
-        // Set up input processor
-        Gdx.input.setInputProcessor(new InputAdapter() {
-            @Override
-            public boolean keyTyped(char character) {
-                if (character == '\r' || character == '\n') {
-                    // Enter key - create profile
-                    if (canCreateProfile()) {
-                        createProfile();
+        Gdx.app.log("ProfileCreationScreen", "show() called");
+        try {
+            Gdx.app.log("ProfileCreationScreen", "Creating SpriteBatch...");
+            this.batch = new SpriteBatch();
+            
+            Gdx.app.log("ProfileCreationScreen", "Creating ShapeRenderer...");
+            this.shapeRenderer = new ShapeRenderer();
+            
+            Gdx.app.log("ProfileCreationScreen", "Creating GlyphLayout...");
+            this.glyphLayout = new GlyphLayout();
+            
+            Gdx.app.log("ProfileCreationScreen", "Creating fonts...");
+            this.font = new BitmapFont();
+            this.font.setColor(Color.WHITE);
+            this.font.getData().setScale(1.5f);
+            
+            this.labelFont = new BitmapFont();
+            this.labelFont.setColor(Color.GOLD);
+            this.labelFont.getData().setScale(2.0f);
+            
+            Gdx.app.log("ProfileCreationScreen", "Getting screen dimensions...");
+            int centerX = Gdx.graphics.getWidth() / 2;
+            int centerY = Gdx.graphics.getHeight() / 2;
+            Gdx.app.log("ProfileCreationScreen", "Screen: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
+            Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
+            
+            Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
+            createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+            cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Gender buttons - positioned to fit in portrait mode (480 width)
+            int genderY = centerY + 10;
+            int genderStartX = centerX - SMALL_BUTTON_WIDTH - 10;
+            genderMaleButton = new Rectangle(genderStartX, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            genderFemaleButton = new Rectangle(centerX + 10, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Difficulty buttons - stacked vertically to fit in portrait mode
+            int diffY = centerY - 60;
+            diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 60, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 120, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
+            Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);
+            
+            // Set up input processor
+            Gdx.app.log("ProfileCreationScreen", "Setting up input processor...");
+            Gdx.input.setInputProcessor(new InputAdapter() {
+                @Override
+                public boolean keyTyped(char character) {
+                    if (character == '\r' || character == '\n') {
+                        // Enter key - create profile
+                        if (canCreateProfile()) {
+                            createProfile();
+                        }
+                        return true;
+                    } else if (character == '\b') {
+                        // Backspace
+                        if (characterNameInput.length() > 0) {
+                            characterNameInput.deleteCharAt(characterNameInput.length() - 1);
+                        }
+                        return true;
+                    } else if (Character.isLetterOrDigit(character) || character == ' ') {
+                        if (characterNameInput.length() < MAX_INPUT_LENGTH) {
+                            characterNameInput.append(character);
+                        }
+                        return true;
                     }
-                    return true;
-                } else if (character == '\b') {
-                    // Backspace
-                    if (characterNameInput.length() > 0) {
-                        characterNameInput.deleteCharAt(characterNameInput.length() - 1);
-                    }
-                    return true;
-                } else if (Character.isLetterOrDigit(character) || character == ' ') {
-                    if (characterNameInput.length() < MAX_INPUT_LENGTH) {
-                        characterNameInput.append(character);
-                    }
-                    return true;
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+            
+            Gdx.app.log("ProfileCreationScreen", "show() completed successfully");
+        } catch (Exception e) {
+            Gdx.app.error("ProfileCreationScreen", "Error in show(): " + e.getMessage(), e);
+            throw e;
+        }
     }
     
     @Override
