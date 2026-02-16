@@ -94,8 +94,8 @@ public class LoginScreen implements Screen {
         
         // Instructions
         font.getData().setScale(1.0f);
-        font.draw(batch, "Press ENTER to login", 
-                  Gdx.graphics.getWidth() / 2 - 100, 
+        font.draw(batch, "Press ENTER to login (minimum 2 characters)", 
+                  Gdx.graphics.getWidth() / 2 - 170, 
                   Gdx.graphics.getHeight() / 2 - 100);
         font.getData().setScale(2.0f);
         
@@ -112,7 +112,7 @@ public class LoginScreen implements Screen {
     
     private void login() {
         String username = usernameInput.toString().trim();
-        if (!username.isEmpty()) {
+        if (!username.isEmpty() && username.length() >= 2) {
             game.getUserManager().setCurrentUser(username);
             game.setScreen(new MainScreen(game));
         }

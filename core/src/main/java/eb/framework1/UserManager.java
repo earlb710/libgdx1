@@ -16,7 +16,7 @@ public class UserManager {
     }
     
     public boolean hasUser() {
-        return currentUser != null && !currentUser.isEmpty();
+        return currentUser != null && !currentUser.trim().isEmpty();
     }
     
     public String getCurrentUser() {
