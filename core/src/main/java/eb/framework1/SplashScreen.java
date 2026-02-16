@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -13,14 +14,17 @@ public class SplashScreen implements Screen {
     private Main game;
     private SpriteBatch batch;
     private BitmapFont titleFont;
+    private BitmapFont subtitleFont;
     private BitmapFont buttonFont;
     private ShapeRenderer shapeRenderer;
+    private GlyphLayout glyphLayout;
     
     // Button dimensions and positions
     private Rectangle playButton;
     private Rectangle quitButton;
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 60;
+    private static final int BUTTON_TEXT_Y_OFFSET = 10;
     
     // Colors
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
@@ -35,11 +39,16 @@ public class SplashScreen implements Screen {
     public void show() {
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
+        this.glyphLayout = new GlyphLayout();
         
         // Create fonts
         this.titleFont = new BitmapFont();
         this.titleFont.setColor(Color.GOLD);
         this.titleFont.getData().setScale(3.0f);
+        
+        this.subtitleFont = new BitmapFont();
+        this.subtitleFont.setColor(Color.LIGHT_GRAY);
+        this.subtitleFont.getData().setScale(1.5f);
         
         this.buttonFont = new BitmapFont();
         this.buttonFont.setColor(buttonTextColor);
@@ -72,24 +81,22 @@ public class SplashScreen implements Screen {
         // Clear screen with dark background
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
         
-        // Draw title
+        // Draw title and subtitle
         batch.begin();
         
         // Title: "Veritas Detegere"
         String title = "Veritas Detegere";
-        float titleX = Gdx.graphics.getWidth() / 2 - 200;
+        glyphLayout.setText(titleFont, title);
+        float titleX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         float titleY = Gdx.graphics.getHeight() / 2 + 150;
         titleFont.draw(batch, title, titleX, titleY);
         
         // Subtitle: "A Detective Game"
-        titleFont.getData().setScale(1.5f);
-        titleFont.setColor(Color.LIGHT_GRAY);
         String subtitle = "A Detective Game";
-        float subtitleX = Gdx.graphics.getWidth() / 2 - 100;
+        glyphLayout.setText(subtitleFont, subtitle);
+        float subtitleX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         float subtitleY = Gdx.graphics.getHeight() / 2 + 100;
-        titleFont.draw(batch, subtitle, subtitleX, subtitleY);
-        titleFont.getData().setScale(3.0f);
-        titleFont.setColor(Color.GOLD);
+        subtitleFont.draw(batch, subtitle, subtitleX, subtitleY);
         
         batch.end();
         
@@ -138,14 +145,16 @@ public class SplashScreen implements Screen {
         
         // Play button text
         String playText = "PLAY";
-        float playTextX = playButton.x + BUTTON_WIDTH / 2 - 35;
-        float playTextY = playButton.y + BUTTON_HEIGHT / 2 + 10;
+        glyphLayout.setText(buttonFont, playText);
+        float playTextX = playButton.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
+        float playTextY = playButton.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
         buttonFont.draw(batch, playText, playTextX, playTextY);
         
         // Quit button text
         String quitText = "QUIT";
-        float quitTextX = quitButton.x + BUTTON_WIDTH / 2 - 35;
-        float quitTextY = quitButton.y + BUTTON_HEIGHT / 2 + 10;
+        glyphLayout.setText(buttonFont, quitText);
+        float quitTextX = quitButton.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
+        float quitTextY = quitButton.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
         buttonFont.draw(batch, quitText, quitTextX, quitTextY);
         
         batch.end();
@@ -195,6 +204,9 @@ public class SplashScreen implements Screen {
         }
         if (titleFont != null) {
             titleFont.dispose();
+        }
+        if (subtitleFont != null) {
+            subtitleFont.dispose();
         }
         if (buttonFont != null) {
             buttonFont.dispose();
