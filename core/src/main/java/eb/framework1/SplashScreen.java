@@ -19,12 +19,15 @@ public class SplashScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
     
+    // Game title
+    private static final String GAME_TITLE = "Veritas Detegere";
+    private static final String GAME_SUBTITLE = "A Detective Game";
+    
     // Button dimensions and positions
     private Rectangle playButton;
     private Rectangle quitButton;
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 60;
-    private static final int BUTTON_TEXT_Y_OFFSET = 10;
     
     // Colors
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
@@ -85,18 +88,16 @@ public class SplashScreen implements Screen {
         batch.begin();
         
         // Title: "Veritas Detegere"
-        String title = "Veritas Detegere";
-        glyphLayout.setText(titleFont, title);
+        glyphLayout.setText(titleFont, GAME_TITLE);
         float titleX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         float titleY = Gdx.graphics.getHeight() / 2 + 150;
-        titleFont.draw(batch, title, titleX, titleY);
+        titleFont.draw(batch, GAME_TITLE, titleX, titleY);
         
         // Subtitle: "A Detective Game"
-        String subtitle = "A Detective Game";
-        glyphLayout.setText(subtitleFont, subtitle);
+        glyphLayout.setText(subtitleFont, GAME_SUBTITLE);
         float subtitleX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         float subtitleY = Gdx.graphics.getHeight() / 2 + 100;
-        subtitleFont.draw(batch, subtitle, subtitleX, subtitleY);
+        subtitleFont.draw(batch, GAME_SUBTITLE, subtitleX, subtitleY);
         
         batch.end();
         
@@ -139,7 +140,8 @@ public class SplashScreen implements Screen {
         batch.begin();
         glyphLayout.setText(buttonFont, text);
         float textX = button.x + (BUTTON_WIDTH - glyphLayout.width) / 2;
-        float textY = button.y + BUTTON_HEIGHT / 2 + BUTTON_TEXT_Y_OFFSET;
+        // Center text vertically using glyph height
+        float textY = button.y + (BUTTON_HEIGHT + glyphLayout.height) / 2;
         buttonFont.draw(batch, text, textX, textY);
         batch.end();
     }
