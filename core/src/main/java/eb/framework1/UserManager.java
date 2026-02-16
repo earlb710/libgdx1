@@ -16,6 +16,10 @@ public class UserManager {
         // Ensure loaded username is trimmed for consistency
         if (currentUser != null) {
             currentUser = currentUser.trim();
+            // Clear empty strings
+            if (currentUser.isEmpty()) {
+                currentUser = null;
+            }
         }
     }
     

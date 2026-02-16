@@ -27,9 +27,9 @@ public class Main extends Game {
     public void setScreen(Screen screen) {
         // Dispose old screen before setting new one
         Screen oldScreen = getScreen();
-        super.setScreen(screen);
         if (oldScreen != null) {
             oldScreen.dispose();
         }
+        super.setScreen(screen);
     }
 }
