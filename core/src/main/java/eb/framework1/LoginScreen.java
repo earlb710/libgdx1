@@ -42,7 +42,7 @@ public class LoginScreen implements Screen {
             public boolean keyTyped(char character) {
                 if (character == '\r' || character == '\n') {
                     // Enter key
-                    if (usernameInput.length() > 0) {
+                    if (usernameInput.toString().trim().length() >= 2) {
                         login();
                     }
                     return true;

@@ -24,8 +24,8 @@ public class UserManager {
     }
     
     public void setCurrentUser(String username) {
-        currentUser = username;
-        preferences.putString(KEY_USERNAME, username);
+        currentUser = username.trim();
+        preferences.putString(KEY_USERNAME, currentUser);
         preferences.flush();
     }
 }
