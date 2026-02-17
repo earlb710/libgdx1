@@ -34,7 +34,7 @@ public class CharacterAttributeScreen implements Screen {
     private Map<CharacterAttribute, Integer> attributeValues;
     
     // Point allocation
-    private static final int TOTAL_POINTS = 30;
+    private static final int TOTAL_POINTS = 10;  // 10 distributable points above minimum
     private static final int MIN_ATTRIBUTE_VALUE = 1;
     private static final int MAX_ATTRIBUTE_VALUE = 10;
     private int pointsRemaining;

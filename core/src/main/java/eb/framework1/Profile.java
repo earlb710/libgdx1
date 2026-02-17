@@ -48,6 +48,10 @@ public class Profile {
     }
     
     public Map<String, Integer> getAttributes() {
+        // Always return a non-null map for backwards compatibility
+        if (attributes == null) {
+            attributes = new HashMap<>();
+        }
         return new HashMap<>(attributes);
     }
     
