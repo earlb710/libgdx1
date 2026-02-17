@@ -94,18 +94,30 @@ public class ProfileCreationScreen implements Screen {
             // Using the same startY as in render() for consistency
             int startY = Gdx.graphics.getHeight() - 200;
             
-            // Gender buttons - positioned below "Gender:" label
-            // Gender label is at startY - 500, so buttons start 150px below that
-            int genderButtonY = startY - 500 - 150;  
-            genderMaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            genderFemaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Estimate character height for label alignment (approximate 1 character size)
+            glyphLayout.setText(labelFont, "A");
+            float charHeight = glyphLayout.height;
             
-            // Difficulty buttons - positioned below "Difficulty:" label
-            // Difficulty label is at startY - 820, so buttons start 150px below that
-            int diffButtonY = startY - 820 - 150;
-            diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Position buttons to the right of labels (not centered on screen)
+            // Labels are at x=20, so buttons start at x=200 to avoid overlap
+            int buttonStartX = 200;
+            
+            // Gender buttons - positioned next to "Gender:" label
+            // Gender label is at startY - 500
+            // Move buttons up by approximately 1 character height (charHeight) to align next to label
+            // Reduce gap from 150px to 60px for closer alignment
+            int genderButtonY = (int)(startY - 500 + charHeight - 60);
+            genderMaleButton = new Rectangle(buttonStartX, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Difficulty buttons - positioned next to "Difficulty:" label
+            // Difficulty label is at startY - 820
+            // Move buttons up by approximately 1 character height to align next to label
+            // Reduce gap from 150px to 60px for closer alignment
+            int diffButtonY = (int)(startY - 820 + charHeight - 60);
+            diffEasyButton = new Rectangle(buttonStartX, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffHardButton = new Rectangle(buttonStartX, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);
@@ -222,6 +234,10 @@ public class ProfileCreationScreen implements Screen {
     }
     
     private void drawButton(Rectangle button, String text, int mouseX, int mouseY, boolean selected) {
+        // Apply spacing: 4 pixels left/right, 2 pixels bottom
+        float spacingLR = 4;  // Left/Right spacing
+        float spacingB = 2;   // Bottom spacing
+        
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (selected) {
             shapeRenderer.setColor(selectedButtonColor);
@@ -230,18 +246,23 @@ public class ProfileCreationScreen implements Screen {
         } else {
             shapeRenderer.setColor(buttonColor);
         }
-        shapeRenderer.rect(button.x, button.y, button.width, button.height);
+        // Apply inset padding to the button rectangle
+        shapeRenderer.rect(button.x + spacingLR, button.y + spacingB, 
+                          button.width - (spacingLR * 2), button.height - spacingB);
         shapeRenderer.end();
         
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(button.x, button.y, button.width, button.height);
+        // Border also gets the same padding
+        shapeRenderer.rect(button.x + spacingLR, button.y + spacingB, 
+                          button.width - (spacingLR * 2), button.height - spacingB);
         shapeRenderer.end();
         
         batch.begin();
         glyphLayout.setText(buttonFont, text);
-        float textX = button.x + (button.width - glyphLayout.width) / 2;
-        float textY = button.y + (button.height + glyphLayout.height) / 2;
+        // Center text within the padded button area
+        float textX = button.x + spacingLR + ((button.width - (spacingLR * 2)) - glyphLayout.width) / 2;
+        float textY = button.y + spacingB + ((button.height - spacingB) + glyphLayout.height) / 2;
         buttonFont.draw(batch, text, textX, textY);
         batch.end();
     }
