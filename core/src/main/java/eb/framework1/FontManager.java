@@ -30,30 +30,30 @@ public class FontManager implements Disposable {
     private float density;
     
     // Font size in density-independent pixels (dp) for consistent sizing
-    // These are absolute dp values that work well across all screen sizes
+    // These are absolute dp values optimized for mobile screens
     // 
-    // Example font sizes:
-    // - Title: 32dp - Large headers and titles
-    // - Subtitle: 24dp - Section headers
-    // - Body: 18dp - Regular text, buttons
-    // - Small: 14dp - Small details, hints
+    // Increased font sizes for better readability:
+    // - Title: 80dp - Large headers and titles
+    // - Subtitle: 60dp - Section headers, input text
+    // - Body: 45dp - Regular text, buttons
+    // - Small: 35dp - Small details, hints
     //
     // These dp values will be multiplied by density to get actual pixel sizes:
     // 
     // At density 1.5 (low-DPI):
-    //   Title: 32 * 1.5 = 48px
-    //   Body: 18 * 1.5 = 27px
+    //   Title: 80 * 1.5 = 120px
+    //   Body: 45 * 1.5 = 67.5px
     // 
     // At density 3.0 (high-DPI):
-    //   Title: 32 * 3.0 = 96px
-    //   Body: 18 * 3.0 = 54px
+    //   Title: 80 * 3.0 = 240px
+    //   Body: 45 * 3.0 = 135px
     //
-    // This ensures consistent physical size regardless of screen resolution
+    // This ensures consistent physical size and good readability on all devices
     //
-    private static final int TITLE_SIZE_DP = 32;    // Large titles
-    private static final int SUBTITLE_SIZE_DP = 24; // Subtitles
-    private static final int BODY_SIZE_DP = 18;     // Body text, buttons
-    private static final int SMALL_SIZE_DP = 14;    // Small text
+    private static final int TITLE_SIZE_DP = 80;    // Large titles
+    private static final int SUBTITLE_SIZE_DP = 60; // Subtitles, input text
+    private static final int BODY_SIZE_DP = 45;     // Body text, buttons
+    private static final int SMALL_SIZE_DP = 35;    // Small text
     
     /**
      * Initialize FontManager with current screen dimensions.
@@ -158,35 +158,36 @@ public class FontManager implements Disposable {
     }
     
     /**
-     * Fallback: Generate fonts using BitmapFont with minimal scaling.
+     * Fallback: Generate fonts using BitmapFont with larger scaling.
      * Used when FreeTypeFontGenerator is not available.
      * 
-     * BitmapFont scales poorly, so we use small scales to minimize pixelation.
+     * Note: BitmapFont scales poorly and will show some pixelation at large scales.
+     * For best quality, add a TTF font file to assets/font.ttf.
      */
     private void generateFontsWithBitmapFont() {
-        Gdx.app.log("FontManager", "Using BitmapFont fallback with fixed small scales");
+        Gdx.app.log("FontManager", "Using BitmapFont fallback with larger scales");
         Gdx.app.log("FontManager", "WARNING: BitmapFont will be pixelated. Add a TTF font to assets/font.ttf for better quality.");
         
-        // Use fixed, small scale values to minimize pixelation
-        // These are intentionally conservative to reduce visual artifacts
+        // Use larger scale values for better readability
+        // There will be some pixelation, but fonts will be appropriately sized
         
         titleFont = new BitmapFont();
         titleFont.setColor(Color.GOLD);
-        titleFont.getData().setScale(2.0f);  // 2x scale - moderate size
+        titleFont.getData().setScale(6.0f);  // 6x scale - large titles
         
         subtitleFont = new BitmapFont();
         subtitleFont.setColor(Color.LIGHT_GRAY);
-        subtitleFont.getData().setScale(1.5f);  // 1.5x scale
+        subtitleFont.getData().setScale(4.5f);  // 4.5x scale - medium-large
         
         bodyFont = new BitmapFont();
         bodyFont.setColor(Color.WHITE);
-        bodyFont.getData().setScale(1.2f);  // 1.2x scale - slightly larger than default
+        bodyFont.getData().setScale(3.5f);  // 3.5x scale - readable size
         
         smallFont = new BitmapFont();
         smallFont.setColor(Color.LIGHT_GRAY);
-        smallFont.getData().setScale(1.0f);  // 1x scale - default size
+        smallFont.getData().setScale(2.5f);  // 2.5x scale - visible details
         
-        Gdx.app.log("FontManager", "BitmapFont scales - Title: 2.0x, Subtitle: 1.5x, Body: 1.2x, Small: 1.0x");
+        Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x");
         Gdx.app.log("FontManager", "To eliminate pixelation, add a TrueType font file to assets/font.ttf");
     }
     
