@@ -8,11 +8,15 @@ import com.badlogic.gdx.Screen;
 public class Main extends Game {
     private UserManager userManager;
     private ProfileManager profileManager;
+    private FontManager fontManager;
 
     @Override
     public void create() {
         Gdx.app.log("Main", "create() called");
         try {
+            Gdx.app.log("Main", "Creating FontManager...");
+            fontManager = new FontManager();
+            
             Gdx.app.log("Main", "Creating UserManager...");
             userManager = new UserManager();
             
@@ -42,6 +46,10 @@ public class Main extends Game {
         return profileManager;
     }
     
+    public FontManager getFontManager() {
+        return fontManager;
+    }
+    
     @Override
     public void setScreen(Screen screen) {
         Gdx.app.log("Main", "setScreen() called with: " + screen.getClass().getSimpleName());
@@ -67,5 +75,14 @@ public class Main extends Game {
             Gdx.app.error("Main", "Error in setScreen(): " + e.getMessage(), e);
             throw e;
         }
+    }
+    
+    @Override
+    public void dispose() {
+        Gdx.app.log("Main", "dispose() called");
+        if (fontManager != null) {
+            fontManager.dispose();
+        }
+        super.dispose();
     }
 }

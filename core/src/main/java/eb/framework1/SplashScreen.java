@@ -21,6 +21,7 @@ public class SplashScreen implements Screen {
     private GlyphLayout glyphLayout;
     private Texture logo;
     private boolean initialized = false;
+    private FontManager fontManager;
     
     // Game title
     private static final String GAME_TITLE = "Veritas Detegere";
@@ -58,21 +59,18 @@ public class SplashScreen implements Screen {
             this.logo = new Texture("logo.png");
             Gdx.app.log("SplashScreen", "Logo texture loaded");
             
-            // Create fonts
-            this.titleFont = new BitmapFont();
-            this.titleFont.setColor(Color.GOLD);
-            this.titleFont.getData().setScale(12.0f);  // Increased from 3.0f
-            Gdx.app.log("SplashScreen", "Title font created");
+            // Get FontManager from Main game
+            this.fontManager = game.getFontManager();
             
-            this.subtitleFont = new BitmapFont();
-            this.subtitleFont.setColor(Color.LIGHT_GRAY);
-            this.subtitleFont.getData().setScale(8.0f);  // Increased from 1.5f
-            Gdx.app.log("SplashScreen", "Subtitle font created");
+            // Use viewport-based fonts from FontManager
+            this.titleFont = fontManager.getTitleFont();
+            Gdx.app.log("SplashScreen", "Title font retrieved from FontManager");
             
-            this.buttonFont = new BitmapFont();
-            this.buttonFont.setColor(buttonTextColor);
-            this.buttonFont.getData().setScale(10.0f);  // Increased from 2.0f
-            Gdx.app.log("SplashScreen", "Button font created");
+            this.subtitleFont = fontManager.getSubtitleFont();
+            Gdx.app.log("SplashScreen", "Subtitle font retrieved from FontManager");
+            
+            this.buttonFont = fontManager.getBodyFont();
+            Gdx.app.log("SplashScreen", "Button font retrieved from FontManager");
             
             // Initialize button positions (will be properly set in resize)
             int centerX = Gdx.graphics.getWidth() / 2;
@@ -261,15 +259,8 @@ public class SplashScreen implements Screen {
         if (batch != null) {
             batch.dispose();
         }
-        if (titleFont != null) {
-            titleFont.dispose();
-        }
-        if (subtitleFont != null) {
-            subtitleFont.dispose();
-        }
-        if (buttonFont != null) {
-            buttonFont.dispose();
-        }
+        // Fonts are managed by FontManager, don't dispose them here
+        // FontManager will dispose all fonts when the game exits
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
         }

@@ -19,6 +19,7 @@ public class LoginScreen implements Screen {
     private boolean cursorVisible;
     private float cursorTimer;
     private boolean initialized = false;
+    private FontManager fontManager;
     private static final float CURSOR_BLINK_TIME = 0.5f;
     // Minimum username length for validation
     private static final int MIN_USERNAME_LENGTH = 2;
@@ -35,10 +36,11 @@ public class LoginScreen implements Screen {
     @Override
     public void show() {
         this.batch = new SpriteBatch();
-        this.font = new BitmapFont();
-        this.font.setColor(Color.WHITE);
-        this.font.getData().setScale(10.0f);  // Increased from 2.0f
         this.shapeRenderer = new ShapeRenderer();
+        
+        // Get FontManager from Main game
+        this.fontManager = game.getFontManager();
+        this.font = fontManager.getBodyFont();
         
         // Set up input processor
         Gdx.input.setInputProcessor(new InputAdapter() {
@@ -110,12 +112,11 @@ public class LoginScreen implements Screen {
                   Gdx.graphics.getWidth() / 2 - 150, 
                   Gdx.graphics.getHeight() / 2);
         
-        // Instructions
-        font.getData().setScale(6.0f);  // Increased from 1.0f
-        font.draw(batch, "Press ENTER to login (minimum " + MIN_USERNAME_LENGTH + " characters)", 
+        // Instructions - use small font from FontManager
+        BitmapFont smallFont = fontManager.getSmallFont();
+        smallFont.draw(batch, "Press ENTER to login (minimum " + MIN_USERNAME_LENGTH + " characters)", 
                   Gdx.graphics.getWidth() / 2 - 170, 
                   Gdx.graphics.getHeight() / 2 - 100);
-        font.getData().setScale(10.0f);  // Increased from 2.0f
         
         batch.end();
         
@@ -162,9 +163,7 @@ public class LoginScreen implements Screen {
         if (batch != null) {
             batch.dispose();
         }
-        if (font != null) {
-            font.dispose();
-        }
+        // Fonts are managed by FontManager, don't dispose them here
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
         }
