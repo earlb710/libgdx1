@@ -61,17 +61,17 @@ public class SplashScreen implements Screen {
             // Create fonts
             this.titleFont = new BitmapFont();
             this.titleFont.setColor(Color.GOLD);
-            this.titleFont.getData().setScale(3.0f);
+            this.titleFont.getData().setScale(12.0f);  // Increased from 3.0f
             Gdx.app.log("SplashScreen", "Title font created");
             
             this.subtitleFont = new BitmapFont();
             this.subtitleFont.setColor(Color.LIGHT_GRAY);
-            this.subtitleFont.getData().setScale(1.5f);
+            this.subtitleFont.getData().setScale(8.0f);  // Increased from 1.5f
             Gdx.app.log("SplashScreen", "Subtitle font created");
             
             this.buttonFont = new BitmapFont();
             this.buttonFont.setColor(buttonTextColor);
-            this.buttonFont.getData().setScale(2.0f);
+            this.buttonFont.getData().setScale(10.0f);  // Increased from 2.0f
             Gdx.app.log("SplashScreen", "Button font created");
             
             // Initialize button positions (will be properly set in resize)

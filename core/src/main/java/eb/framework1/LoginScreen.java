@@ -37,7 +37,7 @@ public class LoginScreen implements Screen {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.setColor(Color.WHITE);
-        this.font.getData().setScale(2.0f);
+        this.font.getData().setScale(10.0f);  // Increased from 2.0f
         this.shapeRenderer = new ShapeRenderer();
         
         // Set up input processor
@@ -111,11 +111,11 @@ public class LoginScreen implements Screen {
                   Gdx.graphics.getHeight() / 2);
         
         // Instructions
-        font.getData().setScale(1.0f);
+        font.getData().setScale(6.0f);  // Increased from 1.0f
         font.draw(batch, "Press ENTER to login (minimum " + MIN_USERNAME_LENGTH + " characters)", 
                   Gdx.graphics.getWidth() / 2 - 170, 
                   Gdx.graphics.getHeight() / 2 - 100);
-        font.getData().setScale(2.0f);
+        font.getData().setScale(10.0f);  // Increased from 2.0f
         
         batch.end();
         

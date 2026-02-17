@@ -170,27 +170,27 @@ public class ProfileCreationScreen implements Screen {
         batch.begin();
         
         // Title
-        labelFont.getData().setScale(1.5f);
+        labelFont.getData().setScale(9.0f);  // Increased from 1.5f
         String titleText = "Create Profile";
         glyphLayout.setText(labelFont, titleText);
         labelFont.draw(batch, titleText, 
                       (Gdx.graphics.getWidth() - glyphLayout.width) / 2, 
                       Gdx.graphics.getHeight() - 50);
-        labelFont.getData().setScale(2.0f);
+        labelFont.getData().setScale(10.0f);  // Increased from 2.0f
         
         int centerX = Gdx.graphics.getWidth() / 2;
         int startY = Gdx.graphics.getHeight() / 2 + 180;
         
         // Character Name field
-        font.getData().setScale(1.0f);
+        font.getData().setScale(6.0f);  // Increased from 1.0f
         font.draw(batch, "Character Name:", 20, startY);
-        font.getData().setScale(1.2f);
+        font.getData().setScale(7.0f);  // Increased from 1.2f
         String characterText = characterNameInput.toString();
         if (cursorVisible) characterText += "|";
         font.draw(batch, characterText, 20, startY - 30);
         
         // Gender label
-        font.getData().setScale(1.0f);
+        font.getData().setScale(6.0f);  // Increased from 1.0f
         font.draw(batch, "Gender:", 20, startY - 100);
         
         // Difficulty label
@@ -202,7 +202,7 @@ public class ProfileCreationScreen implements Screen {
         drawButtons();
         
         batch.begin();
-        font.getData().setScale(1.5f);
+        font.getData().setScale(7.0f);  // Increased from 1.5f
         batch.end();
     }
     
@@ -242,12 +242,12 @@ public class ProfileCreationScreen implements Screen {
         shapeRenderer.end();
         
         batch.begin();
-        font.getData().setScale(1.2f);
+        font.getData().setScale(7.0f);  // Increased from 1.2f
         glyphLayout.setText(font, text);
         float textX = button.x + (button.width - glyphLayout.width) / 2;
         float textY = button.y + (button.height + glyphLayout.height) / 2;
         font.draw(batch, text, textX, textY);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(7.0f);  // Increased from 1.5f
         batch.end();
     }
     

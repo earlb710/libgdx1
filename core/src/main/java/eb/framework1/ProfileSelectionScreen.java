@@ -176,13 +176,13 @@ public class ProfileSelectionScreen implements Screen {
             
             // Draw profile info
             batch.begin();
-            font.getData().setScale(1.5f);
+            font.getData().setScale(8.0f);  // Increased from 1.5f
             font.draw(batch, profile.getName(), button.x + 20, button.y + button.height - 15);
-            font.getData().setScale(1.0f);
+            font.getData().setScale(6.0f);  // Increased from 1.0f
             font.draw(batch, 
                      profile.getCharacterName() + " (" + profile.getGender() + ") - " + profile.getDifficulty(),
                      button.x + 20, button.y + 20);
-            font.getData().setScale(1.5f);
+            font.getData().setScale(8.0f);  // Increased from 1.5f
             batch.end();
         }
         
@@ -231,12 +231,12 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.end();
         
         batch.begin();
-        font.getData().setScale(1.2f);
+        font.getData().setScale(7.0f);  // Increased from 1.2f
         glyphLayout.setText(font, text);
         float textX = button.x + (button.width - glyphLayout.width) / 2;
         float textY = button.y + (button.height + glyphLayout.height) / 2;
         font.draw(batch, text, textX, textY);
-        font.getData().setScale(1.5f);
+        font.getData().setScale(8.0f);  // Increased from 1.5f
         batch.end();
     }
     
