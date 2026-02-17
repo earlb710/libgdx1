@@ -1,6 +1,7 @@
 package eb.framework1;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -121,6 +122,26 @@ public class ProfileCreationScreen implements Screen {
             // Set up input processor
             Gdx.app.log("ProfileCreationScreen", "Setting up input processor...");
             Gdx.input.setInputProcessor(new InputAdapter() {
+                private boolean shiftPressed = false;
+                
+                @Override
+                public boolean keyDown(int keycode) {
+                    if (keycode == Input.Keys.SHIFT_LEFT || keycode == Input.Keys.SHIFT_RIGHT) {
+                        shiftPressed = true;
+                        return true;
+                    }
+                    return false;
+                }
+                
+                @Override
+                public boolean keyUp(int keycode) {
+                    if (keycode == Input.Keys.SHIFT_LEFT || keycode == Input.Keys.SHIFT_RIGHT) {
+                        shiftPressed = false;
+                        return true;
+                    }
+                    return false;
+                }
+                
                 @Override
                 public boolean keyTyped(char character) {
                     if (character == '\r' || character == '\n') {
@@ -135,9 +156,18 @@ public class ProfileCreationScreen implements Screen {
                             characterNameInput.deleteCharAt(characterNameInput.length() - 1);
                         }
                         return true;
-                    } else if (Character.isLetterOrDigit(character) || character == ' ') {
+                    } else if (Character.isLetter(character) || Character.isDigit(character) || character == ' ') {
                         if (characterNameInput.length() < MAX_INPUT_LENGTH) {
-                            characterNameInput.append(character);
+                            // On Android soft keyboards, keyTyped may receive lowercase even when shift is pressed
+                            // Check if this is a letter and should be uppercase based on context
+                            char charToAdd = character;
+                            if (Character.isLetter(character)) {
+                                // Auto-capitalize first letter, or if shift is pressed (for desktop)
+                                if (characterNameInput.length() == 0 || shiftPressed) {
+                                    charToAdd = Character.toUpperCase(character);
+                                }
+                            }
+                            characterNameInput.append(charToAdd);
                         }
                         return true;
                     }
