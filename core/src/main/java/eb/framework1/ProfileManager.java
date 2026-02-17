@@ -51,7 +51,12 @@ public class ProfileManager {
             if (profileData != null) {
                 for (String data : profileData) {
                     ProfileData pd = json.fromJson(ProfileData.class, data);
-                    profiles.add(new Profile(pd.characterName, pd.gender, pd.difficulty));
+                    Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty);
+                    // Load attributes if present
+                    if (pd.attributes != null) {
+                        profile.setAttributes(pd.attributes);
+                    }
+                    profiles.add(profile);
                 }
             }
             Gdx.app.log("ProfileManager", "Loaded " + profiles.size() + " profiles successfully");
@@ -82,6 +87,7 @@ public class ProfileManager {
             pd.characterName = profile.getCharacterName();
             pd.gender = profile.getGender();
             pd.difficulty = profile.getDifficulty();
+            pd.attributes = profile.getAttributes();
             dataList.add(pd);
         }
         
@@ -108,6 +114,17 @@ public class ProfileManager {
         profiles.add(newProfile);
         saveProfiles();
         return newProfile;
+    }
+    
+    public void addProfile(Profile profile) {
+        // Check if character name already exists (case-insensitive)
+        for (Profile existingProfile : profiles) {
+            if (existingProfile.getCharacterName().equalsIgnoreCase(profile.getCharacterName())) {
+                throw new IllegalArgumentException("Character with name '" + profile.getCharacterName() + "' already exists");
+            }
+        }
+        profiles.add(profile);
+        saveProfiles();
     }
     
     public Profile getProfileByName(String characterName) {
@@ -150,5 +167,6 @@ public class ProfileManager {
         public String characterName;
         public String gender;
         public String difficulty;
+        public java.util.Map<String, Integer> attributes;
     }
 }

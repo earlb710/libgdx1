@@ -337,13 +337,12 @@ public class ProfileCreationScreen implements Screen {
                           (selectedDifficulty == 1 ? "Normal" : "Hard");
         
         try {
-            Profile profile = game.getProfileManager().createProfile(characterName, gender, difficulty);
-            game.getProfileManager().selectProfile(profile);
             // Stop rendering before transition
             initialized = false;
-            game.setScreen(new MainScreen(game));
+            // Go to character attribute screen instead of creating profile directly
+            game.setScreen(new CharacterAttributeScreen(game, characterName, gender, difficulty));
         } catch (Exception e) {
-            Gdx.app.error("ProfileCreation", "Error creating profile: " + e.getMessage());
+            Gdx.app.error("ProfileCreation", "Error proceeding to attribute screen: " + e.getMessage());
         }
     }
     
