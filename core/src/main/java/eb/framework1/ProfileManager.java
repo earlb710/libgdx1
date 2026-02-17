@@ -162,6 +162,28 @@ public class ProfileManager {
         return result;
     }
     
+    public void deleteProfile(Profile profile) {
+        if (profile == null) {
+            throw new IllegalArgumentException("Profile cannot be null");
+        }
+        
+        Gdx.app.log("ProfileManager", "Deleting profile: " + profile.getName());
+        
+        // If this is the selected profile, clear the selection
+        if (profile.equals(selectedProfile)) {
+            selectedProfile = null;
+            preferences.remove(KEY_SELECTED_PROFILE);
+        }
+        
+        // Remove from list
+        profiles.remove(profile);
+        
+        // Save updated profiles
+        saveProfiles();
+        
+        Gdx.app.log("ProfileManager", "Profile deleted successfully. Remaining profiles: " + profiles.size());
+    }
+    
     // Helper class for JSON serialization
     private static class ProfileData {
         public String characterName;

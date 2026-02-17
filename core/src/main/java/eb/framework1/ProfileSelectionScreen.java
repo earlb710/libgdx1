@@ -25,17 +25,27 @@ public class ProfileSelectionScreen implements Screen {
     
     private List<Profile> profiles;
     private List<Rectangle> profileButtons;
+    private List<Rectangle> deleteButtons;
     private Rectangle newProfileButton;
     private Rectangle backButton;
     
-    private static final int BUTTON_WIDTH = 500;  // Increased to fit longer text
-    private static final int BUTTON_HEIGHT = 120; // Increased to fit two lines of text comfortably
-    private static final int BUTTON_SPACING = 20;
+    // Confirmation dialog state
+    private boolean showingConfirmDialog = false;
+    private Profile profileToDelete = null;
+    private Rectangle confirmYesButton;
+    private Rectangle confirmNoButton;
+    
+    private static final int BUTTON_WIDTH = 600;  // Increased for better readability
+    private static final int BUTTON_HEIGHT = 150; // Increased for more comfortable spacing
+    private static final int DELETE_BUTTON_SIZE = 80; // Square delete button
+    private static final int BUTTON_SPACING = 25;
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
     private Color newButtonColor = new Color(0.2f, 0.5f, 0.3f, 1f);
     private Color newButtonHoverColor = new Color(0.3f, 0.6f, 0.4f, 1f);
+    private Color deleteButtonColor = new Color(0.8f, 0.2f, 0.2f, 1f);
+    private Color deleteButtonHoverColor = new Color(0.9f, 0.3f, 0.3f, 1f);
     
     public ProfileSelectionScreen(Main game) {
         Gdx.app.log("ProfileSelectionScreen", "Constructor called");
@@ -86,6 +96,7 @@ public class ProfileSelectionScreen implements Screen {
     private void createButtons() {
         Gdx.app.log("ProfileSelectionScreen", "createButtons() called");
         profileButtons = new ArrayList<>();
+        deleteButtons = new ArrayList<>();
         
         int centerX = Gdx.graphics.getWidth() / 2;
         int startY = Gdx.graphics.getHeight() / 2 + 100;
@@ -93,13 +104,24 @@ public class ProfileSelectionScreen implements Screen {
         
         for (int i = 0; i < profiles.size(); i++) {
             int y = startY - (i * (BUTTON_HEIGHT + BUTTON_SPACING));
+            
+            // Profile button (with space for delete button on the right)
             Rectangle button = new Rectangle(
-                centerX - BUTTON_WIDTH / 2,
+                centerX - (BUTTON_WIDTH + DELETE_BUTTON_SIZE + 10) / 2,
                 y,
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT
             );
             profileButtons.add(button);
+            
+            // Delete button (positioned to the right of profile button)
+            Rectangle deleteBtn = new Rectangle(
+                button.x + button.width + 10,
+                y + (BUTTON_HEIGHT - DELETE_BUTTON_SIZE) / 2, // Center vertically
+                DELETE_BUTTON_SIZE,
+                DELETE_BUTTON_SIZE
+            );
+            deleteButtons.add(deleteBtn);
         }
         
         // New profile button
@@ -113,6 +135,20 @@ public class ProfileSelectionScreen implements Screen {
         
         // Back button
         backButton = new Rectangle(50, 50, 150, 50);
+        
+        // Confirmation dialog buttons
+        confirmYesButton = new Rectangle(
+            centerX - 220,
+            Gdx.graphics.getHeight() / 2 - 60,
+            200,
+            80
+        );
+        confirmNoButton = new Rectangle(
+            centerX + 20,
+            Gdx.graphics.getHeight() / 2 - 60,
+            200,
+            80
+        );
     }
     
     @Override
@@ -147,6 +183,100 @@ public class ProfileSelectionScreen implements Screen {
         
         // Draw buttons
         drawButtons();
+        
+        // Draw confirmation dialog if showing
+        if (showingConfirmDialog) {
+            drawConfirmationDialog();
+        }
+    }
+    
+    private void drawConfirmationDialog() {
+        // Draw semi-transparent overlay
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0, 0, 0, 0.7f);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+        
+        // Draw dialog box
+        int dialogWidth = 500;
+        int dialogHeight = 250;
+        int dialogX = (Gdx.graphics.getWidth() - dialogWidth) / 2;
+        int dialogY = (Gdx.graphics.getHeight() - dialogHeight) / 2;
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
+        shapeRenderer.rect(dialogX, dialogY, dialogWidth, dialogHeight);
+        shapeRenderer.end();
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(dialogX, dialogY, dialogWidth, dialogHeight);
+        shapeRenderer.end();
+        
+        // Draw text
+        batch.begin();
+        String message = "Delete Profile?";
+        glyphLayout.setText(titleFont, message);
+        float messageX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
+        titleFont.draw(batch, message, messageX, dialogY + dialogHeight - 40);
+        
+        if (profileToDelete != null) {
+            String profileName = profileToDelete.getName();
+            glyphLayout.setText(buttonFont, profileName);
+            float nameX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
+            buttonFont.draw(batch, profileName, nameX, dialogY + dialogHeight - 100);
+        }
+        batch.end();
+        
+        // Draw Yes/No buttons
+        int mouseX = Gdx.input.getX();
+        int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        
+        // Yes button (red)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (confirmYesButton.contains(mouseX, mouseY)) {
+            shapeRenderer.setColor(deleteButtonHoverColor);
+        } else {
+            shapeRenderer.setColor(deleteButtonColor);
+        }
+        shapeRenderer.rect(confirmYesButton.x, confirmYesButton.y, confirmYesButton.width, confirmYesButton.height);
+        shapeRenderer.end();
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(confirmYesButton.x, confirmYesButton.y, confirmYesButton.width, confirmYesButton.height);
+        shapeRenderer.end();
+        
+        batch.begin();
+        String yesText = "Yes, Delete";
+        glyphLayout.setText(buttonFont, yesText);
+        float yesX = confirmYesButton.x + (confirmYesButton.width - glyphLayout.width) / 2;
+        float yesY = confirmYesButton.y + (confirmYesButton.height + glyphLayout.height) / 2;
+        buttonFont.draw(batch, yesText, yesX, yesY);
+        batch.end();
+        
+        // No button (normal)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (confirmNoButton.contains(mouseX, mouseY)) {
+            shapeRenderer.setColor(buttonHoverColor);
+        } else {
+            shapeRenderer.setColor(buttonColor);
+        }
+        shapeRenderer.rect(confirmNoButton.x, confirmNoButton.y, confirmNoButton.width, confirmNoButton.height);
+        shapeRenderer.end();
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(confirmNoButton.x, confirmNoButton.y, confirmNoButton.width, confirmNoButton.height);
+        shapeRenderer.end();
+        
+        batch.begin();
+        String noText = "Cancel";
+        glyphLayout.setText(buttonFont, noText);
+        float noX = confirmNoButton.x + (confirmNoButton.width - glyphLayout.width) / 2;
+        float noY = confirmNoButton.y + (confirmNoButton.height + glyphLayout.height) / 2;
+        buttonFont.draw(batch, noText, noX, noY);
+        batch.end();
     }
     
     private void drawButtons() {
@@ -157,6 +287,7 @@ public class ProfileSelectionScreen implements Screen {
         for (int i = 0; i < profiles.size(); i++) {
             Profile profile = profiles.get(i);
             Rectangle button = profileButtons.get(i);
+            Rectangle deleteBtn = deleteButtons.get(i);
             
             // Draw button background
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -195,6 +326,31 @@ public class ProfileSelectionScreen implements Screen {
             profileDetailFont.draw(batch, 
                      profile.getCharacterName() + " (" + profile.getGender() + ") - " + profile.getDifficulty(),
                      button.x + 20, startY - nameHeight - 10);
+            batch.end();
+            
+            // Draw delete button
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            if (deleteBtn.contains(mouseX, mouseY)) {
+                shapeRenderer.setColor(deleteButtonHoverColor);
+            } else {
+                shapeRenderer.setColor(deleteButtonColor);
+            }
+            shapeRenderer.rect(deleteBtn.x, deleteBtn.y, deleteBtn.width, deleteBtn.height);
+            shapeRenderer.end();
+            
+            // Draw delete button border
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.rect(deleteBtn.x, deleteBtn.y, deleteBtn.width, deleteBtn.height);
+            shapeRenderer.end();
+            
+            // Draw minus symbol
+            batch.begin();
+            String minusSymbol = "-";
+            glyphLayout.setText(titleFont, minusSymbol);
+            float minusX = deleteBtn.x + (deleteBtn.width - glyphLayout.width) / 2;
+            float minusY = deleteBtn.y + (deleteBtn.height + glyphLayout.height) / 2;
+            titleFont.draw(batch, minusSymbol, minusX, minusY);
             batch.end();
         }
         
@@ -254,6 +410,38 @@ public class ProfileSelectionScreen implements Screen {
         if (Gdx.input.justTouched()) {
             int mouseX = Gdx.input.getX();
             int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+            
+            // If showing confirmation dialog, handle dialog buttons only
+            if (showingConfirmDialog) {
+                if (confirmYesButton.contains(mouseX, mouseY)) {
+                    // Delete the profile
+                    if (profileToDelete != null) {
+                        game.getProfileManager().deleteProfile(profileToDelete);
+                        // Reload profiles and recreate buttons
+                        loadProfiles();
+                        createButtons();
+                    }
+                    showingConfirmDialog = false;
+                    profileToDelete = null;
+                    return;
+                } else if (confirmNoButton.contains(mouseX, mouseY)) {
+                    // Cancel deletion
+                    showingConfirmDialog = false;
+                    profileToDelete = null;
+                    return;
+                }
+                return; // Don't process other clicks while dialog is showing
+            }
+            
+            // Check delete button clicks first (they're on top)
+            for (int i = 0; i < deleteButtons.size(); i++) {
+                if (deleteButtons.get(i).contains(mouseX, mouseY)) {
+                    // Show confirmation dialog
+                    profileToDelete = profiles.get(i);
+                    showingConfirmDialog = true;
+                    return;
+                }
+            }
             
             // Check profile button clicks
             for (int i = 0; i < profileButtons.size(); i++) {
