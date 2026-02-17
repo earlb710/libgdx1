@@ -90,16 +90,22 @@ public class ProfileCreationScreen implements Screen {
             createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             
-            // Gender buttons - centered horizontally in portrait mode
-            int genderY = centerY - 50;  // Moved down to avoid overlap with character name input
-            genderMaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            genderFemaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Calculate button positions relative to labels for proper layout hierarchy
+            // Using the same startY as in render() for consistency
+            int startY = Gdx.graphics.getHeight() - 200;
             
-            // Difficulty buttons - stacked vertically, centered
-            int diffY = centerY - 300;  // Moved down to accommodate larger spacing
-            diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Gender buttons - positioned below "Gender:" label
+            // Gender label is at startY - 500, so buttons start 150px below that
+            int genderButtonY = startY - 500 - 150;  
+            genderMaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            genderFemaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Difficulty buttons - positioned below "Difficulty:" label
+            // Difficulty label is at startY - 820, so buttons start 150px below that
+            int diffButtonY = startY - 820 - 150;
+            diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);
