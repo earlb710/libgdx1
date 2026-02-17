@@ -41,9 +41,9 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle diffEasyButton;
     private Rectangle diffNormalButton;
     private Rectangle diffHardButton;
-    private static final int BUTTON_WIDTH = 150;
-    private static final int BUTTON_HEIGHT = 50;
-    private static final int SMALL_BUTTON_WIDTH = 100;
+    private static final int BUTTON_WIDTH = 300;  // Increased from 150 for large fonts
+    private static final int BUTTON_HEIGHT = 80;  // Increased from 50 for large fonts
+    private static final int SMALL_BUTTON_WIDTH = 250;  // Increased from 100 for large fonts
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -90,17 +90,16 @@ public class ProfileCreationScreen implements Screen {
             createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             
-            // Gender buttons - positioned to fit in portrait mode (480 width)
-            int genderY = centerY + 10;
-            int genderStartX = centerX - SMALL_BUTTON_WIDTH - 10;
-            genderMaleButton = new Rectangle(genderStartX, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            genderFemaleButton = new Rectangle(centerX + 10, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Gender buttons - centered horizontally in portrait mode
+            int genderY = centerY - 50;  // Moved down to avoid overlap with character name input
+            genderMaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            genderFemaleButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, genderY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
-            // Difficulty buttons - stacked vertically to fit in portrait mode
-            int diffY = centerY - 60;
+            // Difficulty buttons - stacked vertically, centered
+            int diffY = centerY - 300;  // Moved down to accommodate larger spacing
             diffEasyButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 60, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 120, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffNormalButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            diffHardButton = new Rectangle(centerX - SMALL_BUTTON_WIDTH / 2, diffY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);
@@ -178,19 +177,19 @@ public class ProfileCreationScreen implements Screen {
                       Gdx.graphics.getHeight() - 50);
         
         int centerX = Gdx.graphics.getWidth() / 2;
-        int startY = Gdx.graphics.getHeight() / 2 + 180;
+        int startY = Gdx.graphics.getHeight() - 200;  // Start from top with more margin
         
-        // Character Name field
+        // Character Name field - with much more spacing for large fonts
         labelFont.draw(batch, "Character Name:", 20, startY);
         String characterText = characterNameInput.toString();
         if (cursorVisible) characterText += "|";
-        font.draw(batch, characterText, 20, startY - 30);
+        font.draw(batch, characterText, 20, startY - 280);  // Increased spacing from 30 to 280 to prevent overlap
         
-        // Gender label
-        labelFont.draw(batch, "Gender:", 20, startY - 100);
+        // Gender label - positioned relative to gender buttons
+        labelFont.draw(batch, "Gender:", 20, startY - 500);  // Increased spacing
         
-        // Difficulty label
-        labelFont.draw(batch, "Difficulty:", 20, startY - 250);
+        // Difficulty label - positioned relative to difficulty buttons
+        labelFont.draw(batch, "Difficulty:", 20, startY - 820);  // Increased spacing
         
         batch.end();
         
