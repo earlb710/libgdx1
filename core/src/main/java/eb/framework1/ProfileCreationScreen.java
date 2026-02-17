@@ -94,9 +94,11 @@ public class ProfileCreationScreen implements Screen {
             // Using the same startY as in render() for consistency
             int startY = Gdx.graphics.getHeight() - 200;
             
-            // Position buttons to the right of labels (not centered on screen)
-            // Labels are at x=20, so buttons start at x=200 to avoid overlap
-            int buttonStartX = 200;
+            // Calculate proper button X position to avoid overlapping with labels
+            // Measure the widest label to ensure no overlap
+            glyphLayout.setText(labelFont, "Difficulty:");  // Longest label
+            int labelWidth = (int)glyphLayout.width;
+            int buttonStartX = 20 + labelWidth + 30;  // 20 (label x) + label width + 30 (padding)
             
             // Gender buttons - positioned BELOW "Gender:" label
             // Gender label is at startY - 500
