@@ -29,30 +29,31 @@ public class FontManager implements Disposable {
     private float screenHeight;
     private float density;
     
-    // Base font sizes as percentage of LOGICAL screen width for proportional scaling
-    // These ratios work with density-independent width to ensure proper sizing
+    // Font size in density-independent pixels (dp) for consistent sizing
+    // These are absolute dp values that work well across all screen sizes
     // 
-    // Example calculations for common screens:
-    // 
-    // 480x640 @ density 1.5 (older phone):
-    //   Logical width: 480 / 1.5 = 320dp
-    //   Title: 320 * 0.08 = 25.6px
-    //   Body: 320 * 0.04 = 12.8px (min 12px)
-    // 
-    // 1080x2400 @ density 3.0 (modern phone):
-    //   Logical width: 1080 / 3.0 = 360dp  
-    //   Title: 360 * 0.08 = 28.8px
-    //   Body: 360 * 0.04 = 14.4px
+    // Example font sizes:
+    // - Title: 32dp - Large headers and titles
+    // - Subtitle: 24dp - Section headers
+    // - Body: 18dp - Regular text, buttons
+    // - Small: 14dp - Small details, hints
     //
-    // 1080x2400 @ density 2.0 (tablet mode):
-    //   Logical width: 1080 / 2.0 = 540dp
-    //   Title: 540 * 0.08 = 43.2px
-    //   Body: 540 * 0.04 = 21.6px
+    // These dp values will be multiplied by density to get actual pixel sizes:
+    // 
+    // At density 1.5 (low-DPI):
+    //   Title: 32 * 1.5 = 48px
+    //   Body: 18 * 1.5 = 27px
+    // 
+    // At density 3.0 (high-DPI):
+    //   Title: 32 * 3.0 = 96px
+    //   Body: 18 * 3.0 = 54px
     //
-    private static final float TITLE_SIZE_RATIO = 0.08f;    // 8% of logical width
-    private static final float SUBTITLE_SIZE_RATIO = 0.05f; // 5% of logical width
-    private static final float BODY_SIZE_RATIO = 0.04f;     // 4% of logical width
-    private static final float SMALL_SIZE_RATIO = 0.03f;    // 3% of logical width
+    // This ensures consistent physical size regardless of screen resolution
+    //
+    private static final int TITLE_SIZE_DP = 32;    // Large titles
+    private static final int SUBTITLE_SIZE_DP = 24; // Subtitles
+    private static final int BODY_SIZE_DP = 18;     // Body text, buttons
+    private static final int SMALL_SIZE_DP = 14;    // Small text
     
     /**
      * Initialize FontManager with current screen dimensions.
@@ -128,28 +129,28 @@ public class FontManager implements Disposable {
         parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         
         // Title font - large, for headers
-        int titleSize = calculateFontSize(TITLE_SIZE_RATIO);
+        int titleSize = calculateFontSize(TITLE_SIZE_DP);
         parameter.size = titleSize;
         parameter.color = Color.GOLD;
         titleFont = generator.generateFont(parameter);
         Gdx.app.log("FontManager", "Generated title font at size: " + titleSize);
         
         // Subtitle font - medium-large
-        int subtitleSize = calculateFontSize(SUBTITLE_SIZE_RATIO);
+        int subtitleSize = calculateFontSize(SUBTITLE_SIZE_DP);
         parameter.size = subtitleSize;
         parameter.color = Color.LIGHT_GRAY;
         subtitleFont = generator.generateFont(parameter);
         Gdx.app.log("FontManager", "Generated subtitle font at size: " + subtitleSize);
         
         // Body font - standard reading size
-        int bodySize = calculateFontSize(BODY_SIZE_RATIO);
+        int bodySize = calculateFontSize(BODY_SIZE_DP);
         parameter.size = bodySize;
         parameter.color = Color.WHITE;
         bodyFont = generator.generateFont(parameter);
         Gdx.app.log("FontManager", "Generated body font at size: " + bodySize);
         
         // Small font - for details
-        int smallSize = calculateFontSize(SMALL_SIZE_RATIO);
+        int smallSize = calculateFontSize(SMALL_SIZE_DP);
         parameter.size = smallSize;
         parameter.color = Color.LIGHT_GRAY;
         smallFont = generator.generateFont(parameter);
@@ -157,63 +158,63 @@ public class FontManager implements Disposable {
     }
     
     /**
-     * Fallback: Generate fonts using BitmapFont with scaling.
+     * Fallback: Generate fonts using BitmapFont with minimal scaling.
      * Used when FreeTypeFontGenerator is not available.
+     * 
+     * BitmapFont scales poorly, so we use small scales to minimize pixelation.
      */
     private void generateFontsWithBitmapFont() {
-        Gdx.app.log("FontManager", "Using BitmapFont fallback with viewport-based scaling");
+        Gdx.app.log("FontManager", "Using BitmapFont fallback with fixed small scales");
+        Gdx.app.log("FontManager", "WARNING: BitmapFont will be pixelated. Add a TTF font to assets/font.ttf for better quality.");
         
-        // Calculate density-independent width
-        float logicalWidth = screenWidth / density;
-        
-        // Calculate scale factors based on logical width
-        float baseScale = logicalWidth * 0.002f; // Base multiplier for BitmapFont
+        // Use fixed, small scale values to minimize pixelation
+        // These are intentionally conservative to reduce visual artifacts
         
         titleFont = new BitmapFont();
         titleFont.setColor(Color.GOLD);
-        titleFont.getData().setScale(baseScale * (TITLE_SIZE_RATIO / 0.002f));
+        titleFont.getData().setScale(2.0f);  // 2x scale - moderate size
         
         subtitleFont = new BitmapFont();
         subtitleFont.setColor(Color.LIGHT_GRAY);
-        subtitleFont.getData().setScale(baseScale * (SUBTITLE_SIZE_RATIO / 0.002f));
+        subtitleFont.getData().setScale(1.5f);  // 1.5x scale
         
         bodyFont = new BitmapFont();
         bodyFont.setColor(Color.WHITE);
-        bodyFont.getData().setScale(baseScale * (BODY_SIZE_RATIO / 0.002f));
+        bodyFont.getData().setScale(1.2f);  // 1.2x scale - slightly larger than default
         
         smallFont = new BitmapFont();
         smallFont.setColor(Color.LIGHT_GRAY);
-        smallFont.getData().setScale(baseScale * (SMALL_SIZE_RATIO / 0.002f));
+        smallFont.getData().setScale(1.0f);  // 1x scale - default size
         
-        Gdx.app.log("FontManager", String.format("BitmapFont scales (LogicalW: %.0f) - Title: %.2f, Subtitle: %.2f, Body: %.2f, Small: %.2f",
-            logicalWidth, titleFont.getData().scaleX, subtitleFont.getData().scaleX, 
-            bodyFont.getData().scaleX, smallFont.getData().scaleX));
+        Gdx.app.log("FontManager", "BitmapFont scales - Title: 2.0x, Subtitle: 1.5x, Body: 1.2x, Small: 1.0x");
+        Gdx.app.log("FontManager", "To eliminate pixelation, add a TrueType font file to assets/font.ttf");
     }
     
     /**
-     * Calculate font size in pixels based on screen dimension ratio and density.
+     * Calculate font size in pixels based on density-independent pixels (dp).
      * 
-     * Uses density-independent width to ensure consistent sizing across devices.
-     * For example, a 1080px screen with density 2.0 has a logical width of 540dp.
-     * The font size is calculated from this logical width, not physical pixels.
+     * Converts dp to actual pixels by multiplying by screen density.
+     * This ensures fonts appear at the same physical size on all devices.
      * 
-     * @param ratio Percentage of logical screen width to use for font size
-     * @return Font size in pixels
+     * For example:
+     * - 18dp @ density 1.5 = 27px
+     * - 18dp @ density 2.0 = 36px  
+     * - 18dp @ density 3.0 = 54px
+     * 
+     * All three will appear the same physical size on their respective screens.
+     * 
+     * @param dp Desired size in density-independent pixels
+     * @return Font size in actual pixels
      */
-    private int calculateFontSize(float ratio) {
-        // Calculate density-independent width (logical pixels/dp)
-        // This prevents fonts from being too large on high-DPI screens
-        float logicalWidth = screenWidth / density;
-        
-        // Calculate font size as percentage of logical width
-        // This ensures consistent visual proportions across all devices
-        float fontSize = logicalWidth * ratio;
+    private int calculateFontSize(int dp) {
+        // Convert dp to pixels: pixels = dp * density
+        int pixels = (int)(dp * density);
         
         // Ensure minimum readable size
-        int size = Math.max(12, (int) fontSize);
+        int size = Math.max(12, pixels);
         
-        Gdx.app.log("FontManager", String.format("Font calc - Ratio: %.3f, Physical: %.0fx%.0f, Density: %.1f, LogicalW: %.0f, FontSize: %d", 
-            ratio, screenWidth, screenHeight, density, logicalWidth, size));
+        Gdx.app.log("FontManager", String.format("Font calc - %ddp × %.1f density = %dpx (screen: %.0fx%.0f)", 
+            dp, density, size, screenWidth, screenHeight));
         
         return size;
     }
