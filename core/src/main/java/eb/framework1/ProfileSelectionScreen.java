@@ -28,8 +28,8 @@ public class ProfileSelectionScreen implements Screen {
     private Rectangle newProfileButton;
     private Rectangle backButton;
     
-    private static final int BUTTON_WIDTH = 380;  // Reduced to fit portrait mode better
-    private static final int BUTTON_HEIGHT = 60;
+    private static final int BUTTON_WIDTH = 500;  // Increased to fit longer text
+    private static final int BUTTON_HEIGHT = 120; // Increased to fit two lines of text comfortably
     private static final int BUTTON_SPACING = 20;
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
@@ -178,10 +178,23 @@ public class ProfileSelectionScreen implements Screen {
             batch.begin();
             BitmapFont profileNameFont = fontManager.getSubtitleFont();
             BitmapFont profileDetailFont = fontManager.getSmallFont();
-            profileNameFont.draw(batch, profile.getName(), button.x + 20, button.y + button.height - 15);
+            
+            // Center text vertically with proper spacing for two lines
+            glyphLayout.setText(profileNameFont, profile.getName());
+            float nameHeight = glyphLayout.height;
+            glyphLayout.setText(profileDetailFont, "X");  // Measure typical character height
+            float detailHeight = glyphLayout.height;
+            
+            float totalTextHeight = nameHeight + detailHeight + 10; // 10px spacing between lines
+            float startY = button.y + (button.height + totalTextHeight) / 2;
+            
+            // Draw profile name (top line)
+            profileNameFont.draw(batch, profile.getName(), button.x + 20, startY);
+            
+            // Draw profile details (bottom line)
             profileDetailFont.draw(batch, 
                      profile.getCharacterName() + " (" + profile.getGender() + ") - " + profile.getDifficulty(),
-                     button.x + 20, button.y + 20);
+                     button.x + 20, startY - nameHeight - 10);
             batch.end();
         }
         
