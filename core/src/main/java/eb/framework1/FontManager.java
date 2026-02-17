@@ -125,8 +125,12 @@ public class FontManager implements Disposable {
      */
     private void generateFontsWithFreeType() {
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+        // Use MipMapLinearNearest for minFilter to reduce aliasing at small sizes
+        // Use Linear for magFilter for smooth scaling when magnified
+        // This combination provides crisp, high-quality text rendering
+        parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+        parameter.genMipMaps = true;  // Generate mipmaps for better quality at various sizes
         
         // Title font - large, for headers
         int titleSize = calculateFontSize(TITLE_SIZE_DP);
@@ -232,8 +236,9 @@ public class FontManager implements Disposable {
             FreeTypeFontParameter parameter = new FreeTypeFontParameter();
             parameter.size = (int)(dp * density);
             parameter.color = color;
-            parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            parameter.genMipMaps = true;
             return generator.generateFont(parameter);
         } else {
             // Fallback to BitmapFont

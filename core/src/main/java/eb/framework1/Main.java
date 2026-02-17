@@ -3,17 +3,26 @@ package eb.framework1;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
     private UserManager userManager;
     private ProfileManager profileManager;
     private FontManager fontManager;
+    private Viewport viewport;
 
     @Override
     public void create() {
         Gdx.app.log("Main", "create() called");
         try {
+            // Create ScreenViewport for pixel-perfect rendering
+            // ScreenViewport uses screen coordinates (1:1 mapping to pixels)
+            // This ensures crisp text rendering without interpolation artifacts
+            Gdx.app.log("Main", "Creating ScreenViewport...");
+            viewport = new ScreenViewport();
+            
             Gdx.app.log("Main", "Creating FontManager...");
             fontManager = new FontManager();
             
@@ -48,6 +57,10 @@ public class Main extends Game {
     
     public FontManager getFontManager() {
         return fontManager;
+    }
+    
+    public Viewport getViewport() {
+        return viewport;
     }
     
     @Override
