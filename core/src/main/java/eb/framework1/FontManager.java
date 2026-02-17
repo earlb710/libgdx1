@@ -32,28 +32,28 @@ public class FontManager implements Disposable {
     // Font size in density-independent pixels (dp) for consistent sizing
     // These are absolute dp values optimized for mobile screens
     // 
-    // Increased font sizes for better readability:
-    // - Title: 80dp - Large headers and titles
-    // - Subtitle: 60dp - Section headers, input text
-    // - Body: 45dp - Regular text, buttons
-    // - Small: 35dp - Small details, hints
+    // Font sizes reduced to fit properly on screen while maintaining readability:
+    // - Title: 40dp - Large headers and titles
+    // - Subtitle: 30dp - Section headers, input text
+    // - Body: 22dp - Regular text, buttons
+    // - Small: 18dp - Small details, hints
     //
     // These dp values will be multiplied by density to get actual pixel sizes:
     // 
     // At density 1.5 (low-DPI):
-    //   Title: 80 * 1.5 = 120px
-    //   Body: 45 * 1.5 = 67.5px
+    //   Title: 40 * 1.5 = 60px
+    //   Body: 22 * 1.5 = 33px
     // 
     // At density 3.0 (high-DPI):
-    //   Title: 80 * 3.0 = 240px
-    //   Body: 45 * 3.0 = 135px
+    //   Title: 40 * 3.0 = 120px
+    //   Body: 22 * 3.0 = 66px
     //
     // This ensures consistent physical size and good readability on all devices
     //
-    private static final int TITLE_SIZE_DP = 80;    // Large titles
-    private static final int SUBTITLE_SIZE_DP = 60; // Subtitles, input text
-    private static final int BODY_SIZE_DP = 45;     // Body text, buttons
-    private static final int SMALL_SIZE_DP = 35;    // Small text
+    private static final int TITLE_SIZE_DP = 40;    // Large titles
+    private static final int SUBTITLE_SIZE_DP = 30; // Subtitles, input text
+    private static final int BODY_SIZE_DP = 22;     // Body text, buttons
+    private static final int SMALL_SIZE_DP = 18;    // Small text
     
     /**
      * Initialize FontManager with current screen dimensions.
