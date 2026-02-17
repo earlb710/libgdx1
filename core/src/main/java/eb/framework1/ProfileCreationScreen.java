@@ -94,27 +94,21 @@ public class ProfileCreationScreen implements Screen {
             // Using the same startY as in render() for consistency
             int startY = Gdx.graphics.getHeight() - 200;
             
-            // Estimate character height for label alignment (approximate 1 character size)
-            glyphLayout.setText(labelFont, "A");
-            float charHeight = glyphLayout.height;
-            
             // Position buttons to the right of labels (not centered on screen)
             // Labels are at x=20, so buttons start at x=200 to avoid overlap
             int buttonStartX = 200;
             
-            // Gender buttons - positioned next to "Gender:" label
+            // Gender buttons - positioned BELOW "Gender:" label
             // Gender label is at startY - 500
-            // Move buttons up by approximately 1 character height (charHeight) to align next to label
-            // Reduce gap from 150px to 60px for closer alignment
-            int genderButtonY = (int)(startY - 500 + charHeight - 60);
+            // Place buttons 100px below the label (to the right horizontally at x=200)
+            int genderButtonY = startY - 500 - 100;
             genderMaleButton = new Rectangle(buttonStartX, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
-            // Difficulty buttons - positioned next to "Difficulty:" label
+            // Difficulty buttons - positioned BELOW "Difficulty:" label
             // Difficulty label is at startY - 820
-            // Move buttons up by approximately 1 character height to align next to label
-            // Reduce gap from 150px to 60px for closer alignment
-            int diffButtonY = (int)(startY - 820 + charHeight - 60);
+            // Place buttons 100px below the label (to the right horizontally at x=200)
+            int diffButtonY = startY - 820 - 100;
             diffEasyButton = new Rectangle(buttonStartX, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             diffHardButton = new Rectangle(buttonStartX, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
