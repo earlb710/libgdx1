@@ -14,8 +14,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class ProfileCreationScreen implements Screen {
     private Main game;
     private SpriteBatch batch;
-    private BitmapFont font;
-    private BitmapFont labelFont;
+    private BitmapFont font;          // For input text
+    private BitmapFont labelFont;     // For labels like "Character Name:"
+    private BitmapFont buttonFont;    // For button text
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
     private boolean initialized = false;
@@ -75,8 +76,9 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Creating fonts...");
             // Get FontManager from Main game
             this.fontManager = game.getFontManager();
-            this.font = fontManager.getBodyFont();
-            this.labelFont = fontManager.getSubtitleFont();
+            this.font = fontManager.getSubtitleFont();           // 24dp for input text
+            this.labelFont = fontManager.getTitleFont();          // 32dp for labels - larger and more prominent
+            this.buttonFont = fontManager.getSubtitleFont();      // 24dp for button text
             
             Gdx.app.log("ProfileCreationScreen", "Getting screen dimensions...");
             int centerX = Gdx.graphics.getWidth() / 2;
@@ -194,10 +196,6 @@ public class ProfileCreationScreen implements Screen {
         
         // Draw buttons
         drawButtons();
-        
-        batch.begin();
-        font.getData().setScale(7.0f);  // Increased from 1.5f
-        batch.end();
     }
     
     private void drawButtons() {
@@ -236,10 +234,10 @@ public class ProfileCreationScreen implements Screen {
         shapeRenderer.end();
         
         batch.begin();
-        glyphLayout.setText(font, text);
+        glyphLayout.setText(buttonFont, text);
         float textX = button.x + (button.width - glyphLayout.width) / 2;
         float textY = button.y + (button.height + glyphLayout.height) / 2;
-        font.draw(batch, text, textX, textY);
+        buttonFont.draw(batch, text, textX, textY);
         batch.end();
     }
     

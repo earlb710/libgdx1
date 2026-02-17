@@ -15,8 +15,9 @@ import java.util.List;
 public class ProfileSelectionScreen implements Screen {
     private Main game;
     private SpriteBatch batch;
-    private BitmapFont font;
-    private BitmapFont titleFont;
+    private BitmapFont font;          // For regular text
+    private BitmapFont titleFont;     // For titles
+    private BitmapFont buttonFont;    // For button text
     private ShapeRenderer shapeRenderer;
     private GlyphLayout glyphLayout;
     private boolean initialized = false;
@@ -58,8 +59,9 @@ public class ProfileSelectionScreen implements Screen {
             Gdx.app.log("ProfileSelectionScreen", "Creating fonts...");
             // Get FontManager from Main game
             this.fontManager = game.getFontManager();
-            this.font = fontManager.getBodyFont();
-            this.titleFont = fontManager.getSubtitleFont();
+            this.font = fontManager.getBodyFont();           // 18dp for regular text
+            this.titleFont = fontManager.getTitleFont();      // 32dp for titles
+            this.buttonFont = fontManager.getSubtitleFont();  // 24dp for button text
             
             Gdx.app.log("ProfileSelectionScreen", "Loading profiles...");
             loadProfiles();
@@ -202,10 +204,10 @@ public class ProfileSelectionScreen implements Screen {
         
         batch.begin();
         String newProfileText = "+ Create New Profile";
-        glyphLayout.setText(font, newProfileText);
+        glyphLayout.setText(buttonFont, newProfileText);
         float textX = newProfileButton.x + (newProfileButton.width - glyphLayout.width) / 2;
         float textY = newProfileButton.y + (newProfileButton.height + glyphLayout.height) / 2;
-        font.draw(batch, newProfileText, textX, textY);
+        buttonFont.draw(batch, newProfileText, textX, textY);
         batch.end();
         
         // Draw back button
@@ -228,10 +230,10 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.end();
         
         batch.begin();
-        glyphLayout.setText(font, text);
+        glyphLayout.setText(buttonFont, text);
         float textX = button.x + (button.width - glyphLayout.width) / 2;
         float textY = button.y + (button.height + glyphLayout.height) / 2;
-        font.draw(batch, text, textX, textY);
+        buttonFont.draw(batch, text, textX, textY);
         batch.end();
     }
     
