@@ -18,7 +18,7 @@ public class MainScreen implements Screen {
     @Override
     public void show() {
         this.batch = new SpriteBatch();
-        this.image = new Texture("libgdx.png");
+        this.image = new Texture("logo.png");
         initialized = true;
     }
     
