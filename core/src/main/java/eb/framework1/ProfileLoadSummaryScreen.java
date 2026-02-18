@@ -168,15 +168,12 @@ public class ProfileLoadSummaryScreen implements Screen {
         
         currentY -= 80;  // Increased spacing from 60 to 80 between heading and values
         
-        // Show a few key attributes
-        int attrCount = 0;
+        // Show all attributes with values greater than 0
         for (CharacterAttribute attr : CharacterAttribute.values()) {
-            if (attrCount >= 5) break; // Only show first 5 attributes
             int value = profile.getAttribute(attr.name());
             if (value > 0) {
                 bodyFont.draw(batch, attr.getDisplayName() + ": " + value, centerX - 280, currentY);
                 currentY -= 50;
-                attrCount++;
             }
         }
         
