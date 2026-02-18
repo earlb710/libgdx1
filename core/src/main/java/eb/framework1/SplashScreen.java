@@ -238,8 +238,9 @@ public class SplashScreen implements Screen {
         int centerX = width / 2;
         int centerY = height / 2;
         
-        playButton.setPosition(centerX - BUTTON_WIDTH / 2, centerY - 20);
-        quitButton.setPosition(centerX - BUTTON_WIDTH / 2, centerY - 100);
+        // Use the same positions as in show() method - generous spacing to avoid text overlap
+        playButton.setPosition(centerX - BUTTON_WIDTH / 2, centerY - 200);
+        quitButton.setPosition(centerX - BUTTON_WIDTH / 2, centerY - 280);
     }
     
     @Override
