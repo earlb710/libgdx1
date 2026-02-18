@@ -135,9 +135,10 @@ public class SplashScreen implements Screen {
         titleFont.draw(batch, GAME_TITLE, titleX, titleY);
         
         // Subtitle: "A Detective Game"
+        // Positioned lower to avoid overlapping with title (150px gap instead of 50px)
         glyphLayout.setText(subtitleFont, GAME_SUBTITLE);
         float subtitleX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        float subtitleY = Gdx.graphics.getHeight() / 2 + 100;
+        float subtitleY = Gdx.graphics.getHeight() / 2 + 0;  // Changed from +100 to +0
         subtitleFont.draw(batch, GAME_SUBTITLE, subtitleX, subtitleY);
         
         batch.end();
