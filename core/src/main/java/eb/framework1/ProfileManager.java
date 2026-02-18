@@ -11,6 +11,7 @@ public class ProfileManager {
     private static final String PREFS_NAME = "framework1.profiles";
     private static final String KEY_PROFILES = "profiles";
     private static final String KEY_SELECTED_PROFILE = "selectedProfile";
+    private static final int MAX_PROFILES = 5; // Maximum number of profiles allowed
     
     private Preferences preferences;
     private List<Profile> profiles;
@@ -105,6 +106,11 @@ public class ProfileManager {
     }
     
     public Profile createProfile(String characterName, String gender, String difficulty) {
+        // Check profile limit
+        if (profiles.size() >= MAX_PROFILES) {
+            throw new IllegalArgumentException("Maximum number of profiles (" + MAX_PROFILES + ") reached");
+        }
+        
         // Check if character name already exists (case-insensitive)
         for (Profile profile : profiles) {
             if (profile.getCharacterName().equalsIgnoreCase(characterName)) {
@@ -119,6 +125,11 @@ public class ProfileManager {
     }
     
     public void addProfile(Profile profile) {
+        // Check profile limit
+        if (profiles.size() >= MAX_PROFILES) {
+            throw new IllegalArgumentException("Maximum number of profiles (" + MAX_PROFILES + ") reached");
+        }
+        
         // Check if character name already exists (case-insensitive)
         for (Profile existingProfile : profiles) {
             if (existingProfile.getCharacterName().equalsIgnoreCase(profile.getCharacterName())) {
@@ -162,6 +173,14 @@ public class ProfileManager {
         boolean result = !profiles.isEmpty();
         Gdx.app.log("ProfileManager", "hasProfiles() returning: " + result);
         return result;
+    }
+    
+    public boolean canCreateNewProfile() {
+        return profiles.size() < MAX_PROFILES;
+    }
+    
+    public int getMaxProfiles() {
+        return MAX_PROFILES;
     }
     
     public void deleteProfile(Profile profile) {

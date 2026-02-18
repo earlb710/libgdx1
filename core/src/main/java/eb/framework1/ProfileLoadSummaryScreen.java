@@ -107,64 +107,65 @@ public class ProfileLoadSummaryScreen implements Screen {
         
         currentY -= 120;
         
+        // Use bodyFont for both labels and values to ensure consistent size
         // Character Name
         String nameLabel = "Character:";
-        glyphLayout.setText(subtitleFont, nameLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, nameLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, nameLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, nameLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, profile.getCharacterName(), centerX - 100, currentY);
         
         currentY -= 80;
         
         // Gender
         String genderLabel = "Gender:";
-        glyphLayout.setText(subtitleFont, genderLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, genderLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, genderLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, genderLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, profile.getGender(), centerX - 100, currentY);
         
         currentY -= 80;
         
         // Difficulty
         String difficultyLabel = "Difficulty:";
-        glyphLayout.setText(subtitleFont, difficultyLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, difficultyLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, difficultyLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, difficultyLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, profile.getDifficulty(), centerX - 100, currentY);
         
         currentY -= 80;
         
         // Game Date
         String dateLabel = "Year:";
-        glyphLayout.setText(subtitleFont, dateLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, dateLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, dateLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, dateLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, String.valueOf(profile.getGameDate()), centerX - 100, currentY);
         
         currentY -= 80;
         
         // Seed (just show that it exists, not the full value)
         String seedLabel = "Seed:";
-        glyphLayout.setText(subtitleFont, seedLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, seedLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, seedLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, seedLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, String.format("%d", profile.getRandSeed()), centerX - 100, currentY);
         
-        currentY -= 100;
+        currentY -= 120;  // Increased spacing from 100 to 120 for more space before attributes section
         
-        // Attributes summary
+        // Attributes summary - using bodyFont for heading too
         String attrLabel = "Attributes:";
-        glyphLayout.setText(subtitleFont, attrLabel);
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, attrLabel, centerX - 300, currentY);
-        subtitleFont.setColor(Color.WHITE);
+        glyphLayout.setText(bodyFont, attrLabel);
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, attrLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
         
-        currentY -= 60;
+        currentY -= 80;  // Increased spacing from 60 to 80 between heading and values
         
         // Show a few key attributes
         int attrCount = 0;

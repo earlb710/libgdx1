@@ -354,30 +354,44 @@ public class ProfileSelectionScreen implements Screen {
             batch.end();
         }
         
-        // Draw new profile button
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        if (newProfileButton.contains(mouseX, mouseY)) {
-            shapeRenderer.setColor(newButtonHoverColor);
+        // Draw new profile button (only if not at max profiles)
+        if (game.getProfileManager().canCreateNewProfile()) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            if (newProfileButton.contains(mouseX, mouseY)) {
+                shapeRenderer.setColor(newButtonHoverColor);
+            } else {
+                shapeRenderer.setColor(newButtonColor);
+            }
+            shapeRenderer.rect(newProfileButton.x, newProfileButton.y, 
+                              newProfileButton.width, newProfileButton.height);
+            shapeRenderer.end();
+            
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.WHITE);
+            shapeRenderer.rect(newProfileButton.x, newProfileButton.y, 
+                              newProfileButton.width, newProfileButton.height);
+            shapeRenderer.end();
+            
+            batch.begin();
+            String newProfileText = "+ Create New Profile";
+            // Use bodyFont instead of buttonFont to fit text within button
+            glyphLayout.setText(font, newProfileText);
+            float textX = newProfileButton.x + (newProfileButton.width - glyphLayout.width) / 2;
+            float textY = newProfileButton.y + (newProfileButton.height + glyphLayout.height) / 2;
+            font.draw(batch, newProfileText, textX, textY);
+            batch.end();
         } else {
-            shapeRenderer.setColor(newButtonColor);
+            // Show message that max profiles reached
+            batch.begin();
+            String maxProfilesText = "Maximum profiles (" + game.getProfileManager().getMaxProfiles() + ") reached";
+            glyphLayout.setText(font, maxProfilesText);
+            float textX = newProfileButton.x + (newProfileButton.width - glyphLayout.width) / 2;
+            float textY = newProfileButton.y + (newProfileButton.height + glyphLayout.height) / 2;
+            font.setColor(Color.GRAY);
+            font.draw(batch, maxProfilesText, textX, textY);
+            font.setColor(Color.WHITE);
+            batch.end();
         }
-        shapeRenderer.rect(newProfileButton.x, newProfileButton.y, 
-                          newProfileButton.width, newProfileButton.height);
-        shapeRenderer.end();
-        
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(newProfileButton.x, newProfileButton.y, 
-                          newProfileButton.width, newProfileButton.height);
-        shapeRenderer.end();
-        
-        batch.begin();
-        String newProfileText = "+ Create New Profile";
-        glyphLayout.setText(buttonFont, newProfileText);
-        float textX = newProfileButton.x + (newProfileButton.width - glyphLayout.width) / 2;
-        float textY = newProfileButton.y + (newProfileButton.height + glyphLayout.height) / 2;
-        buttonFont.draw(batch, newProfileText, textX, textY);
-        batch.end();
         
         // Draw back button
         drawButton(backButton, "Back", mouseX, mouseY);
@@ -456,8 +470,8 @@ public class ProfileSelectionScreen implements Screen {
                 }
             }
             
-            // Check new profile button
-            if (newProfileButton.contains(mouseX, mouseY)) {
+            // Check new profile button (only if we can create more profiles)
+            if (newProfileButton.contains(mouseX, mouseY) && game.getProfileManager().canCreateNewProfile()) {
                 // Stop rendering before transition
                 initialized = false;
                 game.setScreen(new ProfileCreationScreen(game));
