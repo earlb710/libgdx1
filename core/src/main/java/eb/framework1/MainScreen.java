@@ -81,6 +81,8 @@ public class MainScreen implements Screen {
     private static final Color INFO_BG_COLOR = new Color(0.15f, 0.15f, 0.2f, 1f);
     private static final Color INFO_BORDER_COLOR = new Color(0.4f, 0.4f, 0.5f, 1f);
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
+    private static final Color CELL_LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for "Cell:" label
+    private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     
     public MainScreen(Main game, Profile profile) {
         this.game = game;
@@ -317,7 +319,7 @@ public class MainScreen implements Screen {
         
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         
-        // Draw cells with border gap
+        // Draw cells with border gap (partial cells at edges are allowed)
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
                 Cell cell = cityMap.getCell(cx, cy);
@@ -325,9 +327,9 @@ public class MainScreen implements Screen {
                 float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                 float drawY = mapStartY + (cy - startCellY - fracOffsetY) * cellSize;
                 
-                // Skip if outside visible area
-                if (drawX + cellSize < 0 || drawX > screenWidth || 
-                    drawY + cellSize < infoAreaHeight || drawY > screenHeight) {
+                // Skip only if completely outside visible area (allow partial drawing)
+                if (drawX + cellSize < mapStartX - cellSize || drawX > mapStartX + cellSize * visibleCells + cellSize || 
+                    drawY + cellSize < mapStartY - cellSize || drawY > mapStartY + cellSize * visibleCells + cellSize) {
                     continue;
                 }
                 
@@ -351,7 +353,7 @@ public class MainScreen implements Screen {
                 float drawY = mapStartY + (selectedCellY - startCellY - fracOffsetY) * cellSize;
                 shapeRenderer.setColor(SELECTION_COLOR);
                 // Draw thick selection border
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < SELECTION_THICKNESS; i++) {
                     shapeRenderer.rect(drawX + i, drawY + i, cellSize - i * 2, cellSize - i * 2);
                 }
             }
@@ -447,7 +449,13 @@ public class MainScreen implements Screen {
         if (selectedCellX >= 0 && selectedCellY >= 0) {
             Cell cell = cityMap.getCell(selectedCellX, selectedCellY);
             
-            font.draw(batch, "Cell: " + selectedCellX + ", " + selectedCellY, textX, textY);
+            // Draw "Cell:" label in bright green, then coordinates in white
+            font.setColor(CELL_LABEL_COLOR);
+            font.draw(batch, "Cell: ", textX, textY);
+            glyphLayout.setText(font, "Cell: ");
+            float cellLabelWidth = glyphLayout.width;
+            font.setColor(Color.WHITE);
+            font.draw(batch, selectedCellX + ", " + selectedCellY, textX + cellLabelWidth, textY);
             textY -= fontLineHeight;
             
             font.draw(batch, "Terrain: " + cell.getTerrainType().getDisplayName(), textX, textY);
