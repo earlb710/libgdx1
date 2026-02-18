@@ -1,0 +1,44 @@
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│                                                              │
+│                      [LOGO IMAGE]                            │
+│                    (centered above title)                    │
+│                                                              │
+│                    Veritas Detegere                          │
+│                   (in gold, large text)                      │
+│                                                              │
+│                  A Detective Game                            │
+│                (in light gray, medium text)                  │
+│                                                              │
+│                                                              │
+│                  ┌─────────────────┐                         │
+│                  │      PLAY       │  ← Play Button          │
+│                  │  (hover effect) │     (200x60)            │
+│                  └─────────────────┘                         │
+│                                                              │
+│                  ┌─────────────────┐                         │
+│                  │      QUIT       │  ← Quit Button          │
+│                  │  (hover effect) │     (200x60)            │
+│                  └─────────────────┘                         │
+│                                                              │
+│                                                              │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+Background: Dark blue-gray (RGB: 0.1, 0.1, 0.15)
+Title Color: Gold (Color.GOLD)
+Subtitle Color: Light Gray (Color.LIGHT_GRAY)
+Button Color: Dark gray (0.3, 0.3, 0.4)
+Button Hover: Lighter gray (0.4, 0.4, 0.5)
+Button Border: White
+Button Text: White
+
+Interactions:
+- Mouse hover over buttons: Changes button color to lighter shade
+- Click on PLAY: Transitions to MainScreen (game starts)
+- Click on QUIT: Exits the application
+- Window resize: Buttons reposition to stay centered
+
+Screen Flow:
+1. New User: LoginScreen → SplashScreen → (PLAY) → MainScreen
+2. Returning User: SplashScreen → (PLAY) → MainScreen
