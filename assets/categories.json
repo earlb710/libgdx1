@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "description": "Building category definitions with descriptions and colors for city map rendering",
+  "categories": [
+    {
+      "id": "residential",
+      "name": "Residential",
+      "description": "Housing buildings including apartments, condos, townhouses, and senior living facilities",
+      "color": "#4CAF50"
+    },
+    {
+      "id": "commercial",
+      "name": "Commercial",
+      "description": "Retail stores, restaurants, shopping centers, and consumer-facing businesses",
+      "color": "#2196F3"
+    },
+    {
+      "id": "office",
+      "name": "Office",
+      "description": "Professional workspaces including office buildings, corporate headquarters, and coworking spaces",
+      "color": "#9C27B0"
+    },
+    {
+      "id": "industrial",
+      "name": "Industrial",
+      "description": "Warehouses, manufacturing facilities, data centers, and storage facilities",
+      "color": "#795548"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Infrastructure",
+      "description": "Essential city infrastructure including parking, transit stations, and transportation hubs",
+      "color": "#607D8B"
+    },
+    {
+      "id": "medical",
+      "name": "Medical",
+      "description": "Healthcare facilities including hospitals, clinics, dental offices, and veterinary clinics",
+      "color": "#F44336"
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "description": "Schools, colleges, daycares, and other educational institutions",
+      "color": "#FF9800"
+    },
+    {
+      "id": "public_services",
+      "name": "Public Services",
+      "description": "Government services including libraries, community centers, fire stations, and police stations",
+      "color": "#00BCD4"
+    },
+    {
+      "id": "government",
+      "name": "Government",
+      "description": "Municipal and county government buildings including city hall and courthouses",
+      "color": "#3F51B5"
+    },
+    {
+      "id": "hospitality",
+      "name": "Hospitality",
+      "description": "Hotels, motels, and lodging establishments from budget to luxury",
+      "color": "#E91E63"
+    },
+    {
+      "id": "entertainment",
+      "name": "Entertainment",
+      "description": "Venues for recreation and entertainment including theaters, sports arenas, and nightclubs",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "religious",
+      "name": "Religious",
+      "description": "Places of worship including churches, mosques, synagogues, and temples",
+      "color": "#9E9E9E"
+    }
+  ]
+}
