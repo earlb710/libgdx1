@@ -170,11 +170,11 @@ public class CharacterAttributeScreen implements Screen {
         
         // Draw Mental Attributes
         currentY = drawAttributeCategory("Mental", CharacterAttribute.getMentalAttributes(), currentY, leftMargin, attributeHeight);
-        currentY -= 50;  // Increased spacing between categories from 30 to 50
+        currentY -= 70;  // Increased spacing between categories from 50 to 70 for better visual separation
         
         // Draw Physical Attributes
         currentY = drawAttributeCategory("Physical", CharacterAttribute.getPhysicalAttributes(), currentY, leftMargin, attributeHeight);
-        currentY -= 50;
+        currentY -= 70;  // Increased spacing between categories from 50 to 70 for better visual separation
         
         // Draw Social Attributes
         currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
@@ -191,7 +191,7 @@ public class CharacterAttributeScreen implements Screen {
         subtitleFont.setColor(Color.WHITE);
         batch.end();
         
-        currentY -= 80;  // Increased from 60 to 80 for better spacing after category header
+        currentY -= 100;  // Increased from 80 to 100 for better spacing after category header
         
         // Draw each attribute in the category
         for (CharacterAttribute attr : attributes) {
@@ -213,8 +213,8 @@ public class CharacterAttributeScreen implements Screen {
         // Position for attribute name and value
         float textX = minusX + SMALL_BUTTON_SIZE + 20;
         
-        // Position for plus button
-        float plusX = textX + 200;
+        // Position for plus button - increased from 200 to 280 to prevent overlap with longer attribute names
+        float plusX = textX + 280;
         plusButtons.get(attr).set(plusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
         
         // Position for value display
