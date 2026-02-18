@@ -163,18 +163,18 @@ public class CharacterAttributeScreen implements Screen {
     }
     
     private void drawAttributes() {
-        float startY = Gdx.graphics.getHeight() - 400;
+        float startY = Gdx.graphics.getHeight() - 450;  // More space from top
         float currentY = startY;
         float leftMargin = 50;
-        float attributeHeight = 70;
+        float attributeHeight = 90;  // Increased from 70 to 90 for better spacing
         
         // Draw Mental Attributes
         currentY = drawAttributeCategory("Mental", CharacterAttribute.getMentalAttributes(), currentY, leftMargin, attributeHeight);
-        currentY -= 30;  // Extra spacing between categories
+        currentY -= 50;  // Increased spacing between categories from 30 to 50
         
         // Draw Physical Attributes
         currentY = drawAttributeCategory("Physical", CharacterAttribute.getPhysicalAttributes(), currentY, leftMargin, attributeHeight);
-        currentY -= 30;
+        currentY -= 50;
         
         // Draw Social Attributes
         currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
@@ -191,7 +191,7 @@ public class CharacterAttributeScreen implements Screen {
         subtitleFont.setColor(Color.WHITE);
         batch.end();
         
-        currentY -= 60;
+        currentY -= 80;  // Increased from 60 to 80 for better spacing after category header
         
         // Draw each attribute in the category
         for (CharacterAttribute attr : attributes) {
