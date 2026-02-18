@@ -354,7 +354,7 @@ public class CharacterAttributeScreen implements Screen {
             game.getProfileManager().selectProfile(profile);
             
             initialized = false;
-            game.setScreen(new MainScreen(game));
+            game.setScreen(new MainScreen(game, profile));
         } catch (Exception e) {
             Gdx.app.error("CharacterAttributeScreen", "Error creating character: " + e.getMessage(), e);
         }

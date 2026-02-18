@@ -246,7 +246,7 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Check Continue button
             if (continueButton.contains(mouseX, mouseY)) {
                 initialized = false;
-                game.setScreen(new MainScreen(game));
+                game.setScreen(new MainScreen(game, profile));
             }
             
             // Check Back button
