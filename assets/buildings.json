@@ -1,0 +1,636 @@
+{
+  "version": "1.0",
+  "description": "Urban/city building definitions for the city map generator",
+  "buildings": [
+    {
+      "id": "parking_lot_small",
+      "name": "Small Parking Lot",
+      "category": "infrastructure",
+      "stories": 0,
+      "capacity": 20,
+      "description": "A small surface parking lot for local businesses",
+      "improvements": ["Security Camera", "Lighting", "Payment Kiosk", "EV Charger"]
+    },
+    {
+      "id": "parking_lot_large",
+      "name": "Large Parking Lot",
+      "category": "infrastructure",
+      "stories": 0,
+      "capacity": 100,
+      "description": "A large surface parking lot for shopping centers",
+      "improvements": ["Security Camera", "Lighting", "Payment Kiosk", "Covered Walkway"]
+    },
+    {
+      "id": "parking_garage_small",
+      "name": "Small Parking Garage",
+      "category": "infrastructure",
+      "stories": 3,
+      "capacity": 150,
+      "description": "A compact multi-level parking structure",
+      "improvements": ["Elevator", "Security System", "EV Chargers", "Ventilation"]
+    },
+    {
+      "id": "parking_garage_large",
+      "name": "Large Parking Garage",
+      "category": "infrastructure",
+      "stories": 6,
+      "capacity": 500,
+      "description": "A major parking structure for downtown areas",
+      "improvements": ["Multiple Elevators", "Security Office", "Car Wash", "Valet Service"]
+    },
+    {
+      "id": "convenience_store",
+      "name": "Convenience Store",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 15,
+      "description": "A small neighborhood convenience store",
+      "improvements": ["Refrigeration", "Security System", "ATM", "Coffee Station"]
+    },
+    {
+      "id": "gas_station",
+      "name": "Gas Station",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 20,
+      "description": "A fuel station with convenience store",
+      "improvements": ["Fuel Pumps", "Car Wash", "Air Station", "Convenience Store"]
+    },
+    {
+      "id": "fast_food_restaurant",
+      "name": "Fast Food Restaurant",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 50,
+      "description": "A quick service restaurant with drive-through",
+      "improvements": ["Drive-Through", "Indoor Seating", "Playground", "WiFi"]
+    },
+    {
+      "id": "coffee_shop",
+      "name": "Coffee Shop",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 30,
+      "description": "A cozy coffee shop for the neighborhood",
+      "improvements": ["Espresso Machine", "WiFi", "Outdoor Seating", "Bakery"]
+    },
+    {
+      "id": "small_retail_store",
+      "name": "Small Retail Store",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 25,
+      "description": "A boutique retail shop",
+      "improvements": ["Display Windows", "Security System", "Fitting Rooms", "Storage"]
+    },
+    {
+      "id": "pharmacy",
+      "name": "Pharmacy",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 30,
+      "description": "A local pharmacy with health services",
+      "improvements": ["Prescription Counter", "Drive-Through", "Health Clinic", "Photo Center"]
+    },
+    {
+      "id": "bank_branch",
+      "name": "Bank Branch",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 40,
+      "description": "A local bank branch with ATMs",
+      "improvements": ["Vault", "ATM Lobby", "Drive-Through", "Safe Deposit Boxes"]
+    },
+    {
+      "id": "laundromat",
+      "name": "Laundromat",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 25,
+      "description": "A self-service laundry facility",
+      "improvements": ["Commercial Washers", "Dryers", "Folding Tables", "Vending Machines"]
+    },
+    {
+      "id": "hair_salon",
+      "name": "Hair Salon",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 20,
+      "description": "A neighborhood hair and beauty salon",
+      "improvements": ["Styling Stations", "Shampoo Bowls", "Waiting Area", "Product Display"]
+    },
+    {
+      "id": "gym_fitness_center",
+      "name": "Fitness Center",
+      "category": "commercial",
+      "stories": 2,
+      "capacity": 150,
+      "description": "A full-service gym with equipment",
+      "improvements": ["Cardio Equipment", "Weight Room", "Locker Rooms", "Group Fitness Studio"]
+    },
+    {
+      "id": "medical_clinic",
+      "name": "Medical Clinic",
+      "category": "medical",
+      "stories": 2,
+      "capacity": 60,
+      "description": "An outpatient medical clinic",
+      "improvements": ["Exam Rooms", "X-Ray", "Lab Services", "Waiting Room"]
+    },
+    {
+      "id": "dental_office",
+      "name": "Dental Office",
+      "category": "medical",
+      "stories": 1,
+      "capacity": 30,
+      "description": "A dental practice with multiple chairs",
+      "improvements": ["Dental Chairs", "X-Ray Equipment", "Sterilization Room", "Reception"]
+    },
+    {
+      "id": "veterinary_clinic",
+      "name": "Veterinary Clinic",
+      "category": "medical",
+      "stories": 1,
+      "capacity": 40,
+      "description": "An animal hospital and clinic",
+      "improvements": ["Exam Rooms", "Surgery Suite", "Kennels", "Grooming Station"]
+    },
+    {
+      "id": "daycare_center",
+      "name": "Daycare Center",
+      "category": "education",
+      "stories": 1,
+      "capacity": 50,
+      "description": "A childcare and early learning center",
+      "improvements": ["Playrooms", "Nap Area", "Kitchen", "Outdoor Playground"]
+    },
+    {
+      "id": "elementary_school",
+      "name": "Elementary School",
+      "category": "education",
+      "stories": 2,
+      "capacity": 500,
+      "description": "A public elementary school",
+      "improvements": ["Classrooms", "Gymnasium", "Library", "Cafeteria"]
+    },
+    {
+      "id": "high_school",
+      "name": "High School",
+      "category": "education",
+      "stories": 3,
+      "capacity": 1500,
+      "description": "A public high school",
+      "improvements": ["Science Labs", "Auditorium", "Athletic Fields", "Computer Labs"]
+    },
+    {
+      "id": "community_college",
+      "name": "Community College",
+      "category": "education",
+      "stories": 4,
+      "capacity": 3000,
+      "description": "A two-year community college",
+      "improvements": ["Lecture Halls", "Library", "Student Center", "Parking Structure"]
+    },
+    {
+      "id": "fire_station",
+      "name": "Fire Station",
+      "category": "public_services",
+      "stories": 2,
+      "capacity": 30,
+      "description": "A local fire department station",
+      "improvements": ["Truck Bays", "Living Quarters", "Training Room", "Equipment Storage"]
+    },
+    {
+      "id": "police_station",
+      "name": "Police Station",
+      "category": "public_services",
+      "stories": 2,
+      "capacity": 80,
+      "description": "A local police precinct",
+      "improvements": ["Holding Cells", "Evidence Room", "Dispatch Center", "Training Facility"]
+    },
+    {
+      "id": "post_office",
+      "name": "Post Office",
+      "category": "public_services",
+      "stories": 1,
+      "capacity": 30,
+      "description": "A United States Post Office branch",
+      "improvements": ["PO Boxes", "Package Sorting", "Retail Counter", "Loading Dock"]
+    },
+    {
+      "id": "library",
+      "name": "Public Library",
+      "category": "public_services",
+      "stories": 2,
+      "capacity": 200,
+      "description": "A public library with community programs",
+      "improvements": ["Book Stacks", "Computer Lab", "Meeting Rooms", "Children's Area"]
+    },
+    {
+      "id": "community_center",
+      "name": "Community Center",
+      "category": "public_services",
+      "stories": 2,
+      "capacity": 300,
+      "description": "A multi-purpose community facility",
+      "improvements": ["Gymnasium", "Meeting Rooms", "Kitchen", "Senior Center"]
+    },
+    {
+      "id": "city_hall",
+      "name": "City Hall",
+      "category": "government",
+      "stories": 4,
+      "capacity": 200,
+      "description": "The municipal government building",
+      "improvements": ["Council Chambers", "Clerk's Office", "Permit Center", "Archives"]
+    },
+    {
+      "id": "courthouse",
+      "name": "Courthouse",
+      "category": "government",
+      "stories": 5,
+      "capacity": 400,
+      "description": "The county courthouse",
+      "improvements": ["Courtrooms", "Judge's Chambers", "Law Library", "Security Checkpoint"]
+    },
+    {
+      "id": "small_apartment_building",
+      "name": "Small Apartment Building",
+      "category": "residential",
+      "stories": 3,
+      "capacity": 12,
+      "description": "A small apartment building with 12 units",
+      "improvements": ["Laundry Room", "Mailboxes", "Bike Storage", "Parking Lot"]
+    },
+    {
+      "id": "medium_apartment_building",
+      "name": "Medium Apartment Building",
+      "category": "residential",
+      "stories": 5,
+      "capacity": 40,
+      "description": "A mid-rise apartment building",
+      "improvements": ["Elevator", "Fitness Room", "Rooftop Deck", "Package Lockers"]
+    },
+    {
+      "id": "large_apartment_building",
+      "name": "Large Apartment Building",
+      "category": "residential",
+      "stories": 8,
+      "capacity": 80,
+      "description": "A large apartment complex",
+      "improvements": ["Pool", "Clubhouse", "Parking Garage", "Concierge"]
+    },
+    {
+      "id": "luxury_apartment_tower",
+      "name": "Luxury Apartment Tower",
+      "category": "residential",
+      "stories": 15,
+      "capacity": 150,
+      "description": "A luxury high-rise apartment building",
+      "improvements": ["Doorman", "Spa", "Sky Lounge", "Valet Parking"]
+    },
+    {
+      "id": "highrise_apartment_complex",
+      "name": "High-Rise Apartment Complex",
+      "category": "residential",
+      "stories": 20,
+      "capacity": 300,
+      "description": "A 20-story residential tower",
+      "improvements": ["24hr Security", "Rooftop Pool", "Business Center", "Pet Spa"]
+    },
+    {
+      "id": "townhouse_row",
+      "name": "Townhouse Row",
+      "category": "residential",
+      "stories": 3,
+      "capacity": 8,
+      "description": "A row of connected townhouses",
+      "improvements": ["Private Garages", "Patios", "HOA Common Area", "Guest Parking"]
+    },
+    {
+      "id": "condominium_building",
+      "name": "Condominium Building",
+      "category": "residential",
+      "stories": 10,
+      "capacity": 60,
+      "description": "An owner-occupied condo building",
+      "improvements": ["HOA Office", "Meeting Room", "Pool", "Underground Parking"]
+    },
+    {
+      "id": "senior_living_facility",
+      "name": "Senior Living Facility",
+      "category": "residential",
+      "stories": 4,
+      "capacity": 80,
+      "description": "An assisted living community",
+      "improvements": ["Dining Hall", "Medical Office", "Activity Room", "Garden"]
+    },
+    {
+      "id": "hotel_budget",
+      "name": "Budget Hotel",
+      "category": "hospitality",
+      "stories": 3,
+      "capacity": 80,
+      "description": "An economy hotel chain",
+      "improvements": ["Free Breakfast", "WiFi", "Parking", "Laundry"]
+    },
+    {
+      "id": "hotel_business",
+      "name": "Business Hotel",
+      "category": "hospitality",
+      "stories": 8,
+      "capacity": 200,
+      "description": "A business-class hotel",
+      "improvements": ["Conference Rooms", "Business Center", "Restaurant", "Fitness Center"]
+    },
+    {
+      "id": "hotel_luxury",
+      "name": "Luxury Hotel",
+      "category": "hospitality",
+      "stories": 15,
+      "capacity": 300,
+      "description": "A five-star luxury hotel",
+      "improvements": ["Spa", "Fine Dining", "Rooftop Bar", "Valet Service"]
+    },
+    {
+      "id": "office_building_small",
+      "name": "Small Office Building",
+      "category": "office",
+      "stories": 3,
+      "capacity": 100,
+      "description": "A small professional office building",
+      "improvements": ["Conference Room", "Break Room", "Parking Lot", "Security"]
+    },
+    {
+      "id": "office_building_medium",
+      "name": "Medium Office Building",
+      "category": "office",
+      "stories": 8,
+      "capacity": 400,
+      "description": "A mid-rise office tower",
+      "improvements": ["Multiple Elevators", "Lobby", "Parking Garage", "Cafeteria"]
+    },
+    {
+      "id": "office_building_large",
+      "name": "Large Office Building",
+      "category": "office",
+      "stories": 15,
+      "capacity": 1000,
+      "description": "A major office tower",
+      "improvements": ["Executive Floors", "Fitness Center", "Sky Lobby", "Helipad"]
+    },
+    {
+      "id": "corporate_headquarters",
+      "name": "Corporate Headquarters",
+      "category": "office",
+      "stories": 20,
+      "capacity": 2000,
+      "description": "A corporate campus main building",
+      "improvements": ["Executive Suite", "Auditorium", "Employee Cafeteria", "Daycare"]
+    },
+    {
+      "id": "coworking_space",
+      "name": "Coworking Space",
+      "category": "office",
+      "stories": 2,
+      "capacity": 150,
+      "description": "A shared workspace facility",
+      "improvements": ["Hot Desks", "Private Offices", "Meeting Rooms", "Coffee Bar"]
+    },
+    {
+      "id": "strip_mall",
+      "name": "Strip Mall",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 200,
+      "description": "A small shopping center with multiple stores",
+      "improvements": ["Shared Parking", "Anchor Store", "Restaurant Space", "Loading Area"]
+    },
+    {
+      "id": "shopping_center",
+      "name": "Shopping Center",
+      "category": "commercial",
+      "stories": 2,
+      "capacity": 500,
+      "description": "A medium-sized shopping complex",
+      "improvements": ["Food Court", "Movie Theater", "Department Store", "Parking Structure"]
+    },
+    {
+      "id": "regional_mall",
+      "name": "Regional Mall",
+      "category": "commercial",
+      "stories": 3,
+      "capacity": 2000,
+      "description": "A large regional shopping mall",
+      "improvements": ["Multiple Anchors", "Entertainment Zone", "Luxury Wing", "Valet Parking"]
+    },
+    {
+      "id": "supermarket",
+      "name": "Supermarket",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 200,
+      "description": "A full-service grocery store",
+      "improvements": ["Deli Counter", "Bakery", "Pharmacy", "Online Pickup"]
+    },
+    {
+      "id": "warehouse_store",
+      "name": "Warehouse Store",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 500,
+      "description": "A bulk goods retail warehouse",
+      "improvements": ["Loading Docks", "Food Court", "Tire Center", "Optical Center"]
+    },
+    {
+      "id": "restaurant_casual",
+      "name": "Casual Restaurant",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 100,
+      "description": "A casual dining restaurant",
+      "improvements": ["Full Kitchen", "Bar Area", "Patio Seating", "Private Dining Room"]
+    },
+    {
+      "id": "restaurant_fine_dining",
+      "name": "Fine Dining Restaurant",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 60,
+      "description": "An upscale fine dining establishment",
+      "improvements": ["Wine Cellar", "Chef's Table", "Valet Parking", "Private Events Space"]
+    },
+    {
+      "id": "movie_theater",
+      "name": "Movie Theater",
+      "category": "entertainment",
+      "stories": 2,
+      "capacity": 800,
+      "description": "A multiplex cinema",
+      "improvements": ["IMAX Screen", "Recliner Seats", "Arcade", "Dine-In Options"]
+    },
+    {
+      "id": "bowling_alley",
+      "name": "Bowling Alley",
+      "category": "entertainment",
+      "stories": 1,
+      "capacity": 200,
+      "description": "A bowling and entertainment center",
+      "improvements": ["Bowling Lanes", "Arcade", "Sports Bar", "Party Rooms"]
+    },
+    {
+      "id": "nightclub",
+      "name": "Nightclub",
+      "category": "entertainment",
+      "stories": 2,
+      "capacity": 500,
+      "description": "A dance club and nightlife venue",
+      "improvements": ["Dance Floor", "VIP Lounge", "Sound System", "Light Show"]
+    },
+    {
+      "id": "sports_arena",
+      "name": "Sports Arena",
+      "category": "entertainment",
+      "stories": 5,
+      "capacity": 15000,
+      "description": "A multi-purpose sports and concert venue",
+      "improvements": ["Luxury Suites", "Jumbotron", "Concession Stands", "Team Facilities"]
+    },
+    {
+      "id": "warehouse_small",
+      "name": "Small Warehouse",
+      "category": "industrial",
+      "stories": 1,
+      "capacity": 50,
+      "description": "A small storage warehouse",
+      "improvements": ["Loading Dock", "Racking", "Office Space", "Security"]
+    },
+    {
+      "id": "warehouse_large",
+      "name": "Large Warehouse",
+      "category": "industrial",
+      "stories": 1,
+      "capacity": 100,
+      "description": "A large distribution warehouse",
+      "improvements": ["Multiple Docks", "Cold Storage", "Conveyor System", "Fleet Parking"]
+    },
+    {
+      "id": "manufacturing_facility",
+      "name": "Manufacturing Facility",
+      "category": "industrial",
+      "stories": 2,
+      "capacity": 300,
+      "description": "A light manufacturing plant",
+      "improvements": ["Assembly Line", "Quality Control Lab", "Shipping Bay", "Employee Break Room"]
+    },
+    {
+      "id": "data_center",
+      "name": "Data Center",
+      "category": "industrial",
+      "stories": 2,
+      "capacity": 50,
+      "description": "A technology data center",
+      "improvements": ["Server Rooms", "Cooling System", "Backup Generators", "Security Operations"]
+    },
+    {
+      "id": "self_storage",
+      "name": "Self Storage Facility",
+      "category": "industrial",
+      "stories": 3,
+      "capacity": 30,
+      "description": "A climate-controlled storage facility",
+      "improvements": ["Climate Control", "24hr Access", "Security Cameras", "Loading Area"]
+    },
+    {
+      "id": "church",
+      "name": "Church",
+      "category": "religious",
+      "stories": 2,
+      "capacity": 400,
+      "description": "A community church",
+      "improvements": ["Sanctuary", "Fellowship Hall", "Sunday School Rooms", "Parking Lot"]
+    },
+    {
+      "id": "mosque",
+      "name": "Mosque",
+      "category": "religious",
+      "stories": 2,
+      "capacity": 500,
+      "description": "An Islamic community center",
+      "improvements": ["Prayer Hall", "Ablution Area", "Library", "Community Room"]
+    },
+    {
+      "id": "synagogue",
+      "name": "Synagogue",
+      "category": "religious",
+      "stories": 2,
+      "capacity": 300,
+      "description": "A Jewish synagogue",
+      "improvements": ["Sanctuary", "Social Hall", "Religious School", "Kitchen"]
+    },
+    {
+      "id": "hospital_small",
+      "name": "Small Hospital",
+      "category": "medical",
+      "stories": 4,
+      "capacity": 100,
+      "description": "A community hospital",
+      "improvements": ["Emergency Room", "Surgery Center", "Imaging", "Pharmacy"]
+    },
+    {
+      "id": "hospital_large",
+      "name": "Large Hospital",
+      "category": "medical",
+      "stories": 10,
+      "capacity": 500,
+      "description": "A major medical center",
+      "improvements": ["Trauma Center", "ICU", "Cancer Center", "Helipad"]
+    },
+    {
+      "id": "urgent_care",
+      "name": "Urgent Care Center",
+      "category": "medical",
+      "stories": 1,
+      "capacity": 40,
+      "description": "A walk-in medical clinic",
+      "improvements": ["Exam Rooms", "X-Ray", "Lab", "Pharmacy"]
+    },
+    {
+      "id": "car_dealership",
+      "name": "Car Dealership",
+      "category": "commercial",
+      "stories": 2,
+      "capacity": 50,
+      "description": "An automobile dealership",
+      "improvements": ["Showroom", "Service Center", "Parts Department", "Test Drive Lot"]
+    },
+    {
+      "id": "auto_repair_shop",
+      "name": "Auto Repair Shop",
+      "category": "commercial",
+      "stories": 1,
+      "capacity": 20,
+      "description": "An automotive service center",
+      "improvements": ["Service Bays", "Tire Storage", "Waiting Room", "Parts Storage"]
+    },
+    {
+      "id": "transit_station",
+      "name": "Transit Station",
+      "category": "infrastructure",
+      "stories": 2,
+      "capacity": 500,
+      "description": "A public transit hub",
+      "improvements": ["Platforms", "Ticket Office", "Waiting Area", "Retail Kiosks"]
+    },
+    {
+      "id": "bus_depot",
+      "name": "Bus Depot",
+      "category": "infrastructure",
+      "stories": 1,
+      "capacity": 100,
+      "description": "A city bus maintenance and dispatch facility",
+      "improvements": ["Maintenance Bays", "Fueling Station", "Driver Facilities", "Dispatch Center"]
+    }
+  ]
+}
