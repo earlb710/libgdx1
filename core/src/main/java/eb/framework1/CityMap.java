@@ -1,6 +1,7 @@
 package eb.framework1;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -12,18 +13,20 @@ import java.util.Random;
  * - 10% of non-beach cells are mountains (not accessible)
  * - One random side is beach
  * - Each non-mountain, non-beach cell has a building with 4 improvements
+ * - Buildings are selected using weighted random based on percentage distribution
  */
 public class CityMap {
     public static final int MAP_SIZE = 16;
     private static final double MOUNTAIN_PERCENTAGE = 0.10;
     
-    private static final String[] BUILDING_TYPES = {
+    // Fallback building types (used when GameDataManager is not provided)
+    private static final String[] FALLBACK_BUILDING_TYPES = {
         "Residential", "Commercial", "Industrial", "Office",
         "Hospital", "School", "Police Station", "Fire Station",
         "Park", "Library", "Mall", "Restaurant"
     };
     
-    private static final String[] IMPROVEMENT_TYPES = {
+    private static final String[] FALLBACK_IMPROVEMENT_TYPES = {
         "Security System", "Solar Panels", "Water Recycling", "Garden",
         "Parking Garage", "Elevator", "HVAC System", "Internet",
         "Generator", "Storage", "Rooftop Deck", "Fitness Center"
@@ -39,24 +42,50 @@ public class CityMap {
     private final Cell[][] cells;
     private final Side beachSide;
     private final long seed;
+    private final GameDataManager gameData;
 
     /**
      * Creates a new city map using the provided profile's random seed.
+     * Uses fallback building types.
      * 
      * @param profile The profile containing the random seed for map generation
      */
     public CityMap(Profile profile) {
-        this(profile.getRandSeed());
+        this(profile.getRandSeed(), null);
     }
 
     /**
      * Creates a new city map using the provided random seed.
+     * Uses fallback building types.
      * 
      * @param seed The random seed for deterministic map generation
      */
     public CityMap(long seed) {
+        this(seed, null);
+    }
+
+    /**
+     * Creates a new city map using the provided profile and game data.
+     * Uses building definitions from GameDataManager for weighted distribution.
+     * 
+     * @param profile The profile containing the random seed for map generation
+     * @param gameData The GameDataManager containing building definitions
+     */
+    public CityMap(Profile profile, GameDataManager gameData) {
+        this(profile.getRandSeed(), gameData);
+    }
+
+    /**
+     * Creates a new city map using the provided random seed and game data.
+     * Uses building definitions from GameDataManager for weighted distribution.
+     * 
+     * @param seed The random seed for deterministic map generation
+     * @param gameData The GameDataManager containing building definitions (can be null for fallback)
+     */
+    public CityMap(long seed, GameDataManager gameData) {
         this.seed = seed;
         this.cells = new Cell[MAP_SIZE][MAP_SIZE];
+        this.gameData = gameData;
         
         Random random = new Random(seed);
         
@@ -124,14 +153,92 @@ public class CityMap {
     }
 
     /**
-     * Generates a building with 4 improvements.
+     * Generates a building using either GameDataManager definitions or fallback.
      */
     private Building generateBuilding(Random random, int x, int y) {
-        String buildingName = BUILDING_TYPES[random.nextInt(BUILDING_TYPES.length)] + "-" + x + "," + y;
+        if (gameData != null && !gameData.getBuildings().isEmpty()) {
+            return generateBuildingFromDefinition(random, x, y);
+        } else {
+            return generateFallbackBuilding(random, x, y);
+        }
+    }
+
+    /**
+     * Generates a building using BuildingDefinition with weighted random selection.
+     */
+    private Building generateBuildingFromDefinition(Random random, int x, int y) {
+        // Select building definition using weighted random
+        BuildingDefinition definition = selectWeightedBuilding(random);
+        
+        // Generate random number of floors within the definition's range
+        int minFloors = Math.max(1, definition.getMinFloors());
+        int maxFloors = Math.max(minFloors, definition.getMaxFloors());
+        int floors = minFloors + random.nextInt(maxFloors - minFloors + 1);
+        
+        // Build name with coordinates
+        String buildingName = definition.getName() + "-" + x + "," + y;
+        
+        // Select 4 random improvements from the definition's improvement list
+        List<String> availableImprovements = definition.getImprovements();
+        List<Improvement> selectedImprovements = new ArrayList<>();
+        
+        if (availableImprovements.size() >= 4) {
+            // Shuffle and pick first 4
+            List<String> shuffled = new ArrayList<>(availableImprovements);
+            Collections.shuffle(shuffled, random);
+            for (int i = 0; i < 4; i++) {
+                int level = random.nextInt(5) + 1; // Levels 1-5
+                selectedImprovements.add(new Improvement(shuffled.get(i), level));
+            }
+        } else {
+            // Not enough improvements, use what's available and fill with duplicates
+            for (int i = 0; i < 4; i++) {
+                String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
+                int level = random.nextInt(5) + 1;
+                selectedImprovements.add(new Improvement(impName, level));
+            }
+        }
+        
+        return new Building(buildingName, selectedImprovements, definition, floors);
+    }
+
+    /**
+     * Selects a building definition using weighted random based on percentage.
+     */
+    private BuildingDefinition selectWeightedBuilding(Random random) {
+        List<BuildingDefinition> buildings = gameData.getBuildings();
+        
+        // Calculate total weight
+        double totalWeight = 0;
+        for (BuildingDefinition b : buildings) {
+            totalWeight += b.getPercentage();
+        }
+        
+        // Select random value
+        double randomValue = random.nextDouble() * totalWeight;
+        
+        // Find the building that corresponds to this value
+        double cumulative = 0;
+        for (BuildingDefinition b : buildings) {
+            cumulative += b.getPercentage();
+            if (randomValue <= cumulative) {
+                return b;
+            }
+        }
+        
+        // Fallback to last building (shouldn't happen)
+        return buildings.get(buildings.size() - 1);
+    }
+
+    /**
+     * Generates a building using fallback (hardcoded) types.
+     */
+    private Building generateFallbackBuilding(Random random, int x, int y) {
+        String buildingName = FALLBACK_BUILDING_TYPES[random.nextInt(FALLBACK_BUILDING_TYPES.length)] + "-" + x + "," + y;
         
         List<Improvement> improvements = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            String improvementName = IMPROVEMENT_TYPES[random.nextInt(IMPROVEMENT_TYPES.length)];
+            String improvementName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
             int level = random.nextInt(5) + 1; // Levels 1-5
             improvements.add(new Improvement(improvementName, level));
         }
