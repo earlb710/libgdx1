@@ -11,6 +11,7 @@ public class ProfileManager {
     private static final String PREFS_NAME = "framework1.profiles";
     private static final String KEY_PROFILES = "profiles";
     private static final String KEY_SELECTED_PROFILE = "selectedProfile";
+    private static final int MAX_PROFILES = 5; // Maximum number of profiles allowed
     
     private Preferences preferences;
     private List<Profile> profiles;
@@ -51,11 +52,11 @@ public class ProfileManager {
             if (profileData != null) {
                 for (String data : profileData) {
                     ProfileData pd = json.fromJson(ProfileData.class, data);
-                    Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty);
-                    // Load attributes if present
-                    if (pd.attributes != null) {
-                        profile.setAttributes(pd.attributes);
-                    }
+                    // Handle backwards compatibility - set defaults if not present
+                    int gameDate = (pd.gameDate == 0) ? 2050 : pd.gameDate;
+                    long randSeed = (pd.randSeed == 0) ? System.currentTimeMillis() : pd.randSeed;
+                    Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
+                        pd.attributes, gameDate, randSeed);
                     profiles.add(profile);
                 }
             }
@@ -88,6 +89,8 @@ public class ProfileManager {
             pd.gender = profile.getGender();
             pd.difficulty = profile.getDifficulty();
             pd.attributes = profile.getAttributes();
+            pd.gameDate = profile.getGameDate();
+            pd.randSeed = profile.getRandSeed();
             dataList.add(pd);
         }
         
@@ -103,6 +106,11 @@ public class ProfileManager {
     }
     
     public Profile createProfile(String characterName, String gender, String difficulty) {
+        // Check profile limit
+        if (profiles.size() >= MAX_PROFILES) {
+            throw new IllegalArgumentException("Maximum number of profiles (" + MAX_PROFILES + ") reached");
+        }
+        
         // Check if character name already exists (case-insensitive)
         for (Profile profile : profiles) {
             if (profile.getCharacterName().equalsIgnoreCase(characterName)) {
@@ -117,6 +125,11 @@ public class ProfileManager {
     }
     
     public void addProfile(Profile profile) {
+        // Check profile limit
+        if (profiles.size() >= MAX_PROFILES) {
+            throw new IllegalArgumentException("Maximum number of profiles (" + MAX_PROFILES + ") reached");
+        }
+        
         // Check if character name already exists (case-insensitive)
         for (Profile existingProfile : profiles) {
             if (existingProfile.getCharacterName().equalsIgnoreCase(profile.getCharacterName())) {
@@ -162,6 +175,14 @@ public class ProfileManager {
         return result;
     }
     
+    public boolean canCreateNewProfile() {
+        return profiles.size() < MAX_PROFILES;
+    }
+    
+    public int getMaxProfiles() {
+        return MAX_PROFILES;
+    }
+    
     public void deleteProfile(Profile profile) {
         if (profile == null) {
             throw new IllegalArgumentException("Profile cannot be null");
@@ -190,5 +211,7 @@ public class ProfileManager {
         public String gender;
         public String difficulty;
         public java.util.Map<String, Integer> attributes;
+        public int gameDate;
+        public long randSeed;
     }
 }

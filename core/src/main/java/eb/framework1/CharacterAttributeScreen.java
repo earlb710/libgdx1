@@ -346,8 +346,10 @@ public class CharacterAttributeScreen implements Screen {
                 attributeMap.put(entry.getKey().name(), entry.getValue());
             }
             
-            // Create profile with attributes
-            Profile profile = new Profile(characterName, gender, difficulty, attributeMap);
+            // Create profile with attributes, starting date (2050), and random seed
+            int startingDate = 2050;
+            long randomSeed = System.currentTimeMillis();
+            Profile profile = new Profile(characterName, gender, difficulty, attributeMap, startingDate, randomSeed);
             game.getProfileManager().addProfile(profile);
             game.getProfileManager().selectProfile(profile);
             
