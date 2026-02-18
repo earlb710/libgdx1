@@ -78,14 +78,14 @@ public class SplashScreen implements Screen {
             
             playButton = new Rectangle(
                 centerX - BUTTON_WIDTH / 2,
-                centerY - 80,  // Moved down from -20 to avoid subtitle overlap
+                centerY - 200,  // Moved down significantly to avoid subtitle overlap with extra space
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT
             );
             
             quitButton = new Rectangle(
                 centerX - BUTTON_WIDTH / 2,
-                centerY - 160,  // Moved down from -100 to maintain spacing
+                centerY - 280,  // Moved down to maintain spacing with extra buffer
                 BUTTON_WIDTH,
                 BUTTON_HEIGHT
             );
