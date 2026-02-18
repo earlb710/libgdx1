@@ -81,7 +81,7 @@ public class MainScreen implements Screen {
     private static final Color INFO_BG_COLOR = new Color(0.15f, 0.15f, 0.2f, 1f);
     private static final Color INFO_BORDER_COLOR = new Color(0.4f, 0.4f, 0.5f, 1f);
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
-    private static final Color CELL_LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for "Cell:" label
+    private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     
     public MainScreen(Main game, Profile profile) {
@@ -414,6 +414,22 @@ public class MainScreen implements Screen {
         Gdx.app.log("MainScreen", "Cached " + categoryColorCache.size() + " category colors");
     }
     
+    /**
+     * Helper method to draw a label in bright green and value in white.
+     * @return the textY position (unchanged, caller should subtract lineHeight)
+     */
+    private float drawLabelValue(SpriteBatch batch, BitmapFont font, String label, String value, float textX, float textY) {
+        // Draw label in bright green
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, label, textX, textY);
+        glyphLayout.setText(font, label);
+        float labelWidth = glyphLayout.width;
+        // Draw value in white
+        font.setColor(Color.WHITE);
+        font.draw(batch, value, textX + labelWidth, textY);
+        return textY;
+    }
+    
     private void drawInfoBlock() {
         // Draw info area background
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -450,33 +466,36 @@ public class MainScreen implements Screen {
             Cell cell = cityMap.getCell(selectedCellX, selectedCellY);
             
             // Draw "Cell:" label in bright green, then coordinates in white
-            font.setColor(CELL_LABEL_COLOR);
-            font.draw(batch, "Cell: ", textX, textY);
-            glyphLayout.setText(font, "Cell: ");
-            float cellLabelWidth = glyphLayout.width;
-            font.setColor(Color.WHITE);
-            font.draw(batch, selectedCellX + ", " + selectedCellY, textX + cellLabelWidth, textY);
+            textY = drawLabelValue(batch, font, "Cell: ", selectedCellX + ", " + selectedCellY, textX, textY);
             textY -= fontLineHeight;
             
-            font.draw(batch, "Terrain: " + cell.getTerrainType().getDisplayName(), textX, textY);
+            // Draw "Terrain:" label in bright green, then value in white
+            textY = drawLabelValue(batch, font, "Terrain: ", cell.getTerrainType().getDisplayName(), textX, textY);
             textY -= fontLineHeight;
             
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
-                font.draw(batch, "Building: " + building.getName(), textX, textY);
+                
+                // Draw "Building:" label in bright green, then value in white
+                textY = drawLabelValue(batch, font, "Building: ", building.getName(), textX, textY);
                 textY -= fontLineHeight;
                 
                 if (building.getDefinition() != null) {
-                    font.draw(batch, "Category: " + building.getCategory(), textX, textY);
+                    // Draw "Category:" label in bright green, then value in white
+                    textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
                     textY -= fontLineHeight;
                     
-                    font.draw(batch, "Floors: " + building.getFloors(), textX, textY);
+                    // Draw "Floors:" label in bright green, then value in white
+                    textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
                     textY -= fontLineHeight;
                 }
                 
                 // Show improvements (only if there's space)
                 if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
+                    // Draw "Improvements:" label in bright green (no value)
+                    font.setColor(LABEL_COLOR);
                     font.draw(batch, "Improvements:", textX, textY);
+                    font.setColor(Color.WHITE);
                     textY -= fontLineHeight;
                     
                     for (Improvement imp : building.getImprovements()) {
