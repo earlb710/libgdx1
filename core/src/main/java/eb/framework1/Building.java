@@ -33,7 +33,7 @@ public class Building {
     }
 
     public int getImprovementCount() {
-        return IMPROVEMENT_COUNT;
+        return improvements.size();
     }
 
     @Override

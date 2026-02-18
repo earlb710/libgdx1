@@ -9,7 +9,7 @@ import java.util.Random;
  * Generated using the profile's random seed for deterministic map creation.
  * 
  * Features:
- * - 10% of cells are mountains (not accessible)
+ * - 10% of non-beach cells are mountains (not accessible)
  * - One random side is beach
  * - Each non-mountain, non-beach cell has a building with 4 improvements
  */
