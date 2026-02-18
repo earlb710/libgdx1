@@ -3,7 +3,7 @@ package eb.framework1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Main game screen displaying the city map and info panel.
@@ -40,9 +43,15 @@ public class MainScreen implements Screen {
     private float mapOffsetX = 0;  // Pan offset in cells
     private float mapOffsetY = 0;
     private float zoomLevel = 1.0f; // 1.0 = full map, higher = more zoom
+    private float lastZoomLevel = 1.0f; // For caching zoom text
+    private String cachedZoomText = "Zoom: 1.0x";
+    
+    // Tuning constants
     private static final float MIN_ZOOM = 1.0f;  // Full map view (16x16 visible)
     private static final float MAX_ZOOM = 5.33f; // 3x3 cells visible (16/3 ≈ 5.33)
     private static final float ZOOM_SPEED = 0.15f;
+    private static final float SCROLL_SPEED = 0.5f;
+    private static final float TAP_THRESHOLD_PIXELS = 10f;
     
     // Selected cell
     private int selectedCellX = -1;
@@ -52,6 +61,12 @@ public class MainScreen implements Screen {
     private boolean isDragging = false;
     private float dragStartX, dragStartY;
     private float dragStartOffsetX, dragStartOffsetY;
+    
+    // Input handling
+    private InputProcessor previousInputProcessor;
+    
+    // Color cache for categories (avoid allocations during render)
+    private Map<String, Color> categoryColorCache;
     
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
@@ -90,7 +105,11 @@ public class MainScreen implements Screen {
         
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
         
-        // Set up input processing
+        // Initialize category color cache to avoid allocations during render
+        initColorCache(gameData);
+        
+        // Set up input processing (save previous processor for restoration)
+        previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
         
         // Calculate layout
@@ -125,7 +144,7 @@ public class MainScreen implements Screen {
                 // If it was a tap (not a drag), select a cell
                 if (isDragging && flippedY > infoAreaHeight) {
                     float dragDistance = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (dragDistance < 10) { // Tap, not drag
+                    if (dragDistance < TAP_THRESHOLD_PIXELS) { // Tap, not drag
                         selectCellAt(screenX, flippedY);
                     }
                 }
@@ -251,21 +270,20 @@ public class MainScreen implements Screen {
         }
         
         // Arrow keys for scrolling
-        float scrollSpeed = 0.5f;
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            mapOffsetX -= scrollSpeed;
+            mapOffsetX -= SCROLL_SPEED;
             clampMapOffset();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            mapOffsetX += scrollSpeed;
+            mapOffsetX += SCROLL_SPEED;
             clampMapOffset();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            mapOffsetY += scrollSpeed;
+            mapOffsetY += SCROLL_SPEED;
             clampMapOffset();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            mapOffsetY -= scrollSpeed;
+            mapOffsetY -= SCROLL_SPEED;
             clampMapOffset();
         }
     }
@@ -364,20 +382,33 @@ public class MainScreen implements Screen {
             case BEACH:
                 return BEACH_COLOR;
             case BUILDING:
-                // Get color from building category
+                // Get color from cached category colors
                 if (cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
-                    BuildingDefinition def = cell.getBuilding().getDefinition();
-                    CategoryDefinition cat = game.getGameDataManager().getCategoryById(def.getCategory());
-                    if (cat != null) {
-                        float[] rgb = cat.getColorFloats();
-                        return new Color(rgb[0], rgb[1], rgb[2], 1f);
+                    String categoryId = cell.getBuilding().getDefinition().getCategory();
+                    Color cachedColor = categoryColorCache.get(categoryId);
+                    if (cachedColor != null) {
+                        return cachedColor;
                     }
                 }
                 // Fallback to gray
-                return new Color(0.5f, 0.5f, 0.5f, 1f);
+                return Color.GRAY;
             default:
                 return Color.GRAY;
         }
+    }
+    
+    /**
+     * Initialize the color cache for building categories to avoid allocations during render.
+     */
+    private void initColorCache(GameDataManager gameData) {
+        categoryColorCache = new HashMap<>();
+        for (CategoryDefinition cat : gameData.getCategories()) {
+            float[] rgb = cat.getColorFloats();
+            categoryColorCache.put(cat.getId(), new Color(rgb[0], rgb[1], rgb[2], 1f));
+        }
+        // Add fallback gray color
+        categoryColorCache.put(null, Color.GRAY);
+        Gdx.app.log("MainScreen", "Cached " + categoryColorCache.size() + " category colors");
     }
     
     private void drawInfoBlock() {
@@ -441,10 +472,13 @@ public class MainScreen implements Screen {
             font.draw(batch, "Click on a cell to see details", textX, textY);
         }
         
-        // Show zoom level in corner
-        String zoomText = "Zoom: " + String.format("%.1fx", zoomLevel);
-        glyphLayout.setText(smallFont, zoomText);
-        smallFont.draw(batch, zoomText, screenWidth - glyphLayout.width - 20, infoAreaHeight - 20);
+        // Show zoom level in corner (cache the formatted string)
+        if (zoomLevel != lastZoomLevel) {
+            cachedZoomText = "Zoom: " + String.format("%.1fx", zoomLevel);
+            lastZoomLevel = zoomLevel;
+        }
+        glyphLayout.setText(smallFont, cachedZoomText);
+        smallFont.draw(batch, cachedZoomText, screenWidth - glyphLayout.width - 20, infoAreaHeight - 20);
         
         // Show controls hint
         String controlsHint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
@@ -476,6 +510,10 @@ public class MainScreen implements Screen {
     @Override
     public void hide() {
         Gdx.app.log("MainScreen", "hide() called");
+        // Restore previous input processor
+        if (previousInputProcessor != null) {
+            Gdx.input.setInputProcessor(previousInputProcessor);
+        }
     }
     
     @Override
@@ -485,6 +523,10 @@ public class MainScreen implements Screen {
         }
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
+        }
+        // Restore previous input processor on dispose
+        if (previousInputProcessor != null) {
+            Gdx.input.setInputProcessor(previousInputProcessor);
         }
         // Fonts are managed by FontManager
     }
