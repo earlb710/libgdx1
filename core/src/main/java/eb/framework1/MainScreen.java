@@ -52,6 +52,9 @@ public class MainScreen implements Screen {
     private static final float ZOOM_SPEED = 0.15f;
     private static final float SCROLL_SPEED = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
+    private static final float DEFAULT_INFO_PANEL_RATIO = 0.33f; // Default info panel takes 1/3 of screen
+    private static final float MIN_INFO_PANEL_RATIO = 0.15f;     // Minimum 15% of screen
+    private static final float MAX_INFO_PANEL_RATIO = 0.50f;     // Maximum 50% of screen
     
     // Selected cell
     private int selectedCellX = -1;
@@ -70,9 +73,10 @@ public class MainScreen implements Screen {
     
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
-    private int mapAreaHeight;    // Top 2/3
-    private int infoAreaHeight;   // Bottom 1/3
+    private int mapAreaHeight;    // Height of map area (full height minus info panel)
+    private int infoAreaHeight;   // Height of info panel
     private int infoAreaY;        // Y position of info area top
+    private float infoPanelRatio = DEFAULT_INFO_PANEL_RATIO; // Configurable info panel height ratio
     
     // Colors
     private static final Color MOUNTAIN_COLOR = new Color(0.4f, 0.35f, 0.3f, 1f);
@@ -456,12 +460,7 @@ public class MainScreen implements Screen {
         float textX = 20;
         float textY = infoAreaHeight - fontLineHeight; // Start one line height from top
         
-        // Title
-        font.setColor(Color.WHITE);
-        font.draw(batch, "INFO PANEL", textX, textY);
-        textY -= fontLineHeight * 1.3f;
-        
-        // Show selected cell info
+        // Show selected cell info (no title heading)
         if (selectedCellX >= 0 && selectedCellY >= 0) {
             Cell cell = cityMap.getCell(selectedCellX, selectedCellY);
             
@@ -530,11 +529,31 @@ public class MainScreen implements Screen {
     public void resize(int width, int height) {
         this.screenWidth = width;
         this.screenHeight = height;
-        this.infoAreaHeight = height / 3;  // Bottom 1/3
-        this.mapAreaHeight = height - infoAreaHeight;  // Top 2/3
+        this.infoAreaHeight = (int)(height * infoPanelRatio);  // Configurable info panel height
+        this.mapAreaHeight = height - infoAreaHeight;  // Map uses full remaining height
         
         Gdx.app.log("MainScreen", "Resized: " + width + "x" + height + 
-                    ", mapArea=" + mapAreaHeight + ", infoArea=" + infoAreaHeight);
+                    ", mapArea=" + mapAreaHeight + ", infoArea=" + infoAreaHeight + 
+                    ", ratio=" + infoPanelRatio);
+    }
+    
+    /**
+     * Set the info panel height ratio (0.0 to 1.0).
+     * Clamped to MIN_INFO_PANEL_RATIO and MAX_INFO_PANEL_RATIO.
+     * @param ratio The ratio of screen height for info panel
+     */
+    public void setInfoPanelRatio(float ratio) {
+        this.infoPanelRatio = MathUtils.clamp(ratio, MIN_INFO_PANEL_RATIO, MAX_INFO_PANEL_RATIO);
+        // Recalculate layout
+        resize(screenWidth, screenHeight);
+    }
+    
+    /**
+     * Get the current info panel height ratio.
+     * @return The ratio of screen height used by info panel
+     */
+    public float getInfoPanelRatio() {
+        return infoPanelRatio;
     }
     
     @Override
