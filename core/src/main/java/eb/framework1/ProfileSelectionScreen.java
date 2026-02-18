@@ -133,8 +133,8 @@ public class ProfileSelectionScreen implements Screen {
             BUTTON_HEIGHT
         );
         
-        // Back button
-        backButton = new Rectangle(50, 50, 150, 50);
+        // Back button - increased size to fit buttonFont text properly
+        backButton = new Rectangle(50, 50, 250, 80);
         
         // Confirmation dialog buttons
         confirmYesButton = new Rectangle(
