@@ -30,6 +30,7 @@ public class ProfileLoadSummaryScreen implements Screen {
     // Button dimensions
     private static final int BUTTON_WIDTH = 300;
     private static final int BUTTON_HEIGHT = 80;
+    private static final int CONTINUE_BUTTON_WIDTH = 400;  // Wider to fit "Continue" text
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -60,7 +61,7 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Create UI buttons
             int centerX = Gdx.graphics.getWidth() / 2;
             
-            continueButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 100, BUTTON_WIDTH, BUTTON_HEIGHT);
+            continueButton = new Rectangle(centerX - CONTINUE_BUTTON_WIDTH - 10, 100, CONTINUE_BUTTON_WIDTH, BUTTON_HEIGHT);
             backButton = new Rectangle(centerX + 10, 100, BUTTON_WIDTH, BUTTON_HEIGHT);
             
             Gdx.app.log("ProfileLoadSummaryScreen", "Initialization complete");
@@ -114,7 +115,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.YELLOW);
         bodyFont.draw(batch, nameLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
-        bodyFont.draw(batch, profile.getCharacterName(), centerX - 100, currentY);
+        bodyFont.draw(batch, profile.getCharacterName(), centerX + 50, currentY);
         
         currentY -= 80;
         
@@ -124,7 +125,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.YELLOW);
         bodyFont.draw(batch, genderLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
-        bodyFont.draw(batch, profile.getGender(), centerX - 100, currentY);
+        bodyFont.draw(batch, profile.getGender(), centerX + 50, currentY);
         
         currentY -= 80;
         
@@ -134,7 +135,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.YELLOW);
         bodyFont.draw(batch, difficultyLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
-        bodyFont.draw(batch, profile.getDifficulty(), centerX - 100, currentY);
+        bodyFont.draw(batch, profile.getDifficulty(), centerX + 50, currentY);
         
         currentY -= 80;
         
@@ -144,7 +145,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.YELLOW);
         bodyFont.draw(batch, dateLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
-        bodyFont.draw(batch, String.valueOf(profile.getGameDate()), centerX - 100, currentY);
+        bodyFont.draw(batch, String.valueOf(profile.getGameDate()), centerX + 50, currentY);
         
         currentY -= 80;
         
@@ -154,7 +155,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.YELLOW);
         bodyFont.draw(batch, seedLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
-        bodyFont.draw(batch, String.format("%d", profile.getRandSeed()), centerX - 100, currentY);
+        bodyFont.draw(batch, String.format("%d", profile.getRandSeed()), centerX + 50, currentY);
         
         currentY -= 120;  // Increased spacing from 100 to 120 for more space before attributes section
         
