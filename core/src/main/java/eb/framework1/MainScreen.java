@@ -292,6 +292,9 @@ public class MainScreen implements Screen {
         float cellSize = getCellSize();
         int visibleCells = getVisibleCells();
         
+        // Border size scales with cell size for visibility
+        float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
+        
         // Center the map in the map area
         float mapStartX = (screenWidth - cellSize * visibleCells) / 2;
         float mapStartY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
@@ -306,9 +309,15 @@ public class MainScreen implements Screen {
         float fracOffsetX = mapOffsetX - startCellX;
         float fracOffsetY = mapOffsetY - startCellY;
         
+        // Draw black background for grid (creates black borders between cells)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(mapStartX, mapStartY, cellSize * visibleCells, cellSize * visibleCells);
+        shapeRenderer.end();
+        
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         
-        // Draw cells
+        // Draw cells with border gap
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
                 Cell cell = cityMap.getCell(cx, cy);
@@ -325,34 +334,26 @@ public class MainScreen implements Screen {
                 // Get cell color
                 Color cellColor = getCellColor(cell);
                 shapeRenderer.setColor(cellColor);
-                shapeRenderer.rect(drawX + 1, drawY + 1, cellSize - 2, cellSize - 2);
+                // Draw cell with border gap on all sides
+                shapeRenderer.rect(drawX + borderSize, drawY + borderSize, 
+                                   cellSize - borderSize * 2, cellSize - borderSize * 2);
             }
         }
         
         shapeRenderer.end();
         
-        // Draw grid lines
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(GRID_COLOR);
-        
-        for (int cx = startCellX; cx <= endCellX; cx++) {
-            float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-            shapeRenderer.line(drawX, infoAreaHeight, drawX, screenHeight);
-        }
-        for (int cy = startCellY; cy <= endCellY; cy++) {
-            float drawY = mapStartY + (cy - startCellY - fracOffsetY) * cellSize;
-            shapeRenderer.line(0, drawY, screenWidth, drawY);
-        }
-        
         // Draw selection highlight
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (selectedCellX >= 0 && selectedCellY >= 0) {
             if (selectedCellX >= startCellX && selectedCellX < endCellX &&
                 selectedCellY >= startCellY && selectedCellY < endCellY) {
                 float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
                 float drawY = mapStartY + (selectedCellY - startCellY - fracOffsetY) * cellSize;
                 shapeRenderer.setColor(SELECTION_COLOR);
-                shapeRenderer.rect(drawX, drawY, cellSize, cellSize);
-                shapeRenderer.rect(drawX + 2, drawY + 2, cellSize - 4, cellSize - 4);
+                // Draw thick selection border
+                for (int i = 0; i < 3; i++) {
+                    shapeRenderer.rect(drawX + i, drawY + i, cellSize - i * 2, cellSize - i * 2);
+                }
             }
         }
         
@@ -368,7 +369,7 @@ public class MainScreen implements Screen {
                     
                     String coords = cx + "," + cy;
                     glyphLayout.setText(smallFont, coords);
-                    smallFont.draw(batch, coords, drawX + 3, drawY + cellSize - 3);
+                    smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
                 }
             }
             batch.end();
@@ -427,45 +428,54 @@ public class MainScreen implements Screen {
         // Draw info text
         batch.begin();
         
+        // Calculate proper line heights based on actual font metrics
+        glyphLayout.setText(font, "Hg"); // Use characters with ascenders/descenders
+        float fontLineHeight = glyphLayout.height * 1.4f; // Add 40% for spacing
+        
+        glyphLayout.setText(smallFont, "Hg");
+        float smallFontLineHeight = glyphLayout.height * 1.4f;
+        
         float textX = 20;
-        float textY = infoAreaHeight - 20;
-        float lineHeight = 25;
+        float textY = infoAreaHeight - fontLineHeight; // Start one line height from top
         
         // Title
         font.setColor(Color.WHITE);
         font.draw(batch, "INFO PANEL", textX, textY);
-        textY -= lineHeight * 1.5f;
+        textY -= fontLineHeight * 1.3f;
         
         // Show selected cell info
         if (selectedCellX >= 0 && selectedCellY >= 0) {
             Cell cell = cityMap.getCell(selectedCellX, selectedCellY);
             
             font.draw(batch, "Cell: " + selectedCellX + ", " + selectedCellY, textX, textY);
-            textY -= lineHeight;
+            textY -= fontLineHeight;
             
             font.draw(batch, "Terrain: " + cell.getTerrainType().getDisplayName(), textX, textY);
-            textY -= lineHeight;
+            textY -= fontLineHeight;
             
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 font.draw(batch, "Building: " + building.getName(), textX, textY);
-                textY -= lineHeight;
+                textY -= fontLineHeight;
                 
                 if (building.getDefinition() != null) {
                     font.draw(batch, "Category: " + building.getCategory(), textX, textY);
-                    textY -= lineHeight;
+                    textY -= fontLineHeight;
                     
                     font.draw(batch, "Floors: " + building.getFloors(), textX, textY);
-                    textY -= lineHeight;
+                    textY -= fontLineHeight;
                 }
                 
-                // Show improvements
-                font.draw(batch, "Improvements:", textX, textY);
-                textY -= lineHeight;
-                
-                for (Improvement imp : building.getImprovements()) {
-                    smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
-                    textY -= lineHeight * 0.8f;
+                // Show improvements (only if there's space)
+                if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
+                    font.draw(batch, "Improvements:", textX, textY);
+                    textY -= fontLineHeight;
+                    
+                    for (Improvement imp : building.getImprovements()) {
+                        if (textY < smallFontLineHeight * 2) break; // Stop before footer area
+                        smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
+                        textY -= smallFontLineHeight;
+                    }
                 }
             }
         } else {
@@ -478,12 +488,13 @@ public class MainScreen implements Screen {
             lastZoomLevel = zoomLevel;
         }
         glyphLayout.setText(smallFont, cachedZoomText);
-        smallFont.draw(batch, cachedZoomText, screenWidth - glyphLayout.width - 20, infoAreaHeight - 20);
+        smallFont.draw(batch, cachedZoomText, screenWidth - glyphLayout.width - 20, infoAreaHeight - smallFontLineHeight);
         
-        // Show controls hint
+        // Show controls hint - position with proper margin from bottom
         String controlsHint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
         glyphLayout.setText(smallFont, controlsHint);
-        smallFont.draw(batch, controlsHint, (screenWidth - glyphLayout.width) / 2, 20);
+        float footerY = smallFontLineHeight + 10; // Proper margin from bottom
+        smallFont.draw(batch, controlsHint, (screenWidth - glyphLayout.width) / 2, footerY);
         
         batch.end();
     }
