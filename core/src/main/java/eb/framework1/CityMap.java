@@ -190,10 +190,17 @@ public class CityMap {
                 int level = random.nextInt(5) + 1; // Levels 1-5
                 selectedImprovements.add(new Improvement(shuffled.get(i), level));
             }
-        } else {
+        } else if (!availableImprovements.isEmpty()) {
             // Not enough improvements, use what's available and fill with duplicates
             for (int i = 0; i < 4; i++) {
                 String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
+                int level = random.nextInt(5) + 1;
+                selectedImprovements.add(new Improvement(impName, level));
+            }
+        } else {
+            // No improvements defined, use fallback improvements
+            for (int i = 0; i < 4; i++) {
+                String impName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
                 int level = random.nextInt(5) + 1;
                 selectedImprovements.add(new Improvement(impName, level));
             }
@@ -212,6 +219,11 @@ public class CityMap {
         double totalWeight = 0;
         for (BuildingDefinition b : buildings) {
             totalWeight += b.getPercentage();
+        }
+        
+        // Handle edge case where all percentages are 0 - use uniform random
+        if (totalWeight <= 0) {
+            return buildings.get(random.nextInt(buildings.size()));
         }
         
         // Select random value
