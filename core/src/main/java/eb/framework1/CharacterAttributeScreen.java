@@ -143,7 +143,7 @@ public class CharacterAttributeScreen implements Screen {
         String infoText = characterName + " (" + gender + ") - " + difficulty;
         glyphLayout.setText(bodyFont, infoText);
         float infoX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        float infoY = titleY - 60;
+        float infoY = titleY - 100;  // Increased from 60 to 100 to prevent overlap with title
         bodyFont.draw(batch, infoText, infoX, infoY);
         
         // Points remaining
