@@ -450,7 +450,8 @@ public class ProfileSelectionScreen implements Screen {
                     game.getProfileManager().selectProfile(selectedProfile);
                     // Stop rendering before transition
                     initialized = false;
-                    game.setScreen(new MainScreen(game));
+                    // Go to summary screen instead of directly to main screen
+                    game.setScreen(new ProfileLoadSummaryScreen(game, selectedProfile));
                     return;
                 }
             }

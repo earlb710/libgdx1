@@ -51,11 +51,11 @@ public class ProfileManager {
             if (profileData != null) {
                 for (String data : profileData) {
                     ProfileData pd = json.fromJson(ProfileData.class, data);
-                    Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty);
-                    // Load attributes if present
-                    if (pd.attributes != null) {
-                        profile.setAttributes(pd.attributes);
-                    }
+                    // Handle backwards compatibility - set defaults if not present
+                    int gameDate = (pd.gameDate == 0) ? 2050 : pd.gameDate;
+                    long randSeed = (pd.randSeed == 0) ? System.currentTimeMillis() : pd.randSeed;
+                    Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
+                        pd.attributes, gameDate, randSeed);
                     profiles.add(profile);
                 }
             }
@@ -88,6 +88,8 @@ public class ProfileManager {
             pd.gender = profile.getGender();
             pd.difficulty = profile.getDifficulty();
             pd.attributes = profile.getAttributes();
+            pd.gameDate = profile.getGameDate();
+            pd.randSeed = profile.getRandSeed();
             dataList.add(pd);
         }
         
@@ -190,5 +192,7 @@ public class ProfileManager {
         public String gender;
         public String difficulty;
         public java.util.Map<String, Integer> attributes;
+        public int gameDate;
+        public long randSeed;
     }
 }
