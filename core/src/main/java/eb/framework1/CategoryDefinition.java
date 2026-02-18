@@ -61,6 +61,9 @@ public class CategoryDefinition {
             return new int[]{128, 128, 128}; // Default gray
         }
         String hex = color.startsWith("#") ? color.substring(1) : color;
+        if (hex.length() != 6) {
+            return new int[]{128, 128, 128}; // Default gray for invalid length
+        }
         try {
             int r = Integer.parseInt(hex.substring(0, 2), 16);
             int g = Integer.parseInt(hex.substring(2, 4), 16);

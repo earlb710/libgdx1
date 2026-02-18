@@ -22,6 +22,7 @@ public class GameDataManager {
     
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
+    private final Map<String, List<BuildingDefinition>> buildingsByCategory;
     private final List<CategoryDefinition> categories;
     private final Map<String, CategoryDefinition> categoriesById;
     
@@ -31,6 +32,7 @@ public class GameDataManager {
     public GameDataManager() {
         this.buildings = new ArrayList<>();
         this.buildingsById = new HashMap<>();
+        this.buildingsByCategory = new HashMap<>();
         this.categories = new ArrayList<>();
         this.categoriesById = new HashMap<>();
         
@@ -62,6 +64,13 @@ public class GameDataManager {
                     BuildingDefinition building = parseBuildingDefinition(buildingJson);
                     buildings.add(building);
                     buildingsById.put(building.getId(), building);
+                    
+                    // Cache by category for fast lookup
+                    String category = building.getCategory();
+                    if (!buildingsByCategory.containsKey(category)) {
+                        buildingsByCategory.put(category, new ArrayList<>());
+                    }
+                    buildingsByCategory.get(category).add(building);
                 }
             }
             
@@ -161,13 +170,11 @@ public class GameDataManager {
      * Returns all buildings in a specific category.
      */
     public List<BuildingDefinition> getBuildingsByCategory(String categoryId) {
-        List<BuildingDefinition> result = new ArrayList<>();
-        for (BuildingDefinition building : buildings) {
-            if (categoryId.equals(building.getCategory())) {
-                result.add(building);
-            }
+        List<BuildingDefinition> result = buildingsByCategory.get(categoryId);
+        if (result == null) {
+            return Collections.emptyList();
         }
-        return result;
+        return Collections.unmodifiableList(result);
     }
     
     /**
