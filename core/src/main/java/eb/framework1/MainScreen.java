@@ -544,8 +544,10 @@ public class MainScreen implements Screen {
      */
     public void setInfoPanelRatio(float ratio) {
         this.infoPanelRatio = MathUtils.clamp(ratio, MIN_INFO_PANEL_RATIO, MAX_INFO_PANEL_RATIO);
-        // Recalculate layout
-        resize(screenWidth, screenHeight);
+        // Recalculate layout only if dimensions are initialized
+        if (screenWidth > 0 && screenHeight > 0) {
+            resize(screenWidth, screenHeight);
+        }
     }
     
     /**
