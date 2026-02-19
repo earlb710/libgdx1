@@ -508,9 +508,6 @@ public class MainScreen implements Screen {
         // Draw hex numbers (all text rendering)
         batch.begin();
         
-        // Top ruler Y position
-        float topRulerY = mapStartY + cellSize * visibleCellsY;
-        
         // Draw left ruler hex numbers (Y axis - cell rows)
         for (int i = 0; i < visibleCellsY; i++) {
             int cellY = startCellY + i;
