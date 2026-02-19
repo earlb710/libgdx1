@@ -254,11 +254,8 @@ public class MainScreen implements Screen {
         }
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Original Y calculation without inversion
-        int rawCellY = (int)(relY / cellSize);
-        // Invert Y: row 0 is at top of screen. Since relY increases upward from map bottom,
-        // we need to flip it so that top (highest relY) = row 0
-        int cellY = (int)(mapOffsetY + (visibleCellsY - 1 - rawCellY));
+        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
+        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
         
         // Validate cell is within map
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -276,23 +273,17 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
-        // Flip Y coordinate (libGDX screen has Y=0 at top, we want Y=0 at bottom)
-        float flippedY = screenHeight - screenY;
-        
         // Map area starts after left ruler + gap at infoAreaHeight
         float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
         
-        // Calculate which cell was clicked (relative to map area)
+        // Calculate which cell was clicked
         float relX = screenX - mapAreaX;
-        float relY = flippedY - mapAreaY;
+        float relY = screenY - mapAreaY;
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Original Y calculation without inversion  
-        int rawCellY = (int)(relY / cellSize);
-        // Invert Y: row 0 is at top of screen. Since relY increases upward from map bottom,
-        // we need to flip it so that top (highest relY) = row 0
-        int cellY = (int)(mapOffsetY + (visibleCellsY - 1 - rawCellY));
+        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
+        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
         
         // Check bounds
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
