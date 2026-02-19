@@ -235,17 +235,18 @@ public class MainScreen implements Screen {
         
         // Convert screen coordinates to cell coordinates
         float cellSize = getCellSize();
-        int visibleCells = getVisibleCells();
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
         
-        float mapAreaX = (screenWidth - cellSize * visibleCells) / 2;
-        float mapAreaY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        float mapAreaX = 0;
+        float mapAreaY = infoAreaHeight;
         
         float relX = screenX - mapAreaX;
         float relY = flippedY - mapAreaY;
         
         // Check if within map bounds
-        if (relX < 0 || relX >= cellSize * visibleCells || 
-            relY < 0 || relY >= cellSize * visibleCells) {
+        if (relX < 0 || relX >= cellSize * visibleCellsX || 
+            relY < 0 || relY >= cellSize * visibleCellsY) {
             cursorCellX = -1;
             cursorCellY = -1;
             return;
@@ -267,11 +268,12 @@ public class MainScreen implements Screen {
     private void selectCellAt(int screenX, int screenY) {
         // Convert screen coordinates to cell coordinates
         float cellSize = getCellSize();
-        int visibleCells = getVisibleCells();
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
         
         // Map area starts at infoAreaHeight
-        float mapAreaX = (screenWidth - cellSize * visibleCells) / 2;
-        float mapAreaY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        float mapAreaX = 0;
+        float mapAreaY = infoAreaHeight;
         
         // Calculate which cell was clicked
         float relX = screenX - mapAreaX;
@@ -289,25 +291,35 @@ public class MainScreen implements Screen {
     }
     
     private float getCellSize() {
-        // At zoom=1, all 16 cells fit. At max zoom, 3 cells fit.
-        int visibleCells = getVisibleCells();
-        // Use mapAreaHeight to ensure map fills the full vertical space
-        // Also consider screen width to prevent horizontal overflow
-        float cellSizeByHeight = mapAreaHeight / (float)visibleCells;
-        float cellSizeByWidth = screenWidth / (float)visibleCells;
-        return Math.min(cellSizeByHeight, cellSizeByWidth);
+        // Cell size is determined by width divided by base visible cells
+        // This ensures the map fills the full width
+        int baseVisibleCells = getBaseVisibleCells();
+        return screenWidth / (float)baseVisibleCells;
     }
     
-    private int getVisibleCells() {
-        // At zoom 1.0, show all 16 cells. At max zoom, show 3 cells.
+    private int getBaseVisibleCells() {
+        // At zoom 1.0, show all 16 cells horizontally. At max zoom, show 3 cells.
         return Math.max(3, Math.round(CityMap.MAP_SIZE / zoomLevel));
     }
     
+    private int getVisibleCellsX() {
+        // Horizontal visible cells based on width
+        return getBaseVisibleCells();
+    }
+    
+    private int getVisibleCellsY() {
+        // Vertical visible cells - use full height available
+        float cellSize = getCellSize();
+        return (int)(mapAreaHeight / cellSize);
+    }
+    
     private void clampMapOffset() {
-        int visibleCells = getVisibleCells();
-        float maxOffset = CityMap.MAP_SIZE - visibleCells;
-        mapOffsetX = MathUtils.clamp(mapOffsetX, 0, Math.max(0, maxOffset));
-        mapOffsetY = MathUtils.clamp(mapOffsetY, 0, Math.max(0, maxOffset));
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
+        float maxOffsetX = CityMap.MAP_SIZE - visibleCellsX;
+        float maxOffsetY = CityMap.MAP_SIZE - visibleCellsY;
+        mapOffsetX = MathUtils.clamp(mapOffsetX, 0, Math.max(0, maxOffsetX));
+        mapOffsetY = MathUtils.clamp(mapOffsetY, 0, Math.max(0, maxOffsetY));
     }
     
     @Override
@@ -365,20 +377,21 @@ public class MainScreen implements Screen {
     
     private void drawMap() {
         float cellSize = getCellSize();
-        int visibleCells = getVisibleCells();
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
         
         // Border size scales with cell size for visibility
         float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
         
-        // Center the map in the map area
-        float mapStartX = (screenWidth - cellSize * visibleCells) / 2;
-        float mapStartY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        // Map starts at left edge (full width) and at info panel top (full height)
+        float mapStartX = 0;
+        float mapStartY = infoAreaHeight;
         
         // Calculate which cells to draw
         int startCellX = (int)mapOffsetX;
         int startCellY = (int)mapOffsetY;
-        int endCellX = Math.min(startCellX + visibleCells + 1, CityMap.MAP_SIZE);
-        int endCellY = Math.min(startCellY + visibleCells + 1, CityMap.MAP_SIZE);
+        int endCellX = Math.min(startCellX + visibleCellsX + 1, CityMap.MAP_SIZE);
+        int endCellY = Math.min(startCellY + visibleCellsY + 1, CityMap.MAP_SIZE);
         
         // Fractional offset for smooth scrolling
         float fracOffsetX = mapOffsetX - startCellX;
@@ -387,7 +400,7 @@ public class MainScreen implements Screen {
         // Draw black background for grid (creates black borders between cells)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(mapStartX, mapStartY, cellSize * visibleCells, cellSize * visibleCells);
+        shapeRenderer.rect(mapStartX, mapStartY, cellSize * visibleCellsX, cellSize * visibleCellsY);
         shapeRenderer.end();
         
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -401,8 +414,8 @@ public class MainScreen implements Screen {
                 float drawY = mapStartY + (cy - startCellY - fracOffsetY) * cellSize;
                 
                 // Skip only if completely outside visible area (allow partial drawing)
-                if (drawX + cellSize < mapStartX - cellSize || drawX > mapStartX + cellSize * visibleCells + cellSize || 
-                    drawY + cellSize < mapStartY - cellSize || drawY > mapStartY + cellSize * visibleCells + cellSize) {
+                if (drawX + cellSize < mapStartX - cellSize || drawX > mapStartX + cellSize * visibleCellsX + cellSize || 
+                    drawY + cellSize < mapStartY - cellSize || drawY > mapStartY + cellSize * visibleCellsY + cellSize) {
                     continue;
                 }
                 
@@ -453,11 +466,12 @@ public class MainScreen implements Screen {
     
     private void drawRulers() {
         float cellSize = getCellSize();
-        int visibleCells = getVisibleCells();
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
         
         // Map area positioning (same as drawMap)
-        float mapStartX = (screenWidth - cellSize * visibleCells) / 2;
-        float mapStartY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        float mapStartX = 0;
+        float mapStartY = infoAreaHeight;
         
         // Calculate which cells are visible
         int startCellX = (int)mapOffsetX;
@@ -470,21 +484,21 @@ public class MainScreen implements Screen {
         shapeRenderer.setColor(RULER_BG_COLOR);
         
         // Left vertical ruler background
-        shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, mapStartY, RULER_WIDTH, cellSize * visibleCells);
+        shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
         // Top horizontal ruler background
-        shapeRenderer.rect(mapStartX, mapStartY + cellSize * visibleCells + 2, cellSize * visibleCells, RULER_WIDTH);
+        shapeRenderer.rect(mapStartX, mapStartY + cellSize * visibleCellsY + 2, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map)
-        if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCells) {
+        if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCellsY) {
             float rulerY = mapStartY + (cursorCellY - startCellY - fracOffsetY) * cellSize;
             shapeRenderer.setColor(RULER_MARKER_COLOR);
             shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, rulerY, RULER_WIDTH, cellSize);
         }
-        if (cursorCellX >= startCellX && cursorCellX < startCellX + visibleCells) {
+        if (cursorCellX >= startCellX && cursorCellX < startCellX + visibleCellsX) {
             float rulerX = mapStartX + (cursorCellX - startCellX - fracOffsetX) * cellSize;
             shapeRenderer.setColor(RULER_MARKER_COLOR);
-            shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCells + 2, cellSize, RULER_WIDTH);
+            shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCellsY + 2, cellSize, RULER_WIDTH);
         }
         
         shapeRenderer.end();
@@ -493,7 +507,7 @@ public class MainScreen implements Screen {
         batch.begin();
         
         // Draw left ruler hex numbers (Y axis - cell rows)
-        for (int i = 0; i < visibleCells; i++) {
+        for (int i = 0; i < visibleCellsY; i++) {
             int cellY = startCellY + i;
             if (cellY >= 0 && cellY < CityMap.MAP_SIZE) {
                 float rulerY = mapStartY + (i - fracOffsetY) * cellSize;
@@ -508,7 +522,7 @@ public class MainScreen implements Screen {
         }
         
         // Draw top ruler hex numbers (X axis - cell columns)
-        for (int i = 0; i < visibleCells; i++) {
+        for (int i = 0; i < visibleCellsX; i++) {
             int cellX = startCellX + i;
             if (cellX >= 0 && cellX < CityMap.MAP_SIZE) {
                 float rulerX = mapStartX + (i - fracOffsetX) * cellSize;
@@ -516,7 +530,7 @@ public class MainScreen implements Screen {
                 String hex = HEX_DIGITS[cellX];
                 glyphLayout.setText(smallFont, hex);
                 float textX = rulerX + (cellSize - glyphLayout.width) / 2;
-                float textY = mapStartY + cellSize * visibleCells + 2 + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
+                float textY = mapStartY + cellSize * visibleCellsY + 2 + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
                 smallFont.setColor(cursorCellX == cellX ? Color.BLACK : Color.WHITE);
                 smallFont.draw(batch, hex, textX, textY);
             }
