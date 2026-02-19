@@ -690,14 +690,13 @@ public class MainScreen implements Screen {
         // Calculate actual map display size
         float cellSize = getCellSize();
         int visibleCells = getVisibleCells();
-        float actualMapDisplayWidth = cellSize * visibleCells;
-        float actualMapDisplayHeight = cellSize * visibleCells;
+        float mapDisplayUsed = cellSize * visibleCells;
         
         Gdx.app.log("MainScreen", "=== SCREEN LAYOUT DEBUG ===");
         Gdx.app.log("MainScreen", "Screen size: " + width + "x" + height + " pixels");
-        Gdx.app.log("MainScreen", "Map area height: " + mapAreaHeight + " pixels");
+        Gdx.app.log("MainScreen", "Map area available: " + screenWidth + "x" + mapAreaHeight + " pixels");
         Gdx.app.log("MainScreen", "Info panel height: " + infoAreaHeight + " pixels (ratio=" + infoPanelRatio + ")");
-        Gdx.app.log("MainScreen", "Actual map display: " + actualMapDisplayWidth + "x" + actualMapDisplayHeight + " pixels");
+        Gdx.app.log("MainScreen", "Map display used: " + mapDisplayUsed + "x" + mapDisplayUsed + " pixels (square)");
         Gdx.app.log("MainScreen", "Cell size: " + cellSize + " pixels, Visible cells: " + visibleCells);
         Gdx.app.log("MainScreen", "Zoom level: " + zoomLevel);
         Gdx.app.log("MainScreen", "===========================");
