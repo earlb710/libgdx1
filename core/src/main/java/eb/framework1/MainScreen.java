@@ -100,7 +100,7 @@ public class MainScreen implements Screen {
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     
     // Floor-based brightness constants
-    private static final float MIN_BRIGHTNESS = 0.4f;  // Brightness for 1-floor buildings
+    private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
     private static final int MAX_FLOORS = 20;          // Maximum floors for brightness calculation
     
     // Reusable color object to avoid allocations during render
