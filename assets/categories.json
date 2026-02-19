@@ -24,7 +24,7 @@
       "id": "industrial",
       "name": "Industrial",
       "description": "Warehouses, manufacturing facilities, data centers, and storage facilities",
-      "color": "#795548"
+      "color": "#FFC107"
     },
     {
       "id": "infrastructure",
