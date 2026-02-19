@@ -701,17 +701,19 @@ public class MainScreen implements Screen {
         this.infoAreaHeight = (int)(height * infoPanelRatio);  // Configurable info panel height
         this.mapAreaHeight = height - infoAreaHeight;  // Map uses full remaining height
         
-        // Calculate actual map display size
+        // Calculate actual map display size (rectangular, uses full available space)
         float cellSize = getCellSize();
-        int visibleCells = getVisibleCells();
-        float mapDisplayUsed = cellSize * visibleCells;
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
+        float mapDisplayWidth = cellSize * visibleCellsX;
+        float mapDisplayHeight = cellSize * visibleCellsY;
         
         Gdx.app.log("MainScreen", "=== SCREEN LAYOUT DEBUG ===");
         Gdx.app.log("MainScreen", "Screen size: " + width + "x" + height + " pixels");
         Gdx.app.log("MainScreen", "Map area available: " + screenWidth + "x" + mapAreaHeight + " pixels");
         Gdx.app.log("MainScreen", "Info panel height: " + infoAreaHeight + " pixels (ratio=" + infoPanelRatio + ")");
-        Gdx.app.log("MainScreen", "Map display used: " + mapDisplayUsed + "x" + mapDisplayUsed + " pixels (square)");
-        Gdx.app.log("MainScreen", "Cell size: " + cellSize + " pixels, Visible cells: " + visibleCells);
+        Gdx.app.log("MainScreen", "Actual map display: " + mapDisplayWidth + "x" + mapDisplayHeight + " pixels");
+        Gdx.app.log("MainScreen", "Cell size: " + cellSize + " pixels, Visible cells: " + visibleCellsX + "x" + visibleCellsY);
         Gdx.app.log("MainScreen", "Zoom level: " + zoomLevel);
         Gdx.app.log("MainScreen", "===========================");
     }
