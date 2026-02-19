@@ -101,7 +101,7 @@ public class MainScreen implements Screen {
     
     // Floor-based brightness constants
     private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
-    private static final int MAX_FLOORS = 20;          // Maximum floors for brightness calculation
+    private static final int MAX_FLOORS = 10;          // Maximum floors for brightness calculation
     
     // Reusable color object to avoid allocations during render
     private final Color tempColor = new Color();
