@@ -458,38 +458,39 @@ public class MainScreen implements Screen {
         float fracOffsetX = mapOffsetX - startCellX;
         float fracOffsetY = mapOffsetY - startCellY;
         
-        // Draw ruler backgrounds
+        // Draw ruler backgrounds and cursor markers (all shape rendering first)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(RULER_BG_COLOR);
         
-        // Left vertical ruler
+        // Left vertical ruler background
         shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, mapStartY, RULER_WIDTH, cellSize * visibleCells);
         
-        // Top horizontal ruler
+        // Top horizontal ruler background
         shapeRenderer.rect(mapStartX, mapStartY + cellSize * visibleCells + 2, cellSize * visibleCells, RULER_WIDTH);
+        
+        // Draw cursor markers on rulers (if cursor is over map)
+        if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCells) {
+            float rulerY = mapStartY + (cursorCellY - startCellY - fracOffsetY) * cellSize;
+            shapeRenderer.setColor(RULER_MARKER_COLOR);
+            shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, rulerY, RULER_WIDTH, cellSize);
+        }
+        if (cursorCellX >= startCellX && cursorCellX < startCellX + visibleCells) {
+            float rulerX = mapStartX + (cursorCellX - startCellX - fracOffsetX) * cellSize;
+            shapeRenderer.setColor(RULER_MARKER_COLOR);
+            shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCells + 2, cellSize, RULER_WIDTH);
+        }
         
         shapeRenderer.end();
         
-        // Draw hex numbers and cursor markers
+        // Draw hex numbers (all text rendering)
         batch.begin();
         
-        // Draw left ruler (Y axis - cell rows)
-        for (int i = 0; i <= visibleCells; i++) {
+        // Draw left ruler hex numbers (Y axis - cell rows)
+        for (int i = 0; i < visibleCells; i++) {
             int cellY = startCellY + i;
             if (cellY >= 0 && cellY < CityMap.MAP_SIZE) {
                 float rulerY = mapStartY + (i - fracOffsetY) * cellSize;
                 
-                // Highlight if cursor is on this row
-                if (cursorCellY == cellY) {
-                    batch.end();
-                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                    shapeRenderer.setColor(RULER_MARKER_COLOR);
-                    shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, rulerY, RULER_WIDTH, cellSize);
-                    shapeRenderer.end();
-                    batch.begin();
-                }
-                
-                // Draw hex number
                 String hex = HEX_DIGITS[cellY];
                 glyphLayout.setText(smallFont, hex);
                 float textX = mapStartX - RULER_WIDTH - 2 + (RULER_WIDTH - glyphLayout.width) / 2;
@@ -499,23 +500,12 @@ public class MainScreen implements Screen {
             }
         }
         
-        // Draw top ruler (X axis - cell columns)
-        for (int i = 0; i <= visibleCells; i++) {
+        // Draw top ruler hex numbers (X axis - cell columns)
+        for (int i = 0; i < visibleCells; i++) {
             int cellX = startCellX + i;
             if (cellX >= 0 && cellX < CityMap.MAP_SIZE) {
                 float rulerX = mapStartX + (i - fracOffsetX) * cellSize;
                 
-                // Highlight if cursor is on this column
-                if (cursorCellX == cellX) {
-                    batch.end();
-                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                    shapeRenderer.setColor(RULER_MARKER_COLOR);
-                    shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCells + 2, cellSize, RULER_WIDTH);
-                    shapeRenderer.end();
-                    batch.begin();
-                }
-                
-                // Draw hex number
                 String hex = HEX_DIGITS[cellX];
                 glyphLayout.setText(smallFont, hex);
                 float textX = rulerX + (cellSize - glyphLayout.width) / 2;
