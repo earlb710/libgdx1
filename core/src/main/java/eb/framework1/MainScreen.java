@@ -99,6 +99,13 @@ public class MainScreen implements Screen {
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     
+    // Floor-based brightness constants
+    private static final float MIN_BRIGHTNESS = 0.4f;  // Brightness for 1-floor buildings
+    private static final int MAX_FLOORS = 20;          // Maximum floors for brightness calculation
+    
+    // Reusable color object to avoid allocations during render
+    private final Color tempColor = new Color();
+    
     public MainScreen(Main game, Profile profile) {
         this.game = game;
         this.profile = profile;
@@ -525,12 +532,24 @@ public class MainScreen implements Screen {
             case BEACH:
                 return BEACH_COLOR;
             case BUILDING:
-                // Get color from cached category colors
+                // Get base color from cached category colors, then apply floor-based brightness
                 if (cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
-                    String categoryId = cell.getBuilding().getDefinition().getCategory();
-                    Color cachedColor = categoryColorCache.get(categoryId);
-                    if (cachedColor != null) {
-                        return cachedColor;
+                    Building building = cell.getBuilding();
+                    String categoryId = building.getDefinition().getCategory();
+                    Color baseColor = categoryColorCache.get(categoryId);
+                    if (baseColor != null) {
+                        // Calculate brightness based on floors (more floors = brighter)
+                        // Brightness ranges from 0.4 (1 floor) to 1.0 (MAX_FLOORS)
+                        int floors = building.getFloors();
+                        float brightness = MIN_BRIGHTNESS + (1.0f - MIN_BRIGHTNESS) * (floors / (float) MAX_FLOORS);
+                        // Apply brightness to base color (reuse tempColor to avoid allocations)
+                        tempColor.set(
+                            Math.min(1.0f, baseColor.r * brightness),
+                            Math.min(1.0f, baseColor.g * brightness),
+                            Math.min(1.0f, baseColor.b * brightness),
+                            1.0f
+                        );
+                        return tempColor;
                     }
                 }
                 // Fallback to gray
