@@ -255,7 +255,7 @@ public class MainScreen implements Screen {
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
         // Invert Y because screen Y increases upward but row 0 is at top of map
-        int cellY = (int)(mapOffsetY + (visibleCellsY - 1) - relY / cellSize);
+        int cellY = (int)(mapOffsetY + visibleCellsY - relY / cellSize);
         
         // Validate cell is within map
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -282,7 +282,7 @@ public class MainScreen implements Screen {
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
         // Invert Y because screen Y increases upward but row 0 is at top of map
-        int cellY = (int)(mapOffsetY + (visibleCellsY - 1) - relY / cellSize);
+        int cellY = (int)(mapOffsetY + visibleCellsY - relY / cellSize);
         
         // Check bounds
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
