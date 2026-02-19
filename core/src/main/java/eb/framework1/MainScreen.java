@@ -238,7 +238,7 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
-        float mapAreaX = 0;
+        float mapAreaX = RULER_WIDTH;
         float mapAreaY = infoAreaHeight;
         
         float relX = screenX - mapAreaX;
@@ -271,8 +271,8 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
-        // Map area starts at infoAreaHeight
-        float mapAreaX = 0;
+        // Map area starts after left ruler at infoAreaHeight
+        float mapAreaX = RULER_WIDTH;
         float mapAreaY = infoAreaHeight;
         
         // Calculate which cell was clicked
@@ -291,10 +291,11 @@ public class MainScreen implements Screen {
     }
     
     private float getCellSize() {
-        // Cell size is determined by width divided by base visible cells
-        // This ensures the map fills the full width
+        // Cell size is determined by available width (minus ruler) divided by base visible cells
+        // This ensures the map fills the available width after the left ruler
         int baseVisibleCells = getBaseVisibleCells();
-        return screenWidth / (float)baseVisibleCells;
+        float availableWidth = screenWidth - RULER_WIDTH;
+        return availableWidth / (float)baseVisibleCells;
     }
     
     private int getBaseVisibleCells() {
@@ -383,8 +384,8 @@ public class MainScreen implements Screen {
         // Border size scales with cell size for visibility
         float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
         
-        // Map starts at left edge (full width) and at info panel top (full height)
-        float mapStartX = 0;
+        // Map starts after left ruler and at info panel top
+        float mapStartX = RULER_WIDTH;
         float mapStartY = infoAreaHeight;
         
         // Calculate which cells to draw
@@ -470,7 +471,7 @@ public class MainScreen implements Screen {
         int visibleCellsY = getVisibleCellsY();
         
         // Map area positioning (same as drawMap)
-        float mapStartX = 0;
+        float mapStartX = RULER_WIDTH;
         float mapStartY = infoAreaHeight;
         
         // Calculate which cells are visible
@@ -483,28 +484,32 @@ public class MainScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(RULER_BG_COLOR);
         
-        // Left vertical ruler background
-        shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
+        // Left vertical ruler background (at left edge x=0)
+        shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
-        // Top horizontal ruler background
-        shapeRenderer.rect(mapStartX, mapStartY + cellSize * visibleCellsY + 2, cellSize * visibleCellsX, RULER_WIDTH);
+        // Top horizontal ruler background (at top of map area)
+        float topRulerY = mapStartY + cellSize * visibleCellsY;
+        shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map)
         if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCellsY) {
             float rulerY = mapStartY + (cursorCellY - startCellY - fracOffsetY) * cellSize;
             shapeRenderer.setColor(RULER_MARKER_COLOR);
-            shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, rulerY, RULER_WIDTH, cellSize);
+            shapeRenderer.rect(0, rulerY, RULER_WIDTH, cellSize);
         }
         if (cursorCellX >= startCellX && cursorCellX < startCellX + visibleCellsX) {
             float rulerX = mapStartX + (cursorCellX - startCellX - fracOffsetX) * cellSize;
             shapeRenderer.setColor(RULER_MARKER_COLOR);
-            shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCellsY + 2, cellSize, RULER_WIDTH);
+            shapeRenderer.rect(rulerX, topRulerY, cellSize, RULER_WIDTH);
         }
         
-        shapeRenderer.end();
+        shapeRenderer.end();;
         
         // Draw hex numbers (all text rendering)
         batch.begin();
+        
+        // Top ruler Y position
+        float topRulerY = mapStartY + cellSize * visibleCellsY;
         
         // Draw left ruler hex numbers (Y axis - cell rows)
         for (int i = 0; i < visibleCellsY; i++) {
@@ -514,7 +519,7 @@ public class MainScreen implements Screen {
                 
                 String hex = HEX_DIGITS[cellY];
                 glyphLayout.setText(smallFont, hex);
-                float textX = mapStartX - RULER_WIDTH - 2 + (RULER_WIDTH - glyphLayout.width) / 2;
+                float textX = (RULER_WIDTH - glyphLayout.width) / 2;
                 float textY = rulerY + (cellSize + glyphLayout.height) / 2;
                 smallFont.setColor(cursorCellY == cellY ? Color.BLACK : Color.WHITE);
                 smallFont.draw(batch, hex, textX, textY);
@@ -530,7 +535,7 @@ public class MainScreen implements Screen {
                 String hex = HEX_DIGITS[cellX];
                 glyphLayout.setText(smallFont, hex);
                 float textX = rulerX + (cellSize - glyphLayout.width) / 2;
-                float textY = mapStartY + cellSize * visibleCellsY + 2 + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
+                float textY = topRulerY + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
                 smallFont.setColor(cursorCellX == cellX ? Color.BLACK : Color.WHITE);
                 smallFont.draw(batch, hex, textX, textY);
             }
