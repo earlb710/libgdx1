@@ -241,21 +241,23 @@ public class MainScreen implements Screen {
         
         float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
+        float mapTopY = mapAreaY + visibleCellsY * cellSize;
         
         float relX = screenX - mapAreaX;
-        float relY = flippedY - mapAreaY;
+        // Distance from TOP of map (since row 0 is at top)
+        float distFromTop = mapTopY - flippedY;
         
         // Check if within map bounds
         if (relX < 0 || relX >= cellSize * visibleCellsX || 
-            relY < 0 || relY >= cellSize * visibleCellsY) {
+            distFromTop < 0 || distFromTop >= cellSize * visibleCellsY) {
             cursorCellX = -1;
             cursorCellY = -1;
             return;
         }
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
-        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
+        // Row is based on distance from top (row 0 at top)
+        int cellY = (int)(mapOffsetY + distFromTop / cellSize);
         
         // Validate cell is within map
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -270,7 +272,6 @@ public class MainScreen implements Screen {
     private void selectCellAt(int screenX, int screenY) {
         // Convert screen coordinates to cell coordinates
         float cellSize = getCellSize();
-        int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
         // Flip Y coordinate (libGDX screen has Y=0 at top, we want Y=0 at bottom)
@@ -279,14 +280,16 @@ public class MainScreen implements Screen {
         // Map area starts after left ruler + gap at infoAreaHeight
         float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
+        float mapTopY = mapAreaY + visibleCellsY * cellSize;
         
         // Calculate which cell was clicked (relative to map area)
         float relX = screenX - mapAreaX;
-        float relY = flippedY - mapAreaY;
+        // Distance from TOP of map (since row 0 is at top)
+        float distFromTop = mapTopY - flippedY;
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Invert Y: top of map (high relY) = row 0, bottom of map (low relY) = higher row
-        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
+        // Row is based on distance from top
+        int cellY = (int)(mapOffsetY + distFromTop / cellSize);
         
         // Check bounds
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
