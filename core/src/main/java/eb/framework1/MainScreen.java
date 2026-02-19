@@ -188,7 +188,7 @@ public class MainScreen implements Screen {
                     // Convert to cell units based on current zoom and cell size
                     float cellSize = getCellSize();
                     float cellDeltaX = -deltaX / cellSize;
-                    float cellDeltaY = deltaY / cellSize; // Flip Y for coordinate system
+                    float cellDeltaY = -deltaY / cellSize; // Negate to swap scroll direction
                     
                     // Apply to offset
                     mapOffsetX = dragStartOffsetX + cellDeltaX;
