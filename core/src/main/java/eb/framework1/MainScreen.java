@@ -254,7 +254,8 @@ public class MainScreen implements Screen {
         }
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        int cellY = (int)(mapOffsetY + relY / cellSize);
+        // Invert Y because screen Y increases upward but row 0 is at top of map
+        int cellY = (int)(mapOffsetY + (visibleCellsY - 1) - relY / cellSize);
         
         // Validate cell is within map
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -269,6 +270,7 @@ public class MainScreen implements Screen {
     private void selectCellAt(int screenX, int screenY) {
         // Convert screen coordinates to cell coordinates
         float cellSize = getCellSize();
+        int visibleCellsY = getVisibleCellsY();
         
         // Map area starts after left ruler + gap at infoAreaHeight
         float mapAreaX = RULER_WIDTH + RULER_GAP;
@@ -279,7 +281,8 @@ public class MainScreen implements Screen {
         float relY = screenY - mapAreaY;
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        int cellY = (int)(mapOffsetY + relY / cellSize);
+        // Invert Y because screen Y increases upward but row 0 is at top of map
+        int cellY = (int)(mapOffsetY + (visibleCellsY - 1) - relY / cellSize);
         
         // Check bounds
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
