@@ -228,8 +228,11 @@ public class MainScreen implements Screen {
     private float getCellSize() {
         // At zoom=1, all 16 cells fit. At max zoom, 3 cells fit.
         int visibleCells = getVisibleCells();
-        float maxCellSize = Math.min(screenWidth, mapAreaHeight) / (float)visibleCells;
-        return maxCellSize * 0.95f; // 95% to leave some margin
+        // Use mapAreaHeight to ensure map fills the full vertical space
+        // Also consider screen width to prevent horizontal overflow
+        float cellSizeByHeight = mapAreaHeight / (float)visibleCells;
+        float cellSizeByWidth = screenWidth / (float)visibleCells;
+        return Math.min(cellSizeByHeight, cellSizeByWidth);
     }
     
     private int getVisibleCells() {
