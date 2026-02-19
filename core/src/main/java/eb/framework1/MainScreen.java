@@ -253,7 +253,8 @@ public class MainScreen implements Screen {
         }
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        int cellY = (int)(mapOffsetY + relY / cellSize);
+        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
+        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
         
         // Validate cell is within map
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -280,7 +281,8 @@ public class MainScreen implements Screen {
         float relY = screenY - mapAreaY;
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        int cellY = (int)(mapOffsetY + relY / cellSize);
+        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
+        int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
         
         // Check bounds
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
@@ -407,12 +409,14 @@ public class MainScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         
         // Draw cells with border gap (partial cells at edges are allowed)
+        // Y axis is inverted: row 0 at top, row F at bottom
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
                 Cell cell = cityMap.getCell(cx, cy);
                 
                 float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (cy - startCellY - fracOffsetY) * cellSize;
+                // Invert Y: row 0 at top (higher screen Y), row F at bottom (lower screen Y)
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                 
                 // Skip only if completely outside visible area (allow partial drawing)
                 if (drawX + cellSize < mapStartX - cellSize || drawX > mapStartX + cellSize * visibleCellsX + cellSize || 
@@ -431,13 +435,13 @@ public class MainScreen implements Screen {
         
         shapeRenderer.end();
         
-        // Draw selection highlight
+        // Draw selection highlight (with inverted Y)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (selectedCellX >= 0 && selectedCellY >= 0) {
             if (selectedCellX >= startCellX && selectedCellX < endCellX &&
                 selectedCellY >= startCellY && selectedCellY < endCellY) {
                 float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (selectedCellY - startCellY - fracOffsetY) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (selectedCellY - startCellY - fracOffsetY)) * cellSize;
                 shapeRenderer.setColor(SELECTION_COLOR);
                 // Draw thick selection border
                 for (int i = 0; i < SELECTION_THICKNESS; i++) {
@@ -448,13 +452,13 @@ public class MainScreen implements Screen {
         
         shapeRenderer.end();
         
-        // Draw cell coordinates when zoomed in enough
+        // Draw cell coordinates when zoomed in enough (with inverted Y)
         if (zoomLevel >= 2.0f) {
             batch.begin();
             for (int cx = startCellX; cx < endCellX; cx++) {
                 for (int cy = startCellY; cy < endCellY; cy++) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                    float drawY = mapStartY + (cy - startCellY - fracOffsetY) * cellSize;
+                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                     
                     String coords = cx + "," + cy;
                     glyphLayout.setText(smallFont, coords);
@@ -491,9 +495,9 @@ public class MainScreen implements Screen {
         float topRulerY = mapStartY + cellSize * visibleCellsY;
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
-        // Draw cursor markers on rulers (if cursor is over map)
+        // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
         if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCellsY) {
-            float rulerY = mapStartY + (cursorCellY - startCellY - fracOffsetY) * cellSize;
+            float rulerY = mapStartY + (visibleCellsY - 1 - (cursorCellY - startCellY - fracOffsetY)) * cellSize;
             shapeRenderer.setColor(RULER_MARKER_COLOR);
             shapeRenderer.rect(0, rulerY, RULER_WIDTH, cellSize);
         }
@@ -508,11 +512,12 @@ public class MainScreen implements Screen {
         // Draw hex numbers (all text rendering)
         batch.begin();
         
-        // Draw left ruler hex numbers (Y axis - cell rows)
+        // Draw left ruler hex numbers (Y axis - cell rows) - inverted: 0 at top, F at bottom
         for (int i = 0; i < visibleCellsY; i++) {
             int cellY = startCellY + i;
             if (cellY >= 0 && cellY < CityMap.MAP_SIZE) {
-                float rulerY = mapStartY + (i - fracOffsetY) * cellSize;
+                // Invert Y position: row 0 at top (higher screen Y), row F at bottom
+                float rulerY = mapStartY + (visibleCellsY - 1 - (i - fracOffsetY)) * cellSize;
                 
                 String hex = HEX_DIGITS[cellY];
                 glyphLayout.setText(smallFont, hex);
