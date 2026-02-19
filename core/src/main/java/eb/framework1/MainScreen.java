@@ -60,10 +60,21 @@ public class MainScreen implements Screen {
     private int selectedCellX = -1;
     private int selectedCellY = -1;
     
+    // Cursor hover position (cell coordinates, -1 if not over map)
+    private int cursorCellX = -1;
+    private int cursorCellY = -1;
+    
     // Drag state
     private boolean isDragging = false;
     private float dragStartX, dragStartY;
     private float dragStartOffsetX, dragStartOffsetY;
+    
+    // Ruler constants
+    private static final float RULER_WIDTH = 25f;  // Width of ruler strip
+    private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
+    private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
+    private static final String[] HEX_DIGITS = {"0", "1", "2", "3", "4", "5", "6", "7", 
+                                                  "8", "9", "A", "B", "C", "D", "E", "F"};
     
     // Input handling
     private InputProcessor previousInputProcessor;
@@ -195,10 +206,55 @@ public class MainScreen implements Screen {
                 }
                 return true;
             }
+            
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                updateCursorCell(screenX, screenHeight - screenY);
+                return false;
+            }
         };
         
         // Set input processor
         Gdx.input.setInputProcessor(inputAdapter);
+    }
+    
+    private void updateCursorCell(int screenX, int flippedY) {
+        // Check if cursor is in map area
+        if (flippedY <= infoAreaHeight) {
+            cursorCellX = -1;
+            cursorCellY = -1;
+            return;
+        }
+        
+        // Convert screen coordinates to cell coordinates
+        float cellSize = getCellSize();
+        int visibleCells = getVisibleCells();
+        
+        float mapAreaX = (screenWidth - cellSize * visibleCells) / 2;
+        float mapAreaY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        
+        float relX = screenX - mapAreaX;
+        float relY = flippedY - mapAreaY;
+        
+        // Check if within map bounds
+        if (relX < 0 || relX >= cellSize * visibleCells || 
+            relY < 0 || relY >= cellSize * visibleCells) {
+            cursorCellX = -1;
+            cursorCellY = -1;
+            return;
+        }
+        
+        int cellX = (int)(mapOffsetX + relX / cellSize);
+        int cellY = (int)(mapOffsetY + relY / cellSize);
+        
+        // Validate cell is within map
+        if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
+            cursorCellX = cellX;
+            cursorCellY = cellY;
+        } else {
+            cursorCellX = -1;
+            cursorCellY = -1;
+        }
     }
     
     private void selectCellAt(int screenX, int screenY) {
@@ -262,6 +318,9 @@ public class MainScreen implements Screen {
         
         // Draw the map in top 2/3
         drawMap();
+        
+        // Draw rulers on sides of map
+        drawRulers();
         
         // Draw info block in bottom 1/3
         drawInfoBlock();
@@ -383,6 +442,90 @@ public class MainScreen implements Screen {
             }
             batch.end();
         }
+    }
+    
+    private void drawRulers() {
+        float cellSize = getCellSize();
+        int visibleCells = getVisibleCells();
+        
+        // Map area positioning (same as drawMap)
+        float mapStartX = (screenWidth - cellSize * visibleCells) / 2;
+        float mapStartY = infoAreaHeight + (mapAreaHeight - cellSize * visibleCells) / 2;
+        
+        // Calculate which cells are visible
+        int startCellX = (int)mapOffsetX;
+        int startCellY = (int)mapOffsetY;
+        float fracOffsetX = mapOffsetX - startCellX;
+        float fracOffsetY = mapOffsetY - startCellY;
+        
+        // Draw ruler backgrounds
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(RULER_BG_COLOR);
+        
+        // Left vertical ruler
+        shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, mapStartY, RULER_WIDTH, cellSize * visibleCells);
+        
+        // Top horizontal ruler
+        shapeRenderer.rect(mapStartX, mapStartY + cellSize * visibleCells + 2, cellSize * visibleCells, RULER_WIDTH);
+        
+        shapeRenderer.end();
+        
+        // Draw hex numbers and cursor markers
+        batch.begin();
+        
+        // Draw left ruler (Y axis - cell rows)
+        for (int i = 0; i <= visibleCells; i++) {
+            int cellY = startCellY + i;
+            if (cellY >= 0 && cellY < CityMap.MAP_SIZE) {
+                float rulerY = mapStartY + (i - fracOffsetY) * cellSize;
+                
+                // Highlight if cursor is on this row
+                if (cursorCellY == cellY) {
+                    batch.end();
+                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                    shapeRenderer.setColor(RULER_MARKER_COLOR);
+                    shapeRenderer.rect(mapStartX - RULER_WIDTH - 2, rulerY, RULER_WIDTH, cellSize);
+                    shapeRenderer.end();
+                    batch.begin();
+                }
+                
+                // Draw hex number
+                String hex = HEX_DIGITS[cellY];
+                glyphLayout.setText(smallFont, hex);
+                float textX = mapStartX - RULER_WIDTH - 2 + (RULER_WIDTH - glyphLayout.width) / 2;
+                float textY = rulerY + (cellSize + glyphLayout.height) / 2;
+                smallFont.setColor(cursorCellY == cellY ? Color.BLACK : Color.WHITE);
+                smallFont.draw(batch, hex, textX, textY);
+            }
+        }
+        
+        // Draw top ruler (X axis - cell columns)
+        for (int i = 0; i <= visibleCells; i++) {
+            int cellX = startCellX + i;
+            if (cellX >= 0 && cellX < CityMap.MAP_SIZE) {
+                float rulerX = mapStartX + (i - fracOffsetX) * cellSize;
+                
+                // Highlight if cursor is on this column
+                if (cursorCellX == cellX) {
+                    batch.end();
+                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                    shapeRenderer.setColor(RULER_MARKER_COLOR);
+                    shapeRenderer.rect(rulerX, mapStartY + cellSize * visibleCells + 2, cellSize, RULER_WIDTH);
+                    shapeRenderer.end();
+                    batch.begin();
+                }
+                
+                // Draw hex number
+                String hex = HEX_DIGITS[cellX];
+                glyphLayout.setText(smallFont, hex);
+                float textX = rulerX + (cellSize - glyphLayout.width) / 2;
+                float textY = mapStartY + cellSize * visibleCells + 2 + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
+                smallFont.setColor(cursorCellX == cellX ? Color.BLACK : Color.WHITE);
+                smallFont.draw(batch, hex, textX, textY);
+            }
+        }
+        
+        batch.end();
     }
     
     private Color getCellColor(Cell cell) {
