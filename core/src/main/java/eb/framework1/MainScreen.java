@@ -273,16 +273,19 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
+        // Flip Y coordinate (libGDX screen has Y=0 at top, we want Y=0 at bottom)
+        float flippedY = screenHeight - screenY;
+        
         // Map area starts after left ruler + gap at infoAreaHeight
         float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
         
-        // Calculate which cell was clicked
+        // Calculate which cell was clicked (relative to map area)
         float relX = screenX - mapAreaX;
-        float relY = screenY - mapAreaY;
+        float relY = flippedY - mapAreaY;
         
         int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Invert Y: top of screen (high relY) = row 0, bottom of screen (low relY) = higher row
+        // Invert Y: top of map (high relY) = row 0, bottom of map (low relY) = higher row
         int cellY = (int)(mapOffsetY + visibleCellsY - 1 - relY / cellSize);
         
         // Check bounds
