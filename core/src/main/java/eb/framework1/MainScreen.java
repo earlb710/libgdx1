@@ -71,6 +71,7 @@ public class MainScreen implements Screen {
     
     // Ruler constants
     private static final float RULER_WIDTH = 25f;  // Width of ruler strip
+    private static final float RULER_GAP = 1f;     // Gap between rulers and map
     private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
     private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
     private static final String[] HEX_DIGITS = {"0", "1", "2", "3", "4", "5", "6", "7", 
@@ -238,7 +239,7 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
-        float mapAreaX = RULER_WIDTH;
+        float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
         
         float relX = screenX - mapAreaX;
@@ -272,8 +273,8 @@ public class MainScreen implements Screen {
         int visibleCellsX = getVisibleCellsX();
         int visibleCellsY = getVisibleCellsY();
         
-        // Map area starts after left ruler at infoAreaHeight
-        float mapAreaX = RULER_WIDTH;
+        // Map area starts after left ruler + gap at infoAreaHeight
+        float mapAreaX = RULER_WIDTH + RULER_GAP;
         float mapAreaY = infoAreaHeight;
         
         // Calculate which cell was clicked
@@ -293,10 +294,10 @@ public class MainScreen implements Screen {
     }
     
     private float getCellSize() {
-        // Cell size is determined by available width (minus ruler) divided by base visible cells
+        // Cell size is determined by available width (minus ruler and gap) divided by base visible cells
         // This ensures the map fills the available width after the left ruler
         int baseVisibleCells = getBaseVisibleCells();
-        float availableWidth = screenWidth - RULER_WIDTH;
+        float availableWidth = screenWidth - RULER_WIDTH - RULER_GAP;
         return availableWidth / (float)baseVisibleCells;
     }
     
@@ -386,8 +387,8 @@ public class MainScreen implements Screen {
         // Border size scales with cell size for visibility
         float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
         
-        // Map starts after left ruler and at info panel top
-        float mapStartX = RULER_WIDTH;
+        // Map starts after left ruler + gap and at info panel top
+        float mapStartX = RULER_WIDTH + RULER_GAP;
         float mapStartY = infoAreaHeight;
         
         // Calculate which cells to draw
@@ -475,7 +476,7 @@ public class MainScreen implements Screen {
         int visibleCellsY = getVisibleCellsY();
         
         // Map area positioning (same as drawMap)
-        float mapStartX = RULER_WIDTH;
+        float mapStartX = RULER_WIDTH + RULER_GAP;
         float mapStartY = infoAreaHeight;
         
         // Calculate which cells are visible
@@ -491,8 +492,8 @@ public class MainScreen implements Screen {
         // Left vertical ruler background (at left edge x=0)
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
-        // Top horizontal ruler background (at top of map area)
-        float topRulerY = mapStartY + cellSize * visibleCellsY - 2; // Move down 2 pixels to prevent top cutoff
+        // Top horizontal ruler background (at top of map area with gap)
+        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP - 2; // Move down 2 pixels to prevent top cutoff
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
