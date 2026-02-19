@@ -42,8 +42,8 @@ public class MainScreen implements Screen {
     // Map view parameters
     private float mapOffsetX = 0;  // Pan offset in cells
     private float mapOffsetY = 0;
-    private float zoomLevel = 1.0f; // 1.0 = full map, higher = more zoom
-    private float lastZoomLevel = 1.0f; // For caching zoom text
+    private float zoomLevel = 1.5f; // 1.0 = full map, higher = more zoom
+    private float lastZoomLevel = 1.5f; // For caching zoom text
     private String cachedZoomText = "Zoom: 1.0x";
     
     // Tuning constants
@@ -492,7 +492,7 @@ public class MainScreen implements Screen {
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
         // Top horizontal ruler background (at top of map area)
-        float topRulerY = mapStartY + cellSize * visibleCellsY;
+        float topRulerY = mapStartY + cellSize * visibleCellsY - 2; // Move down 2 pixels to prevent top cutoff
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
