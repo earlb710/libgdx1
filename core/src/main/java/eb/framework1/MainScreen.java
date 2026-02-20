@@ -148,7 +148,7 @@ public class MainScreen implements Screen {
             }
         }
         if (!buildingCells.isEmpty()) {
-            Random rand = new Random(profile.getRandSeed());
+            Random rand = new Random(profile.getRandSeed() + 7);
             Cell startCell = buildingCells.get(rand.nextInt(buildingCells.size()));
             selectedCellX = startCell.getX();
             selectedCellY = startCell.getY();
