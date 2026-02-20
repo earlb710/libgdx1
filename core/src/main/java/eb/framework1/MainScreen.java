@@ -455,16 +455,20 @@ public class MainScreen implements Screen {
         // Draw cell coordinates when zoomed in enough (with inverted Y)
         if (zoomLevel >= 2.0f) {
             batch.begin();
+            // Use smaller font for cell coordinates
+            smallFont.getData().setScale(0.7f);
             for (int cx = startCellX; cx < endCellX; cx++) {
                 for (int cy = startCellY; cy < endCellY; cy++) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                     
-                    String coords = cx + "," + cy;
+                    String coords = Integer.toHexString(cx).toUpperCase() + "," + Integer.toHexString(cy).toUpperCase();
                     glyphLayout.setText(smallFont, coords);
                     smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
                 }
             }
+            // Restore font scale
+            smallFont.getData().setScale(1.0f);
             batch.end();
         }
     }
