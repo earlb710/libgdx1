@@ -385,6 +385,7 @@ public class MainScreen implements Screen {
         
         // Border size scales with cell size for visibility
         float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
+        float pathwaySize = Math.max(1, borderSize * 0.25f); // Pathway is 1/4 the width of a road
         
         // Map starts after left ruler + gap and at info panel top
         float mapStartX = RULER_WIDTH + RULER_GAP;
@@ -429,14 +430,15 @@ public class MainScreen implements Screen {
                 CellRenderData rd = cityMap.getCellRenderData(cx, cy);
                 shapeRenderer.setColor(rd.getR(), rd.getG(), rd.getB(), rd.getA());
                 
-                // Calculate per-side border insets based on road access.
+                // Calculate per-side border insets based on road type.
+                // ROAD = full borderSize, PATHWAY = pathwaySize (1/4 of road), NONE = 0
                 // Map directions to screen edges (Y axis is inverted):
                 //   Map WEST  -> screen LEFT,   Map EAST  -> screen RIGHT
                 //   Map NORTH -> screen BOTTOM,  Map SOUTH -> screen TOP
-                float leftInset   = rd.hasBorderWest()  ? borderSize : 0;
-                float rightInset  = rd.hasBorderEast()   ? borderSize : 0;
-                float bottomInset = rd.hasBorderNorth()  ? borderSize : 0;
-                float topInset    = rd.hasBorderSouth()  ? borderSize : 0;
+                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
                 
                 shapeRenderer.rect(drawX + leftInset, drawY + bottomInset,
                                    cellSize - leftInset - rightInset,
@@ -481,6 +483,18 @@ public class MainScreen implements Screen {
             // Restore font scale
             smallFont.getData().setScale(1.0f);
             batch.end();
+        }
+    }
+    
+    /**
+     * Returns the border inset size for a given road type.
+     * ROAD uses full borderSize, PATHWAY uses pathwaySize (1/4 of road), NONE uses 0.
+     */
+    private static float borderInset(RoadType type, float borderSize, float pathwaySize) {
+        switch (type) {
+            case ROAD:    return borderSize;
+            case PATHWAY: return pathwaySize;
+            default:      return 0;
         }
     }
     

@@ -236,10 +236,10 @@ public class CityMap {
                         break;
                 }
 
-                // Get road access for border flags
+                // Get road access for border types
                 RoadAccess ra = roadAccessMap.getAccess(x, y);
                 renderData[x][y] = new CellRenderData(x, y, 1, 1, r, g, b, a,
-                    ra.hasNorth(), ra.hasSouth(), ra.hasEast(), ra.hasWest());
+                    ra.getNorthType(), ra.getSouthType(), ra.getEastType(), ra.getWestType());
             }
         }
     }

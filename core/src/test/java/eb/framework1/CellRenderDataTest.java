@@ -11,7 +11,7 @@ public class CellRenderDataTest {
     @Test
     public void testCellRenderDataCreation() {
         CellRenderData rd = new CellRenderData(3, 5, 1, 1, 0.5f, 0.6f, 0.7f, 1.0f,
-                                                true, false, true, false);
+                                                RoadType.ROAD, RoadType.NONE, RoadType.PATHWAY, RoadType.NONE);
         assertEquals(3, rd.getX());
         assertEquals(5, rd.getY());
         assertEquals(1, rd.getWidth());
@@ -24,12 +24,16 @@ public class CellRenderDataTest {
         assertFalse("Should not have south border", rd.hasBorderSouth());
         assertTrue("Should have east border", rd.hasBorderEast());
         assertFalse("Should not have west border", rd.hasBorderWest());
+        assertEquals("North should be ROAD", RoadType.ROAD, rd.getBorderTypeNorth());
+        assertEquals("South should be NONE", RoadType.NONE, rd.getBorderTypeSouth());
+        assertEquals("East should be PATHWAY", RoadType.PATHWAY, rd.getBorderTypeEast());
+        assertEquals("West should be NONE", RoadType.NONE, rd.getBorderTypeWest());
     }
 
     @Test
     public void testCellRenderDataToString() {
         CellRenderData rd = new CellRenderData(0, 0, 1, 1, 0.4f, 0.35f, 0.3f, 1.0f,
-                                                true, true, false, false);
+                                                RoadType.ROAD, RoadType.ROAD, RoadType.NONE, RoadType.NONE);
         String str = rd.toString();
         assertNotNull(str);
         assertTrue(str.contains("x=0"));
@@ -195,21 +199,21 @@ public class CellRenderDataTest {
 
     @Test
     public void testBorderFlagsMatchRoadAccess() {
-        // Border flags should match the road access map
+        // Border types should match the road access map
         CityMap map = new CityMap(12345L);
         RoadAccessMap roadMap = map.getRoadAccessMap();
         for (int x = 0; x < CityMap.MAP_SIZE; x++) {
             for (int y = 0; y < CityMap.MAP_SIZE; y++) {
                 CellRenderData rd = map.getCellRenderData(x, y);
                 RoadAccess ra = roadMap.getAccess(x, y);
-                assertEquals("North border should match road access at (" + x + "," + y + ")",
-                             ra.hasNorth(), rd.hasBorderNorth());
-                assertEquals("South border should match road access at (" + x + "," + y + ")",
-                             ra.hasSouth(), rd.hasBorderSouth());
-                assertEquals("East border should match road access at (" + x + "," + y + ")",
-                             ra.hasEast(), rd.hasBorderEast());
-                assertEquals("West border should match road access at (" + x + "," + y + ")",
-                             ra.hasWest(), rd.hasBorderWest());
+                assertEquals("North border type should match road access at (" + x + "," + y + ")",
+                             ra.getNorthType(), rd.getBorderTypeNorth());
+                assertEquals("South border type should match road access at (" + x + "," + y + ")",
+                             ra.getSouthType(), rd.getBorderTypeSouth());
+                assertEquals("East border type should match road access at (" + x + "," + y + ")",
+                             ra.getEastType(), rd.getBorderTypeEast());
+                assertEquals("West border type should match road access at (" + x + "," + y + ")",
+                             ra.getWestType(), rd.getBorderTypeWest());
             }
         }
     }
@@ -227,6 +231,46 @@ public class CellRenderDataTest {
                                         || rd.hasBorderEast() || rd.hasBorderWest();
                     assertTrue("Building at (" + x + "," + y + ") should have at least one border",
                                hasAnyBorder);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testPathwaysExistBetweenBuildings() {
+        // After road removal, some building-to-building connections should be pathways
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap roadMap = map.getRoadAccessMap();
+        int pathwayCount = 0;
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra = roadMap.getAccess(x, y);
+                if (ra.getNorthType() == RoadType.PATHWAY) pathwayCount++;
+                if (ra.getEastType() == RoadType.PATHWAY) pathwayCount++;
+            }
+        }
+        assertTrue("Should have at least one pathway after road removal", pathwayCount > 0);
+    }
+
+    @Test
+    public void testPathwaysOnlyBetweenBuildings() {
+        // Pathways should only exist between two building cells
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap roadMap = map.getRoadAccessMap();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra = roadMap.getAccess(x, y);
+                if (ra.getEastType() == RoadType.PATHWAY && x + 1 < CityMap.MAP_SIZE) {
+                    assertEquals("Pathway east: cell at (" + x + "," + y + ") should be BUILDING",
+                                 TerrainType.BUILDING, map.getCell(x, y).getTerrainType());
+                    assertEquals("Pathway east: cell at (" + (x+1) + "," + y + ") should be BUILDING",
+                                 TerrainType.BUILDING, map.getCell(x + 1, y).getTerrainType());
+                }
+                if (ra.getNorthType() == RoadType.PATHWAY && y + 1 < CityMap.MAP_SIZE) {
+                    assertEquals("Pathway north: cell at (" + x + "," + y + ") should be BUILDING",
+                                 TerrainType.BUILDING, map.getCell(x, y).getTerrainType());
+                    assertEquals("Pathway north: cell at (" + x + "," + (y+1) + ") should be BUILDING",
+                                 TerrainType.BUILDING, map.getCell(x, y + 1).getTerrainType());
                 }
             }
         }

@@ -3,15 +3,18 @@ package eb.framework1;
 /**
  * Stores pre-computed rendering data for a map cell.
  * Contains the rectangle (x, y, width, height) in grid coordinates,
- * the pre-computed color, and per-side border flags based on road access.
+ * the pre-computed color, and per-side border types based on road access.
  *
  * This data is computed once after map generation so that the rendering loop
  * can draw cells directly without repeating terrain/building/category lookups,
  * brightness calculations, and road access lookups each frame.
  *
- * Border flags indicate whether a border (gap) should be drawn on each side.
- * A border is drawn where road access exists (representing the road between cells).
- * No border is drawn where road access does not exist (building extends to edge).
+ * Border types indicate the kind of road on each side:
+ * <ul>
+ *   <li>ROAD - full border gap (standard road width)</li>
+ *   <li>PATHWAY - narrow border gap (1/4 of road width)</li>
+ *   <li>NONE - no border (building extends to cell edge)</li>
+ * </ul>
  */
 public class CellRenderData {
     private final int x;
@@ -22,13 +25,13 @@ public class CellRenderData {
     private final float g;
     private final float b;
     private final float a;
-    private final boolean borderNorth;
-    private final boolean borderSouth;
-    private final boolean borderEast;
-    private final boolean borderWest;
+    private final RoadType borderNorth;
+    private final RoadType borderSouth;
+    private final RoadType borderEast;
+    private final RoadType borderWest;
 
     /**
-     * Creates a new CellRenderData with the given grid rectangle, color, and border flags.
+     * Creates a new CellRenderData with the given grid rectangle, color, and border types.
      *
      * @param x            The x coordinate in the grid
      * @param y            The y coordinate in the grid
@@ -38,13 +41,13 @@ public class CellRenderData {
      * @param g            Green color component (0.0-1.0)
      * @param b            Blue color component (0.0-1.0)
      * @param a            Alpha color component (0.0-1.0)
-     * @param borderNorth  Whether to draw a border on the north side
-     * @param borderSouth  Whether to draw a border on the south side
-     * @param borderEast   Whether to draw a border on the east side
-     * @param borderWest   Whether to draw a border on the west side
+     * @param borderNorth  The road type on the north side
+     * @param borderSouth  The road type on the south side
+     * @param borderEast   The road type on the east side
+     * @param borderWest   The road type on the west side
      */
     public CellRenderData(int x, int y, int width, int height, float r, float g, float b, float a,
-                          boolean borderNorth, boolean borderSouth, boolean borderEast, boolean borderWest) {
+                          RoadType borderNorth, RoadType borderSouth, RoadType borderEast, RoadType borderWest) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -92,18 +95,34 @@ public class CellRenderData {
     }
 
     public boolean hasBorderNorth() {
-        return borderNorth;
+        return borderNorth != RoadType.NONE;
     }
 
     public boolean hasBorderSouth() {
-        return borderSouth;
+        return borderSouth != RoadType.NONE;
     }
 
     public boolean hasBorderEast() {
-        return borderEast;
+        return borderEast != RoadType.NONE;
     }
 
     public boolean hasBorderWest() {
+        return borderWest != RoadType.NONE;
+    }
+
+    public RoadType getBorderTypeNorth() {
+        return borderNorth;
+    }
+
+    public RoadType getBorderTypeSouth() {
+        return borderSouth;
+    }
+
+    public RoadType getBorderTypeEast() {
+        return borderEast;
+    }
+
+    public RoadType getBorderTypeWest() {
         return borderWest;
     }
 
