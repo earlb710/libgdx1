@@ -3,6 +3,7 @@ package eb.framework1;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,6 +23,7 @@ public class ProfileLoadSummaryScreen implements Screen {
     private FontManager fontManager;
     
     private Profile profile;
+    private Texture characterIconTexture;
     
     // UI Elements
     private Rectangle continueButton;
@@ -63,6 +65,13 @@ public class ProfileLoadSummaryScreen implements Screen {
             
             continueButton = new Rectangle(centerX - CONTINUE_BUTTON_WIDTH - 10, 100, CONTINUE_BUTTON_WIDTH, BUTTON_HEIGHT);
             backButton = new Rectangle(centerX + 10, 100, BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Load character icon texture if available
+            String iconName = profile.getCharacterIcon();
+            if (iconName != null && !iconName.isEmpty()) {
+                characterIconTexture = new Texture("character/" + iconName + ".png");
+                characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            }
             
             Gdx.app.log("ProfileLoadSummaryScreen", "Initialization complete");
             initialized = true;
@@ -126,6 +135,18 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.draw(batch, genderLabel, centerX - 300, currentY);
         bodyFont.setColor(Color.WHITE);
         bodyFont.draw(batch, profile.getGender(), centerX + 50, currentY);
+        
+        currentY -= 80;
+        
+        // Portrait icon
+        String portraitLabel = "Portrait:";
+        bodyFont.setColor(Color.YELLOW);
+        bodyFont.draw(batch, portraitLabel, centerX - 300, currentY);
+        bodyFont.setColor(Color.WHITE);
+        if (characterIconTexture != null) {
+            int iconDisplaySize = 64;
+            batch.draw(characterIconTexture, centerX + 50, currentY - iconDisplaySize + 10, iconDisplaySize, iconDisplaySize);
+        }
         
         currentY -= 80;
         
@@ -282,6 +303,10 @@ public class ProfileLoadSummaryScreen implements Screen {
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
             shapeRenderer = null;
+        }
+        if (characterIconTexture != null) {
+            characterIconTexture.dispose();
+            characterIconTexture = null;
         }
         initialized = false;
     }

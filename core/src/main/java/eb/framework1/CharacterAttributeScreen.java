@@ -29,6 +29,7 @@ public class CharacterAttributeScreen implements Screen {
     private String characterName;
     private String gender;
     private String difficulty;
+    private String characterIcon;
     
     // Attribute values (default to 1, can allocate more)
     private Map<CharacterAttribute, Integer> attributeValues;
@@ -57,12 +58,13 @@ public class CharacterAttributeScreen implements Screen {
     private Color buttonActiveColor = new Color(0.5f, 0.6f, 0.7f, 1f);
     private Color categoryColor = new Color(0.8f, 0.7f, 0.3f, 1f);  // Gold for category headers
     
-    public CharacterAttributeScreen(Main game, String characterName, String gender, String difficulty) {
+    public CharacterAttributeScreen(Main game, String characterName, String gender, String difficulty, String characterIcon) {
         Gdx.app.log("CharacterAttributeScreen", "Constructor called");
         this.game = game;
         this.characterName = characterName;
         this.gender = gender;
         this.difficulty = difficulty;
+        this.characterIcon = characterIcon;
         
         // Initialize attribute values to minimum
         this.attributeValues = new HashMap<>();
@@ -349,7 +351,7 @@ public class CharacterAttributeScreen implements Screen {
             // Create profile with attributes, starting date (2050), and random seed
             int startingDate = 2050;
             long randomSeed = System.currentTimeMillis();
-            Profile profile = new Profile(characterName, gender, difficulty, attributeMap, startingDate, randomSeed);
+            Profile profile = new Profile(characterName, gender, difficulty, characterIcon, attributeMap, startingDate, randomSeed);
             game.getProfileManager().addProfile(profile);
             game.getProfileManager().selectProfile(profile);
             

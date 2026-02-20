@@ -15,8 +15,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Main game screen displaying the city map and info panel.
@@ -87,6 +90,9 @@ public class MainScreen implements Screen {
     // Icon texture cache for building icons
     private Map<String, Texture> iconTextureCache;
     
+    // Character portrait texture
+    private Texture characterIconTexture;
+    
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
     private int mapAreaHeight;    // Height of map area (full height minus info panel)
@@ -134,11 +140,36 @@ public class MainScreen implements Screen {
         
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
         
+        // Choose a random building cell as the character's starting location
+        List<Cell> buildingCells = new ArrayList<>();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = cityMap.getCell(x, y);
+                if (cell.getTerrainType() == TerrainType.BUILDING) {
+                    buildingCells.add(cell);
+                }
+            }
+        }
+        if (!buildingCells.isEmpty()) {
+            Random rand = new Random(profile.getRandSeed() + 7);
+            Cell startCell = buildingCells.get(rand.nextInt(buildingCells.size()));
+            selectedCellX = startCell.getX();
+            selectedCellY = startCell.getY();
+            Gdx.app.log("MainScreen", "Character starting location: " + selectedCellX + "," + selectedCellY);
+        }
+        
         // Initialize category color cache to avoid allocations during render
         initColorCache(gameData);
         
         // Load building icon textures
         loadBuildingIcons();
+        
+        // Load character portrait icon texture
+        String iconName = profile.getCharacterIcon();
+        if (iconName != null && !iconName.isEmpty()) {
+            characterIconTexture = new Texture("character/" + iconName + ".png");
+            characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
         
         // Set up input processing (save previous processor for restoration)
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -146,6 +177,15 @@ public class MainScreen implements Screen {
         
         // Calculate layout
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        
+        // Center the map on the character's starting cell
+        if (selectedCellX >= 0 && selectedCellY >= 0) {
+            int visibleCellsX = getVisibleCellsX();
+            int visibleCellsY = getVisibleCellsY();
+            mapOffsetX = selectedCellX - visibleCellsX / 2.0f;
+            mapOffsetY = selectedCellY - visibleCellsY / 2.0f;
+            clampMapOffset();
+        }
         
         initialized = true;
         Gdx.app.log("MainScreen", "Initialization complete");
@@ -484,6 +524,21 @@ public class MainScreen implements Screen {
                 batch.draw(iconTex, iconX, iconY, iconSize, iconSize);
             }
         }
+        
+        // Draw character portrait icon in the lower-right of the selected cell
+        if (characterIconTexture != null && selectedCellX >= 0 && selectedCellY >= 0) {
+            if (selectedCellX >= startCellX && selectedCellX < endCellX &&
+                selectedCellY >= startCellY && selectedCellY < endCellY) {
+                float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (selectedCellY - startCellY - fracOffsetY)) * cellSize;
+                float portraitSize = cellSize * 0.4f;
+                float portraitX = drawX + cellSize - portraitSize - borderSize;
+                float portraitY = drawY + borderSize;
+                batch.setColor(Color.WHITE);
+                batch.draw(characterIconTexture, portraitX, portraitY, portraitSize, portraitSize);
+            }
+        }
+        
         batch.end();
         
         // Draw selection highlight (with inverted Y)
@@ -558,8 +613,8 @@ public class MainScreen implements Screen {
         // Left vertical ruler background (at left edge x=0)
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
-        // Top horizontal ruler background (at top of map area with gap)
-        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP; // Positioned flush at top of map area
+        // Top horizontal ruler background (flush against top border of screen)
+        float topRulerY = screenHeight - RULER_WIDTH;
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
@@ -913,6 +968,11 @@ public class MainScreen implements Screen {
                 tex.dispose();
             }
             iconTextureCache.clear();
+        }
+        // Dispose character portrait texture
+        if (characterIconTexture != null) {
+            characterIconTexture.dispose();
+            characterIconTexture = null;
         }
         // Restore previous input processor on dispose
         if (previousInputProcessor != null) {
