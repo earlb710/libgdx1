@@ -109,6 +109,7 @@ public class MainScreen implements Screen {
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
+    private static final int INFO_BAR_HEIGHT = 30;    // Height of the top info bar (date + money)
     
     // Floor-based brightness constants
     private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
@@ -391,6 +392,9 @@ public class MainScreen implements Screen {
         // Draw rulers on sides of map
         drawRulers();
         
+        // Draw info bar above map (top of screen)
+        drawInfoBar();
+        
         // Draw info block in bottom 1/3
         drawInfoBlock();
     }
@@ -613,8 +617,8 @@ public class MainScreen implements Screen {
         // Left vertical ruler background (at left edge x=0)
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
-        // Top horizontal ruler background (flush against top border of screen)
-        float topRulerY = screenHeight - RULER_WIDTH;
+        // Top horizontal ruler background (just below the info bar)
+        float topRulerY = screenHeight - INFO_BAR_HEIGHT - RULER_WIDTH;
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
@@ -891,13 +895,49 @@ public class MainScreen implements Screen {
         
         batch.end();
     }
-    
+
+    private void drawInfoBar() {
+        float barY = screenHeight - INFO_BAR_HEIGHT;
+
+        // Background
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(INFO_BG_COLOR);
+        shapeRenderer.rect(0, barY, screenWidth, INFO_BAR_HEIGHT);
+        shapeRenderer.end();
+
+        // Bottom border of bar
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.line(0, barY, screenWidth, barY);
+        shapeRenderer.end();
+
+        batch.begin();
+
+        // Measure a sample string to get a reliable text height for vertical centering
+        glyphLayout.setText(smallFont, "Hg");
+        float textY = barY + (INFO_BAR_HEIGHT + glyphLayout.height) / 2;
+
+        // Date on the left in white
+        String dateText = "Year: " + profile.getGameDate();
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, dateText, 10, textY);
+
+        // Money on the right in yellow
+        String moneyText = "$" + profile.getMoney();
+        glyphLayout.setText(smallFont, moneyText);
+        smallFont.setColor(Color.YELLOW);
+        smallFont.draw(batch, moneyText, screenWidth - glyphLayout.width - 10, textY);
+
+        smallFont.setColor(Color.WHITE);
+        batch.end();
+    }
+
     @Override
     public void resize(int width, int height) {
         this.screenWidth = width;
         this.screenHeight = height;
         this.infoAreaHeight = (int)(height * infoPanelRatio);  // Configurable info panel height
-        this.mapAreaHeight = height - infoAreaHeight;  // Map uses full remaining height
+        this.mapAreaHeight = height - infoAreaHeight - INFO_BAR_HEIGHT;  // Map uses remaining height minus info bar
         
         // Calculate actual map display size (rectangular, uses full available space)
         float cellSize = getCellSize();

@@ -62,6 +62,7 @@ public class ProfileManager {
                     }
                     Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
                         icon, pd.attributes, gameDate, randSeed);
+                    profile.setMoney(pd.money == 0 ? 1000 : pd.money);
                     profiles.add(profile);
                 }
             }
@@ -97,6 +98,7 @@ public class ProfileManager {
             pd.attributes = profile.getAttributes();
             pd.gameDate = profile.getGameDate();
             pd.randSeed = profile.getRandSeed();
+            pd.money = profile.getMoney();
             dataList.add(pd);
         }
         
@@ -220,5 +222,6 @@ public class ProfileManager {
         public java.util.Map<String, Integer> attributes;
         public int gameDate;
         public long randSeed;
+        public int money;
     }
 }

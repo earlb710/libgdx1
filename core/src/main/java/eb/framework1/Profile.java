@@ -11,6 +11,7 @@ public class Profile {
     private Map<String, Integer> attributes;
     private int gameDate;  // Game date starting from 2050
     private long randSeed; // Random seed for procedural generation
+    private int money;     // Player's current money
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -52,6 +53,7 @@ public class Profile {
         this.attributes = attributes != null ? new HashMap<>(attributes) : new HashMap<>();
         this.gameDate = gameDate;
         this.randSeed = randSeed;
+        this.money = 1000;
     }
     
     // Character name serves as both the profile identifier and in-game name
@@ -113,6 +115,14 @@ public class Profile {
     
     public void setRandSeed(long randSeed) {
         this.randSeed = randSeed;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
     }
     
     @Override
