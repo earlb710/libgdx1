@@ -581,7 +581,9 @@ public class MainScreen implements Screen {
         shapeRenderer.end();
         
         // Draw route path highlight (cyan borders on each path cell)
+        // The highlight rectangle inset is half the road border width.
         if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
+            float routeInset = borderSize * 0.5f;
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
             for (int[] pathCell : currentRoute.path) {
@@ -589,8 +591,8 @@ public class MainScreen implements Screen {
                 if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    shapeRenderer.rect(drawX + 2, drawY + 2, cellSize - 4, cellSize - 4);
-                    shapeRenderer.rect(drawX + 3, drawY + 3, cellSize - 6, cellSize - 6);
+                    shapeRenderer.rect(drawX + routeInset, drawY + routeInset,
+                            cellSize - 2 * routeInset, cellSize - 2 * routeInset);
                 }
             }
             shapeRenderer.end();
@@ -889,8 +891,8 @@ public class MainScreen implements Screen {
         boolean canMove = showMoveToButton && currentRoute != null && currentRoute.isReachable();
 
         final float BUTTON_H = 36f;
-        final float BUTTON_W = 120f;
-        final float BUTTON_PAD = 6f;
+        final float BUTTON_W = 200f;
+        final float BUTTON_PAD = 14f;
         float btnX = 20f;
         float btnY = infoAreaHeight - BUTTON_PAD - BUTTON_H;
 
