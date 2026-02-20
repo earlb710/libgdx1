@@ -462,7 +462,7 @@ public class MainScreen implements Screen {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                     
-                    String coords = Integer.toHexString(cx).toUpperCase() + "," + Integer.toHexString(cy).toUpperCase();
+                    String coords = Integer.toHexString(cx).toUpperCase() + Integer.toHexString(cy).toUpperCase();
                     glyphLayout.setText(smallFont, coords);
                     smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
                 }
