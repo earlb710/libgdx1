@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -83,6 +84,9 @@ public class MainScreen implements Screen {
     // Color cache for categories (avoid allocations during render)
     private Map<String, Color> categoryColorCache;
     
+    // Icon texture cache for building icons
+    private Map<String, Texture> iconTextureCache;
+    
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
     private int mapAreaHeight;    // Height of map area (full height minus info panel)
@@ -132,6 +136,9 @@ public class MainScreen implements Screen {
         
         // Initialize category color cache to avoid allocations during render
         initColorCache(gameData);
+        
+        // Load building icon textures
+        loadBuildingIcons();
         
         // Set up input processing (save previous processor for restoration)
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -448,6 +455,37 @@ public class MainScreen implements Screen {
         
         shapeRenderer.end();
         
+        // Draw building icons on cells (with inverted Y)
+        batch.begin();
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                String iconPath = rd.getIconPath();
+                if (iconPath == null) continue;
+                Texture iconTex = iconTextureCache.get(iconPath);
+                if (iconTex == null) continue;
+                
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                
+                // Scale icon to fit within cell (with border insets), centered
+                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                float availW = cellSize - leftInset - rightInset;
+                float availH = cellSize - bottomInset - topInset;
+                float iconSize = Math.min(availW, availH) * 0.7f; // 70% of available space
+                float iconX = drawX + leftInset + (availW - iconSize) / 2;
+                float iconY = drawY + bottomInset + (availH - iconSize) / 2;
+                
+                // Tint not needed - icons have transparent bg with black lines
+                batch.setColor(Color.WHITE);
+                batch.draw(iconTex, iconX, iconY, iconSize, iconSize);
+            }
+        }
+        batch.end();
+        
         // Draw selection highlight (with inverted Y)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (selectedCellX >= 0 && selectedCellY >= 0) {
@@ -621,6 +659,30 @@ public class MainScreen implements Screen {
         // Add fallback gray color
         categoryColorCache.put(null, Color.GRAY);
         Gdx.app.log("MainScreen", "Cached " + categoryColorCache.size() + " category colors");
+    }
+    
+    /**
+     * Loads building icon textures from the pre-computed render data.
+     * Only loads unique icon paths to avoid duplicate texture loading.
+     */
+    private void loadBuildingIcons() {
+        iconTextureCache = new HashMap<>();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                CellRenderData rd = cityMap.getCellRenderData(x, y);
+                String iconPath = rd.getIconPath();
+                if (iconPath != null && !iconTextureCache.containsKey(iconPath)) {
+                    try {
+                        Texture tex = new Texture(iconPath);
+                        tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                        iconTextureCache.put(iconPath, tex);
+                    } catch (Exception e) {
+                        Gdx.app.log("MainScreen", "Could not load icon: " + iconPath);
+                    }
+                }
+            }
+        }
+        Gdx.app.log("MainScreen", "Loaded " + iconTextureCache.size() + " building icons");
     }
     
     /**
@@ -838,6 +900,13 @@ public class MainScreen implements Screen {
         }
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
+        }
+        // Dispose building icon textures
+        if (iconTextureCache != null) {
+            for (Texture tex : iconTextureCache.values()) {
+                tex.dispose();
+            }
+            iconTextureCache.clear();
         }
         // Restore previous input processor on dispose
         if (previousInputProcessor != null) {

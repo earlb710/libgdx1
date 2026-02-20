@@ -29,9 +29,10 @@ public class CellRenderData {
     private final RoadType borderSouth;
     private final RoadType borderEast;
     private final RoadType borderWest;
+    private final String iconPath;
 
     /**
-     * Creates a new CellRenderData with the given grid rectangle, color, and border types.
+     * Creates a new CellRenderData with the given grid rectangle, color, border types, and icon path.
      *
      * @param x            The x coordinate in the grid
      * @param y            The y coordinate in the grid
@@ -45,9 +46,11 @@ public class CellRenderData {
      * @param borderSouth  The road type on the south side
      * @param borderEast   The road type on the east side
      * @param borderWest   The road type on the west side
+     * @param iconPath     The path to the building icon (null if no icon)
      */
     public CellRenderData(int x, int y, int width, int height, float r, float g, float b, float a,
-                          RoadType borderNorth, RoadType borderSouth, RoadType borderEast, RoadType borderWest) {
+                          RoadType borderNorth, RoadType borderSouth, RoadType borderEast, RoadType borderWest,
+                          String iconPath) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -60,6 +63,7 @@ public class CellRenderData {
         this.borderSouth = borderSouth;
         this.borderEast = borderEast;
         this.borderWest = borderWest;
+        this.iconPath = iconPath;
     }
 
     public int getX() {
@@ -126,12 +130,20 @@ public class CellRenderData {
         return borderWest;
     }
 
+    /**
+     * Gets the icon path for this cell's building, or null if no icon.
+     */
+    public String getIconPath() {
+        return iconPath;
+    }
+
     @Override
     public String toString() {
         return "CellRenderData{x=" + x + ", y=" + y +
                ", width=" + width + ", height=" + height +
                ", color=(" + r + "," + g + "," + b + "," + a + ")" +
                ", borders={N=" + borderNorth + ",S=" + borderSouth +
-               ",E=" + borderEast + ",W=" + borderWest + "}}";
+               ",E=" + borderEast + ",W=" + borderWest + "}" +
+               ", icon=" + iconPath + "}";
     }
 }

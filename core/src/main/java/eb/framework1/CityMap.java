@@ -238,8 +238,15 @@ public class CityMap {
 
                 // Get road access for border types
                 RoadAccess ra = roadAccessMap.getAccess(x, y);
+                // Get icon path for building cells
+                String iconPath = null;
+                if (cell.getTerrainType() == TerrainType.BUILDING
+                        && cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
+                    iconPath = cell.getBuilding().getDefinition().getIconPath();
+                }
                 renderData[x][y] = new CellRenderData(x, y, 1, 1, r, g, b, a,
-                    ra.getNorthType(), ra.getSouthType(), ra.getEastType(), ra.getWestType());
+                    ra.getNorthType(), ra.getSouthType(), ra.getEastType(), ra.getWestType(),
+                    iconPath);
             }
         }
     }

@@ -11,7 +11,8 @@ public class CellRenderDataTest {
     @Test
     public void testCellRenderDataCreation() {
         CellRenderData rd = new CellRenderData(3, 5, 1, 1, 0.5f, 0.6f, 0.7f, 1.0f,
-                                                RoadType.ROAD, RoadType.NONE, RoadType.PATHWAY, RoadType.NONE);
+                                                RoadType.ROAD, RoadType.NONE, RoadType.PATHWAY, RoadType.NONE,
+                                                "icons/test.png");
         assertEquals(3, rd.getX());
         assertEquals(5, rd.getY());
         assertEquals(1, rd.getWidth());
@@ -33,7 +34,8 @@ public class CellRenderDataTest {
     @Test
     public void testCellRenderDataToString() {
         CellRenderData rd = new CellRenderData(0, 0, 1, 1, 0.4f, 0.35f, 0.3f, 1.0f,
-                                                RoadType.ROAD, RoadType.ROAD, RoadType.NONE, RoadType.NONE);
+                                                RoadType.ROAD, RoadType.ROAD, RoadType.NONE, RoadType.NONE,
+                                                null);
         String str = rd.toString();
         assertNotNull(str);
         assertTrue(str.contains("x=0"));
