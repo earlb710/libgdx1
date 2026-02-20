@@ -1,5 +1,16 @@
 package eb.framework1;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.Set;
+
 /**
  * Computes a road access map for a 2-D terrain grid.
  *
@@ -20,8 +31,9 @@ public class RoadAccessMap {
     private final int rows;
     private final int cols;
 
+    private static final double ROAD_REMOVAL_RATIO = 0.30;
+
     /**
-     * Builds the road access map from the provided terrain grid.
      *
      * @param terrain 2-D array of {@link TerrainType} values (terrain[row][col]).
      *                Must be non-null, non-empty, and rectangular.
@@ -145,5 +157,147 @@ public class RoadAccessMap {
     /** Returns the number of columns in the grid. */
     public int getCols() {
         return cols;
+    }
+
+    /**
+     * Removes approximately 30% of road edges at random using {@code randSeed}, while
+     * guaranteeing that every cell that was reachable from another cell before the call
+     * remains reachable afterwards (i.e. no cell is cut off).
+     *
+     * <p>A road edge is a bidirectional connection between two adjacent cells where both
+     * cells have access toward each other. The method:
+     * <ol>
+     *   <li>Collects all current road edges.</li>
+     *   <li>Builds a spanning forest (one BFS spanning tree per connected component) to
+     *       identify the minimum set of edges needed for full connectivity.</li>
+     *   <li>Shuffles the non-spanning-tree edges with {@code new Random(randSeed)}.</li>
+     *   <li>Removes up to {@code floor(totalEdges * 0.30)} of those edges.</li>
+     * </ol>
+     *
+     * <p>If the number of removable (non-tree) edges is smaller than the 30% target, as
+     * many edges as possible are removed without breaking connectivity.
+     *
+     * <p>This method is not thread-safe. It must be called from a single thread
+     * (e.g. the LibGDX rendering/logic thread).
+     *
+     * @param randSeed seed for the random shuffle, typically {@link eb.framework1.Profile#getRandSeed()}
+     */
+    public void removeRoads(long randSeed) {
+        // Step 1: collect all undirected road edges.
+        // Each edge is stored as {r1, c1, r2, c2} where (r2,c2) is the east or south neighbor.
+        List<int[]> allEdges = collectRoadEdges();
+        int totalEdges = allEdges.size();
+        int targetRemove = (int) (totalEdges * ROAD_REMOVAL_RATIO);
+        if (targetRemove == 0) {
+            return;
+        }
+
+        // Step 2: build a spanning forest to protect the minimum connectivity edges.
+        Set<String> treeEdgeKeys = buildSpanningForestEdgeKeys(allEdges);
+
+        // Step 3: separate removable (non-tree) edges.
+        List<int[]> removable = new ArrayList<>();
+        for (int[] e : allEdges) {
+            if (!treeEdgeKeys.contains(edgeKey(e))) {
+                removable.add(e);
+            }
+        }
+
+        // Step 4: shuffle and remove up to targetRemove edges.
+        Collections.shuffle(removable, new Random(randSeed));
+        List<int[]> toRemove = removable.subList(0, Math.min(targetRemove, removable.size()));
+        for (int[] e : toRemove) {
+            if (e[0] == e[2]) {
+                // Horizontal edge (same row): remove east/west access.
+                accessMap[e[0]][e[1]].setEast(false);
+                accessMap[e[2]][e[3]].setWest(false);
+            } else {
+                // Vertical edge (same column): remove south/north access.
+                accessMap[e[0]][e[1]].setSouth(false);
+                accessMap[e[2]][e[3]].setNorth(false);
+            }
+        }
+    }
+
+    /**
+     * Collects every undirected road edge currently present in the access map.
+     * Each edge is represented as {@code {r1, c1, r2, c2}} where (r2,c2) is either the
+     * eastern neighbor (same row, col+1) or the southern neighbor (row+1, same col).
+     */
+    private List<int[]> collectRoadEdges() {
+        List<int[]> edges = new ArrayList<>();
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                // East edge
+                if (c + 1 < cols
+                        && accessMap[r][c].hasEastAccess()
+                        && accessMap[r][c + 1].hasWestAccess()) {
+                    edges.add(new int[]{r, c, r, c + 1});
+                }
+                // South edge
+                if (r + 1 < rows
+                        && accessMap[r][c].hasSouthAccess()
+                        && accessMap[r + 1][c].hasNorthAccess()) {
+                    edges.add(new int[]{r, c, r + 1, c});
+                }
+            }
+        }
+        return edges;
+    }
+
+    /**
+     * Builds a spanning forest over the road graph defined by {@code edges} using BFS,
+     * and returns the string keys of all edges that are part of the spanning forest.
+     * Spanning-forest edges are the minimum set required to keep every connected component
+     * internally connected.
+     */
+    private Set<String> buildSpanningForestEdgeKeys(List<int[]> edges) {
+        if (edges.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        // Build adjacency list keyed by "row,col".
+        Map<String, List<int[]>> adj = new HashMap<>();
+        for (int[] e : edges) {
+            String k1 = nodeKey(e[0], e[1]);
+            String k2 = nodeKey(e[2], e[3]);
+            adj.computeIfAbsent(k1, x -> new ArrayList<>()).add(e);
+            adj.computeIfAbsent(k2, x -> new ArrayList<>()).add(e);
+        }
+
+        Set<String> visited = new HashSet<>();
+        Set<String> treeEdgeKeys = new HashSet<>();
+
+        // BFS from every unvisited node to cover all components (spanning forest).
+        for (String startNode : adj.keySet()) {
+            if (visited.contains(startNode)) {
+                continue;
+            }
+            Queue<String> queue = new LinkedList<>();
+            queue.add(startNode);
+            visited.add(startNode);
+            while (!queue.isEmpty()) {
+                String node = queue.poll();
+                for (int[] e : adj.getOrDefault(node, Collections.emptyList())) {
+                    String k1 = nodeKey(e[0], e[1]);
+                    String k2 = nodeKey(e[2], e[3]);
+                    String other = node.equals(k1) ? k2 : k1;
+                    if (!visited.contains(other)) {
+                        visited.add(other);
+                        treeEdgeKeys.add(edgeKey(e));
+                        queue.add(other);
+                    }
+                }
+            }
+        }
+        return treeEdgeKeys;
+    }
+
+    private static String nodeKey(int r, int c) {
+        return r + "," + c;
+    }
+
+    private static String edgeKey(int[] e) {
+        return e[0] + "," + e[1] + "," + e[2] + "," + e[3];
     }
 }
