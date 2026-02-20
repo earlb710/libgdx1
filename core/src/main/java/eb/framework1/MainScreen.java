@@ -174,6 +174,7 @@ public class MainScreen implements Screen {
             selectedCellY = startCell.getY();
             charCellX = selectedCellX;
             charCellY = selectedCellY;
+            discoverCell(charCellX, charCellY);
             Gdx.app.log("MainScreen", "Character starting location: " + selectedCellX + "," + selectedCellY);
         }
         
@@ -440,6 +441,9 @@ public class MainScreen implements Screen {
         charCellX = selectedCellX;
         charCellY = selectedCellY;
 
+        // Discover building and zero-hidden-value improvements at the new location
+        discoverCell(charCellX, charCellY);
+
         // Clear route (char is now at selected cell)
         currentRoute = null;
 
@@ -452,6 +456,28 @@ public class MainScreen implements Screen {
 
         Gdx.app.log("MainScreen", "Moved to: " + charCellX + "," + charCellY
                 + ", time advanced by " + travelMinutes + " min");
+    }
+
+    /**
+     * Discovers the building and any easy-to-find improvements at the given cell.
+     * Called whenever the character arrives at (or starts at) a cell.
+     * <ul>
+     *   <li>The building is always discovered.</li>
+     *   <li>Improvements with hiddenValue == 0 are discovered automatically on arrival.</li>
+     *   <li>Improvements with hiddenValue &gt; 0 require separate investigation.</li>
+     * </ul>
+     */
+    private void discoverCell(int x, int y) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        building.discover();
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.getHiddenValue() == 0) {
+                imp.discover();
+            }
+        }
+        Gdx.app.log("MainScreen", "Discovered cell " + x + "," + y + ": " + building.getName());
     }
 
     @Override
