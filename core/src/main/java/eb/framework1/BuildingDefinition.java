@@ -119,6 +119,21 @@ public class BuildingDefinition {
         this.improvements = improvements != null ? new ArrayList<>(improvements) : new ArrayList<>();
     }
 
+    /**
+     * Returns the path to the building's icon file within the assets/icons/ directory.
+     * The icon filename is derived from the building name by converting to lowercase
+     * and replacing non-alphanumeric characters with underscores.
+     *
+     * @return The icon file path relative to the assets directory (e.g. "icons/police_station.png")
+     */
+    public String getIconPath() {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        String slug = name.toLowerCase().replaceAll("[^a-z0-9]+", "_").replaceAll("^_|_$", "");
+        return "icons/" + slug + ".png";
+    }
+
     @Override
     public String toString() {
         return "BuildingDefinition{" +

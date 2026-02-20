@@ -444,4 +444,43 @@ public class RoadAccessMapTest {
             }
         }
     }
+
+    @Test
+    public void testRemovedBuildingRoadsBecomePaths() {
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap accessMap = map.getRoadAccessMap();
+
+        int pathwayCount = 0;
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra = accessMap.getAccess(x, y);
+                if (ra.getEastType() == RoadType.PATHWAY) pathwayCount++;
+                if (ra.getNorthType() == RoadType.PATHWAY) pathwayCount++;
+            }
+        }
+        assertTrue("Should have pathways after road removal between buildings (found " + pathwayCount + ")",
+                   pathwayCount > 0);
+    }
+
+    @Test
+    public void testPathwayReciprocalConsistency() {
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap accessMap = map.getRoadAccessMap();
+
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra = accessMap.getAccess(x, y);
+                // If east is PATHWAY, neighbor's west must also be PATHWAY
+                if (ra.getEastType() == RoadType.PATHWAY && x + 1 < CityMap.MAP_SIZE) {
+                    assertEquals("Reciprocal pathway E/W at (" + x + "," + y + ")",
+                                 RoadType.PATHWAY, accessMap.getAccess(x + 1, y).getWestType());
+                }
+                // If north is PATHWAY, neighbor's south must also be PATHWAY
+                if (ra.getNorthType() == RoadType.PATHWAY && y + 1 < CityMap.MAP_SIZE) {
+                    assertEquals("Reciprocal pathway N/S at (" + x + "," + y + ")",
+                                 RoadType.PATHWAY, accessMap.getAccess(x, y + 1).getSouthType());
+                }
+            }
+        }
+    }
 }

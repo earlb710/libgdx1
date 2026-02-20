@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -42,9 +43,9 @@ public class MainScreen implements Screen {
     // Map view parameters
     private float mapOffsetX = 0;  // Pan offset in cells
     private float mapOffsetY = 0;
-    private float zoomLevel = 1.5f; // 1.0 = full map, higher = more zoom
-    private float lastZoomLevel = 1.5f; // For caching zoom text
-    private String cachedZoomText = "Zoom: 1.0x";
+    private float zoomLevel = 2.0f; // 1.0 = full map, higher = more zoom
+    private float lastZoomLevel = 2.0f; // For caching zoom text
+    private String cachedZoomText = "Zoom: 2.0x";
     
     // Tuning constants
     private static final float MIN_ZOOM = 1.0f;  // Full map view (16x16 visible)
@@ -70,7 +71,7 @@ public class MainScreen implements Screen {
     private float dragStartOffsetX, dragStartOffsetY;
     
     // Ruler constants
-    private static final float RULER_WIDTH = 25f;  // Width of ruler strip
+    private static final float RULER_WIDTH = 30f;  // Width of ruler strip
     private static final float RULER_GAP = 1f;     // Gap between rulers and map
     private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
     private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
@@ -82,6 +83,9 @@ public class MainScreen implements Screen {
     
     // Color cache for categories (avoid allocations during render)
     private Map<String, Color> categoryColorCache;
+    
+    // Icon texture cache for building icons
+    private Map<String, Texture> iconTextureCache;
     
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
@@ -132,6 +136,9 @@ public class MainScreen implements Screen {
         
         // Initialize category color cache to avoid allocations during render
         initColorCache(gameData);
+        
+        // Load building icon textures
+        loadBuildingIcons();
         
         // Set up input processing (save previous processor for restoration)
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -311,9 +318,9 @@ public class MainScreen implements Screen {
     }
     
     private int getVisibleCellsY() {
-        // Vertical visible cells - use full height available
+        // Vertical visible cells - subtract ruler width and gap from available height
         float cellSize = getCellSize();
-        return (int)(mapAreaHeight / cellSize);
+        return (int)((mapAreaHeight - RULER_WIDTH - RULER_GAP) / cellSize);
     }
     
     private void clampMapOffset() {
@@ -385,6 +392,7 @@ public class MainScreen implements Screen {
         
         // Border size scales with cell size for visibility
         float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
+        float pathwaySize = Math.max(1, borderSize * 0.25f); // Pathway is 1/4 the width of a road
         
         // Map starts after left ruler + gap and at info panel top
         float mapStartX = RULER_WIDTH + RULER_GAP;
@@ -408,12 +416,13 @@ public class MainScreen implements Screen {
         
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         
-        // Draw cells with border gap (partial cells at edges are allowed)
-        // Y axis is inverted: row 0 at top, row F at bottom
+        // Draw cells with per-side border gaps based on road access.
+        // A border (gap) is drawn on sides where road access exists (representing the road).
+        // No border is drawn where there is no road access (building extends to edge).
+        // Y axis is inverted: row 0 at top, row F at bottom.
+        // Map NORTH (y+1) corresponds to screen bottom; Map SOUTH (y-1) to screen top.
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
-                Cell cell = cityMap.getCell(cx, cy);
-                
                 float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                 // Invert Y: row 0 at top (higher screen Y), row F at bottom (lower screen Y)
                 float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
@@ -424,16 +433,58 @@ public class MainScreen implements Screen {
                     continue;
                 }
                 
-                // Get cell color
-                Color cellColor = getCellColor(cell);
-                shapeRenderer.setColor(cellColor);
-                // Draw cell with border gap on all sides
-                shapeRenderer.rect(drawX + borderSize, drawY + borderSize, 
-                                   cellSize - borderSize * 2, cellSize - borderSize * 2);
+                // Use pre-computed render data for color and border flags
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                shapeRenderer.setColor(rd.getR(), rd.getG(), rd.getB(), rd.getA());
+                
+                // Calculate per-side border insets based on road type.
+                // ROAD = full borderSize, PATHWAY = pathwaySize (1/4 of road), NONE = 0
+                // Map directions to screen edges (Y axis is inverted):
+                //   Map WEST  -> screen LEFT,   Map EAST  -> screen RIGHT
+                //   Map NORTH -> screen BOTTOM,  Map SOUTH -> screen TOP
+                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                
+                shapeRenderer.rect(drawX + leftInset, drawY + bottomInset,
+                                   cellSize - leftInset - rightInset,
+                                   cellSize - bottomInset - topInset);
             }
         }
         
         shapeRenderer.end();
+        
+        // Draw building icons on cells (with inverted Y)
+        batch.begin();
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                String iconPath = rd.getIconPath();
+                if (iconPath == null) continue;
+                Texture iconTex = iconTextureCache.get(iconPath);
+                if (iconTex == null) continue;
+                
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                
+                // Scale icon to fit within cell (with border insets), centered
+                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                float availW = cellSize - leftInset - rightInset;
+                float availH = cellSize - bottomInset - topInset;
+                float iconSize = Math.min(availW, availH) * 0.7f; // 70% of available space
+                float iconX = drawX + leftInset + (availW - iconSize) / 2;
+                float iconY = drawY + bottomInset + (availH - iconSize) / 2;
+                
+                // Tint not needed - icons have transparent bg with black lines
+                batch.setColor(Color.WHITE);
+                batch.draw(iconTex, iconX, iconY, iconSize, iconSize);
+            }
+        }
+        batch.end();
         
         // Draw selection highlight (with inverted Y)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -473,6 +524,18 @@ public class MainScreen implements Screen {
         }
     }
     
+    /**
+     * Returns the border inset size for a given road type.
+     * ROAD uses full borderSize, PATHWAY uses pathwaySize (1/4 of road), NONE uses 0.
+     */
+    private static float borderInset(RoadType type, float borderSize, float pathwaySize) {
+        switch (type) {
+            case ROAD:    return borderSize;
+            case PATHWAY: return pathwaySize;
+            default:      return 0;
+        }
+    }
+    
     private void drawRulers() {
         float cellSize = getCellSize();
         int visibleCellsX = getVisibleCellsX();
@@ -496,7 +559,7 @@ public class MainScreen implements Screen {
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
         // Top horizontal ruler background (at top of map area with gap)
-        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP - 2; // Move down 2 pixels to prevent top cutoff
+        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP; // Positioned flush at top of map area
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
@@ -599,6 +662,30 @@ public class MainScreen implements Screen {
     }
     
     /**
+     * Loads building icon textures from the pre-computed render data.
+     * Only loads unique icon paths to avoid duplicate texture loading.
+     */
+    private void loadBuildingIcons() {
+        iconTextureCache = new HashMap<>();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                CellRenderData rd = cityMap.getCellRenderData(x, y);
+                String iconPath = rd.getIconPath();
+                if (iconPath != null && !iconTextureCache.containsKey(iconPath)) {
+                    try {
+                        Texture tex = new Texture(iconPath);
+                        tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                        iconTextureCache.put(iconPath, tex);
+                    } catch (Exception e) {
+                        Gdx.app.log("MainScreen", "Could not load icon: " + iconPath + " - " + e.getMessage());
+                    }
+                }
+            }
+        }
+        Gdx.app.log("MainScreen", "Loaded " + iconTextureCache.size() + " building icons");
+    }
+    
+    /**
      * Helper method to draw a label in bright green and value in white.
      * @return the textY position (unchanged, caller should subtract lineHeight)
      */
@@ -612,6 +699,31 @@ public class MainScreen implements Screen {
         font.setColor(Color.WHITE);
         font.draw(batch, value, textX + labelWidth, textY);
         return textY;
+    }
+    
+    /**
+     * Formats attribute modifiers as a compact string, e.g. "[INT+2 PER-1]".
+     */
+    private String formatAttributeModifiers(Map<CharacterAttribute, Integer> modifiers) {
+        if (modifiers == null || modifiers.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder("[");
+        boolean first = true;
+        for (Map.Entry<CharacterAttribute, Integer> entry : modifiers.entrySet()) {
+            if (!first) sb.append(' ');
+            first = false;
+            String displayName = entry.getKey().getDisplayName();
+            String abbrev = displayName.length() >= 3
+                ? displayName.substring(0, 3).toUpperCase()
+                : displayName.toUpperCase();
+            int val = entry.getValue();
+            sb.append(abbrev);
+            if (val > 0) sb.append('+');
+            sb.append(val);
+        }
+        sb.append(']');
+        return sb.toString();
     }
     
     private void drawInfoBlock() {
@@ -655,33 +767,53 @@ public class MainScreen implements Screen {
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 
-                // Draw "Building:" label in bright green, then value in white
-                textY = drawLabelValue(batch, font, "Building: ", building.getName(), textX, textY);
-                textY -= fontLineHeight;
-                
-                if (building.getDefinition() != null) {
-                    // Draw "Category:" label in bright green, then value in white
-                    textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
-                    textY -= fontLineHeight;
-                    
-                    // Draw "Floors:" label in bright green, then value in white
-                    textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
-                    textY -= fontLineHeight;
-                }
-                
-                // Show improvements (only if there's space)
-                if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
-                    // Draw "Improvements:" label in bright green (no value)
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Improvements:", textX, textY);
-                    font.setColor(Color.WHITE);
-                    textY -= fontLineHeight;
-                    
-                    for (Improvement imp : building.getImprovements()) {
-                        if (textY < smallFontLineHeight * 2) break; // Stop before footer area
-                        smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
-                        textY -= smallFontLineHeight;
+                if (building.isDiscovered()) {
+                    // Draw "Building:" label in bright green, then value in white
+                    String buildingModStr = formatAttributeModifiers(building.getAttributeModifiers());
+                    String buildingDisplay = building.getName();
+                    if (!buildingModStr.isEmpty()) {
+                        buildingDisplay += " " + buildingModStr;
                     }
+                    textY = drawLabelValue(batch, font, "Building: ", buildingDisplay, textX, textY);
+                    textY -= fontLineHeight;
+                    
+                    if (building.getDefinition() != null) {
+                        // Draw "Category:" label in bright green, then value in white
+                        textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
+                        textY -= fontLineHeight;
+                        
+                        // Draw "Floors:" label in bright green, then value in white
+                        textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
+                        textY -= fontLineHeight;
+                    }
+                    
+                    // Show improvements (only if there's space)
+                    if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
+                        // Draw "Improvements:" label in bright green (no value)
+                        font.setColor(LABEL_COLOR);
+                        font.draw(batch, "Improvements:", textX, textY);
+                        font.setColor(Color.WHITE);
+                        textY -= fontLineHeight;
+                        
+                        for (Improvement imp : building.getImprovements()) {
+                            if (textY < smallFontLineHeight * 2) break; // Stop before footer area
+                            if (imp.isDiscovered()) {
+                                String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
+                                String display = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")";
+                                if (!modStr.isEmpty()) {
+                                    display += " " + modStr;
+                                }
+                                smallFont.draw(batch, display, textX, textY);
+                            } else {
+                                smallFont.draw(batch, "  - ???", textX, textY);
+                            }
+                            textY -= smallFontLineHeight;
+                        }
+                    }
+                } else {
+                    // Building not yet discovered - show placeholder
+                    textY = drawLabelValue(batch, font, "Building: ", "???", textX, textY);
+                    textY -= fontLineHeight;
                 }
             }
         } else {
@@ -774,6 +906,13 @@ public class MainScreen implements Screen {
         }
         if (shapeRenderer != null) {
             shapeRenderer.dispose();
+        }
+        // Dispose building icon textures
+        if (iconTextureCache != null) {
+            for (Texture tex : iconTextureCache.values()) {
+                tex.dispose();
+            }
+            iconTextureCache.clear();
         }
         // Restore previous input processor on dispose
         if (previousInputProcessor != null) {

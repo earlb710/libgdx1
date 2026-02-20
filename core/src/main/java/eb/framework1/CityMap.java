@@ -2,7 +2,9 @@ package eb.framework1;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -14,10 +16,20 @@ import java.util.Random;
  * - One random side is beach
  * - Each non-mountain, non-beach cell has a building with 4 improvements
  * - Buildings are selected using weighted random based on percentage distribution
+ * - Pre-computed render data (rectangle + color) stored for each cell for efficient redrawing
  */
 public class CityMap {
     public static final int MAP_SIZE = 16;
     private static final double MOUNTAIN_PERCENTAGE = 0.10;
+
+    // Color constants for terrain types (used in render data pre-computation)
+    private static final float MOUNTAIN_R = 0.4f, MOUNTAIN_G = 0.35f, MOUNTAIN_B = 0.3f;
+    private static final float BEACH_R = 0.95f, BEACH_G = 0.9f, BEACH_B = 0.6f;
+    private static final float GRAY_R = 0.5f, GRAY_G = 0.5f, GRAY_B = 0.5f;
+
+    // Floor-based brightness constants for building color calculation
+    private static final float MIN_BRIGHTNESS = 0.55f;
+    private static final int MAX_FLOORS = 10;
     
     // Fallback building types (used when GameDataManager is not provided)
     private static final String[] FALLBACK_BUILDING_TYPES = {
@@ -40,6 +52,8 @@ public class CityMap {
     }
 
     private final Cell[][] cells;
+    private final CellRenderData[][] renderData;
+    private final RoadAccessMap roadAccessMap;
     private final Side beachSide;
     private final long seed;
     private final GameDataManager gameData;
@@ -85,6 +99,7 @@ public class CityMap {
     public CityMap(long seed, GameDataManager gameData) {
         this.seed = seed;
         this.cells = new Cell[MAP_SIZE][MAP_SIZE];
+        this.renderData = new CellRenderData[MAP_SIZE][MAP_SIZE];
         this.gameData = gameData;
         
         Random random = new Random(seed);
@@ -132,6 +147,13 @@ public class CityMap {
                 cells[x][y] = new Cell(x, y, terrain, building);
             }
         }
+        
+        // Build road access map and remove ~30% of roads while preserving connectivity
+        this.roadAccessMap = new RoadAccessMap(this);
+        this.roadAccessMap.removeRoads(seed);
+        
+        // Pre-compute render data for all cells to avoid repeated calculations during drawing
+        buildRenderData();
     }
 
     /**
@@ -149,6 +171,83 @@ public class CityMap {
                 return x == 0;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Pre-computes render data (rectangle, color, and border flags) for all cells.
+     * This is called once after map generation so that the rendering loop
+     * can use the stored data directly without recalculating each frame.
+     * Border flags are derived from the road access map: a border is drawn on
+     * sides where road access exists (representing the road gap), and no border
+     * is drawn where there is no road access (building extends to edge).
+     */
+    private void buildRenderData() {
+        // Build a category color lookup map from GameDataManager
+        Map<String, float[]> categoryColors = new HashMap<>();
+        if (gameData != null) {
+            for (CategoryDefinition cat : gameData.getCategories()) {
+                categoryColors.put(cat.getId(), cat.getColorFloats());
+            }
+        }
+
+        for (int x = 0; x < MAP_SIZE; x++) {
+            for (int y = 0; y < MAP_SIZE; y++) {
+                Cell cell = cells[x][y];
+                float r, g, b, a = 1.0f;
+
+                switch (cell.getTerrainType()) {
+                    case MOUNTAIN:
+                        r = MOUNTAIN_R;
+                        g = MOUNTAIN_G;
+                        b = MOUNTAIN_B;
+                        break;
+                    case BEACH:
+                        r = BEACH_R;
+                        g = BEACH_G;
+                        b = BEACH_B;
+                        break;
+                    case BUILDING:
+                        if (cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
+                            Building building = cell.getBuilding();
+                            String categoryId = building.getDefinition().getCategory();
+                            float[] baseColor = categoryColors.get(categoryId);
+                            if (baseColor != null) {
+                                float brightness = MIN_BRIGHTNESS
+                                    + (1.0f - MIN_BRIGHTNESS) * (building.getFloors() / (float) MAX_FLOORS);
+                                r = Math.min(1.0f, baseColor[0] * brightness);
+                                g = Math.min(1.0f, baseColor[1] * brightness);
+                                b = Math.min(1.0f, baseColor[2] * brightness);
+                            } else {
+                                r = GRAY_R;
+                                g = GRAY_G;
+                                b = GRAY_B;
+                            }
+                        } else {
+                            r = GRAY_R;
+                            g = GRAY_G;
+                            b = GRAY_B;
+                        }
+                        break;
+                    default:
+                        r = GRAY_R;
+                        g = GRAY_G;
+                        b = GRAY_B;
+                        break;
+                }
+
+                // Get road access for border types
+                RoadAccess ra = roadAccessMap.getAccess(x, y);
+                // Get icon path for building cells
+                String iconPath = null;
+                if (cell.getTerrainType() == TerrainType.BUILDING
+                        && cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
+                    iconPath = cell.getBuilding().getDefinition().getIconPath();
+                }
+                renderData[x][y] = new CellRenderData(x, y, 1, 1, r, g, b, a,
+                    ra.getNorthType(), ra.getSouthType(), ra.getEastType(), ra.getWestType(),
+                    iconPath);
+            }
         }
     }
 
@@ -188,21 +287,24 @@ public class CityMap {
             Collections.shuffle(shuffled, random);
             for (int i = 0; i < 4; i++) {
                 int level = random.nextInt(5) + 1; // Levels 1-5
-                selectedImprovements.add(new Improvement(shuffled.get(i), level));
+                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                selectedImprovements.add(new Improvement(shuffled.get(i), level, hiddenValue));
             }
         } else if (!availableImprovements.isEmpty()) {
             // Not enough improvements, use what's available and fill with duplicates
             for (int i = 0; i < 4; i++) {
                 String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
                 int level = random.nextInt(5) + 1;
-                selectedImprovements.add(new Improvement(impName, level));
+                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         } else {
             // No improvements defined, use fallback improvements
             for (int i = 0; i < 4; i++) {
                 String impName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
                 int level = random.nextInt(5) + 1;
-                selectedImprovements.add(new Improvement(impName, level));
+                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         }
         
@@ -252,7 +354,8 @@ public class CityMap {
         for (int i = 0; i < 4; i++) {
             String improvementName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
             int level = random.nextInt(5) + 1; // Levels 1-5
-            improvements.add(new Improvement(improvementName, level));
+            int hiddenValue = random.nextInt(11); // Hidden value 0-10
+            improvements.add(new Improvement(improvementName, level, hiddenValue));
         }
         
         return new Building(buildingName, improvements);
@@ -271,6 +374,23 @@ public class CityMap {
             throw new IllegalArgumentException("Coordinates out of bounds: (" + x + ", " + y + ")");
         }
         return cells[x][y];
+    }
+
+    /**
+     * Gets the pre-computed render data for the cell at the specified coordinates.
+     * Contains the rectangle (x, y, width, height) and pre-computed color,
+     * allowing efficient redrawing without recalculating terrain and building colors.
+     *
+     * @param x The x coordinate (0 to MAP_SIZE-1)
+     * @param y The y coordinate (0 to MAP_SIZE-1)
+     * @return The pre-computed render data for the cell
+     * @throws IllegalArgumentException if coordinates are out of bounds
+     */
+    public CellRenderData getCellRenderData(int x, int y) {
+        if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) {
+            throw new IllegalArgumentException("Coordinates out of bounds: (" + x + ", " + y + ")");
+        }
+        return renderData[x][y];
     }
 
     /**
@@ -293,6 +413,15 @@ public class CityMap {
      */
     public Side getBeachSide() {
         return beachSide;
+    }
+
+    /**
+     * Gets the road access map for this city map.
+     * 
+     * @return The road access map
+     */
+    public RoadAccessMap getRoadAccessMap() {
+        return roadAccessMap;
     }
 
     /**

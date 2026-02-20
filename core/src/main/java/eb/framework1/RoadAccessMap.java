@@ -34,6 +34,7 @@ public class RoadAccessMap {
 
     private final RoadAccess[][] access;
     private final int size;
+    private final CityMap cityMap;
 
     /**
      * Creates a road access map from the given city map.
@@ -45,6 +46,7 @@ public class RoadAccessMap {
     public RoadAccessMap(CityMap cityMap) {
         this.size = cityMap.getSize();
         this.access = new RoadAccess[size][size];
+        this.cityMap = cityMap;
         computeAccess(cityMap);
     }
 
@@ -190,6 +192,8 @@ public class RoadAccessMap {
     /**
      * Removes approximately 30% of existing roads using the given random seed,
      * while ensuring all connected cells remain reachable so that no cell is cut off.
+     * When a road between two building cells is removed, it is replaced with a
+     * pathway (a narrower connection) instead of being fully removed.
      *
      * @param seed Random seed for deterministic road removal
      */
@@ -224,6 +228,18 @@ public class RoadAccessMap {
             // Check connectivity is preserved
             if (isConnectivityPreserved(originalComponentId)) {
                 removed++;
+                // If both cells are buildings, replace with pathway instead of removing
+                if (dir == 0) { // East-West
+                    if (isBuildingCell(x, y) && isBuildingCell(x + 1, y)) {
+                        access[x][y].setEastType(RoadType.PATHWAY);
+                        access[x + 1][y].setWestType(RoadType.PATHWAY);
+                    }
+                } else { // North-South
+                    if (isBuildingCell(x, y) && isBuildingCell(x, y + 1)) {
+                        access[x][y].setNorthType(RoadType.PATHWAY);
+                        access[x][y + 1].setSouthType(RoadType.PATHWAY);
+                    }
+                }
             } else {
                 // Restore the edge
                 if (dir == 0) {
@@ -238,8 +254,16 @@ public class RoadAccessMap {
     }
 
     /**
-     * Counts the total number of road connections in the map.
+     * Checks if the cell at the given coordinates is a building cell.
+     */
+    private boolean isBuildingCell(int x, int y) {
+        return cityMap.getCell(x, y).getTerrainType() == TerrainType.BUILDING;
+    }
+
+    /**
+     * Counts the total number of full road connections in the map.
      * Each road between two adjacent cells is counted once.
+     * Pathways are not counted as roads.
      *
      * @return The number of road connections
      */
@@ -247,8 +271,8 @@ public class RoadAccessMap {
         int count = 0;
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
-                if (access[x][y].hasEast() && x + 1 < size) count++;
-                if (access[x][y].hasNorth() && y + 1 < size) count++;
+                if (access[x][y].getEastType() == RoadType.ROAD && x + 1 < size) count++;
+                if (access[x][y].getNorthType() == RoadType.ROAD && y + 1 < size) count++;
             }
         }
         return count;
