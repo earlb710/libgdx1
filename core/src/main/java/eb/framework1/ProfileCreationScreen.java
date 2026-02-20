@@ -132,16 +132,13 @@ public class ProfileCreationScreen implements Screen {
             genderMaleButton = new Rectangle(buttonStartX, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             
-            // Character icon buttons - positioned to the right of gender buttons
-            int iconStartX = buttonStartX + SMALL_BUTTON_WIDTH + 40;
-            int iconY = genderButtonY - 20; // Align vertically with gender buttons area
-            icon1Button = new Rectangle(iconStartX, iconY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
-            icon2Button = new Rectangle(iconStartX + ICON_SIZE + 20, iconY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            // Portrait icon buttons - positioned BELOW the female button
+            int iconTopY = startY - 810;
+            icon1Button = new Rectangle(buttonStartX, iconTopY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            icon2Button = new Rectangle(buttonStartX + ICON_SIZE + 20, iconTopY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
             
-            // Difficulty buttons - positioned BELOW "Difficulty:" label
-            // Difficulty label is at startY - 820
-            // Place buttons 100px below the label (to the right horizontally at x=200)
-            int diffButtonY = startY - 820 - 100;
+            // Difficulty buttons - positioned BELOW portrait icons and "Difficulty:" label
+            int diffButtonY = startY - 980 - 100;
             diffEasyButton = new Rectangle(buttonStartX, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             diffHardButton = new Rectangle(buttonStartX, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -262,11 +259,11 @@ public class ProfileCreationScreen implements Screen {
         // Gender label - positioned relative to gender buttons
         labelFont.draw(batch, "Gender:", 20, startY - 500);  // Increased spacing
         
-        // Character icon label
-        labelFont.draw(batch, "Character:", 20, startY - 680);
+        // Portrait icon label
+        labelFont.draw(batch, "Portrait:", 20, startY - 760);
         
-        // Difficulty label - positioned relative to difficulty buttons
-        labelFont.draw(batch, "Difficulty:", 20, startY - 820);  // Increased spacing
+        // Difficulty label - positioned below portrait icons
+        labelFont.draw(batch, "Difficulty:", 20, startY - 980);
         
         batch.end();
         
