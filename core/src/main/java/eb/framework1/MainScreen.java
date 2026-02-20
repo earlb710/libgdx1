@@ -412,8 +412,6 @@ public class MainScreen implements Screen {
         // Y axis is inverted: row 0 at top, row F at bottom
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
-                Cell cell = cityMap.getCell(cx, cy);
-                
                 float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                 // Invert Y: row 0 at top (higher screen Y), row F at bottom (lower screen Y)
                 float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
@@ -424,9 +422,9 @@ public class MainScreen implements Screen {
                     continue;
                 }
                 
-                // Get cell color
-                Color cellColor = getCellColor(cell);
-                shapeRenderer.setColor(cellColor);
+                // Use pre-computed render data for color (avoids per-frame recalculation)
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                shapeRenderer.setColor(rd.getR(), rd.getG(), rd.getB(), rd.getA());
                 // Draw cell with border gap on all sides
                 shapeRenderer.rect(drawX + borderSize, drawY + borderSize, 
                                    cellSize - borderSize * 2, cellSize - borderSize * 2);
