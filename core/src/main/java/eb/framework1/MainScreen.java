@@ -74,6 +74,19 @@ public class MainScreen implements Screen {
     // "Move to" button bounds in screen coords (moveToButtonW==0 means button not shown)
     private float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
 
+    // "Look around" button bounds in screen coords (lookAroundBtnW==0 means not shown)
+    private float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
+
+    // Look-around popup state machine
+    private enum LookAroundState { IDLE, ANIMATING, RESULTS }
+    private LookAroundState lookAroundState = LookAroundState.IDLE;
+    private float lookAroundTimer = 0f;
+    private static final float LOOK_AROUND_DOT_INTERVAL = 0.5f; // seconds per dot
+    private static final int   LOOK_AROUND_MAX_DOTS = 3;
+    private List<String> lookAroundFoundItems = new ArrayList<>();
+    // OK button bounds within the popup
+    private float popupOkX, popupOkY, popupOkW, popupOkH;
+
     // Info-area touch tracking (separate from map drag tracking)
     private boolean infoAreaPressed = false;
     private float infoTouchStartX, infoTouchStartY;
@@ -123,6 +136,10 @@ public class MainScreen implements Screen {
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
     private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f, 0.8f, 1f, 1f); // Cyan path
     private static final Color MOVE_TO_BUTTON_COLOR = new Color(0.1f, 0.5f, 0.15f, 1f); // Green button
+    private static final Color LOOK_AROUND_BUTTON_COLOR = new Color(0.1f, 0.3f, 0.6f, 1f); // Blue button
+    private static final Color POPUP_OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.7f); // Semi-transparent overlay
+    private static final Color POPUP_BG_COLOR = new Color(0.1f, 0.1f, 0.18f, 1f); // Popup background
+    private static final Color POPUP_BORDER_COLOR = new Color(0.5f, 0.6f, 0.8f, 1f); // Popup border
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     private static final int INFO_BAR_HEIGHT = 70;    // Height of the top info bar (date + money)
@@ -216,6 +233,15 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = screenHeight - screenY;
+
+                // When a popup is visible, capture the touch start for OK tap detection
+                if (lookAroundState != LookAroundState.IDLE) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging = false;
+                    return true;
+                }
                 
                 // Check if touch is in map area
                 if (flippedY > infoAreaHeight) {
@@ -227,7 +253,7 @@ public class MainScreen implements Screen {
                     infoAreaPressed = false;
                     return true;
                 }
-                // Info area touch (for "Move to" button)
+                // Info area touch (for "Move to" / "Look around" buttons)
                 infoAreaPressed = true;
                 infoTouchStartX = screenX;
                 infoTouchStartY = screenY;
@@ -238,6 +264,24 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = screenHeight - screenY;
+
+                // When popup is showing: RESULTS → check OK, ANIMATING → consume
+                if (lookAroundState == LookAroundState.RESULTS) {
+                    if (infoAreaPressed) {
+                        float tapDistance = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (tapDistance < TAP_THRESHOLD_PIXELS) {
+                            checkPopupOkClick(screenX, flippedY);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+                if (lookAroundState == LookAroundState.ANIMATING) {
+                    infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
                 
                 // If it was a tap in the map area (not a drag), select a cell
                 if (isDragging && flippedY > infoAreaHeight) {
@@ -247,11 +291,12 @@ public class MainScreen implements Screen {
                     }
                 }
                 
-                // Check "Move to" button tap in info area
+                // Check button taps in info area
                 if (infoAreaPressed) {
                     float tapDistance = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (tapDistance < TAP_THRESHOLD_PIXELS) {
                         checkMoveToButtonClick(screenX, flippedY);
+                        checkLookAroundButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -480,6 +525,170 @@ public class MainScreen implements Screen {
         Gdx.app.log("MainScreen", "Discovered cell " + x + "," + y + ": " + building.getName());
     }
 
+    /** Checks whether the tap hit the "Look around" button and starts the popup. */
+    private void checkLookAroundButtonClick(int screenX, int flippedY) {
+        if (lookAroundBtnW <= 0) return;
+        if (screenX >= lookAroundBtnX && screenX <= lookAroundBtnX + lookAroundBtnW
+                && flippedY >= lookAroundBtnY && flippedY <= lookAroundBtnY + lookAroundBtnH) {
+            startLookAround();
+        }
+    }
+
+    /** Checks whether the tap hit the popup OK button and dismisses the popup. */
+    private void checkPopupOkClick(int screenX, int flippedY) {
+        if (popupOkW <= 0) return;
+        if (screenX >= popupOkX && screenX <= popupOkX + popupOkW
+                && flippedY >= popupOkY && flippedY <= popupOkY + popupOkH) {
+            lookAroundState = LookAroundState.IDLE;
+            lookAroundFoundItems.clear();
+        }
+    }
+
+    /** Starts the "Look around" animation. */
+    private void startLookAround() {
+        lookAroundState = LookAroundState.ANIMATING;
+        lookAroundTimer = 0f;
+        lookAroundFoundItems.clear();
+        Gdx.app.log("MainScreen", "Look around started");
+    }
+
+    /**
+     * Runs perception-based improvement discovery for the character's current cell.
+     * An improvement is found if the character's Perception score &ge; the improvement's hiddenValue.
+     * Transitions to RESULTS state with the list of newly discovered items.
+     */
+    private void finishLookAround() {
+        Cell cell = cityMap.getCell(charCellX, charCellY);
+        if (cell.hasBuilding()) {
+            int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.getDisplayName());
+            for (Improvement imp : cell.getBuilding().getImprovements()) {
+                if (!imp.isDiscovered() && perception >= imp.getHiddenValue()) {
+                    imp.discover();
+                    String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
+                    String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")";
+                    if (!modStr.isEmpty()) entry += " " + modStr;
+                    lookAroundFoundItems.add(entry);
+                }
+            }
+        }
+        if (lookAroundFoundItems.isEmpty()) {
+            lookAroundFoundItems.add("Nothing new found.");
+        }
+        lookAroundState = LookAroundState.RESULTS;
+        Gdx.app.log("MainScreen", "Look around finished: " + lookAroundFoundItems.size() + " item(s)");
+    }
+
+    /**
+     * Draws the "Looking around" animated popup (ANIMATING) or results popup (RESULTS).
+     * Must be called every frame while lookAroundState != IDLE.
+     * Advances the animation timer and triggers finishLookAround() when animation completes.
+     */
+    private void drawLookAroundPopup(float delta) {
+        // Advance animation timer
+        if (lookAroundState == LookAroundState.ANIMATING) {
+            lookAroundTimer += delta;
+            if (lookAroundTimer >= LOOK_AROUND_DOT_INTERVAL * LOOK_AROUND_MAX_DOTS) {
+                finishLookAround();
+            }
+        }
+
+        // --- Measure content to size the dialog ---
+        glyphLayout.setText(font, "Hg");
+        float fontH = glyphLayout.height;
+        float fontLineH = fontH * 1.5f;
+
+        glyphLayout.setText(smallFont, "Hg");
+        float smallH = glyphLayout.height;
+        float smallLineH = smallH * 1.5f;
+
+        final float DIALOG_PAD = 24f;
+        final float MIN_DIALOG_W = 300f;
+        float dialogW = Math.max(MIN_DIALOG_W, screenWidth * 0.6f);
+
+        // Count content lines
+        int contentLines = (lookAroundState == LookAroundState.RESULTS)
+                ? 1 + lookAroundFoundItems.size() // "Found:" + items
+                : 1; // "Looking around..."
+
+        // Button sizes
+        glyphLayout.setText(font, "OK");
+        float okBtnW = glyphLayout.width + 48f;
+        float okBtnH = glyphLayout.height + 20f;
+
+        float dialogH = DIALOG_PAD
+                + fontLineH                    // title line
+                + contentLines * smallLineH    // content
+                + (lookAroundState == LookAroundState.RESULTS ? DIALOG_PAD + okBtnH : 0)
+                + DIALOG_PAD;
+
+        float dialogX = (screenWidth - dialogW) / 2f;
+        float dialogY = (screenHeight - dialogH) / 2f;
+
+        // --- Semi-transparent overlay ---
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(POPUP_OVERLAY_COLOR);
+        shapeRenderer.rect(0, 0, screenWidth, screenHeight);
+        // Dialog background
+        shapeRenderer.setColor(POPUP_BG_COLOR);
+        shapeRenderer.rect(dialogX, dialogY, dialogW, dialogH);
+        // OK button background (RESULTS only)
+        if (lookAroundState == LookAroundState.RESULTS) {
+            float okX = dialogX + (dialogW - okBtnW) / 2f;
+            float okY = dialogY + DIALOG_PAD;
+            shapeRenderer.setColor(MOVE_TO_BUTTON_COLOR);
+            shapeRenderer.rect(okX, okY, okBtnW, okBtnH);
+            // Store for click detection
+            popupOkX = okX; popupOkY = okY; popupOkW = okBtnW; popupOkH = okBtnH;
+        } else {
+            popupOkW = 0;
+        }
+        shapeRenderer.end();
+
+        // Dialog border
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(POPUP_BORDER_COLOR);
+        shapeRenderer.rect(dialogX, dialogY, dialogW, dialogH);
+        shapeRenderer.rect(dialogX + 1, dialogY + 1, dialogW - 2, dialogH - 2);
+        if (lookAroundState == LookAroundState.RESULTS) {
+            shapeRenderer.rect(popupOkX, popupOkY, popupOkW, popupOkH);
+            shapeRenderer.rect(popupOkX + 1, popupOkY + 1, popupOkW - 2, popupOkH - 2);
+        }
+        shapeRenderer.end();
+
+        // --- Text ---
+        batch.begin();
+        float ty = dialogY + dialogH - DIALOG_PAD - fontH; // start at top of dialog
+
+        if (lookAroundState == LookAroundState.ANIMATING) {
+            int dots = Math.min(LOOK_AROUND_MAX_DOTS,
+                    (int)(lookAroundTimer / LOOK_AROUND_DOT_INTERVAL) + 1);
+            StringBuilder sb = new StringBuilder("Looking around");
+            for (int i = 0; i < dots; i++) sb.append('.');
+            font.setColor(Color.WHITE);
+            glyphLayout.setText(font, sb.toString());
+            font.draw(batch, sb.toString(), dialogX + (dialogW - glyphLayout.width) / 2f, ty);
+        } else {
+            // RESULTS: title "Found:" then list items
+            font.setColor(LABEL_COLOR);
+            glyphLayout.setText(font, "Found:");
+            font.draw(batch, "Found:", dialogX + (dialogW - glyphLayout.width) / 2f, ty);
+            ty -= smallLineH;
+            smallFont.setColor(Color.WHITE);
+            for (String item : lookAroundFoundItems) {
+                glyphLayout.setText(smallFont, item);
+                smallFont.draw(batch, item, dialogX + (dialogW - glyphLayout.width) / 2f, ty);
+                ty -= smallLineH;
+            }
+            // OK button label
+            font.setColor(Color.WHITE);
+            glyphLayout.setText(font, "OK");
+            font.draw(batch, "OK",
+                    popupOkX + (popupOkW - glyphLayout.width) / 2f,
+                    popupOkY + (popupOkH + glyphLayout.height) / 2f);
+        }
+        batch.end();
+    }
+
     @Override
     public void render(float delta) {
         if (!initialized) {
@@ -504,6 +713,11 @@ public class MainScreen implements Screen {
         
         // Draw info block in bottom 1/3
         drawInfoBlock();
+
+        // Draw look-around popup overlay on top of everything
+        if (lookAroundState != LookAroundState.IDLE) {
+            drawLookAroundPopup(delta);
+        }
     }
     
     private void handleKeyboardInput() {
@@ -918,27 +1132,46 @@ public class MainScreen implements Screen {
     }
     
     private void drawInfoBlock() {
-        // Determine "Move to" button visibility
+        // Determine which top button to show:
+        //  - "Move to"      when selected cell differs from char position
+        //  - "Look around"  when selected cell IS char position and building is discovered
         boolean showMoveToButton = selectedCellX >= 0 && selectedCellY >= 0
                 && (selectedCellX != charCellX || selectedCellY != charCellY);
         boolean canMove = showMoveToButton && currentRoute != null && currentRoute.isReachable();
 
-        // Size the button to fit the font text with generous padding.
-        // GlyphLayout.setText() is safe to call without an active batch.
+        boolean showLookAroundButton = !showMoveToButton
+                && selectedCellX >= 0 && selectedCellY >= 0
+                && selectedCellX == charCellX && selectedCellY == charCellY
+                && lookAroundState == LookAroundState.IDLE
+                && cityMap.getCell(selectedCellX, selectedCellY).hasBuilding()
+                && cityMap.getCell(selectedCellX, selectedCellY).getBuilding().isDiscovered();
+
+        // Size buttons to fit their label text with generous padding.
+        final float BUTTON_PAD_X = 24f;
+        final float BUTTON_PAD_Y = 10f;
+        final float BUTTON_PAD = 14f;   // gap between info-panel top border and button
+
         glyphLayout.setText(font, "Move to");
-        final float BUTTON_PAD_X = 24f; // horizontal padding (each side)
-        final float BUTTON_PAD_Y = 10f; // vertical padding (each side)
         final float BUTTON_W = glyphLayout.width  + BUTTON_PAD_X * 2;
         final float BUTTON_H = glyphLayout.height + BUTTON_PAD_Y * 2;
-        final float BUTTON_PAD = 14f;   // gap between info-panel top and button
+
+        glyphLayout.setText(font, "Look around");
+        final float LA_BTN_W = glyphLayout.width  + BUTTON_PAD_X * 2;
+        // LA_BTN_H is the same as BUTTON_H (same font)
+
         float btnX = 20f;
         float btnY = infoAreaHeight - BUTTON_PAD - BUTTON_H;
 
-        // Store button bounds for click detection (W=0 means no button)
+        // Store button bounds for click detection (W=0 means not shown)
         moveToButtonX = btnX;
         moveToButtonY = btnY;
         moveToButtonW = showMoveToButton ? BUTTON_W : 0f;
         moveToButtonH = BUTTON_H;
+
+        lookAroundBtnX = btnX;
+        lookAroundBtnY = btnY;
+        lookAroundBtnW = showLookAroundButton ? LA_BTN_W : 0f;
+        lookAroundBtnH = BUTTON_H;
 
         // --- Shape rendering pass (background + button background + border) ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -948,15 +1181,22 @@ public class MainScreen implements Screen {
             shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
             shapeRenderer.rect(btnX, btnY, BUTTON_W, BUTTON_H);
         }
+        if (showLookAroundButton) {
+            shapeRenderer.setColor(LOOK_AROUND_BUTTON_COLOR);
+            shapeRenderer.rect(btnX, btnY, LA_BTN_W, BUTTON_H);
+        }
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, infoAreaHeight, screenWidth, infoAreaHeight);
         if (showMoveToButton) {
-            // Draw a 2-pixel-thick outline (two nested Line rects)
             shapeRenderer.rect(btnX,     btnY,     BUTTON_W,     BUTTON_H);
             shapeRenderer.rect(btnX + 1, btnY + 1, BUTTON_W - 2, BUTTON_H - 2);
+        }
+        if (showLookAroundButton) {
+            shapeRenderer.rect(btnX,     btnY,     LA_BTN_W,     BUTTON_H);
+            shapeRenderer.rect(btnX + 1, btnY + 1, LA_BTN_W - 2, BUTTON_H - 2);
         }
         shapeRenderer.end();
 
@@ -988,8 +1228,18 @@ public class MainScreen implements Screen {
             smallFont.setColor(Color.WHITE);
         }
 
-        // Info text starts below the button (if shown)
-        float textY = showMoveToButton
+        // Draw "Look around" button label
+        if (showLookAroundButton) {
+            glyphLayout.setText(font, "Look around");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Look around",
+                    btnX + (LA_BTN_W - glyphLayout.width) / 2,
+                    btnY + (BUTTON_H + glyphLayout.height) / 2);
+        }
+
+        // Info text starts below the button (if any)
+        boolean anyButton = showMoveToButton || showLookAroundButton;
+        float textY = anyButton
                 ? btnY - BUTTON_PAD - fontLineHeight
                 : infoAreaHeight - fontLineHeight;
         
