@@ -12,6 +12,7 @@ public class Profile {
     private int gameDate;  // Game date starting from 2050
     private long randSeed; // Random seed for procedural generation
     private int money;     // Player's current money
+    private String gameDateTime; // Full in-game date/time string (e.g. "2050-01-02 13:20")
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -54,6 +55,7 @@ public class Profile {
         this.gameDate = gameDate;
         this.randSeed = randSeed;
         this.money = 1000;
+        this.gameDateTime = "2050-01-02 13:20";
     }
     
     // Character name serves as both the profile identifier and in-game name
@@ -123,6 +125,14 @@ public class Profile {
 
     public void setMoney(int money) {
         this.money = money;
+    }
+
+    public String getGameDateTime() {
+        return gameDateTime;
+    }
+
+    public void setGameDateTime(String gameDateTime) {
+        this.gameDateTime = gameDateTime;
     }
     
     @Override

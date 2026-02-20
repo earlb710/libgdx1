@@ -63,6 +63,7 @@ public class ProfileManager {
                     Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
                         icon, pd.attributes, gameDate, randSeed);
                     profile.setMoney(pd.money == 0 ? 1000 : pd.money);
+                    profile.setGameDateTime(pd.gameDateTime != null ? pd.gameDateTime : "2050-01-02 13:20");
                     profiles.add(profile);
                 }
             }
@@ -99,6 +100,7 @@ public class ProfileManager {
             pd.gameDate = profile.getGameDate();
             pd.randSeed = profile.getRandSeed();
             pd.money = profile.getMoney();
+            pd.gameDateTime = profile.getGameDateTime();
             dataList.add(pd);
         }
         
@@ -223,5 +225,6 @@ public class ProfileManager {
         public int gameDate;
         public long randSeed;
         public int money;
+        public String gameDateTime;
     }
 }

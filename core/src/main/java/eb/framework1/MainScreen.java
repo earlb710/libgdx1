@@ -109,7 +109,7 @@ public class MainScreen implements Screen {
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
-    private static final int INFO_BAR_HEIGHT = 50;    // Height of the top info bar (date + money)
+    private static final int INFO_BAR_HEIGHT = 70;    // Height of the top info bar (date + money)
     
     // Floor-based brightness constants
     private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
@@ -914,21 +914,21 @@ public class MainScreen implements Screen {
         batch.begin();
 
         // Measure a sample string to get a reliable text height for vertical centering
-        glyphLayout.setText(smallFont, "Hg");
+        glyphLayout.setText(font, "Hg");
         float textY = barY + (INFO_BAR_HEIGHT + glyphLayout.height) / 2;
 
-        // Date on the left in white
-        String dateText = "Year: " + profile.getGameDate();
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, dateText, 10, textY);
+        // Date/time on the left in white (bold via bodyFont)
+        String dateText = profile.getGameDateTime();
+        font.setColor(Color.WHITE);
+        font.draw(batch, dateText, 10, textY);
 
-        // Money on the right in yellow
+        // Money on the right in yellow (bold via bodyFont)
         String moneyText = "$" + profile.getMoney();
-        glyphLayout.setText(smallFont, moneyText);
-        smallFont.setColor(Color.YELLOW);
-        smallFont.draw(batch, moneyText, screenWidth - glyphLayout.width - 10, textY);
+        glyphLayout.setText(font, moneyText);
+        font.setColor(Color.YELLOW);
+        font.draw(batch, moneyText, screenWidth - glyphLayout.width - 10, textY);
 
-        smallFont.setColor(Color.WHITE);
+        font.setColor(Color.WHITE);
         batch.end();
     }
 
