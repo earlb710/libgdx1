@@ -10,7 +10,8 @@ public class CellRenderDataTest {
 
     @Test
     public void testCellRenderDataCreation() {
-        CellRenderData rd = new CellRenderData(3, 5, 1, 1, 0.5f, 0.6f, 0.7f, 1.0f);
+        CellRenderData rd = new CellRenderData(3, 5, 1, 1, 0.5f, 0.6f, 0.7f, 1.0f,
+                                                true, false, true, false);
         assertEquals(3, rd.getX());
         assertEquals(5, rd.getY());
         assertEquals(1, rd.getWidth());
@@ -19,15 +20,21 @@ public class CellRenderDataTest {
         assertEquals(0.6f, rd.getG(), 0.001f);
         assertEquals(0.7f, rd.getB(), 0.001f);
         assertEquals(1.0f, rd.getA(), 0.001f);
+        assertTrue("Should have north border", rd.hasBorderNorth());
+        assertFalse("Should not have south border", rd.hasBorderSouth());
+        assertTrue("Should have east border", rd.hasBorderEast());
+        assertFalse("Should not have west border", rd.hasBorderWest());
     }
 
     @Test
     public void testCellRenderDataToString() {
-        CellRenderData rd = new CellRenderData(0, 0, 1, 1, 0.4f, 0.35f, 0.3f, 1.0f);
+        CellRenderData rd = new CellRenderData(0, 0, 1, 1, 0.4f, 0.35f, 0.3f, 1.0f,
+                                                true, true, false, false);
         String str = rd.toString();
         assertNotNull(str);
         assertTrue(str.contains("x=0"));
         assertTrue(str.contains("y=0"));
+        assertTrue("toString should include border info", str.contains("borders"));
     }
 
     @Test
@@ -161,6 +168,67 @@ public class CellRenderDataTest {
             fail("Should throw exception for y >= MAP_SIZE");
         } catch (IllegalArgumentException e) {
             // Expected
+        }
+    }
+
+    @Test
+    public void testMountainCellsHaveNoBorders() {
+        // Mountains have no road access, so all borders should be false
+        CityMap map = new CityMap(12345L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.getTerrainType() == TerrainType.MOUNTAIN) {
+                    CellRenderData rd = map.getCellRenderData(x, y);
+                    assertFalse("Mountain should have no north border at (" + x + "," + y + ")",
+                                rd.hasBorderNorth());
+                    assertFalse("Mountain should have no south border at (" + x + "," + y + ")",
+                                rd.hasBorderSouth());
+                    assertFalse("Mountain should have no east border at (" + x + "," + y + ")",
+                                rd.hasBorderEast());
+                    assertFalse("Mountain should have no west border at (" + x + "," + y + ")",
+                                rd.hasBorderWest());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testBorderFlagsMatchRoadAccess() {
+        // Border flags should match the road access map
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap roadMap = map.getRoadAccessMap();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                CellRenderData rd = map.getCellRenderData(x, y);
+                RoadAccess ra = roadMap.getAccess(x, y);
+                assertEquals("North border should match road access at (" + x + "," + y + ")",
+                             ra.hasNorth(), rd.hasBorderNorth());
+                assertEquals("South border should match road access at (" + x + "," + y + ")",
+                             ra.hasSouth(), rd.hasBorderSouth());
+                assertEquals("East border should match road access at (" + x + "," + y + ")",
+                             ra.hasEast(), rd.hasBorderEast());
+                assertEquals("West border should match road access at (" + x + "," + y + ")",
+                             ra.hasWest(), rd.hasBorderWest());
+            }
+        }
+    }
+
+    @Test
+    public void testBuildingCellsHaveAtLeastOneBorder() {
+        // Building cells should have at least one road access (connectivity preserved)
+        CityMap map = new CityMap(12345L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.getTerrainType() == TerrainType.BUILDING) {
+                    CellRenderData rd = map.getCellRenderData(x, y);
+                    boolean hasAnyBorder = rd.hasBorderNorth() || rd.hasBorderSouth()
+                                        || rd.hasBorderEast() || rd.hasBorderWest();
+                    assertTrue("Building at (" + x + "," + y + ") should have at least one border",
+                               hasAnyBorder);
+                }
+            }
         }
     }
 }

@@ -408,8 +408,11 @@ public class MainScreen implements Screen {
         
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         
-        // Draw cells with border gap (partial cells at edges are allowed)
-        // Y axis is inverted: row 0 at top, row F at bottom
+        // Draw cells with per-side border gaps based on road access.
+        // A border (gap) is drawn on sides where road access exists (representing the road).
+        // No border is drawn where there is no road access (building extends to edge).
+        // Y axis is inverted: row 0 at top, row F at bottom.
+        // Map NORTH (y+1) corresponds to screen bottom; Map SOUTH (y-1) to screen top.
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
                 float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
@@ -422,12 +425,22 @@ public class MainScreen implements Screen {
                     continue;
                 }
                 
-                // Use pre-computed render data for color (avoids per-frame recalculation)
+                // Use pre-computed render data for color and border flags
                 CellRenderData rd = cityMap.getCellRenderData(cx, cy);
                 shapeRenderer.setColor(rd.getR(), rd.getG(), rd.getB(), rd.getA());
-                // Draw cell with border gap on all sides
-                shapeRenderer.rect(drawX + borderSize, drawY + borderSize, 
-                                   cellSize - borderSize * 2, cellSize - borderSize * 2);
+                
+                // Calculate per-side border insets based on road access.
+                // Map directions to screen edges (Y axis is inverted):
+                //   Map WEST  -> screen LEFT,   Map EAST  -> screen RIGHT
+                //   Map NORTH -> screen BOTTOM,  Map SOUTH -> screen TOP
+                float leftInset   = rd.hasBorderWest()  ? borderSize : 0;
+                float rightInset  = rd.hasBorderEast()   ? borderSize : 0;
+                float bottomInset = rd.hasBorderNorth()  ? borderSize : 0;
+                float topInset    = rd.hasBorderSouth()  ? borderSize : 0;
+                
+                shapeRenderer.rect(drawX + leftInset, drawY + bottomInset,
+                                   cellSize - leftInset - rightInset,
+                                   cellSize - bottomInset - topInset);
             }
         }
         

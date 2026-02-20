@@ -53,6 +53,7 @@ public class CityMap {
 
     private final Cell[][] cells;
     private final CellRenderData[][] renderData;
+    private final RoadAccessMap roadAccessMap;
     private final Side beachSide;
     private final long seed;
     private final GameDataManager gameData;
@@ -147,6 +148,10 @@ public class CityMap {
             }
         }
         
+        // Build road access map and remove ~30% of roads while preserving connectivity
+        this.roadAccessMap = new RoadAccessMap(this);
+        this.roadAccessMap.removeRoads(seed);
+        
         // Pre-compute render data for all cells to avoid repeated calculations during drawing
         buildRenderData();
     }
@@ -170,9 +175,12 @@ public class CityMap {
     }
 
     /**
-     * Pre-computes render data (rectangle and color) for all cells.
+     * Pre-computes render data (rectangle, color, and border flags) for all cells.
      * This is called once after map generation so that the rendering loop
      * can use the stored data directly without recalculating each frame.
+     * Border flags are derived from the road access map: a border is drawn on
+     * sides where road access exists (representing the road gap), and no border
+     * is drawn where there is no road access (building extends to edge).
      */
     private void buildRenderData() {
         // Build a category color lookup map from GameDataManager
@@ -228,7 +236,10 @@ public class CityMap {
                         break;
                 }
 
-                renderData[x][y] = new CellRenderData(x, y, 1, 1, r, g, b, a);
+                // Get road access for border flags
+                RoadAccess ra = roadAccessMap.getAccess(x, y);
+                renderData[x][y] = new CellRenderData(x, y, 1, 1, r, g, b, a,
+                    ra.hasNorth(), ra.hasSouth(), ra.hasEast(), ra.hasWest());
             }
         }
     }
@@ -391,6 +402,15 @@ public class CityMap {
      */
     public Side getBeachSide() {
         return beachSide;
+    }
+
+    /**
+     * Gets the road access map for this city map.
+     * 
+     * @return The road access map
+     */
+    public RoadAccessMap getRoadAccessMap() {
+        return roadAccessMap;
     }
 
     /**
