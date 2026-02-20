@@ -604,8 +604,8 @@ public class MainScreen implements Screen {
         // Left vertical ruler background (at left edge x=0)
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
-        // Top horizontal ruler background (at top of map area with gap)
-        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP; // Positioned flush at top of map area
+        // Top horizontal ruler background (flush against top border of screen)
+        float topRulerY = screenHeight - RULER_WIDTH;
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
