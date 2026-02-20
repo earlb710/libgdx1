@@ -1,6 +1,7 @@
 package eb.framework1;
 
 import org.junit.Test;
+import org.junit.Assume;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -43,13 +44,9 @@ public class BuildingIconTest {
         // Verify that every building in buildings.json has a corresponding icon file
         File assetsDir = new File("assets");
         if (!assetsDir.exists()) {
-            // Try from project root
             assetsDir = new File("../../assets");
         }
-        if (!assetsDir.exists()) {
-            // Skip test if assets directory not found (e.g. CI environment)
-            return;
-        }
+        Assume.assumeTrue("Assets directory not found, skipping icon file check", assetsDir.exists());
 
         GameDataManager gdm = new GameDataManager();
         gdm.loadBuildings(new File(assetsDir, "buildings.json").getAbsolutePath());
