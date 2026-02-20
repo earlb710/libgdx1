@@ -257,7 +257,7 @@ public class CharacterAttributeScreen implements Screen {
         moneyMinusButton.set(minusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
 
         float textX = minusX + SMALL_BUTTON_SIZE + 20;
-        float plusX = textX + 280;
+        float plusX = textX + 360;
         moneyPlusButton.set(plusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
 
         float valueX = plusX + SMALL_BUTTON_SIZE + 20;
