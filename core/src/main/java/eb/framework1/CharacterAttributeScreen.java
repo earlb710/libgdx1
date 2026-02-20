@@ -171,35 +171,10 @@ public class CharacterAttributeScreen implements Screen {
         subtitleFont.setColor(Color.WHITE);
 
         batch.end();
-
-        // Money row with +/- buttons
-        float moneyRowY = pointsY - 60;
-        float moneyButtonY = moneyRowY - SMALL_BUTTON_SIZE + 10;
-        float centerX = Gdx.graphics.getWidth() / 2f;
-
-        // Minus button (convert $1000 → 1 point)
-        moneyMinusButton.set(centerX - 180, moneyButtonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
-        // Plus button (convert 1 point → $1000)
-        moneyPlusButton.set(centerX + 20, moneyButtonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
-
-        int mouseX = Gdx.input.getX();
-        int screenMouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
-        drawSmallButton(moneyMinusButton, "-", mouseX, screenMouseY, moneyBudget >= MONEY_PER_POINT);
-        drawSmallButton(moneyPlusButton, "+", mouseX, screenMouseY, pointsRemaining > 0);
-
-        batch.begin();
-        String moneyText = "Money: $" + getMoneyRemaining();
-        glyphLayout.setText(subtitleFont, moneyText);
-        float moneyLabelX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, moneyText, moneyLabelX, moneyRowY);
-        subtitleFont.setColor(Color.WHITE);
-        
-        batch.end();
     }
     
     private void drawAttributes() {
-        float startY = Gdx.graphics.getHeight() - 520;  // Shifted down 70px to accommodate money display line above
+        float startY = Gdx.graphics.getHeight() - 450;
         float currentY = startY;
         float leftMargin = 50;
         float attributeHeight = 90;  // Increased from 70 to 90 for better spacing
@@ -214,6 +189,9 @@ public class CharacterAttributeScreen implements Screen {
         
         // Draw Social Attributes
         currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
+
+        // Draw Money row (styled like an attribute, value counted in $1000s)
+        drawMoneyLine(currentY, leftMargin, attributeHeight);
     }
     
     private float drawAttributeCategory(String categoryName, CharacterAttribute[] attributes, 
@@ -269,6 +247,32 @@ public class CharacterAttributeScreen implements Screen {
         bodyFont.draw(batch, String.valueOf(value), valueX, y);
         batch.end();
     }
+
+    private void drawMoneyLine(float y, float leftMargin, float height) {
+        int moneyUnits = moneyBudget / MONEY_PER_POINT;  // display in thousands
+
+        // Position mirrors drawAttributeLine exactly
+        float minusX = leftMargin;
+        float buttonY = y - SMALL_BUTTON_SIZE + 10;
+        moneyMinusButton.set(minusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+
+        float textX = minusX + SMALL_BUTTON_SIZE + 20;
+        float plusX = textX + 280;
+        moneyPlusButton.set(plusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+
+        float valueX = plusX + SMALL_BUTTON_SIZE + 20;
+
+        int mouseX = Gdx.input.getX();
+        int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        drawSmallButton(moneyMinusButton, "-", mouseX, mouseY, moneyBudget >= MONEY_PER_POINT);
+        drawSmallButton(moneyPlusButton, "+", mouseX, mouseY, pointsRemaining > 0);
+
+        batch.begin();
+        smallFont.draw(batch, "Money ($1000s)", textX, y);
+        bodyFont.draw(batch, String.valueOf(moneyUnits), valueX, y);
+        batch.end();
+    }
     
     private void drawSmallButton(Rectangle button, String text, int mouseX, int mouseY, boolean enabled) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -301,7 +305,7 @@ public class CharacterAttributeScreen implements Screen {
         int mouseX = Gdx.input.getX();
         int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
-        drawButton(confirmButton, "Confirm", mouseX, mouseY, true);
+        drawButton(confirmButton, "Confirm", mouseX, mouseY, pointsRemaining == 0);
         drawButton(backButton, "Back", mouseX, mouseY, true);
     }
     
@@ -371,7 +375,7 @@ public class CharacterAttributeScreen implements Screen {
             }
             
             // Check Confirm button
-            if (confirmButton.contains(mouseX, mouseY)) {
+            if (confirmButton.contains(mouseX, mouseY) && pointsRemaining == 0) {
                 createCharacter();
             }
             
