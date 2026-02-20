@@ -704,7 +704,11 @@ public class MainScreen implements Screen {
                     
                     for (Improvement imp : building.getImprovements()) {
                         if (textY < smallFontLineHeight * 2) break; // Stop before footer area
-                        smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
+                        if (imp.isDiscovered()) {
+                            smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
+                        } else {
+                            smallFont.draw(batch, "  - ???", textX, textY);
+                        }
                         textY -= smallFontLineHeight;
                     }
                 }
