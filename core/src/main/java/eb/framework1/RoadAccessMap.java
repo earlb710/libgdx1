@@ -95,6 +95,48 @@ public class RoadAccessMap {
         return accessMap[row][col];
     }
 
+    /**
+     * Sets the road access for the cell at {@code (row, col)} and enforces symmetry
+     * with each cardinal neighbor: if this cell's access in direction D is {@code false},
+     * the neighbor in direction D has its opposite access set to {@code false} as well;
+     * if it is {@code true}, the neighbor's opposite access is set to {@code true}.
+     *
+     * <p>This method is not thread-safe. It must be called from a single thread
+     * (e.g. the LibGDX rendering/logic thread).
+     *
+     * @param row   row index (0 = northernmost)
+     * @param col   column index (0 = westernmost)
+     * @param north whether this cell has road access toward the north
+     * @param south whether this cell has road access toward the south
+     * @param east  whether this cell has road access toward the east
+     * @param west  whether this cell has road access toward the west
+     */
+    public void setAccess(int row, int col, boolean north, boolean south, boolean east, boolean west) {
+        if (row < 0 || row >= rows || col < 0 || col >= cols) {
+            throw new IndexOutOfBoundsException(
+                "Cell (" + row + ", " + col + ") is outside the grid (" + rows + "x" + cols + ")");
+        }
+        RoadAccess cell = accessMap[row][col];
+        cell.setNorth(north);
+        cell.setSouth(south);
+        cell.setEast(east);
+        cell.setWest(west);
+
+        // Propagate each direction to the corresponding neighbor's opposite direction.
+        if (row - 1 >= 0) {
+            accessMap[row - 1][col].setSouth(north);
+        }
+        if (row + 1 < rows) {
+            accessMap[row + 1][col].setNorth(south);
+        }
+        if (col + 1 < cols) {
+            accessMap[row][col + 1].setWest(east);
+        }
+        if (col - 1 >= 0) {
+            accessMap[row][col - 1].setEast(west);
+        }
+    }
+
     /** Returns the number of rows in the grid. */
     public int getRows() {
         return rows;

@@ -2,10 +2,10 @@ package eb.framework1;
 
 /** Represents road access for a single map cell in the four cardinal directions. */
 public class RoadAccess {
-    private final boolean north;
-    private final boolean south;
-    private final boolean east;
-    private final boolean west;
+    private boolean north;
+    private boolean south;
+    private boolean east;
+    private boolean west;
 
     public RoadAccess(boolean north, boolean south, boolean east, boolean west) {
         this.north = north;
@@ -28,6 +28,22 @@ public class RoadAccess {
 
     public boolean hasWestAccess() {
         return west;
+    }
+
+    public void setNorth(boolean north) {
+        this.north = north;
+    }
+
+    public void setSouth(boolean south) {
+        this.south = south;
+    }
+
+    public void setEast(boolean east) {
+        this.east = east;
+    }
+
+    public void setWest(boolean west) {
+        this.west = west;
     }
 
     /** Returns true if there is access in at least one direction. */
