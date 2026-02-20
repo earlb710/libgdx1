@@ -56,7 +56,7 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle diffHardButton;
     private static final int BUTTON_WIDTH = 300;  // Increased from 150 for large fonts
     private static final int BUTTON_HEIGHT = 80;  // Increased from 50 for large fonts
-    private static final int SMALL_BUTTON_WIDTH = 250;  // Increased from 100 for large fonts
+    private static final int SMALL_BUTTON_WIDTH = 300;  // Wider for better readability
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
