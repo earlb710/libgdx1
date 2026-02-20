@@ -706,7 +706,12 @@ public class MainScreen implements Screen {
                 Building building = cell.getBuilding();
                 
                 // Draw "Building:" label in bright green, then value in white
-                textY = drawLabelValue(batch, font, "Building: ", building.getName(), textX, textY);
+                String buildingModStr = formatAttributeModifiers(building.getAttributeModifiers());
+                String buildingDisplay = building.getName();
+                if (!buildingModStr.isEmpty()) {
+                    buildingDisplay += " " + buildingModStr;
+                }
+                textY = drawLabelValue(batch, font, "Building: ", buildingDisplay, textX, textY);
                 textY -= fontLineHeight;
                 
                 if (building.getDefinition() != null) {
