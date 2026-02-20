@@ -44,7 +44,7 @@ public class MainScreen implements Screen {
     private float mapOffsetY = 0;
     private float zoomLevel = 2.0f; // 1.0 = full map, higher = more zoom
     private float lastZoomLevel = 2.0f; // For caching zoom text
-    private String cachedZoomText = "Zoom: 1.0x";
+    private String cachedZoomText = "Zoom: 2.0x";
     
     // Tuning constants
     private static final float MIN_ZOOM = 1.0f;  // Full map view (16x16 visible)
