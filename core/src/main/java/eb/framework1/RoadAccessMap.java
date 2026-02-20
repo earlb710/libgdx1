@@ -11,6 +11,8 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
+import com.badlogic.gdx.graphics.Color;
+
 /**
  * Computes a road access map for a 2-D terrain grid.
  *
@@ -299,5 +301,119 @@ public class RoadAccessMap {
 
     private static String edgeKey(int[] e) {
         return e[0] + "," + e[1] + "," + e[2] + "," + e[3];
+    }
+
+    // -----------------------------------------------------------------------
+    // Render-data pre-computation
+    // -----------------------------------------------------------------------
+
+    /** Border color shared by all cells. */
+    private static final Color BORDER_COLOR = new Color(0.2f, 0.2f, 0.2f, 1f);
+
+    /**
+     * Pre-computes a {@link CellRenderData} for every cell in the grid.
+     *
+     * <p>Call this once after the map (terrain + road access) is fully generated.
+     * The returned grid can then be iterated each frame to draw cells without
+     * re-querying road-access flags or recomputing geometry.
+     *
+     * <p>Coordinate convention (matches LibGDX's default):
+     * <ul>
+     *   <li>y increases upward.</li>
+     *   <li>Row 0 (northernmost) maps to the highest world-space y value.</li>
+     *   <li>Cell {@code (row, col)} has its bottom-left corner at
+     *       {@code (originX + col*cellWidth, originY + (rows-1-row)*cellHeight)}.</li>
+     * </ul>
+     *
+     * <p>Each cell receives:
+     * <ul>
+     *   <li>A fill rectangle covering the full cell, colored by terrain type.</li>
+     *   <li>One border segment for every side that has road access; sides without
+     *       road access are omitted entirely.</li>
+     * </ul>
+     *
+     * @param terrain         terrain grid used to derive fill colors; must have the same
+     *                        dimensions as the terrain supplied to the constructor
+     * @param originX         world-space x of the grid's left edge
+     * @param originY         world-space y of the grid's bottom edge
+     * @param cellWidth       width of a single cell in world units
+     * @param cellHeight      height of a single cell in world units
+     * @param borderThickness thickness of a border segment in world units
+     * @return a {@code rows × cols} grid of pre-computed render data
+     */
+    public CellRenderData[][] buildRenderData(TerrainType[][] terrain,
+                                              float originX, float originY,
+                                              float cellWidth, float cellHeight,
+                                              float borderThickness) {
+        if (terrain == null || terrain.length != rows
+                || terrain[0] == null || terrain[0].length != cols) {
+            throw new IllegalArgumentException(
+                "Terrain grid must be non-null and match the access map dimensions ("
+                + rows + "x" + cols + ")");
+        }
+
+        CellRenderData[][] renderData = new CellRenderData[rows][cols];
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                float cellX = originX + c * cellWidth;
+                float cellY = originY + (rows - 1 - r) * cellHeight;
+                Color fill = fillColorFor(terrain[r][c]);
+                RoadAccess access = accessMap[r][c];
+                List<float[]> segments = buildBorderSegments(
+                        cellX, cellY, cellWidth, cellHeight, borderThickness, access);
+                renderData[r][c] = new CellRenderData(
+                        cellX, cellY, cellWidth, cellHeight,
+                        fill, BORDER_COLOR, segments);
+            }
+        }
+        return renderData;
+    }
+
+    /**
+     * Returns the border segment rectangles for one cell.
+     * A segment is only added for a side that has road access.
+     */
+    private static List<float[]> buildBorderSegments(float cellX, float cellY,
+                                                     float cellWidth, float cellHeight,
+                                                     float borderThickness,
+                                                     RoadAccess access) {
+        List<float[]> segments = new ArrayList<>(4);
+        // North border: top edge of the cell.
+        if (access.hasNorthAccess()) {
+            segments.add(new float[]{cellX, cellY + cellHeight - borderThickness,
+                                     cellWidth, borderThickness});
+        }
+        // South border: bottom edge of the cell.
+        if (access.hasSouthAccess()) {
+            segments.add(new float[]{cellX, cellY, cellWidth, borderThickness});
+        }
+        // West border: left edge of the cell.
+        if (access.hasWestAccess()) {
+            segments.add(new float[]{cellX, cellY, borderThickness, cellHeight});
+        }
+        // East border: right edge of the cell.
+        if (access.hasEastAccess()) {
+            segments.add(new float[]{cellX + cellWidth - borderThickness, cellY,
+                                     borderThickness, cellHeight});
+        }
+        return segments;
+    }
+
+    /** Returns the fill color for a given terrain type. */
+    private static final Color COLOR_PLAINS   = new Color(0.40f, 0.80f, 0.20f, 1f);
+    private static final Color COLOR_FOREST   = new Color(0.10f, 0.50f, 0.10f, 1f);
+    private static final Color COLOR_BEACH    = new Color(0.90f, 0.80f, 0.50f, 1f);
+    private static final Color COLOR_MOUNTAIN = new Color(0.50f, 0.50f, 0.50f, 1f);
+    private static final Color COLOR_WATER    = new Color(0.20f, 0.40f, 0.80f, 1f);
+
+    private static Color fillColorFor(TerrainType type) {
+        switch (type) {
+            case PLAINS:   return COLOR_PLAINS.cpy();
+            case FOREST:   return COLOR_FOREST.cpy();
+            case BEACH:    return COLOR_BEACH.cpy();
+            case MOUNTAIN: return COLOR_MOUNTAIN.cpy();
+            case WATER:    return COLOR_WATER.cpy();
+            default:       return Color.WHITE.cpy();
+        }
     }
 }
