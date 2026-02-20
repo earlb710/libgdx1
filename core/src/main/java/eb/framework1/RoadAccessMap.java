@@ -1,5 +1,15 @@
 package eb.framework1;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+
 /**
  * Represents a road access map for a city grid.
  * Each cell has directional access (North, South, East, West) governed by these rules:
@@ -12,6 +22,8 @@ package eb.framework1;
  * </ul>
  */
 public class RoadAccessMap {
+
+    private static final double ROAD_REMOVAL_PERCENTAGE = 0.30;
 
     /**
      * Represents the four cardinal directions.
@@ -173,5 +185,173 @@ public class RoadAccessMap {
      */
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Removes approximately 30% of existing roads using the given random seed,
+     * while ensuring all connected cells remain reachable so that no cell is cut off.
+     *
+     * @param seed Random seed for deterministic road removal
+     */
+    public void removeRoads(long seed) {
+        // Step 1: Record original connectivity (component IDs)
+        int[][] originalComponentId = computeComponentIds();
+
+        // Step 2: Collect all road edges
+        List<int[]> edges = collectEdges();
+
+        // Step 3: Calculate target removals and shuffle
+        int targetRemovals = (int) Math.round(edges.size() * ROAD_REMOVAL_PERCENTAGE);
+        Random random = new Random(seed);
+        Collections.shuffle(edges, random);
+
+        // Step 4: Remove edges while preserving connectivity
+        int removed = 0;
+        for (int[] edge : edges) {
+            if (removed >= targetRemovals) break;
+
+            int x = edge[0], y = edge[1], dir = edge[2];
+
+            // Remove the edge
+            if (dir == 0) { // East-West
+                access[x][y].setEast(false);
+                access[x + 1][y].setWest(false);
+            } else { // North-South
+                access[x][y].setNorth(false);
+                access[x][y + 1].setSouth(false);
+            }
+
+            // Check connectivity is preserved
+            if (isConnectivityPreserved(originalComponentId)) {
+                removed++;
+            } else {
+                // Restore the edge
+                if (dir == 0) {
+                    access[x][y].setEast(true);
+                    access[x + 1][y].setWest(true);
+                } else {
+                    access[x][y].setNorth(true);
+                    access[x][y + 1].setSouth(true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Counts the total number of road connections in the map.
+     * Each road between two adjacent cells is counted once.
+     *
+     * @return The number of road connections
+     */
+    public int countRoads() {
+        int count = 0;
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                if (access[x][y].hasEast() && x + 1 < size) count++;
+                if (access[x][y].hasNorth() && y + 1 < size) count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Collects all road edges. Each edge is represented as {x, y, direction}
+     * where direction 0 = East-West edge, 1 = North-South edge.
+     */
+    private List<int[]> collectEdges() {
+        List<int[]> edges = new ArrayList<>();
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                if (access[x][y].hasEast() && x + 1 < size) {
+                    edges.add(new int[]{x, y, 0});
+                }
+                if (access[x][y].hasNorth() && y + 1 < size) {
+                    edges.add(new int[]{x, y, 1});
+                }
+            }
+        }
+        return edges;
+    }
+
+    /**
+     * Computes connected component IDs for all cells with road access.
+     * Cells with no access get component ID -1.
+     */
+    private int[][] computeComponentIds() {
+        int[][] ids = new int[size][size];
+        for (int[] row : ids) Arrays.fill(row, -1);
+        int componentCount = 0;
+
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                RoadAccess ra = access[x][y];
+                if (ids[x][y] == -1 && (ra.hasNorth() || ra.hasSouth() || ra.hasEast() || ra.hasWest())) {
+                    bfsFill(x, y, ids, componentCount);
+                    componentCount++;
+                }
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * BFS to assign a component ID to all cells reachable from (startX, startY).
+     */
+    private void bfsFill(int startX, int startY, int[][] ids, int componentId) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{startX, startY});
+        ids[startX][startY] = componentId;
+
+        while (!queue.isEmpty()) {
+            int[] cell = queue.poll();
+            int cx = cell[0], cy = cell[1];
+            RoadAccess ra = access[cx][cy];
+
+            if (ra.hasNorth() && cy + 1 < size && ids[cx][cy + 1] == -1) {
+                ids[cx][cy + 1] = componentId;
+                queue.add(new int[]{cx, cy + 1});
+            }
+            if (ra.hasSouth() && cy - 1 >= 0 && ids[cx][cy - 1] == -1) {
+                ids[cx][cy - 1] = componentId;
+                queue.add(new int[]{cx, cy - 1});
+            }
+            if (ra.hasEast() && cx + 1 < size && ids[cx + 1][cy] == -1) {
+                ids[cx + 1][cy] = componentId;
+                queue.add(new int[]{cx + 1, cy});
+            }
+            if (ra.hasWest() && cx - 1 >= 0 && ids[cx - 1][cy] == -1) {
+                ids[cx - 1][cy] = componentId;
+                queue.add(new int[]{cx - 1, cy});
+            }
+        }
+    }
+
+    /**
+     * Checks that connectivity is preserved: every cell that was in an original
+     * connected component is still connected to all other cells in that component.
+     */
+    private boolean isConnectivityPreserved(int[][] originalComponentId) {
+        int[][] currentIds = computeComponentIds();
+
+        // For each original component, all its cells must map to the same current component
+        Map<Integer, Integer> mapping = new HashMap<>();
+
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                int origId = originalComponentId[x][y];
+                if (origId >= 0) {
+                    int currId = currentIds[x][y];
+                    if (currId < 0) return false; // Cell lost all access
+
+                    Integer expected = mapping.get(origId);
+                    if (expected == null) {
+                        mapping.put(origId, currId);
+                    } else if (expected.intValue() != currId) {
+                        return false; // Component was split
+                    }
+                }
+            }
+        }
+        return true;
     }
 }

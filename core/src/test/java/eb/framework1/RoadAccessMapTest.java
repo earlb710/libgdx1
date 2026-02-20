@@ -3,6 +3,9 @@ package eb.framework1;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Unit tests for RoadAccessMap.
  */
@@ -253,6 +256,189 @@ public class RoadAccessMapTest {
                 assertEquals("S access should match at (" + x + "," + y + ")", ra1.hasSouth(), ra2.hasSouth());
                 assertEquals("E access should match at (" + x + "," + y + ")", ra1.hasEast(), ra2.hasEast());
                 assertEquals("W access should match at (" + x + "," + y + ")", ra1.hasWest(), ra2.hasWest());
+            }
+        }
+    }
+
+    @Test
+    public void testRemoveRoadsReducesCount() {
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap accessMap = new RoadAccessMap(map);
+
+        int initialRoads = accessMap.countRoads();
+        accessMap.removeRoads(12345L);
+        int remainingRoads = accessMap.countRoads();
+
+        int removed = initialRoads - remainingRoads;
+        int expectedRemoved = (int) Math.round(initialRoads * 0.30);
+
+        assertTrue("Should remove some roads (removed " + removed + " of " + initialRoads + ")",
+                   removed > 0);
+        assertTrue("Should not remove more than target (removed " + removed + ", target " + expectedRemoved + ")",
+                   removed <= expectedRemoved);
+    }
+
+    @Test
+    public void testRemoveRoadsPreservesConnectivity() {
+        long[] seeds = {12345L, 67890L, 11111L, 99999L};
+        for (long seed : seeds) {
+            CityMap map = new CityMap(seed);
+            RoadAccessMap accessMap = new RoadAccessMap(map);
+
+            // Record which cells have access before removal and their component IDs
+            boolean[][] hadAccess = new boolean[CityMap.MAP_SIZE][CityMap.MAP_SIZE];
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    RoadAccess ra = accessMap.getAccess(x, y);
+                    hadAccess[x][y] = ra.hasNorth() || ra.hasSouth() || ra.hasEast() || ra.hasWest();
+                }
+            }
+
+            // Compute component IDs before removal
+            int[][] beforeIds = new int[CityMap.MAP_SIZE][CityMap.MAP_SIZE];
+            for (int[] row : beforeIds) java.util.Arrays.fill(row, -1);
+            int beforeComponents = 0;
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    if (hadAccess[x][y] && beforeIds[x][y] == -1) {
+                        bfsLabel(accessMap, x, y, beforeIds, beforeComponents);
+                        beforeComponents++;
+                    }
+                }
+            }
+
+            accessMap.removeRoads(seed);
+
+            // All cells that had access before should still have access
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    if (hadAccess[x][y]) {
+                        RoadAccess ra = accessMap.getAccess(x, y);
+                        assertTrue("Cell (" + x + "," + y + ") should still have access (seed=" + seed + ")",
+                                   ra.hasNorth() || ra.hasSouth() || ra.hasEast() || ra.hasWest());
+                    }
+                }
+            }
+
+            // Compute component IDs after removal
+            int[][] afterIds = new int[CityMap.MAP_SIZE][CityMap.MAP_SIZE];
+            for (int[] row : afterIds) java.util.Arrays.fill(row, -1);
+            int afterComponents = 0;
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    if (hadAccess[x][y] && afterIds[x][y] == -1) {
+                        bfsLabel(accessMap, x, y, afterIds, afterComponents);
+                        afterComponents++;
+                    }
+                }
+            }
+
+            // Verify no original component was split
+            java.util.Map<Integer, Integer> mapping = new java.util.HashMap<>();
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    if (hadAccess[x][y]) {
+                        int origId = beforeIds[x][y];
+                        int newId = afterIds[x][y];
+                        assertTrue("Cell (" + x + "," + y + ") should be in a component (seed=" + seed + ")",
+                                   newId >= 0);
+                        Integer expected = mapping.get(origId);
+                        if (expected == null) {
+                            mapping.put(origId, newId);
+                        } else {
+                            assertEquals("Cells in same original component should remain connected (seed=" + seed + ")",
+                                         expected.intValue(), newId);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper: BFS to label connected cells with a component ID.
+     */
+    private void bfsLabel(RoadAccessMap accessMap, int startX, int startY, int[][] ids, int componentId) {
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{startX, startY});
+        ids[startX][startY] = componentId;
+
+        while (!queue.isEmpty()) {
+            int[] cell = queue.poll();
+            int x = cell[0], y = cell[1];
+            RoadAccess ra = accessMap.getAccess(x, y);
+
+            if (ra.hasNorth() && y + 1 < CityMap.MAP_SIZE && ids[x][y + 1] == -1) {
+                ids[x][y + 1] = componentId;
+                queue.add(new int[]{x, y + 1});
+            }
+            if (ra.hasSouth() && y - 1 >= 0 && ids[x][y - 1] == -1) {
+                ids[x][y - 1] = componentId;
+                queue.add(new int[]{x, y - 1});
+            }
+            if (ra.hasEast() && x + 1 < CityMap.MAP_SIZE && ids[x + 1][y] == -1) {
+                ids[x + 1][y] = componentId;
+                queue.add(new int[]{x + 1, y});
+            }
+            if (ra.hasWest() && x - 1 >= 0 && ids[x - 1][y] == -1) {
+                ids[x - 1][y] = componentId;
+                queue.add(new int[]{x - 1, y});
+            }
+        }
+    }
+
+    @Test
+    public void testRemoveRoadsDeterministic() {
+        CityMap map1 = new CityMap(12345L);
+        CityMap map2 = new CityMap(12345L);
+        RoadAccessMap accessMap1 = new RoadAccessMap(map1);
+        RoadAccessMap accessMap2 = new RoadAccessMap(map2);
+
+        accessMap1.removeRoads(12345L);
+        accessMap2.removeRoads(12345L);
+
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra1 = accessMap1.getAccess(x, y);
+                RoadAccess ra2 = accessMap2.getAccess(x, y);
+                assertEquals("N access should match at (" + x + "," + y + ") after removal",
+                             ra1.hasNorth(), ra2.hasNorth());
+                assertEquals("S access should match at (" + x + "," + y + ") after removal",
+                             ra1.hasSouth(), ra2.hasSouth());
+                assertEquals("E access should match at (" + x + "," + y + ") after removal",
+                             ra1.hasEast(), ra2.hasEast());
+                assertEquals("W access should match at (" + x + "," + y + ") after removal",
+                             ra1.hasWest(), ra2.hasWest());
+            }
+        }
+    }
+
+    @Test
+    public void testRemoveRoadsReciprocalMaintained() {
+        CityMap map = new CityMap(12345L);
+        RoadAccessMap accessMap = new RoadAccessMap(map);
+        accessMap.removeRoads(12345L);
+
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                RoadAccess ra = accessMap.getAccess(x, y);
+
+                if (!ra.hasNorth() && y + 1 < CityMap.MAP_SIZE) {
+                    assertFalse("Reciprocal N/S at (" + x + "," + (y + 1) + ")",
+                                accessMap.getAccess(x, y + 1).hasSouth());
+                }
+                if (!ra.hasSouth() && y - 1 >= 0) {
+                    assertFalse("Reciprocal S/N at (" + x + "," + (y - 1) + ")",
+                                accessMap.getAccess(x, y - 1).hasNorth());
+                }
+                if (!ra.hasEast() && x + 1 < CityMap.MAP_SIZE) {
+                    assertFalse("Reciprocal E/W at (" + (x + 1) + "," + y + ")",
+                                accessMap.getAccess(x + 1, y).hasWest());
+                }
+                if (!ra.hasWest() && x - 1 >= 0) {
+                    assertFalse("Reciprocal W/E at (" + (x - 1) + "," + y + ")",
+                                accessMap.getAccess(x - 1, y).hasEast());
+                }
             }
         }
     }
