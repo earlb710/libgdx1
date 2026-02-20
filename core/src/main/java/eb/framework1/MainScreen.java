@@ -607,8 +607,8 @@ public class MainScreen implements Screen {
         shapeRenderer.end();
         
         // Draw route path highlight (cyan borders on each path cell).
-        // The highlight sits exactly on the building boundary by using the same per-side
-        // road insets as the building fill. Border thickness matches the road border width.
+        // Drawn on the cell boundary (full cellSize rect) so all four sides are equal.
+        // Border thickness matches the road border width (borderSize).
         if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
             int routeThickness = Math.max(1, Math.round(borderSize));
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -618,27 +618,23 @@ public class MainScreen implements Screen {
                 if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    // Use the same per-side insets as the building fill so the border
-                    // sits on the building edge, not inside the building area.
-                    CellRenderData rd = cityMap.getCellRenderData(cx, cy);
-                    float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
-                    float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
-                    float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
-                    float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
                     for (int i = 0; i < routeThickness; i++) {
-                        shapeRenderer.rect(drawX + li + i, drawY + bi + i,
-                                cellSize - (li + ri) - 2 * i,
-                                cellSize - (bi + ti) - 2 * i);
+                        shapeRenderer.rect(drawX + i, drawY + i,
+                                cellSize - 2 * i, cellSize - 2 * i);
                     }
                 }
             }
             shapeRenderer.end();
         }
         
-        // Draw building icons on cells (with inverted Y)
+        // Draw building icons on cells (with inverted Y) — only for discovered buildings
         batch.begin();
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
+                // Only show the icon once the building has been discovered
+                Cell iconCell = cityMap.getCell(cx, cy);
+                if (!iconCell.hasBuilding() || !iconCell.getBuilding().isDiscovered()) continue;
+
                 CellRenderData rd = cityMap.getCellRenderData(cx, cy);
                 String iconPath = rd.getIconPath();
                 if (iconPath == null) continue;
