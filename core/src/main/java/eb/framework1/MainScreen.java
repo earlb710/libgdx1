@@ -607,11 +607,9 @@ public class MainScreen implements Screen {
         shapeRenderer.end();
         
         // Draw route path highlight (cyan borders on each path cell).
-        // Border thickness matches the road border width (borderSize).
-        // Achieved by drawing borderSize concentric Line rects, so the visual
-        // thickness equals that of a road gap at the current zoom level.
+        // The highlight sits exactly on the building boundary by using the same per-side
+        // road insets as the building fill. Border thickness matches the road border width.
         if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
-            float routeInset = borderSize; // outer edge sits one road-width in from the cell edge
             int routeThickness = Math.max(1, Math.round(borderSize));
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
@@ -620,10 +618,17 @@ public class MainScreen implements Screen {
                 if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                    // Use the same per-side insets as the building fill so the border
+                    // sits on the building edge, not inside the building area.
+                    CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                    float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                    float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                    float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                    float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
                     for (int i = 0; i < routeThickness; i++) {
-                        float ri = routeInset + i;
-                        shapeRenderer.rect(drawX + ri, drawY + ri,
-                                cellSize - 2 * ri, cellSize - 2 * ri);
+                        shapeRenderer.rect(drawX + li + i, drawY + bi + i,
+                                cellSize - (li + ri) - 2 * i,
+                                cellSize - (bi + ti) - 2 * i);
                     }
                 }
             }
