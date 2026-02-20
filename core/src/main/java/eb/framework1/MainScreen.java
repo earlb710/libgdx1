@@ -90,6 +90,9 @@ public class MainScreen implements Screen {
     // Icon texture cache for building icons
     private Map<String, Texture> iconTextureCache;
     
+    // Character portrait texture
+    private Texture characterIconTexture;
+    
     // Layout dimensions (calculated in resize)
     private int screenWidth, screenHeight;
     private int mapAreaHeight;    // Height of map area (full height minus info panel)
@@ -160,6 +163,13 @@ public class MainScreen implements Screen {
         
         // Load building icon textures
         loadBuildingIcons();
+        
+        // Load character portrait icon texture
+        String iconName = profile.getCharacterIcon();
+        if (iconName != null && !iconName.isEmpty()) {
+            characterIconTexture = new Texture("character/" + iconName + ".png");
+            characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
         
         // Set up input processing (save previous processor for restoration)
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -506,6 +516,22 @@ public class MainScreen implements Screen {
             }
         }
         batch.end();
+        
+        // Draw character portrait icon in the lower-right of the selected cell
+        if (characterIconTexture != null && selectedCellX >= 0 && selectedCellY >= 0) {
+            if (selectedCellX >= startCellX && selectedCellX < endCellX &&
+                selectedCellY >= startCellY && selectedCellY < endCellY) {
+                float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (selectedCellY - startCellY - fracOffsetY)) * cellSize;
+                float portraitSize = cellSize * 0.4f;
+                float portraitX = drawX + cellSize - portraitSize - borderSize;
+                float portraitY = drawY + borderSize;
+                batch.begin();
+                batch.setColor(Color.WHITE);
+                batch.draw(characterIconTexture, portraitX, portraitY, portraitSize, portraitSize);
+                batch.end();
+            }
+        }
         
         // Draw selection highlight (with inverted Y)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -934,6 +960,11 @@ public class MainScreen implements Screen {
                 tex.dispose();
             }
             iconTextureCache.clear();
+        }
+        // Dispose character portrait texture
+        if (characterIconTexture != null) {
+            characterIconTexture.dispose();
+            characterIconTexture = null;
         }
         // Restore previous input processor on dispose
         if (previousInputProcessor != null) {
