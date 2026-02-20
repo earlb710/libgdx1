@@ -11,6 +11,7 @@ public class Main extends Game {
     private UserManager userManager;
     private ProfileManager profileManager;
     private FontManager fontManager;
+    private GameDataManager gameDataManager;
     private Viewport viewport;
 
     @Override
@@ -31,6 +32,9 @@ public class Main extends Game {
             
             Gdx.app.log("Main", "Creating ProfileManager...");
             profileManager = new ProfileManager();
+            
+            Gdx.app.log("Main", "Creating GameDataManager...");
+            gameDataManager = new GameDataManager();
             
             // Check if user exists, if not show login screen
             Gdx.app.log("Main", "Checking if user exists...");
@@ -57,6 +61,10 @@ public class Main extends Game {
     
     public FontManager getFontManager() {
         return fontManager;
+    }
+    
+    public GameDataManager getGameDataManager() {
+        return gameDataManager;
     }
     
     public Viewport getViewport() {

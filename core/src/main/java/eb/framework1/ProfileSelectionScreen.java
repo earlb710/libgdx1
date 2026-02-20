@@ -136,17 +136,17 @@ public class ProfileSelectionScreen implements Screen {
         // Back button - increased size to fit buttonFont text properly
         backButton = new Rectangle(50, 50, 250, 80);
         
-        // Confirmation dialog buttons
+        // Confirmation dialog buttons - wider to fit labels
         confirmYesButton = new Rectangle(
-            centerX - 220,
+            centerX - 280,
             Gdx.graphics.getHeight() / 2 - 60,
-            200,
+            260,
             80
         );
         confirmNoButton = new Rectangle(
             centerX + 20,
             Gdx.graphics.getHeight() / 2 - 60,
-            200,
+            220,
             80
         );
     }
