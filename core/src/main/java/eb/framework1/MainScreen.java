@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -16,677 +15,132 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
- * Main game screen displaying the city map and info panel.
- * Layout: Top 2/3 is the map view, Bottom 1/3 is the info block.
- * 
- * Features:
- * - Displays 16x16 city map with colored cells by category
- * - Zoomable from full map view to 3x3 cell view
- * - Draggable/scrollable map
+ * Main game screen.  Orchestrates map rendering, info panel, look-around popup,
+ * input handling, and game-state updates.
+ *
+ * Rendering is delegated to:
+ *   {@link MapRenderer}        – map tiles, route, icons, rulers
+ *   {@link InfoPanelRenderer}  – bottom info strip and top date/money bar
+ *   {@link LookAroundPopup}    – modal look-around animation and results
+ *
+ * Shared layout / selection state lives in {@link MapViewState}.
  */
 public class MainScreen implements Screen {
+
     private Main game;
-    private SpriteBatch batch;
+    private SpriteBatch   batch;
     private ShapeRenderer shapeRenderer;
-    private BitmapFont font;
-    private BitmapFont smallFont;
-    private GlyphLayout glyphLayout;
+    private BitmapFont    font;
+    private BitmapFont    smallFont;
+    private GlyphLayout   glyphLayout;
     private boolean initialized = false;
-    
-    // Map data
-    private CityMap cityMap;
-    private Profile profile;
-    
-    // Map view parameters
-    private float mapOffsetX = 0;  // Pan offset in cells
-    private float mapOffsetY = 0;
-    private float zoomLevel = 2.0f; // 1.0 = full map, higher = more zoom
-    private float lastZoomLevel = 2.0f; // For caching zoom text
-    private String cachedZoomText = "Zoom: 2.0x";
-    
-    // Tuning constants
-    private static final float MIN_ZOOM = 1.0f;  // Full map view (16x16 visible)
-    private static final float MAX_ZOOM = 5.33f; // 3x3 cells visible (16/3 ≈ 5.33)
-    private static final float ZOOM_SPEED = 0.15f;
-    private static final float SCROLL_SPEED = 0.5f;
-    private static final float TAP_THRESHOLD_PIXELS = 10f;
-    private static final float DEFAULT_INFO_PANEL_RATIO = 0.33f; // Default info panel takes 1/3 of screen
-    private static final float MIN_INFO_PANEL_RATIO = 0.15f;     // Minimum 15% of screen
-    private static final float MAX_INFO_PANEL_RATIO = 0.50f;     // Maximum 50% of screen
-    
-    // Selected cell (the "view cursor" – shows info and yellow highlight)
-    private int selectedCellX = -1;
-    private int selectedCellY = -1;
 
-    // Character's actual position (portrait drawn here; only moves on "Move to")
-    private int charCellX = -1;
-    private int charCellY = -1;
+    // Data
+    private CityMap  cityMap;
+    private Profile  profile;
 
-    // Current fastest route from charCell to selectedCell
-    private CityMap.RouteResult currentRoute = null;
+    // Shared view state (layout, pan, zoom, selection, button bounds)
+    private final MapViewState state = new MapViewState();
 
-    // "Move to" button bounds in screen coords (moveToButtonW==0 means button not shown)
-    private float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
+    // Rendering helpers
+    private MapRenderer       mapRenderer;
+    private InfoPanelRenderer infoPanelRenderer;
+    private LookAroundPopup   lookAroundPopup;
 
-    // "Look around" button bounds in screen coords (lookAroundBtnW==0 means not shown)
-    private float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
-
-    // Look-around popup state machine
-    private enum LookAroundState { IDLE, ANIMATING, RESULTS }
-    private LookAroundState lookAroundState = LookAroundState.IDLE;
-    private float lookAroundTimer = 0f;
-    private static final float LOOK_AROUND_DOT_INTERVAL = 0.5f; // seconds per dot
-    private static final int   LOOK_AROUND_MAX_DOTS = 3;
-    private List<String> lookAroundFoundItems = new ArrayList<>();
-    // OK button bounds within the popup
-    private float popupOkX, popupOkY, popupOkW, popupOkH;
-
-    // Info-area touch tracking (separate from map drag tracking)
-    private boolean infoAreaPressed = false;
-    private float infoTouchStartX, infoTouchStartY;
-    
-    // Cursor hover position (cell coordinates, -1 if not over map)
-    private int cursorCellX = -1;
-    private int cursorCellY = -1;
-    
-    // Drag state
-    private boolean isDragging = false;
-    private float dragStartX, dragStartY;
-    private float dragStartOffsetX, dragStartOffsetY;
-    
-    // Ruler constants
-    private static final float RULER_WIDTH = 45f;  // Width of ruler strip
-    private static final float RULER_GAP = 1f;     // Gap between rulers and map
-    private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
-    private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
-    private static final String[] HEX_DIGITS = {"0", "1", "2", "3", "4", "5", "6", "7", 
-                                                  "8", "9", "A", "B", "C", "D", "E", "F"};
-    
-    // Input handling
+    // Input state
     private InputProcessor previousInputProcessor;
-    
-    // Color cache for categories (avoid allocations during render)
-    private Map<String, Color> categoryColorCache;
-    
-    // Icon texture cache for building icons
-    private Map<String, Texture> iconTextureCache;
-    
-    // Character portrait texture
-    private Texture characterIconTexture;
-    
-    // Layout dimensions (calculated in resize)
-    private int screenWidth, screenHeight;
-    private int mapAreaHeight;    // Height of map area (full height minus info panel)
-    private int infoAreaHeight;   // Height of info panel
-    private int infoAreaY;        // Y position of info area top
-    private float infoPanelRatio = DEFAULT_INFO_PANEL_RATIO; // Configurable info panel height ratio
-    
-    // Colors
-    private static final Color MOUNTAIN_COLOR = new Color(0.4f, 0.35f, 0.3f, 1f);
-    private static final Color BEACH_COLOR = new Color(0.95f, 0.9f, 0.6f, 1f);
-    private static final Color GRID_COLOR = new Color(0.2f, 0.2f, 0.25f, 1f);
-    private static final Color INFO_BG_COLOR = new Color(0.15f, 0.15f, 0.2f, 1f);
-    private static final Color INFO_BORDER_COLOR = new Color(0.4f, 0.4f, 0.5f, 1f);
-    private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
-    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f, 0.8f, 1f, 1f); // Cyan path
-    private static final Color MOVE_TO_BUTTON_COLOR = new Color(0.1f, 0.5f, 0.15f, 1f); // Green button
-    private static final Color LOOK_AROUND_BUTTON_COLOR = new Color(0.1f, 0.3f, 0.6f, 1f); // Blue button
-    private static final Color POPUP_OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.7f); // Semi-transparent overlay
-    private static final Color POPUP_BG_COLOR = new Color(0.1f, 0.1f, 0.18f, 1f); // Popup background
-    private static final Color POPUP_BORDER_COLOR = new Color(0.5f, 0.6f, 0.8f, 1f); // Popup border
-    private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
-    private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
-    private static final int INFO_BAR_HEIGHT = 70;    // Height of the top info bar (date + money)
-    
-    // Floor-based brightness constants
-    private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
-    private static final int MAX_FLOORS = 10;          // Maximum floors for brightness calculation
-    
-    // Reusable color object to avoid allocations during render
-    private final Color tempColor = new Color();
-    
+    private boolean infoAreaPressed = false;
+    private float   infoTouchStartX, infoTouchStartY;
+    private boolean isDragging = false;
+    private float   dragStartX, dragStartY;
+    private float   dragStartOffsetX, dragStartOffsetY;
+
+    // Tuning constants
+    private static final float MIN_ZOOM             = 1.0f;
+    private static final float MAX_ZOOM             = 5.33f;
+    private static final float ZOOM_SPEED           = 0.15f;
+    private static final float SCROLL_SPEED         = 0.5f;
+    private static final float TAP_THRESHOLD_PIXELS = 10f;
+
+    // -------------------------------------------------------------------------
+
     public MainScreen(Main game, Profile profile) {
-        this.game = game;
+        this.game    = game;
         this.profile = profile;
     }
-    
+
+    // -------------------------------------------------------------------------
+    // Screen lifecycle
+    // -------------------------------------------------------------------------
+
     @Override
     public void show() {
         Gdx.app.log("MainScreen", "show() called");
-        
-        this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
-        this.glyphLayout = new GlyphLayout();
-        
-        // Get fonts from FontManager
-        this.font = game.getFontManager().getBodyFont();
-        this.smallFont = game.getFontManager().getSmallFont();
-        
-        // Generate the city map using profile seed and game data
+
+        batch         = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
+        glyphLayout   = new GlyphLayout();
+        font          = game.getFontManager().getBodyFont();
+        smallFont     = game.getFontManager().getSmallFont();
+
         GameDataManager gameData = game.getGameDataManager();
-        this.cityMap = new CityMap(profile, gameData);
-        
+        cityMap = new CityMap(profile, gameData);
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
-        
-        // Choose a random building cell as the character's starting location
+
+        // Pick a random building as the starting cell
         List<Cell> buildingCells = new ArrayList<>();
         for (int x = 0; x < CityMap.MAP_SIZE; x++) {
             for (int y = 0; y < CityMap.MAP_SIZE; y++) {
-                Cell cell = cityMap.getCell(x, y);
-                if (cell.getTerrainType() == TerrainType.BUILDING) {
-                    buildingCells.add(cell);
-                }
+                if (cityMap.getCell(x, y).getTerrainType() == TerrainType.BUILDING)
+                    buildingCells.add(cityMap.getCell(x, y));
             }
         }
         if (!buildingCells.isEmpty()) {
-            Random rand = new Random(profile.getRandSeed() + 7);
-            Cell startCell = buildingCells.get(rand.nextInt(buildingCells.size()));
-            selectedCellX = startCell.getX();
-            selectedCellY = startCell.getY();
-            charCellX = selectedCellX;
-            charCellY = selectedCellY;
-            discoverCell(charCellX, charCellY);
-            Gdx.app.log("MainScreen", "Character starting location: " + selectedCellX + "," + selectedCellY);
+            Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
+                    .nextInt(buildingCells.size()));
+            state.selectedCellX = start.getX();
+            state.selectedCellY = start.getY();
+            state.charCellX = state.selectedCellX;
+            state.charCellY = state.selectedCellY;
+            discoverCell(state.charCellX, state.charCellY);
+            Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
         }
-        
-        // Initialize category color cache to avoid allocations during render
-        initColorCache(gameData);
-        
-        // Load building icon textures
-        loadBuildingIcons();
-        
-        // Load character portrait icon texture
+
+        // Build rendering helpers
+        mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, glyphLayout, cityMap);
+        mapRenderer.loadBuildingIcons();
+
         String iconName = profile.getCharacterIcon();
         if (iconName != null && !iconName.isEmpty()) {
-            characterIconTexture = TextureUtils.makeNegative("character/" + iconName + ".png");
-            characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            Texture charTex = TextureUtils.makeNegative("character/" + iconName + ".png");
+            charTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            mapRenderer.setCharacterIconTexture(charTex);
         }
-        
-        // Set up input processing (save previous processor for restoration)
+
+        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont,
+                glyphLayout, cityMap, profile);
+
+        lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
+                glyphLayout, cityMap, profile);
+
+        // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
-        
-        // Calculate layout
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        
-        // Center the map on the character's starting cell
-        if (selectedCellX >= 0 && selectedCellY >= 0) {
-            int visibleCellsX = getVisibleCellsX();
-            int visibleCellsY = getVisibleCellsY();
-            mapOffsetX = selectedCellX - visibleCellsX / 2.0f;
-            mapOffsetY = selectedCellY - visibleCellsY / 2.0f;
-            clampMapOffset();
+
+        // Centre on starting cell
+        if (state.selectedCellX >= 0) {
+            state.mapOffsetX = state.selectedCellX - state.getVisibleCellsX() / 2.0f;
+            state.mapOffsetY = state.selectedCellY - state.getVisibleCellsY() / 2.0f;
+            state.clampMapOffset();
         }
-        
+
         initialized = true;
-        Gdx.app.log("MainScreen", "Initialization complete");
-    }
-    
-    private void setupInput() {
-        InputAdapter inputAdapter = new InputAdapter() {
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                int flippedY = screenHeight - screenY;
-
-                // When a popup is visible, capture the touch start for OK tap detection
-                if (lookAroundState != LookAroundState.IDLE) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging = false;
-                    return true;
-                }
-                
-                // Check if touch is in map area
-                if (flippedY > infoAreaHeight) {
-                    isDragging = true;
-                    dragStartX = screenX;
-                    dragStartY = screenY;
-                    dragStartOffsetX = mapOffsetX;
-                    dragStartOffsetY = mapOffsetY;
-                    infoAreaPressed = false;
-                    return true;
-                }
-                // Info area touch (for "Move to" / "Look around" buttons)
-                infoAreaPressed = true;
-                infoTouchStartX = screenX;
-                infoTouchStartY = screenY;
-                isDragging = false;
-                return true;
-            }
-            
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                int flippedY = screenHeight - screenY;
-
-                // When popup is showing: RESULTS → check OK, ANIMATING → consume
-                if (lookAroundState == LookAroundState.RESULTS) {
-                    if (infoAreaPressed) {
-                        float tapDistance = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (tapDistance < TAP_THRESHOLD_PIXELS) {
-                            checkPopupOkClick(screenX, flippedY);
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-                if (lookAroundState == LookAroundState.ANIMATING) {
-                    infoAreaPressed = false;
-                    isDragging = false;
-                    return true;
-                }
-                
-                // If it was a tap in the map area (not a drag), select a cell
-                if (isDragging && flippedY > infoAreaHeight) {
-                    float dragDistance = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (dragDistance < TAP_THRESHOLD_PIXELS) {
-                        selectCellAt(screenX, flippedY);
-                    }
-                }
-                
-                // Check button taps in info area
-                if (infoAreaPressed) {
-                    float tapDistance = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                    if (tapDistance < TAP_THRESHOLD_PIXELS) {
-                        checkMoveToButtonClick(screenX, flippedY);
-                        checkLookAroundButtonClick(screenX, flippedY);
-                    }
-                    infoAreaPressed = false;
-                }
-                
-                isDragging = false;
-                return true;
-            }
-            
-            @Override
-            public boolean touchDragged(int screenX, int screenY, int pointer) {
-                if (isDragging) {
-                    // Calculate drag delta in screen pixels
-                    float deltaX = screenX - dragStartX;
-                    float deltaY = screenY - dragStartY; // Not flipped for drag
-                    
-                    // Convert to cell units based on current zoom and cell size
-                    float cellSize = getCellSize();
-                    float cellDeltaX = -deltaX / cellSize;
-                    float cellDeltaY = -deltaY / cellSize; // Negate to swap scroll direction
-                    
-                    // Apply to offset
-                    mapOffsetX = dragStartOffsetX + cellDeltaX;
-                    mapOffsetY = dragStartOffsetY + cellDeltaY;
-                    
-                    // Clamp offsets
-                    clampMapOffset();
-                    return true;
-                }
-                return false;
-            }
-            
-            @Override
-            public boolean scrolled(float amountX, float amountY) {
-                // Zoom with mouse scroll
-                float oldZoom = zoomLevel;
-                zoomLevel -= amountY * ZOOM_SPEED;
-                zoomLevel = MathUtils.clamp(zoomLevel, MIN_ZOOM, MAX_ZOOM);
-                
-                // Adjust offset to zoom toward center
-                if (oldZoom != zoomLevel) {
-                    clampMapOffset();
-                }
-                return true;
-            }
-            
-            @Override
-            public boolean mouseMoved(int screenX, int screenY) {
-                updateCursorCell(screenX, screenHeight - screenY);
-                return false;
-            }
-        };
-        
-        // Set input processor
-        Gdx.input.setInputProcessor(inputAdapter);
-    }
-    
-    private void updateCursorCell(int screenX, int flippedY) {
-        // Check if cursor is in map area
-        if (flippedY <= infoAreaHeight) {
-            cursorCellX = -1;
-            cursorCellY = -1;
-            return;
-        }
-        
-        // Convert screen coordinates to cell coordinates
-        float cellSize = getCellSize();
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        
-        float mapAreaX = RULER_WIDTH + RULER_GAP;
-        float mapAreaY = infoAreaHeight;
-        
-        float relX = screenX - mapAreaX;
-        float relY = flippedY - mapAreaY;
-        
-        // Check if within map bounds
-        if (relX < 0 || relX >= cellSize * visibleCellsX || 
-            relY < 0 || relY >= cellSize * visibleCellsY) {
-            cursorCellX = -1;
-            cursorCellY = -1;
-            return;
-        }
-        
-        int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Invert Y because screen Y increases upward but row 0 is at top of map
-        int cellY = (int)(mapOffsetY + visibleCellsY - relY / cellSize);
-        
-        // Validate cell is within map
-        if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
-            cursorCellX = cellX;
-            cursorCellY = cellY;
-        } else {
-            cursorCellX = -1;
-            cursorCellY = -1;
-        }
-    }
-    
-    private void selectCellAt(int screenX, int screenY) {
-        // Convert screen coordinates to cell coordinates
-        float cellSize = getCellSize();
-        int visibleCellsY = getVisibleCellsY();
-        
-        // Map area starts after left ruler + gap at infoAreaHeight
-        float mapAreaX = RULER_WIDTH + RULER_GAP;
-        float mapAreaY = infoAreaHeight;
-        
-        // Calculate which cell was clicked
-        float relX = screenX - mapAreaX;
-        float relY = screenY - mapAreaY;
-        
-        int cellX = (int)(mapOffsetX + relX / cellSize);
-        // Invert Y because screen Y increases upward but row 0 is at top of map
-        int cellY = (int)(mapOffsetY + visibleCellsY - relY / cellSize);
-        
-        // Check bounds
-        if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
-            selectedCellX = cellX;
-            selectedCellY = cellY;
-            recalculateRoute();
-            Gdx.app.log("MainScreen", "Selected cell: " + cellX + "," + cellY);
-        }
-    }
-    
-    private float getCellSize() {
-        // Cell size is determined by available width (minus ruler and gap) divided by base visible cells
-        // This ensures the map fills the available width after the left ruler
-        int baseVisibleCells = getBaseVisibleCells();
-        float availableWidth = screenWidth - RULER_WIDTH - RULER_GAP;
-        return availableWidth / (float)baseVisibleCells;
-    }
-    
-    private int getBaseVisibleCells() {
-        // At zoom 1.0, show all 16 cells horizontally. At max zoom, show 3 cells.
-        return Math.max(3, Math.round(CityMap.MAP_SIZE / zoomLevel));
-    }
-    
-    private int getVisibleCellsX() {
-        // Horizontal visible cells based on width
-        return getBaseVisibleCells();
-    }
-    
-    private int getVisibleCellsY() {
-        // Vertical visible cells - subtract ruler width and gap from available height
-        float cellSize = getCellSize();
-        return (int)((mapAreaHeight - RULER_WIDTH - RULER_GAP) / cellSize);
-    }
-    
-    private void clampMapOffset() {
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        float maxOffsetX = CityMap.MAP_SIZE - visibleCellsX;
-        float maxOffsetY = CityMap.MAP_SIZE - visibleCellsY;
-        mapOffsetX = MathUtils.clamp(mapOffsetX, 0, Math.max(0, maxOffsetX));
-        mapOffsetY = MathUtils.clamp(mapOffsetY, 0, Math.max(0, maxOffsetY));
-    }
-
-    /** Recalculates the fastest route from the character's cell to the selected (view) cell. */
-    private void recalculateRoute() {
-        if (selectedCellX < 0 || selectedCellY < 0 || charCellX < 0 || charCellY < 0
-                || (selectedCellX == charCellX && selectedCellY == charCellY)) {
-            currentRoute = null;
-            return;
-        }
-        currentRoute = cityMap.findFastestRoute(charCellX, charCellY, selectedCellX, selectedCellY);
-    }
-
-    /** Checks whether the tap at (screenX, flippedY) hit the "Move to" button and handles it. */
-    private void checkMoveToButtonClick(int screenX, int flippedY) {
-        if (moveToButtonW <= 0) return;
-        if (screenX >= moveToButtonX && screenX <= moveToButtonX + moveToButtonW
-                && flippedY >= moveToButtonY && flippedY <= moveToButtonY + moveToButtonH) {
-            handleMoveToClick();
-        }
-    }
-
-    /** Executes the "Move to" action: advance game time, move character, center map. */
-    private void handleMoveToClick() {
-        if (currentRoute == null || !currentRoute.isReachable()) return;
-        if (selectedCellX < 0 || selectedCellY < 0) return;
-
-        int travelMinutes = currentRoute.totalMinutes;
-
-        // Advance in-game clock
-        profile.advanceGameTime(travelMinutes);
-
-        // Move character to the selected cell
-        charCellX = selectedCellX;
-        charCellY = selectedCellY;
-
-        // Discover building and zero-hidden-value improvements at the new location
-        discoverCell(charCellX, charCellY);
-
-        // Clear route (char is now at selected cell)
-        currentRoute = null;
-
-        // Center map on new position
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        mapOffsetX = charCellX - visibleCellsX / 2.0f;
-        mapOffsetY = charCellY - visibleCellsY / 2.0f;
-        clampMapOffset();
-
-        Gdx.app.log("MainScreen", "Moved to: " + charCellX + "," + charCellY
-                + ", time advanced by " + travelMinutes + " min");
-    }
-
-    /**
-     * Discovers the building and any easy-to-find improvements at the given cell.
-     * Called whenever the character arrives at (or starts at) a cell.
-     * <ul>
-     *   <li>The building is always discovered.</li>
-     *   <li>Improvements with hiddenValue == 0 are discovered automatically on arrival.</li>
-     *   <li>Improvements with hiddenValue &gt; 0 require separate investigation.</li>
-     * </ul>
-     */
-    private void discoverCell(int x, int y) {
-        Cell cell = cityMap.getCell(x, y);
-        if (!cell.hasBuilding()) return;
-        Building building = cell.getBuilding();
-        building.discover();
-        for (Improvement imp : building.getImprovements()) {
-            if (imp.getHiddenValue() == 0) {
-                imp.discover();
-            }
-        }
-        Gdx.app.log("MainScreen", "Discovered cell " + x + "," + y + ": " + building.getName());
-    }
-
-    /** Checks whether the tap hit the "Look around" button and starts the popup. */
-    private void checkLookAroundButtonClick(int screenX, int flippedY) {
-        if (lookAroundBtnW <= 0) return;
-        if (screenX >= lookAroundBtnX && screenX <= lookAroundBtnX + lookAroundBtnW
-                && flippedY >= lookAroundBtnY && flippedY <= lookAroundBtnY + lookAroundBtnH) {
-            startLookAround();
-        }
-    }
-
-    /** Checks whether the tap hit the popup OK button and dismisses the popup. */
-    private void checkPopupOkClick(int screenX, int flippedY) {
-        if (popupOkW <= 0) return;
-        if (screenX >= popupOkX && screenX <= popupOkX + popupOkW
-                && flippedY >= popupOkY && flippedY <= popupOkY + popupOkH) {
-            lookAroundState = LookAroundState.IDLE;
-            lookAroundFoundItems.clear();
-        }
-    }
-
-    /** Starts the "Look around" animation. */
-    private void startLookAround() {
-        lookAroundState = LookAroundState.ANIMATING;
-        lookAroundTimer = 0f;
-        lookAroundFoundItems.clear();
-        Gdx.app.log("MainScreen", "Look around started");
-    }
-
-    /**
-     * Runs perception-based improvement discovery for the character's current cell.
-     * An improvement is found if the character's Perception score &ge; the improvement's hiddenValue.
-     * Transitions to RESULTS state with the list of newly discovered items.
-     */
-    private void finishLookAround() {
-        Cell cell = cityMap.getCell(charCellX, charCellY);
-        if (cell.hasBuilding()) {
-            int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.getDisplayName());
-            for (Improvement imp : cell.getBuilding().getImprovements()) {
-                if (!imp.isDiscovered() && perception >= imp.getHiddenValue()) {
-                    imp.discover();
-                    String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
-                    String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")";
-                    if (!modStr.isEmpty()) entry += " " + modStr;
-                    lookAroundFoundItems.add(entry);
-                }
-            }
-        }
-        if (lookAroundFoundItems.isEmpty()) {
-            lookAroundFoundItems.add("Nothing new found.");
-        }
-        lookAroundState = LookAroundState.RESULTS;
-        Gdx.app.log("MainScreen", "Look around finished: " + lookAroundFoundItems.size() + " item(s)");
-    }
-
-    /**
-     * Draws the "Looking around" animated popup (ANIMATING) or results popup (RESULTS).
-     * Must be called every frame while lookAroundState != IDLE.
-     * Advances the animation timer and triggers finishLookAround() when animation completes.
-     */
-    private void drawLookAroundPopup(float delta) {
-        // Advance animation timer
-        if (lookAroundState == LookAroundState.ANIMATING) {
-            lookAroundTimer += delta;
-            if (lookAroundTimer >= LOOK_AROUND_DOT_INTERVAL * LOOK_AROUND_MAX_DOTS) {
-                finishLookAround();
-            }
-        }
-
-        // --- Measure content to size the dialog ---
-        glyphLayout.setText(font, "Hg");
-        float fontH = glyphLayout.height;
-        float fontLineH = fontH * 1.5f;
-
-        glyphLayout.setText(smallFont, "Hg");
-        float smallH = glyphLayout.height;
-        float smallLineH = smallH * 1.5f;
-
-        final float DIALOG_PAD = 24f;
-        final float MIN_DIALOG_W = 300f;
-        float dialogW = Math.max(MIN_DIALOG_W, screenWidth * 0.6f);
-
-        // Count content lines
-        int contentLines = (lookAroundState == LookAroundState.RESULTS)
-                ? 1 + lookAroundFoundItems.size() // "Found:" + items
-                : 1; // "Looking around..."
-
-        // Button sizes
-        glyphLayout.setText(font, "OK");
-        float okBtnW = glyphLayout.width + 48f;
-        float okBtnH = glyphLayout.height + 20f;
-
-        float dialogH = DIALOG_PAD
-                + fontLineH                    // title line
-                + contentLines * smallLineH    // content
-                + (lookAroundState == LookAroundState.RESULTS ? DIALOG_PAD + okBtnH : 0)
-                + DIALOG_PAD;
-
-        float dialogX = (screenWidth - dialogW) / 2f;
-        float dialogY = (screenHeight - dialogH) / 2f;
-
-        // --- Semi-transparent overlay ---
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(POPUP_OVERLAY_COLOR);
-        shapeRenderer.rect(0, 0, screenWidth, screenHeight);
-        // Dialog background
-        shapeRenderer.setColor(POPUP_BG_COLOR);
-        shapeRenderer.rect(dialogX, dialogY, dialogW, dialogH);
-        // OK button background (RESULTS only)
-        if (lookAroundState == LookAroundState.RESULTS) {
-            float okX = dialogX + (dialogW - okBtnW) / 2f;
-            float okY = dialogY + DIALOG_PAD;
-            shapeRenderer.setColor(MOVE_TO_BUTTON_COLOR);
-            shapeRenderer.rect(okX, okY, okBtnW, okBtnH);
-            // Store for click detection
-            popupOkX = okX; popupOkY = okY; popupOkW = okBtnW; popupOkH = okBtnH;
-        } else {
-            popupOkW = 0;
-        }
-        shapeRenderer.end();
-
-        // Dialog border
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(POPUP_BORDER_COLOR);
-        shapeRenderer.rect(dialogX, dialogY, dialogW, dialogH);
-        shapeRenderer.rect(dialogX + 1, dialogY + 1, dialogW - 2, dialogH - 2);
-        if (lookAroundState == LookAroundState.RESULTS) {
-            shapeRenderer.rect(popupOkX, popupOkY, popupOkW, popupOkH);
-            shapeRenderer.rect(popupOkX + 1, popupOkY + 1, popupOkW - 2, popupOkH - 2);
-        }
-        shapeRenderer.end();
-
-        // --- Text ---
-        batch.begin();
-        float ty = dialogY + dialogH - DIALOG_PAD - fontH; // start at top of dialog
-
-        if (lookAroundState == LookAroundState.ANIMATING) {
-            int dots = Math.min(LOOK_AROUND_MAX_DOTS,
-                    (int)(lookAroundTimer / LOOK_AROUND_DOT_INTERVAL) + 1);
-            StringBuilder sb = new StringBuilder("Looking around");
-            for (int i = 0; i < dots; i++) sb.append('.');
-            font.setColor(Color.WHITE);
-            glyphLayout.setText(font, sb.toString());
-            font.draw(batch, sb.toString(), dialogX + (dialogW - glyphLayout.width) / 2f, ty);
-        } else {
-            // RESULTS: title "Found:" then list items
-            font.setColor(LABEL_COLOR);
-            glyphLayout.setText(font, "Found:");
-            font.draw(batch, "Found:", dialogX + (dialogW - glyphLayout.width) / 2f, ty);
-            ty -= smallLineH;
-            smallFont.setColor(Color.WHITE);
-            for (String item : lookAroundFoundItems) {
-                glyphLayout.setText(smallFont, item);
-                smallFont.draw(batch, item, dialogX + (dialogW - glyphLayout.width) / 2f, ty);
-                ty -= smallLineH;
-            }
-            // OK button label
-            font.setColor(Color.WHITE);
-            glyphLayout.setText(font, "OK");
-            font.draw(batch, "OK",
-                    popupOkX + (popupOkW - glyphLayout.width) / 2f,
-                    popupOkY + (popupOkH + glyphLayout.height) / 2f);
-        }
-        batch.end();
+        Gdx.app.log("MainScreen", "Initialisation complete");
     }
 
     @Override
@@ -695,768 +149,277 @@ public class MainScreen implements Screen {
             ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
             return;
         }
-        
-        // Handle keyboard input for zoom
+
         handleKeyboardInput();
-        
-        // Clear screen
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
-        
-        // Draw the map in top 2/3
-        drawMap();
-        
-        // Draw rulers on sides of map
-        drawRulers();
-        
-        // Draw info bar above map (top of screen)
-        drawInfoBar();
-        
-        // Draw info block in bottom 1/3
-        drawInfoBlock();
 
-        // Draw look-around popup overlay on top of everything
-        if (lookAroundState != LookAroundState.IDLE) {
-            drawLookAroundPopup(delta);
-        }
-    }
-    
-    private void handleKeyboardInput() {
-        // Zoom with +/- keys
-        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
-            zoomLevel = MathUtils.clamp(zoomLevel + ZOOM_SPEED * 2, MIN_ZOOM, MAX_ZOOM);
-            clampMapOffset();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
-            zoomLevel = MathUtils.clamp(zoomLevel - ZOOM_SPEED * 2, MIN_ZOOM, MAX_ZOOM);
-            clampMapOffset();
-        }
-        
-        // Arrow keys for scrolling
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            mapOffsetX -= SCROLL_SPEED;
-            clampMapOffset();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            mapOffsetX += SCROLL_SPEED;
-            clampMapOffset();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            mapOffsetY += SCROLL_SPEED;
-            clampMapOffset();
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            mapOffsetY -= SCROLL_SPEED;
-            clampMapOffset();
-        }
-    }
-    
-    private void drawMap() {
-        float cellSize = getCellSize();
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        
-        // Border size scales with cell size for visibility
-        float borderSize = Math.max(2, cellSize * 0.06f); // 6% of cell size, minimum 2px
-        float pathwaySize = Math.max(1, borderSize * 0.25f); // Pathway is 1/4 the width of a road
-        
-        // Map starts after left ruler + gap and at info panel top
-        float mapStartX = RULER_WIDTH + RULER_GAP;
-        float mapStartY = infoAreaHeight;
-        
-        // Calculate which cells to draw
-        int startCellX = (int)mapOffsetX;
-        int startCellY = (int)mapOffsetY;
-        int endCellX = Math.min(startCellX + visibleCellsX + 1, CityMap.MAP_SIZE);
-        int endCellY = Math.min(startCellY + visibleCellsY + 1, CityMap.MAP_SIZE);
-        
-        // Fractional offset for smooth scrolling
-        float fracOffsetX = mapOffsetX - startCellX;
-        float fracOffsetY = mapOffsetY - startCellY;
-        
-        // Draw black background for grid (creates black borders between cells)
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(mapStartX, mapStartY, cellSize * visibleCellsX, cellSize * visibleCellsY);
-        shapeRenderer.end();
-        
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        
-        // Draw cells with per-side border gaps based on road access.
-        // A border (gap) is drawn on sides where road access exists (representing the road).
-        // No border is drawn where there is no road access (building extends to edge).
-        // Y axis is inverted: row 0 at top, row F at bottom.
-        // Map NORTH (y+1) corresponds to screen bottom; Map SOUTH (y-1) to screen top.
-        for (int cx = startCellX; cx < endCellX; cx++) {
-            for (int cy = startCellY; cy < endCellY; cy++) {
-                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                // Invert Y: row 0 at top (higher screen Y), row F at bottom (lower screen Y)
-                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                
-                // Skip only if completely outside visible area (allow partial drawing)
-                if (drawX + cellSize < mapStartX - cellSize || drawX > mapStartX + cellSize * visibleCellsX + cellSize || 
-                    drawY + cellSize < mapStartY - cellSize || drawY > mapStartY + cellSize * visibleCellsY + cellSize) {
-                    continue;
-                }
-                
-                // Use pre-computed render data for color and border flags
-                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
-                shapeRenderer.setColor(rd.getR(), rd.getG(), rd.getB(), rd.getA());
-                
-                // Calculate per-side border insets based on road type.
-                // ROAD = full borderSize, PATHWAY = pathwaySize (1/4 of road), NONE = 0
-                // Map directions to screen edges (Y axis is inverted):
-                //   Map WEST  -> screen LEFT,   Map EAST  -> screen RIGHT
-                //   Map NORTH -> screen BOTTOM,  Map SOUTH -> screen TOP
-                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
-                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
-                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
-                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
-                
-                shapeRenderer.rect(drawX + leftInset, drawY + bottomInset,
-                                   cellSize - leftInset - rightInset,
-                                   cellSize - bottomInset - topInset);
-            }
-        }
-        
-        shapeRenderer.end();
-        
-        // Draw route path highlight (cyan borders on each path cell).
-        // Drawn on the cell boundary (full cellSize rect) so all four sides are equal.
-        // Border thickness matches the road border width (borderSize).
-        if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
-            int routeThickness = Math.max(1, Math.round(borderSize));
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
-            for (int[] pathCell : currentRoute.path) {
-                int cx = pathCell[0], cy = pathCell[1];
-                if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
-                    float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    for (int i = 0; i < routeThickness; i++) {
-                        shapeRenderer.rect(drawX + i, drawY + i,
-                                cellSize - 2 * i, cellSize - 2 * i);
-                    }
-                }
-            }
-            shapeRenderer.end();
-        }
-        
-        // Draw building icons on cells (with inverted Y) — only for discovered buildings
-        batch.begin();
-        for (int cx = startCellX; cx < endCellX; cx++) {
-            for (int cy = startCellY; cy < endCellY; cy++) {
-                // Only show the icon once the building has been discovered
-                Cell iconCell = cityMap.getCell(cx, cy);
-                if (!iconCell.hasBuilding() || !iconCell.getBuilding().isDiscovered()) continue;
+        mapRenderer.drawMap(state);
+        mapRenderer.drawRulers(state);
+        infoPanelRenderer.drawInfoBar(state);
+        infoPanelRenderer.drawInfoBlock(state, !lookAroundPopup.isVisible());
 
-                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
-                String iconPath = rd.getIconPath();
-                if (iconPath == null) continue;
-                Texture iconTex = iconTextureCache.get(iconPath);
-                if (iconTex == null) continue;
-                
-                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                
-                // Scale icon to fit within cell (with border insets), centered
-                float leftInset   = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
-                float rightInset  = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
-                float bottomInset = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
-                float topInset    = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
-                float availW = cellSize - leftInset - rightInset;
-                float availH = cellSize - bottomInset - topInset;
-                float iconSize = Math.min(availW, availH) * 0.7f; // 70% of available space
-                float iconX = drawX + leftInset + (availW - iconSize) / 2;
-                float iconY = drawY + bottomInset + (availH - iconSize) / 2;
-                
-                // Tint not needed - icons have transparent bg with black lines
-                batch.setColor(Color.WHITE);
-                batch.draw(iconTex, iconX, iconY, iconSize, iconSize);
-            }
+        if (lookAroundPopup.isVisible()) {
+            lookAroundPopup.update(delta);
+            lookAroundPopup.draw(state.screenWidth, state.screenHeight);
         }
-        
-        // Draw character portrait icon in the lower-right of the character's current cell
-        if (characterIconTexture != null && charCellX >= 0 && charCellY >= 0) {
-            if (charCellX >= startCellX && charCellX < endCellX &&
-                charCellY >= startCellY && charCellY < endCellY) {
-                float drawX = mapStartX + (charCellX - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (visibleCellsY - 1 - (charCellY - startCellY - fracOffsetY)) * cellSize;
-                float portraitSize = cellSize * 0.4f;
-                float portraitX = drawX + cellSize - portraitSize - borderSize;
-                float portraitY = drawY + borderSize;
-                batch.setColor(Color.WHITE);
-                batch.draw(characterIconTexture, portraitX, portraitY, portraitSize, portraitSize);
-            }
-        }
-        
-        batch.end();
-        
-        // Draw selection highlight (with inverted Y)
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        if (selectedCellX >= 0 && selectedCellY >= 0) {
-            if (selectedCellX >= startCellX && selectedCellX < endCellX &&
-                selectedCellY >= startCellY && selectedCellY < endCellY) {
-                float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (visibleCellsY - 1 - (selectedCellY - startCellY - fracOffsetY)) * cellSize;
-                shapeRenderer.setColor(SELECTION_COLOR);
-                // Draw thick selection border
-                for (int i = 0; i < SELECTION_THICKNESS; i++) {
-                    shapeRenderer.rect(drawX + i, drawY + i, cellSize - i * 2, cellSize - i * 2);
-                }
-            }
-        }
-        
-        shapeRenderer.end();
-        
-        // Draw cell coordinates when zoomed in enough (with inverted Y)
-        if (zoomLevel >= 2.0f) {
-            batch.begin();
-            // Use smaller font for cell coordinates
-            smallFont.getData().setScale(0.7f);
-            for (int cx = startCellX; cx < endCellX; cx++) {
-                for (int cy = startCellY; cy < endCellY; cy++) {
-                    float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    
-                    String coords = Integer.toHexString(cx).toUpperCase() + Integer.toHexString(cy).toUpperCase();
-                    glyphLayout.setText(smallFont, coords);
-                    smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
-                }
-            }
-            // Restore font scale
-            smallFont.getData().setScale(1.0f);
-            batch.end();
-        }
-    }
-    
-    /**
-     * Returns the border inset size for a given road type.
-     * ROAD uses full borderSize, PATHWAY uses pathwaySize (1/4 of road), NONE uses 0.
-     */
-    private static float borderInset(RoadType type, float borderSize, float pathwaySize) {
-        switch (type) {
-            case ROAD:    return borderSize;
-            case PATHWAY: return pathwaySize;
-            default:      return 0;
-        }
-    }
-    
-    private void drawRulers() {
-        float cellSize = getCellSize();
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        
-        // Map area positioning (same as drawMap)
-        float mapStartX = RULER_WIDTH + RULER_GAP;
-        float mapStartY = infoAreaHeight;
-        
-        // Calculate which cells are visible
-        int startCellX = (int)mapOffsetX;
-        int startCellY = (int)mapOffsetY;
-        float fracOffsetX = mapOffsetX - startCellX;
-        float fracOffsetY = mapOffsetY - startCellY;
-        
-        // Draw ruler backgrounds and cursor markers (all shape rendering first)
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(RULER_BG_COLOR);
-        
-        // Left vertical ruler background (at left edge x=0)
-        shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
-        
-        // Top horizontal ruler background (just below the info bar)
-        float topRulerY = screenHeight - INFO_BAR_HEIGHT - RULER_WIDTH;
-        shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
-        
-        // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
-        if (cursorCellY >= startCellY && cursorCellY < startCellY + visibleCellsY) {
-            float rulerY = mapStartY + (visibleCellsY - 1 - (cursorCellY - startCellY - fracOffsetY)) * cellSize;
-            shapeRenderer.setColor(RULER_MARKER_COLOR);
-            shapeRenderer.rect(0, rulerY, RULER_WIDTH, cellSize);
-        }
-        if (cursorCellX >= startCellX && cursorCellX < startCellX + visibleCellsX) {
-            float rulerX = mapStartX + (cursorCellX - startCellX - fracOffsetX) * cellSize;
-            shapeRenderer.setColor(RULER_MARKER_COLOR);
-            shapeRenderer.rect(rulerX, topRulerY, cellSize, RULER_WIDTH);
-        }
-        
-        shapeRenderer.end();;
-        
-        // Draw hex numbers (all text rendering)
-        batch.begin();
-        
-        // Draw left ruler hex numbers (Y axis - cell rows) - inverted: 0 at top, F at bottom
-        for (int i = 0; i < visibleCellsY; i++) {
-            int cellY = startCellY + i;
-            if (cellY >= 0 && cellY < CityMap.MAP_SIZE) {
-                // Invert Y position: row 0 at top (higher screen Y), row F at bottom
-                float rulerY = mapStartY + (visibleCellsY - 1 - (i - fracOffsetY)) * cellSize;
-                
-                String hex = HEX_DIGITS[cellY];
-                glyphLayout.setText(smallFont, hex);
-                float textX = (RULER_WIDTH - glyphLayout.width) / 2;
-                float textY = rulerY + (cellSize + glyphLayout.height) / 2;
-                smallFont.setColor(cursorCellY == cellY ? Color.BLACK : Color.WHITE);
-                smallFont.draw(batch, hex, textX, textY);
-            }
-        }
-        
-        // Draw top ruler hex numbers (X axis - cell columns)
-        for (int i = 0; i < visibleCellsX; i++) {
-            int cellX = startCellX + i;
-            if (cellX >= 0 && cellX < CityMap.MAP_SIZE) {
-                float rulerX = mapStartX + (i - fracOffsetX) * cellSize;
-                
-                String hex = HEX_DIGITS[cellX];
-                glyphLayout.setText(smallFont, hex);
-                float textX = rulerX + (cellSize - glyphLayout.width) / 2;
-                float textY = topRulerY + RULER_WIDTH - (RULER_WIDTH - glyphLayout.height) / 2;
-                smallFont.setColor(cursorCellX == cellX ? Color.BLACK : Color.WHITE);
-                smallFont.draw(batch, hex, textX, textY);
-            }
-        }
-        
-        batch.end();
-    }
-    
-    private Color getCellColor(Cell cell) {
-        switch (cell.getTerrainType()) {
-            case MOUNTAIN:
-                return MOUNTAIN_COLOR;
-            case BEACH:
-                return BEACH_COLOR;
-            case BUILDING:
-                // Get base color from cached category colors, then apply floor-based brightness
-                if (cell.hasBuilding() && cell.getBuilding().getDefinition() != null) {
-                    Building building = cell.getBuilding();
-                    String categoryId = building.getDefinition().getCategory();
-                    Color baseColor = categoryColorCache.get(categoryId);
-                    if (baseColor != null) {
-                        // Calculate brightness based on floors (more floors = brighter)
-                        // Brightness ranges from 0.4 (1 floor) to 1.0 (MAX_FLOORS)
-                        int floors = building.getFloors();
-                        float brightness = MIN_BRIGHTNESS + (1.0f - MIN_BRIGHTNESS) * (floors / (float) MAX_FLOORS);
-                        // Apply brightness to base color (reuse tempColor to avoid allocations)
-                        tempColor.set(
-                            Math.min(1.0f, baseColor.r * brightness),
-                            Math.min(1.0f, baseColor.g * brightness),
-                            Math.min(1.0f, baseColor.b * brightness),
-                            1.0f
-                        );
-                        return tempColor;
-                    }
-                }
-                // Fallback to gray
-                return Color.GRAY;
-            default:
-                return Color.GRAY;
-        }
-    }
-    
-    /**
-     * Initialize the color cache for building categories to avoid allocations during render.
-     */
-    private void initColorCache(GameDataManager gameData) {
-        categoryColorCache = new HashMap<>();
-        for (CategoryDefinition cat : gameData.getCategories()) {
-            float[] rgb = cat.getColorFloats();
-            categoryColorCache.put(cat.getId(), new Color(rgb[0], rgb[1], rgb[2], 1f));
-        }
-        // Add fallback gray color
-        categoryColorCache.put(null, Color.GRAY);
-        Gdx.app.log("MainScreen", "Cached " + categoryColorCache.size() + " category colors");
-    }
-    
-    /**
-     * Loads building icon textures from the pre-computed render data.
-     * Only loads unique icon paths to avoid duplicate texture loading.
-     */
-    private void loadBuildingIcons() {
-        iconTextureCache = new HashMap<>();
-        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
-            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
-                CellRenderData rd = cityMap.getCellRenderData(x, y);
-                String iconPath = rd.getIconPath();
-                if (iconPath != null && !iconTextureCache.containsKey(iconPath)) {
-                    try {
-                        Texture tex = TextureUtils.makeWhiteTransparent(iconPath);
-                        tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-                        iconTextureCache.put(iconPath, tex);
-                    } catch (Exception e) {
-                        Gdx.app.log("MainScreen", "Could not load icon: " + iconPath + " - " + e.getMessage());
-                    }
-                }
-            }
-        }
-        Gdx.app.log("MainScreen", "Loaded " + iconTextureCache.size() + " building icons");
-    }
-    
-    /**
-     * Helper method to draw a label in bright green and value in white.
-     * @return the textY position (unchanged, caller should subtract lineHeight)
-     */
-    private float drawLabelValue(SpriteBatch batch, BitmapFont font, String label, String value, float textX, float textY) {
-        // Draw label in bright green
-        font.setColor(LABEL_COLOR);
-        font.draw(batch, label, textX, textY);
-        glyphLayout.setText(font, label);
-        float labelWidth = glyphLayout.width;
-        // Draw value in white
-        font.setColor(Color.WHITE);
-        font.draw(batch, value, textX + labelWidth, textY);
-        return textY;
-    }
-    
-    /**
-     * Formats attribute modifiers as a compact string, e.g. "[INT+2 PER-1]".
-     */
-    private String formatAttributeModifiers(Map<CharacterAttribute, Integer> modifiers) {
-        if (modifiers == null || modifiers.isEmpty()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder("[");
-        boolean first = true;
-        for (Map.Entry<CharacterAttribute, Integer> entry : modifiers.entrySet()) {
-            if (!first) sb.append(' ');
-            first = false;
-            String displayName = entry.getKey().getDisplayName();
-            String abbrev = displayName.length() >= 3
-                ? displayName.substring(0, 3).toUpperCase()
-                : displayName.toUpperCase();
-            int val = entry.getValue();
-            sb.append(abbrev);
-            if (val > 0) sb.append('+');
-            sb.append(val);
-        }
-        sb.append(']');
-        return sb.toString();
-    }
-    
-    private void drawInfoBlock() {
-        // Determine which top button to show:
-        //  - "Move to"      when selected cell differs from char position
-        //  - "Look around"  when selected cell IS char position and building is discovered
-        boolean showMoveToButton = selectedCellX >= 0 && selectedCellY >= 0
-                && (selectedCellX != charCellX || selectedCellY != charCellY);
-        boolean canMove = showMoveToButton && currentRoute != null && currentRoute.isReachable();
-
-        boolean showLookAroundButton = !showMoveToButton
-                && selectedCellX >= 0 && selectedCellY >= 0
-                && selectedCellX == charCellX && selectedCellY == charCellY
-                && lookAroundState == LookAroundState.IDLE
-                && cityMap.getCell(selectedCellX, selectedCellY).hasBuilding()
-                && cityMap.getCell(selectedCellX, selectedCellY).getBuilding().isDiscovered();
-
-        // Size buttons to fit their label text with generous padding.
-        final float BUTTON_PAD_X = 24f;
-        final float BUTTON_PAD_Y = 10f;
-        final float BUTTON_PAD = 14f;   // gap between info-panel top border and button
-
-        glyphLayout.setText(font, "Move to");
-        final float BUTTON_W = glyphLayout.width  + BUTTON_PAD_X * 2;
-        final float BUTTON_H = glyphLayout.height + BUTTON_PAD_Y * 2;
-
-        glyphLayout.setText(font, "Look around");
-        final float LA_BTN_W = glyphLayout.width  + BUTTON_PAD_X * 2;
-        // LA_BTN_H is the same as BUTTON_H (same font)
-
-        float btnX = 20f;
-        float btnY = infoAreaHeight - BUTTON_PAD - BUTTON_H;
-
-        // Store button bounds for click detection (W=0 means not shown)
-        moveToButtonX = btnX;
-        moveToButtonY = btnY;
-        moveToButtonW = showMoveToButton ? BUTTON_W : 0f;
-        moveToButtonH = BUTTON_H;
-
-        lookAroundBtnX = btnX;
-        lookAroundBtnY = btnY;
-        lookAroundBtnW = showLookAroundButton ? LA_BTN_W : 0f;
-        lookAroundBtnH = BUTTON_H;
-
-        // --- Shape rendering pass (background + button background + border) ---
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(INFO_BG_COLOR);
-        shapeRenderer.rect(0, 0, screenWidth, infoAreaHeight);
-        if (showMoveToButton) {
-            shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
-            shapeRenderer.rect(btnX, btnY, BUTTON_W, BUTTON_H);
-        }
-        if (showLookAroundButton) {
-            shapeRenderer.setColor(LOOK_AROUND_BUTTON_COLOR);
-            shapeRenderer.rect(btnX, btnY, LA_BTN_W, BUTTON_H);
-        }
-        shapeRenderer.end();
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.line(0, infoAreaHeight, screenWidth, infoAreaHeight);
-        if (showMoveToButton) {
-            shapeRenderer.rect(btnX,     btnY,     BUTTON_W,     BUTTON_H);
-            shapeRenderer.rect(btnX + 1, btnY + 1, BUTTON_W - 2, BUTTON_H - 2);
-        }
-        if (showLookAroundButton) {
-            shapeRenderer.rect(btnX,     btnY,     LA_BTN_W,     BUTTON_H);
-            shapeRenderer.rect(btnX + 1, btnY + 1, LA_BTN_W - 2, BUTTON_H - 2);
-        }
-        shapeRenderer.end();
-
-        // --- Batch text rendering pass ---
-        batch.begin();
-        
-        // Calculate proper line heights based on actual font metrics
-        glyphLayout.setText(font, "Hg"); // Use characters with ascenders/descenders
-        float fontLineHeight = glyphLayout.height * 1.4f; // Add 40% for spacing
-        
-        glyphLayout.setText(smallFont, "Hg");
-        float smallFontLineHeight = glyphLayout.height * 1.4f;
-        
-        float textX = 20;
-
-        // Draw "Move to" button label and travel time
-        if (showMoveToButton) {
-            glyphLayout.setText(font, "Move to");
-            float btnTextX = btnX + (BUTTON_W - glyphLayout.width) / 2;
-            float btnTextY = btnY + (BUTTON_H + glyphLayout.height) / 2;
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Move to", btnTextX, btnTextY);
-
-            String timeStr = canMove ? currentRoute.formatTime() : "Unreachable";
-            glyphLayout.setText(smallFont, timeStr);
-            smallFont.setColor(canMove ? Color.WHITE : Color.RED);
-            smallFont.draw(batch, timeStr, btnX + BUTTON_W + 10f,
-                    btnY + (BUTTON_H + glyphLayout.height) / 2);
-            smallFont.setColor(Color.WHITE);
-        }
-
-        // Draw "Look around" button label
-        if (showLookAroundButton) {
-            glyphLayout.setText(font, "Look around");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Look around",
-                    btnX + (LA_BTN_W - glyphLayout.width) / 2,
-                    btnY + (BUTTON_H + glyphLayout.height) / 2);
-        }
-
-        // Info text starts below the button (if any)
-        boolean anyButton = showMoveToButton || showLookAroundButton;
-        float textY = anyButton
-                ? btnY - BUTTON_PAD - fontLineHeight
-                : infoAreaHeight - fontLineHeight;
-        
-        // Show selected cell info (no title heading)
-        if (selectedCellX >= 0 && selectedCellY >= 0) {
-            Cell cell = cityMap.getCell(selectedCellX, selectedCellY);
-            
-            // Draw "Cell:" label in bright green, then coordinates in white
-            textY = drawLabelValue(batch, font, "Cell: ", selectedCellX + ", " + selectedCellY, textX, textY);
-            textY -= fontLineHeight;
-            
-            // Draw "Terrain:" label in bright green, then value in white
-            textY = drawLabelValue(batch, font, "Terrain: ", cell.getTerrainType().getDisplayName(), textX, textY);
-            textY -= fontLineHeight;
-            
-            if (cell.hasBuilding()) {
-                Building building = cell.getBuilding();
-                
-                if (building.isDiscovered()) {
-                    // Draw "Building:" label in bright green, then value in white
-                    String buildingModStr = formatAttributeModifiers(building.getAttributeModifiers());
-                    String buildingDisplay = building.getName();
-                    if (!buildingModStr.isEmpty()) {
-                        buildingDisplay += " " + buildingModStr;
-                    }
-                    textY = drawLabelValue(batch, font, "Building: ", buildingDisplay, textX, textY);
-                    textY -= fontLineHeight;
-                    
-                    if (building.getDefinition() != null) {
-                        // Draw "Category:" label in bright green, then value in white
-                        textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
-                        textY -= fontLineHeight;
-                        
-                        // Draw "Floors:" label in bright green, then value in white
-                        textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
-                        textY -= fontLineHeight;
-                    }
-                    
-                    // Show improvements (only if there's space)
-                    if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
-                        // Draw "Improvements:" label in bright green (no value)
-                        font.setColor(LABEL_COLOR);
-                        font.draw(batch, "Improvements:", textX, textY);
-                        font.setColor(Color.WHITE);
-                        textY -= fontLineHeight;
-                        
-                        for (Improvement imp : building.getImprovements()) {
-                            if (textY < smallFontLineHeight * 2) break; // Stop before footer area
-                            if (imp.isDiscovered()) {
-                                String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
-                                String display = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")";
-                                if (!modStr.isEmpty()) {
-                                    display += " " + modStr;
-                                }
-                                smallFont.draw(batch, display, textX, textY);
-                            } else {
-                                smallFont.draw(batch, "  - ???", textX, textY);
-                            }
-                            textY -= smallFontLineHeight;
-                        }
-                    }
-                } else {
-                    // Building not yet discovered - show placeholder
-                    textY = drawLabelValue(batch, font, "Building: ", "???", textX, textY);
-                    textY -= fontLineHeight;
-                }
-            }
-        } else {
-            font.draw(batch, "Click on a cell to see details", textX, textY);
-        }
-        
-        // Show zoom level in corner (cache the formatted string)
-        if (zoomLevel != lastZoomLevel) {
-            cachedZoomText = "Zoom: " + String.format("%.1fx", zoomLevel);
-            lastZoomLevel = zoomLevel;
-        }
-        glyphLayout.setText(smallFont, cachedZoomText);
-        smallFont.draw(batch, cachedZoomText, screenWidth - glyphLayout.width - 20, infoAreaHeight - smallFontLineHeight);
-        
-        // Show controls hint - position with proper margin from bottom
-        String controlsHint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
-        glyphLayout.setText(smallFont, controlsHint);
-        float footerY = smallFontLineHeight + 10; // Proper margin from bottom
-        smallFont.draw(batch, controlsHint, (screenWidth - glyphLayout.width) / 2, footerY);
-        
-        batch.end();
-    }
-
-    private void drawInfoBar() {
-        float barY = screenHeight - INFO_BAR_HEIGHT;
-
-        // Background
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(INFO_BG_COLOR);
-        shapeRenderer.rect(0, barY, screenWidth, INFO_BAR_HEIGHT);
-        shapeRenderer.end();
-
-        // Bottom border of bar
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.line(0, barY, screenWidth, barY);
-        shapeRenderer.end();
-
-        batch.begin();
-
-        // Measure a sample string to get a reliable text height for vertical centering
-        glyphLayout.setText(font, "Hg");
-        float textY = barY + (INFO_BAR_HEIGHT + glyphLayout.height) / 2;
-
-        // Date/time on the left: date in bright green, time in white
-        String dateTime = profile.getGameDateTime();
-        int spaceIdx = dateTime.indexOf(' ');
-        String datePart = spaceIdx >= 0 ? dateTime.substring(0, spaceIdx) : dateTime;
-        String timePart = spaceIdx >= 0 ? dateTime.substring(spaceIdx) : "";  // includes leading space
-
-        font.setColor(Color.GREEN);
-        font.draw(batch, datePart, 10, textY);
-        glyphLayout.setText(font, datePart);
-        font.setColor(Color.WHITE);
-        font.draw(batch, timePart, 10 + glyphLayout.width, textY);
-
-        // Money on the right in yellow (bold via bodyFont)
-        String moneyText = "$" + profile.getMoney();
-        glyphLayout.setText(font, moneyText);
-        font.setColor(Color.YELLOW);
-        font.draw(batch, moneyText, screenWidth - glyphLayout.width - 10, textY);
-
-        font.setColor(Color.WHITE);
-        batch.end();
     }
 
     @Override
     public void resize(int width, int height) {
-        this.screenWidth = width;
-        this.screenHeight = height;
-        this.infoAreaHeight = (int)(height * infoPanelRatio);  // Configurable info panel height
-        this.mapAreaHeight = height - infoAreaHeight - INFO_BAR_HEIGHT;  // Map uses remaining height minus info bar
-        
-        // Calculate actual map display size (rectangular, uses full available space)
-        float cellSize = getCellSize();
-        int visibleCellsX = getVisibleCellsX();
-        int visibleCellsY = getVisibleCellsY();
-        float mapDisplayWidth = cellSize * visibleCellsX;
-        float mapDisplayHeight = cellSize * visibleCellsY;
-        
-        Gdx.app.log("MainScreen", "=== SCREEN LAYOUT DEBUG ===");
-        Gdx.app.log("MainScreen", "Screen size: " + width + "x" + height + " pixels");
-        Gdx.app.log("MainScreen", "Map area available: " + screenWidth + "x" + mapAreaHeight + " pixels");
-        Gdx.app.log("MainScreen", "Info panel height: " + infoAreaHeight + " pixels (ratio=" + infoPanelRatio + ")");
-        Gdx.app.log("MainScreen", "Actual map display: " + mapDisplayWidth + "x" + mapDisplayHeight + " pixels");
-        Gdx.app.log("MainScreen", "Cell size: " + cellSize + " pixels, Visible cells: " + visibleCellsX + "x" + visibleCellsY);
-        Gdx.app.log("MainScreen", "Zoom level: " + zoomLevel);
-        Gdx.app.log("MainScreen", "===========================");
+        state.screenWidth    = width;
+        state.screenHeight   = height;
+        state.infoAreaHeight = (int)(height * state.infoPanelRatio);
+        state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
+        Gdx.app.log("MainScreen", "Resized to " + width + "x" + height
+                + " (info=" + state.infoAreaHeight + " map=" + state.mapAreaHeight + ")");
     }
-    
-    /**
-     * Set the info panel height ratio (0.0 to 1.0).
-     * Clamped to MIN_INFO_PANEL_RATIO and MAX_INFO_PANEL_RATIO.
-     * @param ratio The ratio of screen height for info panel
-     */
-    public void setInfoPanelRatio(float ratio) {
-        this.infoPanelRatio = MathUtils.clamp(ratio, MIN_INFO_PANEL_RATIO, MAX_INFO_PANEL_RATIO);
-        // Recalculate layout only if dimensions are initialized
-        if (screenWidth > 0 && screenHeight > 0) {
-            resize(screenWidth, screenHeight);
-        }
-    }
-    
-    /**
-     * Get the current info panel height ratio.
-     * @return The ratio of screen height used by info panel
-     */
-    public float getInfoPanelRatio() {
-        return infoPanelRatio;
-    }
-    
-    @Override
-    public void pause() {
-    }
-    
-    @Override
-    public void resume() {
-    }
-    
+
+    @Override public void pause()  {}
+    @Override public void resume() {}
+
     @Override
     public void hide() {
         Gdx.app.log("MainScreen", "hide() called");
-        // Restore previous input processor
-        if (previousInputProcessor != null) {
+        if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
-        }
     }
-    
+
     @Override
     public void dispose() {
-        if (batch != null) {
-            batch.dispose();
-        }
-        if (shapeRenderer != null) {
-            shapeRenderer.dispose();
-        }
-        // Dispose building icon textures
-        if (iconTextureCache != null) {
-            for (Texture tex : iconTextureCache.values()) {
-                tex.dispose();
-            }
-            iconTextureCache.clear();
-        }
-        // Dispose character portrait texture
-        if (characterIconTexture != null) {
-            characterIconTexture.dispose();
-            characterIconTexture = null;
-        }
-        // Restore previous input processor on dispose
-        if (previousInputProcessor != null) {
+        if (batch         != null) batch.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
+        if (mapRenderer   != null) mapRenderer.dispose();
+        if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
+
+    public void setInfoPanelRatio(float ratio) {
+        state.infoPanelRatio = MathUtils.clamp(ratio,
+                MapViewState.MIN_INFO_PANEL_RATIO, MapViewState.MAX_INFO_PANEL_RATIO);
+        if (state.screenWidth > 0) resize(state.screenWidth, state.screenHeight);
+    }
+
+    public float getInfoPanelRatio() {
+        return state.infoPanelRatio;
+    }
+
+    // -------------------------------------------------------------------------
+    // Input
+    // -------------------------------------------------------------------------
+
+    private void setupInput() {
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                // Any popup blocks normal interaction – capture for later tap detection
+                if (lookAroundPopup.isVisible()) {
+                    infoAreaPressed  = true;
+                    infoTouchStartX  = screenX;
+                    infoTouchStartY  = screenY;
+                    isDragging       = false;
+                    return true;
+                }
+                int flippedY = state.screenHeight - screenY;
+                if (flippedY > state.infoAreaHeight) {
+                    isDragging       = true;
+                    dragStartX       = screenX;
+                    dragStartY       = screenY;
+                    dragStartOffsetX = state.mapOffsetX;
+                    dragStartOffsetY = state.mapOffsetY;
+                    infoAreaPressed  = false;
+                } else {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                }
+                return true;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                int flippedY = state.screenHeight - screenY;
+
+                if (lookAroundPopup.isResults()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) lookAroundPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+                if (lookAroundPopup.isAnimating()) {
+                    infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
+
+                if (isDragging && flippedY > state.infoAreaHeight) {
+                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+                    if (d < TAP_THRESHOLD_PIXELS) selectCellAt(screenX, flippedY);
+                }
+                if (infoAreaPressed) {
+                    float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                    if (d < TAP_THRESHOLD_PIXELS) {
+                        checkMoveToButtonClick(screenX, flippedY);
+                        checkLookAroundButtonClick(screenX, flippedY);
+                    }
+                    infoAreaPressed = false;
+                }
+                isDragging = false;
+                return true;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+                if (isDragging) {
+                    float cs = state.getCellSize();
+                    state.mapOffsetX = dragStartOffsetX - (screenX - dragStartX) / cs;
+                    state.mapOffsetY = dragStartOffsetY - (screenY - dragStartY) / cs;
+                    state.clampMapOffset();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                float old = state.zoomLevel;
+                state.zoomLevel = MathUtils.clamp(state.zoomLevel - amountY * ZOOM_SPEED, MIN_ZOOM, MAX_ZOOM);
+                if (old != state.zoomLevel) state.clampMapOffset();
+                return true;
+            }
+
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                updateCursorCell(screenX, state.screenHeight - screenY);
+                return false;
+            }
+        });
+    }
+
+    private void handleKeyboardInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
+            state.zoomLevel = MathUtils.clamp(state.zoomLevel + ZOOM_SPEED * 2, MIN_ZOOM, MAX_ZOOM);
+            state.clampMapOffset();
         }
-        // Fonts are managed by FontManager
+        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+            state.zoomLevel = MathUtils.clamp(state.zoomLevel - ZOOM_SPEED * 2, MIN_ZOOM, MAX_ZOOM);
+            state.clampMapOffset();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))  { state.mapOffsetX -= SCROLL_SPEED; state.clampMapOffset(); }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) { state.mapOffsetX += SCROLL_SPEED; state.clampMapOffset(); }
+        if (Gdx.input.isKeyPressed(Input.Keys.UP))    { state.mapOffsetY += SCROLL_SPEED; state.clampMapOffset(); }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))  { state.mapOffsetY -= SCROLL_SPEED; state.clampMapOffset(); }
+    }
+
+    private void updateCursorCell(int screenX, int flippedY) {
+        float mapAreaX = MapViewState.RULER_WIDTH + MapViewState.RULER_GAP;
+        if (flippedY <= state.infoAreaHeight) {
+            state.cursorCellX = state.cursorCellY = -1;
+            return;
+        }
+        float cs = state.getCellSize();
+        int visY = state.getVisibleCellsY();
+        float relX = screenX - mapAreaX;
+        float relY = flippedY - state.infoAreaHeight;
+        if (relX < 0 || relX >= cs * state.getVisibleCellsX() || relY < 0 || relY >= cs * visY) {
+            state.cursorCellX = state.cursorCellY = -1;
+            return;
+        }
+        int cx = (int)(state.mapOffsetX + relX / cs);
+        int cy = (int)(state.mapOffsetY + visY - relY / cs);
+        if (cx >= 0 && cx < CityMap.MAP_SIZE && cy >= 0 && cy < CityMap.MAP_SIZE) {
+            state.cursorCellX = cx;
+            state.cursorCellY = cy;
+        } else {
+            state.cursorCellX = state.cursorCellY = -1;
+        }
+    }
+
+    private void selectCellAt(int screenX, int screenY) {
+        float cs = state.getCellSize();
+        int visY = state.getVisibleCellsY();
+        float relX = screenX - (MapViewState.RULER_WIDTH + MapViewState.RULER_GAP);
+        float relY = screenY - state.infoAreaHeight;
+        int cx = (int)(state.mapOffsetX + relX / cs);
+        int cy = (int)(state.mapOffsetY + visY - relY / cs);
+        if (cx >= 0 && cx < CityMap.MAP_SIZE && cy >= 0 && cy < CityMap.MAP_SIZE) {
+            state.selectedCellX = cx;
+            state.selectedCellY = cy;
+            recalculateRoute();
+            Gdx.app.log("MainScreen", "Selected: " + cx + "," + cy);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Button hit-testing
+    // -------------------------------------------------------------------------
+
+    private void checkMoveToButtonClick(int screenX, int flippedY) {
+        if (state.moveToButtonW <= 0) return;
+        if (screenX >= state.moveToButtonX && screenX <= state.moveToButtonX + state.moveToButtonW
+                && flippedY >= state.moveToButtonY && flippedY <= state.moveToButtonY + state.moveToButtonH) {
+            handleMoveToClick();
+        }
+    }
+
+    private void checkLookAroundButtonClick(int screenX, int flippedY) {
+        if (state.lookAroundBtnW <= 0) return;
+        if (screenX >= state.lookAroundBtnX && screenX <= state.lookAroundBtnX + state.lookAroundBtnW
+                && flippedY >= state.lookAroundBtnY && flippedY <= state.lookAroundBtnY + state.lookAroundBtnH) {
+            lookAroundPopup.start(state.charCellX, state.charCellY);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Game logic
+    // -------------------------------------------------------------------------
+
+    private void recalculateRoute() {
+        if (state.selectedCellX < 0 || state.charCellX < 0
+                || (state.selectedCellX == state.charCellX && state.selectedCellY == state.charCellY)) {
+            state.currentRoute = null;
+            return;
+        }
+        state.currentRoute = cityMap.findFastestRoute(
+                state.charCellX, state.charCellY,
+                state.selectedCellX, state.selectedCellY);
+    }
+
+    private void handleMoveToClick() {
+        if (state.currentRoute == null || !state.currentRoute.isReachable()) return;
+        if (state.selectedCellX < 0) return;
+
+        profile.advanceGameTime(state.currentRoute.totalMinutes);
+        state.charCellX = state.selectedCellX;
+        state.charCellY = state.selectedCellY;
+        discoverCell(state.charCellX, state.charCellY);
+        state.currentRoute = null;
+
+        state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
+        state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
+        state.clampMapOffset();
+        Gdx.app.log("MainScreen", "Moved to " + state.charCellX + "," + state.charCellY);
+    }
+
+    /**
+     * Discovers the building and any hiddenValue==0 improvements at the given cell.
+     * Called on arrival (game start or Move To).
+     */
+    private void discoverCell(int x, int y) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        building.discover();
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.getHiddenValue() == 0) imp.discover();
+        }
+        Gdx.app.log("MainScreen", "Discovered " + x + "," + y + ": " + building.getName());
     }
 }
