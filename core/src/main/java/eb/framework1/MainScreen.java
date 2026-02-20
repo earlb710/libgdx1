@@ -651,7 +651,10 @@ public class MainScreen implements Screen {
         for (Map.Entry<CharacterAttribute, Integer> entry : modifiers.entrySet()) {
             if (!first) sb.append(' ');
             first = false;
-            String abbrev = entry.getKey().getDisplayName().substring(0, 3).toUpperCase();
+            String displayName = entry.getKey().getDisplayName();
+            String abbrev = displayName.length() >= 3
+                ? displayName.substring(0, 3).toUpperCase()
+                : displayName.toUpperCase();
             int val = entry.getValue();
             sb.append(abbrev);
             if (val > 0) sb.append('+');
