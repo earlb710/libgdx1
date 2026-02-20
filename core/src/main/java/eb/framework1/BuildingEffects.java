@@ -169,7 +169,7 @@ public final class BuildingEffects {
             return Collections.emptyMap();
         }
 
-        String nameLower = buildingName.toLowerCase();
+        String nameLower = buildingName.trim().toLowerCase();
         Map<CharacterAttribute, Integer> combined = new HashMap<>();
 
         for (Map.Entry<String, Map<CharacterAttribute, Integer>> entry : KEYWORD_EFFECTS.entrySet()) {
