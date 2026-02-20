@@ -178,6 +178,15 @@ public class MainScreen implements Screen {
         // Calculate layout
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         
+        // Center the map on the character's starting cell
+        if (selectedCellX >= 0 && selectedCellY >= 0) {
+            int visibleCellsX = getVisibleCellsX();
+            int visibleCellsY = getVisibleCellsY();
+            mapOffsetX = selectedCellX - visibleCellsX / 2.0f;
+            mapOffsetY = selectedCellY - visibleCellsY / 2.0f;
+            clampMapOffset();
+        }
+        
         initialized = true;
         Gdx.app.log("MainScreen", "Initialization complete");
     }
