@@ -50,6 +50,8 @@ public class CharacterAttributeScreen implements Screen {
     private Rectangle backButton;
     private Map<CharacterAttribute, Rectangle> plusButtons;
     private Map<CharacterAttribute, Rectangle> minusButtons;
+    private Rectangle moneyPlusButton;
+    private Rectangle moneyMinusButton;
     
     // Button dimensions
     private static final int BUTTON_WIDTH = 300;
@@ -75,9 +77,9 @@ public class CharacterAttributeScreen implements Screen {
             attributeValues.put(attr, MIN_ATTRIBUTE_VALUE);
         }
         
-        // Calculate initial points remaining (free points + points from starting money)
+        // Calculate initial points remaining (free distributable points only; $1000 starts in money)
         this.moneyBudget = STARTING_MONEY;
-        this.pointsRemaining = FREE_DISTRIBUTABLE_POINTS + moneyBudget / MONEY_PER_POINT;
+        this.pointsRemaining = FREE_DISTRIBUTABLE_POINTS;
         
         this.plusButtons = new HashMap<>();
         this.minusButtons = new HashMap<>();
@@ -111,6 +113,9 @@ public class CharacterAttributeScreen implements Screen {
                 plusButtons.put(attr, new Rectangle());
                 minusButtons.put(attr, new Rectangle());
             }
+
+            moneyPlusButton = new Rectangle();
+            moneyMinusButton = new Rectangle();
             
             Gdx.app.log("CharacterAttributeScreen", "Initialization complete");
             initialized = true;
@@ -165,13 +170,29 @@ public class CharacterAttributeScreen implements Screen {
         subtitleFont.draw(batch, pointsText, pointsX, pointsY);
         subtitleFont.setColor(Color.WHITE);
 
-        // Money remaining
+        batch.end();
+
+        // Money row with +/- buttons
+        float moneyRowY = pointsY - 60;
+        float moneyButtonY = moneyRowY - SMALL_BUTTON_SIZE + 10;
+        float centerX = Gdx.graphics.getWidth() / 2f;
+
+        // Minus button (convert $1000 → 1 point)
+        moneyMinusButton.set(centerX - 180, moneyButtonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+        // Plus button (convert 1 point → $1000)
+        moneyPlusButton.set(centerX + 20, moneyButtonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+
+        int mouseX = Gdx.input.getX();
+        int screenMouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        drawSmallButton(moneyMinusButton, "-", mouseX, screenMouseY, moneyBudget >= MONEY_PER_POINT);
+        drawSmallButton(moneyPlusButton, "+", mouseX, screenMouseY, pointsRemaining > 0);
+
+        batch.begin();
         String moneyText = "Money: $" + getMoneyRemaining();
         glyphLayout.setText(subtitleFont, moneyText);
-        float moneyX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        float moneyY = pointsY - 60;
+        float moneyLabelX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         subtitleFont.setColor(Color.YELLOW);
-        subtitleFont.draw(batch, moneyText, moneyX, moneyY);
+        subtitleFont.draw(batch, moneyText, moneyLabelX, moneyRowY);
         subtitleFont.setColor(Color.WHITE);
         
         batch.end();
@@ -325,6 +346,15 @@ public class CharacterAttributeScreen implements Screen {
             int mouseX = Gdx.input.getX();
             int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
             
+            // Check money +/- buttons
+            if (moneyPlusButton.contains(mouseX, mouseY) && pointsRemaining > 0) {
+                moneyBudget += MONEY_PER_POINT;
+                pointsRemaining--;
+            } else if (moneyMinusButton.contains(mouseX, mouseY) && moneyBudget >= MONEY_PER_POINT) {
+                moneyBudget -= MONEY_PER_POINT;
+                pointsRemaining++;
+            }
+
             // Check +/- buttons for each attribute
             for (CharacterAttribute attr : CharacterAttribute.values()) {
                 Rectangle plusBtn = plusButtons.get(attr);
@@ -354,9 +384,7 @@ public class CharacterAttributeScreen implements Screen {
     }
     
     private int getMoneyRemaining() {
-        int totalPointsSpent = (FREE_DISTRIBUTABLE_POINTS + moneyBudget / MONEY_PER_POINT) - pointsRemaining;
-        int moneyPointsSpent = Math.max(0, totalPointsSpent - FREE_DISTRIBUTABLE_POINTS);
-        return moneyBudget - moneyPointsSpent * MONEY_PER_POINT;
+        return moneyBudget;
     }
 
     private void createCharacter() {
