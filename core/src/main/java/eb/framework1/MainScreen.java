@@ -311,9 +311,9 @@ public class MainScreen implements Screen {
     }
     
     private int getVisibleCellsY() {
-        // Vertical visible cells - use full height available
+        // Vertical visible cells - subtract ruler width and gap from available height
         float cellSize = getCellSize();
-        return (int)(mapAreaHeight / cellSize);
+        return (int)((mapAreaHeight - RULER_WIDTH - RULER_GAP) / cellSize);
     }
     
     private void clampMapOffset() {
