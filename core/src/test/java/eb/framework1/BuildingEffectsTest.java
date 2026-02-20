@@ -112,4 +112,34 @@ public class BuildingEffectsTest {
             // Expected
         }
     }
+
+    @Test
+    public void testBuildingStartsUndiscovered() {
+        Building b = createTestBuilding("Fire Station");
+        assertFalse("New building should not be discovered", b.isDiscovered());
+    }
+
+    @Test
+    public void testBuildingDiscoverSetsFlag() {
+        Building b = createTestBuilding("Fire Station");
+        assertFalse(b.isDiscovered());
+        b.discover();
+        assertTrue("Building should be discovered after discover()", b.isDiscovered());
+    }
+
+    @Test
+    public void testBuildingDiscoverIsIdempotent() {
+        Building b = createTestBuilding("Fire Station");
+        b.discover();
+        b.discover();
+        assertTrue("Building should remain discovered", b.isDiscovered());
+    }
+
+    @Test
+    public void testBuildingToStringIncludesDiscovered() {
+        Building b = createTestBuilding("Fire Station");
+        assertTrue("toString should include discovered=false", b.toString().contains("discovered=false"));
+        b.discover();
+        assertTrue("toString should include discovered=true", b.toString().contains("discovered=true"));
+    }
 }

@@ -767,47 +767,53 @@ public class MainScreen implements Screen {
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 
-                // Draw "Building:" label in bright green, then value in white
-                String buildingModStr = formatAttributeModifiers(building.getAttributeModifiers());
-                String buildingDisplay = building.getName();
-                if (!buildingModStr.isEmpty()) {
-                    buildingDisplay += " " + buildingModStr;
-                }
-                textY = drawLabelValue(batch, font, "Building: ", buildingDisplay, textX, textY);
-                textY -= fontLineHeight;
-                
-                if (building.getDefinition() != null) {
-                    // Draw "Category:" label in bright green, then value in white
-                    textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
-                    textY -= fontLineHeight;
-                    
-                    // Draw "Floors:" label in bright green, then value in white
-                    textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
-                    textY -= fontLineHeight;
-                }
-                
-                // Show improvements (only if there's space)
-                if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
-                    // Draw "Improvements:" label in bright green (no value)
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Improvements:", textX, textY);
-                    font.setColor(Color.WHITE);
-                    textY -= fontLineHeight;
-                    
-                    for (Improvement imp : building.getImprovements()) {
-                        if (textY < smallFontLineHeight * 2) break; // Stop before footer area
-                        if (imp.isDiscovered()) {
-                            String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
-                            String display = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")";
-                            if (!modStr.isEmpty()) {
-                                display += " " + modStr;
-                            }
-                            smallFont.draw(batch, display, textX, textY);
-                        } else {
-                            smallFont.draw(batch, "  - ???", textX, textY);
-                        }
-                        textY -= smallFontLineHeight;
+                if (building.isDiscovered()) {
+                    // Draw "Building:" label in bright green, then value in white
+                    String buildingModStr = formatAttributeModifiers(building.getAttributeModifiers());
+                    String buildingDisplay = building.getName();
+                    if (!buildingModStr.isEmpty()) {
+                        buildingDisplay += " " + buildingModStr;
                     }
+                    textY = drawLabelValue(batch, font, "Building: ", buildingDisplay, textX, textY);
+                    textY -= fontLineHeight;
+                    
+                    if (building.getDefinition() != null) {
+                        // Draw "Category:" label in bright green, then value in white
+                        textY = drawLabelValue(batch, font, "Category: ", building.getCategory(), textX, textY);
+                        textY -= fontLineHeight;
+                        
+                        // Draw "Floors:" label in bright green, then value in white
+                        textY = drawLabelValue(batch, font, "Floors: ", String.valueOf(building.getFloors()), textX, textY);
+                        textY -= fontLineHeight;
+                    }
+                    
+                    // Show improvements (only if there's space)
+                    if (textY > smallFontLineHeight * 6) { // Need space for footer + improvements
+                        // Draw "Improvements:" label in bright green (no value)
+                        font.setColor(LABEL_COLOR);
+                        font.draw(batch, "Improvements:", textX, textY);
+                        font.setColor(Color.WHITE);
+                        textY -= fontLineHeight;
+                        
+                        for (Improvement imp : building.getImprovements()) {
+                            if (textY < smallFontLineHeight * 2) break; // Stop before footer area
+                            if (imp.isDiscovered()) {
+                                String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
+                                String display = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")";
+                                if (!modStr.isEmpty()) {
+                                    display += " " + modStr;
+                                }
+                                smallFont.draw(batch, display, textX, textY);
+                            } else {
+                                smallFont.draw(batch, "  - ???", textX, textY);
+                            }
+                            textY -= smallFontLineHeight;
+                        }
+                    }
+                } else {
+                    // Building not yet discovered - show placeholder
+                    textY = drawLabelValue(batch, font, "Building: ", "???", textX, textY);
+                    textY -= fontLineHeight;
                 }
             }
         } else {

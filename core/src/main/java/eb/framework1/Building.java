@@ -7,6 +7,7 @@ import java.util.Map;
 
 /**
  * Represents a building in a cell with improvements.
+ * Buildings start undiscovered and are only revealed when the cell is visited by a character.
  * Each building may affect character attributes (from -3 to +3),
  * determined by the building's name via {@link BuildingEffects}.
  */
@@ -18,6 +19,7 @@ public class Building {
     private final BuildingDefinition definition;
     private final int floors;
     private final Map<CharacterAttribute, Integer> attributeModifiers;
+    private boolean discovered;
 
     /**
      * Creates a building with just a name and improvements (legacy constructor).
@@ -42,6 +44,7 @@ public class Building {
         this.definition = definition;
         this.floors = floors;
         this.attributeModifiers = BuildingEffects.getEffects(this.name);
+        this.discovered = false;
     }
 
     public String getName() {
@@ -79,6 +82,22 @@ public class Building {
     }
 
     /**
+     * Whether this building has been discovered by a visiting character.
+     *
+     * @return true if discovered, false otherwise
+     */
+    public boolean isDiscovered() {
+        return discovered;
+    }
+
+    /**
+     * Marks this building as discovered. Called when a character visits the cell.
+     */
+    public void discover() {
+        this.discovered = true;
+    }
+
+    /**
      * Gets the attribute modifiers for this building.
      * Each entry maps a character attribute to a modifier value from -3 to +3.
      * Only non-zero modifiers are included.
@@ -93,6 +112,7 @@ public class Building {
     public String toString() {
         return "Building{name='" + name + "', floors=" + floors + 
                ", category=" + (definition != null ? definition.getCategory() : "unknown") +
+               ", discovered=" + discovered +
                ", improvements=" + improvements +
                ", modifiers=" + attributeModifiers + "}";
     }
