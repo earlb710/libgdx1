@@ -60,9 +60,23 @@ public class MainScreen implements Screen {
     private static final float MIN_INFO_PANEL_RATIO = 0.15f;     // Minimum 15% of screen
     private static final float MAX_INFO_PANEL_RATIO = 0.50f;     // Maximum 50% of screen
     
-    // Selected cell
+    // Selected cell (the "view cursor" – shows info and yellow highlight)
     private int selectedCellX = -1;
     private int selectedCellY = -1;
+
+    // Character's actual position (portrait drawn here; only moves on "Move to")
+    private int charCellX = -1;
+    private int charCellY = -1;
+
+    // Current fastest route from charCell to selectedCell
+    private CityMap.RouteResult currentRoute = null;
+
+    // "Move to" button bounds in screen coords (moveToButtonW==0 means button not shown)
+    private float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
+
+    // Info-area touch tracking (separate from map drag tracking)
+    private boolean infoAreaPressed = false;
+    private float infoTouchStartX, infoTouchStartY;
     
     // Cursor hover position (cell coordinates, -1 if not over map)
     private int cursorCellX = -1;
@@ -107,6 +121,8 @@ public class MainScreen implements Screen {
     private static final Color INFO_BG_COLOR = new Color(0.15f, 0.15f, 0.2f, 1f);
     private static final Color INFO_BORDER_COLOR = new Color(0.4f, 0.4f, 0.5f, 1f);
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
+    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f, 0.8f, 1f, 1f); // Cyan path
+    private static final Color MOVE_TO_BUTTON_COLOR = new Color(0.1f, 0.5f, 0.15f, 1f); // Green button
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
     private static final int INFO_BAR_HEIGHT = 70;    // Height of the top info bar (date + money)
@@ -156,6 +172,8 @@ public class MainScreen implements Screen {
             Cell startCell = buildingCells.get(rand.nextInt(buildingCells.size()));
             selectedCellX = startCell.getX();
             selectedCellY = startCell.getY();
+            charCellX = selectedCellX;
+            charCellY = selectedCellY;
             Gdx.app.log("MainScreen", "Character starting location: " + selectedCellX + "," + selectedCellY);
         }
         
@@ -205,21 +223,36 @@ public class MainScreen implements Screen {
                     dragStartY = screenY;
                     dragStartOffsetX = mapOffsetX;
                     dragStartOffsetY = mapOffsetY;
+                    infoAreaPressed = false;
                     return true;
                 }
-                return false;
+                // Info area touch (for "Move to" button)
+                infoAreaPressed = true;
+                infoTouchStartX = screenX;
+                infoTouchStartY = screenY;
+                isDragging = false;
+                return true;
             }
             
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = screenHeight - screenY;
                 
-                // If it was a tap (not a drag), select a cell
+                // If it was a tap in the map area (not a drag), select a cell
                 if (isDragging && flippedY > infoAreaHeight) {
                     float dragDistance = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (dragDistance < TAP_THRESHOLD_PIXELS) { // Tap, not drag
+                    if (dragDistance < TAP_THRESHOLD_PIXELS) {
                         selectCellAt(screenX, flippedY);
                     }
+                }
+                
+                // Check "Move to" button tap in info area
+                if (infoAreaPressed) {
+                    float tapDistance = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                    if (tapDistance < TAP_THRESHOLD_PIXELS) {
+                        checkMoveToButtonClick(screenX, flippedY);
+                    }
+                    infoAreaPressed = false;
                 }
                 
                 isDragging = false;
@@ -336,6 +369,7 @@ public class MainScreen implements Screen {
         if (cellX >= 0 && cellX < CityMap.MAP_SIZE && cellY >= 0 && cellY < CityMap.MAP_SIZE) {
             selectedCellX = cellX;
             selectedCellY = cellY;
+            recalculateRoute();
             Gdx.app.log("MainScreen", "Selected cell: " + cellX + "," + cellY);
         }
     }
@@ -372,7 +406,54 @@ public class MainScreen implements Screen {
         mapOffsetX = MathUtils.clamp(mapOffsetX, 0, Math.max(0, maxOffsetX));
         mapOffsetY = MathUtils.clamp(mapOffsetY, 0, Math.max(0, maxOffsetY));
     }
-    
+
+    /** Recalculates the fastest route from the character's cell to the selected (view) cell. */
+    private void recalculateRoute() {
+        if (selectedCellX < 0 || selectedCellY < 0 || charCellX < 0 || charCellY < 0
+                || (selectedCellX == charCellX && selectedCellY == charCellY)) {
+            currentRoute = null;
+            return;
+        }
+        currentRoute = cityMap.findFastestRoute(charCellX, charCellY, selectedCellX, selectedCellY);
+    }
+
+    /** Checks whether the tap at (screenX, flippedY) hit the "Move to" button and handles it. */
+    private void checkMoveToButtonClick(int screenX, int flippedY) {
+        if (moveToButtonW <= 0) return;
+        if (screenX >= moveToButtonX && screenX <= moveToButtonX + moveToButtonW
+                && flippedY >= moveToButtonY && flippedY <= moveToButtonY + moveToButtonH) {
+            handleMoveToClick();
+        }
+    }
+
+    /** Executes the "Move to" action: advance game time, move character, center map. */
+    private void handleMoveToClick() {
+        if (currentRoute == null || !currentRoute.isReachable()) return;
+        if (selectedCellX < 0 || selectedCellY < 0) return;
+
+        int travelMinutes = currentRoute.totalMinutes;
+
+        // Advance in-game clock
+        profile.advanceGameTime(travelMinutes);
+
+        // Move character to the selected cell
+        charCellX = selectedCellX;
+        charCellY = selectedCellY;
+
+        // Clear route (char is now at selected cell)
+        currentRoute = null;
+
+        // Center map on new position
+        int visibleCellsX = getVisibleCellsX();
+        int visibleCellsY = getVisibleCellsY();
+        mapOffsetX = charCellX - visibleCellsX / 2.0f;
+        mapOffsetY = charCellY - visibleCellsY / 2.0f;
+        clampMapOffset();
+
+        Gdx.app.log("MainScreen", "Moved to: " + charCellX + "," + charCellY
+                + ", time advanced by " + travelMinutes + " min");
+    }
+
     @Override
     public void render(float delta) {
         if (!initialized) {
@@ -499,6 +580,22 @@ public class MainScreen implements Screen {
         
         shapeRenderer.end();
         
+        // Draw route path highlight (cyan borders on each path cell)
+        if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
+            for (int[] pathCell : currentRoute.path) {
+                int cx = pathCell[0], cy = pathCell[1];
+                if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
+                    float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                    shapeRenderer.rect(drawX + 2, drawY + 2, cellSize - 4, cellSize - 4);
+                    shapeRenderer.rect(drawX + 3, drawY + 3, cellSize - 6, cellSize - 6);
+                }
+            }
+            shapeRenderer.end();
+        }
+        
         // Draw building icons on cells (with inverted Y)
         batch.begin();
         for (int cx = startCellX; cx < endCellX; cx++) {
@@ -529,12 +626,12 @@ public class MainScreen implements Screen {
             }
         }
         
-        // Draw character portrait icon in the lower-right of the selected cell
-        if (characterIconTexture != null && selectedCellX >= 0 && selectedCellY >= 0) {
-            if (selectedCellX >= startCellX && selectedCellX < endCellX &&
-                selectedCellY >= startCellY && selectedCellY < endCellY) {
-                float drawX = mapStartX + (selectedCellX - startCellX - fracOffsetX) * cellSize;
-                float drawY = mapStartY + (visibleCellsY - 1 - (selectedCellY - startCellY - fracOffsetY)) * cellSize;
+        // Draw character portrait icon in the lower-right of the character's current cell
+        if (characterIconTexture != null && charCellX >= 0 && charCellY >= 0) {
+            if (charCellX >= startCellX && charCellX < endCellX &&
+                charCellY >= startCellY && charCellY < endCellY) {
+                float drawX = mapStartX + (charCellX - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (charCellY - startCellY - fracOffsetY)) * cellSize;
                 float portraitSize = cellSize * 0.4f;
                 float portraitX = drawX + cellSize - portraitSize - borderSize;
                 float portraitY = drawY + borderSize;
@@ -786,19 +883,42 @@ public class MainScreen implements Screen {
     }
     
     private void drawInfoBlock() {
-        // Draw info area background
+        // Determine "Move to" button visibility
+        boolean showMoveToButton = selectedCellX >= 0 && selectedCellY >= 0
+                && (selectedCellX != charCellX || selectedCellY != charCellY);
+        boolean canMove = showMoveToButton && currentRoute != null && currentRoute.isReachable();
+
+        final float BUTTON_H = 36f;
+        final float BUTTON_W = 120f;
+        final float BUTTON_PAD = 6f;
+        float btnX = 20f;
+        float btnY = infoAreaHeight - BUTTON_PAD - BUTTON_H;
+
+        // Store button bounds for click detection (W=0 means no button)
+        moveToButtonX = btnX;
+        moveToButtonY = btnY;
+        moveToButtonW = showMoveToButton ? BUTTON_W : 0f;
+        moveToButtonH = BUTTON_H;
+
+        // --- Shape rendering pass (background + button background + border) ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(INFO_BG_COLOR);
         shapeRenderer.rect(0, 0, screenWidth, infoAreaHeight);
+        if (showMoveToButton) {
+            shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
+            shapeRenderer.rect(btnX, btnY, BUTTON_W, BUTTON_H);
+        }
         shapeRenderer.end();
-        
-        // Draw border at top of info area
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, infoAreaHeight, screenWidth, infoAreaHeight);
+        if (showMoveToButton) {
+            shapeRenderer.rect(btnX, btnY, BUTTON_W, BUTTON_H);
+        }
         shapeRenderer.end();
-        
-        // Draw info text
+
+        // --- Batch text rendering pass ---
         batch.begin();
         
         // Calculate proper line heights based on actual font metrics
@@ -809,7 +929,27 @@ public class MainScreen implements Screen {
         float smallFontLineHeight = glyphLayout.height * 1.4f;
         
         float textX = 20;
-        float textY = infoAreaHeight - fontLineHeight; // Start one line height from top
+
+        // Draw "Move to" button label and travel time
+        if (showMoveToButton) {
+            glyphLayout.setText(font, "Move to");
+            float btnTextX = btnX + (BUTTON_W - glyphLayout.width) / 2;
+            float btnTextY = btnY + (BUTTON_H + glyphLayout.height) / 2;
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Move to", btnTextX, btnTextY);
+
+            String timeStr = canMove ? currentRoute.formatTime() : "Unreachable";
+            glyphLayout.setText(smallFont, timeStr);
+            smallFont.setColor(canMove ? Color.WHITE : Color.RED);
+            smallFont.draw(batch, timeStr, btnX + BUTTON_W + 10f,
+                    btnY + (BUTTON_H + glyphLayout.height) / 2);
+            smallFont.setColor(Color.WHITE);
+        }
+
+        // Info text starts below the button (if shown)
+        float textY = showMoveToButton
+                ? btnY - BUTTON_PAD - fontLineHeight
+                : infoAreaHeight - fontLineHeight;
         
         // Show selected cell info (no title heading)
         if (selectedCellX >= 0 && selectedCellY >= 0) {
