@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -27,6 +28,17 @@ public class ProfileCreationScreen implements Screen {
     private StringBuilder characterNameInput;
     private int selectedGender; // 0 = Male, 1 = Female
     private int selectedDifficulty; // 0 = Easy, 1 = Normal, 2 = Hard
+    private int selectedIconIndex; // 0 = first icon, 1 = second icon
+    
+    // Character icon textures
+    private Texture man1Texture;
+    private Texture man2Texture;
+    private Texture woman1Texture;
+    private Texture woman2Texture;
+    private Rectangle icon1Button;
+    private Rectangle icon2Button;
+    private static final int ICON_SIZE = 128;
+    private static final int ICON_BORDER = 4;
     
     private boolean cursorVisible;
     private float cursorTimer;
@@ -56,6 +68,7 @@ public class ProfileCreationScreen implements Screen {
         this.characterNameInput = new StringBuilder();
         this.selectedGender = 0;
         this.selectedDifficulty = 1; // Default to Normal
+        this.selectedIconIndex = 0; // Default to first icon
         this.cursorVisible = true;
         this.cursorTimer = 0;
         Gdx.app.log("ProfileCreationScreen", "Constructor completed successfully");
@@ -91,6 +104,17 @@ public class ProfileCreationScreen implements Screen {
             createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
             
+            // Load character icon textures
+            Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
+            man1Texture = new Texture("character/man1.png");
+            man2Texture = new Texture("character/man2.png");
+            woman1Texture = new Texture("character/woman1.png");
+            woman2Texture = new Texture("character/woman2.png");
+            man1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            man2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            woman1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            woman2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            
             // Calculate button positions relative to labels for proper layout hierarchy
             // Using the same startY as in render() for consistency
             int startY = Gdx.graphics.getHeight() - 200;
@@ -107,6 +131,12 @@ public class ProfileCreationScreen implements Screen {
             int genderButtonY = startY - 500 - 100;
             genderMaleButton = new Rectangle(buttonStartX, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            
+            // Character icon buttons - positioned to the right of gender buttons
+            int iconStartX = buttonStartX + SMALL_BUTTON_WIDTH + 40;
+            int iconY = genderButtonY - 20; // Align vertically with gender buttons area
+            icon1Button = new Rectangle(iconStartX, iconY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            icon2Button = new Rectangle(iconStartX + ICON_SIZE + 20, iconY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
             
             // Difficulty buttons - positioned BELOW "Difficulty:" label
             // Difficulty label is at startY - 820
@@ -232,10 +262,16 @@ public class ProfileCreationScreen implements Screen {
         // Gender label - positioned relative to gender buttons
         labelFont.draw(batch, "Gender:", 20, startY - 500);  // Increased spacing
         
+        // Character icon label
+        labelFont.draw(batch, "Character:", 20, startY - 680);
+        
         // Difficulty label - positioned relative to difficulty buttons
         labelFont.draw(batch, "Difficulty:", 20, startY - 820);  // Increased spacing
         
         batch.end();
+        
+        // Draw character icons
+        drawCharacterIcons();
         
         // Draw buttons
         drawButtons();
@@ -257,6 +293,51 @@ public class ProfileCreationScreen implements Screen {
         // Action buttons
         drawButton(createButton, "Create", mouseX, mouseY, false);
         drawButton(cancelButton, "Cancel", mouseX, mouseY, false);
+    }
+    
+    private void drawCharacterIcons() {
+        Texture tex1, tex2;
+        if (selectedGender == 0) {
+            tex1 = man1Texture;
+            tex2 = man2Texture;
+        } else {
+            tex1 = woman1Texture;
+            tex2 = woman2Texture;
+        }
+        
+        int mouseX = Gdx.input.getX();
+        int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+        
+        // Draw selection border for icon 1
+        drawIconBorder(icon1Button, mouseX, mouseY, selectedIconIndex == 0);
+        // Draw selection border for icon 2
+        drawIconBorder(icon2Button, mouseX, mouseY, selectedIconIndex == 1);
+        
+        // Draw the icon textures
+        batch.begin();
+        batch.draw(tex1, icon1Button.x, icon1Button.y, icon1Button.width, icon1Button.height);
+        batch.draw(tex2, icon2Button.x, icon2Button.y, icon2Button.width, icon2Button.height);
+        batch.end();
+    }
+    
+    private void drawIconBorder(Rectangle iconRect, int mouseX, int mouseY, boolean selected) {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (selected) {
+            shapeRenderer.setColor(selectedButtonColor);
+        } else if (iconRect.contains(mouseX, mouseY)) {
+            shapeRenderer.setColor(buttonHoverColor);
+        } else {
+            shapeRenderer.setColor(buttonColor);
+        }
+        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER, 
+                          iconRect.width + ICON_BORDER * 2, iconRect.height + ICON_BORDER * 2);
+        shapeRenderer.end();
+        
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(selected ? Color.YELLOW : Color.WHITE);
+        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER, 
+                          iconRect.width + ICON_BORDER * 2, iconRect.height + ICON_BORDER * 2);
+        shapeRenderer.end();
     }
     
     private void drawButton(Rectangle button, String text, int mouseX, int mouseY, boolean selected) {
@@ -299,9 +380,19 @@ public class ProfileCreationScreen implements Screen {
             int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
             
             if (genderMaleButton.contains(mouseX, mouseY)) {
-                selectedGender = 0;
+                if (selectedGender != 0) {
+                    selectedGender = 0;
+                    selectedIconIndex = 0; // Reset icon selection when gender changes
+                }
             } else if (genderFemaleButton.contains(mouseX, mouseY)) {
-                selectedGender = 1;
+                if (selectedGender != 1) {
+                    selectedGender = 1;
+                    selectedIconIndex = 0; // Reset icon selection when gender changes
+                }
+            } else if (icon1Button.contains(mouseX, mouseY)) {
+                selectedIconIndex = 0;
+            } else if (icon2Button.contains(mouseX, mouseY)) {
+                selectedIconIndex = 1;
             } else if (diffEasyButton.contains(mouseX, mouseY)) {
                 selectedDifficulty = 0;
             } else if (diffNormalButton.contains(mouseX, mouseY)) {
@@ -336,11 +427,19 @@ public class ProfileCreationScreen implements Screen {
         String difficulty = selectedDifficulty == 0 ? "Easy" : 
                           (selectedDifficulty == 1 ? "Normal" : "Hard");
         
+        // Determine selected character icon name
+        String characterIcon;
+        if (selectedGender == 0) {
+            characterIcon = selectedIconIndex == 0 ? "man1" : "man2";
+        } else {
+            characterIcon = selectedIconIndex == 0 ? "woman1" : "woman2";
+        }
+        
         try {
             // Stop rendering before transition
             initialized = false;
             // Go to character attribute screen instead of creating profile directly
-            game.setScreen(new CharacterAttributeScreen(game, characterName, gender, difficulty));
+            game.setScreen(new CharacterAttributeScreen(game, characterName, gender, difficulty, characterIcon));
         } catch (Exception e) {
             Gdx.app.error("ProfileCreation", "Error proceeding to attribute screen: " + e.getMessage());
         }
@@ -368,5 +467,9 @@ public class ProfileCreationScreen implements Screen {
         if (batch != null) batch.dispose();
         // Fonts are managed by FontManager, don't dispose them here
         if (shapeRenderer != null) shapeRenderer.dispose();
+        if (man1Texture != null) man1Texture.dispose();
+        if (man2Texture != null) man2Texture.dispose();
+        if (woman1Texture != null) woman1Texture.dispose();
+        if (woman2Texture != null) woman2Texture.dispose();
     }
 }

@@ -56,7 +56,7 @@ public class ProfileManager {
                     int gameDate = (pd.gameDate == 0) ? 2050 : pd.gameDate;
                     long randSeed = (pd.randSeed == 0) ? System.currentTimeMillis() : pd.randSeed;
                     Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
-                        pd.attributes, gameDate, randSeed);
+                        pd.characterIcon, pd.attributes, gameDate, randSeed);
                     profiles.add(profile);
                 }
             }
@@ -88,6 +88,7 @@ public class ProfileManager {
             pd.characterName = profile.getCharacterName();
             pd.gender = profile.getGender();
             pd.difficulty = profile.getDifficulty();
+            pd.characterIcon = profile.getCharacterIcon();
             pd.attributes = profile.getAttributes();
             pd.gameDate = profile.getGameDate();
             pd.randSeed = profile.getRandSeed();
@@ -210,6 +211,7 @@ public class ProfileManager {
         public String characterName;
         public String gender;
         public String difficulty;
+        public String characterIcon;
         public java.util.Map<String, Integer> attributes;
         public int gameDate;
         public long randSeed;
