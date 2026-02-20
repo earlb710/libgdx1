@@ -673,7 +673,7 @@ public class MainScreen implements Screen {
                 String iconPath = rd.getIconPath();
                 if (iconPath != null && !iconTextureCache.containsKey(iconPath)) {
                     try {
-                        Texture tex = new Texture(iconPath);
+                        Texture tex = TextureUtils.makeWhiteTransparent(iconPath);
                         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                         iconTextureCache.put(iconPath, tex);
                     } catch (Exception e) {
