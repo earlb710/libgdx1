@@ -36,11 +36,14 @@ public class CharacterAttributeScreen implements Screen {
     
     // Point allocation
     // 10 distributable points above minimum (11 attributes × 1 min = 11 base points)
-    // Total: 21 points (11 minimum + 10 distributable)
-    private static final int TOTAL_POINTS = 21;
+    // Additionally, starting money gives extra points at $1000 per point
+    private static final int FREE_DISTRIBUTABLE_POINTS = 10;
     private static final int MIN_ATTRIBUTE_VALUE = 1;
     private static final int MAX_ATTRIBUTE_VALUE = 10;
+    private static final int MONEY_PER_POINT = 1000;
+    private static final int STARTING_MONEY = 1000;
     private int pointsRemaining;
+    private int moneyBudget;
     
     // UI Elements
     private Rectangle confirmButton;
@@ -72,8 +75,9 @@ public class CharacterAttributeScreen implements Screen {
             attributeValues.put(attr, MIN_ATTRIBUTE_VALUE);
         }
         
-        // Calculate initial points remaining
-        this.pointsRemaining = TOTAL_POINTS - (CharacterAttribute.values().length * MIN_ATTRIBUTE_VALUE);
+        // Calculate initial points remaining (free points + points from starting money)
+        this.moneyBudget = STARTING_MONEY;
+        this.pointsRemaining = FREE_DISTRIBUTABLE_POINTS + moneyBudget / MONEY_PER_POINT;
         
         this.plusButtons = new HashMap<>();
         this.minusButtons = new HashMap<>();
@@ -160,12 +164,21 @@ public class CharacterAttributeScreen implements Screen {
         }
         subtitleFont.draw(batch, pointsText, pointsX, pointsY);
         subtitleFont.setColor(Color.WHITE);
+
+        // Money remaining
+        String moneyText = "Money: $" + getMoneyRemaining();
+        glyphLayout.setText(subtitleFont, moneyText);
+        float moneyX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
+        float moneyY = pointsY - 60;
+        subtitleFont.setColor(Color.YELLOW);
+        subtitleFont.draw(batch, moneyText, moneyX, moneyY);
+        subtitleFont.setColor(Color.WHITE);
         
         batch.end();
     }
     
     private void drawAttributes() {
-        float startY = Gdx.graphics.getHeight() - 450;  // More space from top
+        float startY = Gdx.graphics.getHeight() - 520;  // Shifted down 70px to accommodate money display line above
         float currentY = startY;
         float leftMargin = 50;
         float attributeHeight = 90;  // Increased from 70 to 90 for better spacing
@@ -267,7 +280,7 @@ public class CharacterAttributeScreen implements Screen {
         int mouseX = Gdx.input.getX();
         int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
-        drawButton(confirmButton, "Confirm", mouseX, mouseY, pointsRemaining == 0);
+        drawButton(confirmButton, "Confirm", mouseX, mouseY, true);
         drawButton(backButton, "Back", mouseX, mouseY, true);
     }
     
@@ -328,7 +341,7 @@ public class CharacterAttributeScreen implements Screen {
             }
             
             // Check Confirm button
-            if (confirmButton.contains(mouseX, mouseY) && pointsRemaining == 0) {
+            if (confirmButton.contains(mouseX, mouseY)) {
                 createCharacter();
             }
             
@@ -340,6 +353,12 @@ public class CharacterAttributeScreen implements Screen {
         }
     }
     
+    private int getMoneyRemaining() {
+        int totalPointsSpent = (FREE_DISTRIBUTABLE_POINTS + moneyBudget / MONEY_PER_POINT) - pointsRemaining;
+        int moneyPointsSpent = Math.max(0, totalPointsSpent - FREE_DISTRIBUTABLE_POINTS);
+        return moneyBudget - moneyPointsSpent * MONEY_PER_POINT;
+    }
+
     private void createCharacter() {
         try {
             // Convert CharacterAttribute enum to String keys for Profile
@@ -352,6 +371,7 @@ public class CharacterAttributeScreen implements Screen {
             int startingDate = 2050;
             long randomSeed = System.currentTimeMillis();
             Profile profile = new Profile(characterName, gender, difficulty, characterIcon, attributeMap, startingDate, randomSeed);
+            profile.setMoney(getMoneyRemaining());
             game.getProfileManager().addProfile(profile);
             game.getProfileManager().selectProfile(profile);
             
