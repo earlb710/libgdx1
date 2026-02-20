@@ -74,7 +74,7 @@ public class MainScreen implements Screen {
     private float dragStartOffsetX, dragStartOffsetY;
     
     // Ruler constants
-    private static final float RULER_WIDTH = 30f;  // Width of ruler strip
+    private static final float RULER_WIDTH = 45f;  // Width of ruler strip
     private static final float RULER_GAP = 1f;     // Gap between rulers and map
     private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
     private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
@@ -109,7 +109,7 @@ public class MainScreen implements Screen {
     private static final Color SELECTION_COLOR = new Color(1f, 1f, 0f, 1f);
     private static final Color LABEL_COLOR = new Color(0f, 1f, 0f, 1f); // Bright green for all labels
     private static final int SELECTION_THICKNESS = 5; // Thickness of selection border in pixels
-    private static final int INFO_BAR_HEIGHT = 30;    // Height of the top info bar (date + money)
+    private static final int INFO_BAR_HEIGHT = 50;    // Height of the top info bar (date + money)
     
     // Floor-based brightness constants
     private static final float MIN_BRIGHTNESS = 0.55f; // Brightness for 1-floor buildings
