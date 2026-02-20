@@ -23,7 +23,7 @@ import java.util.Random;
  */
 public class RoadAccessMap {
 
-    private static final double ROAD_REMOVAL_PERCENTAGE = 0.30;
+    static final double ROAD_REMOVAL_PERCENTAGE = 0.30;
 
     /**
      * Represents the four cardinal directions.

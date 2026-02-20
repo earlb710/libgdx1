@@ -270,10 +270,12 @@ public class RoadAccessMapTest {
         int remainingRoads = accessMap.countRoads();
 
         int removed = initialRoads - remainingRoads;
-        int expectedRemoved = (int) Math.round(initialRoads * 0.30);
+        int expectedRemoved = (int) Math.round(initialRoads * RoadAccessMap.ROAD_REMOVAL_PERCENTAGE);
 
         assertTrue("Should remove some roads (removed " + removed + " of " + initialRoads + ")",
                    removed > 0);
+        assertTrue("Should remove close to target (removed " + removed + ", target " + expectedRemoved + ")",
+                   removed >= expectedRemoved * 0.8);
         assertTrue("Should not remove more than target (removed " + removed + ", target " + expectedRemoved + ")",
                    removed <= expectedRemoved);
     }
