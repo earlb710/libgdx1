@@ -639,6 +639,28 @@ public class MainScreen implements Screen {
         return textY;
     }
     
+    /**
+     * Formats attribute modifiers as a compact string, e.g. "[INT+2 PER-1]".
+     */
+    private String formatAttributeModifiers(Map<CharacterAttribute, Integer> modifiers) {
+        if (modifiers == null || modifiers.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder("[");
+        boolean first = true;
+        for (Map.Entry<CharacterAttribute, Integer> entry : modifiers.entrySet()) {
+            if (!first) sb.append(' ');
+            first = false;
+            String abbrev = entry.getKey().getDisplayName().substring(0, 3).toUpperCase();
+            int val = entry.getValue();
+            sb.append(abbrev);
+            if (val > 0) sb.append('+');
+            sb.append(val);
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+    
     private void drawInfoBlock() {
         // Draw info area background
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -705,7 +727,12 @@ public class MainScreen implements Screen {
                     for (Improvement imp : building.getImprovements()) {
                         if (textY < smallFontLineHeight * 2) break; // Stop before footer area
                         if (imp.isDiscovered()) {
-                            smallFont.draw(batch, "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")", textX, textY);
+                            String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
+                            String display = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")";
+                            if (!modStr.isEmpty()) {
+                                display += " " + modStr;
+                            }
+                            smallFont.draw(batch, display, textX, textY);
                         } else {
                             smallFont.draw(batch, "  - ???", textX, textY);
                         }
