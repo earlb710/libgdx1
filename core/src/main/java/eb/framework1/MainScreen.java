@@ -15,8 +15,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Main game screen displaying the city map and info panel.
@@ -133,6 +136,24 @@ public class MainScreen implements Screen {
         this.cityMap = new CityMap(profile, gameData);
         
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
+        
+        // Choose a random building cell as the character's starting location
+        List<Cell> buildingCells = new ArrayList<>();
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = cityMap.getCell(x, y);
+                if (cell.getTerrainType() == TerrainType.BUILDING) {
+                    buildingCells.add(cell);
+                }
+            }
+        }
+        if (!buildingCells.isEmpty()) {
+            Random rand = new Random(profile.getRandSeed());
+            Cell startCell = buildingCells.get(rand.nextInt(buildingCells.size()));
+            selectedCellX = startCell.getX();
+            selectedCellY = startCell.getY();
+            Gdx.app.log("MainScreen", "Character starting location: " + selectedCellX + "," + selectedCellY);
+        }
         
         // Initialize category color cache to avoid allocations during render
         initColorCache(gameData);

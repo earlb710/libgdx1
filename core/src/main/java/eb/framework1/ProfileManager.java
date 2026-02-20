@@ -55,8 +55,13 @@ public class ProfileManager {
                     // Handle backwards compatibility - set defaults if not present
                     int gameDate = (pd.gameDate == 0) ? 2050 : pd.gameDate;
                     long randSeed = (pd.randSeed == 0) ? System.currentTimeMillis() : pd.randSeed;
+                    // Default portrait icon based on gender for old profiles
+                    String icon = pd.characterIcon;
+                    if (icon == null || icon.isEmpty()) {
+                        icon = "Female".equalsIgnoreCase(pd.gender) ? "woman1" : "man1";
+                    }
                     Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
-                        pd.characterIcon, pd.attributes, gameDate, randSeed);
+                        icon, pd.attributes, gameDate, randSeed);
                     profiles.add(profile);
                 }
             }
