@@ -167,7 +167,7 @@ public class MainScreen implements Screen {
         // Load character portrait icon texture
         String iconName = profile.getCharacterIcon();
         if (iconName != null && !iconName.isEmpty()) {
-            characterIconTexture = new Texture("character/" + iconName + ".png");
+            characterIconTexture = TextureUtils.makeNegative("character/" + iconName + ".png");
             characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
         

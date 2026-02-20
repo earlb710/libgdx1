@@ -69,7 +69,7 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Load character icon texture if available
             String iconName = profile.getCharacterIcon();
             if (iconName != null && !iconName.isEmpty()) {
-                characterIconTexture = new Texture("character/" + iconName + ".png");
+                characterIconTexture = TextureUtils.makeNegative("character/" + iconName + ".png");
                 characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             }
             
@@ -145,6 +145,7 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.WHITE);
         if (characterIconTexture != null) {
             int iconDisplaySize = 64;
+            batch.setColor(Color.WHITE);
             batch.draw(characterIconTexture, centerX + 50, currentY - iconDisplaySize + 10, iconDisplaySize, iconDisplaySize);
         }
         
