@@ -70,7 +70,7 @@ public class MainScreen implements Screen {
     private float dragStartOffsetX, dragStartOffsetY;
     
     // Ruler constants
-    private static final float RULER_WIDTH = 27f;  // Width of ruler strip
+    private static final float RULER_WIDTH = 30f;  // Width of ruler strip
     private static final float RULER_GAP = 1f;     // Gap between rulers and map
     private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
     private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
