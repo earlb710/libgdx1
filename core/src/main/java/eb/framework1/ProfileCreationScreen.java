@@ -138,6 +138,7 @@ public class ProfileCreationScreen implements Screen {
             icon2Button = new Rectangle(buttonStartX + ICON_SIZE + 20, iconTopY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
             
             // Difficulty buttons - positioned BELOW portrait icons and "Difficulty:" label
+            // "Difficulty:" label is at startY - 980, buttons start 100px below
             int diffButtonY = startY - 980 - 100;
             diffEasyButton = new Rectangle(buttonStartX, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
             diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
