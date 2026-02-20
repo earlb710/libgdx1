@@ -580,10 +580,13 @@ public class MainScreen implements Screen {
         
         shapeRenderer.end();
         
-        // Draw route path highlight (cyan borders on each path cell)
-        // The highlight rectangle inset is half the road border width.
+        // Draw route path highlight (cyan borders on each path cell).
+        // Border thickness matches the road border width (borderSize).
+        // Achieved by drawing borderSize concentric Line rects, so the visual
+        // thickness equals that of a road gap at the current zoom level.
         if (currentRoute != null && currentRoute.isReachable() && currentRoute.path != null) {
-            float routeInset = borderSize * 0.5f;
+            float routeInset = borderSize; // outer edge sits one road-width in from the cell edge
+            int routeThickness = Math.max(1, Math.round(borderSize));
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
             for (int[] pathCell : currentRoute.path) {
@@ -591,8 +594,11 @@ public class MainScreen implements Screen {
                 if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    shapeRenderer.rect(drawX + routeInset, drawY + routeInset,
-                            cellSize - 2 * routeInset, cellSize - 2 * routeInset);
+                    for (int i = 0; i < routeThickness; i++) {
+                        float ri = routeInset + i;
+                        shapeRenderer.rect(drawX + ri, drawY + ri,
+                                cellSize - 2 * ri, cellSize - 2 * ri);
+                    }
                 }
             }
             shapeRenderer.end();
@@ -890,9 +896,14 @@ public class MainScreen implements Screen {
                 && (selectedCellX != charCellX || selectedCellY != charCellY);
         boolean canMove = showMoveToButton && currentRoute != null && currentRoute.isReachable();
 
-        final float BUTTON_H = 36f;
-        final float BUTTON_W = 200f;
-        final float BUTTON_PAD = 14f;
+        // Size the button to fit the font text with generous padding.
+        // GlyphLayout.setText() is safe to call without an active batch.
+        glyphLayout.setText(font, "Move to");
+        final float BUTTON_PAD_X = 24f; // horizontal padding (each side)
+        final float BUTTON_PAD_Y = 10f; // vertical padding (each side)
+        final float BUTTON_W = glyphLayout.width  + BUTTON_PAD_X * 2;
+        final float BUTTON_H = glyphLayout.height + BUTTON_PAD_Y * 2;
+        final float BUTTON_PAD = 14f;   // gap between info-panel top and button
         float btnX = 20f;
         float btnY = infoAreaHeight - BUTTON_PAD - BUTTON_H;
 
@@ -916,7 +927,9 @@ public class MainScreen implements Screen {
         shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, infoAreaHeight, screenWidth, infoAreaHeight);
         if (showMoveToButton) {
-            shapeRenderer.rect(btnX, btnY, BUTTON_W, BUTTON_H);
+            // Draw a 2-pixel-thick outline (two nested Line rects)
+            shapeRenderer.rect(btnX,     btnY,     BUTTON_W,     BUTTON_H);
+            shapeRenderer.rect(btnX + 1, btnY + 1, BUTTON_W - 2, BUTTON_H - 2);
         }
         shapeRenderer.end();
 
