@@ -42,8 +42,8 @@ public class MainScreen implements Screen {
     // Map view parameters
     private float mapOffsetX = 0;  // Pan offset in cells
     private float mapOffsetY = 0;
-    private float zoomLevel = 1.5f; // 1.0 = full map, higher = more zoom
-    private float lastZoomLevel = 1.5f; // For caching zoom text
+    private float zoomLevel = 2.0f; // 1.0 = full map, higher = more zoom
+    private float lastZoomLevel = 2.0f; // For caching zoom text
     private String cachedZoomText = "Zoom: 1.0x";
     
     // Tuning constants
@@ -70,7 +70,7 @@ public class MainScreen implements Screen {
     private float dragStartOffsetX, dragStartOffsetY;
     
     // Ruler constants
-    private static final float RULER_WIDTH = 25f;  // Width of ruler strip
+    private static final float RULER_WIDTH = 27f;  // Width of ruler strip
     private static final float RULER_GAP = 1f;     // Gap between rulers and map
     private static final Color RULER_BG_COLOR = new Color(0.1f, 0.1f, 0.15f, 1f);
     private static final Color RULER_MARKER_COLOR = new Color(1f, 0.5f, 0f, 1f); // Orange marker
@@ -507,7 +507,7 @@ public class MainScreen implements Screen {
         shapeRenderer.rect(0, mapStartY, RULER_WIDTH, cellSize * visibleCellsY);
         
         // Top horizontal ruler background (at top of map area with gap)
-        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP - 2; // Move down 2 pixels to prevent top cutoff
+        float topRulerY = mapStartY + cellSize * visibleCellsY + RULER_GAP; // Positioned flush at top of map area
         shapeRenderer.rect(mapStartX, topRulerY, cellSize * visibleCellsX, RULER_WIDTH);
         
         // Draw cursor markers on rulers (if cursor is over map) - with inverted Y
