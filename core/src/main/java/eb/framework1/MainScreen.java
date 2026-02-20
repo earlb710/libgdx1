@@ -677,7 +677,7 @@ public class MainScreen implements Screen {
                         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                         iconTextureCache.put(iconPath, tex);
                     } catch (Exception e) {
-                        Gdx.app.log("MainScreen", "Could not load icon: " + iconPath);
+                        Gdx.app.log("MainScreen", "Could not load icon: " + iconPath + " - " + e.getMessage());
                     }
                 }
             }
