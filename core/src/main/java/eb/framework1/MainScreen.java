@@ -515,7 +515,6 @@ public class MainScreen implements Screen {
                 batch.draw(iconTex, iconX, iconY, iconSize, iconSize);
             }
         }
-        batch.end();
         
         // Draw character portrait icon in the lower-right of the selected cell
         if (characterIconTexture != null && selectedCellX >= 0 && selectedCellY >= 0) {
@@ -526,12 +525,12 @@ public class MainScreen implements Screen {
                 float portraitSize = cellSize * 0.4f;
                 float portraitX = drawX + cellSize - portraitSize - borderSize;
                 float portraitY = drawY + borderSize;
-                batch.begin();
                 batch.setColor(Color.WHITE);
                 batch.draw(characterIconTexture, portraitX, portraitY, portraitSize, portraitSize);
-                batch.end();
             }
         }
+        
+        batch.end();
         
         // Draw selection highlight (with inverted Y)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
