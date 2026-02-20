@@ -917,10 +917,17 @@ public class MainScreen implements Screen {
         glyphLayout.setText(font, "Hg");
         float textY = barY + (INFO_BAR_HEIGHT + glyphLayout.height) / 2;
 
-        // Date/time on the left in white (bold via bodyFont)
-        String dateText = profile.getGameDateTime();
+        // Date/time on the left: date in bright green, time in white
+        String dateTime = profile.getGameDateTime();
+        int spaceIdx = dateTime.indexOf(' ');
+        String datePart = spaceIdx >= 0 ? dateTime.substring(0, spaceIdx) : dateTime;
+        String timePart = spaceIdx >= 0 ? dateTime.substring(spaceIdx) : "";  // includes leading space
+
+        font.setColor(Color.GREEN);
+        font.draw(batch, datePart, 10, textY);
+        glyphLayout.setText(font, datePart);
         font.setColor(Color.WHITE);
-        font.draw(batch, dateText, 10, textY);
+        font.draw(batch, timePart, 10 + glyphLayout.width, textY);
 
         // Money on the right in yellow (bold via bodyFont)
         String moneyText = "$" + profile.getMoney();
