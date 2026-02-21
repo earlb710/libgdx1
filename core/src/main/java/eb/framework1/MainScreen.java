@@ -398,6 +398,7 @@ public class MainScreen implements Screen {
                         checkRestButtonClick(screenX, flippedY);
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
+                        checkHelpButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -618,11 +619,35 @@ public class MainScreen implements Screen {
     }
 
     private void checkUnitExitButtonClick(int screenX, int flippedY) {
-        if (!state.unitInteriorOpen || state.unitExitBtnW <= 0) return;
-        if (screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
+        if (!state.unitInteriorOpen) return;
+        if (state.exitConfirming) {
+            // Yes: confirm exit
+            if (screenX >= state.exitYesBtnX && screenX <= state.exitYesBtnX + state.exitYesBtnW
+                    && flippedY >= state.exitYesBtnY && flippedY <= state.exitYesBtnY + state.exitYesBtnH) {
+                state.unitInteriorOpen = false;
+                state.exitConfirming   = false;
+                Gdx.app.log("MainScreen", "Exited unit (confirmed)");
+            }
+            // No: cancel exit
+            if (screenX >= state.exitNoBtnX && screenX <= state.exitNoBtnX + state.exitNoBtnW
+                    && flippedY >= state.exitNoBtnY && flippedY <= state.exitNoBtnY + state.exitNoBtnH) {
+                state.exitConfirming = false;
+            }
+            return;
+        }
+        // First tap on Exit: ask for confirmation
+        if (state.unitExitBtnW > 0
+                && screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
                 && flippedY >= state.unitExitBtnY && flippedY <= state.unitExitBtnY + state.unitExitBtnH) {
-            state.unitInteriorOpen = false;
-            Gdx.app.log("MainScreen", "Exited unit");
+            state.exitConfirming = true;
+        }
+    }
+
+    private void checkHelpButtonClick(int screenX, int flippedY) {
+        if (state.helpBtnW <= 0) return;
+        if (screenX >= state.helpBtnX && screenX <= state.helpBtnX + state.helpBtnW
+                && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {
+            state.helpVisible = !state.helpVisible;
         }
     }
 

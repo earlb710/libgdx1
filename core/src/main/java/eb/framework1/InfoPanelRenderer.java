@@ -392,17 +392,47 @@ class InfoPanelRenderer {
         smallFont.draw(batch, s.cachedZoomText,
                 s.screenWidth - glyphLayout.width - 20, s.infoAreaHeight - smallLineH);
 
-        // Controls hint (above horizontal scrollbar)
-        String hint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
-        glyphLayout.setText(smallFont, hint);
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, hint,
-                (s.screenWidth - glyphLayout.width) / 2f, SB + smallLineH + 2f);
+        // Controls hint — only visible when "?" is toggled on
+        if (s.helpVisible) {
+            String hint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
+            glyphLayout.setText(smallFont, hint);
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, hint,
+                    (s.screenWidth - glyphLayout.width) / 2f, SB + smallLineH + 2f);
+        }
 
         batch.end();
 
         // Scrollbars drawn after batch.end() to avoid interleaving
         drawScrollbars(s, contentAreaH, contentAreaW, SB);
+
+        // "?" toggle button — lower-right corner of info panel
+        TextMeasurer.TextBounds qb = TextMeasurer.measure(font, glyphLayout, "?", 14f, 8f);
+        s.helpBtnX = s.screenWidth - qb.width - 6f;
+        s.helpBtnY = 6f;
+        s.helpBtnW = qb.width;
+        s.helpBtnH = qb.height;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(s.helpVisible
+                ? new Color(0.1f, 0.35f, 0.1f, 1f)
+                : new Color(0.15f, 0.15f, 0.25f, 1f));
+        shapeRenderer.rect(s.helpBtnX, s.helpBtnY, s.helpBtnW, s.helpBtnH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(s.helpBtnX,     s.helpBtnY,     s.helpBtnW,     s.helpBtnH);
+        shapeRenderer.rect(s.helpBtnX + 1, s.helpBtnY + 1, s.helpBtnW - 2, s.helpBtnH - 2);
+        shapeRenderer.end();
+
+        batch.begin();
+        glyphLayout.setText(font, "?");
+        font.setColor(Color.YELLOW);
+        font.draw(batch, "?",
+                s.helpBtnX + (s.helpBtnW - glyphLayout.width) / 2f,
+                s.helpBtnY + (s.helpBtnH + glyphLayout.height) / 2f);
+        batch.end();
     }
 
     // -------------------------------------------------------------------------

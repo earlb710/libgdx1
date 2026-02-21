@@ -56,6 +56,15 @@ class MapViewState {
     String  unitInteriorLabel = "";
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
 
+    // --- Help toggle (info panel "?" button) ---
+    boolean helpVisible = false;
+    float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
+
+    // --- Exit confirmation (unit interior popup) ---
+    boolean exitConfirming = false;
+    float exitYesBtnX, exitYesBtnY, exitYesBtnW, exitYesBtnH;
+    float exitNoBtnX,  exitNoBtnY,  exitNoBtnW,  exitNoBtnH;
+
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;
     float infoScrollY    = 0f;   // pixels content has scrolled up   (0 = top)
