@@ -131,6 +131,7 @@ class ContextMenu {
         sr.end();
 
         // Item text (items drawn top-to-bottom)
+        batch.setProjectionMatrix(projMatrix);  // ensure same ortho2D as ShapeRenderer
         batch.begin();
         float iy = menuY + menuH;
         for (String item : items) {

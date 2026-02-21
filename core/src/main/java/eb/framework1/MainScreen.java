@@ -60,9 +60,6 @@ public class MainScreen implements Screen {
     private boolean isDragging = false;
     private float   dragStartX, dragStartY;
     private float   dragStartOffsetX, dragStartOffsetY;
-    // Right-click tap detection
-    private float   rightClickStartX, rightClickStartY;
-
     // Context menu (right-click)
     private final ContextMenu      contextMenu        = new ContextMenu();
     private final List<String>     contextMenuItems   = new ArrayList<>();
@@ -254,10 +251,17 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                // Right-click: just record start position; menu shown on touchUp
+                int flippedY = state.screenHeight - screenY;
+
+                // Right-click: show context menu immediately (no tap-threshold needed on desktop)
                 if (button == Input.Buttons.RIGHT) {
-                    rightClickStartX = screenX;
-                    rightClickStartY = screenY;
+                    if (flippedY > state.infoAreaHeight && !lookAroundPopup.isVisible()) {
+                        contextMenu.dismiss();
+                        selectCellAt(screenX, flippedY);
+                        buildContextMenu(screenX, flippedY);
+                        Gdx.app.log("MainScreen", "Right-click menu built at " + screenX + "," + flippedY
+                                + " items=" + contextMenuItems.size());
+                    }
                     return true;
                 }
 
@@ -277,7 +281,6 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                int flippedY = state.screenHeight - screenY;
                 if (flippedY > state.infoAreaHeight) {
                     isDragging       = true;
                     dragStartX       = screenX;
@@ -300,15 +303,8 @@ public class MainScreen implements Screen {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
-                // Right-click: show context menu if it was a tap in the map area
+                // Right-click: menu was already shown on touchDown; nothing to do on release
                 if (button == Input.Buttons.RIGHT) {
-                    float d = Vector2.len(screenX - rightClickStartX, screenY - rightClickStartY);
-                    if (d < TAP_THRESHOLD_PIXELS && flippedY > state.infoAreaHeight
-                            && !lookAroundPopup.isVisible()) {
-                        contextMenu.dismiss();
-                        selectCellAt(screenX, flippedY);
-                        buildContextMenu(screenX, flippedY);
-                    }
                     return true;
                 }
 
