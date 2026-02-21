@@ -197,7 +197,12 @@ class InfoPanelRenderer {
                 if (building.isDiscovered()) {
                     String bMod = formatAttributeModifiers(building.getAttributeModifiers());
                     String bDisplay = building.getName() + (bMod.isEmpty() ? "" : " " + bMod);
-                    textY = drawLabelValue(font, "Building: ", bDisplay, textX, textY);
+                    // Label in body font (green), value in smaller font (white)
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "Building: ", textX, textY);
+                    glyphLayout.setText(font, "Building: ");
+                    smallFont.setColor(Color.WHITE);
+                    smallFont.draw(batch, bDisplay, textX + glyphLayout.width, textY);
                     textY -= fontLineH;
                     if (building.getDefinition() != null) {
                         textY = drawLabelValue(font, "Category: ", building.getCategory(), textX, textY);
@@ -206,10 +211,10 @@ class InfoPanelRenderer {
                         textY -= fontLineH;
                     }
                     if (textY > smallLineH * 6) {
-                        font.setColor(LABEL_COLOR);
-                        font.draw(batch, "Improvements:", textX, textY);
-                        font.setColor(Color.WHITE);
-                        textY -= fontLineH;
+                        // Whole improvements section in smallFont for a clear visual distinction
+                        smallFont.setColor(LABEL_COLOR);
+                        smallFont.draw(batch, "Improvements:", textX, textY);
+                        textY -= smallLineH;
                         for (Improvement imp : building.getImprovements()) {
                             if (textY < smallLineH * 2) break;
                             if (imp.isDiscovered()) {
