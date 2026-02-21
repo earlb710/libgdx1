@@ -110,7 +110,7 @@ public class MainScreen implements Screen {
             }
         }
 
-        // Mark a random small office building as home + owned
+        // Mark a random small office building as home + owned, and use it as the start position
         List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
         if (!homeSrc.isEmpty()) {
             Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
@@ -119,11 +119,14 @@ public class MainScreen implements Screen {
             state.homeCellY = homeCell.getY();
             homeCell.getBuilding().setHome(true);
             homeCell.getBuilding().setOwned(true);
-            homeCell.getBuilding().discover();
-            Gdx.app.log("MainScreen", "Home: " + state.homeCellX + "," + state.homeCellY);
-        }
-
-        if (!buildingCells.isEmpty()) {
+            discoverCell(state.homeCellX, state.homeCellY);
+            state.charCellX     = state.homeCellX;
+            state.charCellY     = state.homeCellY;
+            state.selectedCellX = state.homeCellX;
+            state.selectedCellY = state.homeCellY;
+            Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY);
+        } else if (!buildingCells.isEmpty()) {
+            // Fallback: no home found, use any building cell
             Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
                     .nextInt(buildingCells.size()));
             state.selectedCellX = start.getX();
@@ -295,6 +298,8 @@ public class MainScreen implements Screen {
                     if (d < TAP_THRESHOLD_PIXELS) {
                         checkMoveToButtonClick(screenX, flippedY);
                         checkLookAroundButtonClick(screenX, flippedY);
+                        checkRestButtonClick(screenX, flippedY);
+                        checkSleepButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -417,6 +422,22 @@ public class MainScreen implements Screen {
         }
     }
 
+    private void checkRestButtonClick(int screenX, int flippedY) {
+        if (state.restBtnW <= 0) return;
+        if (screenX >= state.restBtnX && screenX <= state.restBtnX + state.restBtnW
+                && flippedY >= state.restBtnY && flippedY <= state.restBtnY + state.restBtnH) {
+            handleRestClick();
+        }
+    }
+
+    private void checkSleepButtonClick(int screenX, int flippedY) {
+        if (state.sleepBtnW <= 0) return;
+        if (screenX >= state.sleepBtnX && screenX <= state.sleepBtnX + state.sleepBtnW
+                && flippedY >= state.sleepBtnY && flippedY <= state.sleepBtnY + state.sleepBtnH) {
+            handleSleepClick();
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Game logic
     // -------------------------------------------------------------------------
@@ -430,6 +451,32 @@ public class MainScreen implements Screen {
         state.currentRoute = cityMap.findFastestRoute(
                 state.charCellX, state.charCellY,
                 state.selectedCellX, state.selectedCellY);
+    }
+
+    private void handleRestClick() {
+        profile.addStamina(2);
+        profile.advanceGameTime(60);
+        Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina");
+    }
+
+    private void handleSleepClick() {
+        int hour   = profile.getCurrentHour();
+        int minute = profile.getCurrentMinute();
+        int minutesSleep;
+        if (hour >= 20) {
+            // e.g. 22:30 → sleep until 06:00 next day
+            minutesSleep = (24 - hour) * 60 - minute + 6 * 60;
+        } else {
+            // hour < 5 → sleep until 06:00 same day
+            minutesSleep = (6 - hour) * 60 - minute;
+        }
+        if (minutesSleep <= 0) minutesSleep = 1;
+        float hoursSlept  = minutesSleep / 60.0f;
+        float fraction    = Math.min(1.0f, hoursSlept / 8.0f);
+        int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
+        profile.addStamina(staminaGain);
+        profile.advanceGameTime(minutesSleep);
+        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +" + staminaGain + " stamina");
     }
 
     private void handleMoveToClick() {

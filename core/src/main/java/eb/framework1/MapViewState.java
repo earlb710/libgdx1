@@ -45,6 +45,8 @@ class MapViewState {
     // --- Button bounds (written by InfoPanelRenderer, read by MainScreen for hit-testing) ---
     float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
     float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
+    float restBtnX, restBtnY, restBtnW, restBtnH;
+    float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;

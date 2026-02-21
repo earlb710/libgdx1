@@ -39,6 +39,8 @@ class InfoPanelRenderer {
     private static final Color INFO_BORDER_COLOR      = new Color(0.4f,  0.4f,  0.5f,  1f);
     private static final Color MOVE_TO_BUTTON_COLOR   = new Color(0.1f,  0.5f,  0.15f, 1f);
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
+    private static final Color REST_BTN_COLOR          = new Color(0.4f,  0.25f, 0.05f, 1f);
+    private static final Color SLEEP_BTN_COLOR         = new Color(0.08f, 0.08f, 0.45f, 1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
@@ -129,14 +131,20 @@ class InfoPanelRenderer {
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
 
-        boolean showLookAroundButton = !showMoveToButton
+        boolean atCurrentBuilding = !showMoveToButton
                 && s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && s.selectedCellX == s.charCellX && s.selectedCellY == s.charCellY
                 && lookAroundIdle
                 && cityMap.getCell(s.selectedCellX, s.selectedCellY).hasBuilding()
-                && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered()
+                && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered();
+
+        boolean showLookAroundButton = atCurrentBuilding
                 && hasUndiscoveredImprovements(
                         cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding());
+
+        int curHour = profile.getCurrentHour();
+        boolean showRestButton  = atCurrentBuilding && curHour >= 5 && curHour < 20;
+        boolean showSleepButton = atCurrentBuilding && (curHour >= 20 || curHour < 5);
 
         // --- Font metrics ---
         glyphLayout.setText(font, "Hg");
@@ -153,25 +161,41 @@ class InfoPanelRenderer {
         float valSmallTinyOff   = smallCapH - tinyCapH;           // bottom-aligns tiny with small row
 
         // --- Button sizing ---
-        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f;
+        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 16f;
         glyphLayout.setText(font, "Move to");
         final float BTN_W = glyphLayout.width + PAD_X * 2;
         final float BTN_H = glyphLayout.height + PAD_Y * 2;
         glyphLayout.setText(font, "Look around");
         final float LA_W  = glyphLayout.width + PAD_X * 2;
+        glyphLayout.setText(font, "Rest");
+        final float REST_W = glyphLayout.width + PAD_X * 2;
+        glyphLayout.setText(font, "Sleep");
+        final float SLEEP_W = glyphLayout.width + PAD_X * 2;
 
-        float btnX = 20f;
         float btnY = s.infoAreaHeight - BTN_PAD - BTN_H;
+        float curX = 20f;
 
-        // Write button bounds for hit-testing
-        s.moveToButtonX = btnX; s.moveToButtonY = btnY;
+        // Assign button bounds (Move To is exclusive with the at-location buttons)
+        s.moveToButtonY = btnY; s.moveToButtonH = BTN_H;
+        s.moveToButtonX = curX;
         s.moveToButtonW = showMoveToButton ? BTN_W : 0f;
-        s.moveToButtonH = BTN_H;
-        s.lookAroundBtnX = btnX; s.lookAroundBtnY = btnY;
-        s.lookAroundBtnW = showLookAroundButton ? LA_W : 0f;
-        s.lookAroundBtnH = BTN_H;
+        if (showMoveToButton) curX += BTN_W + BTN_SPACING;
 
-        boolean hasButton = showMoveToButton || showLookAroundButton;
+        s.lookAroundBtnY = btnY; s.lookAroundBtnH = BTN_H;
+        s.lookAroundBtnX = curX;
+        s.lookAroundBtnW = showLookAroundButton ? LA_W : 0f;
+        if (showLookAroundButton) curX += LA_W + BTN_SPACING;
+
+        s.restBtnY = btnY; s.restBtnH = BTN_H;
+        s.restBtnX = curX;
+        s.restBtnW = showRestButton ? REST_W : 0f;
+        if (showRestButton) curX += REST_W + BTN_SPACING;
+
+        s.sleepBtnY = btnY; s.sleepBtnH = BTN_H;
+        s.sleepBtnX = curX;
+        s.sleepBtnW = showSleepButton ? SLEEP_W : 0f;
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showRestButton || showSleepButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -197,11 +221,19 @@ class InfoPanelRenderer {
         shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
             shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
-            shapeRenderer.rect(btnX, btnY, BTN_W, BTN_H);
+            shapeRenderer.rect(s.moveToButtonX, btnY, BTN_W, BTN_H);
         }
         if (showLookAroundButton) {
             shapeRenderer.setColor(LOOK_AROUND_BTN_COLOR);
-            shapeRenderer.rect(btnX, btnY, LA_W, BTN_H);
+            shapeRenderer.rect(s.lookAroundBtnX, btnY, LA_W, BTN_H);
+        }
+        if (showRestButton) {
+            shapeRenderer.setColor(REST_BTN_COLOR);
+            shapeRenderer.rect(s.restBtnX, btnY, REST_W, BTN_H);
+        }
+        if (showSleepButton) {
+            shapeRenderer.setColor(SLEEP_BTN_COLOR);
+            shapeRenderer.rect(s.sleepBtnX, btnY, SLEEP_W, BTN_H);
         }
         shapeRenderer.end();
 
@@ -209,12 +241,20 @@ class InfoPanelRenderer {
         shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, s.infoAreaHeight, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
-            shapeRenderer.rect(btnX,     btnY,     BTN_W,     BTN_H);
-            shapeRenderer.rect(btnX + 1, btnY + 1, BTN_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.moveToButtonX,     btnY,     BTN_W,     BTN_H);
+            shapeRenderer.rect(s.moveToButtonX + 1, btnY + 1, BTN_W - 2, BTN_H - 2);
         }
         if (showLookAroundButton) {
-            shapeRenderer.rect(btnX,     btnY,     LA_W,     BTN_H);
-            shapeRenderer.rect(btnX + 1, btnY + 1, LA_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.lookAroundBtnX,     btnY,     LA_W,     BTN_H);
+            shapeRenderer.rect(s.lookAroundBtnX + 1, btnY + 1, LA_W - 2, BTN_H - 2);
+        }
+        if (showRestButton) {
+            shapeRenderer.rect(s.restBtnX,     btnY,     REST_W,     BTN_H);
+            shapeRenderer.rect(s.restBtnX + 1, btnY + 1, REST_W - 2, BTN_H - 2);
+        }
+        if (showSleepButton) {
+            shapeRenderer.rect(s.sleepBtnX,     btnY,     SLEEP_W,     BTN_H);
+            shapeRenderer.rect(s.sleepBtnX + 1, btnY + 1, SLEEP_W - 2, BTN_H - 2);
         }
         shapeRenderer.end();
 
@@ -227,12 +267,12 @@ class InfoPanelRenderer {
             glyphLayout.setText(font, "Move to");
             font.setColor(Color.WHITE);
             font.draw(batch, "Move to",
-                    btnX + (BTN_W - glyphLayout.width) / 2,
+                    s.moveToButtonX + (BTN_W - glyphLayout.width) / 2,
                     btnY + (BTN_H + glyphLayout.height) / 2);
             String timeStr = canMove ? s.currentRoute.formatTime() : "Unreachable";
             glyphLayout.setText(smallFont, timeStr);
             smallFont.setColor(canMove ? Color.WHITE : Color.RED);
-            smallFont.draw(batch, timeStr, btnX + BTN_W + 10f,
+            smallFont.draw(batch, timeStr, s.moveToButtonX + BTN_W + 10f,
                     btnY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
         }
@@ -240,10 +280,30 @@ class InfoPanelRenderer {
             glyphLayout.setText(font, "Look around");
             font.setColor(Color.WHITE);
             font.draw(batch, "Look around",
-                    btnX + (LA_W - glyphLayout.width) / 2,
+                    s.lookAroundBtnX + (LA_W - glyphLayout.width) / 2,
                     btnY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "10 min", btnX + LA_W + 10f,
+            smallFont.draw(batch, "10 min", s.lookAroundBtnX + LA_W + 10f,
+                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+        }
+        if (showRestButton) {
+            glyphLayout.setText(font, "Rest");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Rest",
+                    s.restBtnX + (REST_W - glyphLayout.width) / 2,
+                    btnY + (BTN_H + glyphLayout.height) / 2);
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "1 hr", s.restBtnX + REST_W + 10f,
+                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+        }
+        if (showSleepButton) {
+            glyphLayout.setText(font, "Sleep");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Sleep",
+                    s.sleepBtnX + (SLEEP_W - glyphLayout.width) / 2,
+                    btnY + (BTN_H + glyphLayout.height) / 2);
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
                     btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
 

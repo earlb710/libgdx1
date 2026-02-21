@@ -158,6 +158,25 @@ public class Profile {
         this.currentStamina = Math.max(0, stamina);
     }
 
+    /** Adds {@code amount} stamina points, capped at {@link #getMaxStamina()}. */
+    public void addStamina(int amount) {
+        currentStamina = Math.min(getMaxStamina(), getCurrentStamina() + amount);
+    }
+
+    /** Returns the current in-game hour (0–23), or 0 if parsing fails. */
+    public int getCurrentHour() {
+        try {
+            return Integer.parseInt(gameDateTime.split(" ")[1].split(":")[0]);
+        } catch (Exception e) { return 0; }
+    }
+
+    /** Returns the current in-game minute (0–59), or 0 if parsing fails. */
+    public int getCurrentMinute() {
+        try {
+            return Integer.parseInt(gameDateTime.split(" ")[1].split(":")[1]);
+        } catch (Exception e) { return 0; }
+    }
+
     /**
      * Advances the in-game date/time by the specified number of minutes.
      * The date/time string format is "YYYY-MM-DD HH:MM".
