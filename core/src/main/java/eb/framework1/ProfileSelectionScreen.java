@@ -35,9 +35,7 @@ public class ProfileSelectionScreen implements Screen {
     private Rectangle confirmYesButton;
     private Rectangle confirmNoButton;
     
-    private static final int BUTTON_WIDTH = 600;  // Increased for better readability
-    private static final int BUTTON_HEIGHT = 150; // Increased for more comfortable spacing
-    private static final int DELETE_BUTTON_SIZE = 80; // Square delete button
+    private static final int DELETE_BUTTON_SIZE = 80; // Square delete button (unchanged)
     private static final int BUTTON_SPACING = 25;
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
@@ -101,11 +99,24 @@ public class ProfileSelectionScreen implements Screen {
         int centerX = Gdx.graphics.getWidth() / 2;
         int startY = Gdx.graphics.getHeight() / 2 + 100;
         Gdx.app.log("ProfileSelectionScreen", "Screen: " + Gdx.graphics.getWidth() + "x" + Gdx.graphics.getHeight());
-        
+
+        // Compute profile-button height from font metrics; width = max of all profile name widths
+        TextMeasurer.TextBounds refBounds = TextMeasurer.measure(buttonFont, "New Profile", 200f, 60f);
+        float btnH = refBounds.height;
+        float btnW = refBounds.width;
         for (int i = 0; i < profiles.size(); i++) {
-            int y = startY - (i * (BUTTON_HEIGHT + BUTTON_SPACING));
-            
-            // Profile button (with space for delete button on the right)
+            float w = TextMeasurer.measure(buttonFont, profiles.get(i).getProfileName(), 200f, 60f).width;
+            if (w > btnW) btnW = w;
+        }
+        final float BUTTON_WIDTH  = btnW;
+        final float BUTTON_HEIGHT = btnH;
+
+        profileButtons = new ArrayList<>();
+        deleteButtons = new ArrayList<>();
+
+        for (int i = 0; i < profiles.size(); i++) {
+            int y = (int)(startY - (i * (BUTTON_HEIGHT + BUTTON_SPACING)));
+
             Rectangle button = new Rectangle(
                 centerX - (BUTTON_WIDTH + DELETE_BUTTON_SIZE + 10) / 2,
                 y,
@@ -113,41 +124,41 @@ public class ProfileSelectionScreen implements Screen {
                 BUTTON_HEIGHT
             );
             profileButtons.add(button);
-            
-            // Delete button (positioned to the right of profile button)
+
             Rectangle deleteBtn = new Rectangle(
                 button.x + button.width + 10,
-                y + (BUTTON_HEIGHT - DELETE_BUTTON_SIZE) / 2, // Center vertically
+                y + (BUTTON_HEIGHT - DELETE_BUTTON_SIZE) / 2,
                 DELETE_BUTTON_SIZE,
                 DELETE_BUTTON_SIZE
             );
             deleteButtons.add(deleteBtn);
         }
-        
+
         // New profile button
-        int newButtonY = startY - (profiles.size() * (BUTTON_HEIGHT + BUTTON_SPACING)) - 40;
+        int newButtonY = (int)(startY - (profiles.size() * (BUTTON_HEIGHT + BUTTON_SPACING)) - 40);
         newProfileButton = new Rectangle(
             centerX - BUTTON_WIDTH / 2,
             newButtonY,
             BUTTON_WIDTH,
             BUTTON_HEIGHT
         );
-        
-        // Back button - increased size to fit buttonFont text properly
-        backButton = new Rectangle(50, 50, 250, 80);
-        
-        // Confirmation dialog buttons - centered as a group, wider to fit labels
+
+        // Back button
+        TextMeasurer.TextBounds backBounds = TextMeasurer.measure(buttonFont, "Back", 48f, 22f);
+        backButton = new Rectangle(50, 50, backBounds.width, backBounds.height);
+
+        // Confirmation dialog buttons
+        TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 48f, 22f);
+        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "No, Cancel",  48f, 22f);
         confirmYesButton = new Rectangle(
-            centerX - 330,
-            Gdx.graphics.getHeight() / 2 - 60,
-            360,
-            80
+            centerX - yesBounds.width - 10,
+            Gdx.graphics.getHeight() / 2 - (int)(yesBounds.height / 2),
+            yesBounds.width, yesBounds.height
         );
         confirmNoButton = new Rectangle(
-            centerX + 70,
-            Gdx.graphics.getHeight() / 2 - 60,
-            260,
-            80
+            centerX + 10,
+            Gdx.graphics.getHeight() / 2 - (int)(noBounds.height / 2),
+            noBounds.width, noBounds.height
         );
     }
     

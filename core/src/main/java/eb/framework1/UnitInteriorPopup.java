@@ -57,15 +57,15 @@ class UnitInteriorPopup {
         final float panelH = s.infoAreaHeight;
         final float panelW = s.screenWidth;
 
-        // Font metrics
-        glyph.setText(font, "Hg");
-        float fontCapH = glyph.height;
-        float BTN_H    = fontCapH + PAD_Y * 2;
-
-        // Button widths
-        glyph.setText(font, "Rest");  float REST_W  = glyph.width + PAD_X * 2;
-        glyph.setText(font, "Sleep"); float SLEEP_W = glyph.width + PAD_X * 2;
-        glyph.setText(font, "Exit");  float EXIT_W  = glyph.width + PAD_X * 2;
+        // Button bounds via TextMeasurer (reuses glyph GlyphLayout – no per-frame allocation)
+        TextMeasurer.TextBounds restBounds  = TextMeasurer.measure(font, glyph, "Rest",  PAD_X, PAD_Y);
+        TextMeasurer.TextBounds sleepBounds = TextMeasurer.measure(font, glyph, "Sleep", PAD_X, PAD_Y);
+        TextMeasurer.TextBounds exitBounds  = TextMeasurer.measure(font, glyph, "Exit",  PAD_X, PAD_Y);
+        final float BTN_H   = restBounds.height;
+        final float REST_W  = restBounds.width;
+        final float SLEEP_W = sleepBounds.width;
+        final float EXIT_W  = exitBounds.width;
+        final float fontCapH = restBounds.textHeight;
 
         int curHour = profile.getCurrentHour();
         boolean showRest  = curHour >= 5 && curHour < 20;

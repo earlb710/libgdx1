@@ -91,6 +91,36 @@ public final class TextMeasurer {
         return new TextBounds(layout.width, layout.height, paddingH, paddingV);
     }
 
+    /**
+     * Measures using a caller-supplied {@link GlyphLayout} to avoid per-call allocation.
+     * Useful in render loops where GC pressure should be minimised.
+     *
+     * @param font     {@link BitmapFont} to use
+     * @param layout   Reusable {@link GlyphLayout} instance (will be overwritten)
+     * @param text     Text to measure; may contain {@code \n} for line breaks
+     * @param padding  Uniform padding in pixels added on each side
+     * @return {@link TextBounds} with raw and padded dimensions
+     */
+    public static TextBounds measure(BitmapFont font, GlyphLayout layout, String text, float padding) {
+        return measure(font, layout, text, padding, padding);
+    }
+
+    /**
+     * Measures using a caller-supplied {@link GlyphLayout} with separate h/v padding.
+     *
+     * @param font     {@link BitmapFont} to use
+     * @param layout   Reusable {@link GlyphLayout} instance (will be overwritten)
+     * @param text     Text to measure; may contain {@code \n} for line breaks
+     * @param paddingH Horizontal padding (left and right each), in pixels
+     * @param paddingV Vertical padding (top and bottom each), in pixels
+     * @return {@link TextBounds} with raw and padded dimensions
+     */
+    public static TextBounds measure(BitmapFont font, GlyphLayout layout, String text,
+                                     float paddingH, float paddingV) {
+        layout.setText(font, text);
+        return new TextBounds(layout.width, layout.height, paddingH, paddingV);
+    }
+
     // -------------------------------------------------------------------------
     // measureScaled – temporarily overrides the font's scale
     // -------------------------------------------------------------------------

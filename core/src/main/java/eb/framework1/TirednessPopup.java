@@ -89,9 +89,9 @@ class TirednessPopup {
         float smallH     = glyph.height;
         float smallLineH = smallH * 1.5f;
 
-        glyph.setText(font, "OK");
-        float okBtnW = glyph.width + 48f;
-        float okBtnH = glyph.height + 20f;
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyph, "OK", 24f, 10f);
+        float okBtnW = okBounds.width;
+        float okBtnH = okBounds.height;
 
         final float PAD = 24f;
         float dialogH = PAD

@@ -30,9 +30,6 @@ public class ProfileLoadSummaryScreen implements Screen {
     private Rectangle backButton;
     
     // Button dimensions
-    private static final int BUTTON_WIDTH = 300;
-    private static final int BUTTON_HEIGHT = 80;
-    private static final int CONTINUE_BUTTON_WIDTH = 400;  // Wider to fit "Continue" text
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -63,8 +60,11 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Create UI buttons
             int centerX = Gdx.graphics.getWidth() / 2;
             
-            continueButton = new Rectangle(centerX - CONTINUE_BUTTON_WIDTH - 10, 100, CONTINUE_BUTTON_WIDTH, BUTTON_HEIGHT);
-            backButton = new Rectangle(centerX + 10, 100, BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Button sizes computed from the actual label text and font
+            TextMeasurer.TextBounds contBounds = TextMeasurer.measure(subtitleFont, "Continue", 48f, 22f);
+            TextMeasurer.TextBounds backBounds = TextMeasurer.measure(subtitleFont, "Back",     48f, 22f);
+            continueButton = new Rectangle(centerX - contBounds.width - 10, 100, contBounds.width, contBounds.height);
+            backButton     = new Rectangle(centerX + 10, 100, backBounds.width, backBounds.height);
             
             // Load character icon texture if available
             String iconName = profile.getCharacterIcon();

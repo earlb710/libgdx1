@@ -162,11 +162,11 @@ class InfoPanelRenderer {
 
         // --- Button sizing ---
         final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 8f;
-        glyphLayout.setText(font, "Move to");
-        final float BTN_W = glyphLayout.width + PAD_X * 2;
-        final float BTN_H = glyphLayout.height + PAD_Y * 2;
-        glyphLayout.setText(font, "Look around");
-        final float LA_W  = glyphLayout.width + PAD_X * 2;
+        TextMeasurer.TextBounds moveBounds = TextMeasurer.measure(font, glyphLayout, "Move to",     PAD_X, PAD_Y);
+        TextMeasurer.TextBounds laBounds   = TextMeasurer.measure(font, glyphLayout, "Look around", PAD_X, PAD_Y);
+        final float BTN_W = moveBounds.width;
+        final float BTN_H = moveBounds.height;
+        final float LA_W  = laBounds.width;
         // office button label width computed dynamically below
 
         // Buttons stack vertically from the top of the info panel downward
@@ -192,8 +192,7 @@ class InfoPanelRenderer {
                 : "";
         float OFFICE_W = 0f;
         if (showOfficeButton) {
-            glyphLayout.setText(font, officeBtnLabel);
-            OFFICE_W = glyphLayout.width + PAD_X * 2;
+            OFFICE_W = TextMeasurer.measure(font, glyphLayout, officeBtnLabel, PAD_X, PAD_Y).width;
         }
         s.goToOfficeBtnX = btnX; s.goToOfficeBtnH = BTN_H; s.goToOfficeBtnW = showOfficeButton ? OFFICE_W : 0f;
         s.goToOfficeBtnY = curRowBottom;

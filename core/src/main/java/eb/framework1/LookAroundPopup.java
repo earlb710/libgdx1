@@ -123,9 +123,9 @@ class LookAroundPopup {
 
         final float PAD   = 24f;
 
-        glyphLayout.setText(font, "OK");
-        float okBtnW = glyphLayout.width + 48f;
-        float okBtnH = glyphLayout.height + 20f;
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyphLayout, "OK", 24f, 10f);
+        float okBtnW = okBounds.width;
+        float okBtnH = okBounds.height;
 
         int contentLines = (state == State.RESULTS)
                 ? 1 + foundItems.size()
