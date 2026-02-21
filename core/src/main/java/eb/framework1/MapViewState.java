@@ -38,6 +38,8 @@ class MapViewState {
     int charCellY = -1;
     int cursorCellX = -1;
     int cursorCellY = -1;
+    int homeCellX = -1;
+    int homeCellY = -1;
     CityMap.RouteResult currentRoute = null;
 
     // --- Button bounds (written by InfoPanelRenderer, read by MainScreen for hit-testing) ---

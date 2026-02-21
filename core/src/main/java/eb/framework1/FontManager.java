@@ -24,6 +24,7 @@ public class FontManager implements Disposable {
     private BitmapFont subtitleFont;
     private BitmapFont bodyFont;
     private BitmapFont smallFont;
+    private BitmapFont tinyFont;
     
     private float screenWidth;
     private float screenHeight;
@@ -54,6 +55,7 @@ public class FontManager implements Disposable {
     private static final int SUBTITLE_SIZE_DP = 30; // Subtitles, input text
     private static final int BODY_SIZE_DP = 22;     // Body text, buttons
     private static final int SMALL_SIZE_DP = 18;    // Small text
+    private static final int TINY_SIZE_DP = 14;     // Tiny text (attribute modifiers)
     
     /**
      * Initialize FontManager with current screen dimensions.
@@ -159,6 +161,13 @@ public class FontManager implements Disposable {
         parameter.color = Color.LIGHT_GRAY;
         smallFont = generator.generateFont(parameter);
         Gdx.app.log("FontManager", "Generated small font at size: " + smallSize);
+
+        // Tiny font - for attribute modifiers
+        int tinySize = calculateFontSize(TINY_SIZE_DP);
+        parameter.size = tinySize;
+        parameter.color = Color.LIGHT_GRAY;
+        tinyFont = generator.generateFont(parameter);
+        Gdx.app.log("FontManager", "Generated tiny font at size: " + tinySize);
     }
     
     /**
@@ -190,6 +199,10 @@ public class FontManager implements Disposable {
         smallFont = new BitmapFont();
         smallFont.setColor(Color.LIGHT_GRAY);
         smallFont.getData().setScale(2.5f);  // 2.5x scale - visible details
+
+        tinyFont = new BitmapFont();
+        tinyFont.setColor(Color.LIGHT_GRAY);
+        tinyFont.getData().setScale(2.0f);  // 2.0x scale - attribute modifiers
         
         Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x");
         Gdx.app.log("FontManager", "To eliminate pixelation, add a TrueType font file to assets/font.ttf");
@@ -267,6 +280,10 @@ public class FontManager implements Disposable {
     public BitmapFont getSmallFont() {
         return smallFont;
     }
+
+    public BitmapFont getTinyFont() {
+        return tinyFont;
+    }
     
     /**
      * Get screen width used for font generation.
@@ -297,6 +314,7 @@ public class FontManager implements Disposable {
         if (subtitleFont != null) subtitleFont.dispose();
         if (bodyFont != null) bodyFont.dispose();
         if (smallFont != null) smallFont.dispose();
+        if (tinyFont != null) tinyFont.dispose();
         
         if (generator != null) {
             generator.dispose();

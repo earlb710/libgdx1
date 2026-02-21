@@ -36,6 +36,7 @@ public class MainScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private BitmapFont    font;
     private BitmapFont    smallFont;
+    private BitmapFont    tinyFont;
     private GlyphLayout   glyphLayout;
     private boolean initialized = false;
 
@@ -87,6 +88,7 @@ public class MainScreen implements Screen {
         glyphLayout   = new GlyphLayout();
         font          = game.getFontManager().getBodyFont();
         smallFont     = game.getFontManager().getSmallFont();
+        tinyFont      = game.getFontManager().getTinyFont();
 
         GameDataManager gameData = game.getGameDataManager();
         cityMap = new CityMap(profile, gameData);
@@ -94,12 +96,33 @@ public class MainScreen implements Screen {
 
         // Pick a random building as the starting cell
         List<Cell> buildingCells = new ArrayList<>();
+        List<Cell> officeCells   = new ArrayList<>();
         for (int x = 0; x < CityMap.MAP_SIZE; x++) {
             for (int y = 0; y < CityMap.MAP_SIZE; y++) {
-                if (cityMap.getCell(x, y).getTerrainType() == TerrainType.BUILDING)
-                    buildingCells.add(cityMap.getCell(x, y));
+                Cell c = cityMap.getCell(x, y);
+                if (c.getTerrainType() == TerrainType.BUILDING) {
+                    buildingCells.add(c);
+                    if (c.hasBuilding() && c.getBuilding().getDefinition() != null
+                            && "office_building_small".equals(c.getBuilding().getDefinition().getId())) {
+                        officeCells.add(c);
+                    }
+                }
             }
         }
+
+        // Mark a random small office building as home + owned
+        List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
+        if (!homeSrc.isEmpty()) {
+            Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
+                    .nextInt(homeSrc.size()));
+            state.homeCellX = homeCell.getX();
+            state.homeCellY = homeCell.getY();
+            homeCell.getBuilding().setHome(true);
+            homeCell.getBuilding().setOwned(true);
+            homeCell.getBuilding().discover();
+            Gdx.app.log("MainScreen", "Home: " + state.homeCellX + "," + state.homeCellY);
+        }
+
         if (!buildingCells.isEmpty()) {
             Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
                     .nextInt(buildingCells.size()));
@@ -112,7 +135,7 @@ public class MainScreen implements Screen {
         }
 
         // Build rendering helpers
-        mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, glyphLayout, cityMap);
+        mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
         mapRenderer.loadBuildingIcons();
 
         String iconName = profile.getCharacterIcon();
@@ -122,7 +145,7 @@ public class MainScreen implements Screen {
             mapRenderer.setCharacterIconTexture(charTex);
         }
 
-        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont,
+        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, tinyFont,
                 glyphLayout, cityMap, profile);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,

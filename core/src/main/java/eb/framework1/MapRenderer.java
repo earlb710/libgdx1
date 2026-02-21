@@ -41,7 +41,8 @@ class MapRenderer {
     private Texture              characterIconTexture;
 
     MapRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
-                BitmapFont font, BitmapFont smallFont, GlyphLayout glyphLayout,
+                BitmapFont font, BitmapFont smallFont, BitmapFont tinyFont,
+                GlyphLayout glyphLayout,
                 CityMap cityMap) {
         this.batch         = batch;
         this.shapeRenderer = shapeRenderer;
@@ -195,6 +196,20 @@ class MapRenderer {
         }
         batch.end();
 
+        // Home-cell yellow star (top-right corner)
+        if (s.homeCellX >= startCellX && s.homeCellX < endCellX
+                && s.homeCellY >= startCellY && s.homeCellY < endCellY) {
+            float drawX = mapStartX + (s.homeCellX - startCellX - fracOffsetX) * cellSize;
+            float drawY = mapStartY + (visibleCellsY - 1 - (s.homeCellY - startCellY - fracOffsetY)) * cellSize;
+            float starR = Math.max(4f, cellSize * 0.18f);
+            float starCX = drawX + cellSize - starR - borderSize;
+            float starCY = drawY + cellSize - starR - borderSize;
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(Color.YELLOW);
+            drawFilledStar(shapeRenderer, starCX, starCY, starR, starR * 0.4f);
+            shapeRenderer.end();
+        }
+
         // Selection highlight
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (s.selectedCellX >= 0 && s.selectedCellY >= 0
@@ -290,6 +305,27 @@ class MapRenderer {
             case ROAD:    return borderSize;
             case PATHWAY: return pathwaySize;
             default:      return 0;
+        }
+    }
+
+    /**
+     * Draws a filled 5-pointed star centred at (cx, cy) with outer radius R and inner radius r,
+     * using the ShapeRenderer already in Filled mode.
+     */
+    private static void drawFilledStar(ShapeRenderer sr, float cx, float cy, float R, float r) {
+        float[] vx = new float[10];
+        float[] vy = new float[10];
+        for (int i = 0; i < 5; i++) {
+            double outerAngle = -Math.PI / 2 + i * 2 * Math.PI / 5;
+            double innerAngle = outerAngle + Math.PI / 5;
+            vx[i * 2]     = cx + (float)(R * Math.cos(outerAngle));
+            vy[i * 2]     = cy + (float)(R * Math.sin(outerAngle));
+            vx[i * 2 + 1] = cx + (float)(r * Math.cos(innerAngle));
+            vy[i * 2 + 1] = cy + (float)(r * Math.sin(innerAngle));
+        }
+        for (int i = 0; i < 10; i++) {
+            int next = (i + 1) % 10;
+            sr.triangle(cx, cy, vx[i], vy[i], vx[next], vy[next]);
         }
     }
 }

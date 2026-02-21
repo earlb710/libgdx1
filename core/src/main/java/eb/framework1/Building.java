@@ -20,6 +20,8 @@ public class Building {
     private final int floors;
     private final Map<CharacterAttribute, Integer> attributeModifiers;
     private boolean discovered;
+    private boolean home;
+    private boolean owned;
 
     /**
      * Creates a building with just a name and improvements (legacy constructor).
@@ -96,6 +98,12 @@ public class Building {
     public void discover() {
         this.discovered = true;
     }
+
+    public boolean isHome() { return home; }
+    public void setHome(boolean home) { this.home = home; }
+
+    public boolean isOwned() { return owned; }
+    public void setOwned(boolean owned) { this.owned = owned; }
 
     /**
      * Gets the attribute modifiers for this building.

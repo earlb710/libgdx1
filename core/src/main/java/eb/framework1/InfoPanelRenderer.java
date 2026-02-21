@@ -26,9 +26,10 @@ import java.util.Map;
  *   <li>Labels ("Cell:", "Terrain:", …) – {@code font}, {@link #LABEL_COLOR}</li>
  *   <li>Values (coordinates, terrain name, …) – {@code font}, white</li>
  *   <li>Building name value – {@code smallFont}, white, vertically centred with label</li>
+ *   <li>Building attribute modifier [STR+2] – {@code tinyFont}, bright white, bottom-aligned</li>
  *   <li>Improvement name – {@code font}, white</li>
- *   <li>Improvement attribute modifier [STR+2] – {@code smallFont}, bright white,
- *       vertically centred with improvement name</li>
+ *   <li>Improvement attribute modifier [STR+2] – {@code tinyFont}, bright white,
+ *       bottom-aligned with improvement name</li>
  * </ul>
  */
 class InfoPanelRenderer {
@@ -47,6 +48,7 @@ class InfoPanelRenderer {
     private final ShapeRenderer shapeRenderer;
     private final BitmapFont    font;
     private final BitmapFont    smallFont;
+    private final BitmapFont    tinyFont;
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
@@ -55,12 +57,14 @@ class InfoPanelRenderer {
     private float drawScrollX, drawScrollY;
 
     InfoPanelRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
-                      BitmapFont font, BitmapFont smallFont, GlyphLayout glyphLayout,
+                      BitmapFont font, BitmapFont smallFont, BitmapFont tinyFont,
+                      GlyphLayout glyphLayout,
                       CityMap cityMap, Profile profile) {
         this.batch         = batch;
         this.shapeRenderer = shapeRenderer;
         this.font          = font;
         this.smallFont     = smallFont;
+        this.tinyFont      = tinyFont;
         this.glyphLayout   = glyphLayout;
         this.cityMap       = cityMap;
         this.profile       = profile;
@@ -141,9 +145,12 @@ class InfoPanelRenderer {
         glyphLayout.setText(smallFont, "Hg");
         float smallCapH  = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
-        // Vertical offsets for smallFont relative to a font-height row
-        float valCenterOff = (fontCapH - smallCapH) / 2f;  // centre-aligns small with big
-        float valBottomOff = fontCapH - smallCapH;          // bottom-aligns small with big
+        glyphLayout.setText(tinyFont, "Hg");
+        float tinyCapH  = glyphLayout.height;
+        // Vertical offsets for smallFont / tinyFont relative to a font-height row
+        float valCenterOff      = (fontCapH - smallCapH) / 2f;   // centre-aligns small with big
+        float valTinyBottomOff  = fontCapH - tinyCapH;            // bottom-aligns tiny with big (font row)
+        float valSmallTinyOff   = smallCapH - tinyCapH;           // bottom-aligns tiny with small row
 
         // --- Button sizing ---
         final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f;
@@ -265,16 +272,24 @@ class InfoPanelRenderer {
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 if (building.isDiscovered()) {
-                    // Building: label = font/green; value = smallFont/white, vertically centred
+                    // Building: label = font/green; name = smallFont/white, centred;
+                    //           modifier = tinyFont/white, bottom-aligned with name row
                     String bMod = formatAttributeModifiers(building.getAttributeModifiers());
-                    String bDisplay = building.getName() + (bMod.isEmpty() ? "" : " " + bMod);
                     float dx = textX - drawScrollX;
                     float dy = textY + drawScrollY;
                     font.setColor(LABEL_COLOR);
                     font.draw(batch, "Building: ", dx, dy);
                     glyphLayout.setText(font, "Building: ");
+                    float nameX = dx + glyphLayout.width;
+                    String bName = building.getName();
                     smallFont.setColor(Color.WHITE);
-                    smallFont.draw(batch, bDisplay, dx + glyphLayout.width, dy - valCenterOff);
+                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
+                    if (!bMod.isEmpty()) {
+                        glyphLayout.setText(smallFont, bName);
+                        tinyFont.setColor(Color.WHITE);
+                        tinyFont.draw(batch, " " + bMod,
+                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
+                    }
                     textY -= fontLineH;
 
                     if (building.getDefinition() != null) {
@@ -302,9 +317,9 @@ class InfoPanelRenderer {
                             font.draw(batch, namePart, idx, idy);
                             if (!modStr.isEmpty()) {
                                 glyphLayout.setText(font, namePart);
-                                smallFont.setColor(Color.WHITE);
-                                smallFont.draw(batch, " " + modStr,
-                                        idx + glyphLayout.width, idy - valBottomOff);
+                                tinyFont.setColor(Color.WHITE);
+                                tinyFont.draw(batch, " " + modStr,
+                                        idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                         } else {
                             font.setColor(Color.WHITE);
@@ -410,8 +425,13 @@ class InfoPanelRenderer {
                 String bMod = formatAttributeModifiers(b.getAttributeModifiers());
                 glyphLayout.setText(font, "Building: ");
                 float labW = glyphLayout.width;
-                glyphLayout.setText(smallFont, b.getName() + (bMod.isEmpty() ? "" : " " + bMod));
-                maxW = Math.max(maxW, labW + glyphLayout.width);
+                glyphLayout.setText(smallFont, b.getName());
+                float nameW = glyphLayout.width;
+                if (!bMod.isEmpty()) {
+                    glyphLayout.setText(tinyFont, " " + bMod);
+                    nameW += glyphLayout.width;
+                }
+                maxW = Math.max(maxW, labW + nameW);
                 if (b.getDefinition() != null) {
                     glyphLayout.setText(font, "Category: " + b.getCategory());
                     maxW = Math.max(maxW, glyphLayout.width);
@@ -427,7 +447,7 @@ class InfoPanelRenderer {
                     if (imp.isDiscovered()) {
                         String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
                         if (!modStr.isEmpty()) {
-                            glyphLayout.setText(smallFont, " " + modStr);
+                            glyphLayout.setText(tinyFont, " " + modStr);
                             lineW += glyphLayout.width;
                         }
                     }
