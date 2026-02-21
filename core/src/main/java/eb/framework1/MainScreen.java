@@ -482,11 +482,13 @@ public class MainScreen implements Screen {
         boolean isCharCell = cx == state.charCellX && cy == state.charCellY;
 
         if (!isCharCell) {
-            // "Move To" — only if reachable
-            if (state.currentRoute != null && state.currentRoute.isReachable()) {
-                contextMenuItems.add("Move To (" + state.currentRoute.formatTime() + ")");
-                contextMenuActions.add(this::handleMoveToClick);
-            }
+            // "Move To" — always show; label differs based on reachability (mirrors info panel)
+            boolean reachable = state.currentRoute != null && state.currentRoute.isReachable();
+            String label = reachable
+                    ? "Move To (" + state.currentRoute.formatTime() + ")"
+                    : "Move To (Unreachable)";
+            contextMenuItems.add(label);
+            contextMenuActions.add(reachable ? this::handleMoveToClick : () -> {});
         } else {
             // Actions available at the current location
             boolean atHome = cx == state.homeCellX && cy == state.homeCellY;

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,8 @@ class ContextMenu {
     private boolean visible = false;
     private float   menuX, menuY;
     private float   menuW, itemH;
+    private float   screenW, screenH;
+    private final Matrix4 projMatrix = new Matrix4();
 
     private final List<String> items = new ArrayList<>();
 
@@ -89,6 +92,8 @@ class ContextMenu {
 
         menuX   = mx;
         menuY   = my;
+        this.screenW = screenWidth;
+        this.screenH = screenHeight;
         visible = true;
     }
 
@@ -107,6 +112,10 @@ class ContextMenu {
     void draw(SpriteBatch batch, ShapeRenderer sr, BitmapFont font, GlyphLayout gl) {
         if (!visible || items.isEmpty()) return;
         float menuH = totalHeight();
+
+        // Ensure the ShapeRenderer uses screen-pixel coordinates.
+        // This guards against any earlier resize that didn't update projView.
+        sr.setProjectionMatrix(projMatrix.setToOrtho2D(0, 0, screenW, screenH));
 
         // Background
         sr.begin(ShapeRenderer.ShapeType.Filled);
