@@ -214,10 +214,17 @@ class InfoPanelRenderer {
                             if (textY < smallLineH * 2) break;
                             if (imp.isDiscovered()) {
                                 String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
-                                String disp = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
-                                        + (modStr.isEmpty() ? "" : " " + modStr);
-                                smallFont.draw(batch, disp, textX, textY);
+                                String namePart = "  - " + imp.getName();
+                                smallFont.setColor(Color.WHITE);
+                                smallFont.draw(batch, namePart, textX, textY);
+                                if (!modStr.isEmpty()) {
+                                    glyphLayout.setText(smallFont, namePart);
+                                    smallFont.setColor(Color.WHITE);
+                                    smallFont.draw(batch, " " + modStr,
+                                            textX + glyphLayout.width, textY);
+                                }
                             } else {
+                                smallFont.setColor(Color.WHITE);
                                 smallFont.draw(batch, "  - ???", textX, textY);
                             }
                             textY -= smallLineH;
