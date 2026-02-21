@@ -173,6 +173,10 @@ class InfoPanelRenderer {
             font.draw(batch, "Look around",
                     btnX + (LA_W - glyphLayout.width) / 2,
                     btnY + (BTN_H + glyphLayout.height) / 2);
+            // Show time cost next to button
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "10 min", btnX + LA_W + 10f,
+                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
 
         float textY = (showMoveToButton || showLookAroundButton)

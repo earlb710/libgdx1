@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Self-contained "Look around" feature.
@@ -47,6 +48,9 @@ class LookAroundPopup {
 
     // OK button bounds (written during draw, read by onTap)
     private float okX, okY, okW, okH;
+
+    // RNG for probability-based discovery rolls
+    private final Random rng = new Random();
 
     LookAroundPopup(SpriteBatch batch, ShapeRenderer shapeRenderer,
                     BitmapFont font, BitmapFont smallFont, GlyphLayout glyphLayout,
@@ -202,11 +206,24 @@ class LookAroundPopup {
     // -------------------------------------------------------------------------
 
     private void runDiscovery() {
+        // Advance game time by 10 minutes for the look-around action
+        profile.advanceGameTime(10);
+
         Cell cell = cityMap.getCell(lookCharX, lookCharY);
         if (cell.hasBuilding()) {
-            int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.getDisplayName());
+            // Attribute key matches how CharacterAttributeScreen saves it (enum .name())
+            int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.name());
             for (Improvement imp : cell.getBuilding().getImprovements()) {
-                if (!imp.isDiscovered() && perception >= imp.getHiddenValue()) {
+                if (imp.isDiscovered()) continue;
+                int hv = imp.getHiddenValue();
+                if (hv == 0) {
+                    // hiddenValue 0 is auto-discovered on arrival; skip here
+                    continue;
+                }
+                // Sliding probability: chance = min(1.0, perception / hiddenValue)
+                // e.g. perception=5, hiddenValue=5 → 100%; perception=3, hiddenValue=5 → 60%
+                float chance = Math.min(1.0f, (float) perception / hv);
+                if (rng.nextFloat() < chance) {
                     imp.discover();
                     String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
                     String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")"

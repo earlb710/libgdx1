@@ -49,8 +49,8 @@ public class ImprovementTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testHiddenValueAboveFour() {
-        new Improvement("Invalid", 1, 5);
+    public void testHiddenValueAboveFive() {
+        new Improvement("Invalid", 1, 6);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ImprovementTest {
 
     @Test
     public void testHiddenValueInRange() {
-        // Verify via CityMap that all generated improvements have hiddenValue 0-4
+        // Verify via CityMap that all generated improvements have hiddenValue 0-5
         CityMap map = new CityMap(12345L);
         for (int x = 0; x < CityMap.MAP_SIZE; x++) {
             for (int y = 0; y < CityMap.MAP_SIZE; y++) {
@@ -99,8 +99,8 @@ public class ImprovementTest {
                     for (Improvement imp : cell.getBuilding().getImprovements()) {
                         assertTrue("Hidden value should be >= 0 at (" + x + "," + y + ")",
                                    imp.getHiddenValue() >= 0);
-                        assertTrue("Hidden value should be <= 4 at (" + x + "," + y + ")",
-                                   imp.getHiddenValue() <= 4);
+                        assertTrue("Hidden value should be <= 5 at (" + x + "," + y + ")",
+                                   imp.getHiddenValue() <= 5);
                     }
                 }
             }
