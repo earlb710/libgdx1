@@ -39,8 +39,6 @@ class InfoPanelRenderer {
     private static final Color INFO_BORDER_COLOR      = new Color(0.4f,  0.4f,  0.5f,  1f);
     private static final Color MOVE_TO_BUTTON_COLOR   = new Color(0.1f,  0.5f,  0.15f, 1f);
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
-    private static final Color REST_BTN_COLOR          = new Color(0.4f,  0.25f, 0.05f, 1f);
-    private static final Color SLEEP_BTN_COLOR         = new Color(0.08f, 0.08f, 0.45f, 1f);
     private static final Color OFFICE_BTN_COLOR         = new Color(0.45f, 0.35f, 0.0f,  1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
@@ -140,16 +138,11 @@ class InfoPanelRenderer {
                 && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered();
 
         boolean atHome = s.selectedCellX == s.homeCellX && s.selectedCellY == s.homeCellY;
-        int curHour = profile.getCurrentHour();
         Building selBuilding = atCurrentBuilding
                 ? cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding() : null;
 
         boolean showLookAroundButton = selBuilding != null && selBuilding.hasUndiscoveredImprovements();
 
-        boolean showRestButton  = selBuilding != null
-                && (atHome || selBuilding.allowsRest()) && curHour >= 5 && curHour < 20;
-        boolean showSleepButton = selBuilding != null
-                && (atHome || selBuilding.allowsSleep()) && (curHour >= 20 || curHour < 5);
         boolean showOfficeButton = atHome && selBuilding != null
                 && selBuilding.getFloors() > 1;
 
@@ -174,10 +167,6 @@ class InfoPanelRenderer {
         final float BTN_H = glyphLayout.height + PAD_Y * 2;
         glyphLayout.setText(font, "Look around");
         final float LA_W  = glyphLayout.width + PAD_X * 2;
-        glyphLayout.setText(font, "Rest");
-        final float REST_W = glyphLayout.width + PAD_X * 2;
-        glyphLayout.setText(font, "Sleep");
-        final float SLEEP_W = glyphLayout.width + PAD_X * 2;
         // office button label width computed dynamically below
 
         // Buttons stack vertically from the top of the info panel downward
@@ -193,13 +182,9 @@ class InfoPanelRenderer {
         s.lookAroundBtnY = curRowBottom;
         if (showLookAroundButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        s.restBtnX = btnX; s.restBtnH = BTN_H; s.restBtnW = showRestButton ? REST_W : 0f;
-        s.restBtnY = curRowBottom;
-        if (showRestButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
-
-        s.sleepBtnX = btnX; s.sleepBtnH = BTN_H; s.sleepBtnW = showSleepButton ? SLEEP_W : 0f;
-        s.sleepBtnY = curRowBottom;
-        if (showSleepButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
+        // Rest/Sleep buttons are handled by UnitInteriorPopup; zero them out here
+        s.restBtnW = 0f;
+        s.sleepBtnW = 0f;
 
         // Office button — width based on the actual label text
         String officeBtnLabel = showOfficeButton
@@ -214,8 +199,7 @@ class InfoPanelRenderer {
         s.goToOfficeBtnY = curRowBottom;
         if (showOfficeButton) { lowestBtnBottom = curRowBottom; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showRestButton || showSleepButton
-                || showOfficeButton;
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -247,14 +231,6 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(LOOK_AROUND_BTN_COLOR);
             shapeRenderer.rect(s.lookAroundBtnX, s.lookAroundBtnY, LA_W, BTN_H);
         }
-        if (showRestButton) {
-            shapeRenderer.setColor(REST_BTN_COLOR);
-            shapeRenderer.rect(s.restBtnX, s.restBtnY, REST_W, BTN_H);
-        }
-        if (showSleepButton) {
-            shapeRenderer.setColor(SLEEP_BTN_COLOR);
-            shapeRenderer.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
-        }
         if (showOfficeButton) {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
@@ -271,14 +247,6 @@ class InfoPanelRenderer {
         if (showLookAroundButton) {
             shapeRenderer.rect(s.lookAroundBtnX,     s.lookAroundBtnY,     LA_W,     BTN_H);
             shapeRenderer.rect(s.lookAroundBtnX + 1, s.lookAroundBtnY + 1, LA_W - 2, BTN_H - 2);
-        }
-        if (showRestButton) {
-            shapeRenderer.rect(s.restBtnX,     s.restBtnY,     REST_W,     BTN_H);
-            shapeRenderer.rect(s.restBtnX + 1, s.restBtnY + 1, REST_W - 2, BTN_H - 2);
-        }
-        if (showSleepButton) {
-            shapeRenderer.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
-            shapeRenderer.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
         }
         if (showOfficeButton) {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
@@ -313,26 +281,6 @@ class InfoPanelRenderer {
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "10 min", s.lookAroundBtnX + LA_W + 10f,
                     s.lookAroundBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
-        }
-        if (showRestButton) {
-            glyphLayout.setText(font, "Rest");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Rest",
-                    s.restBtnX + (REST_W - glyphLayout.width) / 2,
-                    s.restBtnY + (BTN_H + glyphLayout.height) / 2);
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "1 hr", s.restBtnX + REST_W + 10f,
-                    s.restBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
-        }
-        if (showSleepButton) {
-            glyphLayout.setText(font, "Sleep");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Sleep",
-                    s.sleepBtnX + (SLEEP_W - glyphLayout.width) / 2,
-                    s.sleepBtnY + (BTN_H + glyphLayout.height) / 2);
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
-                    s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
         if (showOfficeButton) {
             glyphLayout.setText(font, officeBtnLabel);

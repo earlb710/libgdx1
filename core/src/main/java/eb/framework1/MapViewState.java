@@ -47,9 +47,14 @@ class MapViewState {
     // --- Button bounds (written by InfoPanelRenderer, read by MainScreen for hit-testing) ---
     float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
     float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
-    float restBtnX, restBtnY, restBtnW, restBtnH;
-    float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;
+    float restBtnX, restBtnY, restBtnW, restBtnH;       // written by UnitInteriorPopup
+    float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;   // written by UnitInteriorPopup
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
+
+    // --- Unit interior popup ---
+    boolean unitInteriorOpen  = false;
+    String  unitInteriorLabel = "";
+    float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;

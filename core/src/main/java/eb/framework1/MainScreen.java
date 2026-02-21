@@ -51,6 +51,7 @@ public class MainScreen implements Screen {
     private MapRenderer       mapRenderer;
     private InfoPanelRenderer infoPanelRenderer;
     private LookAroundPopup   lookAroundPopup;
+    private UnitInteriorPopup unitInteriorPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -170,6 +171,9 @@ public class MainScreen implements Screen {
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, cityMap, profile);
 
+        unitInteriorPopup = new UnitInteriorPopup(batch, shapeRenderer, font, smallFont,
+                glyphLayout, profile);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -204,6 +208,10 @@ public class MainScreen implements Screen {
         if (lookAroundPopup.isVisible()) {
             lookAroundPopup.update(delta);
             lookAroundPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
+        }
+
+        if (state.unitInteriorOpen && !lookAroundPopup.isVisible()) {
+            unitInteriorPopup.draw(state);
         }
 
         if (contextMenu.isVisible()) {
@@ -357,6 +365,7 @@ public class MainScreen implements Screen {
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        checkUnitExitButtonClick(screenX, flippedY);
                         checkMoveToButtonClick(screenX, flippedY);
                         checkLookAroundButtonClick(screenX, flippedY);
                         checkRestButtonClick(screenX, flippedY);
@@ -501,29 +510,23 @@ public class MainScreen implements Screen {
         } else {
             // Actions available at the current location
             boolean atHome = cx == state.homeCellX && cy == state.homeCellY;
-            int curHour = profile.getCurrentHour();
             Cell cell = cityMap.getCell(cx, cy);
             if (cell.hasBuilding() && cell.getBuilding().isDiscovered()) {
                 Building b = cell.getBuilding();
-                // "Go to your office" when at home and building has multiple floors
+                if (b.hasUndiscoveredImprovements()) {
+                    contextMenuItems.add("Look Around (10 min)");
+                    contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
+                }
                 if (atHome && b.getFloors() > 1) {
                     String officeLabel = "Go to your office : "
                             + floorOrdinal(state.homeFloor) + " Floor"
                             + " Unit " + state.homeFloor + state.homeUnitLetter;
                     contextMenuItems.add(officeLabel);
-                    contextMenuActions.add(() -> {}); // placeholder – interior nav not yet implemented
-                }
-                if (b.hasUndiscoveredImprovements()) {
-                    contextMenuItems.add("Look Around (10 min)");
-                    contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
-                }
-                if ((atHome || b.allowsRest()) && curHour >= 5 && curHour < 20) {
-                    contextMenuItems.add("Rest (1 hr)");
-                    contextMenuActions.add(this::handleRestClick);
-                }
-                if ((atHome || b.allowsSleep()) && (curHour >= 20 || curHour < 5)) {
-                    contextMenuItems.add("Sleep (until 6:00)");
-                    contextMenuActions.add(this::handleSleepClick);
+                    contextMenuActions.add(() -> {
+                        state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
+                                + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
+                        state.unitInteriorOpen = true;
+                    });
                 }
             }
         }
@@ -579,8 +582,19 @@ public class MainScreen implements Screen {
         if (state.goToOfficeBtnW <= 0) return;
         if (screenX >= state.goToOfficeBtnX && screenX <= state.goToOfficeBtnX + state.goToOfficeBtnW
                 && flippedY >= state.goToOfficeBtnY && flippedY <= state.goToOfficeBtnY + state.goToOfficeBtnH) {
-            Gdx.app.log("MainScreen", "Go to office: floor " + state.homeFloor + " unit " + state.homeFloor + state.homeUnitLetter);
-            // Placeholder – interior navigation not yet implemented
+            state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
+                    + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
+            state.unitInteriorOpen = true;
+            Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
+        }
+    }
+
+    private void checkUnitExitButtonClick(int screenX, int flippedY) {
+        if (!state.unitInteriorOpen || state.unitExitBtnW <= 0) return;
+        if (screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
+                && flippedY >= state.unitExitBtnY && flippedY <= state.unitExitBtnY + state.unitExitBtnH) {
+            state.unitInteriorOpen = false;
+            Gdx.app.log("MainScreen", "Exited unit");
         }
     }
 
@@ -633,6 +647,7 @@ public class MainScreen implements Screen {
         profile.useStamina(2);
         state.charCellX = state.selectedCellX;
         state.charCellY = state.selectedCellY;
+        state.unitInteriorOpen = false;
         discoverCell(state.charCellX, state.charCellY);
         state.currentRoute = null;
 
