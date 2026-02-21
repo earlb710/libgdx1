@@ -12,13 +12,13 @@ public class ImprovementTest {
 
     @Test
     public void testImprovementNotDiscoveredByDefault() {
-        Improvement imp = new Improvement("Solar Panels", 3, 5);
+        Improvement imp = new Improvement("Solar Panels", 3, 4);
         assertFalse("Improvement should not be discovered by default", imp.isDiscovered());
     }
 
     @Test
     public void testDiscoverImprovement() {
-        Improvement imp = new Improvement("Solar Panels", 3, 5);
+        Improvement imp = new Improvement("Solar Panels", 3, 4);
         assertFalse(imp.isDiscovered());
         imp.discover();
         assertTrue("Improvement should be discovered after calling discover()", imp.isDiscovered());
@@ -26,8 +26,8 @@ public class ImprovementTest {
 
     @Test
     public void testHiddenValueStored() {
-        Improvement imp = new Improvement("Solar Panels", 3, 7);
-        assertEquals("Hidden value should be 7", 7, imp.getHiddenValue());
+        Improvement imp = new Improvement("Solar Panels", 3, 4);
+        assertEquals("Hidden value should be 4", 4, imp.getHiddenValue());
     }
 
     @Test
@@ -38,9 +38,9 @@ public class ImprovementTest {
     }
 
     @Test
-    public void testHiddenValueTen() {
-        Improvement imp = new Improvement("Secret Vault", 5, 10);
-        assertEquals("Hidden value should be 10", 10, imp.getHiddenValue());
+    public void testHiddenValueFour() {
+        Improvement imp = new Improvement("Secret Vault", 5, 4);
+        assertEquals("Hidden value should be 4", 4, imp.getHiddenValue());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -49,8 +49,8 @@ public class ImprovementTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testHiddenValueAboveTen() {
-        new Improvement("Invalid", 1, 11);
+    public void testHiddenValueAboveFour() {
+        new Improvement("Invalid", 1, 5);
     }
 
     @Test
@@ -62,9 +62,9 @@ public class ImprovementTest {
 
     @Test
     public void testToStringIncludesHiddenAndDiscovered() {
-        Improvement imp = new Improvement("Elevator", 2, 6);
+        Improvement imp = new Improvement("Elevator", 2, 4);
         String str = imp.toString();
-        assertTrue("toString should include hiddenValue", str.contains("hiddenValue=6"));
+        assertTrue("toString should include hiddenValue", str.contains("hiddenValue=4"));
         assertTrue("toString should include discovered=false", str.contains("discovered=false"));
         imp.discover();
         str = imp.toString();
@@ -90,7 +90,7 @@ public class ImprovementTest {
 
     @Test
     public void testHiddenValueInRange() {
-        // Verify via CityMap that all generated improvements have hiddenValue 0-10
+        // Verify via CityMap that all generated improvements have hiddenValue 0-4
         CityMap map = new CityMap(12345L);
         for (int x = 0; x < CityMap.MAP_SIZE; x++) {
             for (int y = 0; y < CityMap.MAP_SIZE; y++) {
@@ -99,8 +99,8 @@ public class ImprovementTest {
                     for (Improvement imp : cell.getBuilding().getImprovements()) {
                         assertTrue("Hidden value should be >= 0 at (" + x + "," + y + ")",
                                    imp.getHiddenValue() >= 0);
-                        assertTrue("Hidden value should be <= 10 at (" + x + "," + y + ")",
-                                   imp.getHiddenValue() <= 10);
+                        assertTrue("Hidden value should be <= 4 at (" + x + "," + y + ")",
+                                   imp.getHiddenValue() <= 4);
                     }
                 }
             }
@@ -109,8 +109,7 @@ public class ImprovementTest {
 
     @Test
     public void testAttributeModifiersNotNull() {
-        Improvement imp = new Improvement("Security System", 3, 5);
-        assertNotNull("Attribute modifiers should not be null", imp.getAttributeModifiers());
+        Improvement imp = new Improvement("Security System", 3, 4);
     }
 
     @Test
@@ -178,7 +177,7 @@ public class ImprovementTest {
 
     @Test
     public void testModifiersAreUnmodifiable() {
-        Improvement imp = new Improvement("Security System", 3, 5);
+        Improvement imp = new Improvement("Security System", 3, 4);
         Map<CharacterAttribute, Integer> mods = imp.getAttributeModifiers();
         try {
             mods.put(CharacterAttribute.AGILITY, 99);

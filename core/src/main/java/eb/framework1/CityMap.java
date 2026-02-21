@@ -289,7 +289,7 @@ public class CityMap {
             Collections.shuffle(shuffled, random);
             for (int i = 0; i < 4; i++) {
                 int level = random.nextInt(5) + 1; // Levels 1-5
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(5); // Hidden value 0-4
                 selectedImprovements.add(new Improvement(shuffled.get(i), level, hiddenValue));
             }
         } else if (!availableImprovements.isEmpty()) {
@@ -297,7 +297,7 @@ public class CityMap {
             for (int i = 0; i < 4; i++) {
                 String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
                 int level = random.nextInt(5) + 1;
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(5); // Hidden value 0-4
                 selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         } else {
@@ -305,7 +305,7 @@ public class CityMap {
             for (int i = 0; i < 4; i++) {
                 String impName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
                 int level = random.nextInt(5) + 1;
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(5); // Hidden value 0-4
                 selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         }
@@ -356,7 +356,7 @@ public class CityMap {
         for (int i = 0; i < 4; i++) {
             String improvementName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
             int level = random.nextInt(5) + 1; // Levels 1-5
-            int hiddenValue = random.nextInt(11); // Hidden value 0-10
+            int hiddenValue = random.nextInt(5); // Hidden value 0-4
             improvements.add(new Improvement(improvementName, level, hiddenValue));
         }
         
