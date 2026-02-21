@@ -60,10 +60,13 @@ public class MainScreen implements Screen {
     private boolean isDragging = false;
     private float   dragStartX, dragStartY;
     private float   dragStartOffsetX, dragStartOffsetY;
-    // Context menu (right-click)
+    // Context menu (double-click)
     private final ContextMenu      contextMenu        = new ContextMenu();
     private final List<String>     contextMenuItems   = new ArrayList<>();
     private final List<Runnable>   contextMenuActions = new ArrayList<>();
+    private long  lastMapTapTimeMs = 0L;
+    private float lastMapTapX      = -1f;
+    private float lastMapTapY      = -1f;
 
     // Tuning constants
     private static final float MIN_ZOOM             = 1.0f;
@@ -71,6 +74,8 @@ public class MainScreen implements Screen {
     private static final float ZOOM_SPEED           = 0.15f;
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
+    private static final long  DOUBLE_CLICK_MS      = 400L;
+    private static final float DOUBLE_CLICK_PX      = 20f;
 
     // -------------------------------------------------------------------------
 
@@ -253,18 +258,6 @@ public class MainScreen implements Screen {
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
-                // Right-click: show context menu immediately (no tap-threshold needed on desktop)
-                if (button == Input.Buttons.RIGHT) {
-                    if (flippedY > state.infoAreaHeight && !lookAroundPopup.isVisible()) {
-                        contextMenu.dismiss();
-                        selectCellAt(screenX, flippedY);
-                        buildContextMenu(screenX, flippedY);
-                        Gdx.app.log("MainScreen", "Right-click menu built at " + screenX + "," + flippedY
-                                + " items=" + contextMenuItems.size());
-                    }
-                    return true;
-                }
-
                 // Any look-around popup blocks normal interaction
                 if (lookAroundPopup.isVisible()) {
                     infoAreaPressed  = true;
@@ -303,11 +296,6 @@ public class MainScreen implements Screen {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
-                // Right-click: menu was already shown on touchDown; nothing to do on release
-                if (button == Input.Buttons.RIGHT) {
-                    return true;
-                }
-
                 if (lookAroundPopup.isResults()) {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
@@ -340,7 +328,24 @@ public class MainScreen implements Screen {
 
                 if (isDragging && flippedY > state.infoAreaHeight) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (d < TAP_THRESHOLD_PIXELS) selectCellAt(screenX, flippedY);
+                    if (d < TAP_THRESHOLD_PIXELS) {
+                        selectCellAt(screenX, flippedY);
+                        // Double-click detection: two taps close together in time and space
+                        long  now = System.currentTimeMillis();
+                        float dd  = Vector2.len(screenX - lastMapTapX, screenY - lastMapTapY);
+                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && dd < DOUBLE_CLICK_PX
+                                && !lookAroundPopup.isVisible()) {
+                            contextMenu.dismiss();
+                            buildContextMenu(screenX, flippedY);
+                            Gdx.app.log("MainScreen", "Double-click menu at " + screenX + "," + flippedY
+                                    + " items=" + contextMenuItems.size());
+                            lastMapTapTimeMs = 0L; // reset so triple-click doesn't re-trigger
+                        } else {
+                            lastMapTapTimeMs = now;
+                            lastMapTapX      = screenX;
+                            lastMapTapY      = screenY;
+                        }
+                    }
                 }
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
