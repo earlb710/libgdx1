@@ -37,7 +37,7 @@ class ContextMenu {
     // --- Layout constants ---
     private static final float PAD_X       = 26f;
     private static final float PAD_Y       = 14f;
-    private static final float ITEM_GAP    = 8f;   // vertical gap between items
+    private static final float ITEM_GAP    = 12f;  // vertical gap between items
 
     // --- State ---
     private boolean visible = false;
@@ -178,6 +178,8 @@ class ContextMenu {
     // -------------------------------------------------------------------------
 
     private float totalHeight() {
-        return items.size() * itemH + Math.max(0, items.size() - 1) * ITEM_GAP;
+        // Each item row occupies itemH + ITEM_GAP (including a gap after the last item
+        // which acts as bottom padding, preventing text from overflowing the border).
+        return items.size() * (itemH + ITEM_GAP);
     }
 }
