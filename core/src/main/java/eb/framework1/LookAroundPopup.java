@@ -203,8 +203,9 @@ class LookAroundPopup {
     // -------------------------------------------------------------------------
 
     private void runDiscovery() {
-        // Advance game time by 10 minutes for the look-around action
+        // Advance game time and deduct stamina for the look-around action
         profile.advanceGameTime(10);
+        profile.useStamina(1);
 
         Cell cell = cityMap.getCell(lookCharX, lookCharY);
         if (cell.hasBuilding()) {

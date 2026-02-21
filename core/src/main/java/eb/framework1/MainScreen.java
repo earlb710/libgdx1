@@ -414,6 +414,7 @@ public class MainScreen implements Screen {
         if (state.selectedCellX < 0) return;
 
         profile.advanceGameTime(state.currentRoute.totalMinutes);
+        profile.useStamina(1);
         state.charCellX = state.selectedCellX;
         state.charCellY = state.selectedCellY;
         discoverCell(state.charCellX, state.charCellY);

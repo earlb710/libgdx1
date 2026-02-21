@@ -13,6 +13,7 @@ public class Profile {
     private long randSeed; // Random seed for procedural generation
     private int money;     // Player's current money
     private String gameDateTime; // Full in-game date/time string (e.g. "2050-01-02 13:20")
+    private int currentStamina = -1; // -1 = lazy-initialise from STAMINA attribute on first access
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -133,6 +134,28 @@ public class Profile {
 
     public void setGameDateTime(String gameDateTime) {
         this.gameDateTime = gameDateTime;
+    }
+
+    /** Maximum stamina pool = STAMINA attribute value × 10. */
+    public int getMaxStamina() {
+        return Math.max(1, getAttribute(CharacterAttribute.STAMINA.name())) * 10;
+    }
+
+    /** Current stamina. Lazy-initialised to {@link #getMaxStamina()} on first call. */
+    public int getCurrentStamina() {
+        if (currentStamina < 0) {
+            currentStamina = getMaxStamina();
+        }
+        return currentStamina;
+    }
+
+    /** Deducts {@code amount} stamina points (floored at 0). */
+    public void useStamina(int amount) {
+        currentStamina = Math.max(0, getCurrentStamina() - amount);
+    }
+
+    public void setCurrentStamina(int stamina) {
+        this.currentStamina = Math.max(0, stamina);
     }
 
     /**

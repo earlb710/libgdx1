@@ -84,26 +84,40 @@ class InfoPanelRenderer {
         shapeRenderer.end();
 
         batch.begin();
-        glyphLayout.setText(font, "Hg");
+        glyphLayout.setText(smallFont, "Hg");
         float textY = barY + (MapViewState.INFO_BAR_HEIGHT + glyphLayout.height) / 2;
 
+        // Date / time (left) — smallFont
         String dateTime = profile.getGameDateTime();
         int spaceIdx = dateTime.indexOf(' ');
         String datePart = spaceIdx >= 0 ? dateTime.substring(0, spaceIdx) : dateTime;
         String timePart = spaceIdx >= 0 ? dateTime.substring(spaceIdx) : "";
 
-        font.setColor(Color.GREEN);
-        font.draw(batch, datePart, 10, textY);
-        glyphLayout.setText(font, datePart);
-        font.setColor(Color.WHITE);
-        font.draw(batch, timePart, 10 + glyphLayout.width, textY);
+        smallFont.setColor(Color.GREEN);
+        smallFont.draw(batch, datePart, 10, textY);
+        glyphLayout.setText(smallFont, datePart);
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, timePart, 10 + glyphLayout.width, textY);
 
+        // Money (right) — smallFont
         String moneyText = "$" + profile.getMoney();
-        glyphLayout.setText(font, moneyText);
-        font.setColor(Color.YELLOW);
-        font.draw(batch, moneyText, s.screenWidth - glyphLayout.width - 10, textY);
+        glyphLayout.setText(smallFont, moneyText);
+        smallFont.setColor(Color.YELLOW);
+        smallFont.draw(batch, moneyText, s.screenWidth - glyphLayout.width - 10, textY);
 
-        font.setColor(Color.WHITE);
+        // Stamina (centre) — label white, value cyan/blue
+        String staminaLabel = "Stamina ";
+        String staminaValue = profile.getCurrentStamina() + " / " + profile.getMaxStamina();
+        glyphLayout.setText(smallFont, staminaLabel + staminaValue);
+        float staminaTotalW = glyphLayout.width;
+        float staminaX = (s.screenWidth - staminaTotalW) / 2f;
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, staminaLabel, staminaX, textY);
+        glyphLayout.setText(smallFont, staminaLabel);
+        smallFont.setColor(new Color(0.4f, 0.7f, 1.0f, 1f));
+        smallFont.draw(batch, staminaValue, staminaX + glyphLayout.width, textY);
+
+        smallFont.setColor(Color.WHITE);
         batch.end();
     }
 
@@ -132,8 +146,9 @@ class InfoPanelRenderer {
         glyphLayout.setText(smallFont, "Hg");
         float smallCapH  = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
-        // Vertical offset so smallFont text is centred against a font-sized row
-        float valCenterOff = (fontCapH - smallCapH) / 2f;
+        // Vertical offsets for smallFont relative to a font-height row
+        float valCenterOff = (fontCapH - smallCapH) / 2f;  // centre-aligns small with big
+        float valBottomOff = fontCapH - smallCapH;          // bottom-aligns small with big
 
         // --- Button sizing ---
         final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f;
@@ -294,7 +309,7 @@ class InfoPanelRenderer {
                                 glyphLayout.setText(font, namePart);
                                 smallFont.setColor(Color.WHITE);
                                 smallFont.draw(batch, " " + modStr,
-                                        idx + glyphLayout.width, idy - valCenterOff);
+                                        idx + glyphLayout.width, idy - valBottomOff);
                             }
                         } else {
                             font.setColor(Color.WHITE);
