@@ -105,17 +105,12 @@ class InfoPanelRenderer {
         smallFont.setColor(Color.YELLOW);
         smallFont.draw(batch, moneyText, s.screenWidth - glyphLayout.width - 10, textY);
 
-        // Stamina (centre) — label white, value cyan/blue
-        String staminaLabel = "Stamina ";
-        String staminaValue = profile.getCurrentStamina() + " / " + profile.getMaxStamina();
-        glyphLayout.setText(smallFont, staminaLabel + staminaValue);
-        float staminaTotalW = glyphLayout.width;
-        float staminaX = (s.screenWidth - staminaTotalW) / 2f;
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, staminaLabel, staminaX, textY);
-        glyphLayout.setText(smallFont, staminaLabel);
+        // Stamina (centre) — value only, cyan/blue, e.g. "20/20"
+        String staminaValue = profile.getCurrentStamina() + "/" + profile.getMaxStamina();
+        glyphLayout.setText(smallFont, staminaValue);
+        float staminaX = (s.screenWidth - glyphLayout.width) / 2f;
         smallFont.setColor(new Color(0.4f, 0.7f, 1.0f, 1f));
-        smallFont.draw(batch, staminaValue, staminaX + glyphLayout.width, textY);
+        smallFont.draw(batch, staminaValue, staminaX, textY);
 
         smallFont.setColor(Color.WHITE);
         batch.end();

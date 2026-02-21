@@ -136,9 +136,9 @@ public class Profile {
         this.gameDateTime = gameDateTime;
     }
 
-    /** Maximum stamina pool = STAMINA attribute value × 10. */
+    /** Maximum stamina pool = STAMINA attribute value × 10, minimum 10. */
     public int getMaxStamina() {
-        return Math.max(1, getAttribute(CharacterAttribute.STAMINA.name())) * 10;
+        return Math.max(10, getAttribute(CharacterAttribute.STAMINA.name()) * 10);
     }
 
     /** Current stamina. Lazy-initialised to {@link #getMaxStamina()} on first call. */
