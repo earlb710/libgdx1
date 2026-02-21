@@ -105,7 +105,7 @@ public class ProfileSelectionScreen implements Screen {
         float btnH = refBounds.height;
         float btnW = refBounds.width;
         for (int i = 0; i < profiles.size(); i++) {
-            float w = TextMeasurer.measure(buttonFont, profiles.get(i).getProfileName(), 200f, 60f).width;
+            float w = TextMeasurer.measure(buttonFont, profiles.get(i).getName(), 200f, 60f).width;
             if (w > btnW) btnW = w;
         }
         final float BUTTON_WIDTH  = btnW;
