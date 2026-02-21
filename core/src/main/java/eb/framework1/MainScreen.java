@@ -52,6 +52,7 @@ public class MainScreen implements Screen {
     private InfoPanelRenderer infoPanelRenderer;
     private LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
+    private TirednessPopup    tirednessPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -174,6 +175,8 @@ public class MainScreen implements Screen {
         unitInteriorPopup = new UnitInteriorPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, profile);
 
+        tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -212,6 +215,10 @@ public class MainScreen implements Screen {
 
         if (state.unitInteriorOpen && !lookAroundPopup.isVisible()) {
             unitInteriorPopup.draw(state);
+        }
+
+        if (tirednessPopup.isVisible()) {
+            tirednessPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -282,6 +289,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Tiredness popup blocks all normal interaction until dismissed
+                if (tirednessPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -322,6 +338,17 @@ public class MainScreen implements Screen {
                 }
                 if (lookAroundPopup.isAnimating()) {
                     infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
+
+                // Tiredness popup: only the OK button can dismiss it
+                if (tirednessPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) tirednessPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
                     isDragging = false;
                     return true;
                 }
@@ -558,6 +585,7 @@ public class MainScreen implements Screen {
         if (state.lookAroundBtnW <= 0) return;
         if (screenX >= state.lookAroundBtnX && screenX <= state.lookAroundBtnX + state.lookAroundBtnW
                 && flippedY >= state.lookAroundBtnY && flippedY <= state.lookAroundBtnY + state.lookAroundBtnH) {
+            if (checkTirednessBeforeAction()) return;
             lookAroundPopup.start(state.charCellX, state.charCellY);
         }
     }
@@ -642,6 +670,7 @@ public class MainScreen implements Screen {
     private void handleMoveToClick() {
         if (state.currentRoute == null || !state.currentRoute.isReachable()) return;
         if (state.selectedCellX < 0) return;
+        if (checkTirednessBeforeAction()) return;
 
         profile.advanceGameTime(state.currentRoute.totalMinutes);
         profile.useStamina(2);
@@ -655,6 +684,90 @@ public class MainScreen implements Screen {
         state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
         state.clampMapOffset();
         Gdx.app.log("MainScreen", "Moved to " + state.charCellX + "," + state.charCellY);
+    }
+
+    /**
+     * Checks if the character is too tired (stamina &lt;= 2) to perform a stamina-using action.
+     * If too tired: automatically routes the player home, advances game time by the travel
+     * cost, then applies rest (+2 stamina, +60 min) or sleep (until 06:00) depending on the
+     * time of day.  Shows the tiredness popup to explain what happened.
+     *
+     * @return {@code true} if the action should be blocked (player was too tired);
+     *         {@code false} if the action can proceed normally.
+     */
+    private boolean checkTirednessBeforeAction() {
+        if (profile.getCurrentStamina() > 2) return false;
+        if (state.homeCellX < 0) return false; // no home assigned yet
+
+        // Calculate travel time from current position to home
+        int travelMinutes = 0;
+        if (state.charCellX != state.homeCellX || state.charCellY != state.homeCellY) {
+            CityMap.RouteResult homeRoute = cityMap.findFastestRoute(
+                    state.charCellX, state.charCellY, state.homeCellX, state.homeCellY);
+            if (homeRoute != null && homeRoute.isReachable()) {
+                travelMinutes = homeRoute.totalMinutes;
+            }
+        }
+
+        // Advance time for travel and teleport home
+        if (travelMinutes > 0) profile.advanceGameTime(travelMinutes);
+        state.charCellX     = state.homeCellX;
+        state.charCellY     = state.homeCellY;
+        state.selectedCellX = state.homeCellX;
+        state.selectedCellY = state.homeCellY;
+        state.unitInteriorOpen = false;
+        state.currentRoute  = null;
+        discoverCell(state.charCellX, state.charCellY);
+
+        // Centre map on home
+        state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
+        state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
+        state.clampMapOffset();
+
+        // Determine rest or sleep based on the time AFTER travel
+        int hour = profile.getCurrentHour();
+        boolean nighttime = (hour >= 20 || hour < 5);
+
+        List<String> msgLines = new ArrayList<>();
+        if (travelMinutes > 0) {
+            msgLines.add("You collapsed on the way home.");
+            msgLines.add("Travel time lost: " + formatMinutes(travelMinutes) + ".");
+        } else {
+            msgLines.add("You are too exhausted to continue.");
+        }
+
+        if (nighttime) {
+            int curHour = profile.getCurrentHour();
+            int curMin  = profile.getCurrentMinute();
+            int minutesSleep = (curHour >= 20)
+                    ? (24 - curHour) * 60 - curMin + 6 * 60
+                    : (6 - curHour) * 60 - curMin;
+            if (minutesSleep <= 0) minutesSleep = 1;
+            float fraction    = Math.min(1.0f, minutesSleep / (8f * 60f));
+            int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
+            profile.addStamina(staminaGain);
+            profile.advanceGameTime(minutesSleep);
+            msgLines.add("You slept until 06:00.");
+            msgLines.add("+" + staminaGain + " stamina restored.");
+        } else {
+            profile.addStamina(2);
+            profile.advanceGameTime(60);
+            msgLines.add("You rested for 1 hour at home.");
+            msgLines.add("+2 stamina restored.");
+        }
+
+        tirednessPopup.show(msgLines);
+        Gdx.app.log("MainScreen", "Tiredness triggered: travel=" + travelMinutes + "min");
+        return true;
+    }
+
+    /** Formats a minute count as a compact string, e.g. "1h 30min" or "45 min". */
+    private static String formatMinutes(int totalMinutes) {
+        int hours = totalMinutes / 60;
+        int mins  = totalMinutes % 60;
+        if (hours == 0) return mins + " min";
+        if (mins  == 0) return hours + "h";
+        return hours + "h " + mins + "min";
     }
 
     /**
