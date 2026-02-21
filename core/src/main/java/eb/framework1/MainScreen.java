@@ -160,7 +160,7 @@ public class MainScreen implements Screen {
 
         if (lookAroundPopup.isVisible()) {
             lookAroundPopup.update(delta);
-            lookAroundPopup.draw(state.screenWidth, state.screenHeight);
+            lookAroundPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
         }
     }
 

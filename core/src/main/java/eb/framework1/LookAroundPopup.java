@@ -26,7 +26,6 @@ class LookAroundPopup {
     private static final int   MAX_DOTS     = 3;
 
     // Colours
-    private static final Color OVERLAY_COLOR  = new Color(0f,   0f,   0f,    0.7f);
     private static final Color BG_COLOR       = new Color(0.1f, 0.1f, 0.18f, 1f);
     private static final Color BORDER_COLOR   = new Color(0.5f, 0.6f, 0.8f,  1f);
     private static final Color BTN_COLOR      = new Color(0.1f, 0.5f, 0.15f, 1f);
@@ -114,7 +113,7 @@ class LookAroundPopup {
     // Drawing
     // -------------------------------------------------------------------------
 
-    void draw(int screenW, int screenH) {
+    void draw(int screenW, int screenH, int infoAreaHeight) {
         glyphLayout.setText(font, "Hg");
         float fontH   = glyphLayout.height;
         float fontLineH  = fontH * 1.5f;
@@ -123,8 +122,6 @@ class LookAroundPopup {
         float smallLineH = smallH * 1.5f;
 
         final float PAD   = 24f;
-        final float MIN_W = 300f;
-        float dialogW = Math.max(MIN_W, screenW * 0.6f);
 
         glyphLayout.setText(font, "OK");
         float okBtnW = glyphLayout.width + 48f;
@@ -139,13 +136,13 @@ class LookAroundPopup {
                 + (state == State.RESULTS ? PAD + okBtnH : 0)
                 + PAD;
 
-        float dialogX = (screenW - dialogW) / 2f;
-        float dialogY = (screenH - dialogH) / 2f;
+        // Full-width, anchored to the bottom (info panel area) – does not cover the map
+        float dialogW = screenW;
+        float dialogX = 0;
+        float dialogY = 0;
 
         // --- Shapes ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(OVERLAY_COLOR);
-        shapeRenderer.rect(0, 0, screenW, screenH);
         shapeRenderer.setColor(BG_COLOR);
         shapeRenderer.rect(dialogX, dialogY, dialogW, dialogH);
         if (state == State.RESULTS) {
