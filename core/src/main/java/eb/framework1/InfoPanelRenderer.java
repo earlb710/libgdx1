@@ -142,9 +142,10 @@ class InfoPanelRenderer {
                 && hasUndiscoveredImprovements(
                         cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding());
 
+        boolean atHome = s.selectedCellX == s.homeCellX && s.selectedCellY == s.homeCellY;
         int curHour = profile.getCurrentHour();
-        boolean showRestButton  = atCurrentBuilding && curHour >= 5 && curHour < 20;
-        boolean showSleepButton = atCurrentBuilding && (curHour >= 20 || curHour < 5);
+        boolean showRestButton  = atCurrentBuilding && atHome && curHour >= 5 && curHour < 20;
+        boolean showSleepButton = atCurrentBuilding && atHome && (curHour >= 20 || curHour < 5);
 
         // --- Font metrics ---
         glyphLayout.setText(font, "Hg");
@@ -161,7 +162,7 @@ class InfoPanelRenderer {
         float valSmallTinyOff   = smallCapH - tinyCapH;           // bottom-aligns tiny with small row
 
         // --- Button sizing ---
-        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 16f;
+        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 8f;
         glyphLayout.setText(font, "Move to");
         final float BTN_W = glyphLayout.width + PAD_X * 2;
         final float BTN_H = glyphLayout.height + PAD_Y * 2;
@@ -172,28 +173,26 @@ class InfoPanelRenderer {
         glyphLayout.setText(font, "Sleep");
         final float SLEEP_W = glyphLayout.width + PAD_X * 2;
 
-        float btnY = s.infoAreaHeight - BTN_PAD - BTN_H;
-        float curX = 20f;
+        // Buttons stack vertically from the top of the info panel downward
+        final float btnX = 20f;
+        float curRowBottom = s.infoAreaHeight - BTN_PAD - BTN_H;
+        float lowestBtnBottom = -1f; // bottom Y of last visible button
 
-        // Assign button bounds (Move To is exclusive with the at-location buttons)
-        s.moveToButtonY = btnY; s.moveToButtonH = BTN_H;
-        s.moveToButtonX = curX;
-        s.moveToButtonW = showMoveToButton ? BTN_W : 0f;
-        if (showMoveToButton) curX += BTN_W + BTN_SPACING;
+        s.moveToButtonX = btnX; s.moveToButtonH = BTN_H; s.moveToButtonW = showMoveToButton ? BTN_W : 0f;
+        s.moveToButtonY = curRowBottom;
+        if (showMoveToButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        s.lookAroundBtnY = btnY; s.lookAroundBtnH = BTN_H;
-        s.lookAroundBtnX = curX;
-        s.lookAroundBtnW = showLookAroundButton ? LA_W : 0f;
-        if (showLookAroundButton) curX += LA_W + BTN_SPACING;
+        s.lookAroundBtnX = btnX; s.lookAroundBtnH = BTN_H; s.lookAroundBtnW = showLookAroundButton ? LA_W : 0f;
+        s.lookAroundBtnY = curRowBottom;
+        if (showLookAroundButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        s.restBtnY = btnY; s.restBtnH = BTN_H;
-        s.restBtnX = curX;
-        s.restBtnW = showRestButton ? REST_W : 0f;
-        if (showRestButton) curX += REST_W + BTN_SPACING;
+        s.restBtnX = btnX; s.restBtnH = BTN_H; s.restBtnW = showRestButton ? REST_W : 0f;
+        s.restBtnY = curRowBottom;
+        if (showRestButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        s.sleepBtnY = btnY; s.sleepBtnH = BTN_H;
-        s.sleepBtnX = curX;
-        s.sleepBtnW = showSleepButton ? SLEEP_W : 0f;
+        s.sleepBtnX = btnX; s.sleepBtnH = BTN_H; s.sleepBtnW = showSleepButton ? SLEEP_W : 0f;
+        s.sleepBtnY = curRowBottom;
+        if (showSleepButton) { lowestBtnBottom = curRowBottom; }
 
         boolean hasButton = showMoveToButton || showLookAroundButton || showRestButton || showSleepButton;
 
@@ -201,7 +200,7 @@ class InfoPanelRenderer {
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
         // contentStartY: virtual Y of the first text line (y-up, no scroll applied)
         float contentStartY = hasButton
-                ? btnY - BTN_PAD - fontLineH
+                ? lowestBtnBottom - BTN_PAD - fontLineH
                 : s.infoAreaHeight - fontLineH;
         float contentAreaBottom = SB;                        // above horizontal scrollbar
         float contentAreaH      = contentStartY - contentAreaBottom;
@@ -221,19 +220,19 @@ class InfoPanelRenderer {
         shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
             shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
-            shapeRenderer.rect(s.moveToButtonX, btnY, BTN_W, BTN_H);
+            shapeRenderer.rect(s.moveToButtonX, s.moveToButtonY, BTN_W, BTN_H);
         }
         if (showLookAroundButton) {
             shapeRenderer.setColor(LOOK_AROUND_BTN_COLOR);
-            shapeRenderer.rect(s.lookAroundBtnX, btnY, LA_W, BTN_H);
+            shapeRenderer.rect(s.lookAroundBtnX, s.lookAroundBtnY, LA_W, BTN_H);
         }
         if (showRestButton) {
             shapeRenderer.setColor(REST_BTN_COLOR);
-            shapeRenderer.rect(s.restBtnX, btnY, REST_W, BTN_H);
+            shapeRenderer.rect(s.restBtnX, s.restBtnY, REST_W, BTN_H);
         }
         if (showSleepButton) {
             shapeRenderer.setColor(SLEEP_BTN_COLOR);
-            shapeRenderer.rect(s.sleepBtnX, btnY, SLEEP_W, BTN_H);
+            shapeRenderer.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
         }
         shapeRenderer.end();
 
@@ -241,20 +240,20 @@ class InfoPanelRenderer {
         shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, s.infoAreaHeight, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
-            shapeRenderer.rect(s.moveToButtonX,     btnY,     BTN_W,     BTN_H);
-            shapeRenderer.rect(s.moveToButtonX + 1, btnY + 1, BTN_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.moveToButtonX,     s.moveToButtonY,     BTN_W,     BTN_H);
+            shapeRenderer.rect(s.moveToButtonX + 1, s.moveToButtonY + 1, BTN_W - 2, BTN_H - 2);
         }
         if (showLookAroundButton) {
-            shapeRenderer.rect(s.lookAroundBtnX,     btnY,     LA_W,     BTN_H);
-            shapeRenderer.rect(s.lookAroundBtnX + 1, btnY + 1, LA_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.lookAroundBtnX,     s.lookAroundBtnY,     LA_W,     BTN_H);
+            shapeRenderer.rect(s.lookAroundBtnX + 1, s.lookAroundBtnY + 1, LA_W - 2, BTN_H - 2);
         }
         if (showRestButton) {
-            shapeRenderer.rect(s.restBtnX,     btnY,     REST_W,     BTN_H);
-            shapeRenderer.rect(s.restBtnX + 1, btnY + 1, REST_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.restBtnX,     s.restBtnY,     REST_W,     BTN_H);
+            shapeRenderer.rect(s.restBtnX + 1, s.restBtnY + 1, REST_W - 2, BTN_H - 2);
         }
         if (showSleepButton) {
-            shapeRenderer.rect(s.sleepBtnX,     btnY,     SLEEP_W,     BTN_H);
-            shapeRenderer.rect(s.sleepBtnX + 1, btnY + 1, SLEEP_W - 2, BTN_H - 2);
+            shapeRenderer.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
+            shapeRenderer.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
         }
         shapeRenderer.end();
 
@@ -268,12 +267,12 @@ class InfoPanelRenderer {
             font.setColor(Color.WHITE);
             font.draw(batch, "Move to",
                     s.moveToButtonX + (BTN_W - glyphLayout.width) / 2,
-                    btnY + (BTN_H + glyphLayout.height) / 2);
+                    s.moveToButtonY + (BTN_H + glyphLayout.height) / 2);
             String timeStr = canMove ? s.currentRoute.formatTime() : "Unreachable";
             glyphLayout.setText(smallFont, timeStr);
             smallFont.setColor(canMove ? Color.WHITE : Color.RED);
             smallFont.draw(batch, timeStr, s.moveToButtonX + BTN_W + 10f,
-                    btnY + (BTN_H + glyphLayout.height) / 2);
+                    s.moveToButtonY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
         }
         if (showLookAroundButton) {
@@ -281,35 +280,35 @@ class InfoPanelRenderer {
             font.setColor(Color.WHITE);
             font.draw(batch, "Look around",
                     s.lookAroundBtnX + (LA_W - glyphLayout.width) / 2,
-                    btnY + (BTN_H + glyphLayout.height) / 2);
+                    s.lookAroundBtnY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "10 min", s.lookAroundBtnX + LA_W + 10f,
-                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+                    s.lookAroundBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
         if (showRestButton) {
             glyphLayout.setText(font, "Rest");
             font.setColor(Color.WHITE);
             font.draw(batch, "Rest",
                     s.restBtnX + (REST_W - glyphLayout.width) / 2,
-                    btnY + (BTN_H + glyphLayout.height) / 2);
+                    s.restBtnY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "1 hr", s.restBtnX + REST_W + 10f,
-                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+                    s.restBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
         if (showSleepButton) {
             glyphLayout.setText(font, "Sleep");
             font.setColor(Color.WHITE);
             font.draw(batch, "Sleep",
                     s.sleepBtnX + (SLEEP_W - glyphLayout.width) / 2,
-                    btnY + (BTN_H + glyphLayout.height) / 2);
+                    s.sleepBtnY + (BTN_H + glyphLayout.height) / 2);
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
-                    btnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+                    s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
 
         // GL scissor: clips content to its area (below buttons, above horizontal scrollbar)
         batch.flush();
-        float scissorTop = hasButton ? btnY : s.infoAreaHeight;
+        float scissorTop = hasButton ? lowestBtnBottom : s.infoAreaHeight;
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor(0, (int) contentAreaBottom,
                 (int) contentAreaW, Math.max(0, (int)(scissorTop - contentAreaBottom)));
