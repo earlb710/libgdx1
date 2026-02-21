@@ -98,7 +98,9 @@ class InfoPanelRenderer {
                 && s.selectedCellX == s.charCellX && s.selectedCellY == s.charCellY
                 && lookAroundIdle
                 && cityMap.getCell(s.selectedCellX, s.selectedCellY).hasBuilding()
-                && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered();
+                && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered()
+                && hasUndiscoveredImprovements(
+                        cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding());
 
         // --- Button sizing ---
         final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f;
@@ -274,5 +276,13 @@ class InfoPanelRenderer {
             sb.append(val);
         }
         return sb.append(']').toString();
+    }
+
+    /** Returns true if the building has at least one improvement that has not yet been discovered. */
+    private static boolean hasUndiscoveredImprovements(Building building) {
+        for (Improvement imp : building.getImprovements()) {
+            if (!imp.isDiscovered()) return true;
+        }
+        return false;
     }
 }
