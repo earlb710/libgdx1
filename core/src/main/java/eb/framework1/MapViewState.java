@@ -40,6 +40,8 @@ class MapViewState {
     int cursorCellY = -1;
     int homeCellX = -1;
     int homeCellY = -1;
+    int homeFloor      = 1;    // floor number (1-based) the player's office is on
+    char homeUnitLetter = 'A'; // unit letter (A-Z) within the floor; unit label = floor + letter (e.g. 3C)
     CityMap.RouteResult currentRoute = null;
 
     // --- Button bounds (written by InfoPanelRenderer, read by MainScreen for hit-testing) ---

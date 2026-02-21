@@ -126,14 +126,21 @@ public class MainScreen implements Screen {
                     .nextInt(homeSrc.size()));
             state.homeCellX = homeCell.getX();
             state.homeCellY = homeCell.getY();
-            homeCell.getBuilding().setHome(true);
-            homeCell.getBuilding().setOwned(true);
+            Building homeBuilding = homeCell.getBuilding();
+            homeBuilding.setHome(true);
+            homeBuilding.setOwned(true);
             discoverCell(state.homeCellX, state.homeCellY);
+            // Assign a random floor and unit letter for the player's office
+            Random officeRng = new Random(profile.getRandSeed() + 17);
+            int floors = homeBuilding.getFloors();
+            state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
+            state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
             state.charCellX     = state.homeCellX;
             state.charCellY     = state.homeCellY;
             state.selectedCellX = state.homeCellX;
             state.selectedCellY = state.homeCellY;
-            Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY);
+            Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY
+                    + " Floor " + state.homeFloor + " Unit " + state.homeFloor + state.homeUnitLetter);
         } else if (!buildingCells.isEmpty()) {
             // Fallback: no home found, use any building cell
             Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
@@ -497,6 +504,14 @@ public class MainScreen implements Screen {
             Cell cell = cityMap.getCell(cx, cy);
             if (cell.hasBuilding() && cell.getBuilding().isDiscovered()) {
                 Building b = cell.getBuilding();
+                // "Go to your office" when at home and building has multiple floors
+                if (atHome && b.getFloors() > 1) {
+                    String officeLabel = "Go to your office : "
+                            + floorOrdinal(state.homeFloor) + " Floor"
+                            + " Unit " + state.homeFloor + state.homeUnitLetter;
+                    contextMenuItems.add(officeLabel);
+                    contextMenuActions.add(() -> {}); // placeholder – interior nav not yet implemented
+                }
                 if (b.hasUndiscoveredImprovements()) {
                     contextMenuItems.add("Look Around (10 min)");
                     contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
@@ -515,6 +530,19 @@ public class MainScreen implements Screen {
         if (!contextMenuItems.isEmpty()) {
             contextMenu.show(menuScreenX, menuFlippedY, contextMenuItems,
                     font, glyphLayout, state.screenWidth, state.screenHeight);
+        }
+    }
+
+    /** Returns the ordinal string for a 1-based floor number: 1→"1st", 2→"2nd", 3→"3rd", etc. */
+    private static String floorOrdinal(int n) {
+        if (n <= 0) return n + "th";
+        int mod100 = n % 100;
+        if (mod100 >= 11 && mod100 <= 13) return n + "th";
+        switch (n % 10) {
+            case 1:  return n + "st";
+            case 2:  return n + "nd";
+            case 3:  return n + "rd";
+            default: return n + "th";
         }
     }
 

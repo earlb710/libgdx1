@@ -35,9 +35,9 @@ class ContextMenu {
     private static final Color TEXT_COLOR   = Color.WHITE;
 
     // --- Layout constants ---
-    private static final float PAD_X       = 18f;
-    private static final float PAD_Y       = 9f;
-    private static final float ITEM_GAP    = 2f;   // vertical gap between items
+    private static final float PAD_X       = 26f;
+    private static final float PAD_Y       = 14f;
+    private static final float ITEM_GAP    = 8f;   // vertical gap between items
 
     // --- State ---
     private boolean visible = false;
