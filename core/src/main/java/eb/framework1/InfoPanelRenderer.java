@@ -41,6 +41,7 @@ class InfoPanelRenderer {
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
     private static final Color REST_BTN_COLOR          = new Color(0.4f,  0.25f, 0.05f, 1f);
     private static final Color SLEEP_BTN_COLOR         = new Color(0.08f, 0.08f, 0.45f, 1f);
+    private static final Color OFFICE_BTN_COLOR         = new Color(0.45f, 0.35f, 0.0f,  1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
@@ -149,6 +150,8 @@ class InfoPanelRenderer {
                 && (atHome || selBuilding.allowsRest()) && curHour >= 5 && curHour < 20;
         boolean showSleepButton = selBuilding != null
                 && (atHome || selBuilding.allowsSleep()) && (curHour >= 20 || curHour < 5);
+        boolean showOfficeButton = atHome && selBuilding != null
+                && selBuilding.getFloors() > 1;
 
         // --- Font metrics ---
         glyphLayout.setText(font, "Hg");
@@ -175,6 +178,7 @@ class InfoPanelRenderer {
         final float REST_W = glyphLayout.width + PAD_X * 2;
         glyphLayout.setText(font, "Sleep");
         final float SLEEP_W = glyphLayout.width + PAD_X * 2;
+        // office button label width computed dynamically below
 
         // Buttons stack vertically from the top of the info panel downward
         final float btnX = 20f;
@@ -195,9 +199,23 @@ class InfoPanelRenderer {
 
         s.sleepBtnX = btnX; s.sleepBtnH = BTN_H; s.sleepBtnW = showSleepButton ? SLEEP_W : 0f;
         s.sleepBtnY = curRowBottom;
-        if (showSleepButton) { lowestBtnBottom = curRowBottom; }
+        if (showSleepButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showRestButton || showSleepButton;
+        // Office button — width based on the actual label text
+        String officeBtnLabel = showOfficeButton
+                ? "Your Office: " + floorOrdinal(s.homeFloor) + " Fl Unit " + s.homeFloor + s.homeUnitLetter
+                : "";
+        float OFFICE_W = 0f;
+        if (showOfficeButton) {
+            glyphLayout.setText(font, officeBtnLabel);
+            OFFICE_W = glyphLayout.width + PAD_X * 2;
+        }
+        s.goToOfficeBtnX = btnX; s.goToOfficeBtnH = BTN_H; s.goToOfficeBtnW = showOfficeButton ? OFFICE_W : 0f;
+        s.goToOfficeBtnY = curRowBottom;
+        if (showOfficeButton) { lowestBtnBottom = curRowBottom; }
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showRestButton || showSleepButton
+                || showOfficeButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -237,6 +255,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(SLEEP_BTN_COLOR);
             shapeRenderer.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
         }
+        if (showOfficeButton) {
+            shapeRenderer.setColor(OFFICE_BTN_COLOR);
+            shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
+        }
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -257,6 +279,10 @@ class InfoPanelRenderer {
         if (showSleepButton) {
             shapeRenderer.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
             shapeRenderer.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
+        }
+        if (showOfficeButton) {
+            shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
+            shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
         }
         shapeRenderer.end();
 
@@ -307,6 +333,13 @@ class InfoPanelRenderer {
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
                     s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
+        }
+        if (showOfficeButton) {
+            glyphLayout.setText(font, officeBtnLabel);
+            font.setColor(Color.WHITE);
+            font.draw(batch, officeBtnLabel,
+                    s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
+                    s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
         }
 
         // GL scissor: clips content to its area (below buttons, above horizontal scrollbar)
@@ -553,6 +586,19 @@ class InfoPanelRenderer {
         }
 
         shapeRenderer.end();
+    }
+
+    /** Ordinal string for a 1-based floor number: 1→"1st", 2→"2nd", 3→"3rd", etc. */
+    static String floorOrdinal(int n) {
+        if (n <= 0) return n + "th";
+        int mod100 = n % 100;
+        if (mod100 >= 11 && mod100 <= 13) return n + "th";
+        switch (n % 10) {
+            case 1:  return n + "st";
+            case 2:  return n + "nd";
+            case 3:  return n + "rd";
+            default: return n + "th";
+        }
     }
 
     static String formatAttributeModifiers(Map<CharacterAttribute, Integer> modifiers) {

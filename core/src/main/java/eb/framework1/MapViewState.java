@@ -49,6 +49,7 @@ class MapViewState {
     float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
     float restBtnX, restBtnY, restBtnW, restBtnH;
     float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;
+    float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;
