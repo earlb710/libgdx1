@@ -138,14 +138,17 @@ class InfoPanelRenderer {
                 && cityMap.getCell(s.selectedCellX, s.selectedCellY).hasBuilding()
                 && cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding().isDiscovered();
 
-        boolean showLookAroundButton = atCurrentBuilding
-                && hasUndiscoveredImprovements(
-                        cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding());
-
         boolean atHome = s.selectedCellX == s.homeCellX && s.selectedCellY == s.homeCellY;
         int curHour = profile.getCurrentHour();
-        boolean showRestButton  = atCurrentBuilding && atHome && curHour >= 5 && curHour < 20;
-        boolean showSleepButton = atCurrentBuilding && atHome && (curHour >= 20 || curHour < 5);
+        Building selBuilding = atCurrentBuilding
+                ? cityMap.getCell(s.selectedCellX, s.selectedCellY).getBuilding() : null;
+
+        boolean showLookAroundButton = selBuilding != null && selBuilding.hasUndiscoveredImprovements();
+
+        boolean showRestButton  = selBuilding != null
+                && (atHome || selBuilding.allowsRest()) && curHour >= 5 && curHour < 20;
+        boolean showSleepButton = selBuilding != null
+                && (atHome || selBuilding.allowsSleep()) && (curHour >= 20 || curHour < 5);
 
         // --- Font metrics ---
         glyphLayout.setText(font, "Hg");
@@ -574,11 +577,4 @@ class InfoPanelRenderer {
         return sb.append(']').toString();
     }
 
-    /** Returns true if the building has at least one improvement not yet discovered. */
-    private static boolean hasUndiscoveredImprovements(Building building) {
-        for (Improvement imp : building.getImprovements()) {
-            if (!imp.isDiscovered()) return true;
-        }
-        return false;
-    }
 }

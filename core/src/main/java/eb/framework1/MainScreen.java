@@ -60,6 +60,13 @@ public class MainScreen implements Screen {
     private boolean isDragging = false;
     private float   dragStartX, dragStartY;
     private float   dragStartOffsetX, dragStartOffsetY;
+    // Right-click tap detection
+    private float   rightClickStartX, rightClickStartY;
+
+    // Context menu (right-click)
+    private final ContextMenu      contextMenu        = new ContextMenu();
+    private final List<String>     contextMenuItems   = new ArrayList<>();
+    private final List<Runnable>   contextMenuActions = new ArrayList<>();
 
     // Tuning constants
     private static final float MIN_ZOOM             = 1.0f;
@@ -189,6 +196,10 @@ public class MainScreen implements Screen {
             lookAroundPopup.update(delta);
             lookAroundPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
         }
+
+        if (contextMenu.isVisible()) {
+            contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
+        }
     }
 
     @Override
@@ -243,7 +254,14 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                // Any popup blocks normal interaction – capture for later tap detection
+                // Right-click: just record start position; menu shown on touchUp
+                if (button == Input.Buttons.RIGHT) {
+                    rightClickStartX = screenX;
+                    rightClickStartY = screenY;
+                    return true;
+                }
+
+                // Any look-around popup blocks normal interaction
                 if (lookAroundPopup.isVisible()) {
                     infoAreaPressed  = true;
                     infoTouchStartX  = screenX;
@@ -251,6 +269,14 @@ public class MainScreen implements Screen {
                     isDragging       = false;
                     return true;
                 }
+
+                // Left-click with context menu visible – record position for tap detection
+                if (contextMenu.isVisible()) {
+                    dragStartX = screenX;
+                    dragStartY = screenY;
+                    return true;
+                }
+
                 int flippedY = state.screenHeight - screenY;
                 if (flippedY > state.infoAreaHeight) {
                     isDragging       = true;
@@ -274,6 +300,18 @@ public class MainScreen implements Screen {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Right-click: show context menu if it was a tap in the map area
+                if (button == Input.Buttons.RIGHT) {
+                    float d = Vector2.len(screenX - rightClickStartX, screenY - rightClickStartY);
+                    if (d < TAP_THRESHOLD_PIXELS && flippedY > state.infoAreaHeight
+                            && !lookAroundPopup.isVisible()) {
+                        contextMenu.dismiss();
+                        selectCellAt(screenX, flippedY);
+                        buildContextMenu(screenX, flippedY);
+                    }
+                    return true;
+                }
+
                 if (lookAroundPopup.isResults()) {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
@@ -286,6 +324,21 @@ public class MainScreen implements Screen {
                 if (lookAroundPopup.isAnimating()) {
                     infoAreaPressed = false;
                     isDragging = false;
+                    return true;
+                }
+
+                // Left-click: handle context menu first
+                if (contextMenu.isVisible()) {
+                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+                    if (d < TAP_THRESHOLD_PIXELS) {
+                        int idx = contextMenu.onTap(screenX, flippedY);
+                        if (idx >= 0 && idx < contextMenuActions.size()) {
+                            contextMenuActions.get(idx).run();
+                        }
+                    }
+                    contextMenu.dismiss();
+                    isDragging = false;
+                    infoAreaPressed = false;
                     return true;
                 }
 
@@ -309,6 +362,10 @@ public class MainScreen implements Screen {
 
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
+                if (contextMenu.isVisible()) {
+                    contextMenu.dismiss();
+                    return true;
+                }
                 if (isDragging) {
                     float cs = state.getCellSize();
                     state.mapOffsetX = dragStartOffsetX - (screenX - dragStartX) / cs;
@@ -332,6 +389,7 @@ public class MainScreen implements Screen {
 
             @Override
             public boolean scrolled(float amountX, float amountY) {
+                contextMenu.dismiss();
                 float old = state.zoomLevel;
                 state.zoomLevel = MathUtils.clamp(state.zoomLevel - amountY * ZOOM_SPEED, MIN_ZOOM, MAX_ZOOM);
                 if (old != state.zoomLevel) state.clampMapOffset();
@@ -399,6 +457,61 @@ public class MainScreen implements Screen {
             state.infoScrollX = 0f;
             recalculateRoute();
             Gdx.app.log("MainScreen", "Selected: " + cx + "," + cy);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Context menu
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds and shows the context menu for the currently selected cell.
+     * Must be called after {@link #selectCellAt} (which sets selectedCellX/Y and route).
+     *
+     * @param menuScreenX x pixel where the menu should appear
+     * @param menuFlippedY y pixel where the menu should appear (y-up)
+     */
+    private void buildContextMenu(float menuScreenX, float menuFlippedY) {
+        int cx = state.selectedCellX;
+        int cy = state.selectedCellY;
+        if (cx < 0 || cy < 0) return;
+
+        contextMenuItems.clear();
+        contextMenuActions.clear();
+
+        boolean isCharCell = cx == state.charCellX && cy == state.charCellY;
+
+        if (!isCharCell) {
+            // "Move To" — only if reachable
+            if (state.currentRoute != null && state.currentRoute.isReachable()) {
+                contextMenuItems.add("Move To (" + state.currentRoute.formatTime() + ")");
+                contextMenuActions.add(this::handleMoveToClick);
+            }
+        } else {
+            // Actions available at the current location
+            boolean atHome = cx == state.homeCellX && cy == state.homeCellY;
+            int curHour = profile.getCurrentHour();
+            Cell cell = cityMap.getCell(cx, cy);
+            if (cell.hasBuilding() && cell.getBuilding().isDiscovered()) {
+                Building b = cell.getBuilding();
+                if (b.hasUndiscoveredImprovements()) {
+                    contextMenuItems.add("Look Around (10 min)");
+                    contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
+                }
+                if ((atHome || b.allowsRest()) && curHour >= 5 && curHour < 20) {
+                    contextMenuItems.add("Rest (1 hr)");
+                    contextMenuActions.add(this::handleRestClick);
+                }
+                if ((atHome || b.allowsSleep()) && (curHour >= 20 || curHour < 5)) {
+                    contextMenuItems.add("Sleep (until 6:00)");
+                    contextMenuActions.add(this::handleSleepClick);
+                }
+            }
+        }
+
+        if (!contextMenuItems.isEmpty()) {
+            contextMenu.show(menuScreenX, menuFlippedY, contextMenuItems,
+                    font, glyphLayout, state.screenWidth, state.screenHeight);
         }
     }
 

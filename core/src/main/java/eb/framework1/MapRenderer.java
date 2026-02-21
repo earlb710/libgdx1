@@ -18,10 +18,12 @@ import java.util.Map;
 class MapRenderer {
 
     // --- Colors ---
-    private static final Color RULER_BG_COLOR        = new Color(0.1f, 0.1f, 0.15f, 1f);
-    private static final Color RULER_MARKER_COLOR    = new Color(1f, 0.5f, 0f, 1f);
-    private static final Color SELECTION_COLOR       = new Color(1f, 1f, 0f, 1f);
-    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f, 0.8f, 1f, 1f);
+    private static final Color RULER_BG_COLOR        = new Color(0.1f,  0.1f,  0.15f, 1f);
+    private static final Color RULER_MARKER_COLOR    = new Color(1f,   0.5f,  0f,    1f);
+    private static final Color SELECTION_COLOR       = new Color(1f,   1f,    0f,    1f);
+    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f,   0.8f,  1f,    1f);
+    private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
+    private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
 
     private static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -196,19 +198,45 @@ class MapRenderer {
         }
         batch.end();
 
-        // Home-cell yellow star (top-right corner)
+        // Rest / sleep indicator dots + home-cell yellow star (single Filled pass)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        float dotR = Math.max(3f, cellSize * 0.11f);
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                Cell ic = cityMap.getCell(cx, cy);
+                if (!ic.hasBuilding() || !ic.getBuilding().isDiscovered()) continue;
+                Building ib = ic.getBuilding();
+                if (ib.isHome() || (!ib.allowsRest() && !ib.allowsSleep())) continue;
+                CellRenderData ird = cityMap.getCellRenderData(cx, cy);
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                float ti = borderInset(ird.getBorderTypeSouth(), borderSize, pathwaySize);
+                float li = borderInset(ird.getBorderTypeWest(),  borderSize, pathwaySize);
+                float dotY = drawY + cellSize - ti - dotR - 2f;
+                float dotX = drawX + li + dotR + 2f;
+                if (ib.allowsRest()) {
+                    shapeRenderer.setColor(REST_INDICATOR_COLOR);
+                    shapeRenderer.circle(dotX, dotY, dotR, 10);
+                    dotX += dotR * 2 + 2f;
+                }
+                if (ib.allowsSleep()) {
+                    shapeRenderer.setColor(SLEEP_INDICATOR_COLOR);
+                    shapeRenderer.circle(dotX, dotY, dotR, 10);
+                }
+            }
+        }
         if (s.homeCellX >= startCellX && s.homeCellX < endCellX
                 && s.homeCellY >= startCellY && s.homeCellY < endCellY) {
             float drawX = mapStartX + (s.homeCellX - startCellX - fracOffsetX) * cellSize;
             float drawY = mapStartY + (visibleCellsY - 1 - (s.homeCellY - startCellY - fracOffsetY)) * cellSize;
             float starR = Math.max(4f, cellSize * 0.18f);
-            float starCX = drawX + cellSize - starR - borderSize;
-            float starCY = drawY + cellSize - starR - borderSize;
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(Color.YELLOW);
-            drawFilledStar(shapeRenderer, starCX, starCY, starR, starR * 0.4f);
-            shapeRenderer.end();
+            drawFilledStar(shapeRenderer,
+                    drawX + cellSize - starR - borderSize,
+                    drawY + cellSize - starR - borderSize,
+                    starR, starR * 0.4f);
         }
+        shapeRenderer.end();
 
         // Selection highlight
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);

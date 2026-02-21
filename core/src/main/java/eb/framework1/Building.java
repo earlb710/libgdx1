@@ -106,6 +106,40 @@ public class Building {
     public void setOwned(boolean owned) { this.owned = owned; }
 
     /**
+     * Returns true if this building allows the player to rest (hotels, residential,
+     * community centres, libraries).
+     */
+    public boolean allowsRest() {
+        if (definition == null) return false;
+        String cat = definition.getCategory();
+        String id  = definition.getId();
+        return "hospitality".equals(cat) || "residential".equals(cat)
+                || "community_center".equals(id) || "library".equals(id);
+    }
+
+    /**
+     * Returns true if this building allows the player to sleep overnight
+     * (hotels and hospitals).
+     */
+    public boolean allowsSleep() {
+        if (definition == null) return false;
+        String cat = definition.getCategory();
+        String id  = definition.getId();
+        return "hospitality".equals(cat)
+                || "hospital_small".equals(id) || "hospital_large".equals(id);
+    }
+
+    /**
+     * Returns true if at least one improvement in this building has not yet been discovered.
+     */
+    public boolean hasUndiscoveredImprovements() {
+        for (Improvement imp : improvements) {
+            if (!imp.isDiscovered()) return true;
+        }
+        return false;
+    }
+
+    /**
      * Gets the attribute modifiers for this building.
      * Each entry maps a character attribute to a modifier value from -3 to +3.
      * Only non-zero modifiers are included.
