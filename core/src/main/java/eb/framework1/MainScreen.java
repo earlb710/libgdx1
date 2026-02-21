@@ -55,6 +55,7 @@ public class MainScreen implements Screen {
     private InputProcessor previousInputProcessor;
     private boolean infoAreaPressed = false;
     private float   infoTouchStartX, infoTouchStartY;
+    private float   infoScrollDragStartScrollY, infoScrollDragStartScrollX;
     private boolean isDragging = false;
     private float   dragStartX, dragStartY;
     private float   dragStartOffsetX, dragStartOffsetY;
@@ -168,7 +169,8 @@ public class MainScreen implements Screen {
     public void resize(int width, int height) {
         state.screenWidth    = width;
         state.screenHeight   = height;
-        state.infoAreaHeight = (int)(height * state.infoPanelRatio);
+        state.infoAreaHeight = (int)(height * state.infoPanelRatio)
+                + (int)(MapViewState.SCROLLBAR_THICKNESS);
         state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
         Gdx.app.log("MainScreen", "Resized to " + width + "x" + height
                 + " (info=" + state.infoAreaHeight + " map=" + state.mapAreaHeight + ")");
@@ -235,6 +237,8 @@ public class MainScreen implements Screen {
                     infoAreaPressed = true;
                     infoTouchStartX = screenX;
                     infoTouchStartY = screenY;
+                    infoScrollDragStartScrollY = state.infoScrollY;
+                    infoScrollDragStartScrollX = state.infoScrollX;
                     isDragging      = false;
                 }
                 return true;
@@ -282,6 +286,17 @@ public class MainScreen implements Screen {
                     state.mapOffsetX = dragStartOffsetX - (screenX - dragStartX) / cs;
                     state.mapOffsetY = dragStartOffsetY - (screenY - dragStartY) / cs;
                     state.clampMapOffset();
+                    return true;
+                }
+                if (infoAreaPressed && !lookAroundPopup.isVisible()) {
+                    // screenY is 0 at top, increases downward
+                    // Drag up (screenY decreases) → reveal content below → increase infoScrollY
+                    float dy = infoTouchStartY - screenY;
+                    float dx = infoTouchStartX - screenX;
+                    state.infoScrollY = MathUtils.clamp(
+                            infoScrollDragStartScrollY + dy, 0f, state.infoMaxScrollY);
+                    state.infoScrollX = MathUtils.clamp(
+                            infoScrollDragStartScrollX + dx, 0f, state.infoMaxScrollX);
                     return true;
                 }
                 return false;
@@ -352,6 +367,8 @@ public class MainScreen implements Screen {
         if (cx >= 0 && cx < CityMap.MAP_SIZE && cy >= 0 && cy < CityMap.MAP_SIZE) {
             state.selectedCellX = cx;
             state.selectedCellY = cy;
+            state.infoScrollY = 0f;
+            state.infoScrollX = 0f;
             recalculateRoute();
             Gdx.app.log("MainScreen", "Selected: " + cx + "," + cy);
         }

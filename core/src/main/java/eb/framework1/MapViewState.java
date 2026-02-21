@@ -44,6 +44,13 @@ class MapViewState {
     float moveToButtonX, moveToButtonY, moveToButtonW, moveToButtonH;
     float lookAroundBtnX, lookAroundBtnY, lookAroundBtnW, lookAroundBtnH;
 
+    // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
+    static final float SCROLLBAR_THICKNESS = 8f;
+    float infoScrollY    = 0f;   // pixels content has scrolled up   (0 = top)
+    float infoScrollX    = 0f;   // pixels content has scrolled right (0 = left)
+    float infoMaxScrollY = 0f;   // maximum infoScrollY (set by InfoPanelRenderer)
+    float infoMaxScrollX = 0f;   // maximum infoScrollX (set by InfoPanelRenderer)
+
     // --- Geometry helpers ---
 
     float getCellSize() {
