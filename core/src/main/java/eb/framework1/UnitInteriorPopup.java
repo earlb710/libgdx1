@@ -53,15 +53,14 @@ class UnitInteriorPopup {
     void draw(MapViewState s) {
         if (!s.unitInteriorOpen) return;
 
-        final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 12f, BTN_PAD = 14f;
+        final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 12f;
         final float panelH = s.infoAreaHeight;
         final float panelW = s.screenWidth;
 
         // Font metrics
         glyph.setText(font, "Hg");
-        float fontCapH  = glyph.height;
-        float fontLineH = fontCapH * 1.4f;
-        float BTN_H     = fontCapH + PAD_Y * 2;
+        float fontCapH = glyph.height;
+        float BTN_H    = fontCapH + PAD_Y * 2;
 
         // Button widths
         glyph.setText(font, "Rest");  float REST_W  = glyph.width + PAD_X * 2;
@@ -72,9 +71,10 @@ class UnitInteriorPopup {
         boolean showRest  = curHour >= 5 && curHour < 20;
         boolean showSleep = !showRest;
 
-        // Layout buttons from top
+        // Layout: title first, then buttons below it
         final float btnX = 20f;
-        float curY = panelH - BTN_PAD - BTN_H;
+        float titleY = panelH - PAD_Y - fontCapH;   // top of title text
+        float curY   = titleY - fontCapH - BTN_SPACING - BTN_H; // first button below title
 
         s.restBtnX  = btnX; s.restBtnW  = showRest  ? REST_W  : 0f; s.restBtnH  = BTN_H;
         s.restBtnY  = curY;
@@ -120,8 +120,7 @@ class UnitInteriorPopup {
 
         // --- Draw text ---
         batch.begin();
-        // Unit title
-        float titleY = panelH - fontLineH * 0.8f;
+        // Unit title (uses same titleY computed above)
         font.setColor(Color.YELLOW);
         font.draw(batch, s.unitInteriorLabel != null ? s.unitInteriorLabel : "", 20f, titleY);
 
