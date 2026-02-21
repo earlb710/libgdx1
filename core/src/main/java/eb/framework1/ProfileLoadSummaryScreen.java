@@ -63,8 +63,8 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Button sizes computed from the actual label text and font
             TextMeasurer.TextBounds contBounds = TextMeasurer.measure(subtitleFont, "Continue", 48f, 22f);
             TextMeasurer.TextBounds backBounds = TextMeasurer.measure(subtitleFont, "Back",     48f, 22f);
-            continueButton = new Rectangle(centerX - contBounds.width - 10, 100, contBounds.width, contBounds.height);
-            backButton     = new Rectangle(centerX + 10, 100, backBounds.width, backBounds.height);
+            continueButton = new Rectangle(centerX - contBounds.width - 20, 100, contBounds.width, contBounds.height);
+            backButton     = new Rectangle(centerX + 20, 100, backBounds.width, backBounds.height);
             
             // Load character icon texture if available
             String iconName = profile.getCharacterIcon();

@@ -36,7 +36,7 @@ public class ProfileSelectionScreen implements Screen {
     private Rectangle confirmNoButton;
     
     private static final int DELETE_BUTTON_SIZE = 80; // Square delete button (unchanged)
-    private static final int BUTTON_SPACING = 25;
+    private static final int BUTTON_SPACING = 40;
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);

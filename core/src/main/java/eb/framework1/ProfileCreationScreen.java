@@ -100,8 +100,8 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
             TextMeasurer.TextBounds createBounds = TextMeasurer.measure(buttonFont, "Create", 48f, 22f);
             TextMeasurer.TextBounds cancelBounds = TextMeasurer.measure(buttonFont, "Cancel", 48f, 22f);
-            createButton = new Rectangle(centerX - createBounds.width - 10, 50, createBounds.width, createBounds.height);
-            cancelButton = new Rectangle(centerX + 10, 50, cancelBounds.width, cancelBounds.height);
+            createButton = new Rectangle(centerX - createBounds.width - 20, 50, createBounds.width, createBounds.height);
+            cancelButton = new Rectangle(centerX + 20, 50, cancelBounds.width, cancelBounds.height);
             
             // Load character icon textures
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
@@ -131,7 +131,7 @@ public class ProfileCreationScreen implements Screen {
             TextMeasurer.TextBounds maleBounds   = TextMeasurer.measure(buttonFont, "Male",   48f, 22f);
             TextMeasurer.TextBounds femaleBounds = TextMeasurer.measure(buttonFont, "Female", 48f, 22f);
             genderMaleButton   = new Rectangle(buttonStartX, genderButtonY,       maleBounds.width,   maleBounds.height);
-            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, femaleBounds.width, femaleBounds.height);
+            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 110, femaleBounds.width, femaleBounds.height);
             
             // Portrait icon buttons - positioned BELOW the female button
             int iconTopY = startY - 810;
@@ -145,8 +145,8 @@ public class ProfileCreationScreen implements Screen {
             TextMeasurer.TextBounds normalBounds = TextMeasurer.measure(buttonFont, "Normal", 48f, 22f);
             TextMeasurer.TextBounds hardBounds   = TextMeasurer.measure(buttonFont, "Hard",   48f, 22f);
             diffEasyButton   = new Rectangle(buttonStartX, diffButtonY,        easyBounds.width,   easyBounds.height);
-            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100,  normalBounds.width, normalBounds.height);
-            diffHardButton   = new Rectangle(buttonStartX, diffButtonY - 200,  hardBounds.width,   hardBounds.height);
+            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 110,  normalBounds.width, normalBounds.height);
+            diffHardButton   = new Rectangle(buttonStartX, diffButtonY - 220,  hardBounds.width,   hardBounds.height);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);

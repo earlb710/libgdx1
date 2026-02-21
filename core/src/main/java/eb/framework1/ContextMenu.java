@@ -37,7 +37,7 @@ class ContextMenu {
     // --- Layout constants ---
     private static final float PAD_X       = 26f;
     private static final float PAD_Y       = 14f;
-    private static final float ITEM_GAP    = 12f;  // vertical gap between items
+    private static final float ITEM_GAP    = 20f;  // vertical gap between items
 
     // --- State ---
     private boolean visible = false;

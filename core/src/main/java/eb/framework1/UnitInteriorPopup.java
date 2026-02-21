@@ -53,7 +53,7 @@ class UnitInteriorPopup {
     void draw(MapViewState s) {
         if (!s.unitInteriorOpen) return;
 
-        final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 12f;
+        final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 20f;
         final float panelH = s.infoAreaHeight;
         final float panelW = s.screenWidth;
 

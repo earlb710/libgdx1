@@ -161,7 +161,7 @@ class InfoPanelRenderer {
         float valSmallTinyOff   = smallCapH - tinyCapH;           // bottom-aligns tiny with small row
 
         // --- Button sizing ---
-        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 8f;
+        final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 16f;
         TextMeasurer.TextBounds moveBounds = TextMeasurer.measure(font, glyphLayout, "Move to",     PAD_X, PAD_Y);
         TextMeasurer.TextBounds laBounds   = TextMeasurer.measure(font, glyphLayout, "Look around", PAD_X, PAD_Y);
         final float BTN_W = moveBounds.width;
