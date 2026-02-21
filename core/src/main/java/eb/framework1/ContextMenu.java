@@ -178,8 +178,9 @@ class ContextMenu {
     // -------------------------------------------------------------------------
 
     private float totalHeight() {
-        // Each item row occupies itemH + ITEM_GAP (including a gap after the last item
-        // which acts as bottom padding, preventing text from overflowing the border).
-        return items.size() * (itemH + ITEM_GAP);
+        // Each item row occupies (itemH + ITEM_GAP).  An extra ITEM_GAP at the bottom
+        // makes the spacing symmetric: PAD_Y+ITEM_GAP above the first item's text and
+        // PAD_Y+ITEM_GAP below the last item's text.
+        return items.size() * (itemH + ITEM_GAP) + ITEM_GAP;
     }
 }

@@ -324,9 +324,6 @@ class InfoPanelRenderer {
         float textY = contentStartY;
         if (s.selectedCellX >= 0 && s.selectedCellY >= 0) {
             Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
-            textY = drawLabelValue(font, "Cell: ",
-                    s.selectedCellX + ", " + s.selectedCellY, textX, textY);
-            textY -= fontLineH;
             textY = drawLabelValue(font, "Terrain: ",
                     cell.getTerrainType().getDisplayName(), textX, textY);
             textY -= fontLineH;
@@ -455,7 +452,7 @@ class InfoPanelRenderer {
     private float computeContentHeight(MapViewState s, float fontLineH) {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
-        float h = fontLineH * 2; // Cell (advance) + Terrain (advance)
+        float h = fontLineH; // Terrain (advance)
         if (!cell.hasBuilding()) return h;
         Building b = cell.getBuilding();
         if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
@@ -477,8 +474,6 @@ class InfoPanelRenderer {
         }
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float maxW = 0f;
-        glyphLayout.setText(font, "Cell: " + s.selectedCellX + ", " + s.selectedCellY);
-        maxW = Math.max(maxW, glyphLayout.width);
         glyphLayout.setText(font, "Terrain: " + cell.getTerrainType().getDisplayName());
         maxW = Math.max(maxW, glyphLayout.width);
         if (cell.hasBuilding()) {
