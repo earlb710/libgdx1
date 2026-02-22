@@ -161,10 +161,12 @@ class ContextMenu {
         if (screenX < menuX || screenX > menuX + menuW) return -1;
         if (flippedY < menuY || flippedY > menuY + menuH) return -1;
 
-        // Items are drawn top-to-bottom inside [menuY+menuH … menuY]
+        // Items are drawn top-to-bottom inside [menuY+menuH … menuY].
+        // Clamp so the bottom ITEM_GAP padding maps to the last item rather than
+        // returning -1 (the padding row sits inside the menu bounds but past N slots).
         float relFromTop = (menuY + menuH) - flippedY;
-        int idx = (int)(relFromTop / (itemH + ITEM_GAP));
-        return (idx >= 0 && idx < items.size()) ? idx : -1;
+        int idx = Math.min((int)(relFromTop / (itemH + ITEM_GAP)), items.size() - 1);
+        return idx >= 0 ? idx : -1;
     }
 
     /** Returns true if the given point (y-up) is within the menu bounds. */

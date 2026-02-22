@@ -633,7 +633,7 @@ public class MainScreen implements Screen {
                     ? "Move To (" + state.currentRoute.formatTime() + ")"
                     : "Move To (Unreachable)";
             contextMenuItems.add(label);
-            contextMenuActions.add(reachable ? this::handleMoveToClick : () -> {});
+            contextMenuActions.add(this::handleMoveToClick);  // always; handleMoveToClick re-checks at call time
         } else {
             // Actions available at the current location
             boolean atHome = cx == state.homeCellX && cy == state.homeCellY;
