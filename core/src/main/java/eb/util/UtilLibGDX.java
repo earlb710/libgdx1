@@ -18,7 +18,7 @@ public class UtilLibGDX {
         Pixmap ret = new Pixmap(tileWidth * cols, tileHeight * rows, Pixmap.Format.RGBA8888);
         int x = 0, y = 0, idx = 0;
         boolean done = false;
-        while (idx < pix.length || done) {
+        while (idx < pix.length && !done) {
             Pixmap cpix = pix[idx];
             if (cpix != null) {
                 int swidth = cpix.getWidth();
@@ -30,7 +30,7 @@ public class UtilLibGDX {
             if (x >= cols) {
                 x = 0;
                 y = y + 1;
-                if (y > rows) {
+                if (y >= rows) {
                     done = true;
                 }
             }
@@ -131,7 +131,7 @@ public class UtilLibGDX {
             byte r = buffer.get(idx);
             byte g = buffer.get(idx + 1);
             byte b = buffer.get(idx + 2);
-            byte c = (byte) ((int) ((r + (g * 1.2) + (b * 0.8)) / 3.0));
+            byte c = (byte) ((int) (((r & 0xFF) + ((g & 0xFF) * 1.2) + ((b & 0xFF) * 0.8)) / 3.0));
             buffer.put(idx, c);
             buffer.put(idx + 1, c);
             buffer.put(idx + 2, c);
@@ -187,20 +187,21 @@ public class UtilLibGDX {
         rcount = rcount % 4;
         int w = source.getWidth();
         int h = source.getHeight();
-        Pixmap dest = new Pixmap(h, w, source.getFormat());
+        Pixmap dest = (rcount == 2) ? new Pixmap(w, h, source.getFormat()) : new Pixmap(h, w, source.getFormat());
         ByteBuffer bufSource = source.getPixels();
         ByteBuffer bufDest = dest.getPixels();
         int length = bufSource.limit();
         int bcount = length / (w * h);
-        int bline = bcount * w;
+        int blineSrc = bcount * w;
+        int blineDst = (rcount == 2) ? bcount * w : bcount * h;
         byte[] bbuf = new byte[bcount];
         switch (rcount) {
             case 1 -> {
                 for (int idy = 0; idy < h; idy = idy + 1) {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dy = h - idy - 1;
-                        bufSource.get(idy * bline + idx * bcount, bbuf, 0, bcount);
-                        bufDest.put(idx * bline + dy * bcount, bbuf);
+                        bufSource.get(idy * blineSrc + idx * bcount, bbuf, 0, bcount);
+                        bufDest.put(idx * blineDst + dy * bcount, bbuf);
                     }
                 }
             }
@@ -209,8 +210,8 @@ public class UtilLibGDX {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dy = h - idy - 1;
                         int dx = w - idx - 1;
-                        bufSource.get(idy * bline + idx * bcount, bbuf, 0, bcount);
-                        bufDest.put(dx * bline + dy * bcount, bbuf);
+                        bufSource.get(idy * blineSrc + idx * bcount, bbuf, 0, bcount);
+                        bufDest.put(dy * blineDst + dx * bcount, bbuf);
                     }
                 }
             }
@@ -218,8 +219,8 @@ public class UtilLibGDX {
                 for (int idy = 0; idy < h; idy = idy + 1) {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dx = w - idx - 1;
-                        bufSource.get(idy * bline + idx * bcount, bbuf, 0, bcount);
-                        bufDest.put(dx * bline + idy * bcount, bbuf);
+                        bufSource.get(idy * blineSrc + idx * bcount, bbuf, 0, bcount);
+                        bufDest.put(dx * blineDst + idy * bcount, bbuf);
                     }
                 }
             }
@@ -284,7 +285,7 @@ public class UtilLibGDX {
         Pixmap ret = new Pixmap(tileWidth * cols, tileHeight * rows, Pixmap.Format.RGBA8888);
         int x = 0, y = 0, idx = 0;
         boolean done = false;
-        while (idx < tex.length || done) {
+        while (idx < tex.length && !done) {
             Texture ctex = tex[idx];
             if (ctex != null) {
                 Pixmap cpix = getPixmap(ctex);
@@ -297,7 +298,7 @@ public class UtilLibGDX {
             if (x >= cols) {
                 x = 0;
                 y = y + 1;
-                if (y > rows) {
+                if (y >= rows) {
                     done = true;
                 }
             }
@@ -309,7 +310,7 @@ public class UtilLibGDX {
         Pixmap ret = new Pixmap(tileWidth * cols, tileHeight * rows, Pixmap.Format.RGBA8888);
         int x = 0, y = 0, idx = 0;
         boolean done = false;
-        while (idx < tex.length || done) {
+        while (idx < tex.length && !done) {
             TextureRegion texr = tex[idx];
             if (texr != null) {
                 Pixmap cpix = getPixmap(texr.getTexture());
@@ -320,7 +321,7 @@ public class UtilLibGDX {
             if (x >= cols) {
                 x = 0;
                 y = y + 1;
-                if (y > rows) {
+                if (y >= rows) {
                     done = true;
                 }
             }
