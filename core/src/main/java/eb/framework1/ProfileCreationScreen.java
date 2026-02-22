@@ -54,10 +54,7 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle diffEasyButton;
     private Rectangle diffNormalButton;
     private Rectangle diffHardButton;
-    private static final int BUTTON_WIDTH = 300;  // Increased from 150 for large fonts
-    private static final int BUTTON_HEIGHT = 80;  // Increased from 50 for large fonts
-    private static final int SMALL_BUTTON_WIDTH = 300;  // Wider for better readability
-    
+
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
     private Color selectedButtonColor = new Color(0.5f, 0.6f, 0.7f, 1f);
@@ -101,8 +98,10 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
             
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
-            createButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
-            cancelButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+            TextMeasurer.TextBounds createBounds = TextMeasurer.measure(buttonFont, "Create", 48f, 22f);
+            TextMeasurer.TextBounds cancelBounds = TextMeasurer.measure(buttonFont, "Cancel", 48f, 22f);
+            createButton = new Rectangle(centerX - createBounds.width - 20, 50, createBounds.width, createBounds.height);
+            cancelButton = new Rectangle(centerX + 20, 50, cancelBounds.width, cancelBounds.height);
             
             // Load character icon textures
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
@@ -129,8 +128,10 @@ public class ProfileCreationScreen implements Screen {
             // Gender label is at startY - 500
             // Place buttons 100px below the label (to the right horizontally at x=200)
             int genderButtonY = startY - 500 - 100;
-            genderMaleButton = new Rectangle(buttonStartX, genderButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            TextMeasurer.TextBounds maleBounds   = TextMeasurer.measure(buttonFont, "Male",   48f, 22f);
+            TextMeasurer.TextBounds femaleBounds = TextMeasurer.measure(buttonFont, "Female", 48f, 22f);
+            genderMaleButton   = new Rectangle(buttonStartX, genderButtonY,       maleBounds.width,   maleBounds.height);
+            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 110, femaleBounds.width, femaleBounds.height);
             
             // Portrait icon buttons - positioned BELOW the female button
             int iconTopY = startY - 810;
@@ -140,9 +141,12 @@ public class ProfileCreationScreen implements Screen {
             // Difficulty buttons - positioned BELOW portrait icons and "Difficulty:" label
             // "Difficulty:" label is at startY - 980, buttons start 100px below
             int diffButtonY = startY - 980 - 100;
-            diffEasyButton = new Rectangle(buttonStartX, diffButtonY, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 100, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
-            diffHardButton = new Rectangle(buttonStartX, diffButtonY - 200, SMALL_BUTTON_WIDTH, BUTTON_HEIGHT);
+            TextMeasurer.TextBounds easyBounds   = TextMeasurer.measure(buttonFont, "Easy",   48f, 22f);
+            TextMeasurer.TextBounds normalBounds = TextMeasurer.measure(buttonFont, "Normal", 48f, 22f);
+            TextMeasurer.TextBounds hardBounds   = TextMeasurer.measure(buttonFont, "Hard",   48f, 22f);
+            diffEasyButton   = new Rectangle(buttonStartX, diffButtonY,        easyBounds.width,   easyBounds.height);
+            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 110,  normalBounds.width, normalBounds.height);
+            diffHardButton   = new Rectangle(buttonStartX, diffButtonY - 220,  hardBounds.width,   hardBounds.height);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);

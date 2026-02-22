@@ -6,10 +6,10 @@ import java.util.Map;
 /**
  * Represents an improvement/upgrade within a building.
  * Improvements start undiscovered and must be found through investigation.
- * The hiddenValue (0-10) indicates how difficult the improvement is to discover:
+ * The hiddenValue (0-5) indicates how difficult the improvement is to discover:
  * <ul>
  *   <li>0 = no investigation needed, but the location must be visited first</li>
- *   <li>1-10 = increasing difficulty to discover through investigation</li>
+ *   <li>1-5 = increasing difficulty; a Perception score of 5 finds all improvements</li>
  * </ul>
  *
  * Each improvement may also affect character attributes (from -3 to +3),
@@ -29,7 +29,7 @@ public class Improvement {
      *
      * @param name        The improvement name (cannot be null or empty)
      * @param level       The improvement level (must be >= 0)
-     * @param hiddenValue How hidden the improvement is (0-10, where 0 = easiest to find)
+     * @param hiddenValue How hidden the improvement is (0-5, where 0 = found on arrival)
      */
     public Improvement(String name, int level, int hiddenValue) {
         if (name == null || name.trim().isEmpty()) {
@@ -38,8 +38,8 @@ public class Improvement {
         if (level < 0) {
             throw new IllegalArgumentException("Improvement level cannot be negative");
         }
-        if (hiddenValue < 0 || hiddenValue > 10) {
-            throw new IllegalArgumentException("Hidden value must be between 0 and 10");
+        if (hiddenValue < 0 || hiddenValue > 5) {
+            throw new IllegalArgumentException("Hidden value must be between 0 and 5");
         }
         this.name = name.trim();
         this.level = level;

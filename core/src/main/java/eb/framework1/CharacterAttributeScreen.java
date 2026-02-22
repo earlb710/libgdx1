@@ -54,9 +54,7 @@ public class CharacterAttributeScreen implements Screen {
     private Rectangle moneyMinusButton;
     
     // Button dimensions
-    private static final int BUTTON_WIDTH = 300;
-    private static final int BUTTON_HEIGHT = 80;
-    private static final int SMALL_BUTTON_SIZE = 60;  // For +/- buttons
+    private static final int SMALL_BUTTON_SIZE = 60;  // For +/- buttons (unchanged)
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -105,8 +103,11 @@ public class CharacterAttributeScreen implements Screen {
             // Create UI buttons
             int centerX = Gdx.graphics.getWidth() / 2;
             
-            confirmButton = new Rectangle(centerX - BUTTON_WIDTH - 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
-            backButton = new Rectangle(centerX + 10, 50, BUTTON_WIDTH, BUTTON_HEIGHT);
+            // Button sizes computed from the label text and font
+            TextMeasurer.TextBounds confirmBounds = TextMeasurer.measure(subtitleFont, "Confirm", 48f, 22f);
+            TextMeasurer.TextBounds backBounds    = TextMeasurer.measure(subtitleFont, "Back",    48f, 22f);
+            confirmButton = new Rectangle(centerX - confirmBounds.width - 20, 50, confirmBounds.width, confirmBounds.height);
+            backButton    = new Rectangle(centerX + 20, 50, backBounds.width, backBounds.height);
             
             // Create +/- buttons for each attribute (positioned in render method)
             for (CharacterAttribute attr : CharacterAttribute.values()) {

@@ -170,4 +170,95 @@ public class CityMapTest {
                      map.countTerrain(TerrainType.BUILDING), hashCount);
         assertEquals("ASCII map should have 16 rows", 16, newlineCount);
     }
+
+    @Test
+    public void testFindFastestRouteSameCell() {
+        CityMap map = new CityMap(12345L);
+        CityMap.RouteResult result = map.findFastestRoute(0, 0, 0, 0);
+        assertTrue("Same-cell route should be reachable", result.isReachable());
+        assertEquals("Same-cell route should take 0 minutes", 0, result.totalMinutes);
+        assertNotNull("Same-cell route should have a path", result.path);
+        assertEquals("Same-cell path should have exactly 1 cell", 1, result.path.size());
+    }
+
+    @Test
+    public void testFindFastestRouteReturnsDeterministicResult() {
+        CityMap map1 = new CityMap(12345L);
+        CityMap map2 = new CityMap(12345L);
+        // Find any two connected building cells
+        int[] start = findFirstBuildingCell(map1);
+        int[] end   = findLastBuildingCell(map1);
+        CityMap.RouteResult r1 = map1.findFastestRoute(start[0], start[1], end[0], end[1]);
+        CityMap.RouteResult r2 = map2.findFastestRoute(start[0], start[1], end[0], end[1]);
+        assertEquals("Route cost should be deterministic", r1.totalMinutes, r2.totalMinutes);
+    }
+
+    @Test
+    public void testFindFastestRouteCostMultipleOfFive() {
+        CityMap map = new CityMap(12345L);
+        int[] start = findFirstBuildingCell(map);
+        int[] end   = findLastBuildingCell(map);
+        CityMap.RouteResult result = map.findFastestRoute(start[0], start[1], end[0], end[1]);
+        if (result.isReachable()) {
+            // All edge costs are multiples of 5 (ROAD=5, PATH=20)
+            assertEquals("Travel time should be a multiple of 5",
+                    0, result.totalMinutes % 5);
+        }
+    }
+
+    @Test
+    public void testFindFastestRoutePathContainsEndpoints() {
+        CityMap map = new CityMap(12345L);
+        int[] start = findFirstBuildingCell(map);
+        int[] end   = findLastBuildingCell(map);
+        CityMap.RouteResult result = map.findFastestRoute(start[0], start[1], end[0], end[1]);
+        if (result.isReachable()) {
+            int[] first = result.path.get(0);
+            int[] last  = result.path.get(result.path.size() - 1);
+            assertEquals("Path should start at fromX", start[0], first[0]);
+            assertEquals("Path should start at fromY", start[1], first[1]);
+            assertEquals("Path should end at toX", end[0], last[0]);
+            assertEquals("Path should end at toY", end[1], last[1]);
+        }
+    }
+
+    @Test
+    public void testRouteResultFormatTime() {
+        CityMap.RouteResult unreachable = new CityMap.RouteResult(null, -1);
+        assertEquals("Unreachable result should say Unreachable", "Unreachable",
+                unreachable.formatTime());
+
+        CityMap.RouteResult shortRoute = new CityMap.RouteResult(null, 35);
+        assertEquals("35 minutes should format as '35 min'", "35 min",
+                shortRoute.formatTime());
+
+        CityMap.RouteResult longRoute = new CityMap.RouteResult(null, 65);
+        assertEquals("65 minutes should format as '1h 5min'", "1h 5min",
+                longRoute.formatTime());
+    }
+
+    // --- helpers ---
+
+    private int[] findFirstBuildingCell(CityMap map) {
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                if (map.getCell(x, y).getTerrainType() == TerrainType.BUILDING) {
+                    return new int[]{x, y};
+                }
+            }
+        }
+        return new int[]{0, 0};
+    }
+
+    private int[] findLastBuildingCell(CityMap map) {
+        int[] last = new int[]{0, 0};
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                if (map.getCell(x, y).getTerrainType() == TerrainType.BUILDING) {
+                    last = new int[]{x, y};
+                }
+            }
+        }
+        return last;
+    }
 }

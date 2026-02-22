@@ -30,6 +30,9 @@ public class SplashScreen implements Screen {
     // Button dimensions and positions
     private Rectangle playButton;
     private Rectangle quitButton;
+    private Rectangle yesButton;
+    private Rectangle noButton;
+    private boolean   quitConfirming = false;
     private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 60;
     
@@ -150,14 +153,40 @@ public class SplashScreen implements Screen {
     private void drawButtons() {
         int mouseY = getFlippedMouseY();
         int mouseX = Gdx.input.getX();
-        
-        // Draw Play button
-        drawButton(playButton, mouseX, mouseY);
-        drawButtonText(playButton, "PLAY");
-        
-        // Draw Quit button
-        drawButton(quitButton, mouseX, mouseY);
-        drawButtonText(quitButton, "QUIT");
+
+        if (quitConfirming) {
+            // Draw confirmation question
+            batch.begin();
+            glyphLayout.setText(buttonFont, "Exit App : Are you sure?");
+            float qX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2f;
+            float qY = quitButton.y + BUTTON_HEIGHT + 50f;
+            buttonFont.setColor(Color.WHITE);
+            buttonFont.draw(batch, "Exit App : Are you sure?", qX, qY);
+            batch.end();
+
+            // Yes / No buttons (sized by TextMeasurer for consistency)
+            int scrW = Gdx.graphics.getWidth();
+            float pad = 20f;
+            TextMeasurer.TextBounds yB = TextMeasurer.measure(buttonFont, glyphLayout, "YES", 48f, 22f);
+            TextMeasurer.TextBounds nB = TextMeasurer.measure(buttonFont, glyphLayout, "NO",  48f, 22f);
+            float totalW = yB.width + pad + nB.width;
+            float startX = (scrW - totalW) / 2f;
+            float btnY   = quitButton.y;
+            yesButton = new Rectangle(startX,                  btnY, yB.width, yB.height);
+            noButton  = new Rectangle(startX + yB.width + pad, btnY, nB.width, nB.height);
+
+            drawButton(yesButton, mouseX, mouseY);
+            drawButtonText(yesButton, "YES");
+            drawButton(noButton,  mouseX, mouseY);
+            drawButtonText(noButton, "NO");
+        } else {
+            // Normal Play + Quit buttons
+            drawButton(playButton, mouseX, mouseY);
+            drawButtonText(playButton, "PLAY");
+
+            drawButton(quitButton, mouseX, mouseY);
+            drawButtonText(quitButton, "QUIT");
+        }
     }
     
     private void drawButton(Rectangle button, int mouseX, int mouseY) {
@@ -196,7 +225,21 @@ public class SplashScreen implements Screen {
         if (Gdx.input.justTouched()) {
             int mouseX = Gdx.input.getX();
             int mouseY = getFlippedMouseY();
-            
+
+            if (quitConfirming) {
+                // Yes → exit app
+                if (yesButton != null && yesButton.contains(mouseX, mouseY)) {
+                    Gdx.app.log("SplashScreen", "Quit confirmed – exiting");
+                    initialized = false;
+                    Gdx.app.exit();
+                }
+                // No → cancel
+                if (noButton != null && noButton.contains(mouseX, mouseY)) {
+                    quitConfirming = false;
+                }
+                return;
+            }
+
             if (playButton.contains(mouseX, mouseY)) {
                 Gdx.app.log("SplashScreen", "Play button clicked!");
                 try {
@@ -224,10 +267,9 @@ public class SplashScreen implements Screen {
                     initialized = true;
                 }
             } else if (quitButton.contains(mouseX, mouseY)) {
-                // Quit the application
-                Gdx.app.log("SplashScreen", "Quit button clicked");
-                initialized = false; // Stop rendering before exit
-                Gdx.app.exit();
+                // Show "Are you sure?" before exiting
+                Gdx.app.log("SplashScreen", "Quit button clicked – asking confirmation");
+                quitConfirming = true;
             }
         }
     }

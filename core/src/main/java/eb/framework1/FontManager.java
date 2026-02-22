@@ -24,6 +24,10 @@ public class FontManager implements Disposable {
     private BitmapFont subtitleFont;
     private BitmapFont bodyFont;
     private BitmapFont smallFont;
+    private BitmapFont tinyFont;
+    private BitmapFont boldBodyFont;
+    private BitmapFont boldSmallFont;
+    private BitmapFont boldTinyFont;
     
     private float screenWidth;
     private float screenHeight;
@@ -54,6 +58,7 @@ public class FontManager implements Disposable {
     private static final int SUBTITLE_SIZE_DP = 30; // Subtitles, input text
     private static final int BODY_SIZE_DP = 22;     // Body text, buttons
     private static final int SMALL_SIZE_DP = 18;    // Small text
+    private static final int TINY_SIZE_DP = 14;     // Tiny text (attribute modifiers)
     
     /**
      * Initialize FontManager with current screen dimensions.
@@ -159,6 +164,37 @@ public class FontManager implements Disposable {
         parameter.color = Color.LIGHT_GRAY;
         smallFont = generator.generateFont(parameter);
         Gdx.app.log("FontManager", "Generated small font at size: " + smallSize);
+
+        // Tiny font - for attribute modifiers
+        int tinySize = calculateFontSize(TINY_SIZE_DP);
+        parameter.size = tinySize;
+        parameter.color = Color.LIGHT_GRAY;
+        tinyFont = generator.generateFont(parameter);
+        Gdx.app.log("FontManager", "Generated tiny font at size: " + tinySize);
+
+        // Bold variants – simulated via a thin border around each glyph
+        // Use a fresh parameter to avoid state leaking from the regular-font parameter
+        FreeTypeFontParameter boldParameter = new FreeTypeFontParameter();
+        boldParameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
+        boldParameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+        boldParameter.genMipMaps = true;
+        boldParameter.borderWidth = 1f;
+        boldParameter.borderStraight = true;
+
+        boldParameter.size = bodySize;
+        boldParameter.color = Color.WHITE;
+        boldBodyFont = generator.generateFont(boldParameter);
+        Gdx.app.log("FontManager", "Generated bold body font at size: " + bodySize);
+
+        boldParameter.size = smallSize;
+        boldParameter.color = Color.LIGHT_GRAY;
+        boldSmallFont = generator.generateFont(boldParameter);
+        Gdx.app.log("FontManager", "Generated bold small font at size: " + smallSize);
+
+        boldParameter.size = tinySize;
+        boldParameter.color = Color.LIGHT_GRAY;
+        boldTinyFont = generator.generateFont(boldParameter);
+        Gdx.app.log("FontManager", "Generated bold tiny font at size: " + tinySize);
     }
     
     /**
@@ -190,8 +226,26 @@ public class FontManager implements Disposable {
         smallFont = new BitmapFont();
         smallFont.setColor(Color.LIGHT_GRAY);
         smallFont.getData().setScale(2.5f);  // 2.5x scale - visible details
+
+        tinyFont = new BitmapFont();
+        tinyFont.setColor(Color.LIGHT_GRAY);
+        tinyFont.getData().setScale(2.0f);  // 2.0x scale - attribute modifiers
+
+        // Bold fallback: slightly wider scaleX gives a heavier appearance
+        boldBodyFont = new BitmapFont();
+        boldBodyFont.setColor(Color.WHITE);
+        boldBodyFont.getData().setScale(3.85f, 3.5f);
+
+        boldSmallFont = new BitmapFont();
+        boldSmallFont.setColor(Color.LIGHT_GRAY);
+        boldSmallFont.getData().setScale(2.75f, 2.5f);
+
+        boldTinyFont = new BitmapFont();
+        boldTinyFont.setColor(Color.LIGHT_GRAY);
+        boldTinyFont.getData().setScale(2.2f, 2.0f);
         
-        Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x");
+        Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x, Tiny: 2.0x");
+        Gdx.app.log("FontManager", "Bold BitmapFont scales - Body: 3.85×3.5x, Small: 2.75×2.5x, Tiny: 2.2×2.0x");
         Gdx.app.log("FontManager", "To eliminate pixelation, add a TrueType font file to assets/font.ttf");
     }
     
@@ -250,6 +304,34 @@ public class FontManager implements Disposable {
         }
     }
     
+    /**
+     * Generate a custom bold font at a specific density-independent pixel size.
+     * Bold is achieved via a 1px border (FreeType) or wider scaleX (BitmapFont fallback).
+     *
+     * @param dp    Desired size in density-independent pixels
+     * @param color Font color
+     * @return Generated bold BitmapFont (caller is responsible for disposal)
+     */
+    public BitmapFont generateBoldFont(int dp, Color color) {
+        if (generator != null) {
+            FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+            parameter.size = (int)(dp * density);
+            parameter.color = color;
+            parameter.borderWidth = 1f;
+            parameter.borderStraight = true;
+            parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
+            parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            parameter.genMipMaps = true;
+            return generator.generateFont(parameter);
+        } else {
+            BitmapFont font = new BitmapFont();
+            font.setColor(color);
+            float scale = dp * density * 0.1f;
+            font.getData().setScale(scale * 1.1f, scale); // wider X for bold effect
+            return font;
+        }
+    }
+
     // Getters for pre-generated fonts
     
     public BitmapFont getTitleFont() {
@@ -266,6 +348,25 @@ public class FontManager implements Disposable {
     
     public BitmapFont getSmallFont() {
         return smallFont;
+    }
+
+    public BitmapFont getTinyFont() {
+        return tinyFont;
+    }
+
+    /** Bold variant of the body font. */
+    public BitmapFont getBoldBodyFont() {
+        return boldBodyFont;
+    }
+
+    /** Bold variant of the small font. */
+    public BitmapFont getBoldSmallFont() {
+        return boldSmallFont;
+    }
+
+    /** Bold variant of the tiny font. */
+    public BitmapFont getBoldTinyFont() {
+        return boldTinyFont;
     }
     
     /**
@@ -297,6 +398,10 @@ public class FontManager implements Disposable {
         if (subtitleFont != null) subtitleFont.dispose();
         if (bodyFont != null) bodyFont.dispose();
         if (smallFont != null) smallFont.dispose();
+        if (tinyFont != null) tinyFont.dispose();
+        if (boldBodyFont != null) boldBodyFont.dispose();
+        if (boldSmallFont != null) boldSmallFont.dispose();
+        if (boldTinyFont != null) boldTinyFont.dispose();
         
         if (generator != null) {
             generator.dispose();

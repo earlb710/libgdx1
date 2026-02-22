@@ -1,10 +1,12 @@
 package eb.framework1;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 /**
@@ -287,7 +289,7 @@ public class CityMap {
             Collections.shuffle(shuffled, random);
             for (int i = 0; i < 4; i++) {
                 int level = random.nextInt(5) + 1; // Levels 1-5
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(6); // Hidden value 0-5
                 selectedImprovements.add(new Improvement(shuffled.get(i), level, hiddenValue));
             }
         } else if (!availableImprovements.isEmpty()) {
@@ -295,7 +297,7 @@ public class CityMap {
             for (int i = 0; i < 4; i++) {
                 String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
                 int level = random.nextInt(5) + 1;
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(6); // Hidden value 0-5
                 selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         } else {
@@ -303,7 +305,7 @@ public class CityMap {
             for (int i = 0; i < 4; i++) {
                 String impName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
                 int level = random.nextInt(5) + 1;
-                int hiddenValue = random.nextInt(11); // Hidden value 0-10
+                int hiddenValue = random.nextInt(6); // Hidden value 0-5
                 selectedImprovements.add(new Improvement(impName, level, hiddenValue));
             }
         }
@@ -354,7 +356,7 @@ public class CityMap {
         for (int i = 0; i < 4; i++) {
             String improvementName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
             int level = random.nextInt(5) + 1; // Levels 1-5
-            int hiddenValue = random.nextInt(11); // Hidden value 0-10
+            int hiddenValue = random.nextInt(6); // Hidden value 0-5
             improvements.add(new Improvement(improvementName, level, hiddenValue));
         }
         
@@ -475,6 +477,116 @@ public class CityMap {
             }
         }
         return count;
+    }
+
+    /**
+     * Holds the result of a pathfinding operation between two cells.
+     */
+    public static class RouteResult {
+        /** Travel time in minutes per road cell. */
+        public static final int ROAD_MINUTES_PER_CELL = 5;
+        /** Travel time in minutes per path cell (4× slower than road). */
+        public static final int PATH_MINUTES_PER_CELL = 20;
+
+        /** Path as a list of {x, y} cell coordinates, from start to end. */
+        public final List<int[]> path;
+        /** Total travel time in minutes. -1 if unreachable. */
+        public final int totalMinutes;
+
+        RouteResult(List<int[]> path, int totalMinutes) {
+            this.path = path;
+            this.totalMinutes = totalMinutes;
+        }
+
+        public boolean isReachable() {
+            return totalMinutes >= 0;
+        }
+
+        /** Returns a human-readable travel time string, e.g. "35 min" or "1h 5min". */
+        public String formatTime() {
+            if (!isReachable()) return "Unreachable";
+            if (totalMinutes < 60) return totalMinutes + " min";
+            return (totalMinutes / 60) + "h " + (totalMinutes % 60) + "min";
+        }
+    }
+
+    /**
+     * Finds the fastest route between two cells using Dijkstra's algorithm.
+     * Road connections cost {@link RouteResult#ROAD_MINUTES_PER_CELL} minutes per cell.
+     * Pathway connections cost {@link RouteResult#PATH_MINUTES_PER_CELL} minutes per cell
+     * (4× slower than roads).
+     *
+     * @param fromX Start cell X coordinate
+     * @param fromY Start cell Y coordinate
+     * @param toX   Destination X coordinate
+     * @param toY   Destination Y coordinate
+     * @return A {@link RouteResult} with the path and total travel time
+     */
+    public RouteResult findFastestRoute(int fromX, int fromY, int toX, int toY) {
+        if (fromX == toX && fromY == toY) {
+            List<int[]> p = new ArrayList<>();
+            p.add(new int[]{fromX, fromY});
+            return new RouteResult(p, 0);
+        }
+
+        int[][] dist = new int[MAP_SIZE][MAP_SIZE];
+        int[][] prevX = new int[MAP_SIZE][MAP_SIZE];
+        int[][] prevY = new int[MAP_SIZE][MAP_SIZE];
+        for (int[] row : dist) Arrays.fill(row, Integer.MAX_VALUE);
+        for (int[] row : prevX) Arrays.fill(row, -1);
+        for (int[] row : prevY) Arrays.fill(row, -1);
+        dist[fromX][fromY] = 0;
+
+        // Priority queue entries: {cost, x, y}
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        pq.offer(new int[]{0, fromX, fromY});
+
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int cost = curr[0], cx = curr[1], cy = curr[2];
+            if (cost > dist[cx][cy]) continue;
+            if (cx == toX && cy == toY) break;
+
+            RoadAccess ra = roadAccessMap.getAccess(cx, cy);
+            if (ra.hasNorth() && cy + 1 < MAP_SIZE)
+                tryRelax(cx, cy, cx, cy + 1, cost, ra.getNorthType(), dist, prevX, prevY, pq);
+            if (ra.hasSouth() && cy - 1 >= 0)
+                tryRelax(cx, cy, cx, cy - 1, cost, ra.getSouthType(), dist, prevX, prevY, pq);
+            if (ra.hasEast() && cx + 1 < MAP_SIZE)
+                tryRelax(cx, cy, cx + 1, cy, cost, ra.getEastType(), dist, prevX, prevY, pq);
+            if (ra.hasWest() && cx - 1 >= 0)
+                tryRelax(cx, cy, cx - 1, cy, cost, ra.getWestType(), dist, prevX, prevY, pq);
+        }
+
+        if (dist[toX][toY] == Integer.MAX_VALUE) {
+            return new RouteResult(null, -1);
+        }
+
+        // Reconstruct path by tracing back from destination to source
+        List<int[]> path = new ArrayList<>();
+        int cx = toX, cy = toY;
+        while (!(cx == fromX && cy == fromY)) {
+            path.add(0, new int[]{cx, cy});
+            int px = prevX[cx][cy], py = prevY[cx][cy];
+            cx = px;
+            cy = py;
+        }
+        path.add(0, new int[]{fromX, fromY});
+        return new RouteResult(path, dist[toX][toY]);
+    }
+
+    private void tryRelax(int cx, int cy, int nx, int ny, int cost, RoadType type,
+                          int[][] dist, int[][] prevX, int[][] prevY, PriorityQueue<int[]> pq) {
+        int edgeCost = (type == RoadType.ROAD)
+                ? RouteResult.ROAD_MINUTES_PER_CELL
+                : RouteResult.PATH_MINUTES_PER_CELL;
+        int newCost = cost + edgeCost;
+        if (newCost < dist[nx][ny]) {
+            dist[nx][ny] = newCost;
+            prevX[nx][ny] = cx;
+            prevY[nx][ny] = cy;
+            pq.offer(new int[]{newCost, nx, ny});
+        }
     }
 
     @Override

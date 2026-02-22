@@ -13,6 +13,7 @@ public class Profile {
     private long randSeed; // Random seed for procedural generation
     private int money;     // Player's current money
     private String gameDateTime; // Full in-game date/time string (e.g. "2050-01-02 13:20")
+    private int currentStamina = -1; // -1 = lazy-initialise from STAMINA attribute on first access
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -133,6 +134,95 @@ public class Profile {
 
     public void setGameDateTime(String gameDateTime) {
         this.gameDateTime = gameDateTime;
+    }
+
+    /** Maximum stamina pool = STAMINA attribute value × 10, minimum 10. */
+    public int getMaxStamina() {
+        return Math.max(10, getAttribute(CharacterAttribute.STAMINA.name()) * 10);
+    }
+
+    /** Current stamina. Lazy-initialised to {@link #getMaxStamina()} on first call. */
+    public int getCurrentStamina() {
+        if (currentStamina < 0) {
+            currentStamina = getMaxStamina();
+        }
+        return currentStamina;
+    }
+
+    /** Deducts {@code amount} stamina points (floored at 0). */
+    public void useStamina(int amount) {
+        currentStamina = Math.max(0, getCurrentStamina() - amount);
+    }
+
+    public void setCurrentStamina(int stamina) {
+        this.currentStamina = Math.max(0, stamina);
+    }
+
+    /** Adds {@code amount} stamina points, capped at {@link #getMaxStamina()}. */
+    public void addStamina(int amount) {
+        currentStamina = Math.min(getMaxStamina(), getCurrentStamina() + amount);
+    }
+
+    /** Returns the current in-game hour (0–23), or 0 if parsing fails. */
+    public int getCurrentHour() {
+        try {
+            return Integer.parseInt(gameDateTime.split(" ")[1].split(":")[0]);
+        } catch (Exception e) { return 0; }
+    }
+
+    /** Returns the current in-game minute (0–59), or 0 if parsing fails. */
+    public int getCurrentMinute() {
+        try {
+            return Integer.parseInt(gameDateTime.split(" ")[1].split(":")[1]);
+        } catch (Exception e) { return 0; }
+    }
+
+    /**
+     * Advances the in-game date/time by the specified number of minutes.
+     * The date/time string format is "YYYY-MM-DD HH:MM".
+     *
+     * @param minutes Number of minutes to advance
+     */
+    public void advanceGameTime(int minutes) {
+        if (minutes <= 0) return;
+        try {
+            String[] spaceSplit = gameDateTime.split(" ");
+            String[] dateParts = spaceSplit[0].split("-");
+            String[] timeParts = spaceSplit[1].split(":");
+
+            int year   = Integer.parseInt(dateParts[0]);
+            int month  = Integer.parseInt(dateParts[1]);
+            int day    = Integer.parseInt(dateParts[2]);
+            int hour   = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1]);
+
+            minute += minutes;
+            hour   += minute / 60;
+            minute  = minute % 60;
+            day    += hour / 24;
+            hour    = hour % 24;
+
+            int[] daysInMonth = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+            // Update Feb length for leap years
+            if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
+                daysInMonth[1] = 29;
+            }
+            while (day > daysInMonth[month - 1]) {
+                day -= daysInMonth[month - 1];
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                    // Recompute Feb length for the new year
+                    daysInMonth[1] = ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) ? 29 : 28;
+                }
+            }
+
+            gameDateTime = String.format("%04d-%02d-%02d %02d:%02d",
+                    year, month, day, hour, minute);
+        } catch (Exception e) {
+            // Leave unchanged if parsing fails
+        }
     }
     
     @Override
