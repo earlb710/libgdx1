@@ -138,6 +138,7 @@ class LookAroundPopup {
 
         final float PAD    = 24f;
         final float MIN_W  = 320f;
+        final float MIN_H  = 120f;
         final float MAX_W  = screenW * 0.9f;
         final float MAX_H  = screenH * 0.8f;
 
@@ -167,7 +168,7 @@ class LookAroundPopup {
                 + (state == State.RESULTS ? foundItems.size() * smallLineH + PAD + okBtnH : 0f);
         float availH  = MAX_H - 2 * PAD;
         boolean needsScroll = (state == State.RESULTS) && (fullContentH > availH);
-        float dialogH = PAD + Math.min(fullContentH, availH) + PAD;
+        float dialogH = Math.max(MIN_H, PAD + Math.min(fullContentH, availH) + PAD);
 
         // Scrollbar max
         maxScrollY = needsScroll ? Math.max(0f, fullContentH - availH) : 0f;
@@ -224,7 +225,7 @@ class LookAroundPopup {
 
         // --- Text ---
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH - scrollY;
+        float ty = dialogY + dialogH - PAD - fontH + scrollY;
 
         if (state == State.ANIMATING) {
             int dots = Math.min(MAX_DOTS, (int)(timer / DOT_INTERVAL) + 1);
@@ -238,7 +239,7 @@ class LookAroundPopup {
             font.setColor(InfoPanelRenderer.LABEL_COLOR);
             glyphLayout.setText(font, "Found:");
             font.draw(batch, "Found:", dialogX + (dialogW - SCROLLBAR_W - glyphLayout.width) / 2f, ty);
-            ty -= smallLineH;
+            ty -= fontLineH;
             smallFont.setColor(Color.WHITE);
             for (String item : foundItems) {
                 glyphLayout.setText(smallFont, item);
