@@ -87,8 +87,9 @@ class LookAroundPopup {
         lookCharX = charX;
         lookCharY = charY;
         foundItems.clear();
-        timer = 0f;
-        state = State.ANIMATING;
+        timer   = 0f;
+        scrollY = 0f;
+        state   = State.ANIMATING;
         Gdx.app.log("LookAroundPopup", "Started at " + charX + "," + charY);
     }
 
@@ -130,9 +131,8 @@ class LookAroundPopup {
 
     void draw(int screenW, int screenH, int infoAreaHeight) {
         final float PAD    = 24f;
-        final float GAP    = 8f;   // extra inter-line spacing added to each text height
+        final float GAP    = 14f;  // extra inter-line spacing added to each text height
         final float MIN_W  = 320f;
-        final float MIN_H  = 120f;
         final float MAX_W  = screenW * 0.9f;
         final float MAX_H  = screenH * 0.8f;
 
@@ -154,8 +154,8 @@ class LookAroundPopup {
             headingLineH = headingH + GAP;
             // Width: heading + 2*PAD (no scrollbar needed for animation state)
             dialogW = MathUtils.clamp(headBounds.textWidth + 2 * PAD, MIN_W, MAX_W);
-            // Height: PAD + heading + PAD
-            dialogH      = Math.max(MIN_H, 2 * PAD + headingH);
+            // Height: exactly PAD top + text + PAD bottom so text is always PAD from each border
+            dialogH      = 2 * PAD + headingH;
             needsScroll  = false;
             maxScrollY   = 0f;
         } else {
@@ -166,7 +166,9 @@ class LookAroundPopup {
             // Measure items: total height and max width
             TextMeasurer.TextBounds itemsBounds =
                     TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f);
-            float itemsH   = itemsBounds.textHeight;    // sum of item heights + gaps
+            // measureLines gives N*lineH + (N-1)*GAP but draw loop uses N*(lineH+GAP).
+            // Add one trailing GAP so the last item is never clipped.
+            float itemsH   = itemsBounds.textHeight + (foundItems.isEmpty() ? 0f : GAP);
             float maxItemW = itemsBounds.textWidth;
 
             // Width = widest of (heading, items, ok-button-text) + 2*PAD + scrollbar margin
@@ -177,7 +179,7 @@ class LookAroundPopup {
             // Height formula:
             //   PAD (top border)
             //   + headingLineH  (heading text + gap)
-            //   + itemsH        (all item lines + inter-line gaps)
+            //   + itemsH        (all item lines + inter-line gaps + trailing gap)
             //   + PAD           (spacing between items and OK button)
             //   + okBtnH        (OK button)
             //   + PAD           (bottom border)
@@ -187,7 +189,7 @@ class LookAroundPopup {
             float maxScrollableH = MAX_H - 2 * PAD - fixedBottomH;
             needsScroll  = scrollableH > maxScrollableH;
             float usedScrollH = needsScroll ? maxScrollableH : scrollableH;
-            dialogH      = Math.max(MIN_H, PAD + usedScrollH + fixedBottomH + PAD);
+            dialogH      = PAD + usedScrollH + fixedBottomH + PAD;
             maxScrollY   = needsScroll ? Math.max(0f, scrollableH - maxScrollableH) : 0f;
         }
 
