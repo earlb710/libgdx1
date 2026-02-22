@@ -129,49 +129,74 @@ class LookAroundPopup {
     // -------------------------------------------------------------------------
 
     void draw(int screenW, int screenH, int infoAreaHeight) {
-        glyphLayout.setText(font, "Hg");
-        float fontH      = glyphLayout.height;
-        float fontLineH  = fontH * 1.5f;
-        glyphLayout.setText(smallFont, "Hg");
-        float smallH     = glyphLayout.height;
-        float smallLineH = smallH * 1.5f;
-
         final float PAD    = 24f;
+        final float GAP    = 8f;   // extra inter-line spacing added to each text height
         final float MIN_W  = 320f;
         final float MIN_H  = 120f;
         final float MAX_W  = screenW * 0.9f;
         final float MAX_H  = screenH * 0.8f;
 
+        // --- Measure OK button (fixed, always visible) ---
         TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyphLayout, "OK", 24f, 10f);
         float okBtnW = okBounds.width;
         float okBtnH = okBounds.height;
 
-        // --- Compute dialogW from widest text ---
-        float textAreaW = MIN_W - 2 * PAD;
+        // --- Measure all text elements via TextMeasurer ---
+        // Heading line
+        TextMeasurer.TextBounds headBounds;
+        float headingH, headingLineH;
+        float dialogW, dialogH;
+        boolean needsScroll;
+
         if (state == State.ANIMATING) {
-            glyphLayout.setText(font, "Looking around...");
-            textAreaW = Math.max(textAreaW, glyphLayout.width);
+            headBounds   = TextMeasurer.measure(font, glyphLayout, "Looking around...", 0f, 0f);
+            headingH     = headBounds.textHeight;
+            headingLineH = headingH + GAP;
+            // Width: heading + 2*PAD (no scrollbar needed for animation state)
+            dialogW = MathUtils.clamp(headBounds.textWidth + 2 * PAD, MIN_W, MAX_W);
+            // Height: PAD + heading + PAD
+            dialogH      = Math.max(MIN_H, 2 * PAD + headingH);
+            needsScroll  = false;
+            maxScrollY   = 0f;
         } else {
-            glyphLayout.setText(font, "Found:");
-            textAreaW = Math.max(textAreaW, glyphLayout.width);
-            for (String item : foundItems) {
-                glyphLayout.setText(smallFont, item);
-                textAreaW = Math.max(textAreaW, glyphLayout.width);
-            }
-            textAreaW = Math.max(textAreaW, okBtnW);
+            // RESULTS
+            headBounds   = TextMeasurer.measure(font, glyphLayout, "Found:", 0f, 0f);
+            headingH     = headBounds.textHeight;
+            headingLineH = headingH + GAP;
+            // Measure items: total height and max width
+            TextMeasurer.TextBounds itemsBounds =
+                    TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f);
+            float itemsH   = itemsBounds.textHeight;    // sum of item heights + gaps
+            float maxItemW = itemsBounds.textWidth;
+
+            // Width = widest of (heading, items, ok-button-text) + 2*PAD + scrollbar margin
+            float rawContentW = Math.max(headBounds.textWidth,
+                                Math.max(maxItemW, okBounds.textWidth));
+            dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
+
+            // Height formula:
+            //   PAD (top border)
+            //   + headingLineH  (heading text + gap)
+            //   + itemsH        (all item lines + inter-line gaps)
+            //   + PAD           (spacing between items and OK button)
+            //   + okBtnH        (OK button)
+            //   + PAD           (bottom border)
+            // The heading+items section is scrollable; the OK button is fixed.
+            float scrollableH   = headingLineH + itemsH;
+            float fixedBottomH  = PAD + okBtnH;          // always visible
+            float maxScrollableH = MAX_H - 2 * PAD - fixedBottomH;
+            needsScroll  = scrollableH > maxScrollableH;
+            float usedScrollH = needsScroll ? maxScrollableH : scrollableH;
+            dialogH      = Math.max(MIN_H, PAD + usedScrollH + fixedBottomH + PAD);
+            maxScrollY   = needsScroll ? Math.max(0f, scrollableH - maxScrollableH) : 0f;
         }
-        // Add scrollbar width + both pads, cap at MAX_W
-        float dialogW = MathUtils.clamp(textAreaW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
-        // --- Compute full content height and cap dialog ---
-        float fullContentH = fontLineH
-                + (state == State.RESULTS ? foundItems.size() * smallLineH + PAD + okBtnH : 0f);
-        float availH  = MAX_H - 2 * PAD;
-        boolean needsScroll = (state == State.RESULTS) && (fullContentH > availH);
-        float dialogH = Math.max(MIN_H, PAD + Math.min(fullContentH, availH) + PAD);
-
-        // Scrollbar max
-        maxScrollY = needsScroll ? Math.max(0f, fullContentH - availH) : 0f;
+        // For drawing the text we still need cap-height references
+        glyphLayout.setText(font, "Hg");
+        float fontH      = glyphLayout.height;
+        float fontLineH  = fontH + GAP;
+        glyphLayout.setText(smallFont, "Hg");
+        float smallLineH = glyphLayout.height + GAP;
 
         // Centred on screen
         float dialogX = (screenW - dialogW) / 2f;
@@ -198,8 +223,11 @@ class LookAroundPopup {
             float trackH = dialogH - 2 * PAD - okBtnH - PAD;
             shapeRenderer.setColor(0.3f, 0.3f, 0.35f, 1f);
             shapeRenderer.rect(sbX, trackY, SCROLLBAR_W, trackH);
-            float thumbH  = MathUtils.clamp(trackH * (availH / fullContentH), 12f, trackH);
-            float thumbY  = trackY + (trackH - thumbH) * (1f - scrollY / maxScrollY);
+            // scrollableH = headingLineH + itemsH; visible area = trackH
+            float scrollableH = headBounds.textHeight + GAP
+                    + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight;
+            float thumbH  = MathUtils.clamp(trackH * (trackH / scrollableH), 12f, trackH);
+            float thumbY  = trackY + (trackH - thumbH) * (maxScrollY > 0 ? 1f - scrollY / maxScrollY : 1f);
             shapeRenderer.setColor(0.6f, 0.65f, 0.75f, 1f);
             shapeRenderer.rect(sbX, thumbY, SCROLLBAR_W, thumbH);
         }

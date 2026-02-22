@@ -82,24 +82,28 @@ class TirednessPopup {
     void draw(int screenW, int screenH) {
         if (!visible) return;
 
-        glyph.setText(font, "Hg");
-        float fontH      = glyph.height;
-        float fontLineH  = fontH * 1.6f;
-        glyph.setText(smallFont, "Hg");
-        float smallH     = glyph.height;
-        float smallLineH = smallH * 1.5f;
+        final float PAD    = 24f;
+        final float GAP    = 8f;   // extra inter-line spacing
+
+        // Measure all text via TextMeasurer
+        TextMeasurer.TextBounds titleBounds = TextMeasurer.measure(font, glyph, "Too Tired!", 0f, 0f);
+        float titleH     = titleBounds.textHeight;
+        float titleLineH = titleH + GAP;
+
+        TextMeasurer.TextBounds linesBounds =
+                TextMeasurer.measureLines(smallFont, glyph, lines, GAP, 0f, 0f);
+        float linesH   = linesBounds.textHeight;
+        float maxLineW = linesBounds.textWidth;
 
         TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyph, "OK", 24f, 10f);
         float okBtnW = okBounds.width;
         float okBtnH = okBounds.height;
 
-        final float PAD = 24f;
-        float dialogH = PAD
-                + fontLineH                      // "Too Tired!" title
-                + lines.size() * smallLineH      // message lines
-                + PAD + okBtnH                   // OK button + gap
-                + PAD;
-        float dialogW = screenW;
+        // Height = PAD + titleLine + linesH + PAD (gap) + okBtn + PAD
+        float dialogH = PAD + titleLineH + linesH + PAD + okBtnH + PAD;
+        // Width = max(title, widest line, OK button text) + 2*PAD, capped at screenW
+        float rawW = Math.max(titleBounds.textWidth, Math.max(maxLineW, okBounds.textWidth));
+        float dialogW = Math.min(screenW, rawW + 2 * PAD);
         float dialogX = 0f;
         float dialogY = 0f;
 
@@ -125,18 +129,18 @@ class TirednessPopup {
 
         // --- Text ---
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH;
+        float ty = dialogY + dialogH - PAD - titleH;
 
         font.setColor(TITLE_COLOR);
         glyph.setText(font, "Too Tired!");
         font.draw(batch, "Too Tired!", dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= titleLineH;
 
         smallFont.setColor(Color.WHITE);
         for (String line : lines) {
             glyph.setText(smallFont, line);
             smallFont.draw(batch, line, dialogX + (dialogW - glyph.width) / 2f, ty);
-            ty -= smallLineH;
+            ty -= glyph.height + GAP;
         }
 
         font.setColor(Color.WHITE);

@@ -122,6 +122,59 @@ public final class TextMeasurer {
     }
 
     // -------------------------------------------------------------------------
+    // measureLines – total bounding box for a collection of text lines
+    // -------------------------------------------------------------------------
+
+    /**
+     * Measures the combined bounding box for a collection of text lines rendered
+     * with the same font.
+     *
+     * <ul>
+     *   <li>{@link TextBounds#textWidth}  – width of the widest line</li>
+     *   <li>{@link TextBounds#textHeight} – sum of all line heights plus
+     *       {@code (n-1) × lineGap} of inter-line spacing</li>
+     *   <li>{@link TextBounds#width}  / {@link TextBounds#height} – above plus padding</li>
+     * </ul>
+     *
+     * <p>An empty {@code lines} collection returns a zero-size {@link TextBounds}.
+     *
+     * @param font     {@link BitmapFont} to use
+     * @param layout   Reusable {@link GlyphLayout} (will be overwritten per line)
+     * @param lines    Text lines to measure (each may itself contain {@code \n})
+     * @param lineGap  Extra vertical gap between successive lines, in pixels
+     * @param paddingH Horizontal padding (left and right each), in pixels
+     * @param paddingV Vertical padding (top and bottom each), in pixels
+     * @return {@link TextBounds} for the combined area
+     */
+    public static TextBounds measureLines(BitmapFont font, GlyphLayout layout,
+                                          Iterable<String> lines,
+                                          float lineGap,
+                                          float paddingH, float paddingV) {
+        float maxW   = 0f;
+        float totalH = 0f;
+        boolean first = true;
+        for (String line : lines) {
+            layout.setText(font, line);
+            if (layout.width  > maxW) maxW = layout.width;
+            if (!first) totalH += lineGap;
+            totalH += layout.height;
+            first = false;
+        }
+        return new TextBounds(maxW, totalH, paddingH, paddingV);
+    }
+
+    /**
+     * Convenience overload with uniform padding.
+     *
+     * @see #measureLines(BitmapFont, GlyphLayout, Iterable, float, float, float)
+     */
+    public static TextBounds measureLines(BitmapFont font, GlyphLayout layout,
+                                          Iterable<String> lines,
+                                          float lineGap, float padding) {
+        return measureLines(font, layout, lines, lineGap, padding, padding);
+    }
+
+    // -------------------------------------------------------------------------
     // measureScaled – temporarily overrides the font's scale
     // -------------------------------------------------------------------------
 
