@@ -504,6 +504,7 @@ public class MainScreen implements Screen {
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        checkTabClick(screenX, flippedY);
                         checkUnitExitButtonClick(screenX, flippedY);
                         checkMoveToButtonClick(screenX, flippedY);
                         checkLookAroundButtonClick(screenX, flippedY);
@@ -690,6 +691,24 @@ public class MainScreen implements Screen {
     // -------------------------------------------------------------------------
     // Button hit-testing
     // -------------------------------------------------------------------------
+
+    private void checkTabClick(int screenX, int flippedY) {
+        if (state.tabH <= 0) return;
+        String[] tabIds = { "INFO", "CHARACTER" };
+        for (int i = 0; i < tabIds.length; i++) {
+            if (state.tabW[i] <= 0) continue;
+            if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]
+                    && flippedY >= state.tabY[i] && flippedY <= state.tabY[i] + state.tabH) {
+                if (!tabIds[i].equals(state.activeInfoTab)) {
+                    state.activeInfoTab = tabIds[i];
+                    state.infoScrollY = 0f;
+                    state.infoScrollX = 0f;
+                    Gdx.app.log("MainScreen", "Info tab switched to " + tabIds[i]);
+                }
+                return;
+            }
+        }
+    }
 
     private void checkMoveToButtonClick(int screenX, int flippedY) {
         if (state.moveToButtonW <= 0) return;

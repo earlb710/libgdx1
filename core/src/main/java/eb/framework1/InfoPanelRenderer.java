@@ -126,6 +126,104 @@ class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     void drawInfoBlock(MapViewState s, boolean lookAroundIdle) {
+
+        // =====================================================================
+        // TAB BAR — drawn at the top of the info panel
+        // =====================================================================
+        final String[] TAB_LABELS = { "Info", "Character" };
+        // Use smallFont for tabs so they fit at any info-panel size
+        glyphLayout.setText(smallFont, "Hg");
+        float tabFontH  = glyphLayout.height;
+        float tabPadX   = 18f;
+        float tabPadY   = 7f;
+        float tabH      = tabFontH + tabPadY * 2f;
+        float tabBarTop = s.infoAreaHeight;          // top of info panel (y-up)
+        float tabBarY   = tabBarTop - tabH;          // bottom edge of tab bar
+
+        s.tabBarHeight = tabH;
+        s.tabH         = tabH;
+
+        // Compute tab widths
+        float[] tabWidths = new float[TAB_LABELS.length];
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            glyphLayout.setText(smallFont, TAB_LABELS[i]);
+            tabWidths[i] = glyphLayout.width + tabPadX * 2f;
+        }
+
+        // Draw tab backgrounds + store bounds
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // Panel background
+        shapeRenderer.setColor(INFO_BG_COLOR);
+        shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
+        float tx = 0f;
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            s.tabX[i] = tx;
+            s.tabY[i] = tabBarY;
+            s.tabW[i] = tabWidths[i];
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
+            shapeRenderer.setColor(active
+                    ? new Color(0.25f, 0.35f, 0.5f, 1f)
+                    : new Color(0.12f, 0.12f, 0.18f, 1f));
+            shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+            tx += tabWidths[i];
+        }
+        shapeRenderer.end();
+
+        // Tab borders + separator line
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        tx = 0f;
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
+            if (active) {
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+            } else {
+                // Draw top/left/right border only; bottom merges with panel
+                shapeRenderer.line(tx,                    tabBarY + tabH, tx + tabWidths[i], tabBarY + tabH);
+                shapeRenderer.line(tx,                    tabBarY,        tx,                tabBarY + tabH);
+                shapeRenderer.line(tx + tabWidths[i],     tabBarY,        tx + tabWidths[i], tabBarY + tabH);
+            }
+            tx += tabWidths[i];
+        }
+        // Separator under tab bar extends across full width
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.line(0, tabBarY, s.screenWidth, tabBarY);
+        // Top panel border
+        shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
+        shapeRenderer.end();
+
+        // Tab labels
+        batch.begin();
+        tx = 0f;
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
+            glyphLayout.setText(smallFont, TAB_LABELS[i]);
+            smallFont.setColor(active ? Color.WHITE : new Color(0.6f, 0.6f, 0.7f, 1f));
+            smallFont.draw(batch, TAB_LABELS[i],
+                    tx + (tabWidths[i] - glyphLayout.width) / 2f,
+                    tabBarY + tabPadY + tabFontH);
+            tx += tabWidths[i];
+        }
+        batch.end();
+
+        // The panel area available for tab content is below the tab bar
+        int contentPanelH = (int) tabBarY; // pixels from y=0 up to tab bar bottom
+
+        // =====================================================================
+        // DISPATCH to active tab
+        // =====================================================================
+        if ("CHARACTER".equalsIgnoreCase(s.activeInfoTab)) {
+            drawCharacterTab(s, contentPanelH);
+        } else {
+            drawInfoTab(s, lookAroundIdle, contentPanelH);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Info tab content (original cell-info display)
+    // -------------------------------------------------------------------------
+
+    private void drawInfoTab(MapViewState s, boolean lookAroundIdle, int panelH) {
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -155,10 +253,9 @@ class InfoPanelRenderer {
         float smallLineH = smallCapH * 1.4f;
         glyphLayout.setText(tinyFont, "Hg");
         float tinyCapH  = glyphLayout.height;
-        // Vertical offsets for smallFont / tinyFont relative to a font-height row
-        float valCenterOff      = (fontCapH - smallCapH) / 2f;   // centre-aligns small with big
-        float valTinyBottomOff  = fontCapH - tinyCapH;            // bottom-aligns tiny with big (font row)
-        float valSmallTinyOff   = smallCapH - tinyCapH;           // bottom-aligns tiny with small row
+        float valCenterOff      = (fontCapH - smallCapH) / 2f;
+        float valTinyBottomOff  = fontCapH - tinyCapH;
+        float valSmallTinyOff   = smallCapH - tinyCapH;
 
         // --- Button sizing ---
         final float PAD_X = 24f, PAD_Y = 10f, BTN_PAD = 14f, BTN_SPACING = 16f;
@@ -167,12 +264,11 @@ class InfoPanelRenderer {
         final float BTN_W = moveBounds.width;
         final float BTN_H = moveBounds.height;
         final float LA_W  = laBounds.width;
-        // office button label width computed dynamically below
 
-        // Buttons stack vertically from the top of the info panel downward
+        // Buttons stack from top of content area downward (top = tabBarY bottom)
         final float btnX = 20f;
-        float curRowBottom = s.infoAreaHeight - BTN_PAD - BTN_H;
-        float lowestBtnBottom = -1f; // bottom Y of last visible button
+        float curRowBottom = panelH - BTN_PAD - BTN_H;
+        float lowestBtnBottom = -1f;
 
         s.moveToButtonX = btnX; s.moveToButtonH = BTN_H; s.moveToButtonW = showMoveToButton ? BTN_W : 0f;
         s.moveToButtonY = curRowBottom;
@@ -182,11 +278,9 @@ class InfoPanelRenderer {
         s.lookAroundBtnY = curRowBottom;
         if (showLookAroundButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // Rest/Sleep buttons are handled by UnitInteriorPopup; zero them out here
         s.restBtnW = 0f;
         s.sleepBtnW = 0f;
 
-        // Office button — width based on the actual label text
         String officeBtnLabel = showOfficeButton
                 ? "Your Office: " + floorOrdinal(s.homeFloor) + " Fl Unit " + s.homeFloor + s.homeUnitLetter
                 : "";
@@ -202,13 +296,12 @@ class InfoPanelRenderer {
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
-        // contentStartY: virtual Y of the first text line (y-up, no scroll applied)
         float contentStartY = hasButton
                 ? lowestBtnBottom - BTN_PAD - fontLineH
-                : s.infoAreaHeight - fontLineH;
-        float contentAreaBottom = SB;                        // above horizontal scrollbar
+                : panelH - fontLineH;
+        float contentAreaBottom = SB;
         float contentAreaH      = contentStartY - contentAreaBottom;
-        float contentAreaW      = s.screenWidth - SB;        // left of vertical scrollbar
+        float contentAreaW      = s.screenWidth - SB;
 
         // --- Measure content and update max-scroll bounds ---
         float totalContentH = computeContentHeight(s, fontLineH);
@@ -218,10 +311,8 @@ class InfoPanelRenderer {
         s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
         s.infoScrollX = MathUtils.clamp(s.infoScrollX, 0f, s.infoMaxScrollX);
 
-        // --- Shapes (background + buttons) ---
+        // --- Shapes (buttons) ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(INFO_BG_COLOR);
-        shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
             shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
             shapeRenderer.rect(s.moveToButtonX, s.moveToButtonY, BTN_W, BTN_H);
@@ -238,7 +329,6 @@ class InfoPanelRenderer {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.line(0, s.infoAreaHeight, s.screenWidth, s.infoAreaHeight);
         if (showMoveToButton) {
             shapeRenderer.rect(s.moveToButtonX,     s.moveToButtonY,     BTN_W,     BTN_H);
             shapeRenderer.rect(s.moveToButtonX + 1, s.moveToButtonY + 1, BTN_W - 2, BTN_H - 2);
@@ -257,7 +347,6 @@ class InfoPanelRenderer {
         batch.begin();
         float textX = 20f;
 
-        // Button text (no scroll)
         if (showMoveToButton) {
             glyphLayout.setText(font, "Move to");
             font.setColor(Color.WHITE);
@@ -289,18 +378,16 @@ class InfoPanelRenderer {
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
         }
 
-        // GL scissor: clips content to its area (below buttons, above horizontal scrollbar)
+        // GL scissor
         batch.flush();
-        float scissorTop = hasButton ? lowestBtnBottom : s.infoAreaHeight;
+        float scissorTop = hasButton ? lowestBtnBottom : panelH;
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor(0, (int) contentAreaBottom,
                 (int) contentAreaW, Math.max(0, (int)(scissorTop - contentAreaBottom)));
 
-        // Activate scroll offsets for drawLabelValue and direct draws
         drawScrollX = s.infoScrollX;
         drawScrollY = s.infoScrollY;
 
-        // Content text (virtual textY; actual draw = textY + drawScrollY, x - drawScrollX)
         float textY = contentStartY;
         if (s.selectedCellX >= 0 && s.selectedCellY >= 0) {
             Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
@@ -311,8 +398,6 @@ class InfoPanelRenderer {
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 if (building.isDiscovered()) {
-                    // Building: label = font/green; name = smallFont/white, centred;
-                    //           modifier = tinyFont/white, bottom-aligned with name row
                     String bMod = formatAttributeModifiers(building.getAttributeModifiers());
                     float dx = textX - drawScrollX;
                     float dy = textY + drawScrollY;
@@ -340,14 +425,12 @@ class InfoPanelRenderer {
                         textY -= fontLineH;
                     }
 
-                    // Improvements: header font/green; name font/white;
-                    // modifier smallFont/bright-white vertically centred with name
                     font.setColor(LABEL_COLOR);
                     font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
-                        if (idy < contentAreaBottom - fontLineH) break; // off-screen below
+                        if (idy < contentAreaBottom - fontLineH) break;
                         float idx = textX - drawScrollX;
                         if (imp.isDiscovered()) {
                             String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
@@ -376,13 +459,12 @@ class InfoPanelRenderer {
                     textX - drawScrollX, textY + drawScrollY);
         }
 
-        // Remove scissor before drawing fixed overlays
         batch.flush();
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollX = 0f;
         drawScrollY = 0f;
 
-        // Zoom text (top-right, not scrolled)
+        // Zoom text (top-right of content area)
         if (s.zoomLevel != s.lastZoomLevel) {
             s.cachedZoomText = "Zoom: " + String.format("%.1fx", s.zoomLevel);
             s.lastZoomLevel = s.zoomLevel;
@@ -390,11 +472,11 @@ class InfoPanelRenderer {
         glyphLayout.setText(smallFont, s.cachedZoomText);
         smallFont.setColor(Color.WHITE);
         smallFont.draw(batch, s.cachedZoomText,
-                s.screenWidth - glyphLayout.width - 20, s.infoAreaHeight - smallLineH);
+                s.screenWidth - glyphLayout.width - 20,
+                panelH - (glyphLayout.height * 1.4f));
 
         batch.end();
 
-        // Scrollbars drawn after batch.end() to avoid interleaving
         drawScrollbars(s, contentAreaH, contentAreaW, SB);
 
         // "?" toggle button — lower-right corner of info panel
@@ -424,6 +506,134 @@ class InfoPanelRenderer {
                 s.helpBtnX + (s.helpBtnW - glyphLayout.width) / 2f,
                 s.helpBtnY + (s.helpBtnH + glyphLayout.height) / 2f);
         batch.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Character tab content
+    // -------------------------------------------------------------------------
+
+    private void drawCharacterTab(MapViewState s, int panelH) {
+        // Disable action buttons when character tab is active
+        s.moveToButtonW      = 0f;
+        s.lookAroundBtnW     = 0f;
+        s.restBtnW           = 0f;
+        s.sleepBtnW          = 0f;
+        s.goToOfficeBtnW     = 0f;
+        s.infoMaxScrollX     = 0f;
+        s.infoMaxScrollY     = 0f;
+
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
+        glyphLayout.setText(smallFont, "Hg");
+        float smallCapH  = glyphLayout.height;
+        float smallLineH = smallCapH * 1.4f;
+
+        final float SB   = MapViewState.SCROLLBAR_THICKNESS;
+        final float PAD  = 16f;
+        final float COL2 = s.screenWidth * 0.5f; // second column x
+
+        // Total virtual content height (name + difficulty + stamina + money + gap + attributes)
+        float totalH = fontLineH            // Name
+                + smallLineH               // Gender / Difficulty / Icon
+                + smallLineH               // Stamina
+                + smallLineH               // Money
+                + smallLineH               // Separator gap
+                + CharacterAttribute.values().length * smallLineH;
+        float contentAreaH = panelH - SB;
+        s.infoMaxScrollY   = Math.max(0f, totalH - contentAreaH);
+        s.infoScrollY      = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+        s.infoMaxScrollX   = 0f;
+        s.infoScrollX      = 0f;
+
+        // Scissor to content area
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(0, (int) SB, s.screenWidth, Math.max(0, (int) contentAreaH));
+
+        batch.begin();
+        drawScrollY = s.infoScrollY;
+
+        float ty = panelH - PAD; // virtual top
+
+        // Character name (large)
+        font.setColor(Color.YELLOW);
+        font.draw(batch, profile.getCharacterName(),
+                PAD, ty + drawScrollY);
+        ty -= fontLineH;
+
+        // Gender / Difficulty on one line
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Gender: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(smallFont, "Gender: ");
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, profile.getGender(), PAD + glyphLayout.width, ty + drawScrollY);
+
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Difficulty: ", COL2, ty + drawScrollY);
+        glyphLayout.setText(smallFont, "Difficulty: ");
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, profile.getDifficulty(), COL2 + glyphLayout.width, ty + drawScrollY);
+        ty -= smallLineH;
+
+        // Stamina
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Stamina: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(smallFont, "Stamina: ");
+        int cur = profile.getCurrentStamina(), max = profile.getMaxStamina();
+        smallFont.setColor(cur < max / 3.0f ? Color.RED : cur < max * 2.0f / 3.0f ? Color.ORANGE : Color.GREEN);
+        smallFont.draw(batch, cur + " / " + max, PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= smallLineH;
+
+        // Money
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Money: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(smallFont, "Money: ");
+        smallFont.setColor(Color.YELLOW);
+        smallFont.draw(batch, "$" + profile.getMoney(), PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= smallLineH;
+
+        // Separator
+        ty -= smallLineH * 0.5f;
+
+        // Attributes — two columns
+        CharacterAttribute[] attrs = CharacterAttribute.values();
+        for (int i = 0; i < attrs.length; i++) {
+            CharacterAttribute attr = attrs[i];
+            int val = profile.getAttribute(attr.name());
+            boolean left  = (i % 2 == 0);
+            float ax = left ? PAD : COL2;
+            float ay = ty + drawScrollY;
+
+            smallFont.setColor(LABEL_COLOR);
+            smallFont.draw(batch, attr.getDisplayName() + ": ", ax, ay);
+            glyphLayout.setText(smallFont, attr.getDisplayName() + ": ");
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, String.valueOf(val), ax + glyphLayout.width, ay);
+
+            if (!left) ty -= smallLineH;
+        }
+        // Odd number of attributes — advance one more line
+        if (attrs.length % 2 != 0) ty -= smallLineH;
+
+        batch.end();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        drawScrollY = 0f;
+
+        // Scrollbar
+        if (s.infoMaxScrollY > 0f) {
+            float sbX    = s.screenWidth - SB;
+            float trackH = contentAreaH;
+            float totalScrollH = totalH;
+            float thumbH  = Math.max(SB * 2f, trackH * trackH / totalScrollH);
+            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
+            float thumbY  = SB + (1f - scrollRatio) * (trackH - thumbH);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
+            shapeRenderer.rect(sbX, SB, SB, trackH);
+            shapeRenderer.setColor(0.5f, 0.5f, 0.7f, 1f);
+            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
+            shapeRenderer.end();
+        }
     }
 
     // -------------------------------------------------------------------------
