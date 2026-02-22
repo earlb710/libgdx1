@@ -244,4 +244,224 @@ public class NovelTextEngineTest {
                      || desc.equals("You analyse everyone's form critically.");
         assertTrue("Should return a valid attribute variant when values are tied", valid);
     }
+
+    // ===== Building-ID-specific entries =====
+
+    private static final String BUILDING_JSON =
+        "{" +
+        "  \"version\": \"1.1\"," +
+        "  \"language\": \"en\"," +
+        "  \"descriptions\": {" +
+        "    \"gym_fitness_center\": {" +
+        "      \"default\": \"You enter the fitness center.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Early risers power through their routines.\"," +
+        "        \"evening\": \"The after-work crowd fills every station.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"STRENGTH\": \"You feel right at home — this is your element.\"," +
+        "        \"STAMINA\": \"Your eyes go straight to the cardio section.\"," +
+        "        \"AGILITY\": \"You size up the open training floor immediately.\"" +
+        "      }" +
+        "    }," +
+        "    \"police_station\": {" +
+        "      \"default\": \"You enter the police station.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Morning briefings fill the station.\"," +
+        "        \"night\": \"Night-duty officers keep watch.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"PERCEPTION\": \"You spot tension on the case board immediately.\"," +
+        "        \"INTIMIDATION\": \"Heads turn as you walk in.\"" +
+        "      }" +
+        "    }," +
+        "    \"fire_station\": {" +
+        "      \"default\": \"You step into the fire station.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"The morning shift checks equipment.\"," +
+        "        \"evening\": \"The evening shift shares a meal.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"STRENGTH\": \"The crew recognises your build immediately.\"," +
+        "        \"STAMINA\": \"The physical demands match your output.\"" +
+        "      }" +
+        "    }," +
+        "    \"library\": {" +
+        "      \"default\": \"You walk into the library.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Early patrons absorbed in reading.\"," +
+        "        \"afternoon\": \"Students fill the reading tables.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"INTELLIGENCE\": \"You know exactly which section you need.\"," +
+        "        \"MEMORY\": \"Titles and call numbers leap out at you.\"" +
+        "      }" +
+        "    }," +
+        "    \"hospital_small\": {" +
+        "      \"default\": \"You enter the hospital.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Morning rounds begin.\"," +
+        "        \"night\": \"Night staff maintain quiet vigilance.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"INTELLIGENCE\": \"Medical charts don't escape your notice.\"," +
+        "        \"EMPATHY\": \"Every person carries a weight you feel.\"" +
+        "      }" +
+        "    }" +
+        "  }" +
+        "}";
+
+    private NovelTextEngine buildingEngine;
+
+    @org.junit.Before
+    public void setUpBuildingEngine() {
+        buildingEngine = NovelTextEngine.fromJsonString(BUILDING_JSON);
+    }
+
+    @Test
+    public void testGymFitnessCenterHasDefaultText() {
+        String desc = buildingEngine.getDescription("gym_fitness_center", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap());
+        assertEquals("gym_fitness_center default should be returned with no attribute match",
+                "You enter the fitness center.", desc);
+    }
+
+    @Test
+    public void testGymFitnessCenterStrengthAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STRENGTH", 9);
+        attrs.put("CHARISMA", 2);
+        String desc = buildingEngine.getDescription("gym_fitness_center", TimeOfDay.AFTERNOON, attrs);
+        assertEquals("STRENGTH should trigger gym fitness center strength variant",
+                "You feel right at home — this is your element.", desc);
+    }
+
+    @Test
+    public void testGymFitnessCenterStaminaAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STAMINA", 8);
+        attrs.put("INTELLIGENCE", 3);
+        String desc = buildingEngine.getDescription("gym_fitness_center", TimeOfDay.MORNING, attrs);
+        assertEquals("STAMINA should trigger gym fitness center stamina variant",
+                "Your eyes go straight to the cardio section.", desc);
+    }
+
+    @Test
+    public void testGymFitnessCenterAgilityAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("AGILITY", 7);
+        String desc = buildingEngine.getDescription("gym_fitness_center", TimeOfDay.EVENING, attrs);
+        assertEquals("AGILITY should trigger gym fitness center agility variant",
+                "You size up the open training floor immediately.", desc);
+    }
+
+    @Test
+    public void testGymFitnessCenterTimeEvening() {
+        String desc = buildingEngine.getDescription("gym_fitness_center", TimeOfDay.EVENING,
+                Collections.<String, Integer>emptyMap());
+        assertEquals("Evening time variant should be returned",
+                "The after-work crowd fills every station.", desc);
+    }
+
+    @Test
+    public void testPoliceStationPerceptionAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("PERCEPTION", 10);
+        String desc = buildingEngine.getDescription("police_station", TimeOfDay.MORNING, attrs);
+        assertEquals("PERCEPTION should trigger police station perception variant",
+                "You spot tension on the case board immediately.", desc);
+    }
+
+    @Test
+    public void testPoliceStationIntimidationAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("INTIMIDATION", 8);
+        attrs.put("CHARISMA", 2);
+        String desc = buildingEngine.getDescription("police_station", TimeOfDay.AFTERNOON, attrs);
+        assertEquals("INTIMIDATION should trigger police station intimidation variant",
+                "Heads turn as you walk in.", desc);
+    }
+
+    @Test
+    public void testPoliceStationNightTimeVariant() {
+        String desc = buildingEngine.getDescription("police_station", TimeOfDay.NIGHT,
+                Collections.<String, Integer>emptyMap());
+        assertEquals("Night time variant should be returned for police station",
+                "Night-duty officers keep watch.", desc);
+    }
+
+    @Test
+    public void testFireStationStrengthAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STRENGTH", 9);
+        String desc = buildingEngine.getDescription("fire_station", TimeOfDay.MORNING, attrs);
+        assertEquals("STRENGTH should trigger fire station strength variant",
+                "The crew recognises your build immediately.", desc);
+    }
+
+    @Test
+    public void testFireStationStaminaAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STAMINA", 8);
+        String desc = buildingEngine.getDescription("fire_station", TimeOfDay.AFTERNOON, attrs);
+        assertEquals("STAMINA should trigger fire station stamina variant",
+                "The physical demands match your output.", desc);
+    }
+
+    @Test
+    public void testLibraryIntelligenceAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("INTELLIGENCE", 9);
+        String desc = buildingEngine.getDescription("library", TimeOfDay.AFTERNOON, attrs);
+        assertEquals("INTELLIGENCE should trigger library intelligence variant",
+                "You know exactly which section you need.", desc);
+    }
+
+    @Test
+    public void testLibraryMemoryAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("MEMORY", 8);
+        attrs.put("CHARISMA", 3);
+        String desc = buildingEngine.getDescription("library", TimeOfDay.MORNING, attrs);
+        assertEquals("MEMORY should trigger library memory variant",
+                "Titles and call numbers leap out at you.", desc);
+    }
+
+    @Test
+    public void testHospitalSmallIntelligenceAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("INTELLIGENCE", 9);
+        String desc = buildingEngine.getDescription("hospital_small", TimeOfDay.AFTERNOON, attrs);
+        assertEquals("INTELLIGENCE should trigger hospital intelligence variant",
+                "Medical charts don't escape your notice.", desc);
+    }
+
+    @Test
+    public void testHospitalSmallEmpathyAttribute() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("EMPATHY", 8);
+        attrs.put("STRENGTH", 2);
+        String desc = buildingEngine.getDescription("hospital_small", TimeOfDay.MORNING, attrs);
+        assertEquals("EMPATHY should trigger hospital empathy variant",
+                "Every person carries a weight you feel.", desc);
+    }
+
+    @Test
+    public void testHospitalSmallNightVariant() {
+        String desc = buildingEngine.getDescription("hospital_small", TimeOfDay.NIGHT,
+                Collections.<String, Integer>emptyMap());
+        assertEquals("Night time variant should be returned for hospital",
+                "Night staff maintain quiet vigilance.", desc);
+    }
+
+    @Test
+    public void testBuildingIdDefaultReturnedWhenNoMatch() {
+        // No attribute variant exists for STEALTH at the police_station entry in BUILDING_JSON
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STEALTH", 10);
+        // Should fall through to time variant
+        String desc = buildingEngine.getDescription("police_station", TimeOfDay.MORNING, attrs);
+        assertEquals("Should fall through to time variant when top attribute has no entry",
+                "Morning briefings fill the station.", desc);
+    }
 }

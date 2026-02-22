@@ -1,7 +1,987 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "language": "en",
   "descriptions": {
+    "parking_lot_small": {
+      "default": "You pull into the small parking lot.",
+      "time": {
+        "morning": "A few early birds have already claimed the best spots.",
+        "afternoon": "The lot is nearly full during the midday rush.",
+        "evening": "Cars are trickling out as the evening wind down begins.",
+        "night": "The lot is mostly empty, lit by a single flickering lamp."
+      },
+      "attribute": {
+        "PERCEPTION": "You clock every car, every plate, every face behind a windshield.",
+        "AGILITY": "You weave between vehicles effortlessly, taking the quick route."
+      }
+    },
+    "parking_lot_large": {
+      "default": "You enter the large parking lot.",
+      "time": {
+        "morning": "Workers and early shoppers fill the rows of the lot.",
+        "afternoon": "The lot buzzes at capacity during peak hours.",
+        "evening": "Headlights sweep across the asphalt as people head home.",
+        "night": "Vast and mostly empty, the lot feels exposed at this hour."
+      },
+      "attribute": {
+        "PERCEPTION": "You scan rows of vehicles in seconds, noting anything out of place.",
+        "STEALTH": "The maze of parked cars gives you plenty of cover to move unseen.",
+        "AGILITY": "You cut between vehicles at a pace no casual driver would manage."
+      }
+    },
+    "parking_garage_small": {
+      "default": "You enter the parking garage.",
+      "time": {
+        "morning": "The garage echoes with early-morning arrivals.",
+        "afternoon": "Every level is busy; the ramps hum with traffic.",
+        "evening": "Cars leave in a steady stream as the evening exodus begins.",
+        "night": "The garage is nearly silent, shadows pooling between pillars."
+      },
+      "attribute": {
+        "STEALTH": "The dim lighting and concrete pillars make this a perfect place to disappear.",
+        "PERCEPTION": "Every sound in here echoes — you can track movement floors away.",
+        "AGILITY": "Ramps and tight corners are nothing to you; you move with precision."
+      }
+    },
+    "parking_garage_large": {
+      "default": "You enter the multi-level parking garage.",
+      "time": {
+        "morning": "Morning commuters spiral upward looking for empty spaces.",
+        "afternoon": "The garage thrums with activity on every level.",
+        "evening": "Rush-hour traffic files out slowly through the exit ramps.",
+        "night": "Most levels are dark and deserted; only the exit signs glow."
+      },
+      "attribute": {
+        "STEALTH": "A building this large has dozens of blind spots — you know exactly which ones to use.",
+        "PERCEPTION": "You mentally map the camera positions and dead zones in seconds.",
+        "AGILITY": "You take the stairs two at a time, moving between levels faster than anyone expects."
+      }
+    },
+    "transit_station": {
+      "default": "You step into the transit station.",
+      "time": {
+        "morning": "Commuters stream through the turnstiles in the morning rush.",
+        "afternoon": "A quieter midday crowd makes it easier to watch the platforms.",
+        "evening": "The evening rush swells the platforms with tired commuters.",
+        "night": "The last trains of the night bring a sparse, watchful crowd."
+      },
+      "attribute": {
+        "PERCEPTION": "You read the crowd instantly — someone here doesn't fit the commuter profile.",
+        "AGILITY": "You slip through the crush of bodies without slowing down.",
+        "STAMINA": "The constant flow of people and noise is nothing; you stay sharp."
+      }
+    },
+    "bus_depot": {
+      "default": "You walk into the bus depot.",
+      "time": {
+        "morning": "Buses are warming up; drivers check their routes.",
+        "afternoon": "A steady rotation of arrivals and departures keeps things busy.",
+        "evening": "The last evening routes are being prepared.",
+        "night": "Buses rest in ranked rows; only the overnight crew is about."
+      },
+      "attribute": {
+        "STAMINA": "The diesel fumes and noise don't bother you — you've been in worse.",
+        "STRENGTH": "The sheer scale of the vehicles here commands a certain respect.",
+        "PERCEPTION": "You note which buses have been recently moved and which haven't budged in days."
+      }
+    },
+    "convenience_store": {
+      "default": "You step into the convenience store.",
+      "time": {
+        "morning": "Early risers grab coffee and newspapers before their commute.",
+        "afternoon": "A steady trickle of customers keeps the cashier busy.",
+        "evening": "After-work shoppers stop in for quick essentials.",
+        "night": "The store is almost empty; the fluorescent lights hum loudly."
+      },
+      "attribute": {
+        "PERCEPTION": "The placement of the security mirrors tells you exactly where the blind spots are.",
+        "INTUITION": "Something about the cashier's behaviour is off — you file it away."
+      }
+    },
+    "gas_station": {
+      "default": "You pull up to the gas station.",
+      "time": {
+        "morning": "Commuters queue at the pumps before the morning rush.",
+        "afternoon": "A slow midday lull — the forecourt is quiet.",
+        "evening": "Evening traffic creates a busy stop-start flow at the pumps.",
+        "night": "The canopy lights blaze against the dark; only a lone attendant is inside."
+      },
+      "attribute": {
+        "PERCEPTION": "You note the cameras, the angles, the movement patterns — this place has seen trouble before.",
+        "AGILITY": "You're in and out before the attendant has finished blinking.",
+        "INTUITION": "The vehicle idling near the air pump has been there too long to be just getting fuel."
+      }
+    },
+    "fast_food_restaurant": {
+      "default": "You push through the door of the fast food restaurant.",
+      "time": {
+        "morning": "The breakfast rush has the queue backed to the door.",
+        "afternoon": "The lunchtime crowd tests the patience of the overwhelmed staff.",
+        "evening": "Families and teenagers take up most of the booths.",
+        "night": "The night shift crew moves wearily through a near-empty dining room."
+      },
+      "attribute": {
+        "CHARISMA": "The server at the counter brightens when you walk up — you have that effect on people.",
+        "PERCEPTION": "You clock every face in the dining area before you've even ordered.",
+        "STAMINA": "The heavy food and grease-thick air slow most people down. You stay focused."
+      }
+    },
+    "coffee_shop": {
+      "default": "You walk into the coffee shop.",
+      "time": {
+        "morning": "The morning rush fills the shop with the aroma of fresh coffee and low chatter.",
+        "afternoon": "Students and remote workers have settled in for the long haul.",
+        "evening": "A mellower crowd winds down over lattes and conversation.",
+        "night": "Only a handful of night owls remain, nursing cold drinks."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You pick a seat with a view of every entrance and order something that buys you time.",
+        "MEMORY": "You recognise two regulars from a case file — they're meeting here on purpose.",
+        "CHARISMA": "The barista starts on your usual before you've reached the counter."
+      }
+    },
+    "small_retail_store": {
+      "default": "You enter the small retail store.",
+      "time": {
+        "morning": "The store is just opening; shelves freshly stocked.",
+        "afternoon": "A moderate afternoon crowd browses the aisles.",
+        "evening": "End-of-day shoppers move quickly on their way home.",
+        "night": "The shutters are down. The store is closed."
+      },
+      "attribute": {
+        "CHARISMA": "The owner greets you like an old friend the moment you step in.",
+        "PERCEPTION": "A price tag out of alignment, a recently moved display — small things speak volumes.",
+        "STEALTH": "You browse without drawing a single glance from the staff."
+      }
+    },
+    "pharmacy": {
+      "default": "You enter the pharmacy.",
+      "time": {
+        "morning": "Early customers collect prescriptions before the working day begins.",
+        "afternoon": "The pharmacist looks weary from a busy midday rush.",
+        "evening": "A few customers pick up last-minute prescriptions before closing.",
+        "night": "The pharmacy is closed; only the emergency window is lit."
+      },
+      "attribute": {
+        "INTELLIGENCE": "The medications on the shelves tell a story about what ailments are common in this neighbourhood.",
+        "EMPATHY": "You can see in the customers' faces what they're hoping the white bags will fix.",
+        "PERCEPTION": "You notice the pharmacist react to one name on the prescription — recognition, not routine."
+      }
+    },
+    "bank_branch": {
+      "default": "You step into the bank branch.",
+      "time": {
+        "morning": "The doors have just opened; early customers take numbers and wait.",
+        "afternoon": "A steady queue fills the lobby during the lunch-hour rush.",
+        "evening": "The branch is closing up; tellers are counting out their drawers.",
+        "night": "The bank is locked and dark, the ATM the only sign of life."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You read the layout immediately — vault access, teller windows, security positions.",
+        "INTIMIDATION": "The guard straightens up when you walk past. Good.",
+        "PERCEPTION": "A nervous customer near the back is holding their bag too tightly."
+      }
+    },
+    "laundromat": {
+      "default": "You enter the laundromat.",
+      "time": {
+        "morning": "A few early regulars load machines before their days begin.",
+        "afternoon": "The hum of washers and dryers fills the warm, damp air.",
+        "evening": "After-work crowds claim the remaining machines.",
+        "night": "Only one or two people sit with their phones, waiting for spin cycles to end."
+      },
+      "attribute": {
+        "PERCEPTION": "The person in the corner hasn't looked at their laundry once. They're watching something else.",
+        "MEMORY": "You recognise the same face from a different part of town — what are they doing here?",
+        "STEALTH": "You blend in perfectly, just another person folding clothes."
+      }
+    },
+    "hair_salon": {
+      "default": "You step into the hair salon.",
+      "time": {
+        "morning": "The stylists are setting up; the first appointments arrive.",
+        "afternoon": "The salon is at full capacity, every chair occupied.",
+        "evening": "Last appointments of the day; the mood is relaxed.",
+        "night": "The salon is closed; chairs draped in plastic, mirrors reflecting empty space."
+      },
+      "attribute": {
+        "CHARISMA": "The stylists are instantly at ease with you — conversation flows without effort.",
+        "EMPATHY": "You listen to the chatter and hear the real stories between the small talk.",
+        "PERCEPTION": "Overheard conversations in here carry more truth than most formal interviews."
+      }
+    },
+    "gym_fitness_center": {
+      "default": "You enter the fitness center.",
+      "time": {
+        "morning": "Early risers power through their routines before the workday starts.",
+        "afternoon": "A smaller midday crowd trains at a steadier pace.",
+        "evening": "The after-work crowd fills every station with competitive energy.",
+        "night": "Only the most dedicated are still pushing themselves this late."
+      },
+      "attribute": {
+        "STRENGTH": "You feel right at home — the weights, the chalk, the iron. This is your element.",
+        "STAMINA": "Your eyes go straight to the cardio section. You could outlast everyone here.",
+        "AGILITY": "You size up the open training floor immediately, already planning your footwork drills."
+      }
+    },
+    "strip_mall": {
+      "default": "You walk along the strip mall.",
+      "time": {
+        "morning": "A few shops are still rolling up their shutters.",
+        "afternoon": "The strip mall is busy with errands and foot traffic.",
+        "evening": "Most stores are closing; the fast-food end stays busy.",
+        "night": "Shuttered storefronts stretch in both directions; only the drive-through is lit."
+      },
+      "attribute": {
+        "PERCEPTION": "You take in every storefront in a single sweep, noting the unusual among the routine.",
+        "CHARISMA": "Shop owners nod at you like a regular even on a first visit.",
+        "STEALTH": "The constant foot traffic makes you invisible — just another face in the crowd."
+      }
+    },
+    "shopping_center": {
+      "default": "You enter the shopping center.",
+      "time": {
+        "morning": "The center has just opened; staff outnumber shoppers.",
+        "afternoon": "Families and groups of friends crowd the walkways.",
+        "evening": "The food court fills up as the last hour of trading begins.",
+        "night": "Security patrols the dark, empty concourse."
+      },
+      "attribute": {
+        "CHARISMA": "People seem to gravitate toward you — you're approached before you even stop walking.",
+        "PERCEPTION": "You track the flow of shoppers, spotting anyone who's loitering with no purchase intent.",
+        "STEALTH": "You move with the crowd, unremarkable and untraceable."
+      }
+    },
+    "regional_mall": {
+      "default": "You step inside the regional mall.",
+      "time": {
+        "morning": "Mall walkers and early shoppers fill the quiet ground floor.",
+        "afternoon": "The weekend crowd packs every escalator and food court seat.",
+        "evening": "Last-minute shoppers rush before the shutters come down.",
+        "night": "The vast interior is dark except for exit lighting; security makes rounds."
+      },
+      "attribute": {
+        "CHARISMA": "You move through the crowd effortlessly — conversations start without you trying.",
+        "PERCEPTION": "In a place this busy, you still spot the one person who doesn't belong.",
+        "STEALTH": "The sheer scale of this place makes you functionally invisible."
+      }
+    },
+    "supermarket": {
+      "default": "You walk into the supermarket.",
+      "time": {
+        "morning": "Shelves are freshly stocked; the early crowd is orderly and quiet.",
+        "afternoon": "The aisles are busy with purposeful shoppers working through lists.",
+        "evening": "The after-work rush turns every checkout into a queue.",
+        "night": "Night-shift staff restock the shelves in near-silence."
+      },
+      "attribute": {
+        "PERCEPTION": "The product placement, the security positioning, the layout — you read it all at a glance.",
+        "MEMORY": "You remember the prices from last week; something has changed, and not by chance.",
+        "INTELLIGENCE": "The supply chain tells a story if you know how to read the gaps on the shelves."
+      }
+    },
+    "warehouse_store": {
+      "default": "You push a cart through the warehouse store.",
+      "time": {
+        "morning": "Families stock up early while the store is at its quietest.",
+        "afternoon": "Pallets are being shifted mid-aisle, slowing the afternoon traffic.",
+        "evening": "Last-minute bulk shoppers clog the checkout lines.",
+        "night": "The store is closed; the enormous parking lot stands empty."
+      },
+      "attribute": {
+        "STRENGTH": "The scale of this place feels natural to you — the heavy loads, the wide aisles.",
+        "STAMINA": "The sheer size demands energy most people underestimate.",
+        "PERCEPTION": "You track the staff movements and camera angles automatically as you walk."
+      }
+    },
+    "restaurant_casual": {
+      "default": "You step inside the casual restaurant.",
+      "time": {
+        "morning": "The breakfast crowd lingers over coffee and eggs.",
+        "afternoon": "The lunchtime rush fills most tables with office workers.",
+        "evening": "Families and couples fill the dining room; the noise level is comfortable.",
+        "night": "The kitchen is winding down; a few late-nighters remain at the bar."
+      },
+      "attribute": {
+        "CHARISMA": "The host seats you immediately, with a smile that says you're remembered.",
+        "EMPATHY": "You can read the table dynamics of every group without trying.",
+        "PERCEPTION": "You scan the room the moment you're seated — habits die hard."
+      }
+    },
+    "restaurant_fine_dining": {
+      "default": "You enter the fine dining restaurant.",
+      "time": {
+        "morning": "The dining room is closed; prep staff work in near-silence.",
+        "afternoon": "A quiet lunch service attends to well-dressed regulars.",
+        "evening": "The full evening service transforms the room; every table has a story.",
+        "night": "The last diners linger; the staff moves with quiet efficiency to close."
+      },
+      "attribute": {
+        "CHARISMA": "The maitre d' recognises authority when they see it and attends to you immediately.",
+        "INTELLIGENCE": "The menu, the wine list, the clientele — you read the room like a dossier.",
+        "EMPATHY": "You pick up on the tension at a nearby table before a single word is raised."
+      }
+    },
+    "car_dealership": {
+      "default": "You walk onto the car dealership floor.",
+      "time": {
+        "morning": "Salespeople are prepping their pitches for the day.",
+        "afternoon": "Test drives and negotiations fill the showroom.",
+        "evening": "End-of-day deals are being pushed hard; quota pressure is visible.",
+        "night": "The showroom is lit but locked; rows of vehicles wait behind glass."
+      },
+      "attribute": {
+        "CHARISMA": "The salesperson backs off the hard pitch within thirty seconds of meeting you.",
+        "INTELLIGENCE": "You know the invoice price before the salesperson opens their mouth.",
+        "INTUITION": "Something about the lot manager's story doesn't add up."
+      }
+    },
+    "auto_repair_shop": {
+      "default": "You step into the auto repair shop.",
+      "time": {
+        "morning": "Mechanics start engines and run diagnostics as the day begins.",
+        "afternoon": "The shop is in full swing; the bay is full of lifted vehicles.",
+        "evening": "The last jobs of the day are being wrapped up.",
+        "night": "The shutters are down; the shop is dark except for one office light."
+      },
+      "attribute": {
+        "STRENGTH": "The physical work here is in your vocabulary — you respect the graft.",
+        "INTELLIGENCE": "Modern diagnostics are half the job; you speak the language of both wrenches and code.",
+        "PERCEPTION": "One of the vehicles in the back lot isn't here for repairs."
+      }
+    },
+    "medical_clinic": {
+      "default": "You enter the medical clinic.",
+      "time": {
+        "morning": "The waiting room fills up quickly after the doors open.",
+        "afternoon": "A long afternoon queue works its way through triage.",
+        "evening": "The last appointments of the day are running late.",
+        "night": "The clinic is closed; a note on the door redirects emergencies to urgent care."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Medical terminology, drug interactions, dosage anomalies — you catch details the staff skim past.",
+        "EMPATHY": "You can see in patients' expressions what they're afraid to say out loud.",
+        "PERCEPTION": "A patient in the corner has been waiting far too long for a routine visit."
+      }
+    },
+    "dental_office": {
+      "default": "You enter the dental office.",
+      "time": {
+        "morning": "Early patients arrive looking resigned; nobody loves the dentist.",
+        "afternoon": "The appointment schedule is backed up from a slow morning.",
+        "evening": "The last patient of the day heads for the exit, cheek still numb.",
+        "night": "The office is locked and dark; the receptionist's desk is cleared."
+      },
+      "attribute": {
+        "EMPATHY": "You're unusually good at putting nervous patients at ease.",
+        "INTELLIGENCE": "The x-rays on the light box tell a story beyond just teeth.",
+        "PERCEPTION": "The tension between the dentist and a staff member is noticeable even from the waiting room."
+      }
+    },
+    "veterinary_clinic": {
+      "default": "You step into the veterinary clinic.",
+      "time": {
+        "morning": "Anxious owners and their animals pack the morning waiting room.",
+        "afternoon": "Routine check-ups keep the afternoon schedule ticking over.",
+        "evening": "The last few evening appointments play out in a quieter clinic.",
+        "night": "The clinic is closed for regular hours; emergency cases only."
+      },
+      "attribute": {
+        "EMPATHY": "The animals sense something calming in you — even the anxious ones settle.",
+        "INTELLIGENCE": "You understand the diagnostics being discussed. The owner in the corner does not.",
+        "INTUITION": "The owner of the patient in exam room two is not telling the full story."
+      }
+    },
+    "hospital_small": {
+      "default": "You enter the hospital.",
+      "time": {
+        "morning": "The morning shift brings a flurry of ward rounds and new admissions.",
+        "afternoon": "A steady stream of outpatient appointments flows through the lobby.",
+        "evening": "Visiting hours draw families; the corridors grow briefly louder.",
+        "night": "Night staff move through the quiet wards; emergencies are the only disruption."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Medical charts and equipment configurations don't escape your notice.",
+        "EMPATHY": "Every person you pass carries a weight — you feel it without asking.",
+        "STAMINA": "The relentless pace and constant noise would wear most people down. Not you."
+      }
+    },
+    "hospital_large": {
+      "default": "You step into the large hospital.",
+      "time": {
+        "morning": "The complex hums with the controlled urgency of morning handovers.",
+        "afternoon": "Multiple wings operate simultaneously; the scale is impressive.",
+        "evening": "Visiting hours create a social hum within the clinical calm.",
+        "night": "The overnight skeleton crew maintains the quiet vigilance of the hospital at night."
+      },
+      "attribute": {
+        "INTELLIGENCE": "A facility this large has inefficiencies in every department. You see them all.",
+        "EMPATHY": "The weight of hope and grief here is palpable. You carry it without being crushed.",
+        "PERCEPTION": "You notice an unusual figure moving through a restricted area without an ID badge."
+      }
+    },
+    "urgent_care": {
+      "default": "You walk into the urgent care center.",
+      "time": {
+        "morning": "The morning brings a wave of overnight injuries and illnesses.",
+        "afternoon": "Afternoon walk-ins keep the triage desk busy.",
+        "evening": "The evening rush brings minor injuries from active days.",
+        "night": "Night brings the worst cases — the center is strained but functioning."
+      },
+      "attribute": {
+        "PERCEPTION": "A patient's story and their injury don't match. You clock the inconsistency.",
+        "STAMINA": "The intensity here doesn't flag all day. Neither do you.",
+        "EMPATHY": "You read pain levels and fear in faces better than most intake forms could."
+      }
+    },
+    "daycare_center": {
+      "default": "You enter the daycare center.",
+      "time": {
+        "morning": "Tearful drop-offs and cheerful staff mark the start of the morning.",
+        "afternoon": "The afternoon is a storm of structured play and small dramas.",
+        "evening": "Parents arrive for pick-up; the noise level rises then drops suddenly.",
+        "night": "The center is locked and quiet; the only sound is a forgotten toy's battery running low."
+      },
+      "attribute": {
+        "EMPATHY": "You instinctively lower your voice and crouch to eye level. The children warm to you.",
+        "CHARISMA": "The staff are guarded with strangers — but you put them at ease within moments.",
+        "PERCEPTION": "One child's behaviour is telling you something their words can't."
+      }
+    },
+    "elementary_school": {
+      "default": "You enter the elementary school.",
+      "time": {
+        "morning": "Morning assembly echoes through the corridors as the day begins.",
+        "afternoon": "Classes are in session; the halls are briefly empty between periods.",
+        "evening": "After-school clubs and sports practice fill the grounds.",
+        "night": "The school is locked; a janitorial cart sits outside a classroom."
+      },
+      "attribute": {
+        "EMPATHY": "Children have a radar for genuine kindness — they can tell you have it.",
+        "CHARISMA": "Teachers and staff relax in your presence. You carry a natural authority without menace.",
+        "PERCEPTION": "A detail in one of the classrooms catches your eye — it doesn't belong."
+      }
+    },
+    "high_school": {
+      "default": "You walk through the high school.",
+      "time": {
+        "morning": "Students arrive in clusters, the social geometry already established.",
+        "afternoon": "Hallways between lessons are a brief, chaotic pulse of movement.",
+        "evening": "Team practice, drama rehearsal, detention — the school has many afterlives.",
+        "night": "The building is dark; only the security lights mark the perimeter."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You read the social dynamics here like a document — hierarchies, alliances, fault lines.",
+        "CHARISMA": "Students and teachers alike respond to you; you project the right kind of confidence.",
+        "PERCEPTION": "You notice who is absent from where they should be."
+      }
+    },
+    "community_college": {
+      "default": "You enter the community college.",
+      "time": {
+        "morning": "Morning classes fill the lecture halls with attentive students.",
+        "afternoon": "Study groups form in the library and common areas.",
+        "evening": "Evening classes bring older students balancing work and study.",
+        "night": "The campus quiets down; only the library and a few labs remain lit."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You absorb the course materials on the notice board in seconds — and spot the anomaly.",
+        "MEMORY": "Academic environments are comfortable territory; you retain everything.",
+        "CHARISMA": "Students and faculty alike find you approachable and worth talking to."
+      }
+    },
+    "fire_station": {
+      "default": "You step into the fire station.",
+      "time": {
+        "morning": "The morning shift checks equipment and runs drills with focused precision.",
+        "afternoon": "The afternoon brings a call-out; the station empties in seconds.",
+        "evening": "The evening shift takes over; the crew shares a meal in the common room.",
+        "night": "The station is quiet between calls; crew members doze ready to respond."
+      },
+      "attribute": {
+        "STRENGTH": "The crew recognises your build immediately. You're one of them by type, if not by badge.",
+        "STAMINA": "The physical demands of this place match your output. You feel at home.",
+        "AGILITY": "The obstacle courses and gear routes here are second nature to you."
+      }
+    },
+    "police_station": {
+      "default": "You enter the police station.",
+      "time": {
+        "morning": "The station buzzes with morning briefings and officers starting their shifts.",
+        "afternoon": "A steady stream of reports and interviews keeps the afternoon busy.",
+        "evening": "The day shift is winding down; night-shift officers are checking in.",
+        "night": "Only the night-duty officers remain, the station quieter but watchful."
+      },
+      "attribute": {
+        "PERCEPTION": "You pick up on the subtle tension between two officers near the board — something happened recently.",
+        "INTIMIDATION": "Heads turn as you walk in. Your presence commands attention even here.",
+        "INTELLIGENCE": "The case board catches your eye; you spot a connection the team might have missed.",
+        "CHARISMA": "You exchange a nod with the desk sergeant. People like you here — they'll talk."
+      }
+    },
+    "post_office": {
+      "default": "You enter the post office.",
+      "time": {
+        "morning": "The morning queue forms fast — everyone wants to be first.",
+        "afternoon": "A manageable lunchtime crowd works through the numbered tickets.",
+        "evening": "The counter is down to one window as the day draws to a close.",
+        "night": "The post office is shut; parcels await in a locked sorting room."
+      },
+      "attribute": {
+        "MEMORY": "You recognise a regular from an unrelated case — this is not a coincidence.",
+        "PERCEPTION": "The parcel being collected at window three is the one you've been looking for.",
+        "INTELLIGENCE": "Sorting codes, postmarks, routing slips — this place is full of intelligence if you know to look."
+      }
+    },
+    "library": {
+      "default": "You walk into the library.",
+      "time": {
+        "morning": "The library is quiet, its early patrons absorbed in their reading.",
+        "afternoon": "Students and researchers fill the reading tables in the afternoon light.",
+        "evening": "The library is peaceful in the evening glow, the shelves casting long shadows.",
+        "night": "The library is closed. Only a faint light from the back suggests someone is still inside."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Your gaze sweeps the stacks methodically; you already know exactly which section you need.",
+        "MEMORY": "Titles and call numbers leap out at you — you've been here before and remember every shelf.",
+        "PERCEPTION": "A book slightly out of place, a bookmark left carelessly — someone was here recently and in a hurry.",
+        "INTUITION": "Something about the atmosphere feels off. The silence is a little too deliberate."
+      }
+    },
+    "community_center": {
+      "default": "You step into the community center.",
+      "time": {
+        "morning": "Morning fitness classes and coffee groups bring the first wave of visitors.",
+        "afternoon": "After-school programmes and committee meetings fill the afternoon.",
+        "evening": "Evening events — classes, meetings, socials — make this the busiest time.",
+        "night": "The last visitors clear out; staff stack chairs and lock up."
+      },
+      "attribute": {
+        "CHARISMA": "People here are open and community-minded — they warm to you immediately.",
+        "EMPATHY": "You hear the real needs behind the organised activities and small talk.",
+        "PERCEPTION": "A face you recognise is here for reasons beyond community spirit."
+      }
+    },
+    "city_hall": {
+      "default": "You enter city hall.",
+      "time": {
+        "morning": "Officials and public servants start their day with meetings and briefings.",
+        "afternoon": "Council sessions and public consultations run through the afternoon.",
+        "evening": "The building empties as staff head home; a few lights still burn.",
+        "night": "City hall is locked; security cameras watch empty corridors."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Permit records, planning maps, budget reports — the truth is always in the paperwork.",
+        "CHARISMA": "Council members and clerks respond to you with unusual openness.",
+        "INTIMIDATION": "Officials become measurably more cooperative when you maintain eye contact."
+      }
+    },
+    "courthouse": {
+      "default": "You walk into the courthouse.",
+      "time": {
+        "morning": "Early hearings draw lawyers, defendants, and witnesses through the metal detectors.",
+        "afternoon": "The courtrooms are in full session; the hallways are hushed.",
+        "evening": "Proceedings wind down; legal teams caucus in the corridors.",
+        "night": "The courthouse is closed. Only a duty officer remains at the front desk."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You read the body language of every witness, lawyer, and judge in the room.",
+        "INTIMIDATION": "Your bearing alone shifts the dynamic in an interrogation room or courtroom gallery.",
+        "PERCEPTION": "The defendant's micro-expressions tell you what the transcript never will."
+      }
+    },
+    "small_apartment_building": {
+      "default": "You enter the apartment building.",
+      "time": {
+        "morning": "Residents in work clothes jostle for the elevator.",
+        "afternoon": "The building is quieter during the working day.",
+        "evening": "The smell of cooking and the murmur of TV sets drift through the halls.",
+        "night": "The building is still; only the hum of a refrigerator breaks the silence."
+      },
+      "attribute": {
+        "PERCEPTION": "You note which buzzers are taped over, which mailboxes are overflowing.",
+        "STEALTH": "You move through the building without drawing a single curtain twitch.",
+        "EMPATHY": "You hear the conversations behind these doors — the ordinary and the troubled."
+      }
+    },
+    "medium_apartment_building": {
+      "default": "You step into the apartment building.",
+      "time": {
+        "morning": "The lobby is busy with residents beginning their day.",
+        "afternoon": "A quiet period settles over the building mid-afternoon.",
+        "evening": "The building comes alive again as residents return.",
+        "night": "Lights blink off floor by floor as the building sleeps."
+      },
+      "attribute": {
+        "PERCEPTION": "Worn carpet, fresh paint on one door only, a new lock — the building tells its own story.",
+        "STEALTH": "You take the stairs. Nobody uses the stairs, which is exactly why you do.",
+        "CHARISMA": "The super greets you with more warmth than most residents ever get."
+      }
+    },
+    "large_apartment_building": {
+      "default": "You enter the large apartment building.",
+      "time": {
+        "morning": "The lobby revolves with departing residents heading to work.",
+        "afternoon": "Deliveries stack up at the front desk.",
+        "evening": "Returning residents and food delivery riders create a busy crossover.",
+        "night": "The building quietens; the overnight concierge sits at a near-empty desk."
+      },
+      "attribute": {
+        "PERCEPTION": "A building this large has patterns. You read them: who's on schedule, who isn't.",
+        "STEALTH": "In a building this busy, being invisible is just a matter of timing.",
+        "CHARISMA": "The concierge lets you through without question — you carry yourself like a resident."
+      }
+    },
+    "luxury_apartment_tower": {
+      "default": "You enter the luxury apartment tower.",
+      "time": {
+        "morning": "Immaculate lobby staff greet the first residents of the morning.",
+        "afternoon": "A quiet, curated calm settles over the tower during the day.",
+        "evening": "Residents return in luxury vehicles; doormen earn their keep.",
+        "night": "The upper floors are lit against the skyline; the lobby is a study in understated wealth."
+      },
+      "attribute": {
+        "CHARISMA": "You carry yourself with the quiet confidence of someone who belongs here.",
+        "PERCEPTION": "Even in a place this polished, cracks appear if you know where to look.",
+        "INTELLIGENCE": "Security protocols, camera placements, resident schedules — you read the building like a floor plan."
+      }
+    },
+    "highrise_apartment_complex": {
+      "default": "You step into the high-rise apartment complex.",
+      "time": {
+        "morning": "Elevators are full during the morning departure rush.",
+        "afternoon": "The complex is largely empty; deliveries dominate the lobby.",
+        "evening": "The building hums as residents cook, watch TV, and make calls.",
+        "night": "The complex is quiet at last; only the security desk has its light on."
+      },
+      "attribute": {
+        "CHARISMA": "You carry yourself with the ease of someone who lives here. Security waves you through.",
+        "PERCEPTION": "Hundreds of people live here, but you notice the one who doesn't fit the routine.",
+        "STEALTH": "In the anonymity of a complex this size, you could disappear completely."
+      }
+    },
+    "townhouse_row": {
+      "default": "You walk along the townhouse row.",
+      "time": {
+        "morning": "Residents leave for work and school in a quiet suburban rhythm.",
+        "afternoon": "The street is calm; only a few cars pass.",
+        "evening": "Lights come on in living rooms; the smell of dinner drifts from open windows.",
+        "night": "The row is dark and still; a dog barks once and falls silent."
+      },
+      "attribute": {
+        "PERCEPTION": "You read the small signals — which lawns are kept, which blinds never open.",
+        "EMPATHY": "You sense the underlying community tensions before anyone mentions them.",
+        "STEALTH": "You move along the row without disturbing the quiet — a skill not everyone has."
+      }
+    },
+    "condominium_building": {
+      "default": "You enter the condominium building.",
+      "time": {
+        "morning": "Residents with coffee cups and briefcases crowd the lobby at opening.",
+        "afternoon": "A quieter afternoon follows the morning rush.",
+        "evening": "The building fills back up as working residents return.",
+        "night": "The lobby dims to night mode; the concierge switches to the overnight roster."
+      },
+      "attribute": {
+        "CHARISMA": "The concierge smiles before you've said a word — you have that effect.",
+        "PERCEPTION": "You spot a face from a case file reflected in the lobby mirror.",
+        "STEALTH": "You read the shift schedule instinctively and pick the right moment to move unseen."
+      }
+    },
+    "senior_living_facility": {
+      "default": "You step into the senior living facility.",
+      "time": {
+        "morning": "Morning routines — breakfast, medications, exercises — proceed with gentle regularity.",
+        "afternoon": "Activities, visitors, and quiet reading fill the afternoon hours.",
+        "evening": "Dinner service brings residents together; the common room is warmly lit.",
+        "night": "The facility is quiet and calm; night staff conduct their gentle rounds."
+      },
+      "attribute": {
+        "EMPATHY": "You have genuine patience here — listening costs you nothing and earns you everything.",
+        "MEMORY": "The residents' long memories are a resource. You know exactly what questions to ask.",
+        "CHARISMA": "Staff and residents trust you quickly. Something about your manner reassures them."
+      }
+    },
+    "hotel_budget": {
+      "default": "You check into the budget hotel.",
+      "time": {
+        "morning": "The breakfast queue moves sluggishly; the coffee is adequate at best.",
+        "afternoon": "The lobby is a crossroads of transient guests and their luggage.",
+        "evening": "Check-in rush brings a long queue to the single front-desk clerk.",
+        "night": "The corridors are thin-walled and lively long past midnight."
+      },
+      "attribute": {
+        "PERCEPTION": "You note the room numbers of interest before you've even reached yours.",
+        "STEALTH": "The indifferent staff and anonymous guests make you effectively invisible.",
+        "MEMORY": "You've stayed in places exactly like this. You know every corner, every exit."
+      }
+    },
+    "hotel_business": {
+      "default": "You check into the business hotel.",
+      "time": {
+        "morning": "The breakfast room is full of laptop screens and muffled calls.",
+        "afternoon": "The lobby serves as an informal meeting room for suited guests.",
+        "evening": "The bar fills with conference delegates unwinding after long sessions.",
+        "night": "The hotel settles into a professional quiet after midnight."
+      },
+      "attribute": {
+        "CHARISMA": "The front desk upgrades your room without you asking. You have the right kind of presence.",
+        "INTELLIGENCE": "The guest roster at check-in gives you more information than the hotel intends.",
+        "PERCEPTION": "You clock the surveillance setup within seconds of crossing the lobby."
+      }
+    },
+    "hotel_luxury": {
+      "default": "You enter the luxury hotel.",
+      "time": {
+        "morning": "A white-gloved breakfast service runs with silent precision.",
+        "afternoon": "The afternoon is defined by spa appointments and discreet meetings.",
+        "evening": "The restaurant fills with guests dressed for the occasion.",
+        "night": "The hotel purrs with a midnight calm that money has carefully constructed."
+      },
+      "attribute": {
+        "CHARISMA": "The concierge treats you like a preferred guest before you've said your name.",
+        "EMPATHY": "You read the undercurrents between guests — this hotel holds many secrets.",
+        "INTELLIGENCE": "Luxury is a language. You speak it fluently and note who doesn't."
+      }
+    },
+    "office_building_small": {
+      "default": "You step into the small office building.",
+      "time": {
+        "morning": "Staff arrive and settle into the familiar rhythms of the work day.",
+        "afternoon": "The midday lull is broken by a brief flurry of meetings.",
+        "evening": "Most desks are clearing; a few lights remain on past hours.",
+        "night": "The building is dark. A single light burns on an upper floor."
+      },
+      "attribute": {
+        "INTELLIGENCE": "The layout, the org chart on the wall, the room allocations — you read it all in a glance.",
+        "PERCEPTION": "Small offices have small secrets that are hard to keep. You spot three within two minutes.",
+        "STEALTH": "You move through the open-plan floor without drawing a single pair of eyes."
+      }
+    },
+    "office_building_medium": {
+      "default": "You enter the office building.",
+      "time": {
+        "morning": "Elevators fill and empty as the morning shift settles in.",
+        "afternoon": "A steady hum of meetings and keyboard work fills the afternoon.",
+        "evening": "The building empties floor by floor as the evening arrives.",
+        "night": "Security makes rounds through dark, quiet corridors."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You analyse the organisational structure from the directory board and draw fast conclusions.",
+        "PERCEPTION": "Someone has recently been to the floor above yours — the elevator's panel still shows it.",
+        "EMPATHY": "You can feel the pressure and fatigue of staff even through their professional masks."
+      }
+    },
+    "office_building_large": {
+      "default": "You enter the large office building.",
+      "time": {
+        "morning": "The lobby revolves with a thousand commuters beginning their nine-to-five.",
+        "afternoon": "Conference rooms are booked solid through the afternoon.",
+        "evening": "The building empties quickly after five; only the ambitious stay.",
+        "night": "Cleaners and security have the building to themselves."
+      },
+      "attribute": {
+        "INTELLIGENCE": "A building this size is a city in miniature. You navigate its politics instinctively.",
+        "CHARISMA": "Your visitor's badge should slow you down. Somehow it never does.",
+        "PERCEPTION": "You notice the executive floor elevator is showing unusual activity for this time of day."
+      }
+    },
+    "corporate_headquarters": {
+      "default": "You step into the corporate headquarters.",
+      "time": {
+        "morning": "The executive floors are already in motion; global calls started at dawn.",
+        "afternoon": "Board-level meetings and media delegations fill the afternoon schedule.",
+        "evening": "The lobbying and networking events that define corporate life run long into the evening.",
+        "night": "The building sleeps, but the servers don't."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Power is concentrated here. You understand its mechanisms and how to interrupt them.",
+        "CHARISMA": "Senior executives open doors for you. You give them no reason not to.",
+        "INTIMIDATION": "Your demeanour makes it clear you will not be managed, redirected, or ignored."
+      }
+    },
+    "coworking_space": {
+      "default": "You walk into the coworking space.",
+      "time": {
+        "morning": "Early freelancers and startup founders claim the best seats before nine.",
+        "afternoon": "The space reaches peak population mid-afternoon; conversation fills the air.",
+        "evening": "The evening crowd is younger and noisier — tonight's product launch is somewhere in here.",
+        "night": "The space is closed; hot desks sit vacant until morning."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You read pitches, code, and conversations simultaneously without appearing to.",
+        "CHARISMA": "People introduce themselves to you before you've had a chance to ask.",
+        "PERCEPTION": "Coworking spaces are deliberately open. That makes what's hidden here all the more interesting."
+      }
+    },
+    "movie_theater": {
+      "default": "You enter the movie theater.",
+      "time": {
+        "morning": "The first screenings attract retirees and the deliberately unemployed.",
+        "afternoon": "Family matinees and date afternoons fill the middle of the day.",
+        "evening": "The prime evening screenings sell out; the lobby is at capacity.",
+        "night": "Late-night screenings serve insomniacs and film obsessives."
+      },
+      "attribute": {
+        "PERCEPTION": "You find the blind spot in the lobby camera coverage within thirty seconds.",
+        "MEMORY": "You remember the last time you were in a theater exactly like this — and how it ended.",
+        "STEALTH": "The darkness of the auditorium is your natural element."
+      }
+    },
+    "bowling_alley": {
+      "default": "You walk into the bowling alley.",
+      "time": {
+        "morning": "Leagues take over the lanes in the quiet morning sessions.",
+        "afternoon": "Families and groups of friends fill the afternoon.",
+        "evening": "The place is loud and social; the bar is doing good business.",
+        "night": "Cosmic bowling kicks in — black lights, music, a very different crowd."
+      },
+      "attribute": {
+        "AGILITY": "Your approach to the lane is smooth; you've always had a feel for the weight and the roll.",
+        "CHARISMA": "You're invited to join a lane before you've even rented shoes.",
+        "PERCEPTION": "The group at lane seven isn't here to bowl."
+      }
+    },
+    "nightclub": {
+      "default": "You step inside the nightclub.",
+      "time": {
+        "morning": "The club is closed; cleaners sweep up the aftermath of last night.",
+        "afternoon": "The nightclub is dark and silent in the afternoon.",
+        "evening": "Pre-opening prep — lights, sound checks, staff briefings.",
+        "night": "The music hits you before the door is fully open. This is when the nightclub lives."
+      },
+      "attribute": {
+        "CHARISMA": "The VIP entrance opens without a word exchanged.",
+        "STEALTH": "You move through the crowd without leaving a trace in anyone's memory.",
+        "INTUITION": "The energy in here has an undertone the regular crowd hasn't noticed."
+      }
+    },
+    "sports_arena": {
+      "default": "You enter the sports arena.",
+      "time": {
+        "morning": "The arena is empty; groundskeepers and tech crews do their work.",
+        "afternoon": "Pre-game activity begins to build as the crowd starts to filter in.",
+        "evening": "The main event fills every seat; the atmosphere is electric.",
+        "night": "The post-game crowd streams out; the arena begins its slow reset."
+      },
+      "attribute": {
+        "STRENGTH": "You read the physical performance on display with an expert's eye.",
+        "STAMINA": "The noise, the crowd, the energy — it charges you rather than overwhelming you.",
+        "AGILITY": "You navigate the dense, moving crowd with a fluency most people never achieve."
+      }
+    },
+    "warehouse_small": {
+      "default": "You step into the warehouse.",
+      "time": {
+        "morning": "Delivery vans unload as the morning shift begins.",
+        "afternoon": "The afternoon is a steady cycle of picking, packing, and dispatch.",
+        "evening": "The last shipments of the day leave the loading bay.",
+        "night": "The warehouse is locked; motion sensors cover every corner."
+      },
+      "attribute": {
+        "STRENGTH": "Pallets, forklifts, and heavy freight are your natural context.",
+        "PERCEPTION": "You spot the inventory discrepancy within minutes of scanning the shelves.",
+        "STEALTH": "The aisles of racking give you more cover than most people realise."
+      }
+    },
+    "warehouse_large": {
+      "default": "You enter the large warehouse.",
+      "time": {
+        "morning": "Forklifts hum and shift teams prepare for the day's throughput.",
+        "afternoon": "Peak activity runs at full pace through the long afternoon.",
+        "evening": "The evening wind-down begins; conveyors slow to a halt.",
+        "night": "Only automated systems and security patrols operate after hours."
+      },
+      "attribute": {
+        "STRENGTH": "The physical scale of this place demands respect. You give it and take it in return.",
+        "PERCEPTION": "A building this size hides things easily. You know where to look.",
+        "STEALTH": "The noise and scale of the warehouse make you invisible if you want to be."
+      }
+    },
+    "manufacturing_facility": {
+      "default": "You step into the manufacturing facility.",
+      "time": {
+        "morning": "Day-shift workers take their stations as machines warm up.",
+        "afternoon": "The production floor runs at full capacity through the afternoon.",
+        "evening": "The evening shift takes over without a pause in output.",
+        "night": "Automated lines run without supervision; the night crew is minimal."
+      },
+      "attribute": {
+        "STRENGTH": "The raw physical work here resonates with something in you.",
+        "INTELLIGENCE": "Process inefficiencies, workflow bottlenecks, safety shortcuts — you catalogue them fast.",
+        "PERCEPTION": "One machine has been running slightly off spec. You hear it before anyone tells you."
+      }
+    },
+    "data_center": {
+      "default": "You enter the data center.",
+      "time": {
+        "morning": "Day-shift engineers run diagnostics and review overnight alerts.",
+        "afternoon": "The hum of servers is constant; the temperature is carefully controlled.",
+        "evening": "Routine maintenance windows open as traffic volumes drop.",
+        "night": "The facility never sleeps; automated systems run through the night undisturbed."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Rack layouts, network topology, access logs — you understand this infrastructure at a glance.",
+        "PERCEPTION": "One rack is running warmer than the others. That's not a cooling fault — that's activity.",
+        "STEALTH": "You move with the authority of someone who's supposed to be here. Nobody questions it."
+      }
+    },
+    "self_storage": {
+      "default": "You enter the self storage facility.",
+      "time": {
+        "morning": "Early customers retrieve or deposit items before the working day.",
+        "afternoon": "A trickle of customers comes and goes through the afternoon.",
+        "evening": "Last access before the facility restricts entry for the night.",
+        "night": "The facility is access-code locked; the corridors are empty and still."
+      },
+      "attribute": {
+        "PERCEPTION": "One unit has been accessed more recently than its log suggests.",
+        "STEALTH": "The uniform corridors and security gaps are well known to anyone who bothers to look.",
+        "MEMORY": "You remember the layout from a previous visit — every corridor, every exit."
+      }
+    },
+    "church": {
+      "default": "You step inside the church.",
+      "time": {
+        "morning": "The morning service draws a quiet, devoted congregation.",
+        "afternoon": "The church hosts community events and private reflection in the afternoon.",
+        "evening": "Evening prayer brings a smaller, more contemplative group.",
+        "night": "The church is closed; candles flicker in the dark before the altar."
+      },
+      "attribute": {
+        "EMPATHY": "You feel the weight of personal prayers and quiet grief in this space.",
+        "CHARISMA": "The priest greets you with genuine warmth — community is instinctive for them, and for you.",
+        "INTUITION": "This is a place of sanctuary. Whatever you're sensing here doesn't belong."
+      }
+    },
+    "mosque": {
+      "default": "You enter the mosque.",
+      "time": {
+        "morning": "The Fajr prayer has just concluded; the mosque carries a peaceful stillness.",
+        "afternoon": "The Zuhr congregation gathers for midday prayers.",
+        "evening": "The Maghrib prayer draws a reflective evening group.",
+        "night": "The Isha prayer ends the day; the mosque is quiet before it closes."
+      },
+      "attribute": {
+        "EMPATHY": "The sincerity of devotion here is palpable. You respect it without reservation.",
+        "CHARISMA": "Community leaders acknowledge you with a measured openness.",
+        "INTUITION": "Something about the atmosphere carries a tension beneath the calm."
+      }
+    },
+    "synagogue": {
+      "default": "You step into the synagogue.",
+      "time": {
+        "morning": "The morning minyan gathers in the main sanctuary for prayer.",
+        "afternoon": "Study sessions and administrative meetings fill the afternoon.",
+        "evening": "Shabbat or weekday evening services bring the community together.",
+        "night": "The synagogue is locked; only the Ner Tamid burns without end."
+      },
+      "attribute": {
+        "EMPATHY": "The depth of communal history here is felt, not just observed.",
+        "MEMORY": "You are moved by spaces that carry centuries of continuity.",
+        "INTELLIGENCE": "The texts, the archives, the history encoded in this building — it's a library as much as a house of worship."
+      }
+    },
     "office": {
       "default": "You step into the office.",
       "time": {
@@ -30,36 +1010,6 @@
         "STAMINA": "Your eyes immediately find the cardio section. You could run laps around everyone here.",
         "INTELLIGENCE": "You study the biomechanics of other gym-goers, mentally cataloguing their form and technique.",
         "AGILITY": "You move through the space with ease, already sizing up the open floor for footwork drills."
-      }
-    },
-    "police_station": {
-      "default": "You enter the police station.",
-      "time": {
-        "morning": "The station buzzes with morning briefings and officers starting their shifts.",
-        "afternoon": "A steady stream of reports and interviews keeps the afternoon busy.",
-        "evening": "The day shift is winding down; night-shift officers are checking in.",
-        "night": "Only the night-duty officers remain, the station quieter but watchful."
-      },
-      "attribute": {
-        "PERCEPTION": "You pick up on the subtle tension between two officers near the board — something happened recently.",
-        "INTIMIDATION": "Heads turn as you walk in. Your presence commands attention even here.",
-        "INTELLIGENCE": "The case board catches your eye; you spot a connection the team might have missed.",
-        "CHARISMA": "You exchange a nod with the desk sergeant. People like you here — they'll talk."
-      }
-    },
-    "library": {
-      "default": "You walk into the library.",
-      "time": {
-        "morning": "The library is quiet, its early patrons absorbed in their reading.",
-        "afternoon": "Students and researchers fill the reading tables in the afternoon light.",
-        "evening": "The library is peaceful in the evening glow, the shelves casting long shadows.",
-        "night": "The library is closed. Only a faint light from the back suggests someone is still inside."
-      },
-      "attribute": {
-        "INTELLIGENCE": "Your gaze sweeps the stacks methodically; you already know exactly which section you need.",
-        "MEMORY": "Titles and call numbers leap out at you — you've been here before and remember every shelf.",
-        "PERCEPTION": "A book slightly out of place, a bookmark left carelessly — someone was here recently and in a hurry.",
-        "INTUITION": "Something about the atmosphere feels off. The silence is a little too deliberate."
       }
     },
     "hospital": {
