@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "language": "es",
+  "descriptions": {
+    "office": {
+      "default": "Entras a la oficina.",
+      "time": {
+        "morning": "La oficina vibra con la energía de los que llegan temprano.",
+        "afternoon": "La oficina zumba con el trabajo a pleno rendimiento.",
+        "evening": "Los colegas recogen sus cosas al caer la tarde.",
+        "night": "La oficina está oscura y vacía a estas horas."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Inmediatamente mapeas el espacio, identificando ineficiencias y puntos de presión.",
+        "PERCEPTION": "Los pequeños detalles te llaman la atención: una nota adhesiva con un teléfono, un archivo abierto.",
+        "STEALTH": "Pasas desapercibido entre los trabajadores ocupados.",
+        "EMPATHY": "Sientes el estrés subyacente entre el personal antes de que nadie hable."
+      }
+    },
+    "gym": {
+      "default": "Entras al gimnasio.",
+      "time": {
+        "morning": "Los madrugadores llenan el gimnasio con energía concentrada.",
+        "afternoon": "Un grupo más reducido entrena a ritmo tranquilo.",
+        "evening": "La multitud que llega después del trabajo hace el ambiente vivo y competitivo.",
+        "night": "Solo los atletas más dedicados siguen aquí a estas horas."
+      },
+      "attribute": {
+        "STRENGTH": "Te sientes como en casa entre el hierro y el sudor — este es tu territorio.",
+        "STAMINA": "Tus ojos encuentran la sección de cardio de inmediato. Podrías superar a todos aquí.",
+        "INTELLIGENCE": "Estudias la biomecánica de los demás, catalogando mentalmente su forma y técnica.",
+        "AGILITY": "Te mueves por el espacio con facilidad, ya evaluando el suelo para ejercicios de agilidad."
+      }
+    },
+    "police_station": {
+      "default": "Entras a la comisaría.",
+      "time": {
+        "morning": "La comisaría bulle con los briefings matutinos.",
+        "afternoon": "Un flujo constante de informes e interrogatorios mantiene la tarde ocupada.",
+        "evening": "El turno de día termina; los agentes de noche están llegando.",
+        "night": "Solo los agentes de guardia nocturna permanecen, la comisaría más tranquila pero vigilante."
+      },
+      "attribute": {
+        "PERCEPTION": "Captas la tensión sutil entre dos agentes cerca del tablero.",
+        "INTIMIDATION": "Las cabezas se giran cuando entras. Tu presencia exige atención incluso aquí.",
+        "INTELLIGENCE": "El tablero de casos te llama la atención; ves una conexión que el equipo pudo haber pasado por alto.",
+        "CHARISMA": "Intercambias una señal con el sargento de guardia. La gente confía en ti aquí."
+      }
+    },
+    "library": {
+      "default": "Entras a la biblioteca.",
+      "time": {
+        "morning": "La biblioteca está en silencio, sus primeros visitantes absortos en la lectura.",
+        "afternoon": "Estudiantes e investigadores llenan las mesas de lectura.",
+        "evening": "La biblioteca es tranquila con la luz vespertina.",
+        "night": "La biblioteca está cerrada. Solo una tenue luz sugiere que alguien sigue dentro."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Tu mirada recorre las estanterías metódicamente; ya sabes exactamente qué sección necesitas.",
+        "MEMORY": "Los títulos y los números de llamada te saltan a la vista — recuerdas cada estante.",
+        "PERCEPTION": "Un libro ligeramente fuera de lugar, un marcapáginas descuidado — alguien estuvo aquí recientemente.",
+        "INTUITION": "Algo en el ambiente no cuadra. El silencio es demasiado deliberado."
+      }
+    }
+  }
+}

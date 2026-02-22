@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "language": "en",
+  "descriptions": {
+    "office": {
+      "default": "You step into the office.",
+      "time": {
+        "morning": "The office hums with the energy of early arrivals settling in.",
+        "afternoon": "The office buzzes steadily with the midday workload.",
+        "evening": "Colleagues are packing up their things as evening sets in.",
+        "night": "The office stands dark and empty at this late hour."
+      },
+      "attribute": {
+        "INTELLIGENCE": "You immediately map the workspace, noting organizational inefficiencies and potential pressure points.",
+        "PERCEPTION": "Small details catch your eye at once — a sticky note with a phone number, an open file on a desk.",
+        "STEALTH": "You slip in unnoticed, blending into the background of busy workers.",
+        "EMPATHY": "You can feel the undercurrent of stress among the staff even before anyone speaks."
+      }
+    },
+    "gym": {
+      "default": "You enter the gym.",
+      "time": {
+        "morning": "Early risers fill the gym with focused, purposeful energy.",
+        "afternoon": "A smaller midday crowd works out at a relaxed pace.",
+        "evening": "The after-work crowd makes the gym lively and competitive.",
+        "night": "Only the most dedicated athletes are still here at this hour."
+      },
+      "attribute": {
+        "STRENGTH": "You feel right at home among the iron and sweat — this is your territory.",
+        "STAMINA": "Your eyes immediately find the cardio section. You could run laps around everyone here.",
+        "INTELLIGENCE": "You study the biomechanics of other gym-goers, mentally cataloguing their form and technique.",
+        "AGILITY": "You move through the space with ease, already sizing up the open floor for footwork drills."
+      }
+    },
+    "police_station": {
+      "default": "You enter the police station.",
+      "time": {
+        "morning": "The station buzzes with morning briefings and officers starting their shifts.",
+        "afternoon": "A steady stream of reports and interviews keeps the afternoon busy.",
+        "evening": "The day shift is winding down; night-shift officers are checking in.",
+        "night": "Only the night-duty officers remain, the station quieter but watchful."
+      },
+      "attribute": {
+        "PERCEPTION": "You pick up on the subtle tension between two officers near the board — something happened recently.",
+        "INTIMIDATION": "Heads turn as you walk in. Your presence commands attention even here.",
+        "INTELLIGENCE": "The case board catches your eye; you spot a connection the team might have missed.",
+        "CHARISMA": "You exchange a nod with the desk sergeant. People like you here — they'll talk."
+      }
+    },
+    "library": {
+      "default": "You walk into the library.",
+      "time": {
+        "morning": "The library is quiet, its early patrons absorbed in their reading.",
+        "afternoon": "Students and researchers fill the reading tables in the afternoon light.",
+        "evening": "The library is peaceful in the evening glow, the shelves casting long shadows.",
+        "night": "The library is closed. Only a faint light from the back suggests someone is still inside."
+      },
+      "attribute": {
+        "INTELLIGENCE": "Your gaze sweeps the stacks methodically; you already know exactly which section you need.",
+        "MEMORY": "Titles and call numbers leap out at you — you've been here before and remember every shelf.",
+        "PERCEPTION": "A book slightly out of place, a bookmark left carelessly — someone was here recently and in a hurry.",
+        "INTUITION": "Something about the atmosphere feels off. The silence is a little too deliberate."
+      }
+    },
+    "hospital": {
+      "default": "You enter the hospital.",
+      "time": {
+        "morning": "The morning rush is underway — nurses, doctors, and porters moving briskly.",
+        "afternoon": "The hospital settles into its afternoon rhythm of rounds and consultations.",
+        "evening": "Visiting hours are ending and families are saying their goodbyes.",
+        "night": "Only emergency and night staff are present; the corridors are hushed."
+      },
+      "attribute": {
+        "EMPATHY": "You can feel the weight of worry carried by every person you pass.",
+        "INTELLIGENCE": "Medical charts and equipment ratings catch your eye — you notice things others walk past.",
+        "STAMINA": "The relentless pace of the place energises rather than exhausts you.",
+        "PERCEPTION": "You notice a patient being wheeled in whose injuries don't quite match the reported accident."
+      }
+    },
+    "park": {
+      "default": "You walk into the park.",
+      "time": {
+        "morning": "Joggers and dog walkers fill the park in the crisp morning air.",
+        "afternoon": "Families and friends relax on the grass in the warm afternoon sun.",
+        "evening": "The park takes on a golden hue as the sun dips low.",
+        "night": "The park is deserted and still; the lamp-posts cast small pools of yellow light."
+      },
+      "attribute": {
+        "PERCEPTION": "You notice a discarded item near the bench that most people have walked straight past.",
+        "STAMINA": "The open space calls to you; your legs itch to break into a run.",
+        "INTUITION": "Despite the peaceful appearance, something at the edge of your awareness nags at you.",
+        "CHARISMA": "A couple on a bench waves at you — you have one of those faces people just trust."
+      }
+    },
+    "restaurant": {
+      "default": "You step inside the restaurant.",
+      "time": {
+        "morning": "The breakfast crowd lingers over coffee and early plates.",
+        "afternoon": "The lunchtime rush is in full swing, every table occupied.",
+        "evening": "Soft lighting and the murmur of conversation fill the room at dinner.",
+        "night": "The kitchen is winding down; only a few late-night diners remain."
+      },
+      "attribute": {
+        "CHARISMA": "The host greets you warmly before you've even said a word.",
+        "PERCEPTION": "You scan the room in seconds — who is nervous, who is meeting whom, who doesn't fit.",
+        "EMPATHY": "The staff here are tired. You catch the subtle signs and make a point of being patient.",
+        "INTELLIGENCE": "The menu is a code of sorts. You order the dish that will take longest to prepare, giving you more time."
+      }
+    }
+  }
+}
