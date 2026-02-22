@@ -392,15 +392,6 @@ class InfoPanelRenderer {
         smallFont.draw(batch, s.cachedZoomText,
                 s.screenWidth - glyphLayout.width - 20, s.infoAreaHeight - smallLineH);
 
-        // Controls hint — only visible when "?" is toggled on
-        if (s.helpVisible) {
-            String hint = "Scroll to zoom | Drag to pan | +/- keys | Arrow keys";
-            glyphLayout.setText(smallFont, hint);
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, hint,
-                    (s.screenWidth - glyphLayout.width) / 2f, SB + smallLineH + 2f);
-        }
-
         batch.end();
 
         // Scrollbars drawn after batch.end() to avoid interleaving

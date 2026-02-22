@@ -54,6 +54,7 @@ public class MainScreen implements Screen {
     private LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
+    private HelpPopup         helpPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -183,6 +184,8 @@ public class MainScreen implements Screen {
 
         tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -230,6 +233,10 @@ public class MainScreen implements Screen {
 
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
+        }
+
+        if (state.helpVisible) {
+            helpPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
         }
 
         if (quitConfirming) {
@@ -739,6 +746,11 @@ public class MainScreen implements Screen {
     }
 
     private void checkHelpButtonClick(int screenX, int flippedY) {
+        // If the popup is visible, let it handle the tap first (its own "?" close button).
+        if (state.helpVisible && helpPopup.onTap(screenX, flippedY)) {
+            state.helpVisible = false;
+            return;
+        }
         if (state.helpBtnW <= 0) return;
         if (screenX >= state.helpBtnX && screenX <= state.helpBtnX + state.helpBtnW
                 && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {
