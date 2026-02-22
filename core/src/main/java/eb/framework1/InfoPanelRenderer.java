@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -112,12 +111,25 @@ class InfoPanelRenderer {
         smallFont.setColor(Color.YELLOW);
         smallFont.draw(batch, moneyText, s.screenWidth - glyphLayout.width - 10, textY);
 
-        // Stamina (centre) — value only, cyan/blue, e.g. "20/20"
-        String staminaValue = profile.getCurrentStamina() + "/" + profile.getMaxStamina();
-        glyphLayout.setText(smallFont, staminaValue);
+        // Stamina (centre) — "cur / effectiveMax"
+        // effectiveMax mirrors Profile.getMaxStamina() but includes the location STAMINA modifier:
+        //   max(10, (staminaAttr + locationMod) × 10)
+        int staminaMod   = locationModFor(s.charCellX, s.charCellY, CharacterAttribute.STAMINA);
+        int effectiveMax = Math.max(10,
+                (profile.getAttribute(CharacterAttribute.STAMINA.name()) + staminaMod) * 10);
+        String curStr = profile.getCurrentStamina() + "/";
+        String maxStr = String.valueOf(effectiveMax);
+        glyphLayout.setText(smallFont, curStr + maxStr);
         float staminaX = (s.screenWidth - glyphLayout.width) / 2f;
         smallFont.setColor(new Color(0.4f, 0.7f, 1.0f, 1f));
-        smallFont.draw(batch, staminaValue, staminaX, textY);
+        smallFont.draw(batch, curStr, staminaX, textY);
+        glyphLayout.setText(smallFont, curStr);
+        // max: brighter cyan = bonus, orange = penalty, normal cyan = no modifier
+        Color maxColor = staminaMod > 0 ? new Color(0.6f, 1.0f, 1.0f, 1f)
+                       : staminaMod < 0 ? Color.ORANGE
+                       :                  new Color(0.4f, 0.7f, 1.0f, 1f);
+        smallFont.setColor(maxColor);
+        smallFont.draw(batch, maxStr, staminaX + glyphLayout.width, textY);
 
         smallFont.setColor(Color.WHITE);
         batch.end();
@@ -556,32 +568,10 @@ class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Compute total attribute modifiers from the character's current location.
-        // Includes the building's own modifiers plus all discovered improvement modifiers.
-        Map<CharacterAttribute, Integer> locationMods = new HashMap<>();
-        if (s.charCellX >= 0 && s.charCellY >= 0) {
-            Cell locCell = cityMap.getCell(s.charCellX, s.charCellY);
-            if (locCell.hasBuilding() && locCell.getBuilding().isDiscovered()) {
-                Building locBuilding = locCell.getBuilding();
-                for (Map.Entry<CharacterAttribute, Integer> e
-                        : locBuilding.getAttributeModifiers().entrySet()) {
-                    locationMods.merge(e.getKey(), e.getValue(), Integer::sum);
-                }
-                for (Improvement imp : locBuilding.getImprovements()) {
-                    if (imp.isDiscovered()) {
-                        for (Map.Entry<CharacterAttribute, Integer> e
-                                : imp.getAttributeModifiers().entrySet()) {
-                            locationMods.merge(e.getKey(), e.getValue(), Integer::sum);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Attributes — one per row  Format: "Name [total] : base + mod"  or  "Name : base"
+        // Attributes — one per row  Format: "Name [total] : base + mod"  or  "Name [base]"
         for (CharacterAttribute attr : attrs) {
             int base = profile.getAttribute(attr.name());
-            int mod  = locationMods.getOrDefault(attr, 0);
+            int mod  = locationModFor(s.charCellX, s.charCellY, attr);
             float ay = ty + drawScrollY;
             float cx = PAD;
             int    total    = base + mod;
@@ -646,6 +636,24 @@ class InfoPanelRenderer {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns the total attribute modifier contributed by the building (and all discovered
+     * improvements) at the character's current cell, or 0 if no building/undiscovered.
+     */
+    private int locationModFor(int charCellX, int charCellY, CharacterAttribute attr) {
+        if (charCellX < 0 || charCellY < 0) return 0;
+        Cell cell = cityMap.getCell(charCellX, charCellY);
+        if (!cell.hasBuilding() || !cell.getBuilding().isDiscovered()) return 0;
+        Building b = cell.getBuilding();
+        int total = b.getAttributeModifiers().getOrDefault(attr, 0);
+        for (Improvement imp : b.getImprovements()) {
+            if (imp.isDiscovered()) {
+                total += imp.getAttributeModifiers().getOrDefault(attr, 0);
+            }
+        }
+        return total;
+    }
 
     /**
      * Draws a label (font/green) + value (font/white) pair at the given virtual position.
