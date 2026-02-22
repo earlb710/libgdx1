@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -69,6 +70,11 @@ public class MainScreen implements Screen {
     private long  lastMapTapTimeMs = 0L;
     private float lastMapTapX      = -1f;
     private float lastMapTapY      = -1f;
+
+    // Quit confirmation (ESC key)
+    private boolean quitConfirming   = false;
+    private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
+    private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
     // Tuning constants
     private static final float MIN_ZOOM             = 1.0f;
@@ -224,6 +230,10 @@ public class MainScreen implements Screen {
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
+
+        if (quitConfirming) {
+            drawQuitConfirmation();
+        }
     }
 
     @Override
@@ -271,6 +281,72 @@ public class MainScreen implements Screen {
     }
 
     // -------------------------------------------------------------------------
+    // Quit confirmation overlay
+    // -------------------------------------------------------------------------
+
+    private void drawQuitConfirmation() {
+        int sw = state.screenWidth;
+        int sh = state.screenHeight;
+        final float PAD = 32f;
+        final Color BG      = new Color(0.08f, 0.08f, 0.12f, 0.96f);
+        final Color BORDER  = new Color(0.9f,  0.3f,  0.3f,  1f);
+
+        TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(font, glyphLayout, "YES", 40f, 18f);
+        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(font, glyphLayout, "NO",  40f, 18f);
+
+        glyphLayout.setText(font, "Exit : Are you sure?");
+        float msgW  = glyphLayout.width;
+        float msgH  = glyphLayout.height;
+        float gap   = 24f;
+        float btnGap = 20f;
+        float totalBtnW = yesBounds.width + btnGap + noBounds.width;
+        float boxW  = Math.max(msgW + 2 * PAD, totalBtnW + 2 * PAD);
+        float boxH  = PAD + msgH + gap + yesBounds.height + PAD;
+        float boxX  = (sw - boxW) / 2f;
+        float boxY  = (sh - boxH) / 2f;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(BG);
+        shapeRenderer.rect(boxX, boxY, boxW, boxH);
+
+        // Compute and store button rects
+        float btnY   = boxY + PAD;
+        float btnX0  = boxX + (boxW - totalBtnW) / 2f;
+        quitYesBtnX = btnX0;               quitYesBtnY = btnY;
+        quitYesBtnW = yesBounds.width;     quitYesBtnH = yesBounds.height;
+        quitNoBtnX  = btnX0 + yesBounds.width + btnGap; quitNoBtnY = btnY;
+        quitNoBtnW  = noBounds.width;      quitNoBtnH  = noBounds.height;
+
+        shapeRenderer.setColor(0.2f, 0.6f, 0.2f, 1f);
+        shapeRenderer.rect(quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH);
+        shapeRenderer.setColor(0.6f, 0.15f, 0.15f, 1f);
+        shapeRenderer.rect(quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(BORDER);
+        shapeRenderer.rect(boxX,     boxY,     boxW,     boxH);
+        shapeRenderer.rect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH);
+        shapeRenderer.rect(quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Exit : Are you sure?",
+                boxX + (boxW - msgW) / 2f,
+                boxY + boxH - PAD);
+        font.draw(batch, "YES",
+                quitYesBtnX + (quitYesBtnW - yesBounds.textWidth) / 2f,
+                quitYesBtnY + (quitYesBtnH + yesBounds.textHeight) / 2f);
+        font.draw(batch, "NO",
+                quitNoBtnX + (quitNoBtnW - noBounds.textWidth) / 2f,
+                quitNoBtnY + (quitNoBtnH + noBounds.textHeight) / 2f);
+        batch.end();
+    }
+
+    // -------------------------------------------------------------------------
     // Input
     // -------------------------------------------------------------------------
 
@@ -279,6 +355,9 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
+
+                // Quit confirmation overlay blocks all interaction
+                if (quitConfirming) { return true; }
 
                 // Any look-around popup blocks normal interaction
                 if (lookAroundPopup.isVisible()) {
@@ -326,6 +405,21 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
+
+                // Quit confirmation overlay – handle Yes/No only
+                if (quitConfirming) {
+                    if (screenX >= quitYesBtnX && screenX <= quitYesBtnX + quitYesBtnW
+                            && flippedY >= quitYesBtnY && flippedY <= quitYesBtnY + quitYesBtnH) {
+                        Gdx.app.log("MainScreen", "Quit confirmed");
+                        Gdx.app.exit();
+                    } else if (screenX >= quitNoBtnX && screenX <= quitNoBtnX + quitNoBtnW
+                            && flippedY >= quitNoBtnY && flippedY <= quitNoBtnY + quitNoBtnH) {
+                        quitConfirming = false;
+                    }
+                    infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
 
                 if (lookAroundPopup.isResults()) {
                     if (infoAreaPressed) {
@@ -451,6 +545,11 @@ public class MainScreen implements Screen {
     }
 
     private void handleKeyboardInput() {
+        // ESC → show quit confirmation (second ESC cancels)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            quitConfirming = !quitConfirming;
+        }
+        if (quitConfirming) return; // block all other keys while confirming
         if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.EQUALS)) {
             state.zoomLevel = MathUtils.clamp(state.zoomLevel + ZOOM_SPEED * 2, MIN_ZOOM, MAX_ZOOM);
             state.clampMapOffset();
