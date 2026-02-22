@@ -464,4 +464,155 @@ public class NovelTextEngineTest {
         assertEquals("Should fall through to time variant when top attribute has no entry",
                 "Morning briefings fill the station.", desc);
     }
+
+    // ===== Gender variant tests =====
+
+    private static final String GENDER_JSON =
+        "{" +
+        "  \"version\": \"1.2\"," +
+        "  \"language\": \"en\"," +
+        "  \"descriptions\": {" +
+        "    \"gym_fitness_center\": {" +
+        "      \"default\": \"You enter the fitness center.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Early risers power through their routines.\"," +
+        "        \"evening\": \"The after-work crowd fills every station.\"" +
+        "      }," +
+        "      \"attribute\": {" +
+        "        \"STRENGTH\": \"You feel right at home — this is your element.\"" +
+        "      }," +
+        "      \"gender\": {" +
+        "        \"male\": \"Two regulars offer you a spot within minutes of your warm-up.\"," +
+        "        \"female\": \"You move to the free weights. Three people stop to watch. You ignore them.\"" +
+        "      }" +
+        "    }," +
+        "    \"police_station\": {" +
+        "      \"default\": \"You enter the police station.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Morning briefings fill the station.\"" +
+        "      }," +
+        "      \"gender\": {" +
+        "        \"male\": \"Officers treat you with guarded professional neutrality.\"," +
+        "        \"female\": \"Some officers register surprise. You note which ones and start there.\"" +
+        "      }" +
+        "    }," +
+        "    \"library\": {" +
+        "      \"default\": \"You walk into the library.\"," +
+        "      \"gender\": {" +
+        "        \"male\": \"The librarian leaves you to your research without comment.\"," +
+        "        \"female\": \"The librarian offers to pull additional references. You accept.\"" +
+        "      }" +
+        "    }" +
+        "  }" +
+        "}";
+
+    private NovelTextEngine genderEngine;
+
+    @org.junit.Before
+    public void setUpGenderEngine() {
+        genderEngine = NovelTextEngine.fromJsonString(GENDER_JSON);
+    }
+
+    @Test
+    public void testMaleGenderVariantSelected() {
+        String desc = genderEngine.getDescription("gym_fitness_center", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap(), "male");
+        assertEquals("Male gender variant should be selected",
+                "Two regulars offer you a spot within minutes of your warm-up.", desc);
+    }
+
+    @Test
+    public void testFemaleGenderVariantSelected() {
+        String desc = genderEngine.getDescription("gym_fitness_center", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap(), "female");
+        assertEquals("Female gender variant should be selected",
+                "You move to the free weights. Three people stop to watch. You ignore them.", desc);
+    }
+
+    @Test
+    public void testGenderCaseInsensitive() {
+        String descUpper = genderEngine.getDescription("police_station", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap(), "Male");
+        String descLower = genderEngine.getDescription("police_station", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap(), "male");
+        assertEquals("Gender matching should be case-insensitive", descUpper, descLower);
+    }
+
+    @Test
+    public void testAttributeTakesPriorityOverGender() {
+        // STRENGTH has a variant — should beat the gender variant
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STRENGTH", 9);
+        String desc = genderEngine.getDescription("gym_fitness_center", TimeOfDay.MORNING, attrs, "female");
+        assertEquals("Attribute variant should take priority over gender variant",
+                "You feel right at home — this is your element.", desc);
+    }
+
+    @Test
+    public void testGenderTakesPriorityOverTime() {
+        // police_station has no attribute variants but has gender and time variants
+        String desc = genderEngine.getDescription("police_station", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), "female");
+        assertEquals("Gender variant should take priority over time variant",
+                "Some officers register surprise. You note which ones and start there.", desc);
+    }
+
+    @Test
+    public void testNullGenderFallsToTimeVariant() {
+        String desc = genderEngine.getDescription("police_station", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Null gender should fall through to time variant",
+                "Morning briefings fill the station.", desc);
+    }
+
+    @Test
+    public void testUnknownGenderFallsToTimeVariant() {
+        String desc = genderEngine.getDescription("police_station", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), "nonbinary");
+        assertEquals("Unknown gender should fall through to time variant",
+                "Morning briefings fill the station.", desc);
+    }
+
+    @Test
+    public void testGenderWithNoTimeVariantFallsToDefault() {
+        // library entry in GENDER_JSON has no time variants
+        String desc = genderEngine.getDescription("library", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), "unknown_gender");
+        assertEquals("Should fall back to default when gender and time both miss",
+                "You walk into the library.", desc);
+    }
+
+    @Test
+    public void testMaleGenderLibrary() {
+        String desc = genderEngine.getDescription("library", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), "male");
+        assertEquals("Male gender variant should be selected for library",
+                "The librarian leaves you to your research without comment.", desc);
+    }
+
+    @Test
+    public void testFemaleGenderLibrary() {
+        String desc = genderEngine.getDescription("library", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap(), "female");
+        assertEquals("Female gender variant should be selected for library",
+                "The librarian offers to pull additional references. You accept.", desc);
+    }
+
+    @Test
+    public void testThreeArgOverloadStillWorksAfterGenderAddition() {
+        // Ensure backwards-compatible 3-arg overload still works (skips gender check)
+        String desc = genderEngine.getDescription("police_station", TimeOfDay.MORNING,
+                Collections.<String, Integer>emptyMap());
+        assertEquals("3-arg overload should skip gender and fall through to time variant",
+                "Morning briefings fill the station.", desc);
+    }
+
+    @Test
+    public void testHourOverloadWithGender() {
+        // Hour 15 → AFTERNOON; police_station has no afternoon time variant, but has gender
+        String desc = genderEngine.getDescription("police_station", 15,
+                Collections.<String, Integer>emptyMap(), "male");
+        assertEquals("Hour-based overload should respect gender selection",
+                "Officers treat you with guarded professional neutrality.", desc);
+    }
 }

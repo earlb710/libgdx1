@@ -1,5 +1,5 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "language": "en",
   "descriptions": {
     "parking_lot_small": {
@@ -13,6 +13,10 @@
       "attribute": {
         "PERCEPTION": "You clock every car, every plate, every face behind a windshield.",
         "AGILITY": "You weave between vehicles effortlessly, taking the quick route."
+      },
+      "gender": {
+        "male": "You cross the lot without a second thought, your mind already on your destination.",
+        "female": "You stay alert and move quickly — old habits from too many late-night parking lots."
       }
     },
     "parking_lot_large": {
@@ -27,6 +31,10 @@
         "PERCEPTION": "You scan rows of vehicles in seconds, noting anything out of place.",
         "STEALTH": "The maze of parked cars gives you plenty of cover to move unseen.",
         "AGILITY": "You cut between vehicles at a pace no casual driver would manage."
+      },
+      "gender": {
+        "male": "The open space doesn't give you pause; you walk directly to where you need to be.",
+        "female": "You park near the exit and note the fastest route out before anything else."
       }
     },
     "parking_garage_small": {
@@ -41,6 +49,10 @@
         "STEALTH": "The dim lighting and concrete pillars make this a perfect place to disappear.",
         "PERCEPTION": "Every sound in here echoes — you can track movement floors away.",
         "AGILITY": "Ramps and tight corners are nothing to you; you move with precision."
+      },
+      "gender": {
+        "male": "The concrete shadows don't concern you; you focus on what you came here for.",
+        "female": "Every parking garage is the same calculation: exits, sightlines, the nearest lit stairwell."
       }
     },
     "parking_garage_large": {
@@ -55,6 +67,10 @@
         "STEALTH": "A building this large has dozens of blind spots — you know exactly which ones to use.",
         "PERCEPTION": "You mentally map the camera positions and dead zones in seconds.",
         "AGILITY": "You take the stairs two at a time, moving between levels faster than anyone expects."
+      },
+      "gender": {
+        "male": "The scale of the garage is just a logistical problem. You solve it efficiently.",
+        "female": "You've learned to treat spaces like this as tactical puzzles. You solve this one quickly."
       }
     },
     "transit_station": {
@@ -69,6 +85,10 @@
         "PERCEPTION": "You read the crowd instantly — someone here doesn't fit the commuter profile.",
         "AGILITY": "You slip through the crush of bodies without slowing down.",
         "STAMINA": "The constant flow of people and noise is nothing; you stay sharp."
+      },
+      "gender": {
+        "male": "You blend into the commuter crowd without effort, just another face heading somewhere.",
+        "female": "You've learned which groups to move near in a crowd like this, and you position yourself accordingly."
       }
     },
     "bus_depot": {
@@ -83,6 +103,10 @@
         "STAMINA": "The diesel fumes and noise don't bother you — you've been in worse.",
         "STRENGTH": "The sheer scale of the vehicles here commands a certain respect.",
         "PERCEPTION": "You note which buses have been recently moved and which haven't budged in days."
+      },
+      "gender": {
+        "male": "The working environment here is familiar territory; nobody questions your presence.",
+        "female": "A woman in a bus depot draws glances. You've learned how to use that kind of attention."
       }
     },
     "convenience_store": {
@@ -96,6 +120,10 @@
       "attribute": {
         "PERCEPTION": "The placement of the security mirrors tells you exactly where the blind spots are.",
         "INTUITION": "Something about the cashier's behaviour is off — you file it away."
+      },
+      "gender": {
+        "male": "You nod at the cashier and get straight to business.",
+        "female": "The cashier watches the aisle while you browse — protective or suspicious, hard to tell."
       }
     },
     "gas_station": {
@@ -110,6 +138,10 @@
         "PERCEPTION": "You note the cameras, the angles, the movement patterns — this place has seen trouble before.",
         "AGILITY": "You're in and out before the attendant has finished blinking.",
         "INTUITION": "The vehicle idling near the air pump has been there too long to be just getting fuel."
+      },
+      "gender": {
+        "male": "You handle the transaction without a word of small talk, which suits you fine.",
+        "female": "An attendant offers to check your tyres unprompted. You let them — it's a free look around."
       }
     },
     "fast_food_restaurant": {
@@ -124,6 +156,10 @@
         "CHARISMA": "The server at the counter brightens when you walk up — you have that effect on people.",
         "PERCEPTION": "You clock every face in the dining area before you've even ordered.",
         "STAMINA": "The heavy food and grease-thick air slow most people down. You stay focused."
+      },
+      "gender": {
+        "male": "You order without ceremony and find a seat with a clear view of the room.",
+        "female": "The server is friendlier than they need to be. You use the extra seconds to take stock of the room."
       }
     },
     "coffee_shop": {
@@ -138,6 +174,10 @@
         "INTELLIGENCE": "You pick a seat with a view of every entrance and order something that buys you time.",
         "MEMORY": "You recognise two regulars from a case file — they're meeting here on purpose.",
         "CHARISMA": "The barista starts on your usual before you've reached the counter."
+      },
+      "gender": {
+        "male": "You work undisturbed; people rarely interrupt a man focused on a screen.",
+        "female": "Two men at the counter have been watching you since you sat down. You note them and keep reading."
       }
     },
     "small_retail_store": {
@@ -152,6 +192,10 @@
         "CHARISMA": "The owner greets you like an old friend the moment you step in.",
         "PERCEPTION": "A price tag out of alignment, a recently moved display — small things speak volumes.",
         "STEALTH": "You browse without drawing a single glance from the staff."
+      },
+      "gender": {
+        "male": "The shopkeeper watches you from behind the counter, as they do with most male browsers.",
+        "female": "The owner relaxes when she sees you and comes over to chat. Information flows freely here."
       }
     },
     "pharmacy": {
@@ -166,6 +210,10 @@
         "INTELLIGENCE": "The medications on the shelves tell a story about what ailments are common in this neighbourhood.",
         "EMPATHY": "You can see in the customers' faces what they're hoping the white bags will fix.",
         "PERCEPTION": "You notice the pharmacist react to one name on the prescription — recognition, not routine."
+      },
+      "gender": {
+        "male": "You browse the shelves without drawing attention — just a customer picking up supplies.",
+        "female": "The pharmacist addresses you first; women in pharmacies are treated as conversational partners."
       }
     },
     "bank_branch": {
@@ -180,6 +228,10 @@
         "INTELLIGENCE": "You read the layout immediately — vault access, teller windows, security positions.",
         "INTIMIDATION": "The guard straightens up when you walk past. Good.",
         "PERCEPTION": "A nervous customer near the back is holding their bag too tightly."
+      },
+      "gender": {
+        "male": "The teller is professionally guarded, as they are with most men who walk in unannounced.",
+        "female": "The manager approaches you directly — in their experience, women who come alone have a purpose."
       }
     },
     "laundromat": {
@@ -194,6 +246,10 @@
         "PERCEPTION": "The person in the corner hasn't looked at their laundry once. They're watching something else.",
         "MEMORY": "You recognise the same face from a different part of town — what are they doing here?",
         "STEALTH": "You blend in perfectly, just another person folding clothes."
+      },
+      "gender": {
+        "male": "You take a corner seat, unremarkable among the other waiting customers.",
+        "female": "The regular at the far machine catches your eye with a nod — you're welcome company here."
       }
     },
     "hair_salon": {
@@ -208,6 +264,10 @@
         "CHARISMA": "The stylists are instantly at ease with you — conversation flows without effort.",
         "EMPATHY": "You listen to the chatter and hear the real stories between the small talk.",
         "PERCEPTION": "Overheard conversations in here carry more truth than most formal interviews."
+      },
+      "gender": {
+        "male": "You're the only man in the salon and everyone knows it. You use the surprised attention well.",
+        "female": "You're on familiar ground — the rhythm of the place, the trust that forms over a wash and cut."
       }
     },
     "gym_fitness_center": {
@@ -222,6 +282,10 @@
         "STRENGTH": "You feel right at home — the weights, the chalk, the iron. This is your element.",
         "STAMINA": "Your eyes go straight to the cardio section. You could outlast everyone here.",
         "AGILITY": "You size up the open training floor immediately, already planning your footwork drills."
+      },
+      "gender": {
+        "male": "Two regulars offer you a spot within minutes of your warm-up. The gym's social code is straightforward.",
+        "female": "You move to the free weights. Three people stop what they're doing to watch. You ignore them completely."
       }
     },
     "strip_mall": {
@@ -236,6 +300,10 @@
         "PERCEPTION": "You take in every storefront in a single sweep, noting the unusual among the routine.",
         "CHARISMA": "Shop owners nod at you like a regular even on a first visit.",
         "STEALTH": "The constant foot traffic makes you invisible — just another face in the crowd."
+      },
+      "gender": {
+        "male": "You move through the strip mall efficiently, drawing no particular attention.",
+        "female": "A couple of shop owners say hello — you're a friendlier face than most who walk past."
       }
     },
     "shopping_center": {
@@ -250,6 +318,10 @@
         "CHARISMA": "People seem to gravitate toward you — you're approached before you even stop walking.",
         "PERCEPTION": "You track the flow of shoppers, spotting anyone who's loitering with no purchase intent.",
         "STEALTH": "You move with the crowd, unremarkable and untraceable."
+      },
+      "gender": {
+        "male": "You move against the grain of the browsing crowd, which makes you faster.",
+        "female": "You blend into the natural flow of the shopping center without a second thought."
       }
     },
     "regional_mall": {
@@ -264,6 +336,10 @@
         "CHARISMA": "You move through the crowd effortlessly — conversations start without you trying.",
         "PERCEPTION": "In a place this busy, you still spot the one person who doesn't belong.",
         "STEALTH": "The sheer scale of this place makes you functionally invisible."
+      },
+      "gender": {
+        "male": "You stand out slightly — most men move through malls with obvious purpose. You use that assumption.",
+        "female": "You're invisible here in the best sense — just another shopper among thousands."
       }
     },
     "supermarket": {
@@ -278,6 +354,10 @@
         "PERCEPTION": "The product placement, the security positioning, the layout — you read it all at a glance.",
         "MEMORY": "You remember the prices from last week; something has changed, and not by chance.",
         "INTELLIGENCE": "The supply chain tells a story if you know how to read the gaps on the shelves."
+      },
+      "gender": {
+        "male": "You move through the aisles with a list and a pace that says you're not here to browse.",
+        "female": "You chat briefly with the person at the deli counter. People share things in passing they'd never say directly."
       }
     },
     "warehouse_store": {
@@ -292,6 +372,10 @@
         "STRENGTH": "The scale of this place feels natural to you — the heavy loads, the wide aisles.",
         "STAMINA": "The sheer size demands energy most people underestimate.",
         "PERCEPTION": "You track the staff movements and camera angles automatically as you walk."
+      },
+      "gender": {
+        "male": "You navigate the warehouse floor like you belong here, which you do.",
+        "female": "Staff are slightly more helpful than necessary. You accept every offer — each one is an opportunity to ask questions."
       }
     },
     "restaurant_casual": {
@@ -306,6 +390,10 @@
         "CHARISMA": "The host seats you immediately, with a smile that says you're remembered.",
         "EMPATHY": "You can read the table dynamics of every group without trying.",
         "PERCEPTION": "You scan the room the moment you're seated — habits die hard."
+      },
+      "gender": {
+        "male": "You take a solo table without issue; the staff treat it as routine.",
+        "female": "The host seats you immediately, with a smile that says solo diners are welcome here."
       }
     },
     "restaurant_fine_dining": {
@@ -320,6 +408,10 @@
         "CHARISMA": "The maitre d' recognises authority when they see it and attends to you immediately.",
         "INTELLIGENCE": "The menu, the wine list, the clientele — you read the room like a dossier.",
         "EMPATHY": "You pick up on the tension at a nearby table before a single word is raised."
+      },
+      "gender": {
+        "male": "The maitre d' sizes up your confidence rather than your clothes and decides to be helpful.",
+        "female": "The maitre d' attends to you immediately — a woman dining alone in a place like this is either confident or important. You are both."
       }
     },
     "car_dealership": {
@@ -334,6 +426,10 @@
         "CHARISMA": "The salesperson backs off the hard pitch within thirty seconds of meeting you.",
         "INTELLIGENCE": "You know the invoice price before the salesperson opens their mouth.",
         "INTUITION": "Something about the lot manager's story doesn't add up."
+      },
+      "gender": {
+        "male": "The salesperson launches into their pitch before you've said hello.",
+        "female": "The salesperson underestimates you within ten seconds. That gives you the first of many advantages."
       }
     },
     "auto_repair_shop": {
@@ -348,6 +444,10 @@
         "STRENGTH": "The physical work here is in your vocabulary — you respect the graft.",
         "INTELLIGENCE": "Modern diagnostics are half the job; you speak the language of both wrenches and code.",
         "PERCEPTION": "One of the vehicles in the back lot isn't here for repairs."
+      },
+      "gender": {
+        "male": "You speak the language of the shop floor; the mechanics treat you as a peer.",
+        "female": "The mechanic adjusts their explanation when they see you're following every detail. Respect is earned quickly here."
       }
     },
     "medical_clinic": {
@@ -362,6 +462,10 @@
         "INTELLIGENCE": "Medical terminology, drug interactions, dosage anomalies — you catch details the staff skim past.",
         "EMPATHY": "You can see in patients' expressions what they're afraid to say out loud.",
         "PERCEPTION": "A patient in the corner has been waiting far too long for a routine visit."
+      },
+      "gender": {
+        "male": "The receptionist is efficient and brisk — standard procedure for a walk-in.",
+        "female": "The nurse at triage takes a moment longer with you than the forms require. You use it."
       }
     },
     "dental_office": {
@@ -376,6 +480,10 @@
         "EMPATHY": "You're unusually good at putting nervous patients at ease.",
         "INTELLIGENCE": "The x-rays on the light box tell a story beyond just teeth.",
         "PERCEPTION": "The tension between the dentist and a staff member is noticeable even from the waiting room."
+      },
+      "gender": {
+        "male": "You sit in the waiting room in the standard uncomfortable silence.",
+        "female": "The receptionist strikes up conversation easily. Dental waiting rooms are surprisingly good for information."
       }
     },
     "veterinary_clinic": {
@@ -390,6 +498,10 @@
         "EMPATHY": "The animals sense something calming in you — even the anxious ones settle.",
         "INTELLIGENCE": "You understand the diagnostics being discussed. The owner in the corner does not.",
         "INTUITION": "The owner of the patient in exam room two is not telling the full story."
+      },
+      "gender": {
+        "male": "The vet tech barely looks up — they're used to anxious owners of all kinds.",
+        "female": "The vet tech softens immediately; in their experience, women who bring animals are usually worth talking to."
       }
     },
     "hospital_small": {
@@ -404,6 +516,10 @@
         "INTELLIGENCE": "Medical charts and equipment configurations don't escape your notice.",
         "EMPATHY": "Every person you pass carries a weight — you feel it without asking.",
         "STAMINA": "The relentless pace and constant noise would wear most people down. Not you."
+      },
+      "gender": {
+        "male": "Staff are efficient and professional; nobody offers unsolicited guidance.",
+        "female": "A nurse stops to ask if you need directions. You don't, but the pause gives you a moment to observe."
       }
     },
     "hospital_large": {
@@ -418,6 +534,10 @@
         "INTELLIGENCE": "A facility this large has inefficiencies in every department. You see them all.",
         "EMPATHY": "The weight of hope and grief here is palpable. You carry it without being crushed.",
         "PERCEPTION": "You notice an unusual figure moving through a restricted area without an ID badge."
+      },
+      "gender": {
+        "male": "You move through the hospital as if you have a destination, which keeps most staff from questioning you.",
+        "female": "A porter offers to help you find your way. You decline politely and file away the offer for later."
       }
     },
     "urgent_care": {
@@ -432,6 +552,10 @@
         "PERCEPTION": "A patient's story and their injury don't match. You clock the inconsistency.",
         "STAMINA": "The intensity here doesn't flag all day. Neither do you.",
         "EMPATHY": "You read pain levels and fear in faces better than most intake forms could."
+      },
+      "gender": {
+        "male": "The intake clerk processes you without ceremony — this place has no time for small talk.",
+        "female": "The nurse at intake asks twice if you're sure you're alright. You appreciate the concern and note who else is watching."
       }
     },
     "daycare_center": {
@@ -446,6 +570,10 @@
         "EMPATHY": "You instinctively lower your voice and crouch to eye level. The children warm to you.",
         "CHARISMA": "The staff are guarded with strangers — but you put them at ease within moments.",
         "PERCEPTION": "One child's behaviour is telling you something their words can't."
+      },
+      "gender": {
+        "male": "The staff are politely cautious at first — an unfamiliar man in a daycare draws careful attention.",
+        "female": "The staff welcome you with the openness of people used to parents dropping in unannounced."
       }
     },
     "elementary_school": {
@@ -460,6 +588,10 @@
         "EMPATHY": "Children have a radar for genuine kindness — they can tell you have it.",
         "CHARISMA": "Teachers and staff relax in your presence. You carry a natural authority without menace.",
         "PERCEPTION": "A detail in one of the classrooms catches your eye — it doesn't belong."
+      },
+      "gender": {
+        "male": "The office staff are professionally watchful — protocol for an unfamiliar male visitor.",
+        "female": "You're waved through the office with warm efficiency. The assumption is that you belong here."
       }
     },
     "high_school": {
@@ -474,6 +606,10 @@
         "INTELLIGENCE": "You read the social dynamics here like a document — hierarchies, alliances, fault lines.",
         "CHARISMA": "Students and teachers alike respond to you; you project the right kind of confidence.",
         "PERCEPTION": "You notice who is absent from where they should be."
+      },
+      "gender": {
+        "male": "Students and staff alike give you the standard assessment — visitor, authority, or threat. You let them settle on authority.",
+        "female": "The front office treats you with collegial ease. Assumptions can be useful when they're working in your favour."
       }
     },
     "community_college": {
@@ -488,6 +624,10 @@
         "INTELLIGENCE": "You absorb the course materials on the notice board in seconds — and spot the anomaly.",
         "MEMORY": "Academic environments are comfortable territory; you retain everything.",
         "CHARISMA": "Students and faculty alike find you approachable and worth talking to."
+      },
+      "gender": {
+        "male": "You're taken as a lecturer or administrator; no one questions your presence.",
+        "female": "You're taken as a student first, which suits you — people underestimate students."
       }
     },
     "fire_station": {
@@ -502,6 +642,10 @@
         "STRENGTH": "The crew recognises your build immediately. You're one of them by type, if not by badge.",
         "STAMINA": "The physical demands of this place match your output. You feel at home.",
         "AGILITY": "The obstacle courses and gear routes here are second nature to you."
+      },
+      "gender": {
+        "male": "The crew sizes you up in the physical way firefighters always do — and nods.",
+        "female": "The station goes slightly quiet when you walk in. You've seen this reaction before and know exactly how to work it."
       }
     },
     "police_station": {
@@ -517,6 +661,10 @@
         "INTIMIDATION": "Heads turn as you walk in. Your presence commands attention even here.",
         "INTELLIGENCE": "The case board catches your eye; you spot a connection the team might have missed.",
         "CHARISMA": "You exchange a nod with the desk sergeant. People like you here — they'll talk."
+      },
+      "gender": {
+        "male": "The officers treat you with the guarded professional neutrality they reserve for visitors with authority.",
+        "female": "Some officers register surprise before the professional mask goes back on. You note which ones and start there."
       }
     },
     "post_office": {
@@ -531,6 +679,10 @@
         "MEMORY": "You recognise a regular from an unrelated case — this is not a coincidence.",
         "PERCEPTION": "The parcel being collected at window three is the one you've been looking for.",
         "INTELLIGENCE": "Sorting codes, postmarks, routing slips — this place is full of intelligence if you know to look."
+      },
+      "gender": {
+        "male": "The clerk is efficient and businesslike — standard service for a standard customer.",
+        "female": "The clerk chats while processing. Postal workers hear more than most people realise, and they like to share it."
       }
     },
     "library": {
@@ -546,6 +698,10 @@
         "MEMORY": "Titles and call numbers leap out at you — you've been here before and remember every shelf.",
         "PERCEPTION": "A book slightly out of place, a bookmark left carelessly — someone was here recently and in a hurry.",
         "INTUITION": "Something about the atmosphere feels off. The silence is a little too deliberate."
+      },
+      "gender": {
+        "male": "The librarian leaves you to your research without comment or offer.",
+        "female": "The librarian offers to pull additional references for you. You accept — two sets of eyes are always better."
       }
     },
     "community_center": {
@@ -560,6 +716,10 @@
         "CHARISMA": "People here are open and community-minded — they warm to you immediately.",
         "EMPATHY": "You hear the real needs behind the organised activities and small talk.",
         "PERCEPTION": "A face you recognise is here for reasons beyond community spirit."
+      },
+      "gender": {
+        "male": "You're welcomed into the social flow; the center is used to new faces.",
+        "female": "People here share things with you they might not share with a male stranger. You listen without interrupting."
       }
     },
     "city_hall": {
@@ -574,6 +734,10 @@
         "INTELLIGENCE": "Permit records, planning maps, budget reports — the truth is always in the paperwork.",
         "CHARISMA": "Council members and clerks respond to you with unusual openness.",
         "INTIMIDATION": "Officials become measurably more cooperative when you maintain eye contact."
+      },
+      "gender": {
+        "male": "Officials read you as someone with authority and respond accordingly — doors open faster.",
+        "female": "A clerk offers to guide you through the process. You let them, because the longer the conversation, the more you learn."
       }
     },
     "courthouse": {
@@ -588,6 +752,10 @@
         "INTELLIGENCE": "You read the body language of every witness, lawyer, and judge in the room.",
         "INTIMIDATION": "Your bearing alone shifts the dynamic in an interrogation room or courtroom gallery.",
         "PERCEPTION": "The defendant's micro-expressions tell you what the transcript never will."
+      },
+      "gender": {
+        "male": "You're read as a lawyer or official — the most convenient assumption for your purposes.",
+        "female": "A female presence in the courthouse gallery draws less suspicion than a male one. You use the relative invisibility well."
       }
     },
     "small_apartment_building": {
@@ -602,6 +770,10 @@
         "PERCEPTION": "You note which buzzers are taped over, which mailboxes are overflowing.",
         "STEALTH": "You move through the building without drawing a single curtain twitch.",
         "EMPATHY": "You hear the conversations behind these doors — the ordinary and the troubled."
+      },
+      "gender": {
+        "male": "You move through the building without attracting comment — just another resident.",
+        "female": "A neighbour in the corridor holds the door and asks if you're new here. You give a vague smile and keep moving."
       }
     },
     "medium_apartment_building": {
@@ -616,6 +788,10 @@
         "PERCEPTION": "Worn carpet, fresh paint on one door only, a new lock — the building tells its own story.",
         "STEALTH": "You take the stairs. Nobody uses the stairs, which is exactly why you do.",
         "CHARISMA": "The super greets you with more warmth than most residents ever get."
+      },
+      "gender": {
+        "male": "You ride the elevator without eye contact — the universal language of apartment buildings.",
+        "female": "The super comes out to check on a noise complaint just as you arrive. Convenient timing."
       }
     },
     "large_apartment_building": {
@@ -630,6 +806,10 @@
         "PERCEPTION": "A building this large has patterns. You read them: who's on schedule, who isn't.",
         "STEALTH": "In a building this busy, being invisible is just a matter of timing.",
         "CHARISMA": "The concierge lets you through without question — you carry yourself like a resident."
+      },
+      "gender": {
+        "male": "You carry yourself like a resident and no one in the lobby looks twice.",
+        "female": "The concierge makes brief conversation. Building staff remember women who pass through — it's useful to be memorable."
       }
     },
     "luxury_apartment_tower": {
@@ -644,6 +824,10 @@
         "CHARISMA": "You carry yourself with the quiet confidence of someone who belongs here.",
         "PERCEPTION": "Even in a place this polished, cracks appear if you know where to look.",
         "INTELLIGENCE": "Security protocols, camera placements, resident schedules — you read the building like a floor plan."
+      },
+      "gender": {
+        "male": "Your confidence reads as wealth to the lobby staff. They respond in kind.",
+        "female": "The concierge upgrades their attention to you immediately. A woman entering a tower like this has a reason."
       }
     },
     "highrise_apartment_complex": {
@@ -658,6 +842,10 @@
         "CHARISMA": "You carry yourself with the ease of someone who lives here. Security waves you through.",
         "PERCEPTION": "Hundreds of people live here, but you notice the one who doesn't fit the routine.",
         "STEALTH": "In the anonymity of a complex this size, you could disappear completely."
+      },
+      "gender": {
+        "male": "You pass through the lobby with the unremarkable efficiency of a regular.",
+        "female": "You're noticed, but that's not always a disadvantage. You control what they notice."
       }
     },
     "townhouse_row": {
@@ -672,6 +860,10 @@
         "PERCEPTION": "You read the small signals — which lawns are kept, which blinds never open.",
         "EMPATHY": "You sense the underlying community tensions before anyone mentions them.",
         "STEALTH": "You move along the row without disturbing the quiet — a skill not everyone has."
+      },
+      "gender": {
+        "male": "You walk the row without drawing particular attention — just someone passing through.",
+        "female": "A resident doing their garden pauses to say hello. Neighbourhoods like this remember unfamiliar women more than unfamiliar men."
       }
     },
     "condominium_building": {
@@ -686,6 +878,10 @@
         "CHARISMA": "The concierge smiles before you've said a word — you have that effect.",
         "PERCEPTION": "You spot a face from a case file reflected in the lobby mirror.",
         "STEALTH": "You read the shift schedule instinctively and pick the right moment to move unseen."
+      },
+      "gender": {
+        "male": "The concierge gives you a professionally neutral greeting.",
+        "female": "The concierge is more forthcoming with you than with most; it's a small thing, but useful."
       }
     },
     "senior_living_facility": {
@@ -700,6 +896,10 @@
         "EMPATHY": "You have genuine patience here — listening costs you nothing and earns you everything.",
         "MEMORY": "The residents' long memories are a resource. You know exactly what questions to ask.",
         "CHARISMA": "Staff and residents trust you quickly. Something about your manner reassures them."
+      },
+      "gender": {
+        "male": "The staff are politely cautious — unfamiliar men in residential care settings get a second look.",
+        "female": "The residents warm to you quickly; the staff even more so. You fit the expected profile of a visitor here."
       }
     },
     "hotel_budget": {
@@ -714,6 +914,10 @@
         "PERCEPTION": "You note the room numbers of interest before you've even reached yours.",
         "STEALTH": "The indifferent staff and anonymous guests make you effectively invisible.",
         "MEMORY": "You've stayed in places exactly like this. You know every corner, every exit."
+      },
+      "gender": {
+        "male": "The night clerk barely looks up from the screen. Anonymous service for an anonymous guest.",
+        "female": "The front desk clerk is slightly more attentive than necessary. You note who else is watching the exchange."
       }
     },
     "hotel_business": {
@@ -728,6 +932,10 @@
         "CHARISMA": "The front desk upgrades your room without you asking. You have the right kind of presence.",
         "INTELLIGENCE": "The guest roster at check-in gives you more information than the hotel intends.",
         "PERCEPTION": "You clock the surveillance setup within seconds of crossing the lobby."
+      },
+      "gender": {
+        "male": "You check in with the efficiency that marks the business hotel's bread and butter.",
+        "female": "A woman checking into a business hotel alone draws a particular kind of attention. You let it land and redirect it."
       }
     },
     "hotel_luxury": {
@@ -742,6 +950,10 @@
         "CHARISMA": "The concierge treats you like a preferred guest before you've said your name.",
         "EMPATHY": "You read the undercurrents between guests — this hotel holds many secrets.",
         "INTELLIGENCE": "Luxury is a language. You speak it fluently and note who doesn't."
+      },
+      "gender": {
+        "male": "The concierge treats you with the precision that expensive hotels reserve for guests who could cause a scene.",
+        "female": "The hotel staff attend to you with a warmth that says you belong here. You do — for now."
       }
     },
     "office_building_small": {
@@ -756,6 +968,10 @@
         "INTELLIGENCE": "The layout, the org chart on the wall, the room allocations — you read it all in a glance.",
         "PERCEPTION": "Small offices have small secrets that are hard to keep. You spot three within two minutes.",
         "STEALTH": "You move through the open-plan floor without drawing a single pair of eyes."
+      },
+      "gender": {
+        "male": "Staff pass you in the corridor with the polite indifference given to most unfamiliar visitors.",
+        "female": "The receptionist offers to let someone know you've arrived. You decline — unannounced is better."
       }
     },
     "office_building_medium": {
@@ -770,6 +986,10 @@
         "INTELLIGENCE": "You analyse the organisational structure from the directory board and draw fast conclusions.",
         "PERCEPTION": "Someone has recently been to the floor above yours — the elevator's panel still shows it.",
         "EMPATHY": "You can feel the pressure and fatigue of staff even through their professional masks."
+      },
+      "gender": {
+        "male": "You carry the kind of authority that office buildings are designed to accommodate.",
+        "female": "You move with purpose and nobody stops you. Purpose is its own kind of credential."
       }
     },
     "office_building_large": {
@@ -784,6 +1004,10 @@
         "INTELLIGENCE": "A building this size is a city in miniature. You navigate its politics instinctively.",
         "CHARISMA": "Your visitor's badge should slow you down. Somehow it never does.",
         "PERCEPTION": "You notice the executive floor elevator is showing unusual activity for this time of day."
+      },
+      "gender": {
+        "male": "Your visitor's badge should slow you down. Your manner makes it unnecessary.",
+        "female": "Dressed for the part, you pass through a building like this without a second glance from the security desk."
       }
     },
     "corporate_headquarters": {
@@ -798,6 +1022,10 @@
         "INTELLIGENCE": "Power is concentrated here. You understand its mechanisms and how to interrupt them.",
         "CHARISMA": "Senior executives open doors for you. You give them no reason not to.",
         "INTIMIDATION": "Your demeanour makes it clear you will not be managed, redirected, or ignored."
+      },
+      "gender": {
+        "male": "You carry the weight of someone used to rooms like this. People get out of your way.",
+        "female": "Boardrooms like this are not always welcoming territory, but you've never needed them to be."
       }
     },
     "coworking_space": {
@@ -812,6 +1040,10 @@
         "INTELLIGENCE": "You read pitches, code, and conversations simultaneously without appearing to.",
         "CHARISMA": "People introduce themselves to you before you've had a chance to ask.",
         "PERCEPTION": "Coworking spaces are deliberately open. That makes what's hidden here all the more interesting."
+      },
+      "gender": {
+        "male": "You claim a desk and people assume you're a member. You don't correct them.",
+        "female": "Someone offers to introduce you around within thirty seconds. Social capital is currency here."
       }
     },
     "movie_theater": {
@@ -826,6 +1058,10 @@
         "PERCEPTION": "You find the blind spot in the lobby camera coverage within thirty seconds.",
         "MEMORY": "You remember the last time you were in a theater exactly like this — and how it ended.",
         "STEALTH": "The darkness of the auditorium is your natural element."
+      },
+      "gender": {
+        "male": "You buy a ticket, find a seat with a clear sightline to the exit, and wait.",
+        "female": "You take the aisle seat — the unwritten rule that women in public spaces learn early."
       }
     },
     "bowling_alley": {
@@ -840,6 +1076,10 @@
         "AGILITY": "Your approach to the lane is smooth; you've always had a feel for the weight and the roll.",
         "CHARISMA": "You're invited to join a lane before you've even rented shoes.",
         "PERCEPTION": "The group at lane seven isn't here to bowl."
+      },
+      "gender": {
+        "male": "You're invited to join a lane before you've even rented shoes.",
+        "female": "You're underestimated at the lane next to yours. You let the score correct that assumption."
       }
     },
     "nightclub": {
@@ -854,6 +1094,10 @@
         "CHARISMA": "The VIP entrance opens without a word exchanged.",
         "STEALTH": "You move through the crowd without leaving a trace in anyone's memory.",
         "INTUITION": "The energy in here has an undertone the regular crowd hasn't noticed."
+      },
+      "gender": {
+        "male": "You make it past the door without incident — the right look, the right manner.",
+        "female": "The door staff wave you through ahead of the queue. Access has its own complications."
       }
     },
     "sports_arena": {
@@ -868,6 +1112,10 @@
         "STRENGTH": "You read the physical performance on display with an expert's eye.",
         "STAMINA": "The noise, the crowd, the energy — it charges you rather than overwhelming you.",
         "AGILITY": "You navigate the dense, moving crowd with a fluency most people never achieve."
+      },
+      "gender": {
+        "male": "You're unremarkable in a crowd like this, which is exactly what you want.",
+        "female": "You draw fewer glances than a woman in a sports crowd used to — times have changed enough to be useful."
       }
     },
     "warehouse_small": {
@@ -882,6 +1130,10 @@
         "STRENGTH": "Pallets, forklifts, and heavy freight are your natural context.",
         "PERCEPTION": "You spot the inventory discrepancy within minutes of scanning the shelves.",
         "STEALTH": "The aisles of racking give you more cover than most people realise."
+      },
+      "gender": {
+        "male": "The workers take you for a delivery rep or a manager. Either way, you're left alone.",
+        "female": "A woman on a warehouse floor prompts questions. You have an answer ready before they ask."
       }
     },
     "warehouse_large": {
@@ -896,6 +1148,10 @@
         "STRENGTH": "The physical scale of this place demands respect. You give it and take it in return.",
         "PERCEPTION": "A building this size hides things easily. You know where to look.",
         "STEALTH": "The noise and scale of the warehouse make you invisible if you want to be."
+      },
+      "gender": {
+        "male": "You blend into the shift with ease — just another person on the floor.",
+        "female": "You stand out enough that a supervisor approaches. That's fine. Supervisors know everything."
       }
     },
     "manufacturing_facility": {
@@ -910,6 +1166,10 @@
         "STRENGTH": "The raw physical work here resonates with something in you.",
         "INTELLIGENCE": "Process inefficiencies, workflow bottlenecks, safety shortcuts — you catalogue them fast.",
         "PERCEPTION": "One machine has been running slightly off spec. You hear it before anyone tells you."
+      },
+      "gender": {
+        "male": "The workers acknowledge you with the brief nod of people who assume you have a reason to be here.",
+        "female": "The floor manager appears quickly. You use their full attention to get every question answered."
       }
     },
     "data_center": {
@@ -924,6 +1184,10 @@
         "INTELLIGENCE": "Rack layouts, network topology, access logs — you understand this infrastructure at a glance.",
         "PERCEPTION": "One rack is running warmer than the others. That's not a cooling fault — that's activity.",
         "STEALTH": "You move with the authority of someone who's supposed to be here. Nobody questions it."
+      },
+      "gender": {
+        "male": "The badge on your visitor's lanyard is given less scrutiny than it should be.",
+        "female": "The engineer on duty is surprised to see you but professional about it. They answer your questions thoroughly."
       }
     },
     "self_storage": {
@@ -938,6 +1202,10 @@
         "PERCEPTION": "One unit has been accessed more recently than its log suggests.",
         "STEALTH": "The uniform corridors and security gaps are well known to anyone who bothers to look.",
         "MEMORY": "You remember the layout from a previous visit — every corridor, every exit."
+      },
+      "gender": {
+        "male": "The desk staff hand you a unit number without looking up.",
+        "female": "The attendant is more helpful than the job requires. You note the cameras while they talk."
       }
     },
     "church": {
@@ -952,6 +1220,10 @@
         "EMPATHY": "You feel the weight of personal prayers and quiet grief in this space.",
         "CHARISMA": "The priest greets you with genuine warmth — community is instinctive for them, and for you.",
         "INTUITION": "This is a place of sanctuary. Whatever you're sensing here doesn't belong."
+      },
+      "gender": {
+        "male": "The priest greets you with the measured warmth reserved for unfamiliar visitors.",
+        "female": "The congregation makes space for you immediately — a woman entering alone is welcome here without question."
       }
     },
     "mosque": {
@@ -966,6 +1238,10 @@
         "EMPATHY": "The sincerity of devotion here is palpable. You respect it without reservation.",
         "CHARISMA": "Community leaders acknowledge you with a measured openness.",
         "INTUITION": "Something about the atmosphere carries a tension beneath the calm."
+      },
+      "gender": {
+        "male": "The community is welcoming but measured; they've seen outsiders here before.",
+        "female": "You're directed courteously to the women's section. The separate space gives you access to conversations the men's side never would."
       }
     },
     "synagogue": {
@@ -980,6 +1256,10 @@
         "EMPATHY": "The depth of communal history here is felt, not just observed.",
         "MEMORY": "You are moved by spaces that carry centuries of continuity.",
         "INTELLIGENCE": "The texts, the archives, the history encoded in this building — it's a library as much as a house of worship."
+      },
+      "gender": {
+        "male": "The shammes greets you and asks if you need a siddur. You say yes — the gesture puts everyone at ease.",
+        "female": "The rebbetzin welcomes you personally. Women who come alone to a synagogue are usually here for a reason."
       }
     },
     "office": {
@@ -995,6 +1275,10 @@
         "PERCEPTION": "Small details catch your eye at once — a sticky note with a phone number, an open file on a desk.",
         "STEALTH": "You slip in unnoticed, blending into the background of busy workers.",
         "EMPATHY": "You can feel the undercurrent of stress among the staff even before anyone speaks."
+      },
+      "gender": {
+        "male": "You carry the authority of someone used to offices like this.",
+        "female": "You move through the space with the confidence that comes from knowing exactly what you came for."
       }
     },
     "gym": {
@@ -1010,6 +1294,10 @@
         "STAMINA": "Your eyes immediately find the cardio section. You could run laps around everyone here.",
         "INTELLIGENCE": "You study the biomechanics of other gym-goers, mentally cataloguing their form and technique.",
         "AGILITY": "You move through the space with ease, already sizing up the open floor for footwork drills."
+      },
+      "gender": {
+        "male": "Two regulars offer you a spot within minutes of your warm-up.",
+        "female": "You move to the free weights. Three people stop what they're doing. You ignore all of them."
       }
     },
     "hospital": {
@@ -1025,6 +1313,10 @@
         "INTELLIGENCE": "Medical charts and equipment ratings catch your eye — you notice things others walk past.",
         "STAMINA": "The relentless pace of the place energises rather than exhausts you.",
         "PERCEPTION": "You notice a patient being wheeled in whose injuries don't quite match the reported accident."
+      },
+      "gender": {
+        "male": "Staff are efficient and professional; nobody offers unsolicited guidance.",
+        "female": "A nurse stops to ask if you need directions. The pause gives you a moment to observe the ward."
       }
     },
     "park": {
@@ -1040,6 +1332,10 @@
         "STAMINA": "The open space calls to you; your legs itch to break into a run.",
         "INTUITION": "Despite the peaceful appearance, something at the edge of your awareness nags at you.",
         "CHARISMA": "A couple on a bench waves at you — you have one of those faces people just trust."
+      },
+      "gender": {
+        "male": "You walk the paths without drawing particular attention.",
+        "female": "You take the main path in daylight — a calculation that's second nature."
       }
     },
     "restaurant": {
@@ -1055,6 +1351,10 @@
         "PERCEPTION": "You scan the room in seconds — who is nervous, who is meeting whom, who doesn't fit.",
         "EMPATHY": "The staff here are tired. You catch the subtle signs and make a point of being patient.",
         "INTELLIGENCE": "The menu is a code of sorts. You order the dish that will take longest to prepare, giving you more time."
+      },
+      "gender": {
+        "male": "You take a solo table without issue; the staff treat it as routine.",
+        "female": "The host seats you with a smile that says solo diners are completely welcome."
       }
     }
   }

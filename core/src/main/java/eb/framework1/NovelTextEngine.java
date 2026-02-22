@@ -18,6 +18,7 @@ import java.util.Map;
  * <p>For a given description key, the engine chooses text in this priority order:</p>
  * <ol>
  *   <li>The variant matching the character's highest attribute (if a variant exists for it).</li>
+ *   <li>The variant matching the character's gender ("male" or "female").</li>
  *   <li>The variant matching the current {@link TimeOfDay} (if one exists).</li>
  *   <li>The default description for the key.</li>
  *   <li>An empty string if the key is not found at all.</li>
@@ -27,7 +28,7 @@ import java.util.Map;
  * <pre>{@code
  * String json = Gdx.files.internal("text/en.json").readString("UTF-8");
  * NovelTextEngine engine = NovelTextEngine.fromJsonString(json);
- * String text = engine.getDescription("gym", TimeOfDay.EVENING, profile.getAttributes());
+ * String text = engine.getDescription("gym", TimeOfDay.EVENING, profile.getAttributes(), profile.getGender());
  * }</pre>
  * </p>
  */
@@ -38,16 +39,21 @@ public class NovelTextEngine {
         final String defaultText;
         final Map<TimeOfDay, String> timeVariants;
         final Map<String, String> attributeVariants;
+        final Map<String, String> genderVariants;
 
         DescriptionEntry(String defaultText,
                          Map<TimeOfDay, String> timeVariants,
-                         Map<String, String> attributeVariants) {
+                         Map<String, String> attributeVariants,
+                         Map<String, String> genderVariants) {
             this.defaultText = defaultText != null ? defaultText : "";
             this.timeVariants = timeVariants != null
                     ? Collections.unmodifiableMap(new EnumMap<>(timeVariants))
                     : Collections.<TimeOfDay, String>emptyMap();
             this.attributeVariants = attributeVariants != null
                     ? Collections.unmodifiableMap(new HashMap<>(attributeVariants))
+                    : Collections.<String, String>emptyMap();
+            this.genderVariants = genderVariants != null
+                    ? Collections.unmodifiableMap(new HashMap<>(genderVariants))
                     : Collections.<String, String>emptyMap();
         }
     }
@@ -86,6 +92,10 @@ public class NovelTextEngine {
      *       "attribute": {
      *         "STRENGTH": "...",
      *         "INTELLIGENCE": "..."
+     *       },
+     *       "gender": {
+     *         "male": "...",
+     *         "female": "..."
      *       }
      *     }
      *   }
@@ -133,7 +143,17 @@ public class NovelTextEngine {
                     }
                 }
 
-                entries.put(key, new DescriptionEntry(defaultText, timeVariants, attributeVariants));
+                // Parse gender variants (keys stored lower-cased; unrecognised gender values at
+                // lookup time gracefully fall through to the time-of-day / default fallback)
+                Map<String, String> genderVariants = new HashMap<>();
+                JsonValue genderNode = entryNode.get("gender");
+                if (genderNode != null) {
+                    for (JsonValue g = genderNode.child; g != null; g = g.next) {
+                        genderVariants.put(g.name.toLowerCase(), g.asString());
+                    }
+                }
+
+                entries.put(key, new DescriptionEntry(defaultText, timeVariants, attributeVariants, genderVariants));
             }
         }
 
@@ -145,20 +165,22 @@ public class NovelTextEngine {
      *
      * <p>Selection priority:
      * <ol>
-     *   <li>Attribute variant for the character's highest-valued attribute.</li>
+     *   <li>Attribute variant for the character's highest-valued attribute that has a variant.</li>
+     *   <li>Gender variant matching {@code gender} ("male" or "female", case-insensitive).</li>
      *   <li>Time-of-day variant for {@code timeOfDay}.</li>
      *   <li>Default text for the key.</li>
      *   <li>Empty string if the key is unknown.</li>
      * </ol>
      * </p>
      *
-     * @param key        Description key (e.g. {@code "gym"}, {@code "office"})
+     * @param key        Description key (e.g. {@code "gym_fitness_center"}, {@code "office_building_small"})
      * @param timeOfDay  Current in-game time of day
-     * @param attributes Character attribute name → value map (attribute names should match
+     * @param attributes Character attribute name → value map (attribute names match
      *                   {@link CharacterAttribute} enum names, e.g. {@code "STRENGTH"})
+     * @param gender     Character gender string ("male" or "female", case-insensitive); may be null
      * @return Selected description text, never {@code null}
      */
-    public String getDescription(String key, TimeOfDay timeOfDay, Map<String, Integer> attributes) {
+    public String getDescription(String key, TimeOfDay timeOfDay, Map<String, Integer> attributes, String gender) {
         if (key == null) return "";
         DescriptionEntry entry = entries.get(key);
         if (entry == null) return "";
@@ -169,18 +191,49 @@ public class NovelTextEngine {
             if (attrText != null) return attrText;
         }
 
-        // 2. Check time-of-day variant
+        // 2. Check gender variant
+        if (gender != null && !entry.genderVariants.isEmpty()) {
+            String genderText = entry.genderVariants.get(gender.toLowerCase());
+            if (genderText != null) return genderText;
+        }
+
+        // 3. Check time-of-day variant
         if (timeOfDay != null && !entry.timeVariants.isEmpty()) {
             String timeText = entry.timeVariants.get(timeOfDay);
             if (timeText != null) return timeText;
         }
 
-        // 3. Fall back to default
+        // 4. Fall back to default
         return entry.defaultText;
     }
 
     /**
-     * Convenience overload that derives {@link TimeOfDay} from an hour (0–23).
+     * Convenience overload without gender (gender check is skipped).
+     *
+     * @param key        Description key
+     * @param timeOfDay  Current in-game time of day
+     * @param attributes Character attribute map
+     * @return Selected description text, never {@code null}
+     */
+    public String getDescription(String key, TimeOfDay timeOfDay, Map<String, Integer> attributes) {
+        return getDescription(key, timeOfDay, attributes, null);
+    }
+
+    /**
+     * Convenience overload that derives {@link TimeOfDay} from an hour (0–23) and includes gender.
+     *
+     * @param key        Description key
+     * @param hour       In-game hour (0–23)
+     * @param attributes Character attribute map
+     * @param gender     Character gender string ("male" or "female"); may be null
+     * @return Selected description text, never {@code null}
+     */
+    public String getDescription(String key, int hour, Map<String, Integer> attributes, String gender) {
+        return getDescription(key, TimeOfDay.fromHour(hour), attributes, gender);
+    }
+
+    /**
+     * Convenience overload that derives {@link TimeOfDay} from an hour (0–23), without gender.
      *
      * @param key        Description key
      * @param hour       In-game hour (0–23)
@@ -188,7 +241,7 @@ public class NovelTextEngine {
      * @return Selected description text, never {@code null}
      */
     public String getDescription(String key, int hour, Map<String, Integer> attributes) {
-        return getDescription(key, TimeOfDay.fromHour(hour), attributes);
+        return getDescription(key, TimeOfDay.fromHour(hour), attributes, null);
     }
 
     /**
