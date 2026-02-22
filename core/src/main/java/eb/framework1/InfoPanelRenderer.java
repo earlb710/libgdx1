@@ -520,7 +520,7 @@ class InfoPanelRenderer {
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
         s.infoMaxScrollX     = 0f;
-        s.infoMaxScrollY     = 0f;
+        s.infoScrollX        = 0f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -529,111 +529,61 @@ class InfoPanelRenderer {
         float smallCapH  = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
 
-        final float SB   = MapViewState.SCROLLBAR_THICKNESS;
-        final float PAD  = 16f;
-        final float COL2 = s.screenWidth * 0.5f; // second column x
+        final float SB  = MapViewState.SCROLLBAR_THICKNESS;
+        final float PAD = 16f;
 
-        // Total virtual content height (name + difficulty + stamina + money + gap + attributes)
-        float totalH = fontLineH            // Name
-                + smallLineH               // Gender / Difficulty / Icon
-                + smallLineH               // Stamina
-                + smallLineH               // Money
-                + smallLineH               // Separator gap
-                + CharacterAttribute.values().length * smallLineH;
+        CharacterAttribute[] attrs = CharacterAttribute.values();
+
+        // Total virtual content height: name row + one row per attribute
+        float totalH = fontLineH + attrs.length * smallLineH;
         float contentAreaH = panelH - SB;
-        s.infoMaxScrollY   = Math.max(0f, totalH - contentAreaH);
-        s.infoScrollY      = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
-        s.infoMaxScrollX   = 0f;
-        s.infoScrollX      = 0f;
+        s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
+        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
 
-        // Scissor to content area
+        // Scissor to content area (full height; scrollbar track is drawn separately on the right)
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor(0, (int) SB, s.screenWidth, Math.max(0, (int) contentAreaH));
+        Gdx.gl.glScissor(0, 0, (int)(s.screenWidth - SB), Math.max(0, panelH));
 
         batch.begin();
         drawScrollY = s.infoScrollY;
 
         float ty = panelH - PAD; // virtual top
 
-        // Character name (large)
+        // Character name
         font.setColor(Color.YELLOW);
-        font.draw(batch, profile.getCharacterName(),
-                PAD, ty + drawScrollY);
+        font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Gender / Difficulty on one line
-        smallFont.setColor(LABEL_COLOR);
-        smallFont.draw(batch, "Gender: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(smallFont, "Gender: ");
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, profile.getGender(), PAD + glyphLayout.width, ty + drawScrollY);
-
-        smallFont.setColor(LABEL_COLOR);
-        smallFont.draw(batch, "Difficulty: ", COL2, ty + drawScrollY);
-        glyphLayout.setText(smallFont, "Difficulty: ");
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, profile.getDifficulty(), COL2 + glyphLayout.width, ty + drawScrollY);
-        ty -= smallLineH;
-
-        // Stamina
-        smallFont.setColor(LABEL_COLOR);
-        smallFont.draw(batch, "Stamina: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(smallFont, "Stamina: ");
-        int cur = profile.getCurrentStamina(), max = profile.getMaxStamina();
-        smallFont.setColor(cur < max / 3.0f ? Color.RED : cur < max * 2.0f / 3.0f ? Color.ORANGE : Color.GREEN);
-        smallFont.draw(batch, cur + " / " + max, PAD + glyphLayout.width, ty + drawScrollY);
-        ty -= smallLineH;
-
-        // Money
-        smallFont.setColor(LABEL_COLOR);
-        smallFont.draw(batch, "Money: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(smallFont, "Money: ");
-        smallFont.setColor(Color.YELLOW);
-        smallFont.draw(batch, "$" + profile.getMoney(), PAD + glyphLayout.width, ty + drawScrollY);
-        ty -= smallLineH;
-
-        // Separator
-        ty -= smallLineH * 0.5f;
-
-        // Attributes — two columns
-        CharacterAttribute[] attrs = CharacterAttribute.values();
-        for (int i = 0; i < attrs.length; i++) {
-            CharacterAttribute attr = attrs[i];
+        // Attributes — one per row
+        for (CharacterAttribute attr : attrs) {
             int val = profile.getAttribute(attr.name());
-            boolean left  = (i % 2 == 0);
-            float ax = left ? PAD : COL2;
             float ay = ty + drawScrollY;
-
             smallFont.setColor(LABEL_COLOR);
-            smallFont.draw(batch, attr.getDisplayName() + ": ", ax, ay);
+            smallFont.draw(batch, attr.getDisplayName() + ": ", PAD, ay);
             glyphLayout.setText(smallFont, attr.getDisplayName() + ": ");
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, String.valueOf(val), ax + glyphLayout.width, ay);
-
-            if (!left) ty -= smallLineH;
+            smallFont.draw(batch, String.valueOf(val), PAD + glyphLayout.width, ay);
+            ty -= smallLineH;
         }
-        // Odd number of attributes — advance one more line
-        if (attrs.length % 2 != 0) ty -= smallLineH;
 
         batch.end();
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollY = 0f;
 
-        // Scrollbar
+        // Scrollbar — always draw track; thumb only when scrollable
+        float sbX    = s.screenWidth - SB;
+        float trackH = contentAreaH;
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
+        shapeRenderer.rect(sbX, SB, SB, trackH);
         if (s.infoMaxScrollY > 0f) {
-            float sbX    = s.screenWidth - SB;
-            float trackH = contentAreaH;
-            float totalScrollH = totalH;
-            float thumbH  = Math.max(SB * 2f, trackH * trackH / totalScrollH);
+            float thumbH      = Math.max(SB * 2f, trackH * trackH / totalH);
             float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
-            float thumbY  = SB + (1f - scrollRatio) * (trackH - thumbH);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
-            shapeRenderer.rect(sbX, SB, SB, trackH);
+            float thumbY      = SB + (1f - scrollRatio) * (trackH - thumbH);
             shapeRenderer.setColor(0.5f, 0.5f, 0.7f, 1f);
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
-            shapeRenderer.end();
         }
+        shapeRenderer.end();
     }
 
     // -------------------------------------------------------------------------
