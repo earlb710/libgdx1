@@ -831,13 +831,17 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination
+            // Reached destination – always discover
             state.isWalking = false;
             state.walkPath  = null;
             discoverCell(state.charCellX, state.charCellY);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
+            // 10% chance of discovering an intermediate cell while passing through
+            if (MathUtils.random() < 0.10f) {
+                discoverCell(state.charCellX, state.charCellY);
+            }
             state.walkTimer = MapViewState.WALK_STEP_SECONDS;
         }
     }

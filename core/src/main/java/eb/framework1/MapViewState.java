@@ -61,7 +61,7 @@ class MapViewState {
     java.util.List<int[]> walkPath = null;
     int   walkStepIdx   = 0;
     float walkTimer     = 0f;
-    static final float WALK_STEP_SECONDS = 0.5f;
+    static final float WALK_STEP_SECONDS = 0.4f;
 
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
