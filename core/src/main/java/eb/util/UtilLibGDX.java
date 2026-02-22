@@ -281,6 +281,24 @@ public class UtilLibGDX {
         return newSource;
     }
 
+    public static Pixmap newPixmapWhiteTransparent(Pixmap source) {
+        return newPixmapSetAlphaColor(source, 255, 255, 255);
+    }
+
+    public static Pixmap newPixmapNegative(Pixmap source) {
+        Pixmap newSource = new Pixmap(source.getWidth(), source.getHeight(), Format.RGBA8888);
+        newSource.drawPixmap(source, 0, 0);
+        ByteBuffer buffer = newSource.getPixels();
+        int length = buffer.limit();
+        for (int idx = 0; idx < length; idx = idx + 4) {
+            buffer.put(idx,     (byte) (255 - (buffer.get(idx)     & 0xFF)));
+            buffer.put(idx + 1, (byte) (255 - (buffer.get(idx + 1) & 0xFF)));
+            buffer.put(idx + 2, (byte) (255 - (buffer.get(idx + 2) & 0xFF)));
+        }
+        buffer.position(0);
+        return newSource;
+    }
+
     public static Pixmap createPixmapTileLayout(int tileWidth, int tileHeight, int cols, int rows, Texture[] tex) {
         Pixmap ret = new Pixmap(tileWidth * cols, tileHeight * rows, Pixmap.Format.RGBA8888);
         int x = 0, y = 0, idx = 0;
