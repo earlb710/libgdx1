@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,6 +44,7 @@ class InfoPanelRenderer {
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
+    private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -554,15 +556,81 @@ class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Attributes — one per row
+        // Compute total attribute modifiers from the character's current location.
+        // Includes the building's own modifiers plus all discovered improvement modifiers.
+        Map<CharacterAttribute, Integer> locationMods = new HashMap<>();
+        if (s.charCellX >= 0 && s.charCellY >= 0) {
+            Cell locCell = cityMap.getCell(s.charCellX, s.charCellY);
+            if (locCell.hasBuilding() && locCell.getBuilding().isDiscovered()) {
+                Building locBuilding = locCell.getBuilding();
+                for (Map.Entry<CharacterAttribute, Integer> e
+                        : locBuilding.getAttributeModifiers().entrySet()) {
+                    locationMods.merge(e.getKey(), e.getValue(), Integer::sum);
+                }
+                for (Improvement imp : locBuilding.getImprovements()) {
+                    if (imp.isDiscovered()) {
+                        for (Map.Entry<CharacterAttribute, Integer> e
+                                : imp.getAttributeModifiers().entrySet()) {
+                            locationMods.merge(e.getKey(), e.getValue(), Integer::sum);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Attributes — one per row  Format: "Name [total] : base + mod"  or  "Name : base"
         for (CharacterAttribute attr : attrs) {
-            int val = profile.getAttribute(attr.name());
+            int base = profile.getAttribute(attr.name());
+            int mod  = locationMods.getOrDefault(attr, 0);
             float ay = ty + drawScrollY;
-            smallFont.setColor(LABEL_COLOR);
-            smallFont.draw(batch, attr.getDisplayName() + ": ", PAD, ay);
-            glyphLayout.setText(smallFont, attr.getDisplayName() + ": ");
+            float cx = PAD;
+            int   total   = base + mod;
+            String baseStr = String.valueOf(base);
+
+            // Attribute name (white)
+            String nameStr = attr.getDisplayName();
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, String.valueOf(val), PAD + glyphLayout.width, ay);
+            smallFont.draw(batch, nameStr, cx, ay);
+            glyphLayout.setText(smallFont, nameStr);
+            cx += glyphLayout.width;
+
+            if (mod != 0) {
+                // " [" — white
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, " [", cx, ay);
+                glyphLayout.setText(smallFont, " [");
+                cx += glyphLayout.width;
+                // total — bright green
+                String totalStr = String.valueOf(total);
+                smallFont.setColor(ATTR_TOTAL_COLOR);
+                smallFont.draw(batch, totalStr, cx, ay);
+                glyphLayout.setText(smallFont, totalStr);
+                cx += glyphLayout.width;
+                // "]" — white
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "]", cx, ay);
+                glyphLayout.setText(smallFont, "]");
+                cx += glyphLayout.width;
+            }
+
+            // " : " — white
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, " : ", cx, ay);
+            glyphLayout.setText(smallFont, " : ");
+            cx += glyphLayout.width;
+
+            // base value — white
+            smallFont.draw(batch, baseStr, cx, ay);
+            glyphLayout.setText(smallFont, baseStr);
+            cx += glyphLayout.width;
+
+            if (mod != 0) {
+                // " + mod" or " - mod" — white
+                String modStr = " " + (mod > 0 ? "+ " : "- ") + Math.abs(mod);
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, modStr, cx, ay);
+            }
+
             ty -= smallLineH;
         }
 
