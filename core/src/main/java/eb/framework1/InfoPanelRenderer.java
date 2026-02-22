@@ -584,8 +584,9 @@ class InfoPanelRenderer {
             int mod  = locationMods.getOrDefault(attr, 0);
             float ay = ty + drawScrollY;
             float cx = PAD;
-            int   total   = base + mod;
-            String baseStr = String.valueOf(base);
+            int    total    = base + mod;
+            String baseStr  = String.valueOf(base);
+            String totalStr = String.valueOf(total);
 
             // Attribute name (white)
             String nameStr = attr.getDisplayName();
@@ -594,39 +595,27 @@ class InfoPanelRenderer {
             glyphLayout.setText(smallFont, nameStr);
             cx += glyphLayout.width;
 
-            if (mod != 0) {
-                // " [" — white
-                smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, " [", cx, ay);
-                glyphLayout.setText(smallFont, " [");
-                cx += glyphLayout.width;
-                // total — bright green
-                String totalStr = String.valueOf(total);
-                smallFont.setColor(ATTR_TOTAL_COLOR);
-                smallFont.draw(batch, totalStr, cx, ay);
-                glyphLayout.setText(smallFont, totalStr);
-                cx += glyphLayout.width;
-                // "]" — white
-                smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, "]", cx, ay);
-                glyphLayout.setText(smallFont, "]");
-                cx += glyphLayout.width;
-            }
-
-            // " : " — white
+            // " [" — white
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, " : ", cx, ay);
-            glyphLayout.setText(smallFont, " : ");
+            smallFont.draw(batch, " [", cx, ay);
+            glyphLayout.setText(smallFont, " [");
             cx += glyphLayout.width;
 
-            // base value — white
-            smallFont.draw(batch, baseStr, cx, ay);
-            glyphLayout.setText(smallFont, baseStr);
+            // total value — bright green (equals base when mod == 0)
+            smallFont.setColor(ATTR_TOTAL_COLOR);
+            smallFont.draw(batch, totalStr, cx, ay);
+            glyphLayout.setText(smallFont, totalStr);
+            cx += glyphLayout.width;
+
+            // "]" — white
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "]", cx, ay);
+            glyphLayout.setText(smallFont, "]");
             cx += glyphLayout.width;
 
             if (mod != 0) {
-                // " + mod" or " - mod" — white
-                String modStr = " " + (mod > 0 ? "+ " : "- ") + Math.abs(mod);
+                // " : base +/- mod" — white
+                String modStr = " : " + baseStr + " " + (mod > 0 ? "+ " : "- ") + Math.abs(mod);
                 smallFont.setColor(Color.WHITE);
                 smallFont.draw(batch, modStr, cx, ay);
             }
