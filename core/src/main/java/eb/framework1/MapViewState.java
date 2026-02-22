@@ -56,6 +56,13 @@ class MapViewState {
     String  unitInteriorLabel = "";
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
 
+    // --- Walk animation ---
+    boolean isWalking   = false;
+    java.util.List<int[]> walkPath = null;
+    int   walkStepIdx   = 0;
+    float walkTimer     = 0f;
+    static final float WALK_STEP_SECONDS = 0.5f;
+
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;

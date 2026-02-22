@@ -207,6 +207,7 @@ public class MainScreen implements Screen {
         }
 
         handleKeyboardInput();
+        if (state.isWalking) updateWalk(delta);
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
         mapRenderer.drawMap(state);
@@ -356,6 +357,9 @@ public class MainScreen implements Screen {
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Walking animation blocks all input
+                if (state.isWalking) { return true; }
+
                 // Quit confirmation overlay blocks all interaction
                 if (quitConfirming) { return true; }
 
@@ -405,6 +409,13 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
+
+                // Walking animation blocks all input
+                if (state.isWalking) {
+                    infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
 
                 // Quit confirmation overlay – handle Yes/No only
                 if (quitConfirming) {
@@ -781,18 +792,54 @@ public class MainScreen implements Screen {
         if (state.selectedCellX < 0) return;
         if (checkTirednessBeforeAction()) return;
 
+        // Advance game time and stamina immediately
         profile.advanceGameTime(state.currentRoute.totalMinutes);
         profile.useStamina(2);
-        state.charCellX = state.selectedCellX;
-        state.charCellY = state.selectedCellY;
-        state.unitInteriorOpen = false;
-        discoverCell(state.charCellX, state.charCellY);
-        state.currentRoute = null;
 
+        // Start walk animation along the route path
+        state.walkPath     = state.currentRoute.path;
+        state.walkStepIdx  = 1;  // index 0 is the current (start) cell – skip it
+        state.walkTimer    = MapViewState.WALK_STEP_SECONDS;
+        state.isWalking    = true;
+        state.currentRoute = null;
+        state.unitInteriorOpen = false;
+        contextMenu.dismiss();
+        Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
+    }
+
+    /** Called every frame while {@code state.isWalking} is true. */
+    private void updateWalk(float delta) {
+        state.walkTimer -= delta;
+        if (state.walkTimer > 0f) return;
+
+        // Advance to next cell in path
+        if (state.walkStepIdx >= state.walkPath.size()) {
+            // Shouldn't normally reach here, but guard anyway
+            state.isWalking = false;
+            return;
+        }
+
+        int[] cell = state.walkPath.get(state.walkStepIdx);
+        state.charCellX = cell[0];
+        state.charCellY = cell[1];
+
+        // Centre the map on the current walk cell
         state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
         state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
         state.clampMapOffset();
-        Gdx.app.log("MainScreen", "Moved to " + state.charCellX + "," + state.charCellY);
+
+        state.walkStepIdx++;
+
+        if (state.walkStepIdx >= state.walkPath.size()) {
+            // Reached destination
+            state.isWalking = false;
+            state.walkPath  = null;
+            discoverCell(state.charCellX, state.charCellY);
+            Gdx.app.log("MainScreen", "Walk complete, arrived at "
+                    + state.charCellX + "," + state.charCellY);
+        } else {
+            state.walkTimer = MapViewState.WALK_STEP_SECONDS;
+        }
     }
 
     /**
