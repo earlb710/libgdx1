@@ -255,7 +255,7 @@ class LookAroundPopup {
 
         // --- Text ---
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH + scrollY;
+        float ty = dialogY + dialogH - PAD + scrollY;
 
         if (state == State.ANIMATING) {
             int dots = Math.min(MAX_DOTS, (int)(timer / DOT_INTERVAL) + 1);
