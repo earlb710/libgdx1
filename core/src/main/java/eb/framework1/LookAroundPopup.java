@@ -136,10 +136,10 @@ class LookAroundPopup {
                 + (state == State.RESULTS ? PAD + okBtnH : 0)
                 + PAD;
 
-        // Full-width, anchored to the bottom (info panel area) – does not cover the map
-        float dialogW = screenW;
-        float dialogX = 0;
-        float dialogY = 0;
+        // Centred on screen
+        float dialogW = Math.min(screenW * 0.7f, 600f);
+        float dialogX = (screenW - dialogW) / 2f;
+        float dialogY = (screenH - dialogH) / 2f;
 
         // --- Shapes ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
