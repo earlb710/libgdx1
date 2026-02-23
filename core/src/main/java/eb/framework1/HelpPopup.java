@@ -45,26 +45,36 @@ class HelpPopup {
 
     // -------------------------------------------------------------------------
     // Map-legend entries: label, R, G, B
+    // Terrain colours match CityMap constants; building-category colours are the
+    // hex values from assets/categories.json converted to [0,1] floats.
+    // Keep these in sync with that file when category colours are changed.
     // -------------------------------------------------------------------------
     private static final Object[][] LEGEND = {
-        { "Mountain",        0.4f,  0.35f, 0.3f  },
-        { "Beach",           0.95f, 0.9f,  0.6f  },
-        { "Building (low)",  0.55f, 0.55f, 0.55f },
-        { "Building (high)", 0.9f,  0.9f,  0.9f  },
-        { "Road border",     0.0f,  0.0f,  0.0f  },
-        { "Route highlight", 0.0f,  0.8f,  1.0f  },
-        { "Home star",       1.0f,  1.0f,  0.0f  },
+        { "Mountain",        0.4f,   0.35f,  0.3f   },   // CityMap.MOUNTAIN_*
+        { "Beach",           0.95f,  0.9f,   0.6f   },   // CityMap.BEACH_*
+        { "Residential",     0.298f, 0.686f, 0.314f },   // #4CAF50
+        { "Commercial",      0.129f, 0.588f, 0.953f },   // #2196F3
+        { "Office",          0.612f, 0.153f, 0.690f },   // #9C27B0
+        { "Industrial",      1.0f,   0.757f, 0.027f },   // #FFC107
+        { "Infrastructure",  0.376f, 0.490f, 0.545f },   // #607D8B
+        { "Medical",         0.957f, 0.263f, 0.212f },   // #F44336
+        { "Education",       1.0f,   0.596f, 0.0f   },   // #FF9800
+        { "Public Services", 0.0f,   0.737f, 0.831f },   // #00BCD4
+        { "Government",      0.247f, 0.318f, 0.710f },   // #3F51B5
+        { "Hospitality",     0.914f, 0.118f, 0.388f },   // #E91E63
+        { "Entertainment",   1.0f,   0.922f, 0.231f },   // #FFEB3B
+        { "Religious",       0.620f, 0.620f, 0.620f },   // #9E9E9E
     };
 
     // -------------------------------------------------------------------------
-    // Controls help lines
+    // Controls help lines  (no padding — proportional font can't align colons with spaces)
     // -------------------------------------------------------------------------
     private static final String[] CONTROLS = {
-        "Scroll / +- keys  : zoom in/out",
-        "Drag / Arrow keys : pan map",
-        "Click cell        : select / info",
-        "Double-click cell : move / menu",
-        "ESC               : quit",
+        "Scroll / +- keys: zoom in/out",
+        "Drag / Arrow keys: pan map",
+        "Click cell: select / info",
+        "Double-click cell: move / menu",
+        "ESC: quit",
     };
 
     // -------------------------------------------------------------------------
@@ -176,12 +186,12 @@ class HelpPopup {
                 + legendH
                 + PAD + qBtnH + PAD;                           // close button at bottom
 
-        // Cap at 85% screen height
-        popupH = Math.min(popupH, screenH * 0.85f);
+        // Cap at info panel height (popup overlays the info panel, not the map)
+        popupH = Math.min(popupH, infoAreaH - 2 * MARGIN);
 
-        // Anchor: lower-right, just above the info panel
+        // Anchor: lower-right, within the info panel area (overlays it)
         float popupX = screenW - popupW - MARGIN;
-        float popupY = infoAreaH + MARGIN;
+        float popupY = MARGIN;
 
         // ---- Shapes: background + close button ----
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
