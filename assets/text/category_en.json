@@ -63,7 +63,7 @@
       "color": "#9E9E9E"
     }
   ],
-  "clue_categories": [
+  "case_categories": [
     {
       "code": "physical",
       "description": "Tangible objects or marks found at a location"
@@ -83,6 +83,22 @@
     {
       "code": "behavioral",
       "description": "Observable actions, habits, or patterns of people"
+    },
+    {
+      "code": "clues",
+      "description": "Hints or pieces of information that help solve a case"
+    },
+    {
+      "code": "evidence",
+      "description": "Material or information that establishes facts in a case"
+    },
+    {
+      "code": "investigation",
+      "description": "Systematic inquiry or examination to uncover facts"
+    },
+    {
+      "code": "surveillance",
+      "description": "Close observation of a person, place, or activity"
     }
   ],
   "item_categories": [

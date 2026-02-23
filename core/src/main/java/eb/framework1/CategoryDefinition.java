@@ -1,7 +1,7 @@
 package eb.framework1;
 
 /**
- * Represents a category definition loaded from categories.json.
+ * Represents a category definition loaded from text/category_en.json.
  * Defines building categories with display properties.
  */
 public class CategoryDefinition {
