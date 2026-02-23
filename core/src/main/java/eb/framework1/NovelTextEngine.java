@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Novel text engine: selects contextual location/action descriptions from JSON data files.
  *
- * <p>Each language has its own JSON file (e.g. {@code text/en.json}, {@code text/es.json}).
+ * <p>Each language has its own JSON file (e.g. {@code text/description_en.json}, {@code text/description_es.json}).
  * English is the default and is used as a fallback when a requested language has no entry for
  * the given key.</p>
  *
@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * <p>Usage (production — load via LibGDX):
  * <pre>{@code
- * String json = Gdx.files.internal("text/en.json").readString("UTF-8");
+ * String json = Gdx.files.internal("text/description_en.json").readString("UTF-8");
  * NovelTextEngine engine = NovelTextEngine.fromJsonString(json);
  *
  * // Single-variant (existing) format — location ignored, same as before:

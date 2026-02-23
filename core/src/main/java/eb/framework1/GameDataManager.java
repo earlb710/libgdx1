@@ -19,7 +19,7 @@ import java.util.Map;
 public class GameDataManager {
     private static final String BUILDINGS_FILE  = "buildings.json";
     private static final String CATEGORIES_FILE = "categories.json";
-    private static final String TEXT_FILE       = "text/en.json";
+    private static final String TEXT_FILE       = "text/description_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -46,7 +46,7 @@ public class GameDataManager {
     }
     
     /**
-     * Loads the novel text engine from {@code text/en.json}.
+     * Loads the novel text engine from {@code text/description_en.json}.
      */
     private void loadNovelTextEngine() {
         try {
@@ -237,7 +237,7 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the {@link NovelTextEngine} loaded from {@code text/en.json}.
+     * Returns the {@link NovelTextEngine} loaded from {@code text/description_en.json}.
      * Never {@code null}; returns an empty engine if the file could not be loaded.
      */
     public NovelTextEngine getNovelTextEngine() {

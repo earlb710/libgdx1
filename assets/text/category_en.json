@@ -1,0 +1,118 @@
+{
+  "version": "1.0",
+  "language": "en",
+  "building_categories": [
+    {
+      "code": "residential",
+      "description": "Housing buildings including apartments, condos, townhouses, and senior living facilities",
+      "color": "#4CAF50"
+    },
+    {
+      "code": "commercial",
+      "description": "Retail stores, restaurants, shopping centers, and consumer-facing businesses",
+      "color": "#2196F3"
+    },
+    {
+      "code": "office",
+      "description": "Professional workspaces including office buildings, corporate headquarters, and coworking spaces",
+      "color": "#9C27B0"
+    },
+    {
+      "code": "industrial",
+      "description": "Warehouses, manufacturing facilities, data centers, and storage facilities",
+      "color": "#FFC107"
+    },
+    {
+      "code": "infrastructure",
+      "description": "Essential city infrastructure including parking, transit stations, and transportation hubs",
+      "color": "#607D8B"
+    },
+    {
+      "code": "medical",
+      "description": "Healthcare facilities including hospitals, clinics, dental offices, and veterinary clinics",
+      "color": "#F44336"
+    },
+    {
+      "code": "education",
+      "description": "Schools, colleges, daycares, and other educational institutions",
+      "color": "#FF9800"
+    },
+    {
+      "code": "public_services",
+      "description": "Government services including libraries, community centers, fire stations, and police stations",
+      "color": "#00BCD4"
+    },
+    {
+      "code": "government",
+      "description": "Municipal and county government buildings including city hall and courthouses",
+      "color": "#3F51B5"
+    },
+    {
+      "code": "hospitality",
+      "description": "Hotels, motels, and lodging establishments from budget to luxury",
+      "color": "#E91E63"
+    },
+    {
+      "code": "entertainment",
+      "description": "Venues for recreation and entertainment including theaters, sports arenas, and nightclubs",
+      "color": "#FFEB3B"
+    },
+    {
+      "code": "religious",
+      "description": "Places of worship including churches, mosques, synagogues, and temples",
+      "color": "#9E9E9E"
+    }
+  ],
+  "clue_categories": [
+    {
+      "code": "physical",
+      "description": "Tangible objects or marks found at a location"
+    },
+    {
+      "code": "testimonial",
+      "description": "Statements or accounts provided by witnesses or persons of interest"
+    },
+    {
+      "code": "documentary",
+      "description": "Written records, files, logs, or digital data"
+    },
+    {
+      "code": "environmental",
+      "description": "Conditions or changes in the surroundings that indicate activity"
+    },
+    {
+      "code": "behavioral",
+      "description": "Observable actions, habits, or patterns of people"
+    }
+  ],
+  "item_categories": [
+    {
+      "code": "weapon",
+      "description": "Objects that can be used to cause harm"
+    },
+    {
+      "code": "tool",
+      "description": "Instruments or devices used to perform tasks"
+    },
+    {
+      "code": "document",
+      "description": "Written or printed records and paperwork"
+    },
+    {
+      "code": "electronic",
+      "description": "Electronic devices and digital media"
+    },
+    {
+      "code": "personal",
+      "description": "Personal belongings and effects"
+    },
+    {
+      "code": "consumable",
+      "description": "Items that are used up or consumed"
+    },
+    {
+      "code": "key_item",
+      "description": "Critical items required to advance the story"
+    }
+  ]
+}
