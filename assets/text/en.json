@@ -1,5 +1,5 @@
 {
-  "version": "1.3",
+  "version": "1.4",
   "language": "en",
   "descriptions": {
     "parking_lot_small": {
@@ -6012,6 +6012,209 @@
       "gender": {
         "male": "The vending machine block is across from the security desk. You check which ones were active during the blackout window.",
         "female": "You review the vending machine activity logs. Two machines show activity during a period when the building was supposed to be empty."
+      }
+    },
+    "Ventilation": {
+      "default": "Ductwork and airflow managing the building's atmosphere. The ventilation system knows every space it touches. So does anyone with a schematic and a reason.",
+      "gender": {
+        "male": "You check the ventilation layout against the building plans. The intake for the secured floor runs through an unsecured corridor.",
+        "female": "The ventilation access points are marked in the maintenance plan. One has been opened recently from the wrong side."
+      }
+    },
+    "Ventilation System": {
+      "default": "Integrated HVAC infrastructure running through every wall and ceiling in the building. It circulates air \u2014 and carries sound further than people realize.",
+      "gender": {
+        "male": "You trace the ventilation system floor by floor. The smell coming from the east duct doesn't belong here. You find the source.",
+        "female": "The ventilation system map shows a route from the secured server room to the maintenance corridor. It wasn't in the original drawings."
+      }
+    },
+    "Visitor Center": {
+      "default": "The official face of a building or institution, designed to welcome and manage public access. The visitor center logs who comes in and provides just enough information to keep them satisfied.",
+      "gender": {
+        "male": "You sign in at the visitor center and get a badge that underestimates your access. You work with what you have.",
+        "female": "The visitor center records show your subject visited twice last month. The staff member who assisted them both times is still working the desk."
+      }
+    },
+    "Wait Station": {
+      "default": "A service staging area in a restaurant or event space. The wait station is the operational nerve center of the front of house \u2014 and the place most conversations get overheard.",
+      "gender": {
+        "male": "You position yourself near the wait station. The servers consolidate here between runs. So does the conversation about what happened at table seven.",
+        "female": "You speak with the lead server at the wait station. She has a professional memory for every table's needs and every odd moment of service."
+      }
+    },
+    "Waiting Area": {
+      "default": "Where the city exercises patience it doesn't always have. The waiting area is a place of tension and observation. You use both.",
+      "gender": {
+        "male": "You take a chair in the waiting area and let the room run. In ten minutes you've built a working theory from what you see.",
+        "female": "The waiting area is full of people who've been here too long. You study them. One of them is waiting for something other than their appointment."
+      }
+    },
+    "Waiting Room": {
+      "default": "A holding space between arrival and admission. The waiting room is a social contract: you sit, you wait, and eventually someone calls your name.",
+      "gender": {
+        "male": "You settle into the waiting room and observe. Old habit. Every room is a scene. Every scene has something worth noting.",
+        "female": "The waiting room is arranged to feel calm. It isn't. You note who came in after you and positioned themselves near the exit."
+      }
+    },
+    "Walk-In Closet": {
+      "default": "Personal storage space that reveals more about a person than any interview. The walk-in closet is a biography written in choices.",
+      "gender": {
+        "male": "You document the walk-in closet contents methodically. What's missing tells you as much as what's still here.",
+        "female": "The walk-in closet is organized with precision. The disruption near the back left shelf was recent and deliberate."
+      }
+    },
+    "Walk-In Cooler": {
+      "default": "Industrial cold storage for food or medical product. The walk-in cooler is a controlled environment \u2014 and occasionally an uncontrolled one.",
+      "gender": {
+        "male": "The walk-in cooler door was left ajar last night. The temperature alarm triggered at 2:14 AM. You find out who was inside.",
+        "female": "You examine the walk-in cooler log. An after-hours entry that wasn't authorized. You check the product inventory for what was touched."
+      }
+    },
+    "Walk-In Freezer": {
+      "default": "Sub-zero storage where temperature is identity. The walk-in freezer is the coldest point in the operation \u2014 in every sense.",
+      "gender": {
+        "male": "You pull open the walk-in freezer door. Whatever you expected to find in here, you found something else.",
+        "female": "The walk-in freezer access log shows a late entry with no corresponding food service activity. You trace the credential used."
+      }
+    },
+    "Wash Bay": {
+      "default": "An industrial cleaning station for vehicles or equipment. What gets cleaned in the wash bay leaves traces that detailing was designed to remove.",
+      "gender": {
+        "male": "You swab the wash bay drain before the next cleaning cycle runs. Whatever was cleaned here last night left something behind.",
+        "female": "The wash bay shows evidence of recent use outside of logged hours. You photograph the drain and call for forensics."
+      }
+    },
+    "Waxing Room": {
+      "default": "A private treatment room for hair removal services. Clients are alone with their service provider and frequently more candid than they'd be otherwise.",
+      "gender": {
+        "male": "You wait outside the waxing room for your appointment to complete. The esthetician comes out knowing more than she expected to.",
+        "female": "The waxing room esthetician has a long-term client relationship with your subject. She tells you about the last visit and what was said."
+      }
+    },
+    "Weight Room": {
+      "default": "Iron and rubber and the effort of physical transformation. The weight room is where the body's limits get tested. You note who stopped showing up.",
+      "gender": {
+        "male": "The weight room log tracks every member's session. Your subject hit their PR last Tuesday. Their rack is still set up for it. They haven't been back.",
+        "female": "You check the weight room attendance system. She was a daily presence for eight months. The gap started four days ago."
+      }
+    },
+    "Welding Shop": {
+      "default": "Sparks and structure \u2014 metal joined under controlled heat. The welding shop records what it fabricates. Not everything fabricated is on the log.",
+      "gender": {
+        "male": "The welding shop has a job ticket system. One ticket was completed off-schedule and the material used doesn't match the order.",
+        "female": "You examine the welding shop output log. A custom fabrication job was run after hours. No client name, no PO number."
+      }
+    },
+    "Wellness Room": {
+      "default": "A quiet space for employees or members to recover and decompress. The wellness room is used by people carrying more than they're supposed to. You know the type.",
+      "gender": {
+        "male": "The wellness room sign-in is voluntary. Your subject used it three times this week. Something has them under pressure.",
+        "female": "You speak with the wellness room coordinator. She's seen the signs of institutional stress in her clients. Your subject was showing all of them."
+      }
+    },
+    "Whitening Room": {
+      "default": "A clinical aesthetic room for dental or cosmetic whitening procedures. Close-range work, captive conversation, and a remarkably candid setting.",
+      "gender": {
+        "male": "You note the whitening room appointment log. Your subject had a 10 AM slot. They arrived and left before the procedure started.",
+        "female": "The whitening room technician had a full appointment with your subject. She remembers the conversation in detail. It's relevant."
+      }
+    },
+    "WiFi": {
+      "default": "Wireless network access serving the building's population. The WiFi router logs every device that connects. In the right hands, that's a complete attendance record.",
+      "gender": {
+        "male": "You request the WiFi access logs from the building's network administrator. Device MAC addresses are better than visitor logs.",
+        "female": "The network admin pulls the connection history from last Tuesday without being asked twice. The device that was active at 1 AM is registered to someone you've been looking for."
+      }
+    },
+    "Wine Cellar": {
+      "default": "Temperature-controlled storage for premium bottles and their implicit value. The wine cellar keeps track of what came in, what went out, and what's inexplicably missing.",
+      "gender": {
+        "male": "You go down to the wine cellar with the sommelier. Three bottles from a specific case are unaccounted for. That case has significance beyond the label.",
+        "female": "The wine cellar inventory doesn't match the acquisition records. The missing bottles were removed during a window you're now investigating."
+      }
+    },
+    "Wine Storage": {
+      "default": "A curated environment for bottles of varying value and provenance. Wine storage is managed by catalog and trust. The catalog has been altered.",
+      "gender": {
+        "male": "You examine the wine storage manifest. A modification was made to last month's inventory records. You pull the original.",
+        "female": "The wine storage catalog shows two different sets of entries for the same date. Someone edited the record after the fact."
+      }
+    },
+    "Witness Waiting Area": {
+      "default": "A room where people wait to tell their version of events. The witness waiting area is a space of rehearsed silence and unrehearsed anxiety.",
+      "gender": {
+        "male": "You move through the witness waiting area. Every face in here is carrying something. One of them is carrying a lie.",
+        "female": "You sit in the witness waiting area deliberately. The people in here are about to be interviewed. You want to see how they behave when they think nobody important is watching yet."
+      }
+    },
+    "Women's Section": {
+      "default": "A designated space within a religious or commercial context. The women's section operates with its own internal norms and its own knowledge of what passes through it.",
+      "gender": {
+        "male": "You note the women's section entrance and identify the appropriate point of contact before proceeding.",
+        "female": "You enter the women's section with your badge and your awareness of the space. The community leader meets you respectfully and helps."
+      }
+    },
+    "Woodshop": {
+      "default": "Sawdust and power tools, the smell of shavings and effort. The woodshop keeps records of what's been built. What it doesn't keep records of is what else has been done here.",
+      "gender": {
+        "male": "The woodshop is clean in the way a place gets cleaned when someone knows what to look for. You look for it anyway.",
+        "female": "You document the woodshop carefully. The sawdust patterns on the floor show recent use. The project board shows nothing scheduled."
+      }
+    },
+    "X-Ray": {
+      "default": "Imaging that sees past the surface to what's underneath. You've found the X-ray to be a useful metaphor for everything you do.",
+      "gender": {
+        "male": "The X-ray was taken at 11 PM. You ask who authorized an after-hours procedure and who was on duty.",
+        "female": "You review the X-ray request log. An image was taken without a corresponding patient registration. That's not an oversight."
+      }
+    },
+    "X-Ray Equipment": {
+      "default": "Clinical imaging hardware for diagnostic assessment. The equipment logs every activation. You check the timestamp against what you were told.",
+      "gender": {
+        "male": "The X-ray equipment activation log shows four unscheduled uses in the past week. You identify who had physical access during each one.",
+        "female": "You request the X-ray equipment usage records. The compliance officer hands them over and waits to see what you find."
+      }
+    },
+    "X-Ray Room": {
+      "default": "A shielded space for diagnostic imaging. Access is controlled and every session logged. A room designed for seeing clearly \u2014 which is exactly what you intend to do.",
+      "gender": {
+        "male": "The X-ray room was accessed during a period when no patients were scheduled. You find the access log and the credential it belongs to.",
+        "female": "You enter the X-ray room with the radiation safety officer. The lead shielding makes the room feel absolute. You ask your questions with the same quality."
+      }
+    },
+    "Yacht Service": {
+      "default": "Marine maintenance and service for vessels that represent more capital than most people see in a lifetime. The yacht service knows every owner by name and every favor they've asked for.",
+      "gender": {
+        "male": "You walk the yacht service dock. The harbormaster has records on every vessel. One hasn't been accessed since it was reported missing from its slip.",
+        "female": "You speak with the yacht service manager. She maintains a meticulous service log. The vessel you're looking for was serviced four days ago. The owner arrived alone."
+      }
+    },
+    "Yoga Studio": {
+      "default": "A room of controlled breath and deliberate movement. The yoga studio attracts people looking for stillness they can't find in the rest of their lives. You note what they're escaping.",
+      "gender": {
+        "male": "The yoga studio attendance system tracks member check-ins. Your subject hasn't missed a Tuesday class in eight months. Until last Tuesday.",
+        "female": "You speak with the studio instructor after the morning class. She noticed the absence. She also noticed what your subject said the week before."
+      }
+    },
+    "Youth Center": {
+      "default": "A space built to give young people somewhere to be that isn't the street. The youth center sees the city's next generation before they've made their permanent choices.",
+      "gender": {
+        "male": "You sit down with the youth center director. He knows his regulars. He knows when something is wrong. Something has been wrong for about a week.",
+        "female": "The youth center is loud and warm. The program coordinator watches every kid who comes through the door. She watched yours."
+      }
+    },
+    "Youth Lounge": {
+      "default": "An informal gathering space for adolescents \u2014 furniture, screens, and the social complexity of young people working out who they are.",
+      "gender": {
+        "male": "You wait in the youth lounge for the program supervisor. The teenagers give you a wide berth. That's fine. You're not here for them.",
+        "female": "The youth lounge coordinator knows her regulars by name and by trouble type. She introduces you to the one you need to speak with."
+      }
+    },
+    "Youth Room": {
+      "default": "A dedicated room for young members of a community or institution. Whatever happened in here happened in a space designed to be safe.",
+      "gender": {
+        "male": "You enter the youth room after hours with the facility director. The room is undisturbed. Whatever happened here happened before Sunday.",
+        "female": "The youth room coordinator is protective of this space and its users. You respect that and ask your questions accordingly."
       }
     }
   }
