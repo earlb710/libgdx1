@@ -2653,6 +2653,146 @@
         "male": "You ask the cleaner about a specific garment description. They remember it. Cleaners always remember the ones that were difficult.",
         "female": "You drop off a jacket and ask while you're there about the spot-treatment protocols for organic material. The cleaner looks up."
       }
+    },
+    "Dryers": {
+      "default": "Heat and motion and the completion of a cycle. What went into the dryer, and whether it came out the same, that's the question.",
+      "gender": {
+        "male": "You open the drum before the cycle ends. Old habit. It tells you what you needed.",
+        "female": "You check the lint trap. What accumulates in a lint trap is a fabric record of what was cleaned."
+      }
+    },
+    "EV Charger": {
+      "default": "A charging record tied to a vehicle and a time. Electric vehicles are quiet and logged. That combination works for you.",
+      "gender": {
+        "male": "You check the charger's session log. One vehicle was here for six hours at two in the morning.",
+        "female": "You ask the property manager about access to the EV charger records. They're more forthcoming than their counterpart at the desk."
+      }
+    },
+    "EV Chargers": {
+      "default": "Multiple charging points and multiple timestamps. The lot logs every vehicle that plugged in. So do you.",
+      "gender": {
+        "male": "You photograph the charger unit IDs and cross-reference them with the access log.",
+        "female": "You ask the attendant which charger was in use last night and at what time. They remember because it blocked a bay."
+      }
+    },
+    "EV Charging": {
+      "default": "Stationary vehicle, measurable window, logged session. Someone parked here for a reason that had nothing to do with the battery.",
+      "gender": {
+        "male": "You compare the charging duration against the vehicle's stated capacity. The math doesn't add up.",
+        "female": "You check the session history on the public terminal. The user forgot to sign out."
+      }
+    },
+    "EV Charging Station": {
+      "default": "Infrastructure for the future with the accountability of the past. Every charge session creates a record.",
+      "gender": {
+        "male": "You note the vehicles currently charging and the ones that finished recently. One didn't leave.",
+        "female": "You ask the building attendant for the charging log as part of a routine fleet check. They produce it."
+      }
+    },
+    "Electric Car Charging": {
+      "default": "Quiet vehicles and traceable sessions. The silence is its own kind of cover. The log is yours.",
+      "gender": {
+        "male": "You pull the session data. Three entries in the last week at hours that suggest surveillance, not commuting.",
+        "female": "You verify the session timing against the incident. The vehicle was here when it shouldn't have been."
+      }
+    },
+    "Electric Vehicle Charging": {
+      "default": "Modern infrastructure with old-fashioned evidence. Whoever used this station left a trail they didn't think about.",
+      "gender": {
+        "male": "You trace the account back through the app registration. The name at the end of the chain is interesting.",
+        "female": "You flag the session anomaly to the facility manager. Their surprise at the timing confirms the significance."
+      }
+    },
+    "Elevator": {
+      "default": "A box that logs its trips. Every floor visited, every time the doors opened. The elevator doesn't forget who rode it.",
+      "gender": {
+        "male": "You check the service panel. The elevator visited the restricted floor three times last night without a recorded purpose.",
+        "female": "You ride to the top and work down. The floor that smells different from the rest is the one you stop at."
+      }
+    },
+    "Elevators": {
+      "default": "Multiple cars and multiple witnesses who forgot they were witnesses. The lobby camera captures everyone who rides.",
+      "gender": {
+        "male": "You review the arrival timestamps for the relevant floor. The sequence is wrong for a legitimate visit.",
+        "female": "You ask the building manager about elevator access logs. They're more detailed than the policy brochure suggests."
+      }
+    },
+    "Emergency Call Box": {
+      "default": "A fixed point of contact in an area the building considers high-risk. Its placement tells you what the building was worried about.",
+      "gender": {
+        "male": "You check whether the call box was activated recently. The indicator says yes. No report was filed.",
+        "female": "You press the test button and note the response time. Seven minutes is too long for a building this size to not have a reason."
+      }
+    },
+    "Emergency Call System": {
+      "default": "Panic buttons and response protocols. A system like this keeps logs. One of those logs shows an activation that never became an incident.",
+      "gender": {
+        "male": "You pull the activation history. One event was manually cleared before a response was dispatched.",
+        "female": "You ask the security supervisor about the suppressed alert from three days ago. They consult their notes before answering."
+      }
+    },
+    "Emergency Exits": {
+      "default": "The way out that nobody uses until they have to. And the way in that nobody watches as carefully as the front door.",
+      "gender": {
+        "male": "You test the bar on the exterior side. The alarm's been disabled. Recently.",
+        "female": "You examine the door frame for contact marks. Someone's been using this exit regularly and not as an emergency."
+      }
+    },
+    "Emergency Lighting": {
+      "default": "Backup illumination for when the main power fails. Someone wanted to make sure they could still see — or still be seen — when everything else went dark.",
+      "gender": {
+        "male": "You check the battery charge on the emergency panels. Fresh. Tested recently. Anticipation or routine?",
+        "female": "You note which areas the emergency lighting covers and which it deliberately doesn't. The gap is informative."
+      }
+    },
+    "Emergency Room": {
+      "default": "The end of someone's very bad night and the beginning of your investigation. Whatever came through those doors, it matters.",
+      "gender": {
+        "male": "You present credentials to the triage nurse and ask about a specific arrival time. The nurse checks. The record exists.",
+        "female": "You speak with the attending physician directly. Physicians respond to directness. You get the clinical summary."
+      }
+    },
+    "Employee Break Area": {
+      "default": "Off the floor and off the record. The break area is where the real opinion of the workplace gets expressed.",
+      "gender": {
+        "male": "You arrive with a coffee and nothing to prove. The room tells you everything it's been holding.",
+        "female": "You sit down and ask how long people have been here. The longest-serving person in the room knows everything."
+      }
+    },
+    "Employee Break Room": {
+      "default": "Vending machines and the unguarded conversation of people who've temporarily stopped performing their professional role.",
+      "gender": {
+        "male": "You leave the door open. Break rooms with closed doors generate less conversation. You want conversation.",
+        "female": "You ask where the nearest printer is as an excuse to be in the room. The excuse doesn't matter. The presence does."
+      }
+    },
+    "Employee Cafeteria": {
+      "default": "The same faces every day, the same tables, the same hierarchies playing out over subsidised food. The seating pattern is as revealing as anything in the HR file.",
+      "gender": {
+        "male": "You take the table nobody sits at and watch the ones everybody does.",
+        "female": "You join an occupied table and introduce yourself. The group decides you're alright before the main course."
+      }
+    },
+    "Employee Store": {
+      "default": "Internal retail with staff-only access. What the employee store stocks tells you what the workforce is being managed with.",
+      "gender": {
+        "male": "You use a visitor lanyard to get past the door. The store hasn't been stocked in two weeks. That matters.",
+        "female": "You ask a staff member to help you find the store. On the way there, the staff member explains why they haven't been going."
+      }
+    },
+    "Engineering Office": {
+      "default": "Blueprints and specifications and the technical memory of every system in the building. The answer to what's wrong with this place is probably in here.",
+      "gender": {
+        "male": "You ask to see the current building schematic under the pretext of a facilities review.",
+        "female": "You enquire about a specific system discrepancy. The engineer pulls the design specs without hesitation and walks you through the anomaly themselves."
+      }
+    },
+    "Entertainment Suite": {
+      "default": "A private room designed for pleasure and the off-the-record conversations that happen inside it. What gets said in an entertainment suite stays there — unless you were in it.",
+      "gender": {
+        "male": "You get the suite number from the concierge and arrive at exactly the right moment.",
+        "female": "You enter with the composure of someone who was expected. Nobody corrects that assumption."
+      }
     }
   }
 }
