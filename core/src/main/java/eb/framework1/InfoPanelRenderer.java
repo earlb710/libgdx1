@@ -46,6 +46,7 @@ class InfoPanelRenderer {
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
+    private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -57,6 +58,7 @@ class InfoPanelRenderer {
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
+    private final NovelTextEngine novelTextEngine;
 
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;
@@ -65,16 +67,17 @@ class InfoPanelRenderer {
                       BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
                       BitmapFont tinyFont,
                       GlyphLayout glyphLayout,
-                      CityMap cityMap, Profile profile) {
-        this.batch         = batch;
-        this.shapeRenderer = shapeRenderer;
-        this.font          = font;
-        this.smallFont     = smallFont;
-        this.boldSmallFont = boldSmallFont;
-        this.tinyFont      = tinyFont;
-        this.glyphLayout   = glyphLayout;
-        this.cityMap       = cityMap;
-        this.profile       = profile;
+                      CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
+        this.batch           = batch;
+        this.shapeRenderer   = shapeRenderer;
+        this.font            = font;
+        this.smallFont       = smallFont;
+        this.boldSmallFont   = boldSmallFont;
+        this.tinyFont        = tinyFont;
+        this.glyphLayout     = glyphLayout;
+        this.cityMap         = cityMap;
+        this.profile         = profile;
+        this.novelTextEngine = novelTextEngine;
     }
 
     // -------------------------------------------------------------------------
@@ -477,6 +480,16 @@ class InfoPanelRenderer {
                         textY = drawLabelValue(font, "Description: ", desc, textX, textY);
                         textY -= fontLineH;
                     }
+
+                    // Novel-engine contextual description
+                    String novel = buildingNovelText(building);
+                    if (novel != null) {
+                        float nx = textX - drawScrollX;
+                        float ny = textY + drawScrollY;
+                        font.setColor(NOVEL_COLOR);
+                        font.draw(batch, novel, nx, ny);
+                        textY -= fontLineH;
+                    }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
                 }
@@ -832,6 +845,20 @@ class InfoPanelRenderer {
     }
 
     /**
+     * Returns the context-sensitive novel-engine text for a discovered building,
+     * using the current time of day and the character's attributes and gender.
+     * Returns {@code null} if the engine produces no text for this building.
+     */
+    private String buildingNovelText(Building b) {
+        if (novelTextEngine == null || b.getDefinition() == null) return null;
+        String key  = b.getDefinition().getId();
+        int    hour = profile.getCurrentHour();
+        String text = novelTextEngine.getDescription(
+                key, hour, profile.getAttributes(), profile.getGender());
+        return (text != null && !text.isEmpty()) ? text : null;
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      */
@@ -848,6 +875,9 @@ class InfoPanelRenderer {
         h += b.getImprovements().size() * fontLineH; // one row per improvement
         if (buildingDescription(b) != null) {
             h += fontLineH * 2; // blank gap + description line
+        }
+        if (buildingNovelText(b) != null) {
+            h += fontLineH; // novel text line
         }
         return h;
     }
@@ -902,6 +932,11 @@ class InfoPanelRenderer {
                 String desc = buildingDescription(b);
                 if (desc != null) {
                     glyphLayout.setText(font, "Description: " + desc);
+                    maxW = Math.max(maxW, glyphLayout.width);
+                }
+                String novel = buildingNovelText(b);
+                if (novel != null) {
+                    glyphLayout.setText(font, novel);
                     maxW = Math.max(maxW, glyphLayout.width);
                 }            } else {
                 glyphLayout.setText(font, "Building: ???");

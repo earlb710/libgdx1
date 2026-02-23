@@ -43,8 +43,9 @@ public class MainScreen implements Screen {
     private boolean initialized = false;
 
     // Data
-    private CityMap  cityMap;
-    private Profile  profile;
+    private CityMap          cityMap;
+    private Profile          profile;
+    private NovelTextEngine  novelTextEngine;
 
     // Shared view state (layout, pan, zoom, selection, button bounds)
     private final MapViewState state = new MapViewState();
@@ -112,6 +113,7 @@ public class MainScreen implements Screen {
         tinyFont      = game.getFontManager().getTinyFont();
 
         GameDataManager gameData = game.getGameDataManager();
+        novelTextEngine = gameData.getNovelTextEngine();
         cityMap = new CityMap(profile, gameData);
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
 
@@ -179,7 +181,7 @@ public class MainScreen implements Screen {
         }
 
         infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont,
-                glyphLayout, cityMap, profile);
+                glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, cityMap, profile);
@@ -1031,6 +1033,15 @@ public class MainScreen implements Screen {
         BuildingDefinition def = building.getDefinition();
         String description = (def != null) ? def.getDescription() : null;
 
+        // Novel-engine contextual description
+        String novelText = null;
+        if (novelTextEngine != null && def != null) {
+            String raw = novelTextEngine.getDescription(
+                    def.getId(), profile.getCurrentHour(),
+                    profile.getAttributes(), profile.getGender());
+            novelText = (raw != null && !raw.isEmpty()) ? raw : null;
+        }
+
         List<String> impLines = new ArrayList<>();
         for (Improvement imp : building.getImprovements()) {
             if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
@@ -1040,7 +1051,7 @@ public class MainScreen implements Screen {
                 impLines.add(entry);
             }
         }
-        discoveryPopup.show(building.getName(), description, impLines);
+        discoveryPopup.show(building.getName(), description, novelText, impLines);
     }
 
     /**

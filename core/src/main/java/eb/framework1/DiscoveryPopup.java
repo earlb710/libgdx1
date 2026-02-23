@@ -75,13 +75,16 @@ class DiscoveryPopup {
     /**
      * Shows the popup for a newly discovered building.
      *
-     * @param buildingName   Name of the discovered building
-     * @param description    Building description (may be null or empty)
+     * @param buildingName     Name of the discovered building
+     * @param description      Building description from the definition (may be null/empty)
+     * @param novelText        Context-sensitive novel-engine text (may be null/empty)
      * @param improvementLines Formatted names of auto-discovered improvements
      */
-    void show(String buildingName, String description, List<String> improvementLines) {
+    void show(String buildingName, String description, String novelText,
+              List<String> improvementLines) {
         this.buildingName = buildingName;
         this.description  = (description != null && !description.isEmpty()) ? description : null;
+        this.novelText    = (novelText   != null && !novelText.isEmpty())   ? novelText   : null;
         this.improvementLines.clear();
         this.improvementLines.addAll(improvementLines);
         this.scrollY  = 0f;
@@ -141,10 +144,13 @@ class DiscoveryPopup {
         glyph.setText(font, titleText);
         float titleW = glyph.width;
 
-        // --- Collect scrollable lines: description + improvements ---
+        // --- Collect scrollable lines: description + novel text + improvements ---
         List<String> scrollLines = new ArrayList<>();
         if (description != null) {
             scrollLines.add(description);
+        }
+        if (novelText != null) {
+            scrollLines.add(novelText);
         }
         if (!improvementLines.isEmpty()) {
             scrollLines.add("Improvements found:");
@@ -228,9 +234,10 @@ class DiscoveryPopup {
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
         ty -= fontLineH;
 
-        // Content lines
-        smallFont.setColor(Color.WHITE);
+        // Content lines (novel text in light-blue, everything else white)
         for (String line : scrollLines) {
+            boolean isNovel = line.equals(novelText);
+            smallFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
             glyph.setText(smallFont, line);
             smallFont.draw(batch, line, dialogX + PAD, ty);
             ty -= smallLineH;
