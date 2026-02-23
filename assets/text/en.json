@@ -1386,6 +1386,13 @@
         "male": "Cash leaves no trail. Which is precisely why the trail starts here.",
         "female": "The timestamp on the last transaction is three minutes before the incident. You photograph the screen."
       }
+    },
+    "ATM Lobby": {
+      "default": "A glass box of transaction records and overhead cameras. Everything in here is evidence of something.",
+      "gender": {
+        "male": "You stand at the machine long enough to read the reflection in the screen. Someone followed you in.",
+        "female": "Small space, good lighting, three cameras. You use all of that before you make your move."
+      }
     }
   }
 }
