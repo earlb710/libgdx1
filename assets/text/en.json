@@ -4893,6 +4893,146 @@
         "male": "The quiet reading room is exactly what it claims to be. You sit down, open your notepad, and let the silence do the work.",
         "female": "You find a corner in the quiet reading room and review your notes. The stillness helps. So does the person two tables over who keeps looking at you."
       }
+    },
+    "RV Parking": {
+      "default": "A lot large enough for the mobile life. RV parking draws people who want to stay close without staying put. That kind of flexibility interests you.",
+      "gender": {
+        "male": "You walk the RV lot. Three rigs that haven't moved in a week. The plates on one of them don't match its registration.",
+        "female": "You check the RV parking permits. One was issued under an expired license. You run the name and wait."
+      }
+    },
+    "Rabbi's Office": {
+      "default": "A room of counsel, scholarship, and the weight of community. The rabbi has heard a great deal. You ask carefully.",
+      "gender": {
+        "male": "You sit across from the rabbi in a room lined with books. You ask your question plainly. You get an answer that asks you to think harder.",
+        "female": "The rabbi's office is warm and considered. You explain your purpose. She listens completely before she responds."
+      }
+    },
+    "Racking": {
+      "default": "Industrial shelving built for weight and volume. The racking system holds what the business runs on. And sometimes what it hides.",
+      "gender": {
+        "male": "You walk the racking rows with a clipboard. Everything here has a bin location. Except the pallet that shouldn't be on aisle seven.",
+        "female": "The racking is dense and organized. You follow the discrepancy in the inventory count to the back corner of aisle twelve."
+      }
+    },
+    "Raised Floor": {
+      "default": "A modular floor concealing cables and infrastructure. The raised floor hides the city's data on its way to somewhere else.",
+      "gender": {
+        "male": "You pull up a section of raised floor. The cabling down here runs somewhere that doesn't appear on any building schematic.",
+        "female": "The raised floor panels are heavy. You pull one anyway. The cable routing below tells you about a connection that wasn't in the disclosure documents."
+      }
+    },
+    "Raw Material Storage": {
+      "default": "The beginning of a production chain \u2014 unprocessed, unaccounted for, and occasionally the origin of very large problems.",
+      "gender": {
+        "male": "You check the raw material intake logs. The load that came in Tuesday didn't match the manifest. Somebody signed off on it anyway.",
+        "female": "The raw material storage is logged by weight and unit. The discrepancy you found is eight hundred pounds. That's not a clerical error."
+      }
+    },
+    "Reception": {
+      "default": "The first face of any operation. The reception desk sees everyone who enters \u2014 and remembers more than the visitor log reflects.",
+      "gender": {
+        "male": "You stop at reception. The person behind the desk is already assessing you. You let them. Then you ask your question.",
+        "female": "The receptionist has a practiced neutral expression. You've learned to read past practiced. You ask about Thursday at four."
+      }
+    },
+    "Reception Area": {
+      "default": "A waiting room that manages first impressions. The furniture is comfortable enough to make you think you belong. You note who else is waiting and why.",
+      "gender": {
+        "male": "You take a seat in the reception area and watch. In five minutes, you've built a working theory from the people around you.",
+        "female": "You sit in the reception area with your phone out and your attention on the room. The person across from you is waiting for someone they're afraid of."
+      }
+    },
+    "Reception Desk": {
+      "default": "A counter between the public and the private. The person behind it is the building's first line of defense \u2014 and your first source of information.",
+      "gender": {
+        "male": "You approach the reception desk and show your badge. The attendant's expression shifts. You ask before they can compose themselves.",
+        "female": "The reception desk is the building's front intelligence post. You know how to make a receptionist an ally. You start now."
+      }
+    },
+    "Recliner Seats": {
+      "default": "Premium seating designed for deep comfort. People in recliners talk freely. They forget they're in public. That's useful.",
+      "gender": {
+        "male": "You take a recliner seat near the back. The angle of it gives you a clean view of the entire section.",
+        "female": "You settle into a recliner seat and wait. Comfortable anonymity is one of your better tools."
+      }
+    },
+    "Records Office": {
+      "default": "The institutional memory of any organization. The records office is where the history lives \u2014 and where people go when they want to rewrite it.",
+      "gender": {
+        "male": "You present your warrant at the records office. The clerk pulls files with the speed of someone who has been expecting this request.",
+        "female": "The records office is orderly and purposeful. You know exactly which file you need. You also know three have been removed recently."
+      }
+    },
+    "Records Room": {
+      "default": "Filing cabinets and document boxes stretching back years. What gets kept in a records room is a choice. So is what gets removed.",
+      "gender": {
+        "male": "You move through the records room methodically. The file you need is here. You can tell by the gap where it used to be.",
+        "female": "The records room smells like archived paper and institutional caution. You find the folder you're looking for empty. You expected that."
+      }
+    },
+    "Records Storage": {
+      "default": "A secure off-site or facility-level archive. The things stored here were put here because someone wanted them to stay out of reach.",
+      "gender": {
+        "male": "Records storage. Locked, climate-controlled, and currently very interesting to you.",
+        "female": "You unlock the records storage room with the building manager's reluctant cooperation. Two boxes have been removed recently. You find the catalog."
+      }
+    },
+    "Records Vault": {
+      "default": "The most protected documents in the building are in here. The vault is built to survive a fire \u2014 and an inconvenient investigation.",
+      "gender": {
+        "male": "The records vault requires two keys and a court order. You have both. The administrator stares at the paperwork for a long time.",
+        "female": "You stand outside the records vault while the on-site attorney reviews your order. You've done this before. The vault always opens."
+      }
+    },
+    "Recovery Room": {
+      "default": "A room designed for emergence from difficulty \u2014 medical or otherwise. The recovery room is honest about what people have been through.",
+      "gender": {
+        "male": "You sit with the witness in the recovery room. They're still under, but you'll be here when they come around.",
+        "female": "The recovery room is quiet and monitored. You wait outside with your notepad and whatever patience you have left."
+      }
+    },
+    "Recycling Area": {
+      "default": "Bins and bales of material processed for reuse. The recycling area is where things go when their original purpose is finished. Sometimes prematurely.",
+      "gender": {
+        "male": "You check the recycling area. Someone put documents in here that didn't make it to the shredder first. You pull them out.",
+        "female": "The recycling bins contain more than expected. You photograph the contents before the collection comes."
+      }
+    },
+    "Recycling Center": {
+      "default": "Industrial-scale material processing. The recycling center is where things become something else. Including evidence, if you're not fast enough.",
+      "gender": {
+        "male": "You arrive at the recycling center an hour before the sorter runs. Whatever was dropped off last night is still separable.",
+        "female": "The recycling center supervisor gives you ten minutes before the next processing cycle. You use eight of them."
+      }
+    },
+    "Reference Desk": {
+      "default": "The librarian's post of knowledge and direction. The reference desk has answered questions no search engine was ever asked.",
+      "gender": {
+        "male": "You approach the reference desk. The librarian is already looking something up for three other people. You join the queue.",
+        "female": "The reference librarian has fielded every kind of question this city has produced. You add yours to the list."
+      }
+    },
+    "Refrigerated Meds": {
+      "default": "Cold storage for temperature-sensitive pharmaceuticals. What's kept cold is kept carefully. The log is precise. You check it for imprecision.",
+      "gender": {
+        "male": "You check the refrigerated medication cabinet. Temperature logs, access logs, everything current. Except the last entry, which was manually overwritten.",
+        "female": "The refrigerated meds are double-locked and double-logged. You find the discrepancy in the second log. Someone hoped nobody would cross-reference them."
+      }
+    },
+    "Refrigeration": {
+      "default": "Cold storage infrastructure keeping perishables within margin. What's in a refrigeration unit and when it was last touched tells a story.",
+      "gender": {
+        "male": "You open the refrigeration unit. The manifest says it holds product. What you're looking at says otherwise.",
+        "female": "The refrigeration system hums steadily. You check the temperature log. Something was in here recently that required more cold than standard product."
+      }
+    },
+    "Religious School": {
+      "default": "A school built inside a faith community, teaching curriculum and tradition in the same breath. The schedule here is consistent. Until it wasn't.",
+      "gender": {
+        "male": "You speak to the school director. Attendance is logged closely here. Your subject stopped coming to class twelve days ago.",
+        "female": "The religious school has records going back years. You ask about the last month. The director sets down her coffee before answering."
+      }
     }
   }
 }
