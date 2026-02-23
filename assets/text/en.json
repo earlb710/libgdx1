@@ -1953,6 +1953,146 @@
         "male": "You walk the route in reverse. The return path is where the diversions happen.",
         "female": "You speak to the postal carrier at the end of their shift. End of shift is when people say what they actually saw."
       }
+    },
+    "Cart Corral": {
+      "default": "Metal and rubber and the minimum effort of people who almost put their carts back. One of those carts was in a different location last night.",
+      "gender": {
+        "male": "You check the corral at the far end of the lot. The one nobody uses unless they have a reason.",
+        "female": "You note which corral is closest to the service entrance. Proximity to access points is rarely accidental."
+      }
+    },
+    "Cast Room": {
+      "default": "Plaster and patience and the documentation of exactly how someone's body broke. The fracture pattern tells a story.",
+      "gender": {
+        "male": "You ask the technician about the pattern. The hesitation before they answer is the answer.",
+        "female": "You review the intake form under the guise of checking the chart. The mechanism of injury column has been left vague."
+      }
+    },
+    "Cat Ward": {
+      "default": "Feline patients and the veterinary staff who manage them. Animals don't intimidate and neither does the room. It yields information quickly.",
+      "gender": {
+        "male": "You ask about the cat brought in on Tuesday. The vet checks the log before they answer. Interesting.",
+        "female": "You speak to the vet tech and ask about overnight admissions. One of them doesn't have a legitimate owner."
+      }
+    },
+    "Cellar Storage": {
+      "default": "Below the floor and below suspicion. Cellars hold what the residents don't want on display.",
+      "gender": {
+        "male": "You take the stairs down with a torch you brought yourself. The building's torch has been moved.",
+        "female": "You note the smell before you note anything else. Temperature-controlled storage has a specific smell. This isn't it."
+      }
+    },
+    "Change Machine": {
+      "default": "Coins dispensed in exchange for paper. Untraceable tender for the person who prefers their transactions off the ledger.",
+      "gender": {
+        "male": "You feed in a note and count what comes back. Someone's been using this machine in quantities that don't match laundry.",
+        "female": "You check the float indicator on the side. The machine was restocked very recently. The manager will know why."
+      }
+    },
+    "Chapel": {
+      "default": "A quiet room in a building that rarely gets quiet. People come here when they have something they can't say anywhere else.",
+      "gender": {
+        "male": "You sit in the back pew and let the room settle. It tells you things before anyone speaks.",
+        "female": "You light a candle you didn't come here to light and wait. Someone comes in shortly after."
+      }
+    },
+    "Charging Stations": {
+      "default": "Tethered devices and the people who can't leave without them. A charging station is a twenty-minute dwell point. That's long enough.",
+      "gender": {
+        "male": "You plug in and stay put. A man charging his phone is the most unthreatening thing in any public space.",
+        "female": "You take the station beside the one in use and ask if it's working. The person plugged in tells you more than they intended."
+      }
+    },
+    "Check-In Kiosk": {
+      "default": "Self-service intake that logs every transaction and asks no questions. The questions were already answered before you arrived.",
+      "gender": {
+        "male": "You use the kiosk and watch what the screen holds before it resets. It holds quite a bit.",
+        "female": "You check in and note the last name still showing on the confirmation screen. That name is useful."
+      }
+    },
+    "Chef's Garden": {
+      "default": "Herbs and fresh produce and the particular pride of a kitchen that grows what it serves. Someone in this garden knows the schedule of everyone who works here.",
+      "gender": {
+        "male": "You find the head gardener at six a.m. and ask a question they weren't expecting before breakfast.",
+        "female": "You admire the garden with genuine interest. The chef comes out personally. Chefs talk when they're proud."
+      }
+    },
+    "Chef's Table": {
+      "default": "The best seat in the house and the most exposed. Everyone at the chef's table is being watched as much as they're watching.",
+      "gender": {
+        "male": "You request the table and spend the meal reading every person who passes through the kitchen door.",
+        "female": "You're seated and immediately in conversation with the chef. An hour later you know the guest list for the private event three days ago."
+      }
+    },
+    "Child Care": {
+      "default": "Small children and the staff who keep them contained and happy. The adults in this room notice everything.",
+      "gender": {
+        "male": "You visit under the guise of an inspection. The staff are thorough about credentials. You have the right ones.",
+        "female": "You arrive at drop-off time and observe who doesn't collect at pick-up."
+      }
+    },
+    "Children's Area": {
+      "default": "Bright colours and small voices and parents who aren't watching each other. You are.",
+      "gender": {
+        "male": "You take the parent bench and look like you're watching your kid. You're watching the room.",
+        "female": "You help a child find a book they're looking for. The parent thanks you and starts talking."
+      }
+    },
+    "Children's Playroom": {
+      "default": "Supervised play in a building where the adults believe they're fully in control. They're not.",
+      "gender": {
+        "male": "You wait outside the door. The who-comes-and-goes at a playroom is more interesting than what's inside.",
+        "female": "You volunteer briefly with the activity. Volunteerism opens doors that credentials don't."
+      }
+    },
+    "Children's Room": {
+      "default": "A room that holds secrets the occupant can't articulate. You speak the language anyway.",
+      "gender": {
+        "male": "You read the space with professional detachment. The arrangement tells a story about the adults in the house.",
+        "female": "You sit at the small table and ask questions a child can answer. The answers are more complete than the adults would provide."
+      }
+    },
+    "Choir Room": {
+      "default": "Acoustics built for projection and the kind of conversation that carries further than people expect.",
+      "gender": {
+        "male": "You stand in the corridor outside. Everything said in that room arrives at the door.",
+        "female": "You join the practice on the pretext of an enquiry and stay for the part of the conversation that happens after."
+      }
+    },
+    "Cigar Lounge": {
+      "default": "Slow smoke and slower discretion. The people in this room have decided the rules don't apply to them. That's a useful assumption to let them keep.",
+      "gender": {
+        "male": "You accept the offered cigar and the conversation that comes with it. Both burn a long time.",
+        "female": "Your presence in a cigar lounge shifts the dynamic before you've said a word. You use the shift."
+      }
+    },
+    "City Manager": {
+      "default": "The person who actually runs the city while the elected officials perform running it. The real power, the real files, the real answers.",
+      "gender": {
+        "male": "You get five minutes by implying you're from oversight. Five minutes is all you need.",
+        "female": "You bypass the aide and speak directly. The city manager recognises that move and responds to it."
+      }
+    },
+    "Classroom": {
+      "default": "Four walls of controlled information and the children who receive it. Something in this room's been disrupted and it wasn't the curriculum.",
+      "gender": {
+        "male": "You speak to the teacher after hours when the room is empty and the guard is down.",
+        "female": "You sit in on the session as an observer. Teachers teach differently when someone's watching. The difference is informative."
+      }
+    },
+    "Classrooms": {
+      "default": "Multiple rooms, multiple sessions, multiple things happening simultaneously that nobody's keeping a full account of.",
+      "gender": {
+        "male": "You check which rooms are occupied and which aren't when they should be.",
+        "female": "You walk the corridor during change-over and note which classroom has the door closed when every other one is open."
+      }
+    },
+    "Clerk's Office": {
+      "default": "The official record of official transactions. Buried in the paperwork is the transaction that wasn't meant to be official.",
+      "gender": {
+        "male": "You request a specific filing date. The clerk checks and you read what's adjacent to what they're showing you.",
+        "female": "You ask for a certified copy. While the clerk prepares it, you note the other documents on the desk."
+      }
     }
   }
 }
