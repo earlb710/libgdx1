@@ -3913,6 +3913,146 @@
         "male": "You keep your voice low in the maternity ward. Whatever you're investigating, it doesn't belong in a room where people are just starting.",
         "female": "The maternity ward is quiet except for the small, insistent sounds of new life. You do your job and get out fast. Some places deserve peace."
       }
+    },
+    "Mayor Office": {
+      "default": "The mayor's office. Power, public trust, and plenty of reasons to wonder which one is real.",
+      "gender": {
+        "male": "You've been in the mayor's office before. The handshakes are warm, the eyes are cold, and the agenda is always somewhere else.",
+        "female": "You enter the mayor's office with your badge and your patience. Politicians wear their smiles like armor. You know how to get past it."
+      }
+    },
+    "Meat Department": {
+      "default": "Cold cases and hanging cuts. The department operates under bright lights and sharp knives. You feel at home.",
+      "gender": {
+        "male": "The meat department is cold and blunt. No frills. You respect that.",
+        "female": "You pass through the meat department quickly. The chill is real, the lighting is harsh, and the workers have seen sharper things than you."
+      }
+    },
+    "Media Booth": {
+      "default": "A glass box of lenses and broadcasting equipment. Whoever sits in there controls what the public sees. That's a dangerous power.",
+      "gender": {
+        "male": "You glance up at the media booth. The camera never lies \u2014 but the person controlling it decides what it points at.",
+        "female": "The media booth looks down on everything. You make a mental note: everything said within range of those microphones is on record."
+      }
+    },
+    "Mediation Rooms": {
+      "default": "Rooms designed for compromise. You've seen what happens when compromise fails. That's usually when you get called in.",
+      "gender": {
+        "male": "The mediation rooms are quiet and neutral. Don't let that fool you \u2014 the silence in here has broken people.",
+        "female": "You step into the mediation room. Disputes walked in here and left as settlements. Or grievances. Sometimes both."
+      }
+    },
+    "Medical Clinic": {
+      "default": "A clinic humming with hurried purpose. People come here with pain and leave with answers \u2014 or more questions.",
+      "gender": {
+        "male": "You've visited enough medical clinics to know: the waiting room tells you more than the diagnosis ever will.",
+        "female": "The clinic smells of antiseptic and anxiety. You read the faces in the waiting area. One of them isn't here for their health."
+      }
+    },
+    "Medical Office": {
+      "default": "A doctor's office \u2014 certificates on the wall, files locked away, and a degree in keeping secrets that the diploma never mentions.",
+      "gender": {
+        "male": "You scan the medical office. Credentials displayed, patient files locked. You have a warrant and a reason.",
+        "female": "The medical office is organized and guarded. Getting information out of a doctor takes patience and a subpoena. You have both."
+      }
+    },
+    "Medical Records": {
+      "default": "A room full of what people never wanted to tell their doctors but eventually had to. Every folder is a confession.",
+      "gender": {
+        "male": "Medical records \u2014 the truth written in clinical language. You read between the diagnoses.",
+        "female": "You approach the records desk. Every file in here is someone's private history. You only need one."
+      }
+    },
+    "Medical Room": {
+      "default": "A room prepared for emergencies. Clean, ready, and carrying the quiet weight of every person who has lain on that table.",
+      "gender": {
+        "male": "The medical room is ready for whatever comes next. So are you.",
+        "female": "You note the equipment in the medical room. Prepared for crisis. You've learned to live in that readiness."
+      }
+    },
+    "Medical Storage": {
+      "default": "Shelves of supplies under lock and key. What's stored here can heal or harm depending on the hands that reach for it.",
+      "gender": {
+        "male": "Medical storage \u2014 controlled, catalogued, and occasionally a motive.",
+        "female": "You check the lock on the storage cabinet. Everything in here is accounted for. Something always gets unaccounted for eventually."
+      }
+    },
+    "Medication Storage": {
+      "default": "A secure room of compounds and controlled substances. The inventory is tight. It has to be \u2014 because the demand never stops.",
+      "gender": {
+        "male": "You stand in the medication storage room. A lot of people would risk a lot to get their hands on what's in these cabinets.",
+        "female": "Every vial and bottle is logged. You check the log. A detective knows that the gap between what's recorded and what's present is where crime lives."
+      }
+    },
+    "Meet-Me Room": {
+      "default": "A small room of cables and cross-connects. The place where networks talk to each other. Everything digital passes through here eventually.",
+      "gender": {
+        "male": "The meet-me room smells like routers and cold air. Data moves through here in the dark, the way things always do.",
+        "female": "You stand in the meet-me room. If you could read network traffic the way you read people, this room would tell you everything."
+      }
+    },
+    "Meeting Room": {
+      "default": "Four walls, a table, and whatever version of truth people decide to bring with them.",
+      "gender": {
+        "male": "You've sat on both sides of a meeting room table. Today you're running the meeting.",
+        "female": "The meeting room is set for a conversation that nobody in it wants to have. That's the kind you're best at."
+      }
+    },
+    "Meeting Rooms": {
+      "default": "A cluster of conference rooms where decisions are made, deals are struck, and cover stories are rehearsed.",
+      "gender": {
+        "male": "Meeting rooms \u2014 the city's busiest theater. Every door hides a different performance.",
+        "female": "You walk past the meeting rooms. Murmured conversations, closed blinds. You make note of which rooms are in use."
+      }
+    },
+    "Meeting Space": {
+      "default": "A blank canvas of chairs and whiteboards. It becomes whatever the people who use it need it to be. Including a problem.",
+      "gender": {
+        "male": "The meeting space is neutral ground. You've negotiated in worse places.",
+        "female": "You survey the meeting space. Whoever reserved this room left behind more than they intended to."
+      }
+    },
+    "Meeting Suites": {
+      "default": "Upscale conference rooms with catering and privacy glass. The premium option for conversations people really don't want overheard.",
+      "gender": {
+        "male": "The meeting suites are designed for discretion. You've learned that premium privacy usually means premium secrets.",
+        "female": "You check the booking log for the suites. Whoever met here paid extra not to be seen. You'll find out why."
+      }
+    },
+    "Memorial Garden": {
+      "default": "A quiet corner of stone and names. The city remembers here, if nowhere else. You pause longer than you should.",
+      "gender": {
+        "male": "You read the names on the memorial stones. Some of them you knew. The job takes a toll you don't talk about.",
+        "female": "The memorial garden is the quietest place in this building. You stand in it a moment and let yourself feel the weight."
+      }
+    },
+    "Memory Care Unit": {
+      "default": "A ward where time has become unreliable. The patients are honest in ways they don't know. You listen carefully.",
+      "gender": {
+        "male": "You walk slowly through the memory care unit. Whatever they forgot, you're here to remember for them.",
+        "female": "The unit is gentle and careful. You match its pace. Sometimes the best witness is the one everyone dismissed."
+      }
+    },
+    "Merchandise Display": {
+      "default": "Arranged products and calculated lighting designed to make you want things. You want answers. Neither is on these shelves.",
+      "gender": {
+        "male": "You move past the merchandise displays. Everything's staged for effect. So are you.",
+        "female": "The merchandise is neatly arranged and carefully lit. You see past presentation. You always have."
+      }
+    },
+    "Mezzanine": {
+      "default": "A level between levels \u2014 the vantage point that nobody thinks to look at. You always look at the mezzanine.",
+      "gender": {
+        "male": "You step onto the mezzanine and survey everything below. Height is clarity. You've lived by that.",
+        "female": "The mezzanine gives you sight lines nobody downstairs realizes you have. You use them."
+      }
+    },
+    "Microwave Rooms": {
+      "default": "Shared appliances, communal lunches, overheard grievances. The break room of building infrastructure. People talk here.",
+      "gender": {
+        "male": "The microwave rooms \u2014 where office politics simmer alongside reheated leftovers.",
+        "female": "You pass through the microwave room. Someone left a note on the machine. Someone else crossed it out. Small wars everywhere."
+      }
     }
   }
 }
