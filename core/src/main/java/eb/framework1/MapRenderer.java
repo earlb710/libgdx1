@@ -255,6 +255,7 @@ class MapRenderer {
         // Coordinate labels (when zoomed in)
         if (s.zoomLevel >= 2.0f) {
             batch.begin();
+            smallFont.setColor(Color.WHITE);
             smallFont.getData().setScale(0.7f);
             for (int cx = startCellX; cx < endCellX; cx++) {
                 for (int cy = startCellY; cy < endCellY; cy++) {
