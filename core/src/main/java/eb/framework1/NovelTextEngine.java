@@ -109,17 +109,6 @@ public class NovelTextEngine {
     private final Map<String, List<DescriptionEntry>> improvements;
 
     /**
-     * Constructs the engine from pre-built maps of single description entries and improvement
-     * entries.  Each entry is wrapped in a one-element list; intended for unit testing.
-     *
-     * @param entries      Map of building description key → {@link DescriptionEntry}
-     * @param improvements Map of improvement name → {@link DescriptionEntry}
-     */
-    NovelTextEngine(Map<String, DescriptionEntry> entries, Map<String, DescriptionEntry> improvements) {
-        this(wrapInLists(entries), wrapInLists(improvements));
-    }
-
-    /**
      * Constructs the engine from pre-built maps of variant lists.
      * Intended for unit testing or programmatic construction.
      *
@@ -134,17 +123,6 @@ public class NovelTextEngine {
         this.improvements = improvements != null
                 ? Collections.unmodifiableMap(new HashMap<>(improvements))
                 : Collections.<String, List<DescriptionEntry>>emptyMap();
-    }
-
-    /** Wraps each single entry in a singleton list. */
-    private static Map<String, List<DescriptionEntry>> wrapInLists(
-            Map<String, DescriptionEntry> map) {
-        if (map == null) return Collections.emptyMap();
-        Map<String, List<DescriptionEntry>> result = new HashMap<>();
-        for (Map.Entry<String, DescriptionEntry> e : map.entrySet()) {
-            result.put(e.getKey(), Collections.singletonList(e.getValue()));
-        }
-        return result;
     }
 
     /**
