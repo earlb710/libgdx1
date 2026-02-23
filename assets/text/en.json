@@ -2793,6 +2793,146 @@
         "male": "You get the suite number from the concierge and arrive at exactly the right moment.",
         "female": "You enter with the composure of someone who was expected. Nobody corrects that assumption."
       }
+    },
+    "Entertainment Zone": {
+      "default": "An area dedicated to distraction. The louder and more distracting the zone, the better the cover for what's happening on the edges of it.",
+      "gender": {
+        "male": "You position yourself at the boundary of the zone. What comes in and goes out matters more than what happens inside.",
+        "female": "You move through it with purpose. Purposeful movement in a distraction zone makes you effectively invisible."
+      }
+    },
+    "Equipment Storage": {
+      "default": "Everything the building uses to function, locked away and catalogued. One item on the shelf isn't on the catalogue.",
+      "gender": {
+        "male": "You check the cage inventory against the issue log. The discrepancy is two items and it's not a counting error.",
+        "female": "You ask the stores manager about the last non-standard draw. They tell you the date without needing to check."
+      }
+    },
+    "Escalators": {
+      "default": "Moving between floors in public view. Nobody watching escalators is watching carefully. You are the exception.",
+      "gender": {
+        "male": "You ride up and study everyone coming down. The escalator is a controlled sight line. Use it.",
+        "female": "You stop at the base and look up. The angle from the bottom of the escalator shows you the entire next floor."
+      }
+    },
+    "Escape Room": {
+      "default": "A puzzle designed with the solution already known. You've been working rooms where nobody knew the solution for years.",
+      "gender": {
+        "male": "You solve it in eighteen minutes and use the remaining time to study the monitoring setup.",
+        "female": "You let the group lead and observe what each person does when they feel stuck. Pressure reveals method."
+      }
+    },
+    "Espresso Machine": {
+      "default": "High-pressure extraction and the ritual of a drink that takes two minutes to make and generates ten minutes of standing around. Useful.",
+      "gender": {
+        "male": "You make your shot and stay by the machine. Everyone comes to the machine eventually.",
+        "female": "You offer to make one for someone nearby. The offer generates a conversation that the coffee extends."
+      }
+    },
+    "Event Control Center": {
+      "default": "The operational brain behind anything with a crowd. Every camera feed, every radio channel, every incident comes through here.",
+      "gender": {
+        "male": "You enter with the bearing of a duty supervisor. Nobody questions that in a room running on adrenaline.",
+        "female": "You identify the senior controller and speak directly to them. Senior controllers respond to brevity and precision. You have both."
+      }
+    },
+    "Event Space": {
+      "default": "Neutral ground built for occasions. What occasion was held here recently that nobody put on the public calendar?",
+      "gender": {
+        "male": "You check the booking register under a facilities query. The event three nights ago has a different name in the system than the one you were told.",
+        "female": "You speak to the venue coordinator about catering logistics. Catering details include guest counts and specific names."
+      }
+    },
+    "Evidence Room": {
+      "default": "Chain of custody and the locked record of every case the building has touched. Something in here shouldn't be here, or something that should be here isn't.",
+      "gender": {
+        "male": "You review the access log. Three sign-outs in forty-eight hours for a case that's been closed for six months.",
+        "female": "You request a specific exhibit from the log. The supervisor checks and comes back with a different item number. That's the discrepancy."
+      }
+    },
+    "Exam Rooms": {
+      "default": "Clinical space and clinical conversation. The examination is where the body tells the truth whether the patient intends it to or not.",
+      "gender": {
+        "male": "You check which rooms were occupied during the relevant window. Three were booked. One wasn't in the appointment system.",
+        "female": "You speak to the charge nurse about the intake from Tuesday evening. The nurse consults the chart and the expression changes."
+      }
+    },
+    "Executive Floors": {
+      "default": "The building above the building. Where decisions happen that the floors below implement without knowing the full picture.",
+      "gender": {
+        "male": "You badge through to the executive floor with the confidence of a man who's been there before. You haven't. Doesn't matter.",
+        "female": "You take the executive elevator with a folder under your arm and a destination that doesn't include the lobby."
+      }
+    },
+    "Executive Lounge": {
+      "default": "Premium comfort and the honest conversation of people who've decided the rules don't apply to them in a room like this.",
+      "gender": {
+        "male": "You take the armchair in the corner and project the ease of someone who belongs. The room accepts the projection.",
+        "female": "You're approached within four minutes. The room assumes you're there for a specific reason. You are, just not the one they're imagining."
+      }
+    },
+    "Executive Suite": {
+      "default": "The room at the top. Whoever occupies this suite makes decisions that affect everyone below. You want access to the decision record.",
+      "gender": {
+        "male": "You arrive with a scheduled conflict that requires the suite to be cleared. It clears.",
+        "female": "You're sent up with a message that doesn't require a response. You take thirty seconds of the suite's information before you leave."
+      }
+    },
+    "Family Restrooms": {
+      "default": "Private, single-occupancy, and equipped for more than the standard transaction. These rooms serve purposes their designers didn't intend.",
+      "gender": {
+        "male": "You note which family restroom has an occupied indicator that hasn't changed in twenty minutes. Interesting.",
+        "female": "You check the log for the accessible unit. It was occupied for forty minutes during the relevant window. There are no children registered in the facility."
+      }
+    },
+    "Family Visiting Room": {
+      "default": "A space designed to make difficult meetings bearable. Whatever was said in this room under those conditions mattered more than anything said elsewhere.",
+      "gender": {
+        "male": "You review the visitation log for the week. One visit wasn't entered until the following day.",
+        "female": "You speak to the coordinator about the visiting protocol. The deviation from that protocol is what you're following."
+      }
+    },
+    "Fellowship Hall": {
+      "default": "The community's social infrastructure. Everything the building means to the people who use it gets expressed in this hall.",
+      "gender": {
+        "male": "You arrive at the end of a gathering and stay while people are leaving. The conversation in the last ten minutes of any meeting is the real meeting.",
+        "female": "You volunteer to help with the setup. People who set up the hall know everything about what happened at the last one."
+      }
+    },
+    "Finance Department": {
+      "default": "Numbers that tell the building's true story. The finance department has the real version of every official account.",
+      "gender": {
+        "male": "You request a reconciliation report on a specific cost centre. The CFO's office sends someone down who wasn't supposed to get involved.",
+        "female": "You ask the finance officer about a line-item anomaly. The officer explains it and in the explanation creates a new problem for their employer."
+      }
+    },
+    "Finance Office": {
+      "default": "The ledger room. Where the building's financial decisions get recorded and the creative accounting lives between the entries.",
+      "gender": {
+        "male": "You present an audit query under a letterhead that carries weight. The office opens the books.",
+        "female": "You ask about a specific payment authorisation. The office manager pulls the file and the authorisation signature is someone who shouldn't have had that access."
+      }
+    },
+    "Financial Aid": {
+      "default": "Applications and assessments and the intimate financial disclosure of people trying to get ahead. One of those files has a different kind of value.",
+      "gender": {
+        "male": "You request information about the institutional process. The process description includes a specific workflow gap.",
+        "female": "You present yourself as a case reviewer. Financial aid offices respond to reviewers because reviewers can close the funding."
+      }
+    },
+    "Fine Dining": {
+      "default": "The most expensive cover story available. In fine dining, every transaction is noted and every guest is remembered.",
+      "gender": {
+        "male": "You dine slowly and let the sommelier fill the evening's gaps with conversation.",
+        "female": "You're seated at the best table without requesting it. The sommelier decides you're worth the attention. So do you."
+      }
+    },
+    "Finished Goods Area": {
+      "default": "Product ready to ship. This is where what the factory made becomes what the invoice claims. The discrepancy between the two is your case.",
+      "gender": {
+        "male": "You count the pallets and compare against the production log. The count is low by exactly enough to be non-accidental.",
+        "female": "You photograph the lot numbers on the finished goods and cross-reference them against the shipping manifest. Three lots have no destination."
+      }
     }
   }
 }
