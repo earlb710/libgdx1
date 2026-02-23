@@ -306,23 +306,21 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_weightCapacity_equalsBodyWeightPlusStrength() {
         Profile p = new Profile("Dave", "Male", "Normal");
-        // Set body measurements so BMI = 80/(1.75²) ≈ 26.1 → overweight → bmiMod=+1
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 80);
+        // muscle=40, fat=40 → mfMod = 40/10 - 40/10 = 0; totalWeight=80
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
-        // capacity = 80/10 + 5 + 1 = 14.0
-        assertEquals(14f, p.getWeightCapacity(), 0.01f);
+        // capacity = (40+40)/10 + 5 + 0 = 8 + 5 = 13.0
+        assertEquals(13f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
     public void profile_weightCapacity_minimumOne() {
         Profile p = new Profile("Eve", "Female", "Normal");
-        // Underweight person, minimal strength: 40 kg / (1.63m)² ≈ 15.1 → bmiMod=-1
-        // capacity = 40/10 + 0 + (-1) = 3.0 — above 1.0, no clamp needed at this size
-        // For actual clamp test: 10 kg / (1.63m)² ≈ 3.76 → underweight → bmiMod=-1
-        // capacity = 10/10 + 0 + (-1) = 0 → clamped to 1.0
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 10);
+        // muscle=5, fat=5 → mfMod=0; totalWeight=10; strength=0
+        // capacity = 10/10 + 0 + 0 = 1.0 → exactly at clamp boundary
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
         assertEquals(1f, p.getWeightCapacity(), 0.001f);
     }
@@ -330,10 +328,9 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_whenUnderCapacity() {
         Profile p = new Profile("Frank", "Male", "Normal");
-        // Optimal BMI: 70 kg / (1.75m)² ≈ 22.9 → bmiMod=0; strength=5
-        // capacity = 70/10 + 5 + 0 = 12.0; carried = 0.9 kg pistol
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 70);
+        // muscle=40, fat=40 → mfMod=0; strength=5 → capacity = 8+5=13; carried=0.9
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
         assertFalse(p.isOverEncumbered());
     }
@@ -341,13 +338,11 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_overEncumbered_whenExceedsCapacity() {
         Profile p = new Profile("Grace", "Female", "Normal");
-        // Underweight BMI: 40 kg / (1.63m)² ≈ 15.1 → bmiMod=-1; strength=1
-        // capacity = 40/10 + 1 + (-1) = 4.0; carried = 0.9 + 0.5 = 1.4 kg — NOT over
-        // Use extremely small body weight so capacity is tiny
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 10);  // very underweight → bmiMod=-1
-        p.setAttribute(CharacterAttribute.STRENGTH.name(), 1);
-        // capacity = 10/10 + 1 + (-1) = 1.0; Pistol(0.9) + Binoculars(0.5) = 1.4 > 1.0
+        // muscle=5, fat=5 → mfMod=0; strength=0; capacity=10/10+0+0=1.0
+        // Pistol(0.9) + Binoculars(0.5) = 1.4 > 1.0
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
         p.addUtilityItem(EquipItem.BINOCULARS);
         assertTrue(p.isOverEncumbered());
     }
@@ -355,9 +350,9 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_afterRemovingUtility() {
         Profile p = new Profile("Heidi", "Female", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 10);
-        p.setAttribute(CharacterAttribute.STRENGTH.name(), 1);
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
         // capacity = 1.0; Pistol(0.9)+Binoculars(0.5)=1.4 → over
         p.addUtilityItem(EquipItem.BINOCULARS);
         assertTrue(p.isOverEncumbered());
@@ -367,47 +362,50 @@ public class ProfileEquipmentTest {
     }
 
     // -------------------------------------------------------------------------
-    // BMI strength modifier
+    // Muscle/fat strength modifier
     // -------------------------------------------------------------------------
 
     @Test
-    public void bmi_underweight_givesMinusOne() {
+    public void muscleFat_equalBalance_givesZero() {
         Profile p = new Profile("Ike", "Male", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 55); // BMI ≈ 18.0 < 18.5
-        assertEquals(-1, p.getBmiStrengthModifier());
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
+        assertEquals(0, p.getMuscleFatStrengthModifier());
     }
 
     @Test
-    public void bmi_optimal_givesZero() {
+    public void muscleFat_moreMuscleThanFat_givesPositive() {
         Profile p = new Profile("Jana", "Female", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 55); // BMI ≈ 20.7
-        assertEquals(0, p.getBmiStrengthModifier());
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 50);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 30);
+        // 50/10 - 30/10 = 5 - 3 = +2
+        assertEquals(2, p.getMuscleFatStrengthModifier());
     }
 
     @Test
-    public void bmi_overweight_givesOne() {
+    public void muscleFat_moreFatThanMuscle_givesNegative() {
         Profile p = new Profile("Karl", "Male", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 80); // BMI ≈ 26.1
-        assertEquals(1, p.getBmiStrengthModifier());
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 20);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 50);
+        // 20/10 - 50/10 = 2 - 5 = -3
+        assertEquals(-3, p.getMuscleFatStrengthModifier());
     }
 
     @Test
-    public void bmi_obese_givesMinusOne() {
+    public void muscleFat_zero_givesZero() {
         Profile p = new Profile("Lena", "Female", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 90); // BMI ≈ 33.9
-        assertEquals(-1, p.getBmiStrengthModifier());
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 0);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
+        assertEquals(0, p.getMuscleFatStrengthModifier());
     }
 
     @Test
-    public void bmi_zeroHeight_givesZero() {
+    public void muscleFat_integerDivision_roundsDown() {
         Profile p = new Profile("Mia", "Female", "Normal");
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 0);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 60);
-        assertEquals(0, p.getBmiStrengthModifier());
+        // 15kg / 10 = 1, 25kg / 10 = 2 → 1 - 2 = -1
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 15);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 25);
+        assertEquals(-1, p.getMuscleFatStrengthModifier());
     }
 
     // -------------------------------------------------------------------------
@@ -415,38 +413,33 @@ public class ProfileEquipmentTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void heightAndWeightAttributes_exist_withCorrectMetadata() {
-        // Verify enum entries exist and have the correct display name / category
-        assertNotNull(CharacterAttribute.HEIGHT_CM);
-        assertNotNull(CharacterAttribute.BODY_WEIGHT_KG);
-        assertEquals("Height (cm)", CharacterAttribute.HEIGHT_CM.getDisplayName());
-        assertEquals("Weight (kg)", CharacterAttribute.BODY_WEIGHT_KG.getDisplayName());
-        assertEquals("Physical",    CharacterAttribute.HEIGHT_CM.getCategory());
-        assertEquals("Physical",    CharacterAttribute.BODY_WEIGHT_KG.getCategory());
+    public void muscleFatAttributes_exist_withCorrectMetadata() {
+        assertNotNull(CharacterAttribute.MUSCLE_KG);
+        assertNotNull(CharacterAttribute.FAT_KG);
+        assertEquals("Muscle (kg)", CharacterAttribute.MUSCLE_KG.getDisplayName());
+        assertEquals("Fat (kg)",    CharacterAttribute.FAT_KG.getDisplayName());
+        assertEquals("Physical",    CharacterAttribute.MUSCLE_KG.getCategory());
+        assertEquals("Physical",    CharacterAttribute.FAT_KG.getCategory());
     }
 
     @Test
-    public void genderDefaults_casAttributeScreen_maleIsTallerAndHeavier() {
-        // CharacterAttributeScreen sets gender-specific defaults; verify male > female
-        // Male defaults: 175 cm / 80 kg
-        // Female defaults: 163 cm / 65 kg
-        // We verify the constants directly via the screen's logic (no LibGDX needed)
-        // Male defaults
-        int maleHeight = 175, maleWeight = 80;
-        // Female defaults
-        int femaleHeight = 163, femaleWeight = 65;
-        assertTrue("Male should be taller than female", maleHeight > femaleHeight);
-        assertTrue("Male should be heavier than female", maleWeight > femaleWeight);
+    public void genderDefaults_casAttributeScreen_maleMoreMuscle() {
+        // Male defaults: 175 cm, 40 kg muscle, 40 kg fat
+        // Female defaults: 163 cm, 30 kg muscle, 35 kg fat
+        int maleMuscle = 40, femaleMuscle = 30;
+        int maleFat = 40, femaleFat = 35;
+        assertTrue("Male should have more muscle than female", maleMuscle > femaleMuscle);
+        assertTrue("Female total body weight should be less", (femaleMuscle + femaleFat) < (maleMuscle + maleFat));
     }
 
     @Test
-    public void weightCapacity_formula_bodyWeightPlusStrengthPlusBmi() {
+    public void weightCapacity_formula_totalWeightPlusStrengthPlusMuscleFatMod() {
         Profile p = new Profile("Olivia", "Female", "Normal");
-        // Optimal BMI: 55 kg / (1.63m)² ≈ 20.7 → bmiMod=0
-        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
-        p.setAttribute(CharacterAttribute.BODY_WEIGHT_KG.name(), 55);
+        // muscle=30, fat=30 → mfMod = 3-3 = 0; totalWeight=60; strength=3
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 30);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 30);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 3);
-        // capacity = 55/10 + 3 + 0 = 8.5
-        assertEquals(8.5f, p.getWeightCapacity(), 0.01f);
+        // capacity = 60/10 + 3 + 0 = 9.0
+        assertEquals(9f, p.getWeightCapacity(), 0.01f);
     }
 }

@@ -187,37 +187,20 @@ public class Profile {
     /** Divisor converting body weight (kg) to base carry capacity (kg). */
     private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 10f;
 
+    /** Kg of muscle or fat needed to shift STRENGTH by ±1 point. */
+    private static final int MUSCLE_FAT_STRENGTH_DIVISOR = 10;
+
     // -------------------------------------------------------------------------
 
     /**
-     * Returns the body-mass index (BMI) based on the character's
-     * {@link CharacterAttribute#HEIGHT_CM} and {@link CharacterAttribute#BODY_WEIGHT_KG}
-     * attributes.  Returns 0 if height is 0 (avoids division-by-zero).
+     * Returns a STRENGTH modifier based on the character's body composition:
+     * each {@value #MUSCLE_FAT_STRENGTH_DIVISOR} kg of muscle adds +1 STRENGTH;
+     * each {@value #MUSCLE_FAT_STRENGTH_DIVISOR} kg of fat subtracts 1 STRENGTH.
      */
-    public float getBmi() {
-        int heightCm = getAttribute(CharacterAttribute.HEIGHT_CM.name());
-        int weightKg = getAttribute(CharacterAttribute.BODY_WEIGHT_KG.name());
-        if (heightCm <= 0) return 0f;
-        float heightM = heightCm / 100f;
-        return weightKg / (heightM * heightM);
-    }
-
-    /**
-     * Returns a STRENGTH modifier derived from the character's BMI:
-     * <ul>
-     *   <li>BMI &lt; 18.5 (underweight) → −1</li>
-     *   <li>18.5 ≤ BMI &lt; 25 (optimal)   →  0</li>
-     *   <li>25 ≤ BMI &lt; 30 (overweight)  → +1</li>
-     *   <li>BMI ≥ 30 (obese)              → −1</li>
-     * </ul>
-     */
-    public int getBmiStrengthModifier() {
-        float bmi = getBmi();
-        if (bmi <= 0f)    return 0;
-        if (bmi < 18.5f)  return -1;
-        if (bmi < 25f)    return  0;
-        if (bmi < 30f)    return  1;
-        return -1; // obese
+    public int getMuscleFatStrengthModifier() {
+        int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
+        int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
+        return muscleKg / MUSCLE_FAT_STRENGTH_DIVISOR - fatKg / MUSCLE_FAT_STRENGTH_DIVISOR;
     }
 
     /**
@@ -237,18 +220,19 @@ public class Profile {
 
     /**
      * Returns the maximum weight (kg) this character can carry.
-     * <p>Formula: {@code bodyWeightKg / 10 + STRENGTH + bmiStrengthModifier}, minimum 1.0.
+     * <p>Formula: {@code (muscleKg + fatKg) / 10 + STRENGTH + muscleFatStrengthModifier}, minimum 1.0.
      * <ul>
-     *   <li>Base carry = body weight / 10 (heavier characters are naturally stronger)</li>
+     *   <li>Base carry = total body weight / 10</li>
      *   <li>+ STRENGTH attribute</li>
-     *   <li>+ BMI modifier (underweight or obese −1; overweight +1; optimal 0)</li>
+     *   <li>+ muscle/fat modifier (muscle adds, fat subtracts)</li>
      * </ul>
      */
     public float getWeightCapacity() {
-        int bodyWeightKg = getAttribute(CharacterAttribute.BODY_WEIGHT_KG.name());
-        int strength     = getAttribute(CharacterAttribute.STRENGTH.name());
-        int bmiMod       = getBmiStrengthModifier();
-        return Math.max(1f, bodyWeightKg / BODY_WEIGHT_CAPACITY_DIVISOR + strength + bmiMod);
+        int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
+        int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
+        int strength = getAttribute(CharacterAttribute.STRENGTH.name());
+        int mfMod    = getMuscleFatStrengthModifier();
+        return Math.max(1f, (muscleKg + fatKg) / BODY_WEIGHT_CAPACITY_DIVISOR + strength + mfMod);
     }
 
     /**

@@ -12,7 +12,8 @@ public enum CharacterAttribute {
     STAMINA("Stamina", "Physical", "Long stakeouts, extended investigations, chasing, running"),
     STRENGTH("Strength", "Physical", "Physical confrontations, moving obstacles, carrying stuff"),
     HEIGHT_CM("Height (cm)", "Physical", "Character's height in centimetres"),
-    BODY_WEIGHT_KG("Weight (kg)", "Physical", "Character's body weight in kilograms"),
+    MUSCLE_KG("Muscle (kg)", "Physical", "Muscle mass in kg; each 10 kg adds +1 Strength"),
+    FAT_KG("Fat (kg)",    "Physical", "Body fat in kg; each 10 kg subtracts 1 Strength"),
     
     // Social Attributes
     CHARISMA("Charisma", "Social", "Getting people to talk, gaining trust"),
@@ -47,7 +48,7 @@ public enum CharacterAttribute {
     }
     
     public static CharacterAttribute[] getPhysicalAttributes() {
-        return new CharacterAttribute[]{AGILITY, STAMINA, STRENGTH, HEIGHT_CM, BODY_WEIGHT_KG};
+        return new CharacterAttribute[]{AGILITY, STAMINA, STRENGTH, HEIGHT_CM, MUSCLE_KG, FAT_KG};
     }
     
     public static CharacterAttribute[] getSocialAttributes() {

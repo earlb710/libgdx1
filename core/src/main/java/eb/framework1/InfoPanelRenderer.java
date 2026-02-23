@@ -586,14 +586,16 @@ class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Attributes — one per row  Format: "Name [total] : base ±loc +equip"
+        // Attributes — one per row  Format: "Name [total] : base ±loc +equip +body"
         for (CharacterAttribute attr : attrs) {
             int base     = profile.getAttribute(attr.name());
             int locMod   = locationModFor(s.charCellX, s.charCellY, attr);
             int equipMod = profile.getEquipmentModifier(attr);
+            int bodyMod  = (attr == CharacterAttribute.STRENGTH)
+                           ? profile.getMuscleFatStrengthModifier() : 0;
             float ay = ty + drawScrollY;
             float cx = PAD;
-            int    total    = base + locMod + equipMod;
+            int    total    = base + locMod + equipMod + bodyMod;
             String baseStr  = String.valueOf(base);
             String totalStr = String.valueOf(total);
 
@@ -636,6 +638,15 @@ class InfoPanelRenderer {
                 String eqStr = " " + (equipMod > 0 ? "+" : "-") + Math.abs(equipMod);
                 smallFont.setColor(Color.CYAN);
                 smallFont.draw(batch, eqStr, cx, ay);
+                glyphLayout.setText(smallFont, eqStr);
+                cx += glyphLayout.width;
+            }
+
+            if (bodyMod != 0) {
+                // " +X" / " -X" from muscle/fat body composition — yellow
+                String bdStr = " " + (bodyMod > 0 ? "+" : "-") + Math.abs(bodyMod);
+                smallFont.setColor(Color.YELLOW);
+                smallFont.draw(batch, bdStr, cx, ay);
             }
 
             ty -= smallLineH;
