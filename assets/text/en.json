@@ -3633,6 +3633,146 @@
         "male": "You present as a compliance officer. Sports administration is perpetually nervous about compliance.",
         "female": "You request a meeting with the league director about a scheduling matter. The meeting gives you access to the administrative floor."
       }
+    },
+    "Lecture Halls": {
+      "default": "Tiered seating and the one-to-many transfer of information. The hall is built for authority. What gets said from the front shapes what everyone in the seats believes.",
+      "gender": {
+        "male": "You take a seat in the back row. The back row hears everything and is heard by nobody.",
+        "female": "You sit at the side, third row from the front. The angle gives you both the speaker and the audience reaction."
+      }
+    },
+    "Library": {
+      "default": "Stacks and silence and the institutional promise that information should be free. Most information is. Some isn't. You're here for the kind that isn't.",
+      "gender": {
+        "male": "You pull the volume that nobody else has touched and find the margin note that was meant to stay private.",
+        "female": "You ask the reference librarian for help with a specific research question. The librarian's expertise turns two days of work into forty minutes."
+      }
+    },
+    "Library Lounge": {
+      "default": "The library's social space, where the strict silence rule relaxes enough for conversation. Those conversations accumulate.",
+      "gender": {
+        "male": "You take the armchair nearest the reading group and let the discussion come to you.",
+        "female": "You join the group with a question about what they're discussing. You came prepared to ask it."
+      }
+    },
+    "Lift Equipment": {
+      "default": "The mechanical room that nobody visits unless they're authorised or determined. The lift equipment room has access to every floor in the building.",
+      "gender": {
+        "male": "You access the machine room under a service pretext. The maintenance log tells you which floors have been visited and when.",
+        "female": "You identify the service technician on the way out and ask a question about the recent service history. They answer in full."
+      }
+    },
+    "Light Show": {
+      "default": "Spectacle designed to overwhelm the senses. Under the light show, everything happening in the room below it is effectively invisible.",
+      "gender": {
+        "male": "You move through the venue during the light show. Nobody's watching ground level.",
+        "female": "You position yourself at the control point. The person who operates the show sees the entire venue from one chair."
+      }
+    },
+    "Lighting": {
+      "default": "The way a space presents itself after dark. What the lighting reveals is intentional. What it hides is more interesting.",
+      "gender": {
+        "male": "You map the shadows before you need to use them. Good habits.",
+        "female": "You assess the lighting from the entrance. Three cameras are positioned in the lit zones. The unlit zones are yours."
+      }
+    },
+    "Living Quarters": {
+      "default": "Where the building's residents sleep, eat and drop their guard. The living quarters tell you more about someone than their office does.",
+      "gender": {
+        "male": "You observe what's visible without entering. Enough of a picture to understand what you're dealing with.",
+        "female": "You read the arrangement of a person's living space as fluently as a case file. It tells you the same things."
+      }
+    },
+    "Loading Area": {
+      "default": "The back entrance to everything. Loading areas exist to move things without announcement. That lack of announcement is a gap in the record.",
+      "gender": {
+        "male": "You walk the loading area with a clipboard and the body language of someone checking a manifest. Nobody stops you.",
+        "female": "You ask the receiving clerk about deliveries during the relevant window. The clerk checks without questioning your authority."
+      }
+    },
+    "Loading Dock": {
+      "default": "Pallets and movement and the chain of custody that begins at the dock. Where did the dock log show a shipment going that never arrived?",
+      "gender": {
+        "male": "You review the dock log for the day in question. One inbound is logged without a corresponding outbound disposition.",
+        "female": "You approach the dock supervisor with a discrepancy you identified. The supervisor explains it and in explaining creates a new problem."
+      }
+    },
+    "Loading Docks": {
+      "default": "Multiple bays and the full picture of what a facility moves in a day. One bay handles something that doesn't appear on the manifest.",
+      "gender": {
+        "male": "You compare the bay allocation log against the vehicle movement records. Bay three wasn't assigned anything. Bay three was in use.",
+        "female": "You ask the dock manager to walk you through the current allocation. The explanation accounts for four of the five bays."
+      }
+    },
+    "Loan Office": {
+      "default": "Credit and the paper trail of who borrowed what under what terms and what they did with it.",
+      "gender": {
+        "male": "You enquire about a specific account under an authorisation that technically covers it. The officer checks and confirms the credit history.",
+        "female": "You sit down with the loan officer and present a query about a specific lending pattern. The officer describes it before asking why you want to know."
+      }
+    },
+    "Lobby": {
+      "default": "The building's public face and its first filter. Everyone who enters this building passes through the lobby. You have.",
+      "gender": {
+        "male": "You cross the lobby with the pace of someone arriving for a meeting. Nobody interrupts a man with that pace.",
+        "female": "You take a seat in the lobby seating and observe the full space for four minutes before you move. You know everything you need to."
+      }
+    },
+    "Local History Archive": {
+      "default": "The neighbourhood's paper memory going back further than anyone living remembers. The answer to what happened here before it was what it is now.",
+      "gender": {
+        "male": "You request the files from the decade that matters. The archivist finds the box without hesitation.",
+        "female": "You ask the archivist to help you find a connection between two addresses across a thirty-year gap. The connection exists."
+      }
+    },
+    "Locker Room": {
+      "default": "The space between performance and identity. The locker room is where people say what they actually mean after they've stopped performing.",
+      "gender": {
+        "male": "You enter during the quiet period between sessions. The room tells you things when it doesn't know anyone's listening.",
+        "female": "You speak with the attendant about the facility's security procedures. The attendant describes a recent breach that wasn't in the report."
+      }
+    },
+    "Locker Rooms": {
+      "default": "Multiple secure areas and the combination of privacy and shared space that makes people less careful than they think.",
+      "gender": {
+        "male": "You check which lockers have been assigned this week versus which have been in continuous use. The continuous-use ones belong to people who didn't want to take things home.",
+        "female": "You ask the facility manager about access logs for the locker rooms during a specific window. The manager provides them."
+      }
+    },
+    "Lost and Found": {
+      "default": "Everything people didn't care enough to come back for. Or couldn't. The lost and found is an inventory of people's last known movements.",
+      "gender": {
+        "male": "You describe the item you're looking for without explaining why it matters. The attendant checks every box.",
+        "female": "You ask whether a specific type of item was turned in recently. The description you give is precise enough that the attendant recognises it immediately."
+      }
+    },
+    "Lottery Terminal": {
+      "default": "Small stakes and the paper evidence of hope. The lottery terminal log places specific people in specific locations at specific times.",
+      "gender": {
+        "male": "You ask the cashier about the terminal's transaction history for a specific date. They recall one customer who was there unusually long.",
+        "female": "You purchase a ticket and ask about the terminal's busiest hours. The cashier tells you and mentions the regular who was there the night of the incident."
+      }
+    },
+    "Lounge Area": {
+      "default": "Transitional seating where nobody's committed to being anywhere. The lounge area is occupied by people waiting for things and saying more than they intend.",
+      "gender": {
+        "male": "You take the corner seat with sight lines to all entrances. Then you wait. Waiting is the job.",
+        "female": "You sit in the middle of the lounge. Midroom placement means you're part of every nearby conversation without initiating any of them."
+      }
+    },
+    "Lounge Bar": {
+      "default": "Softer lighting and slower drinking and the conversations that require both before they happen.",
+      "gender": {
+        "male": "You order and occupy. A man drinking slowly at a lounge bar is the furniture. Furniture hears everything.",
+        "female": "You're approached within ten minutes. You redirect the approach into the conversation you came for."
+      }
+    },
+    "Luggage Storage": {
+      "default": "Bags checked and tagged. The luggage storage log places people in the building at the time they left their bags. One person left their bags and never came back.",
+      "gender": {
+        "male": "You describe the bag and ask if it was collected. It wasn't. The tag date tells you everything.",
+        "female": "You present a claim ticket for a bag you didn't check. The attendant checks the tag number in the system and the result answers your question."
+      }
     }
   }
 }
