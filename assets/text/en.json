@@ -5313,6 +5313,146 @@
         "male": "You check the patrol log. Officer 7's route varied at 2:17 AM. You find Officer 7.",
         "female": "The patrol officer's route is documented to the minute. You find the minute where it changed and trace it forward."
       }
+    },
+    "Security System": {
+      "default": "Integrated alarms, cameras, and sensors woven into the building's bones. The security system knows what happened. You just need to speak its language.",
+      "gender": {
+        "male": "You connect to the security system dashboard. Motion logs, alarm triggers, manual overrides. One override at 1:12 AM. That's your start.",
+        "female": "The security system export takes three minutes to run. You use the time to write down the questions you'll need answered by the end of it."
+      }
+    },
+    "Self-Checkout": {
+      "default": "Automated checkout lanes that eliminate the human witness \u2014 or so people assume. Every swipe is still logged.",
+      "gender": {
+        "male": "Self-checkout. The lane with the malfunctioning camera is the one your subject always used. You pull the card transaction data instead.",
+        "female": "You check the self-checkout terminal logs. Cash transactions leave less trace. Card transactions leave enough."
+      }
+    },
+    "Self-Order Kiosk": {
+      "default": "A touchscreen that takes the order and removes the person from the transaction. Efficient, trackable, and indifferent to alibis.",
+      "gender": {
+        "male": "Self-order kiosk. Whoever placed the order at 10:47 PM used a loyalty account they stopped using after that night.",
+        "female": "You query the self-order system. The loyalty data tells you what they ordered, when they were here, and where they sat."
+      }
+    },
+    "Self-Service Kiosk": {
+      "default": "A standalone transaction terminal that does what a person used to do. The kiosk doesn't editorialize. It records.",
+      "gender": {
+        "male": "You pull the kiosk transaction history. Your subject was here twice. Same kiosk, same hour, two different names.",
+        "female": "The self-service kiosk log shows a transaction that was cancelled mid-process. Someone walked away. You check the camera angle."
+      }
+    },
+    "Senior Center": {
+      "default": "A community space for an age that the city sometimes forgets it produced. The senior center is full of people with nothing left to prove and everything worth saying.",
+      "gender": {
+        "male": "You sit down with the senior center regulars. They remember everything. They just needed someone to ask.",
+        "female": "The senior center is warm and busy. You introduce yourself and ask your question. The room knows the answer before anyone says it aloud."
+      }
+    },
+    "Server Room": {
+      "default": "Cold air and server hum \u2014 the infrastructure of everything digital in this building. The server room is where data lives until someone decides it shouldn't.",
+      "gender": {
+        "male": "The server room access log shows an entry at 3 AM by a maintenance credential that was deactivated six weeks ago.",
+        "female": "You stand in the server room with your IT forensics contact. Cold air, live drives, and a deletion event from last Thursday."
+      }
+    },
+    "Server Rooms": {
+      "default": "Multiple data infrastructure spaces, each one a layer of the operation's digital nervous system.",
+      "gender": {
+        "male": "You work through the server rooms with a floor plan. One room is off the schematic. You find it on the third pass.",
+        "female": "The server rooms are catalogued but not all of them match the building permit drawings. You start with the one that doesn't."
+      }
+    },
+    "Service Bays": {
+      "default": "Working spaces designed for maintenance and repair. The service bays know what's been brought in, what's been worked on, and what left differently than it arrived.",
+      "gender": {
+        "male": "You walk the service bays. The job ticket for bay four is marked complete but the vehicle in it hasn't moved.",
+        "female": "The service bay log shows an after-hours entry that nobody flagged. You find the technician who was on duty and didn't log the work."
+      }
+    },
+    "Service Center": {
+      "default": "A centralized support operation handling the building's or business's ongoing needs. The service center touches every department.",
+      "gender": {
+        "male": "You go to the service center with a specific request and a broader agenda. The rep handles the first. You handle the second.",
+        "female": "The service center supervisor has documentation for everything. You ask about the one request that wasn't documented."
+      }
+    },
+    "Shampoo Bowls": {
+      "default": "Tilted chairs and running water for hair washing \u2014 where people close their eyes and talk. The shampoo bowl is an accidental confessional.",
+      "gender": {
+        "male": "You wait near the shampoo area. The stylist is mid-rinse and mid-conversation. The conversation is more useful to you.",
+        "female": "You take a chair near the shampoo bowls and listen. Clients talk freely here. One of them said something last week that hasn't left the stylist's mind."
+      }
+    },
+    "Shared Parking": {
+      "default": "A lot used by multiple tenants on a rotating schedule. Shared parking is jurisdictionally ambiguous and photographically rich.",
+      "gender": {
+        "male": "The shared lot has cameras from three different tenants pointed at different angles. You request footage from all of them.",
+        "female": "Shared parking means shared responsibility and blurred accountability. That's usually where you find what you're looking for."
+      }
+    },
+    "Shipping Bay": {
+      "default": "An industrial loading area for outbound freight. The shipping bay is the last checkpoint before something leaves your reach.",
+      "gender": {
+        "male": "You arrive at the shipping bay as the last truck of the day is staged. You stop the driver before they pull out.",
+        "female": "The shipping bay outbound log has a manifest discrepancy. You find the dock supervisor and make them walk you through it."
+      }
+    },
+    "Shipping Station": {
+      "default": "A dedicated station for processing outbound shipments. Every package labeled here has a destination. You follow one.",
+      "gender": {
+        "male": "The shipping station scales have a memory. You pull the weight log for last Tuesday. One package doesn't add up.",
+        "female": "You examine the shipping station documentation. Three packages left without a proper chain of custody record. You start tracing them."
+      }
+    },
+    "Shopping Cart Corral": {
+      "default": "A metal cage at the edge of a parking lot. The cart corral is a transition zone where the transaction ends and decisions get made.",
+      "gender": {
+        "male": "The shopping cart corral is near the east entrance camera blind spot. That's not a coincidence.",
+        "female": "You photograph the cart corral from three angles. The scuff marks near the base don't match standard cart return activity."
+      }
+    },
+    "Shower Facilities": {
+      "default": "A communal washing area in a building that expects people to work hard enough to need one. The shower facilities are honest about what this place costs people.",
+      "gender": {
+        "male": "The shower facility locker closest to the drain had something left in it. You find the evidence bag and label it.",
+        "female": "You clear the shower facilities with a female officer. The drain grate was disturbed recently. You have it processed."
+      }
+    },
+    "Showroom": {
+      "default": "A curated environment built to sell a vision. The showroom is all surface. You look for what's underneath.",
+      "gender": {
+        "male": "The showroom floor is polished and persuasive. You ignore the presentation and look at the back corners and the room behind the display.",
+        "female": "You walk the showroom at your own pace. The sales associate follows. You let them talk and listen for what they don't say."
+      }
+    },
+    "Shuttle Service": {
+      "default": "A managed transport loop connecting this location to somewhere else. The shuttle knows exactly who boarded and when.",
+      "gender": {
+        "male": "You speak to the shuttle driver. They run the same route twelve hours a day and remember faces. Yours included, now.",
+        "female": "The shuttle service log is digital and timestamped. Your subject boarded the 10:15 PM run. It's the last record of them anywhere."
+      }
+    },
+    "Signage Pylon": {
+      "default": "A tall road-side sign announcing the property's identity. The pylon sees the street. Everything on the street sees the pylon.",
+      "gender": {
+        "male": "You stand at the signage pylon and survey the sightlines. Whoever was watching the entrance had the best angle from here.",
+        "female": "The pylon's base is accessible from the service road. Someone used that access recently. You photograph the disturbed ground."
+      }
+    },
+    "Sky Lobby": {
+      "default": "An elevated lobby midway up a tall building where express and local elevators converge. The sky lobby is a choke point and an observation deck.",
+      "gender": {
+        "male": "You arrive at the sky lobby and feel the building's vertical weight around you. Your subject was seen here at 6 PM. Nobody else saw where they went next.",
+        "female": "The sky lobby is glass and altitude. You take a position near the elevator bank and watch who's watching."
+      }
+    },
+    "Sky Lounge": {
+      "default": "A premium lounge above the city's competing noise. The sky lounge is for the kind of people who conduct their business where nobody else can overhear \u2014 or so they think.",
+      "gender": {
+        "male": "You ride the express elevator to the sky lounge. The sommelier recognizes you. You've been here before, under different circumstances.",
+        "female": "The sky lounge operates on reservation and appearance. You arrive without either and let your badge handle the introductions."
+      }
     }
   }
 }
