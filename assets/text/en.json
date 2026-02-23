@@ -2933,6 +2933,146 @@
         "male": "You count the pallets and compare against the production log. The count is low by exactly enough to be non-accidental.",
         "female": "You photograph the lot numbers on the finished goods and cross-reference them against the shipping manifest. Three lots have no destination."
       }
+    },
+    "Fire Escape": {
+      "default": "The emergency exit that becomes the quiet entrance. Fire escapes exist to be used in a crisis. You define crisis broadly.",
+      "gender": {
+        "male": "You take the stairs from the outside. The door at the third floor is held with a wedge. That's not the fire code.",
+        "female": "You note which fire escape has fresh marks on the latch. Someone's been using it for access, not egress."
+      }
+    },
+    "Fire Lane": {
+      "default": "A clear path that legally can't be blocked. Which means it's always clear for the vehicle that needs to get out fast.",
+      "gender": {
+        "male": "You note the vehicle parked in the fire lane with expired plates. It's been here since before the incident.",
+        "female": "You photograph the fire lane from two angles. The camera mounted on the building doesn't cover the lane. It was positioned that way."
+      }
+    },
+    "Fire Pit": {
+      "default": "Controlled combustion and the social ritual that happens around an open flame. Things get said around fire pits that wouldn't get said anywhere else.",
+      "gender": {
+        "male": "You take a position on the far side of the fire and listen to the near side.",
+        "female": "You introduce yourself to the group around the fire. Fire circles are intimate. Intimacy generates honesty."
+      }
+    },
+    "Fire Safety System": {
+      "default": "Sensors and alarms calibrated to detect the specific kind of heat and smoke produced by an accident. Not the kind produced on purpose.",
+      "gender": {
+        "male": "You review the system log. One sensor was manually disabled during the window in question.",
+        "female": "You ask the facilities manager about the last system test. The last test result had an exception that was never explained."
+      }
+    },
+    "Fire Suppression": {
+      "default": "Automated chemical response to heat signatures. If this system activated, there's a record. If it didn't when it should have, there's also a record.",
+      "gender": {
+        "male": "You check the suppression log. The system saw the heat but didn't respond. Overridden.",
+        "female": "You identify which zone was isolated from the suppression network. It was isolated three hours before the event."
+      }
+    },
+    "Fireplace": {
+      "default": "Heat and light and the ease that open flame creates in a room. People relax by a fire. Relaxed people tell the truth.",
+      "gender": {
+        "male": "You take the armchair nearest the fire and let the room organise itself around you.",
+        "female": "You tend the fire briefly and the room thanks you for it. The thanks opens a conversation."
+      }
+    },
+    "First Aid Station": {
+      "default": "Bandages and basics and the log of every minor incident that the building officially recorded. What's minor in the log may not be minor in context.",
+      "gender": {
+        "male": "You read the incident log at the station. One entry from last week describes a wound that doesn't match the stated cause.",
+        "female": "You enquire about the station's recent use. The volunteer who manages it keeps better records than the official system."
+      }
+    },
+    "Fitness Center": {
+      "default": "Weights and cardio and the particular honesty of people who've worked hard enough to stop performing.",
+      "gender": {
+        "male": "You complete a set at the rack nobody's touching and earn the right to be in the room.",
+        "female": "You take the machine with the best sight line and stay for as long as the investigation requires."
+      }
+    },
+    "Fitness Room": {
+      "default": "On-site exercise space and the conversations that happen after the endorphins kick in. Post-workout is the most candid state most people reach at work.",
+      "gender": {
+        "male": "You arrive during the lunch-hour rush and end up in the conversation you needed.",
+        "female": "You use the space and stay visible. Fitness rooms create instant social parity. You use that."
+      }
+    },
+    "Fitting Rooms": {
+      "default": "Private, curtained, and with a mirror that sees everything in the small space the curtain creates. What happens in fitting rooms stays in fitting rooms. Unless you were listening.",
+      "gender": {
+        "male": "You take the fitting room adjacent to the occupied one and listen to the transaction being conducted.",
+        "female": "You ask the fitting room attendant about a specific customer earlier in the day. The attendant has a clear memory."
+      }
+    },
+    "Fleet Parking": {
+      "default": "Vehicles assigned to the organisation and the movement log that tracks every one of them. One vehicle wasn't where it was supposed to be.",
+      "gender": {
+        "male": "You review the fleet movement log against the trip records. A four-hour discrepancy for unit seven has no paper behind it.",
+        "female": "You speak to the fleet coordinator about an anomaly in the GPS data. They confirm it before asking how you accessed the GPS data."
+      }
+    },
+    "Floral Department": {
+      "default": "Fresh flowers and the regular customers who buy them for occasions and obligations. One of those occasions is yours.",
+      "gender": {
+        "male": "You buy a single stem and chat with the florist. Florists remember the large orders and the strange ones.",
+        "female": "You ask about a specific arrangement placed earlier in the week. The florist remembers the name on the card."
+      }
+    },
+    "Folding Tables": {
+      "default": "Temporary infrastructure for temporary purposes. The folding tables were up for something and somebody knows what.",
+      "gender": {
+        "male": "You ask the facilities staff when the tables were last set up and for what. They tell you.",
+        "female": "You note the wear pattern on the floor where the tables were arranged. The arrangement tells you the approximate number of people."
+      }
+    },
+    "Food Court": {
+      "default": "Mass catering and the convergence of everyone who has fifteen minutes and nowhere specific to be. Good cover. Good listening.",
+      "gender": {
+        "male": "You take a central table and let the noise work for you. The food court carries everything.",
+        "female": "You move between counters and catch fragments. Fragments, assembled, are a full picture."
+      }
+    },
+    "Food Hall": {
+      "default": "Curated vendors and the social performance of eating well in public. The food hall conversation is never really about the food.",
+      "gender": {
+        "male": "You browse the stalls and let the browsing give you thirty minutes of unquestioned access to the space.",
+        "female": "You ask a vendor about their busiest hours. The answer places specific people at specific times."
+      }
+    },
+    "Forklift Area": {
+      "default": "Heavy machinery and the discipline of a workspace where an error is fatal. The people who work here are precise. Which means imprecision stands out.",
+      "gender": {
+        "male": "You read the incident board near the forklift bay. One near-miss was reported at an unusual hour.",
+        "female": "You speak to the lead operator about a reported damage to racking. The damage happened when the shift log says nothing was moving."
+      }
+    },
+    "Fountain Court": {
+      "default": "A central architectural feature and the natural gathering point of a building with nowhere better to stand. Everyone passes through a fountain court.",
+      "gender": {
+        "male": "You take a position near the fountain and let the space deliver its information.",
+        "female": "You sit at the court edge with your phone and observe. In a fountain court, sitting still makes you invisible."
+      }
+    },
+    "Free Breakfast": {
+      "default": "Inclusive catering and the loose conversation of people who've been fed before they've had to perform. Early morning candour is the best kind.",
+      "gender": {
+        "male": "You sit at the common table. Hotel breakfasts create accidental communities. You join one.",
+        "female": "You pour coffee for the person next to you. The gesture generates a conversation that runs through to the second cup."
+      }
+    },
+    "Front Desk": {
+      "default": "The building's official memory. Everyone who enters and exits passes through the front desk's awareness. So does every event that got logged.",
+      "gender": {
+        "male": "You sign in under a name that carries the right kind of weight. The desk waves you through.",
+        "female": "You approach the desk with a specific enquiry and redirect it naturally to the one you actually needed answered."
+      }
+    },
+    "Front Porch": {
+      "default": "The transitional space between private and public where everything gets said that can't be said inside or shouted from the street.",
+      "gender": {
+        "male": "You stop on the path and ask for directions. The porch conversation that follows covers more than you came for.",
+        "female": "You make the approach from the sidewalk and stay at the gate. Asking from the gate is less threatening than the porch. People answer questions from a safe distance."
+      }
     }
   }
 }
