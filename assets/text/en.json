@@ -190,7 +190,7 @@
       },
       "attribute": {
         "CHARISMA": "The owner greets you like old money. You smile like you deserve it.",
-        "PERCEPTION": "Mismatched inventory tags. A back shelf accessed too recently. Small things. You keep a list.",
+        "PERCEPTION": "Mismatched inventory tags. A back shelf accessed too recently. Small things. None of them accidental.",
         "STEALTH": "You browse the aisles like you're killing time. Nobody in here is being paid to watch you carefully."
       },
       "gender": {
@@ -767,7 +767,7 @@
         "night": "Still. The stairwell carries noise from three floors away. You use that."
       },
       "attribute": {
-        "PERCEPTION": "Overflowing mailbox on 4B. Tape over the buzzer on 2A. A building narrates itself if you speak the language.",
+        "PERCEPTION": "Some mailboxes overflowing, some buzzers taped over. A building narrates itself if you speak the language.",
         "STEALTH": "You take the stairs and press to the wall at each landing. No one sees you go up. No one sees you come down.",
         "EMPATHY": "The voices behind these doors tell you what kind of building this is. You've been in enough of them to know."
       },
@@ -785,7 +785,7 @@
         "night": "Floor by floor, the lights go out. One doesn't. You note the number."
       },
       "attribute": {
-        "PERCEPTION": "Fresh scuff on the door of 7C. New lock on a door that had a different lock last week. The building is talking.",
+        "PERCEPTION": "Fresh scuff on one of the doors. A new lock on a door that had a different lock last week. The building is talking.",
         "STEALTH": "Stairs over elevator, wall-side over centre, steady pace over hurrying. Basic, but it works.",
         "CHARISMA": "The super comes out for a noise complaint on the same floor you needed access to. Convenient."
       },
@@ -911,7 +911,7 @@
         "night": "Somewhere down the hall a door slams. Somewhere else, a call ends badly. You lie on the bed and listen to the building tell its secrets."
       },
       "attribute": {
-        "PERCEPTION": "Room 214 has been entered in the last hour. The latch is set wrong. Whoever's in there didn't grow up in hotels.",
+        "PERCEPTION": "One of the rooms has been entered in the last hour. The latch is set wrong. Whoever's in there didn't grow up in hotels.",
         "STEALTH": "Indifferent staff and anonymous guests. This place was built for people who don't want to be found. That includes you.",
         "MEMORY": "You've stayed in exactly this kind of place before. Same layout, same broken ice machine, same smell. You know where everything is."
       },
@@ -965,7 +965,7 @@
         "night": "Empty. A single light on the top floor. That's not the cleaner."
       },
       "attribute": {
-        "INTELLIGENCE": "Three minutes in and you've read the org chart, the room assignments, and the name on the door that doesn't appear on the chart.",
+        "INTELLIGENCE": "Three minutes in and you've read the room assignments, the name on the door that doesn't appear in the staff directory, and the memo nobody was meant to leave out.",
         "PERCEPTION": "Someone left a printout on the shared printer that shouldn't be shared. You read it on the way past.",
         "STEALTH": "Open-plan office, nobody watching the edges. You move like a consultant doing a walkthrough."
       },
@@ -1001,7 +1001,7 @@
         "night": "Cleaners and security. Two schedules. One window between them."
       },
       "attribute": {
-        "INTELLIGENCE": "A building this size runs on hierarchy. You read the hierarchy in the email signatures on the unattended desk.",
+        "INTELLIGENCE": "A building this size runs on internal structure. You read the structure in the titles on doors, the deference in hallways, and the unattended desk with papers left out.",
         "CHARISMA": "Your visitor's badge should slow you down. Your manner says it won't.",
         "PERCEPTION": "The executive elevator shows recent activity for a floor that's been officially off-limits for a week."
       },
@@ -1971,7 +1971,7 @@
     "Cat Ward": {
       "default": "Feline patients and the veterinary staff who manage them. Animals don't intimidate and neither does the room. It yields information quickly.",
       "gender": {
-        "male": "You ask about the cat brought in on Tuesday. The vet checks the log before they answer. Interesting.",
+        "male": "You ask about the cat brought in recently. The vet checks the log before they answer. Interesting.",
         "female": "You speak to the vet tech and ask about overnight admissions. One of them doesn't have a legitimate owner."
       }
     },
@@ -2539,7 +2539,7 @@
       "default": "Schedules and routes and the coordination of movement. Something moved off-route. The dispatch office knows.",
       "gender": {
         "male": "You review the run sheets with the authority of someone conducting an audit. You are, in a way.",
-        "female": "You ask the dispatcher what changed on Tuesday's roster. The change wasn't in the system. It was verbal."
+        "female": "You ask the dispatcher what changed on a recent roster. The change wasn't in the system. It was verbal."
       }
     },
     "Display Windows": {
@@ -4176,7 +4176,7 @@
     "Network Operations Center": {
       "default": "The nerve center of digital infrastructure \u2014 screens everywhere, cable bundles like arteries, and analysts who know where every packet goes.",
       "gender": {
-        "male": "You stand in the NOC. The operators track everything. You need to know what they saw last Tuesday at 11 PM.",
+        "male": "You stand in the NOC. The operators track everything. You need to know what they saw during a specific late-night window.",
         "female": "The network operations center never sleeps. Neither did you last night. You have questions that only these screens can answer."
       }
     },
@@ -4435,7 +4435,7 @@
     "Party Decks": {
       "default": "Open elevated areas designed for crowds and celebrations. After midnight, celebrations have a way of becoming evidence.",
       "gender": {
-        "male": "The party decks are empty now. They were full last Friday. You're here about what happened on last Friday.",
+        "male": "The party decks are empty now. They were full on the night in question. You're here about what happened that night.",
         "female": "You walk the party deck in the morning light. Empty glasses, scattered remnants. The cleanup crew missed something."
       }
     },
@@ -4603,7 +4603,7 @@
     "Photo Center": {
       "default": "Prints and digital transfers from the city's documentation of itself. The photo center holds images that no one thought would matter.",
       "gender": {
-        "male": "The photo center keeps digital records of every print order. You ask for last Tuesday. The technician nods slowly.",
+        "male": "The photo center keeps digital records of every print order. You ask for the relevant batch. The technician nods slowly.",
         "female": "You step up to the photo center counter. You know what you're looking for. Somebody printed something here they shouldn't have."
       }
     },
@@ -4659,7 +4659,7 @@
     "Playrooms": {
       "default": "Rooms designed for imagination and energy. Whatever was imagined in here recently left marks on the carpet and questions on your notepad.",
       "gender": {
-        "male": "You check the playrooms one by one. The schedule shows an unbooked session last Thursday. You ask who has a key.",
+        "male": "You check the playrooms one by one. The schedule shows an unbooked session recently. You ask who has a key.",
         "female": "The playroom is brightly painted and carefully maintained. Somebody was in here after hours. The evidence is small and specific."
       }
     },
@@ -4709,7 +4709,7 @@
       "default": "Small chairs and big letters and the organized chaos of early minds exploring the world. Nothing complicated. Except why you're here.",
       "gender": {
         "male": "You step into the preschool classroom after hours. Quiet now. The children's drawings on the wall tell you the teacher has them trusting her completely.",
-        "female": "The preschool classroom is tidy and warm. The teacher has a consistent schedule. That schedule was disrupted last Tuesday."
+        "female": "The preschool classroom is tidy and warm. The teacher has a consistent schedule. That schedule was disrupted recently."
       }
     },
     "Prescription Counter": {
@@ -4751,7 +4751,7 @@
       "default": "Copiers, laminators, and the permanent record of what people chose to put on paper. Somebody printed something here they shouldn't have kept.",
       "gender": {
         "male": "You pull the print logs. Digital records of analog documents. Whoever used this center did it in cash. You find the receipt anyway.",
-        "female": "The print center smells like toner and bad decisions. The queue history doesn't lie. You find the job from last Thursday."
+        "female": "The print center smells like toner and bad decisions. The queue history doesn't lie. You find the job you came for."
       }
     },
     "Private Beach": {
@@ -4800,7 +4800,7 @@
       "default": "Locked bays that nobody passes through without a reason. Private garages hold more than vehicles.",
       "gender": {
         "male": "The private garage bays are numbered and gated. One hasn't been opened in three weeks. You want to know what's inside.",
-        "female": "You check the private garage access logs. One bay was accessed at 2 AM last Tuesday. The vehicle registered to that bay hasn't moved since."
+        "female": "You check the private garage access logs. One bay was accessed in the early hours when it shouldn't have been. The vehicle registered to that bay hasn't moved since."
       }
     },
     "Private Karaoke": {
@@ -4849,7 +4849,7 @@
       "default": "A small, hot room above the audience where the illusion is manufactured. The projectionist sees the film and the crowd at the same time.",
       "gender": {
         "male": "You climb to the projection booth. Cramped and warm. The projectionist has a clear line of sight to every seat in the house.",
-        "female": "The projection booth has a window onto the whole theater. You sit with the operator and ask what they saw last Saturday during the late show."
+        "female": "The projection booth has a window onto the whole theater. You sit with the operator and ask what they saw during the late show on the night in question."
       }
     },
     "Propane Exchange": {
@@ -5115,7 +5115,7 @@
       "default": "The intake desk for what didn't work out. Returns processing handles exceptions. You're investigating one.",
       "gender": {
         "male": "You review the returns processing log. One item came back without a receipt and without a reason logged. That's unusual.",
-        "female": "The returns processing desk sees the fringe of retail \u2014 the damaged, the disputed, the fraudulent. You ask about the outlier from last Thursday."
+        "female": "The returns processing desk sees the fringe of retail \u2014 the damaged, the disputed, the fraudulent. You ask about the outlier from a recent transaction."
       }
     },
     "Roasting Equipment": {
@@ -5213,7 +5213,7 @@
       "default": "A room of heat and reduced inhibition. Conversations in the sauna tend toward honesty. You note who uses this facility and when.",
       "gender": {
         "male": "The sauna is empty but was used recently. The temperature log and the towel on the bench tell you when.",
-        "female": "You check the sauna access log. Two entries last Friday evening, both under guest passes. You trace the names."
+        "female": "You check the sauna access log. Two entries in one evening, both under guest passes. You trace the names."
       }
     },
     "Scale Station": {
@@ -5353,7 +5353,7 @@
       "default": "Cold air and server hum \u2014 the infrastructure of everything digital in this building. The server room is where data lives until someone decides it shouldn't.",
       "gender": {
         "male": "The server room access log shows an entry at 3 AM by a maintenance credential that was deactivated six weeks ago.",
-        "female": "You stand in the server room with your IT forensics contact. Cold air, live drives, and a deletion event from last Thursday."
+        "female": "You stand in the server room with your IT forensics contact. Cold air, live drives, and a deletion event from a recent overnight window."
       }
     },
     "Server Rooms": {
@@ -5401,7 +5401,7 @@
     "Shipping Station": {
       "default": "A dedicated station for processing outbound shipments. Every package labeled here has a destination. You follow one.",
       "gender": {
-        "male": "The shipping station scales have a memory. You pull the weight log for last Tuesday. One package doesn't add up.",
+        "male": "The shipping station scales have a memory. You pull the weight log for the period in question. One package doesn't add up.",
         "female": "You examine the shipping station documentation. Three packages left without a proper chain of custody record. You start tracing them."
       }
     },
@@ -5555,7 +5555,7 @@
     "Stamp Vending": {
       "default": "Automated postage dispensers. In a digital city, stamps are used by people who need physical, traceable correspondence. Or who trust paper more than servers.",
       "gender": {
-        "male": "The stamp vending machine was used last Tuesday at 2 AM. You request the transaction record and start thinking about what was mailed.",
+        "male": "The stamp vending machine was used in the early hours when it had no business being used. You request the transaction record and start thinking about what was mailed.",
         "female": "You note the stamp machine's last activity timestamp. Someone mailed something at an unusual hour. You trace the postmark."
       }
     },
@@ -5597,7 +5597,7 @@
     "Storage Units": {
       "default": "Individual locked compartments rented by the city's people to hold what they can't keep at home. What's stored here is personal, guarded, and occasionally incriminating.",
       "gender": {
-        "male": "You present the court order at the storage facility desk. Unit 47 belongs to someone who stopped paying rent two weeks ago.",
+        "male": "You present the court order at the storage facility desk. One unit belongs to someone who stopped paying rent two weeks ago.",
         "female": "The storage unit door rolls up slowly. Whatever is inside was placed here with care. You document everything before you touch anything."
       }
     },
@@ -5625,7 +5625,7 @@
     "Study Rooms": {
       "default": "Bookable quiet spaces for focused work. The study room reservation system is a detailed record of who was where and when.",
       "gender": {
-        "male": "You pull the study room booking log. Your subject reserved room 3B for three hours on Tuesday. They were gone in forty-five minutes.",
+        "male": "You pull the study room booking log. Your subject reserved a room for three hours recently. They were gone in forty-five minutes.",
         "female": "The study room was booked under a student ID that hadn't been used in a semester. You trace the reservation."
       }
     },
@@ -5639,7 +5639,7 @@
     "Sunday School Rooms": {
       "default": "Classrooms attached to a faith community where the youngest members are taught to understand the world. Someone with access to these rooms used that access after hours.",
       "gender": {
-        "male": "The Sunday school rooms should be empty on weekdays. The lights in room 4 were on last Wednesday night. You ask the custodian.",
+        "male": "The Sunday school rooms should be empty on weekdays. One of them had its lights on late at night recently. You ask the custodian.",
         "female": "You check the Sunday school room schedule. An unauthorized booking was added and then deleted. You find the timestamp."
       }
     },
@@ -5730,7 +5730,7 @@
     "Tennis Court": {
       "default": "Marked lines and a net between two points of view. The tennis court is where the city's privileged argue about rules in a game they set up themselves.",
       "gender": {
-        "male": "The tennis courts are reserved by member access. Your subject signed in last Thursday. There's no record of them signing out.",
+        "male": "The tennis courts are reserved by member access. Your subject signed in recently. There's no record of them signing out.",
         "female": "You check the tennis court booking system. A match was scheduled and abandoned mid-set. The other player filed a complaint. You find the complaint."
       }
     },
@@ -5807,7 +5807,7 @@
     "Towel Service": {
       "default": "Laundered linens for guests or members \u2014 a service that tracks consumption and circulation. The towel service log knows who was where and for how long.",
       "gender": {
-        "male": "You check the towel service records. Pool towels were issued to room 314 at 11 PM. The pool closed at 10.",
+        "male": "You check the towel service records. Pool towels were issued to a room late at night. The pool had already closed.",
         "female": "The towel service desk issues and logs every item. You ask about the issuance that wasn't tied to an active room booking."
       }
     },
@@ -5836,7 +5836,7 @@
       "default": "A room reserved for developing skill under observation. The training room is where people are watched closely. Not all of them know by whom.",
       "gender": {
         "male": "The training room was accessed after hours by a user credential that expired last quarter. You find out how it was still active.",
-        "female": "You examine the training room setup. The session that ran last Thursday was off-schedule and unlogged. You find the instructor."
+        "female": "You examine the training room setup. A session ran recently that was off-schedule and unlogged. You find the instructor."
       }
     },
     "Transit Hub": {
@@ -5933,7 +5933,7 @@
     "VIP Lanes": {
       "default": "Expedited access routes for those who paid for priority. VIP lanes create a two-tier system with two different sets of witnesses.",
       "gender": {
-        "male": "You ask about the VIP lane usage from last Friday. The attendant remembers the face you're describing. That's your confirmation.",
+        "male": "You ask about a recent VIP lane session. The attendant remembers the face you're describing. That's your confirmation.",
         "female": "The VIP lane access is logged electronically. Your subject used a credential that wasn't theirs. You trace the credential."
       }
     },
@@ -6094,7 +6094,7 @@
     "Weight Room": {
       "default": "Iron and rubber and the effort of physical transformation. The weight room is where the body's limits get tested. You note who stopped showing up.",
       "gender": {
-        "male": "The weight room log tracks every member's session. Your subject hit their PR last Tuesday. Their rack is still set up for it. They haven't been back.",
+        "male": "The weight room log tracks every member's session. Your subject hit their PR recently. Their rack is still set up for it. They haven't been back.",
         "female": "You check the weight room attendance system. She was a daily presence for eight months. The gap started four days ago."
       }
     },
@@ -6123,7 +6123,7 @@
       "default": "Wireless network access serving the building's population. The WiFi router logs every device that connects. In the right hands, that's a complete attendance record.",
       "gender": {
         "male": "You request the WiFi access logs from the building's network administrator. Device MAC addresses are better than visitor logs.",
-        "female": "The network admin pulls the connection history from last Tuesday without being asked twice. The device that was active at 1 AM is registered to someone you've been looking for."
+        "female": "The network admin pulls the connection history from a specific overnight window without being asked twice. The device that was active in the early hours is registered to someone you've been looking for."
       }
     },
     "Wine Cellar": {
@@ -6192,7 +6192,7 @@
     "Yoga Studio": {
       "default": "A room of controlled breath and deliberate movement. The yoga studio attracts people looking for stillness they can't find in the rest of their lives. You note what they're escaping.",
       "gender": {
-        "male": "The yoga studio attendance system tracks member check-ins. Your subject hasn't missed a Tuesday class in eight months. Until last Tuesday.",
+        "male": "The yoga studio attendance system tracks member check-ins. Your subject had a perfect attendance record for months. Until they stopped coming.",
         "female": "You speak with the studio instructor after the morning class. She noticed the absence. She also noticed what your subject said the week before."
       }
     },
