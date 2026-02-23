@@ -1379,6 +1379,13 @@
         "male": "You skip the glasses and watch the crowd instead. More interesting than the screen.",
         "female": "You take a seat on the aisle and spend two hours observing people who think the dark makes them invisible."
       }
+    },
+    "ATM": {
+      "default": "A machine that knows exactly who was here and when. The bank will tell you. Eventually.",
+      "gender": {
+        "male": "Cash leaves no trail. Which is precisely why the trail starts here.",
+        "female": "The timestamp on the last transaction is three minutes before the incident. You photograph the screen."
+      }
     }
   }
 }
