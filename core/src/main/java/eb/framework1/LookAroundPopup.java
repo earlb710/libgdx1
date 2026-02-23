@@ -40,6 +40,7 @@ class LookAroundPopup {
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
+    private final NovelTextEngine novelTextEngine;
 
     // State
     private State        state = State.IDLE;
@@ -60,14 +61,15 @@ class LookAroundPopup {
 
     LookAroundPopup(SpriteBatch batch, ShapeRenderer shapeRenderer,
                     BitmapFont font, BitmapFont smallFont, GlyphLayout glyphLayout,
-                    CityMap cityMap, Profile profile) {
-        this.batch         = batch;
-        this.shapeRenderer = shapeRenderer;
-        this.font          = font;
-        this.smallFont     = smallFont;
-        this.glyphLayout   = glyphLayout;
-        this.cityMap       = cityMap;
-        this.profile       = profile;
+                    CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
+        this.batch           = batch;
+        this.shapeRenderer   = shapeRenderer;
+        this.font            = font;
+        this.smallFont       = smallFont;
+        this.glyphLayout     = glyphLayout;
+        this.cityMap         = cityMap;
+        this.profile         = profile;
+        this.novelTextEngine = novelTextEngine;
     }
 
     // -------------------------------------------------------------------------
@@ -324,6 +326,13 @@ class LookAroundPopup {
                     String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")"
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
+                    if (novelTextEngine != null) {
+                        String desc = novelTextEngine.getImprovementDescription(
+                                imp.getName(), profile.getGender());
+                        if (desc != null && !desc.isEmpty()) {
+                            foundItems.add("  " + desc);
+                        }
+                    }
                     break; // only 1 new improvement discovered per look-around
                 }
             }

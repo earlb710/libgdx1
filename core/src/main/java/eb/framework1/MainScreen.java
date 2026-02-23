@@ -183,7 +183,7 @@ public class MainScreen implements Screen {
                 glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
-                glyphLayout, cityMap, profile);
+                glyphLayout, cityMap, profile, novelTextEngine);
 
         unitInteriorPopup = new UnitInteriorPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, profile);

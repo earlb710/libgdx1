@@ -453,7 +453,6 @@ class InfoPanelRenderer {
                     font.setColor(LABEL_COLOR);
                     font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
-                    float impWrapWidth = contentAreaW - textX;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
                         if (idy < contentAreaBottom - fontLineH) break;
@@ -470,13 +469,6 @@ class InfoPanelRenderer {
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
-                            // Novel improvement description (smaller font)
-                            List<String> impNovel = improvementNovelLines(imp, impWrapWidth);
-                            smallFont.setColor(NOVEL_COLOR);
-                            for (String nLine : impNovel) {
-                                smallFont.draw(batch, nLine, idx, textY + drawScrollY);
-                                textY -= smallLineH;
-                            }
                         } else {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
@@ -882,20 +874,6 @@ class InfoPanelRenderer {
     }
 
     /**
-     * Returns the novel improvement description for a discovered improvement, word-wrapped
-     * to {@code wrapWidth} pixels. Returns an empty list when no text is available.
-     */
-    private List<String> improvementNovelLines(Improvement imp, float wrapWidth) {
-        if (novelTextEngine == null) return java.util.Collections.emptyList();
-        String text = novelTextEngine.getImprovementDescription(imp.getName(), profile.getGender());
-        if (text == null || text.isEmpty()) return java.util.Collections.emptyList();
-        return WordWrapper.wrap(text, wrapWidth, t -> {
-            glyphLayout.setText(font, t);
-            return glyphLayout.width;
-        });
-    }
-
-    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      *
@@ -916,9 +894,6 @@ class InfoPanelRenderer {
         h += fontLineH; // "Improvements:" header (advance)
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
-            if (imp.isDiscovered()) {
-                h += improvementNovelLines(imp, wrapWidth).size() * smallLineH;
-            }
         }
         if (buildingDescription(b) != null) {
             h += smallLineH * 2; // blank gap + description line
