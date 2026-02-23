@@ -3,1047 +3,1047 @@
   "language": "en",
   "descriptions": {
     "parking_lot_small": {
-      "default": "You pull into the small parking lot.",
+      "default": "The lot is a slab of cracked asphalt and broken promises. You've worked worse.",
       "time": {
-        "morning": "A few early birds have already claimed the best spots.",
-        "afternoon": "The lot is nearly full during the midday rush.",
-        "evening": "Cars are trickling out as the evening wind down begins.",
-        "night": "The lot is mostly empty, lit by a single flickering lamp."
+        "morning": "Dawn hasn't done the place any favours. Grease stains and cigarette butts are the morning crowd.",
+        "afternoon": "Heat shimmers off the blacktop. Every car is a alibi waiting to be picked apart.",
+        "evening": "The lot empties like a bar at last call — fast, and without a backward glance.",
+        "night": "One lamp still burns. The rest are dead, same as half the leads you've followed here."
       },
       "attribute": {
-        "PERCEPTION": "You clock every car, every plate, every face behind a windshield.",
-        "AGILITY": "You weave between vehicles effortlessly, taking the quick route."
+        "PERCEPTION": "You clock every plate, every dent, every smear of mud that doesn't belong on a city car.",
+        "AGILITY": "You cut across the lot the short way — ducking mirrors, skipping kerbs — because waiting is for suckers."
       },
       "gender": {
-        "male": "You cross the lot without a second thought, your mind already on your destination.",
-        "female": "You stay alert and move quickly — old habits from too many late-night parking lots."
+        "male": "You walk it like you own the block. Nobody checks a man who moves like he's got a reason.",
+        "female": "You case the exits before the door swings shut behind you. Old habit. Useful one."
       }
     },
     "parking_lot_large": {
-      "default": "You enter the large parking lot.",
+      "default": "A hundred cars and not one of them parked here by accident. Somewhere in this lot is the answer you need.",
       "time": {
-        "morning": "Workers and early shoppers fill the rows of the lot.",
-        "afternoon": "The lot buzzes at capacity during peak hours.",
-        "evening": "Headlights sweep across the asphalt as people head home.",
-        "night": "Vast and mostly empty, the lot feels exposed at this hour."
+        "morning": "Workers funnel in before the sun gets mean. Shift changes are the best time to watch without being watched.",
+        "afternoon": "Full up and nowhere to hide. You keep moving — a still target is a dead one.",
+        "evening": "The tide goes out. Engines turn over in the dark, and you watch which ones hesitate.",
+        "night": "The lot sprawls under a bruised sky. One wrong shadow and this job gets complicated."
       },
       "attribute": {
-        "PERCEPTION": "You scan rows of vehicles in seconds, noting anything out of place.",
-        "STEALTH": "The maze of parked cars gives you plenty of cover to move unseen.",
-        "AGILITY": "You cut between vehicles at a pace no casual driver would manage."
+        "PERCEPTION": "Three vehicles here don't fit the zip code. You've already memorised the plates.",
+        "STEALTH": "A hundred places to disappear in a space this size. You pick the best three and rotate.",
+        "AGILITY": "You move through the rows like a ghost — no sound, no straight lines, no witnesses."
       },
       "gender": {
-        "male": "The open space doesn't give you pause; you walk directly to where you need to be.",
-        "female": "You park near the exit and note the fastest route out before anything else."
+        "male": "You stroll it like you're headed nowhere. The best tail never looks like one.",
+        "female": "You note every face that clocks you twice. In this business, being noticed isn't always a problem — if you control what they see."
       }
     },
     "parking_garage_small": {
-      "default": "You enter the parking garage.",
+      "default": "Concrete and shadow. The kind of place where things get settled without paperwork.",
       "time": {
-        "morning": "The garage echoes with early-morning arrivals.",
-        "afternoon": "Every level is busy; the ramps hum with traffic.",
-        "evening": "Cars leave in a steady stream as the evening exodus begins.",
-        "night": "The garage is nearly silent, shadows pooling between pillars."
+        "morning": "Early arrivals echo off the ceiling. You catalogue each one before they see you.",
+        "afternoon": "Every level occupied. Every car a question. You don't leave until you have answers.",
+        "evening": "The stream of departures covers your movement. Good. You need the noise.",
+        "night": "The garage breathes on its own now — creaks, drips, the groan of settling steel. You breathe with it."
       },
       "attribute": {
-        "STEALTH": "The dim lighting and concrete pillars make this a perfect place to disappear.",
-        "PERCEPTION": "Every sound in here echoes — you can track movement floors away.",
-        "AGILITY": "Ramps and tight corners are nothing to you; you move with precision."
+        "STEALTH": "The pillars give you cover every twelve feet. You use all of them.",
+        "PERCEPTION": "Sound bounces off concrete in ways most people never bother to learn. You learned long ago.",
+        "AGILITY": "Every ramp, every chokepoint, every blind corner — you mapped it before you got out of the car."
       },
       "gender": {
-        "male": "The concrete shadows don't concern you; you focus on what you came here for.",
-        "female": "Every parking garage is the same calculation: exits, sightlines, the nearest lit stairwell."
+        "male": "You stay in the shadows and let the dark work for you. The dark owes you at least that.",
+        "female": "You hit every stairwell light on the way up. Darkness is a tool — you decide who gets to use it."
       }
     },
     "parking_garage_large": {
-      "default": "You enter the multi-level parking garage.",
+      "default": "Six levels of concrete and secrets. You've broken cases in worse places. Not many.",
       "time": {
-        "morning": "Morning commuters spiral upward looking for empty spaces.",
-        "afternoon": "The garage thrums with activity on every level.",
-        "evening": "Rush-hour traffic files out slowly through the exit ramps.",
-        "night": "Most levels are dark and deserted; only the exit signs glow."
+        "morning": "The morning shift spirals upward in a slow parade of commuters who don't know what walks among them.",
+        "afternoon": "Activity on every level. Good cover. Better hunting.",
+        "evening": "Rush hour bleeds the garage dry. You wait for the last car and then get to work.",
+        "night": "The exit signs throw red light on empty concrete. You know five ways out. You'll need at least two."
       },
       "attribute": {
-        "STEALTH": "A building this large has dozens of blind spots — you know exactly which ones to use.",
-        "PERCEPTION": "You mentally map the camera positions and dead zones in seconds.",
-        "AGILITY": "You take the stairs two at a time, moving between levels faster than anyone expects."
+        "STEALTH": "A structure this size has more blind spots than a crooked precinct. You've memorised them all.",
+        "PERCEPTION": "You mapped the cameras on the way in. Three of them are fakes. Useful to know.",
+        "AGILITY": "Stairs, not elevators. Always stairs. Elevators are traps with buttons."
       },
       "gender": {
-        "male": "The scale of the garage is just a logistical problem. You solve it efficiently.",
-        "female": "You've learned to treat spaces like this as tactical puzzles. You solve this one quickly."
+        "male": "You move through it like you built the place — sure, deliberate, nobody's problem until you decide to be.",
+        "female": "You've learned to treat every multi-storey as a maze someone designed to disadvantage you. You solve it anyway."
       }
     },
     "transit_station": {
-      "default": "You step into the transit station.",
+      "default": "Noise, sweat, and ten thousand people who aren't watching each other carefully enough. Except you.",
       "time": {
-        "morning": "Commuters stream through the turnstiles in the morning rush.",
-        "afternoon": "A quieter midday crowd makes it easier to watch the platforms.",
-        "evening": "The evening rush swells the platforms with tired commuters.",
-        "night": "The last trains of the night bring a sparse, watchful crowd."
+        "morning": "The morning rush is a river of blank faces. One of them is lying to someone. Probably more than one.",
+        "afternoon": "The midday lull. Easier to pick out the ones who don't have anywhere to be.",
+        "evening": "Tired workers, running feet, no eye contact. The evening crush is where people think they're invisible.",
+        "night": "The last trains scrape to a halt. Sparse crowd. Every face accountable. You like those odds."
       },
       "attribute": {
-        "PERCEPTION": "You read the crowd instantly — someone here doesn't fit the commuter profile.",
-        "AGILITY": "You slip through the crush of bodies without slowing down.",
-        "STAMINA": "The constant flow of people and noise is nothing; you stay sharp."
+        "PERCEPTION": "You spot the one who doesn't move with the flow — stationary in a river of bodies. That's your person.",
+        "AGILITY": "You thread through the crowd without breaking stride. Turnstiles, stairs, platforms — one clean line.",
+        "STAMINA": "The noise and the press of strangers would grind most people down. You've been through worse and stayed standing."
       },
       "gender": {
-        "male": "You blend into the commuter crowd without effort, just another face heading somewhere.",
-        "female": "You've learned which groups to move near in a crowd like this, and you position yourself accordingly."
+        "male": "You pull your collar up and walk like you belong on the next train out. Nobody gives you a second look.",
+        "female": "You position yourself with your back to a pillar and your eyes on the exits. Same as always."
       }
     },
     "bus_depot": {
-      "default": "You walk into the bus depot.",
+      "default": "Diesel and dead ends. The bus depot smells like every city that ever chewed someone up and spat them out.",
       "time": {
-        "morning": "Buses are warming up; drivers check their routes.",
-        "afternoon": "A steady rotation of arrivals and departures keeps things busy.",
-        "evening": "The last evening routes are being prepared.",
-        "night": "Buses rest in ranked rows; only the overnight crew is about."
+        "morning": "Routes being called, engines idling, the whole machine grinding to life. Good time to lose yourself in the machinery.",
+        "afternoon": "The rhythm of the depot is as predictable as a lie you've heard too many times. Which means it's hiding something.",
+        "evening": "Last runs of the day. Drivers cutting corners. People in a hurry to be somewhere they shouldn't be.",
+        "night": "The yard crew moves through the dark like they've done it a thousand times. Maybe tonight's the one that's different."
       },
       "attribute": {
-        "STAMINA": "The diesel fumes and noise don't bother you — you've been in worse.",
-        "STRENGTH": "The sheer scale of the vehicles here commands a certain respect.",
-        "PERCEPTION": "You note which buses have been recently moved and which haven't budged in days."
+        "STAMINA": "The fumes and the noise are the kind of thing that wears a person down. You stopped being that kind of person years ago.",
+        "STRENGTH": "Big machines, heavy work, the kind of place where brute force passes for problem-solving. You respect the honesty.",
+        "PERCEPTION": "Two buses moved recently. The logbook says they didn't. There's your thread."
       },
       "gender": {
-        "male": "The working environment here is familiar territory; nobody questions your presence.",
-        "female": "A woman in a bus depot draws glances. You've learned how to use that kind of attention."
+        "male": "You blend into the yard crew with a nod and a look that says you've been here before. Maybe you have.",
+        "female": "You get the looks. You always get the looks. You use the thirty seconds of distraction to clock everything they're not watching."
       }
     },
     "convenience_store": {
-      "default": "You step into the convenience store.",
+      "default": "Fluorescent light and stale coffee. The kind of place where lives quietly fall apart between the shelves.",
       "time": {
-        "morning": "Early risers grab coffee and newspapers before their commute.",
-        "afternoon": "A steady trickle of customers keeps the cashier busy.",
-        "evening": "After-work shoppers stop in for quick essentials.",
-        "night": "The store is almost empty; the fluorescent lights hum loudly."
+        "morning": "First customers of the day. The cashier looks like the night never ended. For them, maybe it didn't.",
+        "afternoon": "The slow afternoon burns. Bored staff and restless regulars — someone in here is waiting for something.",
+        "evening": "After-shift crowd. Tired, distracted, and telling the truth without knowing it.",
+        "night": "Three a.m. and the place is lit up like a crime scene. One customer too many for this hour."
       },
       "attribute": {
-        "PERCEPTION": "The placement of the security mirrors tells you exactly where the blind spots are.",
-        "INTUITION": "Something about the cashier's behaviour is off — you file it away."
+        "PERCEPTION": "Security mirror angles, till placement, the back-room door left two inches open. You read the room in ten seconds flat.",
+        "INTUITION": "Something's off with the guy by the cooler. He's been staring at the same six-pack for four minutes."
       },
       "gender": {
-        "male": "You nod at the cashier and get straight to business.",
-        "female": "The cashier watches the aisle while you browse — protective or suspicious, hard to tell."
+        "male": "You pick up a coffee and pay cash. Nobody remembers a man who buys coffee.",
+        "female": "You browse slow and talk less. The cashier fills the silence. People always do, and that's when they tell you what you need."
       }
     },
     "gas_station": {
-      "default": "You pull up to the gas station.",
+      "default": "Petrol and paranoia. Every gas station is a checkpoint — people pass through without thinking. You think for them.",
       "time": {
-        "morning": "Commuters queue at the pumps before the morning rush.",
-        "afternoon": "A slow midday lull — the forecourt is quiet.",
-        "evening": "Evening traffic creates a busy stop-start flow at the pumps.",
-        "night": "The canopy lights blaze against the dark; only a lone attendant is inside."
+        "morning": "Commuters queuing at the pumps, barely awake. The perfect time to watch without being watched.",
+        "afternoon": "Midday lull. The forecourt is exposed and quiet. Neither of those is necessarily a good thing.",
+        "evening": "Evening traffic. Everyone's in a hurry to be somewhere. Find out where — that's the job.",
+        "night": "The canopy lights blaze in the dark and nothing moves for minutes at a time. Then something does."
       },
       "attribute": {
-        "PERCEPTION": "You note the cameras, the angles, the movement patterns — this place has seen trouble before.",
-        "AGILITY": "You're in and out before the attendant has finished blinking.",
-        "INTUITION": "The vehicle idling near the air pump has been there too long to be just getting fuel."
+        "PERCEPTION": "You count the cameras, note the angles, spot the car that's been idling at pump four for twelve minutes without buying anything.",
+        "AGILITY": "You're back in the car before the receipt prints. Quick and clean, no loose ends.",
+        "INTUITION": "That van's been parked on the air side since before you pulled in. It's not waiting for air."
       },
       "gender": {
-        "male": "You handle the transaction without a word of small talk, which suits you fine.",
-        "female": "An attendant offers to check your tyres unprompted. You let them — it's a free look around."
+        "male": "You pay at the pump, keep your head down. Transaction complete. Nobody noticed. That's the idea.",
+        "female": "The attendant offers help you don't need. You let them talk — chatty people fill silence with facts you can use."
       }
     },
     "fast_food_restaurant": {
-      "default": "You push through the door of the fast food restaurant.",
+      "default": "Grease and noise and the steady misery of people who stopped expecting anything better. Your kind of place.",
       "time": {
-        "morning": "The breakfast rush has the queue backed to the door.",
-        "afternoon": "The lunchtime crowd tests the patience of the overwhelmed staff.",
-        "evening": "Families and teenagers take up most of the booths.",
-        "night": "The night shift crew moves wearily through a near-empty dining room."
+        "morning": "The breakfast queue snakes to the door. Everyone's hungover or hasn't slept. Either way, their guard is down.",
+        "afternoon": "Packed at noon. A thousand conversations happening at once. Pick the right one and it'll tell you everything.",
+        "evening": "Families and teenagers occupy the booths, all of them watching their screens, none of them watching each other. Except you.",
+        "night": "Night shift crew, hollow-eyed and running on spite. The real city, after-hours, laid bare."
       },
       "attribute": {
-        "CHARISMA": "The server at the counter brightens when you walk up — you have that effect on people.",
-        "PERCEPTION": "You clock every face in the dining area before you've even ordered.",
-        "STAMINA": "The heavy food and grease-thick air slow most people down. You stay focused."
+        "CHARISMA": "You smile at the counter and the server tells you more than the menu ever will.",
+        "PERCEPTION": "Twelve tables, forty faces, and one person eating alone who arrived before the rush and hasn't touched their food.",
+        "STAMINA": "The grease and the noise would sap most people. You chew, you watch, you stay sharp."
       },
       "gender": {
-        "male": "You order without ceremony and find a seat with a clear view of the room.",
-        "female": "The server is friendlier than they need to be. You use the extra seconds to take stock of the room."
+        "male": "You take the corner booth with your back to the wall. Old habit. Good one.",
+        "female": "You sit where you can see the door. The guy at the next table tries to make conversation. You let him think he succeeded."
       }
     },
     "coffee_shop": {
-      "default": "You walk into the coffee shop.",
+      "default": "Seven-dollar coffee and secrets sold by the pound. Everyone in here is running from something or toward something worse.",
       "time": {
-        "morning": "The morning rush fills the shop with the aroma of fresh coffee and low chatter.",
-        "afternoon": "Students and remote workers have settled in for the long haul.",
-        "evening": "A mellower crowd winds down over lattes and conversation.",
-        "night": "Only a handful of night owls remain, nursing cold drinks."
+        "morning": "The morning rush brings them in loud and caffeinated. Loose mouths, tight schedules — money can't buy discretion.",
+        "afternoon": "The afternoon crowd settles in with laptops and long drinks. They think they're hiding. They're not.",
+        "evening": "Quieter now. The ones who remain have nowhere better to be. Neither do you.",
+        "night": "Last customers of the night nursing cold cups. The barista wants to close. You don't care what the barista wants."
       },
       "attribute": {
-        "INTELLIGENCE": "You pick a seat with a view of every entrance and order something that buys you time.",
-        "MEMORY": "You recognise two regulars from a case file — they're meeting here on purpose.",
-        "CHARISMA": "The barista starts on your usual before you've reached the counter."
+        "INTELLIGENCE": "You pick a corner table with the full room in view and order something that gives you ninety minutes of cover.",
+        "MEMORY": "The regular at the end of the bar — you know that face. Case file seventeen. The one you thought was cold.",
+        "CHARISMA": "The barista has your order started before you reach the counter. Regular. Perfect cover."
       },
       "gender": {
-        "male": "You work undisturbed; people rarely interrupt a man focused on a screen.",
-        "female": "Two men at the counter have been watching you since you sat down. You note them and keep reading."
+        "male": "You open a newspaper you stopped reading three years ago. Nobody looks twice at a man with a newspaper.",
+        "female": "Two men near the window have been watching you since you sat down. You've already memorised their faces."
       }
     },
     "small_retail_store": {
-      "default": "You enter the small retail store.",
+      "default": "Everything for sale, including information — though most shopkeepers don't know they're selling it.",
       "time": {
-        "morning": "The store is just opening; shelves freshly stocked.",
-        "afternoon": "A moderate afternoon crowd browses the aisles.",
-        "evening": "End-of-day shoppers move quickly on their way home.",
-        "night": "The shutters are down. The store is closed."
+        "morning": "Freshly stocked shelves and a shopkeeper who hasn't had their guard up long enough to keep it steady.",
+        "afternoon": "The slow burn of a quiet afternoon. Both you and the owner have time to size each other up.",
+        "evening": "Closing time creeps in. People in a hurry say more than they mean to.",
+        "night": "Shuttered. Whatever you needed here, you should have come earlier."
       },
       "attribute": {
-        "CHARISMA": "The owner greets you like an old friend the moment you step in.",
-        "PERCEPTION": "A price tag out of alignment, a recently moved display — small things speak volumes.",
-        "STEALTH": "You browse without drawing a single glance from the staff."
+        "CHARISMA": "The owner greets you like old money. You smile like you deserve it.",
+        "PERCEPTION": "Mismatched inventory tags. A back shelf accessed too recently. Small things. You keep a list.",
+        "STEALTH": "You browse the aisles like you're killing time. Nobody in here is being paid to watch you carefully."
       },
       "gender": {
-        "male": "The shopkeeper watches you from behind the counter, as they do with most male browsers.",
-        "female": "The owner relaxes when she sees you and comes over to chat. Information flows freely here."
+        "male": "You ask a dumb question about a product you don't need. The owner talks for five minutes. Answers one question you actually wanted answered.",
+        "female": "The shopkeeper relaxes the moment you walk in. Threat assessment: none. Their mistake."
       }
     },
     "pharmacy": {
-      "default": "You enter the pharmacy.",
+      "default": "Prescriptions and secrets. People are never more honest than when they're sick and scared.",
       "time": {
-        "morning": "Early customers collect prescriptions before the working day begins.",
-        "afternoon": "The pharmacist looks weary from a busy midday rush.",
-        "evening": "A few customers pick up last-minute prescriptions before closing.",
-        "night": "The pharmacy is closed; only the emergency window is lit."
+        "morning": "Early customers collecting scripts they needed yesterday. Desperation has a particular walk.",
+        "afternoon": "The lunchtime queue stretches down the aisle. A pharmacist under this kind of pressure makes small mistakes.",
+        "evening": "Last calls before closing. The ones who come late don't want to be seen coming at all.",
+        "night": "Dark and locked. Only the emergency window glows. Whatever brought someone out this late matters."
       },
       "attribute": {
-        "INTELLIGENCE": "The medications on the shelves tell a story about what ailments are common in this neighbourhood.",
-        "EMPATHY": "You can see in the customers' faces what they're hoping the white bags will fix.",
-        "PERCEPTION": "You notice the pharmacist react to one name on the prescription — recognition, not routine."
+        "INTELLIGENCE": "You read the shelves like a case file — what's low stock, what's over-ordered, what shouldn't be here at all.",
+        "EMPATHY": "Every prescription tells a story. You're reading the chapters nobody came here to share.",
+        "PERCEPTION": "The pharmacist's hands froze for half a second on one name. Just half a second. Enough."
       },
       "gender": {
-        "male": "You browse the shelves without drawing attention — just a customer picking up supplies.",
-        "female": "The pharmacist addresses you first; women in pharmacies are treated as conversational partners."
+        "male": "You linger by the vitamins long enough to catch the counter conversation. Health privacy ends where your case begins.",
+        "female": "The pharmacist answers your questions without hesitation. People underestimate how much women are trusted with the details."
       }
     },
     "bank_branch": {
-      "default": "You step into the bank branch.",
+      "default": "Money is just a way of keeping score. You're here to find out who's been cheating.",
       "time": {
-        "morning": "The doors have just opened; early customers take numbers and wait.",
-        "afternoon": "A steady queue fills the lobby during the lunch-hour rush.",
-        "evening": "The branch is closing up; tellers are counting out their drawers.",
-        "night": "The bank is locked and dark, the ATM the only sign of life."
+        "morning": "Doors just open. Nervous customers and tellers who haven't been lied to yet today. Give it time.",
+        "afternoon": "Lunch-hour queue, harried staff, and the midday cover of noise. The branch does its dirtiest business in plain sight.",
+        "evening": "Counting down the drawers. That's when the numbers stop lying and the people start.",
+        "night": "Locked. The ATM hums in the dark. Someone's using it at this hour for a reason."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the layout immediately — vault access, teller windows, security positions.",
-        "INTIMIDATION": "The guard straightens up when you walk past. Good.",
-        "PERCEPTION": "A nervous customer near the back is holding their bag too tightly."
+        "INTELLIGENCE": "You read the floor plan in ten seconds — vault access, teller positions, the one camera with the bad angle.",
+        "INTIMIDATION": "You walk past the guard without slowing. They straighten up. Good.",
+        "PERCEPTION": "The customer three places ahead in the queue is sweating through a suit jacket on a cool day. That's not the weather."
       },
       "gender": {
-        "male": "The teller is professionally guarded, as they are with most men who walk in unannounced.",
-        "female": "The manager approaches you directly — in their experience, women who come alone have a purpose."
+        "male": "You carry yourself like someone who has an appointment. They always assume the appointment is real.",
+        "female": "The branch manager approaches you before you've taken a number. Women who walk in like they own the room get seen first."
       }
     },
     "laundromat": {
-      "default": "You enter the laundromat.",
+      "default": "Everyone comes here with something to clean. Not all of it fits in a drum.",
       "time": {
-        "morning": "A few early regulars load machines before their days begin.",
-        "afternoon": "The hum of washers and dryers fills the warm, damp air.",
-        "evening": "After-work crowds claim the remaining machines.",
-        "night": "Only one or two people sit with their phones, waiting for spin cycles to end."
+        "morning": "The early crowd does their laundry before work. What they're washing out, that's the question.",
+        "afternoon": "The machines drone on. Afternoon light through dirty glass. A good place to sit and think, if thinking is something you still do.",
+        "evening": "After-work crowd. Tired, automatic, not watching what's around them. You are.",
+        "night": "Two people and the sound of spinning cycles. At this hour, people are either working unusual shifts or they're hiding something. Sometimes both."
       },
       "attribute": {
-        "PERCEPTION": "The person in the corner hasn't looked at their laundry once. They're watching something else.",
-        "MEMORY": "You recognise the same face from a different part of town — what are they doing here?",
-        "STEALTH": "You blend in perfectly, just another person folding clothes."
+        "PERCEPTION": "The man in the corner hasn't looked at his laundry once. He's watching the door.",
+        "MEMORY": "That face — you know it from a different neighbourhood. Different context. Same trouble.",
+        "STEALTH": "Fold something. Look occupied. A laundromat is the best surveillance post in the city."
       },
       "gender": {
-        "male": "You take a corner seat, unremarkable among the other waiting customers.",
-        "female": "The regular at the far machine catches your eye with a nod — you're welcome company here."
+        "male": "You sit with a magazine you're not reading and wait for the machine to give you something better to work with.",
+        "female": "You chat with the woman next to you. She tells you about her neighbour, her landlord, her troubles. One of those troubles is yours."
       }
     },
     "hair_salon": {
-      "default": "You step into the hair salon.",
+      "default": "The most honest conversations in any city happen in a hair salon. People say everything when someone's working on their head.",
       "time": {
-        "morning": "The stylists are setting up; the first appointments arrive.",
-        "afternoon": "The salon is at full capacity, every chair occupied.",
-        "evening": "Last appointments of the day; the mood is relaxed.",
-        "night": "The salon is closed; chairs draped in plastic, mirrors reflecting empty space."
+        "morning": "First appointments of the day. The stylists are fresh and the clients are loose-lipped.",
+        "afternoon": "Full house, every chair occupied, and the noise level a cover for anything you want to hear.",
+        "evening": "Last cuts of the day. The relaxed end of a long shift is when the real talk happens.",
+        "night": "Dark and locked. Whatever conversation you needed, it happened six hours ago."
       },
       "attribute": {
-        "CHARISMA": "The stylists are instantly at ease with you — conversation flows without effort.",
-        "EMPATHY": "You listen to the chatter and hear the real stories between the small talk.",
-        "PERCEPTION": "Overheard conversations in here carry more truth than most formal interviews."
+        "CHARISMA": "You slip into the social rhythm of the place like you've been here every week for years.",
+        "EMPATHY": "The chatter sounds like small talk. It isn't. You hear what's between the words.",
+        "PERCEPTION": "Three conversations happening simultaneously. You're following all of them."
       },
       "gender": {
-        "male": "You're the only man in the salon and everyone knows it. You use the surprised attention well.",
-        "female": "You're on familiar ground — the rhythm of the place, the trust that forms over a wash and cut."
+        "male": "You're the only man in the room and everyone knows it. The attention is useful while it lasts.",
+        "female": "You've been in enough salons to know that the mirror shows more than a reflection. You watch every face in it."
       }
     },
     "gym_fitness_center": {
-      "default": "You enter the fitness center.",
+      "default": "Iron and sweat and the quiet desperation of people trying to outrun something. You know the feeling.",
       "time": {
-        "morning": "Early risers power through their routines before the workday starts.",
-        "afternoon": "A smaller midday crowd trains at a steadier pace.",
-        "evening": "The after-work crowd fills every station with competitive energy.",
-        "night": "Only the most dedicated are still pushing themselves this late."
+        "morning": "The early crowd punishes themselves before dawn. Either very disciplined or very guilty.",
+        "afternoon": "Midday regulars. Less competition, better sight lines. You watch the room like it owes you something.",
+        "evening": "After-work rush. Every frustration in the city works itself out on a machine. Some frustrations don't belong in a gym.",
+        "night": "The diehards. The ones who can't sleep or won't. You understand them better than you'd like."
       },
       "attribute": {
-        "STRENGTH": "You feel right at home — the weights, the chalk, the iron. This is your element.",
-        "STAMINA": "Your eyes go straight to the cardio section. You could outlast everyone here.",
-        "AGILITY": "You size up the open training floor immediately, already planning your footwork drills."
+        "STRENGTH": "You rack the weights nobody else touches and feel the familiar burn. This is the one place the body doesn't lie to you.",
+        "STAMINA": "You hit the cardio floor and settle into a pace that would wreck most people. You're just warming up.",
+        "AGILITY": "You map the training floor in a circuit that looks like exercise and works like reconnaissance."
       },
       "gender": {
-        "male": "Two regulars offer you a spot within minutes of your warm-up. The gym's social code is straightforward.",
-        "female": "You move to the free weights. Three people stop what they're doing to watch. You ignore them completely."
+        "male": "Two regulars offer you a spot without being asked. Some spaces still run on old codes. You use it.",
+        "female": "You head for the free weights and ignore the stares. You've been ignoring them since day one. Doesn't stop you lifting."
       }
     },
     "strip_mall": {
-      "default": "You walk along the strip mall.",
+      "default": "A string of businesses held together by a parking lot and low expectations. Somebody's running something here that isn't on the signage.",
       "time": {
-        "morning": "A few shops are still rolling up their shutters.",
-        "afternoon": "The strip mall is busy with errands and foot traffic.",
-        "evening": "Most stores are closing; the fast-food end stays busy.",
-        "night": "Shuttered storefronts stretch in both directions; only the drive-through is lit."
+        "morning": "Half the shutters aren't up yet. The ones that are open early have a reason to be.",
+        "afternoon": "Foot traffic and errands. The strip mall at its most normal, which means the least guarded.",
+        "evening": "Most shops closing. The ones staying open after dark are the ones worth watching.",
+        "night": "One light still on at the far end. You make a note of which unit and what time."
       },
       "attribute": {
-        "PERCEPTION": "You take in every storefront in a single sweep, noting the unusual among the routine.",
-        "CHARISMA": "Shop owners nod at you like a regular even on a first visit.",
-        "STEALTH": "The constant foot traffic makes you invisible — just another face in the crowd."
+        "PERCEPTION": "Twelve storefronts and one of them has inventory coming in after midnight. You file that away.",
+        "CHARISMA": "You step into a shop and come out with three business cards and twice as many leads.",
+        "STEALTH": "You walk the strip once and let the foot traffic swallow you. Nobody remembers a face that keeps moving."
       },
       "gender": {
-        "male": "You move through the strip mall efficiently, drawing no particular attention.",
-        "female": "A couple of shop owners say hello — you're a friendlier face than most who walk past."
+        "male": "You move through it like a man with errands. Nothing says normal like a man with errands.",
+        "female": "You window shop. It's the oldest cover in the book and it still works because nobody ever questions it."
       }
     },
     "shopping_center": {
-      "default": "You enter the shopping center.",
+      "default": "Consumption as cover. A thousand people who aren't watching where they're going, and one who is.",
       "time": {
-        "morning": "The center has just opened; staff outnumber shoppers.",
-        "afternoon": "Families and groups of friends crowd the walkways.",
-        "evening": "The food court fills up as the last hour of trading begins.",
-        "night": "Security patrols the dark, empty concourse."
+        "morning": "The center's barely awake. Staff outnumber shoppers and everyone is running on autopilot.",
+        "afternoon": "Peak hours. The crowd is the cover. You disappear into it without trying.",
+        "evening": "Last rush before closing. People in a hurry make mistakes. You don't.",
+        "night": "Security walks the dark concourse. You know their route before they've finished the first lap."
       },
       "attribute": {
-        "CHARISMA": "People seem to gravitate toward you — you're approached before you even stop walking.",
-        "PERCEPTION": "You track the flow of shoppers, spotting anyone who's loitering with no purchase intent.",
-        "STEALTH": "You move with the crowd, unremarkable and untraceable."
+        "CHARISMA": "You move through it like a welcome regular and people talk to you like one.",
+        "PERCEPTION": "You've been scanning exits since you walked in. There's someone in here who doesn't want to be seen shopping.",
+        "STEALTH": "You match your pace to the crowd and become part of the furniture."
       },
       "gender": {
-        "male": "You move against the grain of the browsing crowd, which makes you faster.",
-        "female": "You blend into the natural flow of the shopping center without a second thought."
+        "male": "You keep moving. A stationary man in a shopping center draws attention. A moving one doesn't.",
+        "female": "You're invisible here in the best possible way. Just another shopper. Nobody's problem. Everybody's blind spot."
       }
     },
     "regional_mall": {
-      "default": "You step inside the regional mall.",
+      "default": "The regional mall: where ambition goes to die and surveillance footage goes to stack up. You've got work to do.",
       "time": {
-        "morning": "Mall walkers and early shoppers fill the quiet ground floor.",
-        "afternoon": "The weekend crowd packs every escalator and food court seat.",
-        "evening": "Last-minute shoppers rush before the shutters come down.",
-        "night": "The vast interior is dark except for exit lighting; security makes rounds."
+        "morning": "Mall walkers in their circuit, the early stores cranking up. The lull before the storm is when you move.",
+        "afternoon": "Packed. Every escalator a river of targets. You find the one who's swimming against the current.",
+        "evening": "Last hour of trading. The security rotation thins and the pace picks up. Things happen in the last hour.",
+        "night": "The big dark. Emergency lighting and a security patrol you could set your watch by."
       },
       "attribute": {
-        "CHARISMA": "You move through the crowd effortlessly — conversations start without you trying.",
-        "PERCEPTION": "In a place this busy, you still spot the one person who doesn't belong.",
-        "STEALTH": "The sheer scale of this place makes you functionally invisible."
+        "CHARISMA": "You start conversations by accident and finish them with what you came for.",
+        "PERCEPTION": "In a crowd this size, finding the wrong person is easy once you know what wrong looks like.",
+        "STEALTH": "This many people, this much noise. You could run a full surveillance operation from the food court and nobody would blink."
       },
       "gender": {
-        "male": "You stand out slightly — most men move through malls with obvious purpose. You use that assumption.",
-        "female": "You're invisible here in the best sense — just another shopper among thousands."
+        "male": "You move with purpose through the browsing mass. Everyone assumes you know where you're going.",
+        "female": "In a place this size, a woman can become functionally invisible. You use it like the professional you are."
       }
     },
     "supermarket": {
-      "default": "You walk into the supermarket.",
+      "default": "Aisles and angles. Everything in a supermarket is designed to move you in one direction. You go your own way.",
       "time": {
-        "morning": "Shelves are freshly stocked; the early crowd is orderly and quiet.",
-        "afternoon": "The aisles are busy with purposeful shoppers working through lists.",
-        "evening": "The after-work rush turns every checkout into a queue.",
-        "night": "Night-shift staff restock the shelves in near-silence."
+        "morning": "Freshly stocked and barely staffed. The morning crowd is methodical. You blend right in.",
+        "afternoon": "Busy aisles and distracted shoppers. Midday is when the delivery drivers come in the back. Worth noting.",
+        "evening": "The after-work rush puts everyone in a hurry and nobody watching the edges.",
+        "night": "Night-shift restocking in near-silence. The back corridors open up. Interesting."
       },
       "attribute": {
-        "PERCEPTION": "The product placement, the security positioning, the layout — you read it all at a glance.",
-        "MEMORY": "You remember the prices from last week; something has changed, and not by chance.",
-        "INTELLIGENCE": "The supply chain tells a story if you know how to read the gaps on the shelves."
+        "PERCEPTION": "You spot the gap on the shelf before the stockist does — and you know what it means.",
+        "MEMORY": "Last time you were in a place like this, the prices told you a distribution chain was being bypassed. You're checking the numbers again.",
+        "INTELLIGENCE": "Empty shelves aren't always out of stock. Sometimes they're evidence."
       },
       "gender": {
-        "male": "You move through the aisles with a list and a pace that says you're not here to browse.",
-        "female": "You chat briefly with the person at the deli counter. People share things in passing they'd never say directly."
+        "male": "You push a cart to blend in. Nobody questions a man with a cart. It's practically camouflage.",
+        "female": "The floor manager gives you a friendly nod. Women ask questions in supermarkets all the time. Nobody thinks twice."
       }
     },
     "warehouse_store": {
-      "default": "You push a cart through the warehouse store.",
+      "default": "Everything sold in bulk, including whatever the back room doesn't advertise. You're here for the fine print.",
       "time": {
-        "morning": "Families stock up early while the store is at its quietest.",
-        "afternoon": "Pallets are being shifted mid-aisle, slowing the afternoon traffic.",
-        "evening": "Last-minute bulk shoppers clog the checkout lines.",
-        "night": "The store is closed; the enormous parking lot stands empty."
+        "morning": "Quiet enough to hear your own thoughts and someone else's phone call two aisles over.",
+        "afternoon": "Forklifts and noise. Good cover. You stay close to the walls.",
+        "evening": "Thinning out. Easier to work but easier to be seen. Double-edged.",
+        "night": "Closed. The loading bay out back is a different story."
       },
       "attribute": {
-        "STRENGTH": "The scale of this place feels natural to you — the heavy loads, the wide aisles.",
-        "STAMINA": "The sheer size demands energy most people underestimate.",
-        "PERCEPTION": "You track the staff movements and camera angles automatically as you walk."
+        "STRENGTH": "The scale of the place feels natural to you. You don't flinch at things that weigh as much as a bad decision.",
+        "STAMINA": "It takes something to walk this floor without slowing down. You've got it.",
+        "PERCEPTION": "One pallet's been moved recently but logged as untouched. You photograph the discrepancy."
       },
       "gender": {
-        "male": "You navigate the warehouse floor like you belong here, which you do.",
-        "female": "Staff are slightly more helpful than necessary. You accept every offer — each one is an opportunity to ask questions."
+        "male": "You look like you belong in the trade section. Nobody checks credentials when the posture is right.",
+        "female": "The floor rep walks over to assist. You ask three questions, each one designed to get the answer to a fourth."
       }
     },
     "restaurant_casual": {
-      "default": "You step inside the casual restaurant.",
+      "default": "Cheap meals and the kind of conversation that happens when people stop being careful. Pull up a chair.",
       "time": {
-        "morning": "The breakfast crowd lingers over coffee and eggs.",
-        "afternoon": "The lunchtime rush fills most tables with office workers.",
-        "evening": "Families and couples fill the dining room; the noise level is comfortable.",
-        "night": "The kitchen is winding down; a few late-nighters remain at the bar."
+        "morning": "Eggs and alibis. Breakfast clients say what they mean because the day hasn't taught them caution yet.",
+        "afternoon": "Lunch crowd, overworked and undertipped. Everyone wants to vent. You're a patient listener.",
+        "evening": "Tables full of people saying things they'll regret later. Perfect.",
+        "night": "The kitchen's shutting down. Last round of drinks, last round of honesty."
       },
       "attribute": {
-        "CHARISMA": "The host seats you immediately, with a smile that says you're remembered.",
-        "EMPATHY": "You can read the table dynamics of every group without trying.",
-        "PERCEPTION": "You scan the room the moment you're seated — habits die hard."
+        "CHARISMA": "The host gives you the good booth without being asked. You have that kind of face today.",
+        "EMPATHY": "You read every table in thirty seconds. Two arguments brewing. One reconciliation that won't take.",
+        "PERCEPTION": "You were seated three minutes ago and you've already mapped every entrance and the fire exit behind the kitchen."
       },
       "gender": {
-        "male": "You take a solo table without issue; the staff treat it as routine.",
-        "female": "The host seats you immediately, with a smile that says solo diners are welcome here."
+        "male": "You order something cheap and make it last. A man nursing a coffee is invisible. That's the point.",
+        "female": "The waiter is attentive in the wrong way. You redirect the attention into useful conversation."
       }
     },
     "restaurant_fine_dining": {
-      "default": "You enter the fine dining restaurant.",
+      "default": "Crystal and candlelight draped over the same old lies. The prices go up but the sins stay affordable.",
       "time": {
-        "morning": "The dining room is closed; prep staff work in near-silence.",
-        "afternoon": "A quiet lunch service attends to well-dressed regulars.",
-        "evening": "The full evening service transforms the room; every table has a story.",
-        "night": "The last diners linger; the staff moves with quiet efficiency to close."
+        "morning": "The restaurant is dark and silent. Only prep staff working the stock. They see more than the dining room crowd ever does.",
+        "afternoon": "Quiet lunch service. Well-dressed regulars conducting business that belongs in a back room.",
+        "evening": "Full house. Every table is a transaction. You're here to find out who's paying for what.",
+        "night": "The last cover lingers. The staff wants to go home. Someone at table nine doesn't want to be overheard."
       },
       "attribute": {
-        "CHARISMA": "The maitre d' recognises authority when they see it and attends to you immediately.",
-        "INTELLIGENCE": "The menu, the wine list, the clientele — you read the room like a dossier.",
-        "EMPATHY": "You pick up on the tension at a nearby table before a single word is raised."
+        "CHARISMA": "The maitre d' decides in five seconds that you're someone worth accommodating. You give them reason to keep deciding that.",
+        "INTELLIGENCE": "The wine list, the menu pricing, the clientele — this is a front for something. You're already three steps into finding out what.",
+        "EMPATHY": "Table six has been smiling all evening. The body language says the conversation ended badly three courses ago."
       },
       "gender": {
-        "male": "The maitre d' sizes up your confidence rather than your clothes and decides to be helpful.",
-        "female": "The maitre d' attends to you immediately — a woman dining alone in a place like this is either confident or important. You are both."
+        "male": "You order expensive and eat nothing. A man who orders expensive and doesn't eat is either nervous or important. Either works.",
+        "female": "Dining alone in a place like this marks you as either very confident or very dangerous. You let them wonder which."
       }
     },
     "car_dealership": {
-      "default": "You walk onto the car dealership floor.",
+      "default": "Chrome and commission breath. Everyone in here is selling something. Some of them are selling cars.",
       "time": {
-        "morning": "Salespeople are prepping their pitches for the day.",
-        "afternoon": "Test drives and negotiations fill the showroom.",
-        "evening": "End-of-day deals are being pushed hard; quota pressure is visible.",
-        "night": "The showroom is lit but locked; rows of vehicles wait behind glass."
+        "morning": "Salespeople reciting pitches before the floor opens. Pre-performance nerves. Good time to catch them off-script.",
+        "afternoon": "Test drives and negotiation. Everybody's lying and everybody knows it.",
+        "evening": "End of day, quota pressure, the desperation of people who need the numbers. They'll say anything.",
+        "night": "Showroom lit up, no customers. The glass lets you see in without going in."
       },
       "attribute": {
-        "CHARISMA": "The salesperson backs off the hard pitch within thirty seconds of meeting you.",
-        "INTELLIGENCE": "You know the invoice price before the salesperson opens their mouth.",
-        "INTUITION": "Something about the lot manager's story doesn't add up."
+        "CHARISMA": "The salesperson clocks your confidence and drops the canned pitch. Now you're having a real conversation.",
+        "INTELLIGENCE": "You know the invoice price, the holdback, the incentives. The salesperson realises this at the same moment you tell them.",
+        "INTUITION": "The floor manager keeps looking at the lot. Not at the cars — at one specific space. And what it used to hold."
       },
       "gender": {
-        "male": "The salesperson launches into their pitch before you've said hello.",
-        "female": "The salesperson underestimates you within ten seconds. That gives you the first of many advantages."
+        "male": "They open with the high end. You redirect to what you actually want. Takes thirty seconds.",
+        "female": "The salesperson underestimates you in the first ten seconds. You give them twenty more to dig the hole deeper before you climb out."
       }
     },
     "auto_repair_shop": {
-      "default": "You step into the auto repair shop.",
+      "default": "Grease and graft. This place fixes things that are broken, which makes it a professional courtesy call.",
       "time": {
-        "morning": "Mechanics start engines and run diagnostics as the day begins.",
-        "afternoon": "The shop is in full swing; the bay is full of lifted vehicles.",
-        "evening": "The last jobs of the day are being wrapped up.",
-        "night": "The shutters are down; the shop is dark except for one office light."
+        "morning": "Engines turning over, diagnostics running. The day shift starts honest. Stays that way until the afternoon, usually.",
+        "afternoon": "Bay full, every lift occupied. Good cover noise. You talk while they work.",
+        "evening": "Last jobs being wrapped, overtime being argued. The day's secrets come out with the invoice.",
+        "night": "The shutters are down. A light burns in the back office. That light doesn't belong to the books."
       },
       "attribute": {
-        "STRENGTH": "The physical work here is in your vocabulary — you respect the graft.",
-        "INTELLIGENCE": "Modern diagnostics are half the job; you speak the language of both wrenches and code.",
-        "PERCEPTION": "One of the vehicles in the back lot isn't here for repairs."
+        "STRENGTH": "The work here is honest and physical. You speak that language.",
+        "INTELLIGENCE": "You pull up the diagnostic code they flagged and cross-reference it with a vehicle you didn't come here for.",
+        "PERCEPTION": "One car in the back bay wasn't brought in for repairs. The plates were changed in the last twelve hours."
       },
       "gender": {
-        "male": "You speak the language of the shop floor; the mechanics treat you as a peer.",
-        "female": "The mechanic adjusts their explanation when they see you're following every detail. Respect is earned quickly here."
+        "male": "You speak the shop floor dialect. They relax. That's when the real answers come out.",
+        "female": "The mechanic starts over-explaining. You let them. The explanation has a hole in it you can drive a case through."
       }
     },
     "medical_clinic": {
-      "default": "You enter the medical clinic.",
+      "default": "Sick people, tired doctors, and a filing system that knows everything about everyone. You just need one file.",
       "time": {
-        "morning": "The waiting room fills up quickly after the doors open.",
-        "afternoon": "A long afternoon queue works its way through triage.",
-        "evening": "The last appointments of the day are running late.",
-        "night": "The clinic is closed; a note on the door redirects emergencies to urgent care."
+        "morning": "Waiting room filling up before nine. People who came early are either very ill or very motivated. You're the latter.",
+        "afternoon": "Long afternoon queue, overworked staff, the kind of exhaustion that makes people careless with information.",
+        "evening": "Last appointments running late. The clinic wants to close. You need two more minutes.",
+        "night": "Dark and locked. Whatever you couldn't find out during hours, you'll need another way in."
       },
       "attribute": {
-        "INTELLIGENCE": "Medical terminology, drug interactions, dosage anomalies — you catch details the staff skim past.",
-        "EMPATHY": "You can see in patients' expressions what they're afraid to say out loud.",
-        "PERCEPTION": "A patient in the corner has been waiting far too long for a routine visit."
+        "INTELLIGENCE": "You read the prescription pad on the counter, the dosages on the display shelf, the name blacked out on the file that shouldn't be on the desk.",
+        "EMPATHY": "Every patient in the waiting room is scared of something. You can tell which ones are scared of the wrong thing.",
+        "PERCEPTION": "The receptionist just hid a file that was sitting out when you walked in. She didn't think you saw. She was wrong."
       },
       "gender": {
-        "male": "The receptionist is efficient and brisk — standard procedure for a walk-in.",
-        "female": "The nurse at triage takes a moment longer with you than the forms require. You use it."
+        "male": "You give them a name that isn't yours and a reason that isn't real. The receptionist books you in without a second thought.",
+        "female": "You're through the door and past the reception line before anyone thinks to ask why."
       }
     },
     "dental_office": {
-      "default": "You enter the dental office.",
+      "default": "People say things in a dental chair they'd never say anywhere else. Pain is the world's oldest truth serum.",
       "time": {
-        "morning": "Early patients arrive looking resigned; nobody loves the dentist.",
-        "afternoon": "The appointment schedule is backed up from a slow morning.",
-        "evening": "The last patient of the day heads for the exit, cheek still numb.",
-        "night": "The office is locked and dark; the receptionist's desk is cleared."
+        "morning": "First appointments wear the face of people who've been dreading this since yesterday. Excellent.",
+        "afternoon": "The books have fallen behind. Waiting room patience running thin. Patience is something you have in bulk.",
+        "evening": "Last patient shuffles out with a numb jaw and no filter. You catch them at the door.",
+        "night": "Empty office, chairs tilted back in the dark. You've seen more unsettling rooms."
       },
       "attribute": {
-        "EMPATHY": "You're unusually good at putting nervous patients at ease.",
-        "INTELLIGENCE": "The x-rays on the light box tell a story beyond just teeth.",
-        "PERCEPTION": "The tension between the dentist and a staff member is noticeable even from the waiting room."
+        "EMPATHY": "You know what it costs a person to sit in that chair. You use the common ground.",
+        "INTELLIGENCE": "The x-rays on the lightbox are interesting for reasons the dentist wouldn't appreciate.",
+        "PERCEPTION": "There's a tension between the dentist and the hygienist that has nothing to do with a billing dispute."
       },
       "gender": {
-        "male": "You sit in the waiting room in the standard uncomfortable silence.",
-        "female": "The receptionist strikes up conversation easily. Dental waiting rooms are surprisingly good for information."
+        "male": "You take the waiting room chair nearest the corridor and read a magazine no one's opened since last year.",
+        "female": "The receptionist treats you like a person, not a case number. Some environments still work in your favour."
       }
     },
     "veterinary_clinic": {
-      "default": "You step into the veterinary clinic.",
+      "default": "Animals don't lie, and the people who love them are halfway honest. A good place to ask questions.",
       "time": {
-        "morning": "Anxious owners and their animals pack the morning waiting room.",
-        "afternoon": "Routine check-ups keep the afternoon schedule ticking over.",
-        "evening": "The last few evening appointments play out in a quieter clinic.",
-        "night": "The clinic is closed for regular hours; emergency cases only."
+        "morning": "First clients of the day — worried owners, anxious animals, and no reason yet to be on guard.",
+        "afternoon": "Routine visits and the kind of chatter that happens when everyone's been waiting too long.",
+        "evening": "Last few cases. The day's weight shows on the staff. Weight makes people talk.",
+        "night": "Emergency hours only. Whatever brings someone here at this time of night — it matters."
       },
       "attribute": {
-        "EMPATHY": "The animals sense something calming in you — even the anxious ones settle.",
-        "INTELLIGENCE": "You understand the diagnostics being discussed. The owner in the corner does not.",
-        "INTUITION": "The owner of the patient in exam room two is not telling the full story."
+        "EMPATHY": "The clinic cat decides you're alright. You've been validated by worse sources.",
+        "INTELLIGENCE": "The conversation in exam room two involves a word that doesn't belong in a routine check-up.",
+        "INTUITION": "The owner waiting in the corner hasn't touched their phone in forty minutes. They're thinking. Hard."
       },
       "gender": {
-        "male": "The vet tech barely looks up — they're used to anxious owners of all kinds.",
-        "female": "The vet tech softens immediately; in their experience, women who bring animals are usually worth talking to."
+        "male": "You hold the door for a client and get a full account of their last three visits in return. Politeness is an investment.",
+        "female": "The vet tech talks to you like a colleague. You learn more in four minutes than you would in an interrogation."
       }
     },
     "hospital_small": {
-      "default": "You enter the hospital.",
+      "default": "People come here to be fixed or to die. Either way, they tell the truth. You just need to be in the right room.",
       "time": {
-        "morning": "The morning shift brings a flurry of ward rounds and new admissions.",
-        "afternoon": "A steady stream of outpatient appointments flows through the lobby.",
-        "evening": "Visiting hours draw families; the corridors grow briefly louder.",
-        "night": "Night staff move through the quiet wards; emergencies are the only disruption."
+        "morning": "Ward rounds and admissions, the machinery of care cranking into motion. Morning chaos covers your movement.",
+        "afternoon": "Visiting hours. A tide of civilians moving through the building. You move with them.",
+        "evening": "Families saying goodnight. Corridors thinning. The staff starts to notice faces that don't belong.",
+        "night": "Night staff and emergencies. Quieter, more alert, harder to bluff. You do it anyway."
       },
       "attribute": {
-        "INTELLIGENCE": "Medical charts and equipment configurations don't escape your notice.",
-        "EMPATHY": "Every person you pass carries a weight — you feel it without asking.",
-        "STAMINA": "The relentless pace and constant noise would wear most people down. Not you."
+        "INTELLIGENCE": "The chart rack tells you more than the patient's chart was supposed to.",
+        "EMPATHY": "Everyone in here is carrying something beyond their diagnosis. You carry it with them long enough to learn what it is.",
+        "STAMINA": "Hospitals never stop. Neither do you."
       },
       "gender": {
-        "male": "Staff are efficient and professional; nobody offers unsolicited guidance.",
-        "female": "A nurse stops to ask if you need directions. You don't, but the pause gives you a moment to observe."
+        "male": "You walk the ward with the posture of someone who belongs there. Nobody stops a man with a purpose and a pace.",
+        "female": "A nurse stops to check on you — genuine concern, no suspicion. You answer one question and ask three."
       }
     },
     "hospital_large": {
-      "default": "You step into the large hospital.",
+      "default": "A city inside a building. Corridors that go on forever and secrets that go on longer.",
       "time": {
-        "morning": "The complex hums with the controlled urgency of morning handovers.",
-        "afternoon": "Multiple wings operate simultaneously; the scale is impressive.",
-        "evening": "Visiting hours create a social hum within the clinical calm.",
-        "night": "The overnight skeleton crew maintains the quiet vigilance of the hospital at night."
+        "morning": "The complex hums with the controlled chaos of morning handovers. A new shift is the best time to walk in unquestioned.",
+        "afternoon": "Every wing active, every corridor navigable. A building this size needs a good reason to stop anyone.",
+        "evening": "Visiting hours bring civilians. You use the cover.",
+        "night": "Skeleton crew, long corridors, and something in wing C that doesn't belong in a hospital."
       },
       "attribute": {
-        "INTELLIGENCE": "A facility this large has inefficiencies in every department. You see them all.",
-        "EMPATHY": "The weight of hope and grief here is palpable. You carry it without being crushed.",
-        "PERCEPTION": "You notice an unusual figure moving through a restricted area without an ID badge."
+        "INTELLIGENCE": "You find the inefficiency in the system — the records room with the unmanned desk, the supply chain that doesn't add up.",
+        "EMPATHY": "The weight of the place lands on you the moment you walk in. You carry it without breaking stride.",
+        "PERCEPTION": "Restricted corridor. No badge. Moving quickly. You file all three facts and follow at a distance."
       },
       "gender": {
-        "male": "You move through the hospital as if you have a destination, which keeps most staff from questioning you.",
-        "female": "A porter offers to help you find your way. You decline politely and file away the offer for later."
+        "male": "You walk like a consultant late for rounds. Nobody questions a man walking fast in a hospital.",
+        "female": "You walk like a consultant late for rounds. It takes thirty more seconds to work, but it works."
       }
     },
     "urgent_care": {
-      "default": "You walk into the urgent care center.",
+      "default": "Not sick enough for the ER, too hurt to wait for a GP. The people here are at their rawest. You use that.",
       "time": {
-        "morning": "The morning brings a wave of overnight injuries and illnesses.",
-        "afternoon": "Afternoon walk-ins keep the triage desk busy.",
-        "evening": "The evening rush brings minor injuries from active days.",
-        "night": "Night brings the worst cases — the center is strained but functioning."
+        "morning": "Yesterday's bad decisions are today's overnight walk-ins. Every one of them has a story.",
+        "afternoon": "Walk-ins stack up through the afternoon. The triage desk is stretched. Stretched people cut corners.",
+        "evening": "Day's end injuries and weekend starts. The evening rush brings its own variety of truth.",
+        "night": "Night-time cases are a different category entirely. You've learned not to assume the obvious cause."
       },
       "attribute": {
-        "PERCEPTION": "A patient's story and their injury don't match. You clock the inconsistency.",
-        "STAMINA": "The intensity here doesn't flag all day. Neither do you.",
-        "EMPATHY": "You read pain levels and fear in faces better than most intake forms could."
+        "PERCEPTION": "The injury doesn't match the explanation. You've heard cleaner lies from people who had more time to prepare.",
+        "STAMINA": "The intensity of the place doesn't wear you down. It sharpens you.",
+        "EMPATHY": "Behind every ice pack and waiting room grimace is a story that started somewhere else. You trace it back."
       },
       "gender": {
-        "male": "The intake clerk processes you without ceremony — this place has no time for small talk.",
-        "female": "The nurse at intake asks twice if you're sure you're alright. You appreciate the concern and note who else is watching."
+        "male": "You take the seat nearest the triage desk and look like a man with a pulled muscle. Nobody questions a pulled muscle.",
+        "female": "You're through intake fast — the staff here move quickly on presenting patients. You use the access before anyone second-guesses it."
       }
     },
     "daycare_center": {
-      "default": "You enter the daycare center.",
+      "default": "Small humans, big noise, and staff trained to notice anything out of the ordinary. You are, by definition, out of the ordinary.",
       "time": {
-        "morning": "Tearful drop-offs and cheerful staff mark the start of the morning.",
-        "afternoon": "The afternoon is a storm of structured play and small dramas.",
-        "evening": "Parents arrive for pick-up; the noise level rises then drops suddenly.",
-        "night": "The center is locked and quiet; the only sound is a forgotten toy's battery running low."
+        "morning": "Drop-off hour. Parents distracted, kids crying, staff stretched. Easiest time to slip in unscrutinised.",
+        "afternoon": "Activities in session. The organised chaos is a kind of cover.",
+        "evening": "Pick-up time. Parents running late tell you things they wouldn't say in a calmer moment.",
+        "night": "Locked and dark. Any light here after hours is exactly as suspicious as it looks."
       },
       "attribute": {
-        "EMPATHY": "You instinctively lower your voice and crouch to eye level. The children warm to you.",
-        "CHARISMA": "The staff are guarded with strangers — but you put them at ease within moments.",
-        "PERCEPTION": "One child's behaviour is telling you something their words can't."
+        "EMPATHY": "You get down to eye level and the kid tells you exactly what they saw. Kids always do.",
+        "CHARISMA": "The staff read you as harmless in seconds. People who work with children develop that instinct fast. You've learned to satisfy it.",
+        "PERCEPTION": "One child has been watching the door since you arrived. Not waiting for a parent. Watching for something else."
       },
       "gender": {
-        "male": "The staff are politely cautious at first — an unfamiliar man in a daycare draws careful attention.",
-        "female": "The staff welcome you with the openness of people used to parents dropping in unannounced."
+        "male": "You sign the visitor sheet and wait for the staff escort. An unaccompanied man in a daycare gets the full procedure. You cooperate. It's faster.",
+        "female": "You're waved through the entrance with a smile. The assumption works in your favour. It won't last, so you move quickly."
       }
     },
     "elementary_school": {
-      "default": "You enter the elementary school.",
+      "default": "Crayon drawings and the kind of secrets kids carry without knowing they're carrying them. Handle with care.",
       "time": {
-        "morning": "Morning assembly echoes through the corridors as the day begins.",
-        "afternoon": "Classes are in session; the halls are briefly empty between periods.",
-        "evening": "After-school clubs and sports practice fill the grounds.",
-        "night": "The school is locked; a janitorial cart sits outside a classroom."
+        "morning": "Assembly echoes down the corridor. Every adult in the building is busy. The best time to be invisible.",
+        "afternoon": "Classes in session. The halls are empty between periods — a window of maybe forty seconds.",
+        "evening": "After-school activities. Fewer staff, looser protocols, kids who've been here long enough to drop their guard.",
+        "night": "Locked and dark. A janitor's cart outside one room. The building keeps hours you don't."
       },
       "attribute": {
-        "EMPATHY": "Children have a radar for genuine kindness — they can tell you have it.",
-        "CHARISMA": "Teachers and staff relax in your presence. You carry a natural authority without menace.",
-        "PERCEPTION": "A detail in one of the classrooms catches your eye — it doesn't belong."
+        "EMPATHY": "Kids read sincerity faster than any polygraph. You don't fake it — you mean it, which is why they talk.",
+        "CHARISMA": "Teachers fall into step with you naturally. You carry the authority of someone who should be here.",
+        "PERCEPTION": "The corner of one classroom is off. The usual visual noise of a primary school and then one thing that doesn't belong."
       },
       "gender": {
-        "male": "The office staff are professionally watchful — protocol for an unfamiliar male visitor.",
-        "female": "You're waved through the office with warm efficiency. The assumption is that you belong here."
+        "male": "Sign in, get the lanyard, accept the escort. The procedure slows you down but it's cleaner than the alternative.",
+        "female": "You move through the office with the easy manner of a visiting professional. Two teachers assume you're the new reading coordinator. You don't correct them."
       }
     },
     "high_school": {
-      "default": "You walk through the high school.",
+      "default": "Hierarchy, tension, and information passed in corridors at speeds most adults can't follow. You keep up.",
       "time": {
-        "morning": "Students arrive in clusters, the social geometry already established.",
-        "afternoon": "Hallways between lessons are a brief, chaotic pulse of movement.",
-        "evening": "Team practice, drama rehearsal, detention — the school has many afterlives.",
-        "night": "The building is dark; only the security lights mark the perimeter."
+        "morning": "Social geometry re-establishing itself for another day. You read it in the first thirty seconds.",
+        "afternoon": "Between-period surge. Forty seconds of controlled chaos in every corridor. Use it.",
+        "evening": "Practice, rehearsals, detention. The building runs multiple operations after the bell. One of them concerns you.",
+        "night": "Dark and locked. Whatever happened here today left its mark on tomorrow."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the social dynamics here like a document — hierarchies, alliances, fault lines.",
-        "CHARISMA": "Students and teachers alike respond to you; you project the right kind of confidence.",
-        "PERCEPTION": "You notice who is absent from where they should be."
+        "INTELLIGENCE": "You read the social map of this building faster than the students who've lived in it for years.",
+        "CHARISMA": "Students and staff both respond to you. You have the kind of presence that reads as official to anyone not looking closely.",
+        "PERCEPTION": "The kid who should be in class isn't. You know the three most likely reasons. One of them involves the case."
       },
       "gender": {
-        "male": "Students and staff alike give you the standard assessment — visitor, authority, or threat. You let them settle on authority.",
-        "female": "The front office treats you with collegial ease. Assumptions can be useful when they're working in your favour."
+        "male": "You get assessed immediately — visitor, authority, or threat. You settle into authority before anyone finishes the calculation.",
+        "female": "The front office waves you through. The second you mention a student's name, doors open that formal channels wouldn't."
       }
     },
     "community_college": {
-      "default": "You enter the community college.",
+      "default": "Second chances and the quiet ambition of people who got a late start. Some of them are running from something. So are you, in a way.",
       "time": {
-        "morning": "Morning classes fill the lecture halls with attentive students.",
-        "afternoon": "Study groups form in the library and common areas.",
-        "evening": "Evening classes bring older students balancing work and study.",
-        "night": "The campus quiets down; only the library and a few labs remain lit."
+        "morning": "Morning lectures. Students who chose early slots are either very motivated or very employed. Worth knowing which.",
+        "afternoon": "Study groups, common areas, the social glue of people who commute in and commute out. Good for a conversation.",
+        "evening": "Evening classes. Older students, working adults, people fitting education around other lives. Less polished, more honest.",
+        "night": "Campus quiet. Library still lit. Late students and the kind of silence that holds things."
       },
       "attribute": {
-        "INTELLIGENCE": "You absorb the course materials on the notice board in seconds — and spot the anomaly.",
-        "MEMORY": "Academic environments are comfortable territory; you retain everything.",
-        "CHARISMA": "Students and faculty alike find you approachable and worth talking to."
+        "INTELLIGENCE": "The notice board tells you more than the admin office would. Who's recruiting, who's advertising, who's watching.",
+        "MEMORY": "Academic environments run on paperwork. You remember every sheet you've glanced at, even sideways.",
+        "CHARISMA": "Faculty and students both engage with you. You have the kind of curiosity people respond to."
       },
       "gender": {
-        "male": "You're taken as a lecturer or administrator; no one questions your presence.",
-        "female": "You're taken as a student first, which suits you — people underestimate students."
+        "male": "You're taken for faculty without trying. The assumption gives you range.",
+        "female": "Students ask you questions, assuming you're enrolled. You answer them and listen harder than they realise."
       }
     },
     "fire_station": {
-      "default": "You step into the fire station.",
+      "default": "These people run toward the thing everyone else runs from. You have more in common with them than you'd admit.",
       "time": {
-        "morning": "The morning shift checks equipment and runs drills with focused precision.",
-        "afternoon": "The afternoon brings a call-out; the station empties in seconds.",
-        "evening": "The evening shift takes over; the crew shares a meal in the common room.",
-        "night": "The station is quiet between calls; crew members doze ready to respond."
+        "morning": "Morning check is ritual — gear, vehicles, the discipline of people who know the cost of being unprepared.",
+        "afternoon": "A call-out empties the station in forty seconds. You count the seconds and make your move.",
+        "evening": "Evening shift settling in. The shared meal is where the real conversation happens.",
+        "night": "Between calls, the station breathes. You're quiet enough to breathe with it."
       },
       "attribute": {
-        "STRENGTH": "The crew recognises your build immediately. You're one of them by type, if not by badge.",
-        "STAMINA": "The physical demands of this place match your output. You feel at home.",
-        "AGILITY": "The obstacle courses and gear routes here are second nature to you."
+        "STRENGTH": "The crew gives you one look and moves over on the bench. You've passed the unspoken test.",
+        "STAMINA": "Physical endurance is the baseline currency of this place. You have enough to get respect and enough left over to work.",
+        "AGILITY": "You navigate the station's obstacle geometry without thinking. Old training. Doesn't leave."
       },
       "gender": {
-        "male": "The crew sizes you up in the physical way firefighters always do — and nods.",
-        "female": "The station goes slightly quiet when you walk in. You've seen this reaction before and know exactly how to work it."
+        "male": "The crew reads you by your hands and your posture. They decide quickly. They decide right.",
+        "female": "The station goes quiet when you walk in — not hostile, just recalibrating. You let them recalibrate and get to work."
       }
     },
     "police_station": {
-      "default": "You enter the police station.",
+      "default": "The precinct. Your old house, or someone else's old house, depending on the night. Either way you know where the bodies are buried.",
       "time": {
-        "morning": "The station buzzes with morning briefings and officers starting their shifts.",
-        "afternoon": "A steady stream of reports and interviews keeps the afternoon busy.",
-        "evening": "The day shift is winding down; night-shift officers are checking in.",
-        "night": "Only the night-duty officers remain, the station quieter but watchful."
+        "morning": "Morning briefing filters through the walls. The night's business being handed to the day. You listen for what doesn't get mentioned.",
+        "afternoon": "Interview rooms occupied, case boards updated, the daily machinery of law and order grinding forward. You know how to slow it down.",
+        "evening": "Day shift checking out, night shift checking in. The handover gap is the loosest point of the day.",
+        "night": "Night watch. Fewer officers, lower guard, and the kind of quiet where you can actually think."
       },
       "attribute": {
-        "PERCEPTION": "You pick up on the subtle tension between two officers near the board — something happened recently.",
-        "INTIMIDATION": "Heads turn as you walk in. Your presence commands attention even here.",
-        "INTELLIGENCE": "The case board catches your eye; you spot a connection the team might have missed.",
-        "CHARISMA": "You exchange a nod with the desk sergeant. People like you here — they'll talk."
+        "PERCEPTION": "The case board has a gap where a photo should be. Nobody else noticed. You make a note.",
+        "INTIMIDATION": "You walk in and the room recalibrates. Some people still carry that frequency. You're one of them.",
+        "INTELLIGENCE": "The board connects three cases the detective handling them hasn't linked yet. You see it in thirty seconds.",
+        "CHARISMA": "The desk sergeant gets you the file before you explain why you need it. Sometimes the old reputation still clears doors."
       },
       "gender": {
-        "male": "The officers treat you with the guarded professional neutrality they reserve for visitors with authority.",
-        "female": "Some officers register surprise before the professional mask goes back on. You note which ones and start there."
+        "male": "Old badges don't expire in places like this. You walk in and the room assumes you still have one.",
+        "female": "Some of them still don't know how to read you. That confusion is a gap you walk right through."
       }
     },
     "post_office": {
-      "default": "You enter the post office.",
+      "default": "Every letter is a conversation someone had to pay to have. You want to know what they said.",
       "time": {
-        "morning": "The morning queue forms fast — everyone wants to be first.",
-        "afternoon": "A manageable lunchtime crowd works through the numbered tickets.",
-        "evening": "The counter is down to one window as the day draws to a close.",
-        "night": "The post office is shut; parcels await in a locked sorting room."
+        "morning": "First queue of the day. People who came to collect something that arrived overnight.",
+        "afternoon": "Numbered tickets and long waits. The longer people wait, the more they talk.",
+        "evening": "Counter down to one window. Whatever comes through at this hour, it wasn't sent through official channels.",
+        "night": "Locked. The sorting room runs overnight. Shift workers who see everything and say nothing — until you give them a reason."
       },
       "attribute": {
-        "MEMORY": "You recognise a regular from an unrelated case — this is not a coincidence.",
-        "PERCEPTION": "The parcel being collected at window three is the one you've been looking for.",
-        "INTELLIGENCE": "Sorting codes, postmarks, routing slips — this place is full of intelligence if you know to look."
+        "MEMORY": "That face. That handwriting on the parcel at counter three. You've seen both before and not in this context.",
+        "PERCEPTION": "The parcel addressed to a dead man is still in the collection bay. Third shelf from the bottom. You note the postmark.",
+        "INTELLIGENCE": "Routing codes, postmarks, registered sender addresses. This building is full of traceable evidence and it's all technically public."
       },
       "gender": {
-        "male": "The clerk is efficient and businesslike — standard service for a standard customer.",
-        "female": "The clerk chats while processing. Postal workers hear more than most people realise, and they like to share it."
+        "male": "You fill in a form you don't intend to submit and wait in line. A man waiting at the post office is the most unremarkable thing in the world.",
+        "female": "The clerk chats while they process. You listen. Postal workers hear things the internet never will."
       }
     },
     "library": {
-      "default": "You walk into the library.",
+      "default": "Every answer you've ever needed was in a library somewhere. People just stopped knowing how to look.",
       "time": {
-        "morning": "The library is quiet, its early patrons absorbed in their reading.",
-        "afternoon": "Students and researchers fill the reading tables in the afternoon light.",
-        "evening": "The library is peaceful in the evening glow, the shelves casting long shadows.",
-        "night": "The library is closed. Only a faint light from the back suggests someone is still inside."
+        "morning": "First readers of the day. The serious ones, the retired ones, the ones with nowhere else to go and nothing to hide.",
+        "afternoon": "Students crowd the tables with open books and closed expressions. Research is another word for motive.",
+        "evening": "The evening quiet is the library at its most honest. Fewer people, better conversations.",
+        "night": "Closed. One light on in the back. Libraries keep their own hours when they think nobody's watching."
       },
       "attribute": {
-        "INTELLIGENCE": "Your gaze sweeps the stacks methodically; you already know exactly which section you need.",
-        "MEMORY": "Titles and call numbers leap out at you — you've been here before and remember every shelf.",
-        "PERCEPTION": "A book slightly out of place, a bookmark left carelessly — someone was here recently and in a hurry.",
-        "INTUITION": "Something about the atmosphere feels off. The silence is a little too deliberate."
+        "INTELLIGENCE": "You move through the stacks with the precision of someone who remembers exactly what they read and exactly where it was wrong.",
+        "MEMORY": "Call numbers. Layout. The periodicals archive that hasn't been indexed since the year of the Harmon case. You know exactly what you need.",
+        "PERCEPTION": "A book pulled recently from a shelf that hasn't been touched in a decade. Someone's doing the same research you are.",
+        "INTUITION": "The silence in here is a shade too deliberate. Someone's listening to you not making noise."
       },
       "gender": {
-        "male": "The librarian leaves you to your research without comment or offer.",
-        "female": "The librarian offers to pull additional references for you. You accept — two sets of eyes are always better."
+        "male": "You pull a reference book that has no business being relevant to anything current. The librarian doesn't ask. You appreciate that.",
+        "female": "The librarian offers cross-references. You take every one. Two of them lead somewhere the case file never thought to look."
       }
     },
     "community_center": {
-      "default": "You step into the community center.",
+      "default": "Community on the surface. Underneath, every grievance, alliance and private arrangement the neighbourhood runs on.",
       "time": {
-        "morning": "Morning fitness classes and coffee groups bring the first wave of visitors.",
-        "afternoon": "After-school programmes and committee meetings fill the afternoon.",
-        "evening": "Evening events — classes, meetings, socials — make this the busiest time.",
-        "night": "The last visitors clear out; staff stack chairs and lock up."
+        "morning": "Yoga classes and coffee mornings. The social glue of a neighbourhood being maintained. And monitored.",
+        "afternoon": "Committee meetings and after-school programmes. Everyone knows everyone's business and nobody says so out loud.",
+        "evening": "The center is at its most alive. Events, classes, socials. The most people, the most noise, the most to overhear.",
+        "night": "Last people locking up. The night's final conversation happens in the car park."
       },
       "attribute": {
-        "CHARISMA": "People here are open and community-minded — they warm to you immediately.",
-        "EMPATHY": "You hear the real needs behind the organised activities and small talk.",
-        "PERCEPTION": "A face you recognise is here for reasons beyond community spirit."
+        "CHARISMA": "You're three conversations in before you've reached the coffee urn. People like that you listen.",
+        "EMPATHY": "The meeting upstairs is about a planning dispute. The one downstairs is about the same thing. Neither side knows the other is here.",
+        "PERCEPTION": "The face you're looking for isn't on a committee but they're attending anyway. You clock them by the fire door."
       },
       "gender": {
-        "male": "You're welcomed into the social flow; the center is used to new faces.",
-        "female": "People here share things with you they might not share with a male stranger. You listen without interrupting."
+        "male": "You show up, lend a hand, and earn a conversation. Community spaces reward the person who doesn't ask for too much too soon.",
+        "female": "You're welcomed in and handed a mug before you've introduced yourself. People here share things freely. You listen carefully."
       }
     },
     "city_hall": {
-      "default": "You enter city hall.",
+      "default": "The machine that runs the city. Slow, rusted, and for sale to the right bidder. You want to know who bid.",
       "time": {
-        "morning": "Officials and public servants start their day with meetings and briefings.",
-        "afternoon": "Council sessions and public consultations run through the afternoon.",
-        "evening": "The building empties as staff head home; a few lights still burn.",
-        "night": "City hall is locked; security cameras watch empty corridors."
+        "morning": "Officials running early meetings they'll spend the rest of the day denying they had.",
+        "afternoon": "Council sessions and public consultations. The public face of decisions already made.",
+        "evening": "The building empties. A few lights burn on floors they shouldn't. You write down the floor numbers.",
+        "night": "Dark except for the security cameras. The real business of city hall happens in the dark."
       },
       "attribute": {
-        "INTELLIGENCE": "Permit records, planning maps, budget reports — the truth is always in the paperwork.",
-        "CHARISMA": "Council members and clerks respond to you with unusual openness.",
-        "INTIMIDATION": "Officials become measurably more cooperative when you maintain eye contact."
+        "INTELLIGENCE": "Permit records, budget line items, zoning amendments buried on page forty-seven. The truth is always in the paperwork.",
+        "CHARISMA": "You move through departments on the strength of a confident walk and a question that sounds routine.",
+        "INTIMIDATION": "The deputy commissioner starts sweating when you ask about the contractor. Good. Let it sweat."
       },
       "gender": {
-        "male": "Officials read you as someone with authority and respond accordingly — doors open faster.",
-        "female": "A clerk offers to guide you through the process. You let them, because the longer the conversation, the more you learn."
+        "male": "You carry yourself like an auditor and nobody wants to talk to an auditor. They tell you everything to make you leave.",
+        "female": "A clerk offers to walk you through the filing system. You accept. The detour takes you past the office you actually needed."
       }
     },
     "courthouse": {
-      "default": "You walk into the courthouse.",
+      "default": "Justice — or the paperwork approximation of it. You've seen both up close. The paperwork lasts longer.",
       "time": {
-        "morning": "Early hearings draw lawyers, defendants, and witnesses through the metal detectors.",
-        "afternoon": "The courtrooms are in full session; the hallways are hushed.",
-        "evening": "Proceedings wind down; legal teams caucus in the corridors.",
-        "night": "The courthouse is closed. Only a duty officer remains at the front desk."
+        "morning": "Lawyers and defendants funnelling through the metal detectors before the docket opens. You watch who walks in together.",
+        "afternoon": "Full session. Courtroom four has a case that keeps being adjourned. You want to know why.",
+        "evening": "Proceedings winding down. Legal teams gathering in the corridor to say things they wouldn't say in front of a stenographer.",
+        "night": "Locked. Duty officer at the front. The record room is on the third floor. You're not going to the record room tonight."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the body language of every witness, lawyer, and judge in the room.",
-        "INTIMIDATION": "Your bearing alone shifts the dynamic in an interrogation room or courtroom gallery.",
-        "PERCEPTION": "The defendant's micro-expressions tell you what the transcript never will."
+        "INTELLIGENCE": "You read the body language of three witnesses across two cases and reach a conclusion none of the lawyers will reach until next month.",
+        "INTIMIDATION": "Your presence in the gallery shifts something in the defendant's posture. That's information too.",
+        "PERCEPTION": "A lawyer just passed a note they shouldn't have and received one they'll deny receiving. You saw both."
       },
       "gender": {
-        "male": "You're read as a lawyer or official — the most convenient assumption for your purposes.",
-        "female": "A female presence in the courthouse gallery draws less suspicion than a male one. You use the relative invisibility well."
+        "male": "You're read as counsel or investigator — either way, you belong here. Nobody's going to check.",
+        "female": "A female presence in the gallery reads as invisible to people who've been staring at the same faces all week. Perfect."
       }
     },
     "small_apartment_building": {
-      "default": "You enter the apartment building.",
+      "default": "Thin walls and thinner excuses. Everything in a building like this gets heard eventually.",
       "time": {
-        "morning": "Residents in work clothes jostle for the elevator.",
-        "afternoon": "The building is quieter during the working day.",
-        "evening": "The smell of cooking and the murmur of TV sets drift through the halls.",
-        "night": "The building is still; only the hum of a refrigerator breaks the silence."
+        "morning": "Work clothes and rushed exits. The morning parade tells you who keeps regular hours and who doesn't.",
+        "afternoon": "Quiet. The working day empties the building. Your window.",
+        "evening": "Cooking smells and argument sounds drifting under doors. The building talks when it thinks you're not listening.",
+        "night": "Still. The stairwell carries noise from three floors away. You use that."
       },
       "attribute": {
-        "PERCEPTION": "You note which buzzers are taped over, which mailboxes are overflowing.",
-        "STEALTH": "You move through the building without drawing a single curtain twitch.",
-        "EMPATHY": "You hear the conversations behind these doors — the ordinary and the troubled."
+        "PERCEPTION": "Overflowing mailbox on 4B. Tape over the buzzer on 2A. A building narrates itself if you speak the language.",
+        "STEALTH": "You take the stairs and press to the wall at each landing. No one sees you go up. No one sees you come down.",
+        "EMPATHY": "The voices behind these doors tell you what kind of building this is. You've been in enough of them to know."
       },
       "gender": {
-        "male": "You move through the building without attracting comment — just another resident.",
-        "female": "A neighbour in the corridor holds the door and asks if you're new here. You give a vague smile and keep moving."
+        "male": "You move through the building with the unremarkable confidence of a man who's supposed to be here. Nobody confirms it. Nobody denies it.",
+        "female": "A neighbour in the hall holds the door and starts a sentence about the management. You let her finish. It takes six minutes and gives you four leads."
       }
     },
     "medium_apartment_building": {
-      "default": "You step into the apartment building.",
+      "default": "Layers of lives stacked on top of each other. What happens on one floor echoes on all of them.",
       "time": {
-        "morning": "The lobby is busy with residents beginning their day.",
-        "afternoon": "A quiet period settles over the building mid-afternoon.",
-        "evening": "The building comes alive again as residents return.",
-        "night": "Lights blink off floor by floor as the building sleeps."
+        "morning": "Lobby full of people who won't make eye contact. Morning in an apartment building is a masterclass in deliberate blindness.",
+        "afternoon": "Quiet working hours. The building has time to breathe and so do you.",
+        "evening": "The tide comes back in. Groceries, gym bags, the smell of every dinner in the city.",
+        "night": "Floor by floor, the lights go out. One doesn't. You note the number."
       },
       "attribute": {
-        "PERCEPTION": "Worn carpet, fresh paint on one door only, a new lock — the building tells its own story.",
-        "STEALTH": "You take the stairs. Nobody uses the stairs, which is exactly why you do.",
-        "CHARISMA": "The super greets you with more warmth than most residents ever get."
+        "PERCEPTION": "Fresh scuff on the door of 7C. New lock on a door that had a different lock last week. The building is talking.",
+        "STEALTH": "Stairs over elevator, wall-side over centre, steady pace over hurrying. Basic, but it works.",
+        "CHARISMA": "The super comes out for a noise complaint on the same floor you needed access to. Convenient."
       },
       "gender": {
-        "male": "You ride the elevator without eye contact — the universal language of apartment buildings.",
-        "female": "The super comes out to check on a noise complaint just as you arrive. Convenient timing."
+        "male": "You ride the elevator without eye contact. The universal signal for leave me alone. They do.",
+        "female": "The super is helpful in that particular way that means they want to be useful. You give them the chance."
       }
     },
     "large_apartment_building": {
-      "default": "You enter the large apartment building.",
+      "default": "A hundred apartments, three hundred lies, and one address that connects to everything. You just need to find which floor.",
       "time": {
-        "morning": "The lobby revolves with departing residents heading to work.",
-        "afternoon": "Deliveries stack up at the front desk.",
-        "evening": "Returning residents and food delivery riders create a busy crossover.",
-        "night": "The building quietens; the overnight concierge sits at a near-empty desk."
+        "morning": "The lobby revolves with departures. Morning anonymity at its peak.",
+        "afternoon": "Deliveries and maintenance. Faces that belong and faces that don't. You know the difference.",
+        "evening": "Returning residents and food deliveries provide enough traffic to cover your movement.",
+        "night": "The overnight concierge has the desk. They've been there four hours. Their coffee is cold and their attention is colder."
       },
       "attribute": {
-        "PERCEPTION": "A building this large has patterns. You read them: who's on schedule, who isn't.",
-        "STEALTH": "In a building this busy, being invisible is just a matter of timing.",
-        "CHARISMA": "The concierge lets you through without question — you carry yourself like a resident."
+        "PERCEPTION": "A building this size runs on patterns. The broken one is on the fourteenth floor.",
+        "STEALTH": "You time your movements to the delivery window. Three minutes of maximum distraction. More than enough.",
+        "CHARISMA": "You carry yourself like a resident who's been here two years and you walk straight through."
       },
       "gender": {
-        "male": "You carry yourself like a resident and no one in the lobby looks twice.",
-        "female": "The concierge makes brief conversation. Building staff remember women who pass through — it's useful to be memorable."
+        "male": "You nod at the concierge like a man who does this every night. They nod back. Transaction complete.",
+        "female": "The concierge is more attentive than you'd like. You give them a floor to call that gives you time on the one you actually need."
       }
     },
     "luxury_apartment_tower": {
-      "default": "You enter the luxury apartment tower.",
+      "default": "Money spent on the illusion of safety. You're about to remind them that illusions don't hold.",
       "time": {
-        "morning": "Immaculate lobby staff greet the first residents of the morning.",
-        "afternoon": "A quiet, curated calm settles over the tower during the day.",
-        "evening": "Residents return in luxury vehicles; doormen earn their keep.",
-        "night": "The upper floors are lit against the skyline; the lobby is a study in understated wealth."
+        "morning": "White-gloved morning service and a lobby so polished you can see the security team's reflection from fifty feet.",
+        "afternoon": "Quiet, curated, watched. The afternoon hours here are the hardest to move through.",
+        "evening": "Residents returning in cars worth more than most annual investigations. The lobby earns its marble at this hour.",
+        "night": "The building purrs with the kind of quiet money buys. You're about to introduce some noise."
       },
       "attribute": {
-        "CHARISMA": "You carry yourself with the quiet confidence of someone who belongs here.",
-        "PERCEPTION": "Even in a place this polished, cracks appear if you know where to look.",
-        "INTELLIGENCE": "Security protocols, camera placements, resident schedules — you read the building like a floor plan."
+        "CHARISMA": "You carry it off. The staff don't question people who look like they belong. You look like you belong.",
+        "PERCEPTION": "Everything here is designed to look unblemished. The crack is always somewhere obvious once you stop being impressed.",
+        "INTELLIGENCE": "The security protocol has three gaps. You identified them from the street before you walked in."
       },
       "gender": {
-        "male": "Your confidence reads as wealth to the lobby staff. They respond in kind.",
-        "female": "The concierge upgrades their attention to you immediately. A woman entering a tower like this has a reason."
+        "male": "You wear the building's assumptions like a coat. Nobody questions a man who walks in like he owns the lobby.",
+        "female": "The concierge's assessment takes two seconds longer than it should. You use those two seconds to clock the camera positions."
       }
     },
     "highrise_apartment_complex": {
-      "default": "You step into the high-rise apartment complex.",
+      "default": "Forty floors of private lives stacked in the sky. Everything you need is somewhere in the stack.",
       "time": {
-        "morning": "Elevators are full during the morning departure rush.",
-        "afternoon": "The complex is largely empty; deliveries dominate the lobby.",
-        "evening": "The building hums as residents cook, watch TV, and make calls.",
-        "night": "The complex is quiet at last; only the security desk has its light on."
+        "morning": "Elevators packed, lobby a bottleneck. Everyone moving, nobody watching.",
+        "afternoon": "The complex empties out. You have the corridors to yourself and a working theory to test.",
+        "evening": "The building fills back up. You use the noise.",
+        "night": "The security desk has one person on it. They've been here since eight. Their route is clockwork. So are you."
       },
       "attribute": {
-        "CHARISMA": "You carry yourself with the ease of someone who lives here. Security waves you through.",
-        "PERCEPTION": "Hundreds of people live here, but you notice the one who doesn't fit the routine.",
-        "STEALTH": "In the anonymity of a complex this size, you could disappear completely."
+        "CHARISMA": "You hold the elevator for a resident and end up with a conversation that covers three floors' worth of useful information.",
+        "PERCEPTION": "Hundreds of units and one of them has a different air about it. You pin it to a number before you've reached the fourth floor.",
+        "STEALTH": "Anonymous, crowded, and indifferent. Your natural habitat."
       },
       "gender": {
-        "male": "You pass through the lobby with the unremarkable efficiency of a regular.",
-        "female": "You're noticed, but that's not always a disadvantage. You control what they notice."
+        "male": "You sign in under a name that matches someone in the directory and walk through like you've done it a thousand times.",
+        "female": "You control exactly what the front desk sees. They see a resident. That's all they need."
       }
     },
     "townhouse_row": {
-      "default": "You walk along the townhouse row.",
+      "default": "Respectable facades with interesting interiors. Suburbs keep their secrets quieter than the city. Harder to crack. Worth the effort.",
       "time": {
-        "morning": "Residents leave for work and school in a quiet suburban rhythm.",
-        "afternoon": "The street is calm; only a few cars pass.",
-        "evening": "Lights come on in living rooms; the smell of dinner drifts from open windows.",
-        "night": "The row is dark and still; a dog barks once and falls silent."
+        "morning": "School runs and commute starts. The street empties fast and stays empty. That suits you.",
+        "afternoon": "Still and quiet. The kind of quiet that feels watched.",
+        "evening": "Lights behind curtains, the smell of cooking, the sound of lives being lived. You read it like a text.",
+        "night": "The row is dark and hushed. A dog barks once and then doesn't. Even the dogs know to keep quiet here."
       },
       "attribute": {
-        "PERCEPTION": "You read the small signals — which lawns are kept, which blinds never open.",
-        "EMPATHY": "You sense the underlying community tensions before anyone mentions them.",
-        "STEALTH": "You move along the row without disturbing the quiet — a skill not everyone has."
+        "PERCEPTION": "Three lawns with full wheelie bins. One that's empty. One house that clearly hasn't been occupied this week.",
+        "EMPATHY": "The neighbourhood has a tension under its orderly surface. You trace it to a house three doors down.",
+        "STEALTH": "You walk the pavement at the pace of someone with a destination two streets over. You don't have one. Doesn't matter."
       },
       "gender": {
-        "male": "You walk the row without drawing particular attention — just someone passing through.",
-        "female": "A resident doing their garden pauses to say hello. Neighbourhoods like this remember unfamiliar women more than unfamiliar men."
+        "male": "You walk it once like you're cutting through. Second pass, you're gathering data.",
+        "female": "A resident watering their garden says hello. Neighbourhoods like this remember women they haven't seen before. You make the encounter count."
       }
     },
     "condominium_building": {
-      "default": "You enter the condominium building.",
+      "default": "Owner-occupied, well-maintained, and under the impression that nothing bad happens here. You know better.",
       "time": {
-        "morning": "Residents with coffee cups and briefcases crowd the lobby at opening.",
-        "afternoon": "A quieter afternoon follows the morning rush.",
-        "evening": "The building fills back up as working residents return.",
-        "night": "The lobby dims to night mode; the concierge switches to the overnight roster."
+        "morning": "The morning lobby rush is brief and efficient. People who own their apartments have somewhere to be.",
+        "afternoon": "The building quiets after ten a.m. Easier to move, easier to notice anything that breaks the quiet.",
+        "evening": "Returns from the workday. The concierge reads the evening crowd better than most. So do you.",
+        "night": "Night-mode lobby. One desk lamp and a camera you've already catalogued."
       },
       "attribute": {
-        "CHARISMA": "The concierge smiles before you've said a word — you have that effect.",
-        "PERCEPTION": "You spot a face from a case file reflected in the lobby mirror.",
-        "STEALTH": "You read the shift schedule instinctively and pick the right moment to move unseen."
+        "CHARISMA": "The concierge gives you the relaxed greeting they reserve for residents they've seen enough to trust. Useful.",
+        "PERCEPTION": "You catch a reflection in the lobby mirror that places someone on a floor they haven't been assigned.",
+        "STEALTH": "Shift timing. Blind-spot rotation. Entry window: ninety seconds. You've worked with less."
       },
       "gender": {
-        "male": "The concierge gives you a professionally neutral greeting.",
-        "female": "The concierge is more forthcoming with you than with most; it's a small thing, but useful."
+        "male": "You fold a newspaper under your arm and walk to the elevator. Man with a newspaper going up — nobody's problem.",
+        "female": "The concierge is chattier than their job requires. You trade small talk for building access and come out ahead."
       }
     },
     "senior_living_facility": {
-      "default": "You step into the senior living facility.",
+      "default": "The old and the overlooked. The city filed them away decades ago. That means they saw everything the city wanted forgotten.",
       "time": {
-        "morning": "Morning routines — breakfast, medications, exercises — proceed with gentle regularity.",
-        "afternoon": "Activities, visitors, and quiet reading fill the afternoon hours.",
-        "evening": "Dinner service brings residents together; the common room is warmly lit.",
-        "night": "The facility is quiet and calm; night staff conduct their gentle rounds."
+        "morning": "Routine runs deep here. Medications, meals, the quiet discipline of lives that have been lived long enough to know what matters.",
+        "afternoon": "Visiting hours and activity sessions. The building is at its most porous. You use the traffic.",
+        "evening": "Dinner in the common room. The most social hour of the facility's day. The most talkative.",
+        "night": "Night staff, soft rounds, the hum of institutional care. And one resident who still keeps strange hours."
       },
       "attribute": {
-        "EMPATHY": "You have genuine patience here — listening costs you nothing and earns you everything.",
-        "MEMORY": "The residents' long memories are a resource. You know exactly what questions to ask.",
-        "CHARISMA": "Staff and residents trust you quickly. Something about your manner reassures them."
+        "EMPATHY": "You sit and you listen without looking at your watch. That's worth more in this building than a badge.",
+        "MEMORY": "A resident mentions a name from forty years ago. You're the first person who recognised it. That changes the conversation.",
+        "CHARISMA": "Staff and residents both take to you. You have the manner of someone who means it. They've earned the right to know the difference."
       },
       "gender": {
-        "male": "The staff are politely cautious — unfamiliar men in residential care settings get a second look.",
-        "female": "The residents warm to you quickly; the staff even more so. You fit the expected profile of a visitor here."
+        "male": "You pull a chair up, ask nothing to start, and let the room come to you. It does.",
+        "female": "You're welcomed in with the particular warmth reserved for people who feel safe. You let them feel right about that and you get to work."
       }
     },
     "hotel_budget": {
-      "default": "You check into the budget hotel.",
+      "default": "Thin walls and cheaper regrets. Every budget hotel is a short story collection that nobody's proud of.",
       "time": {
-        "morning": "The breakfast queue moves sluggishly; the coffee is adequate at best.",
-        "afternoon": "The lobby is a crossroads of transient guests and their luggage.",
-        "evening": "Check-in rush brings a long queue to the single front-desk clerk.",
-        "night": "The corridors are thin-walled and lively long past midnight."
+        "morning": "The breakfast queue is a parade of people who slept badly and still have to function. You're among them. Sort of.",
+        "afternoon": "The lobby is transit — everyone passing through, nobody staying.",
+        "evening": "Check-in rush. One overworked clerk, a queue that tests patience. You use the wait to learn who else is checking in.",
+        "night": "Somewhere down the hall a door slams. Somewhere else, a call ends badly. You lie on the bed and listen to the building tell its secrets."
       },
       "attribute": {
-        "PERCEPTION": "You note the room numbers of interest before you've even reached yours.",
-        "STEALTH": "The indifferent staff and anonymous guests make you effectively invisible.",
-        "MEMORY": "You've stayed in places exactly like this. You know every corner, every exit."
+        "PERCEPTION": "Room 214 has been entered in the last hour. The latch is set wrong. Whoever's in there didn't grow up in hotels.",
+        "STEALTH": "Indifferent staff and anonymous guests. This place was built for people who don't want to be found. That includes you.",
+        "MEMORY": "You've stayed in exactly this kind of place before. Same layout, same broken ice machine, same smell. You know where everything is."
       },
       "gender": {
-        "male": "The night clerk barely looks up from the screen. Anonymous service for an anonymous guest.",
-        "female": "The front desk clerk is slightly more attentive than necessary. You note who else is watching the exchange."
+        "male": "You pay in cash and give the clerk a name that matches nothing in any system they'll bother to check.",
+        "female": "The night clerk is more attentive than the job requires. You smile until they stop being useful and then you go to your room."
       }
     },
     "hotel_business": {
-      "default": "You check into the business hotel.",
+      "default": "Business travel: everyone with somewhere to be and something to hide. You fit right in.",
       "time": {
-        "morning": "The breakfast room is full of laptop screens and muffled calls.",
-        "afternoon": "The lobby serves as an informal meeting room for suited guests.",
-        "evening": "The bar fills with conference delegates unwinding after long sessions.",
-        "night": "The hotel settles into a professional quiet after midnight."
+        "morning": "Laptop screens and phone calls at breakfast. The most productive lies of anyone's day happen here before nine.",
+        "afternoon": "The lobby doubles as a meeting room for deals that aren't happening in the conference centre.",
+        "evening": "The bar fills with people unwinding from the performance of being professional. Loosened ties, loosened tongues.",
+        "night": "Corporate quiet. The hallways smell like carpet and confidentiality agreements."
       },
       "attribute": {
-        "CHARISMA": "The front desk upgrades your room without you asking. You have the right kind of presence.",
-        "INTELLIGENCE": "The guest roster at check-in gives you more information than the hotel intends.",
-        "PERCEPTION": "You clock the surveillance setup within seconds of crossing the lobby."
+        "CHARISMA": "The front desk upgrades you before you ask. You have the look of someone who expects it.",
+        "INTELLIGENCE": "The conference attendance list at the concierge desk tells you who's in town and why. Neither answer is what the signage claims.",
+        "PERCEPTION": "You've clocked the room's sight lines, the corridor camera, and the stairwell exit before the porter finishes the room tour."
       },
       "gender": {
-        "male": "You check in with the efficiency that marks the business hotel's bread and butter.",
-        "female": "A woman checking into a business hotel alone draws a particular kind of attention. You let it land and redirect it."
+        "male": "You check in with the efficiency of a man who's done this a hundred times. You have. Just not always under the same name.",
+        "female": "You handle check-in in forty-five seconds flat. The clerk still adds an unrequested amenity. You accept it as access to a floor you needed."
       }
     },
     "hotel_luxury": {
-      "default": "You enter the luxury hotel.",
+      "default": "Marble and misdirection. A luxury hotel is the best place in the city to conduct business that can't be traced.",
       "time": {
-        "morning": "A white-gloved breakfast service runs with silent precision.",
-        "afternoon": "The afternoon is defined by spa appointments and discreet meetings.",
-        "evening": "The restaurant fills with guests dressed for the occasion.",
-        "night": "The hotel purrs with a midnight calm that money has carefully constructed."
+        "morning": "White-glove breakfast service. The conversation at table three started before you arrived and will cost someone dearly by noon.",
+        "afternoon": "The hotel holds its breath in the afternoon. Everything about it says: nothing happens here. Everything about it is lying.",
+        "evening": "Full dining room, full bar. Everyone dressed for someone else's benefit. You dress for cover.",
+        "night": "The hotel turns to silk and shadows. The real conversations happen now."
       },
       "attribute": {
-        "CHARISMA": "The concierge treats you like a preferred guest before you've said your name.",
-        "EMPATHY": "You read the undercurrents between guests — this hotel holds many secrets.",
-        "INTELLIGENCE": "Luxury is a language. You speak it fluently and note who doesn't."
+        "CHARISMA": "The concierge remembers your name before you've given it. You gave it three visits ago under a different identity.",
+        "EMPATHY": "Every exchange here is a transaction. You read what's being bought and sold at each table.",
+        "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van — all three connect to the same name."
       },
       "gender": {
-        "male": "The concierge treats you with the precision that expensive hotels reserve for guests who could cause a scene.",
-        "female": "The hotel staff attend to you with a warmth that says you belong here. You do — for now."
+        "male": "You wear the hotel's assumptions like a second suit. Nobody questions the man at the corner table who hasn't ordered yet.",
+        "female": "A woman dining alone in the bar at this hour is either very confident or very dangerous. You're prepared to be both if the case requires it."
       }
     },
     "office_building_small": {
-      "default": "You step into the small office building.",
+      "default": "Small office, small secrets — but they're the kind that fit in a briefcase and travel well.",
       "time": {
-        "morning": "Staff arrive and settle into the familiar rhythms of the work day.",
-        "afternoon": "The midday lull is broken by a brief flurry of meetings.",
-        "evening": "Most desks are clearing; a few lights remain on past hours.",
-        "night": "The building is dark. A single light burns on an upper floor."
+        "morning": "Staff arriving, coffee in hand, guard not yet up. The freshest intelligence of the day is at nine a.m.",
+        "afternoon": "Post-lunch slowdown. Everyone's a little more honest when they're a little more tired.",
+        "evening": "Most of the floor dark by six. One office still lit. That office is the one you're interested in.",
+        "night": "Empty. A single light on the top floor. That's not the cleaner."
       },
       "attribute": {
-        "INTELLIGENCE": "The layout, the org chart on the wall, the room allocations — you read it all in a glance.",
-        "PERCEPTION": "Small offices have small secrets that are hard to keep. You spot three within two minutes.",
-        "STEALTH": "You move through the open-plan floor without drawing a single pair of eyes."
+        "INTELLIGENCE": "Three minutes in and you've read the org chart, the room assignments, and the name on the door that doesn't appear on the chart.",
+        "PERCEPTION": "Someone left a printout on the shared printer that shouldn't be shared. You read it on the way past.",
+        "STEALTH": "Open-plan office, nobody watching the edges. You move like a consultant doing a walkthrough."
       },
       "gender": {
-        "male": "Staff pass you in the corridor with the polite indifference given to most unfamiliar visitors.",
-        "female": "The receptionist offers to let someone know you've arrived. You decline — unannounced is better."
+        "male": "You walk the floor like you own the contract. Assumptions run in your favour.",
+        "female": "You're past the reception desk before anyone thinks to ask who you're here to see. Purpose is its own credential."
       }
     },
     "office_building_medium": {
-      "default": "You enter the office building.",
+      "default": "Mid-size offices, mid-size lies. The crimes here are the unglamorous kind — fraud, cover-ups, the daily corruption of small decisions.",
       "time": {
-        "morning": "Elevators fill and empty as the morning shift settles in.",
-        "afternoon": "A steady hum of meetings and keyboard work fills the afternoon.",
-        "evening": "The building empties floor by floor as the evening arrives.",
-        "night": "Security makes rounds through dark, quiet corridors."
+        "morning": "The building wakes with the particular energy of people about to spend eight hours being someone else.",
+        "afternoon": "Conference rooms booked solid, hallways full of conversations that stop when you pass. You've already heard enough.",
+        "evening": "The building drains by six. Whatever's still running at seven has a reason.",
+        "night": "Security rounds and a cleaning crew. You know the gap between them."
       },
       "attribute": {
-        "INTELLIGENCE": "You analyse the organisational structure from the directory board and draw fast conclusions.",
-        "PERCEPTION": "Someone has recently been to the floor above yours — the elevator's panel still shows it.",
-        "EMPATHY": "You can feel the pressure and fatigue of staff even through their professional masks."
+        "INTELLIGENCE": "The directory board tells you the official story. The gaps in it tell you the real one.",
+        "PERCEPTION": "The elevator indicator shows floor twelve. Nobody has a meeting on floor twelve at this time of day.",
+        "EMPATHY": "The staff on this floor are performing calm. You've worked enough interviews to know what performed calm costs."
       },
       "gender": {
-        "male": "You carry the kind of authority that office buildings are designed to accommodate.",
-        "female": "You move with purpose and nobody stops you. Purpose is its own kind of credential."
+        "male": "You carry the floor like you've been briefed on it. Nobody wants to be the one who stopped you.",
+        "female": "You walk it with the authority of the last person who was right. Nobody argues with the last person who was right."
       }
     },
     "office_building_large": {
-      "default": "You enter the large office building.",
+      "default": "A thousand people and one secret that ties all of them together. You're going to find it.",
       "time": {
-        "morning": "The lobby revolves with a thousand commuters beginning their nine-to-five.",
-        "afternoon": "Conference rooms are booked solid through the afternoon.",
-        "evening": "The building empties quickly after five; only the ambitious stay.",
-        "night": "Cleaners and security have the building to themselves."
+        "morning": "The lobby revolves with the morning crush. Anonymity at its peak. You walk in with the tide.",
+        "afternoon": "The building runs at full capacity. Noise, movement, and the comfortable cover of normalcy.",
+        "evening": "The floor drains fast after five. The ones who stay are the ones worth watching.",
+        "night": "Cleaners and security. Two schedules. One window between them."
       },
       "attribute": {
-        "INTELLIGENCE": "A building this size is a city in miniature. You navigate its politics instinctively.",
-        "CHARISMA": "Your visitor's badge should slow you down. Somehow it never does.",
-        "PERCEPTION": "You notice the executive floor elevator is showing unusual activity for this time of day."
+        "INTELLIGENCE": "A building this size runs on hierarchy. You read the hierarchy in the email signatures on the unattended desk.",
+        "CHARISMA": "Your visitor's badge should slow you down. Your manner says it won't.",
+        "PERCEPTION": "The executive elevator shows recent activity for a floor that's been officially off-limits for a week."
       },
       "gender": {
-        "male": "Your visitor's badge should slow you down. Your manner makes it unnecessary.",
-        "female": "Dressed for the part, you pass through a building like this without a second glance from the security desk."
+        "male": "You carry the walk of a person with clearance and let the assumption do the work.",
+        "female": "You tailor the walk to match the floor and the floor opens up for you."
       }
     },
     "corporate_headquarters": {
-      "default": "You step into the corporate headquarters.",
+      "default": "The top floor of everything wrong with the city. This is where decisions get laundered and consequences get delegated.",
       "time": {
-        "morning": "The executive floors are already in motion; global calls started at dawn.",
-        "afternoon": "Board-level meetings and media delegations fill the afternoon schedule.",
-        "evening": "The lobbying and networking events that define corporate life run long into the evening.",
-        "night": "The building sleeps, but the servers don't."
+        "morning": "The executive floors have been active since before the sun cleared the skyline. The kind of decisions made at dawn are never the comfortable kind.",
+        "afternoon": "Board presentations and media management. Every word calculated for an audience that includes you, whether they know it or not.",
+        "evening": "Networking events and private dinners. The business of the day continues under different lighting.",
+        "night": "The servers never sleep. The building holds its breath. You're inside it."
       },
       "attribute": {
-        "INTELLIGENCE": "Power is concentrated here. You understand its mechanisms and how to interrupt them.",
-        "CHARISMA": "Senior executives open doors for you. You give them no reason not to.",
-        "INTIMIDATION": "Your demeanour makes it clear you will not be managed, redirected, or ignored."
+        "INTELLIGENCE": "Power has a grammar. You speak it without accent. You also know exactly where the sentences fall apart.",
+        "CHARISMA": "Senior executives open doors for people who look like they're about to open them anyway. You have that look.",
+        "INTIMIDATION": "You make it clear — without raising your voice or breaking a smile — that you will not be managed."
       },
       "gender": {
-        "male": "You carry the weight of someone used to rooms like this. People get out of your way.",
-        "female": "Boardrooms like this are not always welcoming territory, but you've never needed them to be."
+        "male": "A boardroom full of men in suits assumes you're one of the men in suits. That assumption buys you twelve minutes.",
+        "female": "The room underestimates you and overestimates itself. You've corrected that equation before."
       }
     },
     "coworking_space": {
-      "default": "You walk into the coworking space.",
+      "default": "Shared desks and the illusion of community. Everyone working independently and desperately hoping someone notices.",
       "time": {
-        "morning": "Early freelancers and startup founders claim the best seats before nine.",
-        "afternoon": "The space reaches peak population mid-afternoon; conversation fills the air.",
-        "evening": "The evening crowd is younger and noisier — tonight's product launch is somewhere in here.",
-        "night": "The space is closed; hot desks sit vacant until morning."
+        "morning": "First ones in are claiming territory. Laptops open, headphones on, eyes everywhere.",
+        "afternoon": "The space hits critical density. Pitches, calls, the low-grade performance of productivity.",
+        "evening": "Product launches and meetups. The noise peaks and the guard drops. Your kind of hour.",
+        "night": "Empty desks and dormant screens. Whatever was built here today will be dismantled somewhere else tomorrow."
       },
       "attribute": {
-        "INTELLIGENCE": "You read pitches, code, and conversations simultaneously without appearing to.",
-        "CHARISMA": "People introduce themselves to you before you've had a chance to ask.",
-        "PERCEPTION": "Coworking spaces are deliberately open. That makes what's hidden here all the more interesting."
+        "INTELLIGENCE": "You're reading three pitches, two wireframes, and one conversation about a funding round that shouldn't be public yet.",
+        "CHARISMA": "People introduce themselves to you before you've settled in. The social density of this place works in your favour.",
+        "PERCEPTION": "Coworking spaces are porous by design. What's supposedly private here is only private to people who aren't paying attention."
       },
       "gender": {
-        "male": "You claim a desk and people assume you're a member. You don't correct them.",
-        "female": "Someone offers to introduce you around within thirty seconds. Social capital is currency here."
+        "male": "You take a hot desk near the back and open a laptop. Nobody here knows anyone well enough to notice a new face.",
+        "female": "Someone offers to introduce you around inside thirty seconds. You accept. Social capital accrues fast in places like this."
       }
     },
     "movie_theater": {
