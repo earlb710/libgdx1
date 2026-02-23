@@ -2093,6 +2093,146 @@
         "male": "You request a specific filing date. The clerk checks and you read what's adjacent to what they're showing you.",
         "female": "You ask for a certified copy. While the clerk prepares it, you note the other documents on the desk."
       }
+    },
+    "Climate Control": {
+      "default": "Regulated temperature and the mechanical certainty that something in this building requires precise environmental conditions. You want to know what.",
+      "gender": {
+        "male": "You find the thermostat panel. The set point is lower than any human comfort range. This room isn't for humans.",
+        "female": "You note the humidity readout. The stored documents in here are being protected. From more than just time."
+      }
+    },
+    "Climbing Wall": {
+      "default": "Vertical training and the exposure of everyone attempting it. Up a wall there's nowhere to hide your weaknesses.",
+      "gender": {
+        "male": "You climb the route nobody's completed today and use the height to see the whole room.",
+        "female": "You take an easy route and observe the people on the harder ones. Effort reveals character."
+      }
+    },
+    "Club Level": {
+      "default": "Elevated access for people who've paid for the privilege of being harder to approach. You approach anyway.",
+      "gender": {
+        "male": "You move through the club level with the ease of someone who belongs there. The ease is the credential.",
+        "female": "You're admitted faster than expected. The assumption about why you're here is wrong. You let it run."
+      }
+    },
+    "Clubhouse": {
+      "default": "A semi-private gathering point where the rules of the community get made and unmade. Everything consequential was agreed on here first.",
+      "gender": {
+        "male": "You arrive early and talk to the people setting up. They know everything before anyone else does.",
+        "female": "You stay late when others are leaving. The last conversation of the evening is the one that matters."
+      }
+    },
+    "Co-Working Space": {
+      "default": "Hot desks and the illusion of separation. Everything here is technically private and practically public.",
+      "gender": {
+        "male": "You set up near the printer and let the print queue educate you.",
+        "female": "You introduce yourself to the person at the next desk. In a co-working space introductions are expected. The conversation is optional. You make it mandatory."
+      }
+    },
+    "Coat Check": {
+      "default": "Belongings surrendered and numbered. The coat check knows what every guest brought in and when they stopped caring about getting it back.",
+      "gender": {
+        "male": "You retrieve a coat that isn't yours and watch who notices.",
+        "female": "You tip the attendant before asking about the guest who left without collecting. Tipping first is always more productive."
+      }
+    },
+    "Coffee Bar": {
+      "default": "In-office caffeine and the conversation that flows around it. The most honest exchanges of the working day happen at the coffee bar.",
+      "gender": {
+        "male": "You make a pour and stay. The bar is a social waypoint. Everyone comes through.",
+        "female": "You arrive with a question and leave with three answers you didn't ask for."
+      }
+    },
+    "Coffee Shop": {
+      "default": "Somewhere between office and home for people who don't want to be in either. The coffee shop holds conversations that belong in neither.",
+      "gender": {
+        "male": "You order and occupy. A man with a coffee and a newspaper is the city's most reliable invisible person.",
+        "female": "You sit near the window and let the light work for you. People gravitate toward the light. So do their secrets."
+      }
+    },
+    "Coffee Station": {
+      "default": "The hub of the floor. Everyone passes through it. Everything worth knowing gets said within earshot of the coffee station.",
+      "gender": {
+        "male": "You refill a mug you've been carrying for twenty minutes and catch the conversation you came for.",
+        "female": "You make the coffee for the person next to you. Small acts of consideration generate large amounts of candour."
+      }
+    },
+    "Cold Brew Station": {
+      "default": "Slow-steeped and unhurried. There's a patience to cold brew that the clientele doesn't share. You do.",
+      "gender": {
+        "male": "You wait for the pour with the calm of someone who has nowhere to be. You have somewhere to be. You don't show it.",
+        "female": "You ask about the blend. The barista talks for three minutes. At minute two they mention the regular who hasn't been in."
+      }
+    },
+    "Cold Storage": {
+      "default": "Controlled temperature and the quiet preservation of things that can't afford to change. What's being kept here that couldn't wait for room temperature?",
+      "gender": {
+        "male": "You open the door and step in. The inventory list on the clipboard doesn't match the shelves.",
+        "female": "You photograph the storage log. Something came in recently that the log describes in terms that don't match the weight."
+      }
+    },
+    "Color Bar": {
+      "default": "Hair colour and the chemistry of transformation. The salon's colour bar is where the most personal conversations happen.",
+      "gender": {
+        "male": "You wait for a consultation and learn more about the clientele than the price list.",
+        "female": "You sit in the chair and let the colourist work. Forty minutes at a colour bar generates a complete social map of the salon."
+      }
+    },
+    "Command Center": {
+      "default": "Every feed, every frequency, every incident in the city flows through this room. The command centre knows what happened before anyone files the report.",
+      "gender": {
+        "male": "You read the board before anyone offers to explain it. You already know what half of it means.",
+        "female": "You ask the dispatcher a specific question about the relevant time window. The answer is on three screens at once."
+      }
+    },
+    "Commercial Kitchen": {
+      "default": "Industrial food production and the organised chaos of a service that can't pause. The kitchen sees everything the front of house never does.",
+      "gender": {
+        "male": "You enter through the back and look like you know your station. The kitchen is too busy to check.",
+        "female": "You speak to the head chef between services. Post-service is the only moment the kitchen is honest."
+      }
+    },
+    "Commercial Washers": {
+      "default": "Industrial-grade cleaning in volume and on schedule. What goes through these machines gets clean. What was on it before is the question.",
+      "gender": {
+        "male": "You check the wash log. Cycle time, temperature, load weight. One log entry doesn't match standard linen.",
+        "female": "You ask the laundry supervisor about non-standard loads. They describe one from forty-eight hours ago."
+      }
+    },
+    "Common Patio": {
+      "default": "Shared outdoor space and the informal governance of proximity. Everyone on the common patio heard everything.",
+      "gender": {
+        "male": "You take a chair and a coffee and let the patio do the surveillance work.",
+        "female": "You join the group already there and within minutes you're part of the conversation you came to hear."
+      }
+    },
+    "Community Board": {
+      "default": "Notices and announcements and the neighbourhood's public record of its own concerns. Read it carefully and it tells you what people are afraid of.",
+      "gender": {
+        "male": "You read every notice twice. The one that was recently removed left a rectangle of unfaded paint.",
+        "female": "You photograph the board and enlarge the corner notice that's been partially covered by the new one."
+      }
+    },
+    "Community Room": {
+      "default": "A shared space used by enough people that nobody knows who belongs there. The best kind of room to be in without explanation.",
+      "gender": {
+        "male": "You set up at the table with a folder and look like you're waiting for someone who's late.",
+        "female": "You arrive early for the meeting and start talking to whoever arrives first. They always know something."
+      }
+    },
+    "Computer Lab": {
+      "default": "Shared terminals and the browsing history of people who thought the session cleared when they logged out. It cleared for them. Not for you.",
+      "gender": {
+        "male": "You sign in under the guest account and check the network logs. Guest accounts see more than administrators intend.",
+        "female": "You use the terminal next to the one you're interested in and note the recent files sidebar."
+      }
+    },
+    "Computer Labs": {
+      "default": "Multiple machines, multiple users, and the aggregate history of what a building's population searches for when they think they're alone.",
+      "gender": {
+        "male": "You walk the row of machines and read what's been left open. People always leave something open.",
+        "female": "You speak to the lab monitor about a technical question. While they answer, you read the activity log on the nearest terminal."
+      }
     }
   }
 }
