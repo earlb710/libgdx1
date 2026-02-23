@@ -39,6 +39,7 @@ class DiscoveryPopup {
 
     // --- State ---
     private boolean      visible = false;
+    private boolean      newDiscovery;
     private String       buildingName;
     private String       description;
     private String       novelText;
@@ -73,24 +74,27 @@ class DiscoveryPopup {
     // -------------------------------------------------------------------------
 
     /**
-     * Shows the popup for a newly discovered building.
+     * Shows the popup for a building arrival.
      *
-     * @param buildingName     Name of the discovered building
+     * @param buildingName     Name of the building
      * @param description      Building description from the definition (may be null/empty)
      * @param novelText        Context-sensitive novel-engine text (may be null/empty)
      * @param improvementLines Formatted names of auto-discovered improvements
+     * @param newDiscovery     {@code true} if this is the first visit (title reads "Discovered:");
+     *                         {@code false} for revisits (title reads "Visiting:")
      */
     void show(String buildingName, String description, String novelText,
-              List<String> improvementLines) {
-        this.buildingName = buildingName;
-        this.description  = (description != null && !description.isEmpty()) ? description : null;
-        this.novelText    = (novelText   != null && !novelText.isEmpty())   ? novelText   : null;
+              List<String> improvementLines, boolean newDiscovery) {
+        this.buildingName  = buildingName;
+        this.newDiscovery  = newDiscovery;
+        this.description   = (description != null && !description.isEmpty()) ? description : null;
+        this.novelText     = (novelText   != null && !novelText.isEmpty())   ? novelText   : null;
         this.improvementLines.clear();
         this.improvementLines.addAll(improvementLines);
         this.scrollY  = 0f;
         this.okW      = 0f;
         this.visible  = true;
-        Gdx.app.log("DiscoveryPopup", "Showing for: " + buildingName
+        Gdx.app.log("DiscoveryPopup", (newDiscovery ? "Discovered" : "Visiting") + ": " + buildingName
                 + " imps=" + improvementLines.size());
     }
 
@@ -140,7 +144,7 @@ class DiscoveryPopup {
         float okBtnH = okBounds.height;
 
         // --- Title (building name) ---
-        String titleText = "Discovered: " + buildingName;
+        String titleText = (newDiscovery ? "Discovered: " : "Visiting: ") + buildingName;
         glyph.setText(font, titleText);
         float titleW = glyph.width;
 
@@ -183,9 +187,10 @@ class DiscoveryPopup {
         float dialogW = MathUtils.clamp(maxLineW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
         // Height layout:
-        //   PAD + titleLine + scrollableArea + PAD + okBtnH + PAD
+        //   PAD + titleLine + TITLE_GAP + scrollableArea + PAD + okBtnH + PAD
+        final float TITLE_GAP = fontLineH * 0.5f;  // extra space between heading and content
         float scrollableContent = scrollLines.size() * smallLineH;
-        float fixedH = PAD + fontLineH + PAD + okBtnH + PAD;
+        float fixedH = PAD + fontLineH + TITLE_GAP + PAD + okBtnH + PAD;
         float maxScrollable = MAX_H - fixedH;
         boolean needsScroll = scrollableContent > maxScrollable;
         float usedScrollH = needsScroll ? maxScrollable : scrollableContent;
