@@ -196,7 +196,7 @@ public class UtilLibGDX {
         int blineDst = (rcount == 2) ? bcount * w : bcount * h;
         byte[] bbuf = new byte[bcount];
         switch (rcount) {
-            case 1 -> {
+            case 1:
                 for (int idy = 0; idy < h; idy = idy + 1) {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dy = h - idy - 1;
@@ -204,8 +204,8 @@ public class UtilLibGDX {
                         bufDest.put(idx * blineDst + dy * bcount, bbuf);
                     }
                 }
-            }
-            case 2 -> {
+                break;
+            case 2:
                 for (int idy = 0; idy < h; idy = idy + 1) {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dy = h - idy - 1;
@@ -214,8 +214,8 @@ public class UtilLibGDX {
                         bufDest.put(dy * blineDst + dx * bcount, bbuf);
                     }
                 }
-            }
-            case 3 -> {
+                break;
+            case 3:
                 for (int idy = 0; idy < h; idy = idy + 1) {
                     for (int idx = 0; idx < w; idx = idx + 1) {
                         int dx = w - idx - 1;
@@ -223,7 +223,7 @@ public class UtilLibGDX {
                         bufDest.put(dx * blineDst + idy * bcount, bbuf);
                     }
                 }
-            }
+                break;
         }
         bufDest.position(0);
         return dest;
