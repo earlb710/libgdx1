@@ -1372,6 +1372,13 @@
         "male": "You clock the rotation. Three minutes between passes. More than enough.",
         "female": "The overnight guard straightens up when you walk past. You note the camera angle they just created for you."
       }
+    },
+    "3D Theaters": {
+      "default": "Three dimensions of distraction. The kind of spectacle designed to keep a thousand eyes pointing the wrong way.",
+      "gender": {
+        "male": "You skip the glasses and watch the crowd instead. More interesting than the screen.",
+        "female": "You take a seat on the aisle and spend two hours observing people who think the dark makes them invisible."
+      }
     }
   }
 }
