@@ -4053,6 +4053,146 @@
         "male": "The microwave rooms \u2014 where office politics simmer alongside reheated leftovers.",
         "female": "You pass through the microwave room. Someone left a note on the machine. Someone else crossed it out. Small wars everywhere."
       }
+    },
+    "Mikvah": {
+      "default": "A ritual bath of ancient meaning, hidden in plain sight. Private, purposeful, and not your business \u2014 unless you make it yours.",
+      "gender": {
+        "male": "The mikvah is a quiet, sacred space. You respect the purpose here even as you do your job.",
+        "female": "You enter the mikvah area carefully. Sacred spaces deserve measured steps. You offer that much, even now."
+      }
+    },
+    "Minaret": {
+      "default": "A tower that calls the city to attention five times a day. Someone always listens. Tonight you're one of them.",
+      "gender": {
+        "male": "You look up at the minaret. Stone and faith pointing upward. You've seen enough of the city below to understand the appeal.",
+        "female": "The minaret rises above the neighborhood. A landmark for the faithful and a waypoint for anyone trying to get their bearings."
+      }
+    },
+    "Mobile Order Pickup": {
+      "default": "A shelf of labeled bags and cold drinks. Modern efficiency. Nobody makes eye contact. Nobody has to.",
+      "gender": {
+        "male": "Mobile pickup \u2014 the city's way of saying 'transact and move on.' You prefer to linger.",
+        "female": "You scan the pickup shelf. Dozens of orders, dozens of names. One of them is a lie."
+      }
+    },
+    "Mobile Pickup": {
+      "default": "Grab and go, no questions asked. The anonymity of it bothers you in a professional way.",
+      "gender": {
+        "male": "Mobile pickup is convenient. Convenient is what people reach for when they don't want to be seen.",
+        "female": "You stand near the mobile pickup station. Nobody looks at you. In this city, invisibility is a service people pay for."
+      }
+    },
+    "Motorcycle Parking": {
+      "default": "A row of bikes chained up and waiting. Each one a quick exit \u2014 which is exactly why you're paying attention to it.",
+      "gender": {
+        "male": "You walk the motorcycle lot. You know three ways out from every corner. Habit. These bikes know one.",
+        "female": "The motorcycle parking is around back. Away from cameras. Of course it is."
+      }
+    },
+    "Movie Complex": {
+      "default": "A fortress of escapism and overpriced concessions. The kind of place people go when they want to stop being themselves for two hours.",
+      "gender": {
+        "male": "The complex is crowded and loud. A good place to move without being seen. A better place to be followed without knowing it.",
+        "female": "You walk through the movie complex. Hundreds of people staring at screens. Not one of them looking at you. That's the point."
+      }
+    },
+    "Movie Theater": {
+      "default": "Dark, loud, and anonymous. The movie theater is where the city comes to disappear. You've come to find somebody.",
+      "gender": {
+        "male": "The theater is full. You move along the wall, eyes adjusting. The screen flickers. So does your lead.",
+        "female": "You slip into the back row. Dark rooms and quiet crowds. You've learned to work in conditions like this."
+      }
+    },
+    "Moving Truck Rental": {
+      "default": "A lot of trucks that help people leave quickly. You've noticed that people who rent moving trucks always seem to be in a hurry.",
+      "gender": {
+        "male": "Moving truck rental. The whole city's transient if you give it an excuse and a one-way rate.",
+        "female": "You check the rental manifest. Someone left in a hurry. You're going to find out what they left behind."
+      }
+    },
+    "Multiple Anchors": {
+      "default": "Several main tenants anchoring the same property \u2014 each one drawing its own crowd, each crowd useful cover for someone who doesn't want to be found.",
+      "gender": {
+        "male": "Multiple anchors, multiple exits, multiple problems. You draw a map in your head and start walking.",
+        "female": "You note the anchor stores. Several entry points, several crowds. Whoever you're looking for could be inside any of them."
+      }
+    },
+    "Multiple Bars": {
+      "default": "More than one place to drink your troubles in this building. The city has made sure you'll never run out of options for that.",
+      "gender": {
+        "male": "Multiple bars under one roof. You've got ground to cover and a dry policy to maintain until the case closes.",
+        "female": "You do a sweep of the bars. Faces blur together after the third one. You take notes anyway."
+      }
+    },
+    "Multiple Docks": {
+      "default": "A row of loading docks humming with deliveries and departures. Goods flow through here. So do things that aren't on any manifest.",
+      "gender": {
+        "male": "Multiple docks, multiple opportunities. You watch the traffic patterns and wait for the one that doesn't fit.",
+        "female": "You count the docks and the trucks. Someone runs this operation tight. You're about to loosen it."
+      }
+    },
+    "Multiple Elevators": {
+      "default": "Banks of elevators serving a tall building's guilty conscience. You never take the same one twice.",
+      "gender": {
+        "male": "Multiple elevators \u2014 and multiple ways for someone to slip between floors without you tracking them. Not today.",
+        "female": "You note the elevator banks. Cameras in each one. Good. You'll want that footage."
+      }
+    },
+    "Multiple Restaurants": {
+      "default": "A property with several dining options. Someone comes here for the food. Someone else comes for the corner booth that can't be seen from the entrance.",
+      "gender": {
+        "male": "Multiple restaurants means multiple alibis within a hundred yards. You start with the one that closes last.",
+        "female": "You walk the restaurants. Different crowds, different prices, same feeling that something's off. You'll start at the back."
+      }
+    },
+    "Music Room": {
+      "default": "Instrument cases and acoustic tiles. Someone pours their soul out in here on a daily basis. You envy them the outlet.",
+      "gender": {
+        "male": "The music room is empty but it still hums with absence. Whoever plays in here hasn't been back in a few days.",
+        "female": "You step into the music room. The instruments are well kept. The person who plays them cares about something. That's useful."
+      }
+    },
+    "Nail Station": {
+      "default": "Polish and precision, chemicals in small bottles. The nail station is where people sit still and talk. People talk a lot when they sit still.",
+      "gender": {
+        "male": "You wait near the nail station. It's not your element. The conversations happening three feet away more than make up for that.",
+        "female": "You take a seat at the nail station. Best intelligence gathering in the city. Nobody expects a detective in a nail chair."
+      }
+    },
+    "Nap Area": {
+      "default": "A quiet corner with pods and dim lighting. People come here to check out briefly. You note who's using it and for how long.",
+      "gender": {
+        "male": "The nap area. You haven't slept properly since the case opened. Envy comes quickly. You move on.",
+        "female": "You glance into the nap area. It's designed for recovery. You've been running on something else entirely."
+      }
+    },
+    "Nebulizer Station": {
+      "default": "A medical station for breathing treatments. Simple, necessary, and quietly revealing about the health of a place and its people.",
+      "gender": {
+        "male": "The nebulizer station stands ready in the corner. You note it was used recently. Someone needed help breathing.",
+        "female": "You pass the nebulizer station. The small things tell the story \u2014 what people need, what they struggle with."
+      }
+    },
+    "Network Operations Center": {
+      "default": "The nerve center of digital infrastructure \u2014 screens everywhere, cable bundles like arteries, and analysts who know where every packet goes.",
+      "gender": {
+        "male": "You stand in the NOC. The operators track everything. You need to know what they saw last Tuesday at 11 PM.",
+        "female": "The network operations center never sleeps. Neither did you last night. You have questions that only these screens can answer."
+      }
+    },
+    "Newsstand": {
+      "default": "Papers, magazines, and cigarettes. The newsstand is the city's original social media \u2014 and the person behind the counter misses nothing.",
+      "gender": {
+        "male": "You buy a paper you won't read. The vendor sizes you up the way they size up everyone. You let them.",
+        "female": "You pause at the newsstand. The vendor has been at this corner for twenty years. That's twenty years of watching who comes and goes."
+      }
+    },
+    "Night Deposit": {
+      "default": "A slot in the wall where money vanishes after hours. No witnesses, no receipts, just a transaction in the dark.",
+      "gender": {
+        "male": "The night deposit slot. You've pulled cases from evidence worse than what's been dropped through here.",
+        "female": "You examine the night deposit unit. Unmarked envelopes are a detective's specialty \u2014 so is finding out what's in them."
+      }
     }
   }
 }
