@@ -297,7 +297,7 @@
         "night": "One light still on at the far end. You make a note of which unit and what time."
       },
       "attribute": {
-        "PERCEPTION": "Twelve storefronts and one of them has inventory coming in after midnight. You file that away.",
+        "PERCEPTION": "Twelve storefronts and one of them has inventory coming in after midnight. The kind of anomaly that doesn't go unnoticed.",
         "CHARISMA": "You step into a shop and come out with three business cards and twice as many leads.",
         "STEALTH": "You walk the strip once and let the foot traffic swallow you. Nobody remembers a face that keeps moving."
       },
@@ -533,7 +533,7 @@
       "attribute": {
         "INTELLIGENCE": "You find the inefficiency in the system \u2014 the records room with the unmanned desk, the supply chain that doesn't add up.",
         "EMPATHY": "The weight of the place lands on you the moment you walk in. You carry it without breaking stride.",
-        "PERCEPTION": "Restricted corridor. No badge. Moving quickly. You file all three facts and follow at a distance."
+        "PERCEPTION": "Restricted corridor. No badge. Moving quickly. Three facts. You follow at a distance."
       },
       "gender": {
         "male": "You walk like a consultant late for rounds. Nobody questions a man walking fast in a hospital.",
@@ -3904,7 +3904,7 @@
       "default": "A chair designed to unknot human tension. You note it's been used recently. Hard work or hard stress \u2014 either way, someone needed it.",
       "gender": {
         "male": "You glance at the massage chair. Not now. Maybe never, on this job.",
-        "female": "The massage chair hums invitingly. You file the thought away for after the case closes \u2014 if it closes."
+        "female": "The massage chair hums invitingly. Not the right moment. The case still has its grip \u2014 if it ever lets go."
       }
     },
     "Maternity Ward": {
@@ -4230,7 +4230,7 @@
       }
     },
     "Office": {
-      "default": "Four walls, a desk, and everything that gets buried in a drawer and forgotten. Offices are where truth goes to file itself away.",
+      "default": "Four walls, a desk, and everything that gets buried in a drawer and forgotten. Offices are where truth goes to disappear.",
       "gender": {
         "male": "Your kind of room. A desk to anchor you, a door to close, and enough shadows to think in.",
         "female": "You stand in the office. Whoever works here is careful \u2014 nothing personal on display. That's a choice that tells you something."
@@ -5940,7 +5940,7 @@
     "VIP Lounge": {
       "default": "A restricted space for premium guests, away from general population and general oversight. The VIP lounge is where things get said that nobody writes down.",
       "gender": {
-        "male": "You gain access to the VIP lounge. The bartender has a good memory and a professional inclination to share it with the right authority.",
+        "male": "The VIP lounge opens up. The bartender has a good memory and a professional inclination to share it with the right authority.",
         "female": "The VIP lounge staff recognized you as law enforcement before you said a word. Good. They were waiting for someone to ask."
       }
     },
