@@ -1365,6 +1365,13 @@
         "male": "The lock doesn't care what time it is. Neither do you.",
         "female": "Twenty-four hours means twenty-four ways in. You've already picked the one that suits you."
       }
+    },
+    "24hr Security": {
+      "default": "A guard on every shift, a camera on every corner. The building that never sleeps is hiding something worth staying awake for.",
+      "gender": {
+        "male": "You clock the rotation. Three minutes between passes. More than enough.",
+        "female": "The overnight guard straightens up when you walk past. You note the camera angle they just created for you."
+      }
     }
   }
 }
