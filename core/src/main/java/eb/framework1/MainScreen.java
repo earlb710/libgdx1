@@ -37,6 +37,7 @@ public class MainScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private BitmapFont    font;
     private BitmapFont    smallFont;
+    private BitmapFont    boldSmallFont;
     private BitmapFont    tinyFont;
     private GlyphLayout   glyphLayout;
     private boolean initialized = false;
@@ -54,6 +55,7 @@ public class MainScreen implements Screen {
     private LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
+    private HelpPopup         helpPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -105,6 +107,7 @@ public class MainScreen implements Screen {
         glyphLayout   = new GlyphLayout();
         font          = game.getFontManager().getBodyFont();
         smallFont     = game.getFontManager().getSmallFont();
+        boldSmallFont = game.getFontManager().getBoldSmallFont();
         tinyFont      = game.getFontManager().getTinyFont();
 
         GameDataManager gameData = game.getGameDataManager();
@@ -172,7 +175,7 @@ public class MainScreen implements Screen {
             mapRenderer.setCharacterIconTexture(charTex);
         }
 
-        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, tinyFont,
+        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont,
                 glyphLayout, cityMap, profile);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
@@ -182,6 +185,8 @@ public class MainScreen implements Screen {
                 glyphLayout, profile);
 
         tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -230,6 +235,10 @@ public class MainScreen implements Screen {
 
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
+        }
+
+        if (state.helpVisible) {
+            helpPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
         }
 
         if (quitConfirming) {
@@ -497,6 +506,7 @@ public class MainScreen implements Screen {
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        checkTabClick(screenX, flippedY);
                         checkUnitExitButtonClick(screenX, flippedY);
                         checkMoveToButtonClick(screenX, flippedY);
                         checkLookAroundButtonClick(screenX, flippedY);
@@ -684,6 +694,24 @@ public class MainScreen implements Screen {
     // Button hit-testing
     // -------------------------------------------------------------------------
 
+    private void checkTabClick(int screenX, int flippedY) {
+        if (state.tabH <= 0) return;
+        String[] tabIds = { "INFO", "CHARACTER" };
+        for (int i = 0; i < tabIds.length; i++) {
+            if (state.tabW[i] <= 0) continue;
+            if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]
+                    && flippedY >= state.tabY[i] && flippedY <= state.tabY[i] + state.tabH) {
+                if (!tabIds[i].equals(state.activeInfoTab)) {
+                    state.activeInfoTab = tabIds[i];
+                    state.infoScrollY = 0f;
+                    state.infoScrollX = 0f;
+                    Gdx.app.log("MainScreen", "Info tab switched to " + tabIds[i]);
+                }
+                return;
+            }
+        }
+    }
+
     private void checkMoveToButtonClick(int screenX, int flippedY) {
         if (state.moveToButtonW <= 0) return;
         if (screenX >= state.moveToButtonX && screenX <= state.moveToButtonX + state.moveToButtonW
@@ -739,6 +767,11 @@ public class MainScreen implements Screen {
     }
 
     private void checkHelpButtonClick(int screenX, int flippedY) {
+        // If the popup is visible, let it handle the tap first (its own "?" close button).
+        if (state.helpVisible && helpPopup.onTap(screenX, flippedY)) {
+            state.helpVisible = false;
+            return;
+        }
         if (state.helpBtnW <= 0) return;
         if (screenX >= state.helpBtnX && screenX <= state.helpBtnX + state.helpBtnW
                 && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {

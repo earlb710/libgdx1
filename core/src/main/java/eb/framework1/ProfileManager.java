@@ -64,6 +64,7 @@ public class ProfileManager {
                         icon, pd.attributes, gameDate, randSeed);
                     profile.setMoney(pd.money == 0 ? 1000 : pd.money);
                     profile.setGameDateTime(pd.gameDateTime != null ? pd.gameDateTime : "2050-01-02 13:20");
+                    profile.setCurrentStamina(pd.currentStamina == 0 ? profile.getMaxStamina() : pd.currentStamina);
                     profiles.add(profile);
                 }
             }
@@ -101,6 +102,7 @@ public class ProfileManager {
             pd.randSeed = profile.getRandSeed();
             pd.money = profile.getMoney();
             pd.gameDateTime = profile.getGameDateTime();
+            pd.currentStamina = profile.getCurrentStamina();
             dataList.add(pd);
         }
         
@@ -226,5 +228,6 @@ public class ProfileManager {
         public long randSeed;
         public int money;
         public String gameDateTime;
+        public int currentStamina;
     }
 }

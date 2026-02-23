@@ -105,10 +105,10 @@ public class ProfileCreationScreen implements Screen {
             
             // Load character icon textures
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
-            man1Texture = new Texture("character/man1.png");
-            man2Texture = new Texture("character/man2.png");
-            woman1Texture = new Texture("character/woman1.png");
-            woman2Texture = new Texture("character/woman2.png");
+            man1Texture = TextureUtils.makeWhiteTransparent("character/man1.png");
+            man2Texture = TextureUtils.makeWhiteTransparent("character/man2.png");
+            woman1Texture = TextureUtils.makeWhiteTransparent("character/woman1.png");
+            woman2Texture = TextureUtils.makeWhiteTransparent("character/woman2.png");
             man1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             man2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             woman1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);

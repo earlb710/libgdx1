@@ -67,6 +67,17 @@ class MapViewState {
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
 
+    // --- Info panel tab bar ---
+    /** Currently active tab: {@code "INFO"} or {@code "CHARACTER"}. */
+    String activeInfoTab = "INFO";
+    /** Tab bar height (written by InfoPanelRenderer, read by MainScreen). */
+    float tabBarHeight = 0f;
+    /** Tab bounds: [0] = Info tab, [1] = Character tab (x, y, w, h). */
+    float[] tabX = new float[2];
+    float[] tabY = new float[2];
+    float[] tabW = new float[2];
+    float   tabH = 0f;
+
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;
     float infoScrollY    = 0f;   // pixels content has scrolled up   (0 = top)
