@@ -324,6 +324,7 @@ class LookAroundPopup {
                     String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")"
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
+                    break; // only 1 new improvement discovered per look-around
                 }
             }
         }
