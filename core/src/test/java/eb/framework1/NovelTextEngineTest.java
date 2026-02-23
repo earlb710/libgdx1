@@ -4,9 +4,11 @@ import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -941,5 +943,169 @@ public class NovelTextEngineTest {
         String desc = multiVariantEngine.getImprovementDescription("WiFi", null);
         assertEquals("No-location improvement call should use first variant default",
                 "WiFi variant A: router logs every device.", desc);
+    }
+
+    // ===== getVariantCount tests =====
+
+    @Test
+    public void testGetVariantCountSingleVariant() {
+        assertEquals("Single-variant entry should return 1",
+                1, engine.getVariantCount("gym"));
+    }
+
+    @Test
+    public void testGetVariantCountMultiVariant() {
+        assertEquals("Multi-variant gym entry should return 2",
+                2, multiVariantEngine.getVariantCount("gym"));
+    }
+
+    @Test
+    public void testGetVariantCountSingleVariantOffice() {
+        assertEquals("Single-variant office in multi-variant engine should return 1",
+                1, multiVariantEngine.getVariantCount("office"));
+    }
+
+    @Test
+    public void testGetVariantCountUnknownKey() {
+        assertEquals("Unknown key should return 0",
+                0, engine.getVariantCount("nonexistent"));
+    }
+
+    @Test
+    public void testGetVariantCountNullKey() {
+        assertEquals("Null key should return 0",
+                0, engine.getVariantCount(null));
+    }
+
+    // ===== recommendedVariantCount tests (birthday problem) =====
+
+    @Test
+    public void testRecommendedVariantCountSingleInstance() {
+        assertEquals("Single instance needs only 1 variant",
+                1, NovelTextEngine.recommendedVariantCount(1));
+    }
+
+    @Test
+    public void testRecommendedVariantCountZeroInstances() {
+        assertEquals("Zero instances needs only 1 variant",
+                1, NovelTextEngine.recommendedVariantCount(0));
+    }
+
+    @Test
+    public void testRecommendedVariantCountNegativeInstances() {
+        assertEquals("Negative instances needs only 1 variant",
+                1, NovelTextEngine.recommendedVariantCount(-1));
+    }
+
+    @Test
+    public void testRecommendedVariantCountTwoInstances() {
+        // k = 2*1 / (2*ln2) = 2/1.386 ≈ 1.44 → ceil = 2
+        assertEquals("Two instances should need 2 variants",
+                2, NovelTextEngine.recommendedVariantCount(2));
+    }
+
+    @Test
+    public void testRecommendedVariantCountThreeInstances() {
+        // k = 3*2 / (2*ln2) = 6/1.386 ≈ 4.33 → ceil = 5
+        assertEquals("Three instances should need 5 variants",
+                5, NovelTextEngine.recommendedVariantCount(3));
+    }
+
+    @Test
+    public void testRecommendedVariantCountTenInstances() {
+        // k = 10*9 / (2*ln2) = 90/1.386 ≈ 64.9 → ceil = 65
+        assertEquals("Ten instances should need 65 variants",
+                65, NovelTextEngine.recommendedVariantCount(10));
+    }
+
+    @Test
+    public void testRecommendedVariantCountMonotonicallyIncreasing() {
+        int prev = NovelTextEngine.recommendedVariantCount(1);
+        for (int n = 2; n <= 20; n++) {
+            int curr = NovelTextEngine.recommendedVariantCount(n);
+            assertTrue("recommendedVariantCount must be non-decreasing: n=" + n,
+                    curr >= prev);
+            prev = curr;
+        }
+    }
+
+    @Test
+    public void testRecommendedVariantCountAlwaysAtLeastOne() {
+        for (int n = 0; n <= 50; n++) {
+            assertTrue("recommendedVariantCount must be >= 1 for n=" + n,
+                    NovelTextEngine.recommendedVariantCount(n) >= 1);
+        }
+    }
+
+    // ===== recommendedVariantCounts (batch) tests =====
+
+    @Test
+    public void testRecommendedVariantCountsNullList() {
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(null, 200);
+        assertTrue("Null building list should return empty map", result.isEmpty());
+    }
+
+    @Test
+    public void testRecommendedVariantCountsEmptyList() {
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(
+                Collections.<BuildingDefinition>emptyList(), 200);
+        assertTrue("Empty building list should return empty map", result.isEmpty());
+    }
+
+    @Test
+    public void testRecommendedVariantCountsZeroCells() {
+        List<BuildingDefinition> buildings = new ArrayList<>();
+        buildings.add(new BuildingDefinition("apt", "Apartment", "residential",
+                1, 5, 4, 20, 10.0, "An apartment", null));
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(buildings, 0);
+        assertTrue("Zero cells should return empty map", result.isEmpty());
+    }
+
+    @Test
+    public void testRecommendedVariantCountsWithBuildings() {
+        List<BuildingDefinition> buildings = new ArrayList<>();
+        // 50% of 100 cells = 50 instances
+        buildings.add(new BuildingDefinition("apt", "Apartment", "residential",
+                1, 5, 4, 20, 50.0, "An apartment", null));
+        // 50% of 100 cells = 50 instances
+        buildings.add(new BuildingDefinition("shop", "Shop", "commercial",
+                1, 2, 1, 10, 50.0, "A shop", null));
+
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(buildings, 100);
+        assertEquals("Should have entries for both buildings", 2, result.size());
+        assertTrue("Apartment should have a recommended count", result.containsKey("apt"));
+        assertTrue("Shop should have a recommended count", result.containsKey("shop"));
+        // Both have 50 expected instances → k = 50*49/(2*ln2) ≈ 1766
+        assertTrue("High-frequency buildings should need many variants",
+                result.get("apt") > 100);
+        assertEquals("Both should have same recommendation since same percentage",
+                result.get("apt"), result.get("shop"));
+    }
+
+    @Test
+    public void testRecommendedVariantCountsLowPercentageBuilding() {
+        List<BuildingDefinition> buildings = new ArrayList<>();
+        // 1% out of 100% = 1% of 200 cells ≈ 2 instances
+        buildings.add(new BuildingDefinition("rare", "Rare Building", "special",
+                1, 1, 1, 5, 1.0, "Rare", null));
+        // 99% of 200 cells ≈ 198 instances
+        buildings.add(new BuildingDefinition("common", "Common Building", "common",
+                1, 1, 1, 5, 99.0, "Common", null));
+
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(buildings, 200);
+        assertTrue("Rare building should need fewer variants than common",
+                result.get("rare") < result.get("common"));
+    }
+
+    @Test
+    public void testRecommendedVariantCountsAllZeroPercentage() {
+        List<BuildingDefinition> buildings = new ArrayList<>();
+        buildings.add(new BuildingDefinition("a", "A", "cat", 1, 1, 1, 5, 0.0, "A", null));
+        buildings.add(new BuildingDefinition("b", "B", "cat", 1, 1, 1, 5, 0.0, "B", null));
+
+        Map<String, Integer> result = NovelTextEngine.recommendedVariantCounts(buildings, 200);
+        assertEquals("All-zero percentages should default to 1 variant each", 2, result.size());
+        assertEquals("Zero percentage should recommend 1 variant",
+                Integer.valueOf(1), result.get("a"));
     }
 }
