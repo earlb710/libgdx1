@@ -34,7 +34,7 @@ public class ProfileEquipmentTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void equipItem_pistol_defaults() {
+    public void equipItem_pistolAddsIntimidation() {
         EquipItem pistol = EquipItem.PISTOL;
         assertEquals("Pistol", pistol.getName());
         assertEquals(EquipmentSlot.WEAPON, pistol.getSlot());
@@ -238,5 +238,110 @@ public class ProfileEquipmentTest {
         Profile a = new Profile("Same", "Male", "Normal");
         Profile b = new Profile("Same", "Male", "Normal");
         assertNotEquals(a.getCharacterId(), b.getCharacterId());
+    }
+
+    // -------------------------------------------------------------------------
+    // EquipItem — weight field
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void equipItem_pistol_hasWeight() {
+        assertEquals(0.9f, EquipItem.PISTOL.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_binoculars_hasWeight() {
+        assertEquals(0.5f, EquipItem.BINOCULARS.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_camera_hasWeight() {
+        assertEquals(0.8f, EquipItem.CAMERA.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_pepperSpray_hasWeight() {
+        assertEquals(0.2f, EquipItem.PEPPER_SPRAY.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_builder_defaultWeightIsZero() {
+        EquipItem item = new EquipItem.Builder("Notebook", EquipmentSlot.UTILITY).build();
+        assertEquals(0f, item.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_builder_negativeWeightClampedToZero() {
+        EquipItem item = new EquipItem.Builder("Feather", EquipmentSlot.UTILITY)
+                .weight(-1f).build();
+        assertEquals(0f, item.getWeight(), 0.001f);
+    }
+
+    // -------------------------------------------------------------------------
+    // Profile — weight / encumbrance
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void profile_carriedWeight_defaultIsPistolOnly() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        assertEquals(EquipItem.PISTOL.getWeight(), p.getTotalCarriedWeight(), 0.001f);
+    }
+
+    @Test
+    public void profile_carriedWeight_addsUtility() {
+        Profile p = new Profile("Bob", "Male", "Normal");
+        p.addUtilityItem(EquipItem.BINOCULARS);  // 0.5
+        p.addUtilityItem(EquipItem.CAMERA);      // 0.8
+        float expected = EquipItem.PISTOL.getWeight() + 0.5f + 0.8f;
+        assertEquals(expected, p.getTotalCarriedWeight(), 0.001f);
+    }
+
+    @Test
+    public void profile_carriedWeight_unequipReduces() {
+        Profile p = new Profile("Carol", "Female", "Normal");
+        p.unequip(EquipmentSlot.WEAPON);
+        assertEquals(0f, p.getTotalCarriedWeight(), 0.001f);
+    }
+
+    @Test
+    public void profile_weightCapacity_equalsStrengthAttribute() {
+        Profile p = new Profile("Dave", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
+        assertEquals(5f, p.getWeightCapacity(), 0.001f);
+    }
+
+    @Test
+    public void profile_weightCapacity_minimumOne() {
+        Profile p = new Profile("Eve", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
+        assertEquals(1f, p.getWeightCapacity(), 0.001f);
+    }
+
+    @Test
+    public void profile_notOverEncumbered_whenUnderCapacity() {
+        Profile p = new Profile("Frank", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
+        // Pistol only (0.9 kg) vs capacity 5.0
+        assertFalse(p.isOverEncumbered());
+    }
+
+    @Test
+    public void profile_overEncumbered_whenExceedsCapacity() {
+        Profile p = new Profile("Grace", "Female", "Normal");
+        // STRENGTH = 1, capacity = 1.0
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 1);
+        // Pistol (0.9) + Binoculars (0.5) = 1.4 > 1.0
+        p.addUtilityItem(EquipItem.BINOCULARS);
+        assertTrue(p.isOverEncumbered());
+    }
+
+    @Test
+    public void profile_notOverEncumbered_afterRemovingUtility() {
+        Profile p = new Profile("Heidi", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.STRENGTH.name(), 1);
+        p.addUtilityItem(EquipItem.BINOCULARS); // 0.9 + 0.5 = 1.4 > 1.0 → over
+        assertTrue(p.isOverEncumbered());
+        p.removeUtilityItem("Binoculars");      // 0.9 ≤ 1.0 → fine
+        assertFalse(p.isOverEncumbered());
     }
 }

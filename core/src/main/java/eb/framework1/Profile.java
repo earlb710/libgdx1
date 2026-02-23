@@ -184,6 +184,41 @@ public class Profile {
         currentStamina = Math.min(getMaxStamina(), getCurrentStamina() + amount);
     }
 
+    // -------------------------------------------------------------------------
+    // Weight / encumbrance
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the total weight (kg) of all currently equipped items
+     * (non-utility slots + all utility items).
+     */
+    public float getTotalCarriedWeight() {
+        float total = 0f;
+        for (EquipItem item : equipment.values()) {
+            total += item.getWeight();
+        }
+        for (EquipItem item : utilityItems) {
+            total += item.getWeight();
+        }
+        return total;
+    }
+
+    /**
+     * Returns the maximum weight (kg) this character can carry.
+     * Equals the character's {@code STRENGTH} attribute value (minimum 1.0).
+     */
+    public float getWeightCapacity() {
+        return Math.max(1f, getAttribute(CharacterAttribute.STRENGTH.name()));
+    }
+
+    /**
+     * Returns {@code true} if the total carried weight exceeds
+     * {@link #getWeightCapacity()}.
+     */
+    public boolean isOverEncumbered() {
+        return getTotalCarriedWeight() > getWeightCapacity();
+    }
+
     /** Returns the current in-game hour (0–23), or 0 if parsing fails. */
     public int getCurrentHour() {
         try {

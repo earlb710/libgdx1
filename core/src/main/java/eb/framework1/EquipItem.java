@@ -16,6 +16,7 @@ import java.util.Map;
  * <pre>
  *   EquipItem pistol = new EquipItem.Builder("Pistol", EquipmentSlot.WEAPON)
  *           .description("A standard-issue semi-automatic handgun.")
+ *           .weight(0.9f)
  *           .modifier(CharacterAttribute.INTIMIDATION, 1)
  *           .build();
  * </pre>
@@ -25,12 +26,14 @@ public final class EquipItem {
     private final String        name;
     private final EquipmentSlot slot;
     private final String        description;
+    private final float         weight;
     private final Map<CharacterAttribute, Integer> modifiers;
 
     private EquipItem(Builder b) {
         this.name        = b.name;
         this.slot        = b.slot;
         this.description = b.description != null ? b.description : "";
+        this.weight      = Math.max(0f, b.weight);
         this.modifiers   = Collections.unmodifiableMap(
                 new EnumMap<>(b.modifiers));
     }
@@ -47,6 +50,12 @@ public final class EquipItem {
 
     /** Short human-readable description. */
     public String getDescription() { return description; }
+
+    /**
+     * Item weight in kilograms.  The sum of all carried items must not exceed
+     * {@link Profile#getWeightCapacity()} (= the character's {@code STRENGTH} attribute).
+     */
+    public float getWeight() { return weight; }
 
     /**
      * Attribute modifiers granted by this item while equipped.
@@ -68,6 +77,7 @@ public final class EquipItem {
         private final String        name;
         private final EquipmentSlot slot;
         private String description;
+        private float  weight = 0f;
         private final Map<CharacterAttribute, Integer> modifiers = new EnumMap<>(CharacterAttribute.class);
 
         /**
@@ -86,6 +96,14 @@ public final class EquipItem {
         /** Sets a short human-readable description. */
         public Builder description(String desc) {
             this.description = desc;
+            return this;
+        }
+
+        /**
+         * Sets the item weight in kilograms (must be ≥ 0; negative values are clamped to 0).
+         */
+        public Builder weight(float kg) {
+            this.weight = kg;
             return this;
         }
 
@@ -112,20 +130,24 @@ public final class EquipItem {
     /** Standard-issue starting weapon. */
     public static final EquipItem PISTOL = new Builder("Pistol", EquipmentSlot.WEAPON)
             .description("A standard-issue semi-automatic handgun.")
+            .weight(0.9f)
             .modifier(CharacterAttribute.INTIMIDATION, 1)
             .build();
 
     public static final EquipItem BINOCULARS = new Builder("Binoculars", EquipmentSlot.UTILITY)
             .description("High-powered binoculars for long-range observation.")
+            .weight(0.5f)
             .modifier(CharacterAttribute.PERCEPTION, 1)
             .build();
 
     public static final EquipItem CAMERA = new Builder("Camera", EquipmentSlot.UTILITY)
             .description("A professional-grade camera for documenting evidence.")
+            .weight(0.8f)
             .build();
 
     public static final EquipItem PEPPER_SPRAY = new Builder("Pepper Spray", EquipmentSlot.UTILITY)
             .description("A defensive aerosol canister.")
+            .weight(0.2f)
             .modifier(CharacterAttribute.STRENGTH, 1)
             .build();
 

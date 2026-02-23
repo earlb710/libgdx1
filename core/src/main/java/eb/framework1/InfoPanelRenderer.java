@@ -551,14 +551,15 @@ class InfoPanelRenderer {
                                       EquipmentSlot.LEGS,   EquipmentSlot.FEET };
 
         // Total virtual content height:
-        //   name + attributes + blank separator + "Equipment" header + 4 main slots + utility row
+        //   name + attributes + blank separator + "Equipment" header + 4 main slots + utility row + weight row
         float equipHeaderH = fontLineH;
         float totalH = fontLineH                            // character name
                 + attrs.length * smallLineH                 // attributes
                 + smallLineH                                // blank separator
                 + equipHeaderH                              // "Equipment" header
                 + mainSlots.length * smallLineH             // weapon / body / legs / feet
-                + smallLineH;                               // utility row
+                + smallLineH                                // utility row
+                + smallLineH;                               // weight row
         float contentAreaH = panelH - SB;
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
         s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
@@ -661,6 +662,26 @@ class InfoPanelRenderer {
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, sb.toString(), PAD + glyphLayout.width, uy);
         }
+        ty -= smallLineH;
+
+        // Weight row  "Weight: 2.0 / 5.0"  — green / orange / red depending on load
+        float carried  = profile.getTotalCarriedWeight();
+        float capacity = profile.getWeightCapacity();
+        float wy = ty + drawScrollY;
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Weight: ", PAD, wy);
+        glyphLayout.setText(smallFont, "Weight: ");
+        String weightStr = String.format("%.1f / %.1f", carried, capacity);
+        Color weightColor;
+        if (carried > capacity) {
+            weightColor = Color.RED;
+        } else if (carried > capacity * 0.8f) {
+            weightColor = Color.ORANGE;
+        } else {
+            weightColor = Color.GREEN;
+        }
+        smallFont.setColor(weightColor);
+        smallFont.draw(batch, weightStr, PAD + glyphLayout.width, wy);
         ty -= smallLineH;
 
         batch.end();
