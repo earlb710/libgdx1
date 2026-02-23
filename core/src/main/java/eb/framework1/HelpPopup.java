@@ -193,20 +193,29 @@ class HelpPopup {
         float popupX = screenW - popupW - MARGIN;
         float popupY = MARGIN;
 
-        // ---- Shapes: background + close button ----
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(BG_COLOR);
-        shapeRenderer.rect(popupX, popupY, popupW, popupH);
-
-        // Close button ("?") — lower-right of popup
+        // Close button bounds — computed before drawing so clipY can use them
         closeBtnW = qBtnW;
         closeBtnH = qBtnH;
         closeBtnX = popupX + popupW - qBtnW - PAD;
         closeBtnY = popupY + PAD;
+
+        // ---- Shapes: background + close button (no scissor) ----
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(BG_COLOR);
+        shapeRenderer.rect(popupX, popupY, popupW, popupH);
         shapeRenderer.setColor(BTN_BG_ACTIVE);
         shapeRenderer.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
+        shapeRenderer.end();
 
-        // Legend colour swatches
+        // Content clip boundary: just above the close button (prevents content bleeding over it)
+        float clipY = closeBtnY + closeBtnH + PAD;
+        float clipH = Math.max(0f, popupY + popupH - 1 - clipY);
+
+        // ---- Shapes: colour swatches (scissored to content area) ----
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor((int)(popupX + 1), (int)clipY, (int)(popupW - 2), (int)clipH);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         float swatchY = popupY + popupH - PAD - titleLine    // below "Controls" title
                 - CONTROLS.length * smallLine - SECTION_GAP  // controls lines + gap
                 - titleLine;                                   // "Map Legend" title
@@ -219,18 +228,10 @@ class HelpPopup {
             shapeRenderer.rect(popupX + PAD, swatchDrawY, SWATCH_SIZE, SWATCH_SIZE);
             swatchY -= Math.max(SWATCH_SIZE, smallH) + LINE_GAP;
         }
-
         shapeRenderer.end();
 
-        // ---- Shapes: borders ----
+        // Swatch borders (scissored)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(BORDER_COLOR);
-        shapeRenderer.rect(popupX,     popupY,     popupW,     popupH);
-        shapeRenderer.rect(popupX + 1, popupY + 1, popupW - 2, popupH - 2);
-        shapeRenderer.setColor(BORDER_COLOR);
-        shapeRenderer.rect(closeBtnX,     closeBtnY,     closeBtnW,     closeBtnH);
-        shapeRenderer.rect(closeBtnX + 1, closeBtnY + 1, closeBtnW - 2, closeBtnH - 2);
-        // Swatch borders
         float sbY = popupY + popupH - PAD - titleLine
                 - CONTROLS.length * smallLine - SECTION_GAP - titleLine;
         shapeRenderer.setColor(BORDER_COLOR);
@@ -242,12 +243,7 @@ class HelpPopup {
         }
         shapeRenderer.end();
 
-        // ---- Text ----
-        // Use GL scissor so text doesn't bleed outside popup
-        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor((int)(popupX + 1), (int)(popupY + 1),
-                (int)(popupW - 2), (int)(popupH - 2));
-
+        // ---- Content text (scissored to content area) ----
         batch.begin();
 
         float ty = popupY + popupH - PAD;
@@ -283,14 +279,25 @@ class HelpPopup {
             ty -= rowH;
         }
 
-        // Close button label
+        batch.end();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+
+        // ---- Popup and button borders (no scissor) ----
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(BORDER_COLOR);
+        shapeRenderer.rect(popupX,     popupY,     popupW,     popupH);
+        shapeRenderer.rect(popupX + 1, popupY + 1, popupW - 2, popupH - 2);
+        shapeRenderer.rect(closeBtnX,     closeBtnY,     closeBtnW,     closeBtnH);
+        shapeRenderer.rect(closeBtnX + 1, closeBtnY + 1, closeBtnW - 2, closeBtnH - 2);
+        shapeRenderer.end();
+
+        // ---- Close button label (no scissor — always visible) ----
+        batch.begin();
         font.setColor(Color.YELLOW);
         glyphLayout.setText(font, "?");
         font.draw(batch, "?",
                 closeBtnX + (closeBtnW - glyphLayout.width) / 2f,
                 closeBtnY + (closeBtnH + glyphLayout.height) / 2f);
-
         batch.end();
-        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
     }
 }

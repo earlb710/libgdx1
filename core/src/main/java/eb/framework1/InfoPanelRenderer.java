@@ -52,6 +52,7 @@ class InfoPanelRenderer {
     private final ShapeRenderer shapeRenderer;
     private final BitmapFont    font;
     private final BitmapFont    smallFont;
+    private final BitmapFont    boldSmallFont;
     private final BitmapFont    tinyFont;
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
@@ -61,13 +62,15 @@ class InfoPanelRenderer {
     private float drawScrollX, drawScrollY;
 
     InfoPanelRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
-                      BitmapFont font, BitmapFont smallFont, BitmapFont tinyFont,
+                      BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
+                      BitmapFont tinyFont,
                       GlyphLayout glyphLayout,
                       CityMap cityMap, Profile profile) {
         this.batch         = batch;
         this.shapeRenderer = shapeRenderer;
         this.font          = font;
         this.smallFont     = smallFont;
+        this.boldSmallFont = boldSmallFont;
         this.tinyFont      = tinyFont;
         this.glyphLayout   = glyphLayout;
         this.cityMap       = cityMap;
@@ -208,14 +211,15 @@ class InfoPanelRenderer {
         shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
         shapeRenderer.end();
 
-        // Tab labels
+        // Tab labels — active tab uses boldSmallFont; inactive uses smallFont
         batch.begin();
         tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
             boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
-            glyphLayout.setText(smallFont, TAB_LABELS[i]);
-            smallFont.setColor(active ? Color.WHITE : new Color(0.6f, 0.6f, 0.7f, 1f));
-            smallFont.draw(batch, TAB_LABELS[i],
+            BitmapFont tabFont = active ? boldSmallFont : smallFont;
+            glyphLayout.setText(tabFont, TAB_LABELS[i]);
+            tabFont.setColor(active ? Color.WHITE : new Color(0.6f, 0.6f, 0.7f, 1f));
+            tabFont.draw(batch, TAB_LABELS[i],
                     tx + (tabWidths[i] - glyphLayout.width) / 2f,
                     tabBarY + tabPadY + tabFontH);
             tx += tabWidths[i];
@@ -586,7 +590,11 @@ class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Attributes — one per row  Format: "Name [total] : base ±loc +equip +body"
+        // Attributes — centred-[total] layout:
+        //   Name (left, PAD)  |  [total] (centred)  |  : base ±loc ±equip ±body (right of centre)
+        float contentW  = s.screenWidth - SB;           // usable width (no scrollbar)
+        float centerX   = contentW / 2f;                // X centre of the [total] token
+
         for (CharacterAttribute attr : attrs) {
             int base     = profile.getAttribute(attr.name());
             int locMod   = locationModFor(s.charCellX, s.charCellY, attr);
@@ -594,23 +602,26 @@ class InfoPanelRenderer {
             int bodyMod  = (attr == CharacterAttribute.STRENGTH)
                            ? profile.getMuscleFatStrengthModifier() : 0;
             float ay = ty + drawScrollY;
-            float cx = PAD;
             int    total    = base + locMod + equipMod + bodyMod;
-            String baseStr  = String.valueOf(base);
             String totalStr = String.valueOf(total);
 
-            // Attribute name (white)
+            // Measure "[total]" bracket token width for centering
+            String bracketStr = "[" + totalStr + "]";
+            glyphLayout.setText(smallFont, bracketStr);
+            float bracketW  = glyphLayout.width;
+            float bracketX  = centerX - bracketW / 2f;  // left edge of "[total]"
+            float afterX    = centerX + bracketW / 2f;  // first pixel right of "]"
+
+            // Attribute name — white, left-aligned, stops before the bracket
             String nameStr = attr.getDisplayName();
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, nameStr, cx, ay);
-            glyphLayout.setText(smallFont, nameStr);
-            cx += glyphLayout.width;
+            smallFont.draw(batch, nameStr, PAD, ay);
 
-            // " [" — white
+            // "[" — white
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, " [", cx, ay);
-            glyphLayout.setText(smallFont, " [");
-            cx += glyphLayout.width;
+            smallFont.draw(batch, "[", bracketX, ay);
+            glyphLayout.setText(smallFont, "[");
+            float cx = bracketX + glyphLayout.width;
 
             // total value — bright green
             smallFont.setColor(ATTR_TOTAL_COLOR);
@@ -621,20 +632,31 @@ class InfoPanelRenderer {
             // "]" — white
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "]", cx, ay);
-            glyphLayout.setText(smallFont, "]");
-            cx += glyphLayout.width;
+
+            // Additions to the right of the bracket (start at afterX)
+            cx = afterX;
+            String baseStr = String.valueOf(base);
+            boolean hasAdditions = locMod != 0 || equipMod != 0 || bodyMod != 0;
+            if (hasAdditions) {
+                // ": base" — white
+                String colonBase = ": " + baseStr;
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, colonBase, cx, ay);
+                glyphLayout.setText(smallFont, colonBase);
+                cx += glyphLayout.width;
+            }
 
             if (locMod != 0) {
-                // " : base ±loc" — white
-                String modStr = " : " + baseStr + " " + (locMod > 0 ? "+ " : "- ") + Math.abs(locMod);
+                // " ±loc" — white
+                String locStr = " " + (locMod > 0 ? "+" : "-") + Math.abs(locMod);
                 smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, modStr, cx, ay);
-                glyphLayout.setText(smallFont, modStr);
+                smallFont.draw(batch, locStr, cx, ay);
+                glyphLayout.setText(smallFont, locStr);
                 cx += glyphLayout.width;
             }
 
             if (equipMod != 0) {
-                // " +X" / " -X" from equipment — cyan
+                // " ±equip" — cyan
                 String eqStr = " " + (equipMod > 0 ? "+" : "-") + Math.abs(equipMod);
                 smallFont.setColor(Color.CYAN);
                 smallFont.draw(batch, eqStr, cx, ay);
@@ -643,7 +665,7 @@ class InfoPanelRenderer {
             }
 
             if (bodyMod != 0) {
-                // " +X" / " -X" from muscle/fat body composition — yellow
+                // " ±body" — yellow
                 String bdStr = " " + (bodyMod > 0 ? "+" : "-") + Math.abs(bodyMod);
                 smallFont.setColor(Color.YELLOW);
                 smallFont.draw(batch, bdStr, cx, ay);
@@ -715,7 +737,7 @@ class InfoPanelRenderer {
         smallFont.setColor(LABEL_COLOR);
         smallFont.draw(batch, "Weight: ", PAD, wy);
         glyphLayout.setText(smallFont, "Weight: ");
-        String weightStr = String.format("%.1f / %.1f", carried, capacity);
+        String weightStr = String.format("%.1f / %.1f kg", carried, capacity);
         Color weightColor;
         if (carried > capacity) {
             weightColor = Color.RED;

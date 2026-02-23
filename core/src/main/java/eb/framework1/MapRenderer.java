@@ -66,7 +66,7 @@ class MapRenderer {
                 String iconPath = rd.getIconPath();
                 if (iconPath != null && !iconTextureCache.containsKey(iconPath)) {
                     try {
-                        Texture tex = TextureUtils.makeWhiteTransparent(iconPath);
+                        Texture tex = new Texture(Gdx.files.internal(iconPath));
                         tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                         iconTextureCache.put(iconPath, tex);
                     } catch (Exception e) {
