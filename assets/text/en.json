@@ -1393,6 +1393,146 @@
         "male": "You stand at the machine long enough to read the reflection in the screen. Someone followed you in.",
         "female": "Small space, good lighting, three cameras. You use all of that before you make your move."
       }
+    },
+    "Ablution Area": {
+      "default": "The ritual wash before prayer. Clean hands, clean conscience — or at least the attempt at one. You've seen what waits on the other side of both.",
+      "gender": {
+        "male": "You observe the space with respect and note the detail most visitors miss.",
+        "female": "The women's section is quieter, and the quiet holds more than most people realise."
+      }
+    },
+    "Activity Room": {
+      "default": "Scheduled joy. Craft tables, folding chairs, and the resigned optimism of people making the best of their situation.",
+      "gender": {
+        "male": "You take a seat at the back and let the room come to you. It always does.",
+        "female": "You join the activity without being asked. In five minutes you know everyone's name. In ten you know why you came."
+      }
+    },
+    "Admin Office": {
+      "default": "The engine room of the building's paperwork. Files, schedules, and the one record that shouldn't still be here.",
+      "gender": {
+        "male": "You lean over the counter with the relaxed authority of someone expecting cooperation. They cooperate.",
+        "female": "The admin clerk looks up and finds someone who clearly knows what they're looking for. You do."
+      }
+    },
+    "Administration": {
+      "default": "Bureaucracy in its purest form. Every answer is in here somewhere under a layer of procedure and coffee rings.",
+      "gender": {
+        "male": "You use the phrase 'urgent compliance review' and doors open that weren't even closed.",
+        "female": "You ask exactly the right question and watch the administrator's hands go still for half a second."
+      }
+    },
+    "Administrative Office": {
+      "default": "Schedules, payroll, and the institutional memory of everyone who ever worked here. Someone filed something they shouldn't have. You're going to find it.",
+      "gender": {
+        "male": "The staff assumes you have clearance before you show any. You don't correct them.",
+        "female": "You sit across from the desk with the look of someone who already read the file. The administrator starts talking."
+      }
+    },
+    "Air Station": {
+      "default": "Compressed air and the honest work of keeping vehicles road-worthy. Simple. Clean. Unless you know what was parked here recently.",
+      "gender": {
+        "male": "You check your tyres and check the lot. Both tell you something useful.",
+        "female": "The pressure gauge is still set from the last vehicle. You note the reading and do the math."
+      }
+    },
+    "Alignment Rack": {
+      "default": "The machine that straightens what the road bends. One of these left a very specific mark on a very specific vehicle. You know which one.",
+      "gender": {
+        "male": "You know alignment work. You also know when the rack's been used on something that didn't come in through the front door.",
+        "female": "The technician explains the process. Halfway through you ask the question they weren't prepared for."
+      }
+    },
+    "Alterations Area": {
+      "default": "Needles and thread and the patient reconstruction of things that no longer fit. You know that feeling.",
+      "gender": {
+        "male": "You hand over the jacket. The tailor's hands find the lining before they find the hem.",
+        "female": "You talk about the alteration and watch what the seamstress notices about the wear patterns."
+      }
+    },
+    "Ambulance Bay": {
+      "default": "The threshold between outside and inside, fast and still, breathing and not. Whatever came through here tonight, it mattered.",
+      "gender": {
+        "male": "You stand at the edge of the bay in scrubs that almost fit and nobody stops you.",
+        "female": "You walk the bay with the measured pace of someone assessing the space. Which is exactly what you are."
+      }
+    },
+    "Anchor Store": {
+      "default": "The flagship tenant. The name above the door that everyone else orbits. What happens to it when the orbit breaks?",
+      "gender": {
+        "male": "You blend into the retail flow. Men browsing look purposeless. You are not purposeless.",
+        "female": "You move through the floor the way a store detective does: casually, completely, and unseen."
+      }
+    },
+    "Arcade": {
+      "default": "Flashing screens and the mechanical soundtrack of games that take your money and give you points. A perfect cover for a conversation nobody should overhear.",
+      "gender": {
+        "male": "You feed a token into a machine you're not playing and watch the room in the screen's reflection.",
+        "female": "You're good at the games. People underestimate women at arcade machines. You use the surprise."
+      }
+    },
+    "Archive Room": {
+      "default": "Cardboard boxes and the weight of institutional memory. Everything that ever happened here is in this room. You just have to find the right box.",
+      "gender": {
+        "male": "You pull the third box from the left. The dust on the lid says nobody else thought to look here.",
+        "female": "You read filing systems like a second language. This one has a gap in it that wasn't there by accident."
+      }
+    },
+    "Archives": {
+      "default": "The official record of everything that officially happened. The unofficial record is what you're actually after.",
+      "gender": {
+        "male": "You request the file under a purpose that's technically true. The archivist hands it over without question.",
+        "female": "You know exactly which year, which box, which shelf. The archivist asks how. You smile and don't answer."
+      }
+    },
+    "Armory": {
+      "default": "Locked, logged, and accounted for. Except for the one that isn't.",
+      "gender": {
+        "male": "You read the inventory sheet like a ledger. The arithmetic is clean. The numbers are not.",
+        "female": "Every weapon has a sign-out signature. You're looking for the one that was signed back in under a different name."
+      }
+    },
+    "Art Gallery": {
+      "default": "Canvas and pretension stretched over something worth a great deal more than the asking price. The money in these rooms never answers where it came from.",
+      "gender": {
+        "male": "You stand in front of the most expensive piece and wait for the person who's here for the same reason you are.",
+        "female": "The curator explains the provenance at length. You let them. Provenance stories are where the lies live."
+      }
+    },
+    "Art Room": {
+      "default": "Pencils, paint, and the unguarded expression of people who stopped editing themselves. The most honest room in the building.",
+      "gender": {
+        "male": "You pick up a pencil and sketch something that looks like nothing. Two people in the room stop watching you.",
+        "female": "You sit at the table and work alongside them. Side by side is the easiest way to have a conversation that matters."
+      }
+    },
+    "Art Studio": {
+      "default": "The private work of someone who thinks the canvas doesn't talk back. It does. You read it.",
+      "gender": {
+        "male": "You study the unfinished piece on the easel. The subject is more specific than the artist intended.",
+        "female": "You ask what they're working on. Artists explain. In the explanation is the detail you needed."
+      }
+    },
+    "Arts Center": {
+      "default": "Performance spaces and creative infrastructure. A lot of people passing through, a lot of off-the-books schedules. Useful.",
+      "gender": {
+        "male": "You walk it like a patron between shows. Nobody questions the man who looks like he belongs to a board.",
+        "female": "You introduce yourself as an arts journalist. Four people tell you things in the next twenty minutes."
+      }
+    },
+    "Assembly Line": {
+      "default": "Identical repetition. Every product the same, every motion the same — which makes the one deviation impossible to miss.",
+      "gender": {
+        "male": "You walk the line slow. The workers clock you. One of them clocks you twice.",
+        "female": "You take a position at the end of the run and watch every unit coming off it. One in eight is different."
+      }
+    },
+    "Athletic Fields": {
+      "default": "Open ground and clear sight lines. No cover, no corners. Whatever you're here to do, you're doing it in daylight.",
+      "gender": {
+        "male": "You cross the field at a jog. It looks like exercise. It's reconnaissance.",
+        "female": "You stretch at the edge of the field and take a full visual sweep before you move."
+      }
     }
   }
 }
