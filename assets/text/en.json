@@ -4333,6 +4333,146 @@
         "male": "Package lockers. You've pulled delivery records from these before. What gets sent and received writes a person's story.",
         "female": "You examine the package locker bank. Every transaction has a timestamp. You note the unit numbers and start making calls."
       }
+    },
+    "Package Room": {
+      "default": "A holding room for deliveries. The unclaimed packages pile up. Every one of them a story with an unresolved ending.",
+      "gender": {
+        "male": "You check the package room logs. Three boxes sitting for two weeks. You want to know who stopped picking up their mail.",
+        "female": "The package room is methodically organized. You note what's been here longest and start pulling the delivery records."
+      }
+    },
+    "Package Sorting": {
+      "default": "A belt and bins, sorting the city's transactions at speed. Every package classified and redirected. Just like your caseload.",
+      "gender": {
+        "male": "Package sorting at scale. You find what you need by watching what gets pulled off the line before it's logged.",
+        "female": "You stand near the sorting station. Something came through here that shouldn't have. You're here to find out what."
+      }
+    },
+    "Packing Supplies": {
+      "default": "Boxes, tape, bubble wrap. The infrastructure of moving things from one place to another without anyone asking why.",
+      "gender": {
+        "male": "Packing supplies \u2014 the tools of relocation. Someone stocked up recently. You note the amount.",
+        "female": "You examine the packing supply inventory. Someone was preparing to move something. You intend to find out what, and where."
+      }
+    },
+    "Paint Booth": {
+      "default": "A sealed chamber of fumes and new identities. The paint booth changes the way things look. That's precisely what worries you.",
+      "gender": {
+        "male": "The paint booth has been used recently. The color on the floor doesn't match the stock on the shelves. That gap is your case.",
+        "female": "You step near the paint booth. Fresh smell, recent use, and a color choice nobody bothered to log. You start asking questions."
+      }
+    },
+    "Panoramic X-Ray": {
+      "default": "A full-view imaging machine that misses nothing. If only the rest of this investigation worked the same way.",
+      "gender": {
+        "male": "The panoramic X-ray sees the whole picture in one sweep. You wish your case came together that cleanly.",
+        "female": "You look at the panoramic imaging unit. Everything exposed, everything visible. You understand the appeal."
+      }
+    },
+    "Parent Lounge": {
+      "default": "A waiting room for people with kids somewhere inside. The anxiety in here is soft and specific and very, very human.",
+      "gender": {
+        "male": "You scan the parent lounge. Worried faces, coffee cups, phones with unanswered messages. One of these people is expecting you.",
+        "female": "You sit in the parent lounge. Blending in is easy when nobody looks at the stranger next to them. You listen to the room."
+      }
+    },
+    "Parking": {
+      "default": "Spaces marked and filled, a temporary land of comings and goings. Who parks where, when, and for how long \u2014 that's your business.",
+      "gender": {
+        "male": "You walk the parking area. License plates are a language. You're fluent.",
+        "female": "You move through the parking lot methodically. Time stamps and cameras. Someone was here at the wrong time in the right vehicle."
+      }
+    },
+    "Parking Garage": {
+      "default": "Levels of concrete and oil stains where the city hides its vehicles and occasionally its crimes.",
+      "gender": {
+        "male": "The parking garage echoes with your footsteps. Dim light, camera dead zones, and the smell of bad decisions made in enclosed spaces.",
+        "female": "You move through the garage floor by floor. The acoustics in here carry sounds they shouldn't. So do the walls."
+      }
+    },
+    "Parking Lot": {
+      "default": "Asphalt and painted lines. The parking lot is where transactions begin and end, and where surveillance cameras catch what people assume goes unseen.",
+      "gender": {
+        "male": "You stand in the parking lot. Open sky, bad lighting after dark, and more witness potential than anyone gives it credit for.",
+        "female": "You scan the lot from the entrance. Patterns in parking tell you patterns in behavior. You know how to read both."
+      }
+    },
+    "Parking Sensors": {
+      "default": "Electronic eyes that track occupancy and time. They see everything. The question is whether anyone's looking at the data.",
+      "gender": {
+        "male": "Parking sensors \u2014 passive surveillance infrastructure. You know how to pull the logs when nobody else thought to ask.",
+        "female": "You note the sensor placement. They've been recording every arrival and departure. That data is going to help you."
+      }
+    },
+    "Parking Structure": {
+      "default": "Multi-level concrete built for vehicles, occasionally for ambushes. You learned to clear a parking structure the hard way.",
+      "gender": {
+        "male": "The parking structure is quiet on this level. Too quiet. You keep your hand close to your jacket.",
+        "female": "You take the ramp level by level. Structures like this have echoes and shadows in equal measure. You've worked both."
+      }
+    },
+    "Parks Department": {
+      "default": "An office managing green spaces in a concrete city. The paperwork here hides the same stories as any other civic department.",
+      "gender": {
+        "male": "The parks department doesn't look like much. But it controls access to a lot of land that a lot of people want for a lot of reasons.",
+        "female": "You present your badge at the parks department counter. Zoning maps, maintenance logs, access records. Someone here knows which parks get visited after dark."
+      }
+    },
+    "Parts Department": {
+      "default": "Shelves of components and serial numbers. The parts department knows exactly what was ordered, what was installed, and what went missing.",
+      "gender": {
+        "male": "You walk the parts department aisles. Everything catalogued, everything numbered. The inventory discrepancy you're here about starts on aisle three.",
+        "female": "The parts department is meticulously organized. That precision cuts both ways \u2014 it makes irregularities easy to spot. You spot several."
+      }
+    },
+    "Parts Storage": {
+      "default": "A warehouse section of shelved components, some logged and some not. You focus on the ones that aren't.",
+      "gender": {
+        "male": "Parts storage. Serial numbers on every shelf. One of these components doesn't belong here and you intend to prove it.",
+        "female": "You move through the parts storage methodically. Nothing gets past a parts inventory check when you're the one running it."
+      }
+    },
+    "Party Decks": {
+      "default": "Open elevated areas designed for crowds and celebrations. After midnight, celebrations have a way of becoming evidence.",
+      "gender": {
+        "male": "The party decks are empty now. They were full last Friday. You're here about what happened on last Friday.",
+        "female": "You walk the party deck in the morning light. Empty glasses, scattered remnants. The cleanup crew missed something."
+      }
+    },
+    "Party Room": {
+      "default": "A room reserved for celebrations and occasionally confrontations that nobody planned. Either way, people remember.",
+      "gender": {
+        "male": "The party room is set up and waiting. Someone booked it under an alias. You're here to find out whose.",
+        "female": "You step into the party room. Streamers, tables, and the faint smell of a last night that went sideways."
+      }
+    },
+    "Party Rooms": {
+      "default": "Multiple event spaces filled with rented joy and hired atmosphere. Something happened in one of these rooms. You'll find which one.",
+      "gender": {
+        "male": "You work through the party rooms one by one. Same question at each door: what happened here, and who was the last to leave?",
+        "female": "The party rooms are booked under a chain of names you can't verify. That's the kind of opacity you're trained to see through."
+      }
+    },
+    "Passport Services": {
+      "default": "Documents that grant passage. In this office, identity is a service rendered. That makes it a liability if it's done wrong.",
+      "gender": {
+        "male": "Passport services. You've sent people through here you knew were lying. Sometimes the paperwork is easier than the truth.",
+        "female": "You present your credentials at passport services. The clerk looks twice. Good. You need them paying attention."
+      }
+    },
+    "Pastor's Office": {
+      "default": "A private office of counsel and confession. Whatever was said in here is protected \u2014 unless it crosses the line into something you can't ignore.",
+      "gender": {
+        "male": "You knock on the pastor's door. Sacred confidences are real. So are crimes committed behind them.",
+        "female": "The pastor's office is warm and deliberate. You choose your words carefully. Some rooms require that."
+      }
+    },
+    "Patient Education": {
+      "default": "Pamphlets, screens, and the careful translation of medical reality into language people can carry home.",
+      "gender": {
+        "male": "You wait in the patient education area. The walls are full of information nobody reads until they have to.",
+        "female": "You scan the patient education materials. Whoever designed this wanted people to understand their situation clearly. You appreciate that approach."
+      }
     }
   }
 }
