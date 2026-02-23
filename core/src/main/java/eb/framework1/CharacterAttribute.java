@@ -48,7 +48,13 @@ public enum CharacterAttribute {
     }
     
     public static CharacterAttribute[] getPhysicalAttributes() {
-        return new CharacterAttribute[]{AGILITY, STAMINA, STRENGTH, HEIGHT_CM, MUSCLE_KG, FAT_KG};
+        return new CharacterAttribute[]{AGILITY, STAMINA, STRENGTH};
+    }
+
+    /** Returns {@code true} for attributes that represent physical body measurements
+     *  (entered directly, not via the point-allocation system). */
+    public boolean isBodyMeasurement() {
+        return this == HEIGHT_CM || this == MUSCLE_KG || this == FAT_KG;
     }
     
     public static CharacterAttribute[] getSocialAttributes() {

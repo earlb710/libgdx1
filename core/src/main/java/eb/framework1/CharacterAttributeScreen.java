@@ -55,11 +55,36 @@ public class CharacterAttributeScreen implements Screen {
     
     // Button dimensions
     private static final int SMALL_BUTTON_SIZE = 60;  // For +/- buttons (unchanged)
+
+    // Body measurement ranges and gender-based defaults
+    private static final int DEFAULT_HEIGHT_MALE   = 175;
+    private static final int DEFAULT_HEIGHT_FEMALE = 163;
+    private static final int DEFAULT_WEIGHT_MALE   = 80;
+    private static final int DEFAULT_WEIGHT_FEMALE = 65;
+    private static final int MIN_HEIGHT = 140;
+    private static final int MAX_HEIGHT = 220;
+    private static final int MIN_WEIGHT = 30;
+    private static final int MAX_WEIGHT = 150;
+    // Average muscle-to-total-weight and fat-to-total-weight ratios by gender.
+    // The remaining ~40% (male) / ~42% (female) represents bones, organs, and water,
+    // which are not tracked separately as they don't affect game mechanics.
+    private static final float MALE_MUSCLE_RATIO   = 0.40f;
+    private static final float MALE_FAT_RATIO      = 0.20f;
+    private static final float FEMALE_MUSCLE_RATIO = 0.30f;
+    private static final float FEMALE_FAT_RATIO    = 0.28f;
     
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
     private Color buttonActiveColor = new Color(0.5f, 0.6f, 0.7f, 1f);
     private Color categoryColor = new Color(0.8f, 0.7f, 0.3f, 1f);  // Gold for category headers
+
+    // Body measurement values (separate from the point-allocation system)
+    private int bodyHeightCm;
+    private int totalBodyWeightKg;
+    private Rectangle heightPlusButton;
+    private Rectangle heightMinusButton;
+    private Rectangle weightPlusButton;
+    private Rectangle weightMinusButton;
     
     public CharacterAttributeScreen(Main game, String characterName, String gender, String difficulty, String characterIcon) {
         Gdx.app.log("CharacterAttributeScreen", "Constructor called");
@@ -74,11 +99,11 @@ public class CharacterAttributeScreen implements Screen {
         for (CharacterAttribute attr : CharacterAttribute.values()) {
             attributeValues.put(attr, MIN_ATTRIBUTE_VALUE);
         }
-        // Set gender-appropriate defaults for physical body measurements
+        // Set gender-appropriate body measurement defaults and compute muscle/fat from ratio
         boolean isFemale = "Female".equalsIgnoreCase(gender);
-        attributeValues.put(CharacterAttribute.HEIGHT_CM, isFemale ? 163 : 175);
-        attributeValues.put(CharacterAttribute.MUSCLE_KG, isFemale ?  30 :  40);
-        attributeValues.put(CharacterAttribute.FAT_KG,    isFemale ?  35 :  40);
+        this.bodyHeightCm      = isFemale ? DEFAULT_HEIGHT_FEMALE : DEFAULT_HEIGHT_MALE;
+        this.totalBodyWeightKg = isFemale ? DEFAULT_WEIGHT_FEMALE : DEFAULT_WEIGHT_MALE;
+        updateMuscleFatFromWeight();
         
         // Calculate initial points remaining (free distributable points only; $1000 starts in money)
         this.moneyBudget = STARTING_MONEY;
@@ -122,6 +147,10 @@ public class CharacterAttributeScreen implements Screen {
 
             moneyPlusButton = new Rectangle();
             moneyMinusButton = new Rectangle();
+            heightPlusButton  = new Rectangle();
+            heightMinusButton = new Rectangle();
+            weightPlusButton  = new Rectangle();
+            weightMinusButton = new Rectangle();
             
             Gdx.app.log("CharacterAttributeScreen", "Initialization complete");
             initialized = true;
@@ -189,10 +218,14 @@ public class CharacterAttributeScreen implements Screen {
         currentY = drawAttributeCategory("Mental", CharacterAttribute.getMentalAttributes(), currentY, leftMargin, attributeHeight);
         currentY -= 70;  // Increased spacing between categories from 50 to 70 for better visual separation
         
-        // Draw Physical Attributes
+        // Draw Physical Attributes (AGILITY, STAMINA, STRENGTH only)
         currentY = drawAttributeCategory("Physical", CharacterAttribute.getPhysicalAttributes(), currentY, leftMargin, attributeHeight);
-        currentY -= 70;  // Increased spacing between categories from 50 to 70 for better visual separation
-        
+        currentY -= 30;
+
+        // Draw Body Measurements (height + total weight, with auto muscle/fat split)
+        currentY = drawBodyMeasurements(currentY, leftMargin, attributeHeight);
+        currentY -= 40;
+
         // Draw Social Attributes
         currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
 
@@ -252,6 +285,74 @@ public class CharacterAttributeScreen implements Screen {
         smallFont.draw(batch, attr.getDisplayName(), textX, y);
         bodyFont.draw(batch, String.valueOf(value), valueX, y);
         batch.end();
+    }
+
+    /** Auto-computes MUSCLE_KG and FAT_KG from {@code totalBodyWeightKg} using
+     *  gender-appropriate average ratios, and stores all three body measurements
+     *  in {@code attributeValues}. */
+    private void updateMuscleFatFromWeight() {
+        boolean isFemale = "Female".equalsIgnoreCase(gender);
+        float muscleRatio = isFemale ? FEMALE_MUSCLE_RATIO : MALE_MUSCLE_RATIO;
+        float fatRatio    = isFemale ? FEMALE_FAT_RATIO    : MALE_FAT_RATIO;
+        attributeValues.put(CharacterAttribute.HEIGHT_CM, bodyHeightCm);
+        attributeValues.put(CharacterAttribute.MUSCLE_KG, Math.round(totalBodyWeightKg * muscleRatio));
+        attributeValues.put(CharacterAttribute.FAT_KG,    Math.round(totalBodyWeightKg * fatRatio));
+    }
+
+    /** Draws the Body Measurements subsection (height + total weight + computed muscle/fat).
+     *  Returns the updated Y position after all rows are drawn. */
+    private float drawBodyMeasurements(float y, float leftMargin, float height) {
+        int mouseX = Gdx.input.getX();
+        int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        // Section header
+        batch.begin();
+        subtitleFont.setColor(categoryColor);
+        subtitleFont.draw(batch, "Body Measurements:", leftMargin, y);
+        subtitleFont.setColor(Color.WHITE);
+        batch.end();
+        y -= 60;
+
+        float minusX  = leftMargin;
+        float textX   = minusX + SMALL_BUTTON_SIZE + 20;
+        float plusX   = textX + 280;
+        float valueX  = plusX + SMALL_BUTTON_SIZE + 20;
+
+        // Height row
+        float buttonY = y - SMALL_BUTTON_SIZE + 10;
+        heightMinusButton.set(minusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+        heightPlusButton.set(plusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+        drawSmallButton(heightMinusButton, "-", mouseX, mouseY, bodyHeightCm > MIN_HEIGHT);
+        drawSmallButton(heightPlusButton,  "+", mouseX, mouseY, bodyHeightCm < MAX_HEIGHT);
+        batch.begin();
+        smallFont.draw(batch, "Height (cm)", textX, y);
+        bodyFont.draw(batch, String.valueOf(bodyHeightCm), valueX, y);
+        batch.end();
+        y -= height;
+
+        // Weight row
+        buttonY = y - SMALL_BUTTON_SIZE + 10;
+        weightMinusButton.set(minusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+        weightPlusButton.set(plusX, buttonY, SMALL_BUTTON_SIZE, SMALL_BUTTON_SIZE);
+        drawSmallButton(weightMinusButton, "-", mouseX, mouseY, totalBodyWeightKg > MIN_WEIGHT);
+        drawSmallButton(weightPlusButton,  "+", mouseX, mouseY, totalBodyWeightKg < MAX_WEIGHT);
+        batch.begin();
+        smallFont.draw(batch, "Weight (kg)", textX, y);
+        bodyFont.draw(batch, String.valueOf(totalBodyWeightKg), valueX, y);
+        batch.end();
+        y -= height;
+
+        // Computed muscle/fat breakdown (read-only, light-blue)
+        int muscle = attributeValues.getOrDefault(CharacterAttribute.MUSCLE_KG, 0);
+        int fat    = attributeValues.getOrDefault(CharacterAttribute.FAT_KG,    0);
+        batch.begin();
+        smallFont.setColor(new Color(0.5f, 0.8f, 1f, 1f));
+        smallFont.draw(batch, "  -> Muscle: " + muscle + " kg  Fat: " + fat + " kg", leftMargin, y);
+        smallFont.setColor(Color.WHITE);
+        batch.end();
+        y -= 70;
+
+        return y;
     }
 
     private void drawMoneyLine(float y, float leftMargin, float height) {
@@ -363,10 +464,27 @@ public class CharacterAttributeScreen implements Screen {
             } else if (moneyMinusButton.contains(mouseX, mouseY) && moneyBudget >= MONEY_PER_POINT) {
                 moneyBudget -= MONEY_PER_POINT;
                 pointsRemaining++;
+
+            // Check height +/- buttons
+            } else if (heightPlusButton.contains(mouseX, mouseY) && bodyHeightCm < MAX_HEIGHT) {
+                bodyHeightCm++;
+                updateMuscleFatFromWeight();
+            } else if (heightMinusButton.contains(mouseX, mouseY) && bodyHeightCm > MIN_HEIGHT) {
+                bodyHeightCm--;
+                updateMuscleFatFromWeight();
+
+            // Check weight +/- buttons
+            } else if (weightPlusButton.contains(mouseX, mouseY) && totalBodyWeightKg < MAX_WEIGHT) {
+                totalBodyWeightKg++;
+                updateMuscleFatFromWeight();
+            } else if (weightMinusButton.contains(mouseX, mouseY) && totalBodyWeightKg > MIN_WEIGHT) {
+                totalBodyWeightKg--;
+                updateMuscleFatFromWeight();
             }
 
-            // Check +/- buttons for each attribute
+            // Check +/- buttons for each point-allocated attribute (skip body measurements)
             for (CharacterAttribute attr : CharacterAttribute.values()) {
+                if (attr.isBodyMeasurement()) continue;
                 Rectangle plusBtn = plusButtons.get(attr);
                 Rectangle minusBtn = minusButtons.get(attr);
                 int currentValue = attributeValues.get(attr);

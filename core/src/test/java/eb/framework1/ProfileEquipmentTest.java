@@ -424,10 +424,10 @@ public class ProfileEquipmentTest {
 
     @Test
     public void genderDefaults_casAttributeScreen_maleMoreMuscle() {
-        // Male defaults: 175 cm, 40 kg muscle, 40 kg fat
-        // Female defaults: 163 cm, 30 kg muscle, 35 kg fat
-        int maleMuscle = 40, femaleMuscle = 30;
-        int maleFat = 40, femaleFat = 35;
+        // Male defaults: 175 cm, 80 kg total → muscle = round(80 * 0.40) = 32, fat = round(80 * 0.20) = 16
+        // Female defaults: 163 cm, 65 kg total → muscle = round(65 * 0.30) = 20, fat = round(65 * 0.28) = 18
+        int maleMuscle = 32, femaleMuscle = 20;
+        int maleFat = 16, femaleFat = 18;
         assertTrue("Male should have more muscle than female", maleMuscle > femaleMuscle);
         assertTrue("Female total body weight should be less", (femaleMuscle + femaleFat) < (maleMuscle + maleFat));
     }
