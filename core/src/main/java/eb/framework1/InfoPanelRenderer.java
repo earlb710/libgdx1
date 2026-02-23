@@ -329,7 +329,7 @@ class InfoPanelRenderer {
         // --- Measure content and update max-scroll bounds ---
         final float TEXT_X = 20f;
         float wrapWidth = contentAreaW - TEXT_X;
-        float totalContentH = computeContentHeight(s, fontLineH, wrapWidth);
+        float totalContentH = computeContentHeight(s, fontLineH, smallLineH, wrapWidth);
         float totalContentW = computeContentWidth(s, TEXT_X);
         s.infoMaxScrollY = Math.max(0f, totalContentH - contentAreaH);
         s.infoMaxScrollX = Math.max(0f, totalContentW - contentAreaW);
@@ -487,7 +487,7 @@ class InfoPanelRenderer {
                     // Building description (if available) – no label, smaller font
                     String desc = buildingDescription(building);
                     if (desc != null) {
-                        textY -= fontLineH;
+                        textY -= smallLineH;
                         smallFont.setColor(Color.WHITE);
                         smallFont.draw(batch, desc, textX - drawScrollX, textY + drawScrollY);
                         textY -= smallLineH;
@@ -899,9 +899,12 @@ class InfoPanelRenderer {
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      *
-     * @param wrapWidth pixel width at which novel text should be wrapped
+     * @param fontLineH  line advance for the regular font
+     * @param smallLineH line advance for the smaller font (used by descriptions and novel text)
+     * @param wrapWidth  pixel width at which novel text should be wrapped
      */
-    private float computeContentHeight(MapViewState s, float fontLineH, float wrapWidth) {
+    private float computeContentHeight(MapViewState s, float fontLineH, float smallLineH,
+                                       float wrapWidth) {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float h = fontLineH; // Terrain (advance)
@@ -914,14 +917,14 @@ class InfoPanelRenderer {
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
             if (imp.isDiscovered()) {
-                h += improvementNovelLines(imp, wrapWidth).size() * fontLineH;
+                h += improvementNovelLines(imp, wrapWidth).size() * smallLineH;
             }
         }
         if (buildingDescription(b) != null) {
-            h += fontLineH * 2; // blank gap + description line
+            h += smallLineH * 2; // blank gap + description line
         }
         int novelLineCount = buildingNovelLines(b, wrapWidth).size();
-        h += novelLineCount * fontLineH;
+        h += novelLineCount * smallLineH;
         return h;
     }
 

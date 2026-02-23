@@ -71,9 +71,9 @@ public class MainScreen implements Screen {
     private final ContextMenu      contextMenu        = new ContextMenu();
     private final List<String>     contextMenuItems   = new ArrayList<>();
     private final List<Runnable>   contextMenuActions = new ArrayList<>();
-    private long  lastMapTapTimeMs = 0L;
-    private float lastMapTapX      = -1f;
-    private float lastMapTapY      = -1f;
+    private long lastMapTapTimeMs  = 0L;
+    private int  lastMapTapCellX   = -1;
+    private int  lastMapTapCellY   = -1;
 
     // Quit confirmation (ESC key)
     private boolean quitConfirming   = false;
@@ -87,7 +87,6 @@ public class MainScreen implements Screen {
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
     private static final long  DOUBLE_CLICK_MS      = 400L;
-    private static final float DOUBLE_CLICK_PX      = 20f;
 
     // -------------------------------------------------------------------------
 
@@ -518,20 +517,23 @@ public class MainScreen implements Screen {
                     if (d < TAP_THRESHOLD_PIXELS) {
                         if (state.helpVisible) state.helpVisible = false;
                         selectCellAt(screenX, flippedY);
-                        // Double-click detection: two taps close together in time and space
-                        long  now = System.currentTimeMillis();
-                        float dd  = Vector2.len(screenX - lastMapTapX, screenY - lastMapTapY);
-                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && dd < DOUBLE_CLICK_PX
+                        // Double-click detection: same cell tapped twice within time window
+                        long    now      = System.currentTimeMillis();
+                        boolean sameCell = state.selectedCellX == lastMapTapCellX
+                                        && state.selectedCellY == lastMapTapCellY;
+                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && sameCell
                                 && !lookAroundPopup.isVisible()) {
                             contextMenu.dismiss();
                             buildContextMenu(screenX, flippedY);
                             Gdx.app.log("MainScreen", "Double-click menu at " + screenX + "," + flippedY
                                     + " items=" + contextMenuItems.size());
-                            lastMapTapTimeMs = 0L; // reset so triple-click doesn't re-trigger
+                            lastMapTapTimeMs = 0L;  // reset so triple-click doesn't re-trigger
+                            lastMapTapCellX  = -1;
+                            lastMapTapCellY  = -1;
                         } else {
                             lastMapTapTimeMs = now;
-                            lastMapTapX      = screenX;
-                            lastMapTapY      = screenY;
+                            lastMapTapCellX  = state.selectedCellX;
+                            lastMapTapCellY  = state.selectedCellY;
                         }
                     }
                 }
