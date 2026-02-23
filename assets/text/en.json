@@ -1813,6 +1813,146 @@
         "male": "You pour a coffee and say nothing. The room does the work.",
         "female": "You join the table and ask how long people have been here. Six minutes later you know the whole floor."
       }
+    },
+    "Building Management Office": {
+      "default": "Master keys, maintenance schedules, and the complaint log that's the most candid document in the building.",
+      "gender": {
+        "male": "You arrive with a toolbox you didn't come to use and leave with access you didn't have to ask for.",
+        "female": "You report a maintenance issue on a floor you needed access to. The super takes you there personally."
+      }
+    },
+    "Bullet-Resistant Glass": {
+      "default": "Someone already thought about stopping what you're thinking about. The glass tells you exactly how seriously they took the threat.",
+      "gender": {
+        "male": "You tap the glass and calculate the grade. This isn't a standard installation. Someone spent more than the threat required.",
+        "female": "You note the retrofit seams. This was added after the fact. Which means something changed."
+      }
+    },
+    "Burn Center": {
+      "default": "Specialized care for the kind of damage that changes everything. What ended up here, and how — that's the case.",
+      "gender": {
+        "male": "You show credentials to the ward nurse and make it clear you're not asking permission.",
+        "female": "You speak to the attending with the clinical directness of someone who belongs here. They respond in kind."
+      }
+    },
+    "Bus Stop": {
+      "default": "A fixed point on a fixed route where anyone with a bus pass and nowhere to be can become invisible. Including you.",
+      "gender": {
+        "male": "You sit on the bench and watch the building across the road. Seven buses pass. You take the eighth.",
+        "female": "You check the timetable and note what was running at the relevant hour. Someone was here waiting."
+      }
+    },
+    "Business Center": {
+      "default": "Printers, workstations, and the confidential documents of people who think hotel business centres are private.",
+      "gender": {
+        "male": "You sit at the terminal farthest from the door. The print queue on the shared printer tells you everything.",
+        "female": "You use the scanner and notice what the previous user forgot to clear. They forgot a lot."
+      }
+    },
+    "Butcher": {
+      "default": "Precision cuts and cold storage. The butcher's block knows things about anatomy that most people would rather not.",
+      "gender": {
+        "male": "You know enough about the craft to ask the right questions. The butcher respects that.",
+        "female": "You enquire about special orders. The log of special orders is a list of interesting names."
+      }
+    },
+    "Butler Service": {
+      "default": "Discreet service means the butler sees everything and is paid to forget it. You're here to help them remember.",
+      "gender": {
+        "male": "You speak to the butler as an equal. They appreciate it. Appreciation loosens the professional discretion.",
+        "female": "You ask about the guest's routine. The butler has been waiting for someone to ask."
+      }
+    },
+    "Cable Management": {
+      "default": "Organized conduit running behind walls and under floors. Every wire leads somewhere. You want to know where these ones go.",
+      "gender": {
+        "male": "You trace the run from the server rack to the junction point. One branch doesn't appear on the building plan.",
+        "female": "You photograph the panel layout. The extra cable wasn't installed by the building's contractor."
+      }
+    },
+    "Cafeteria": {
+      "default": "Institutional food and the democratic misery of people eating together because they have to. Best intelligence feed in the building.",
+      "gender": {
+        "male": "You take a tray and a seat near the loudest table. Loud tables have nothing to hide.",
+        "female": "You sit across from someone eating alone. Nobody eats alone in a cafeteria by preference."
+      }
+    },
+    "Campus Security": {
+      "default": "Uniformed authority on a campus that assumes good faith. The gap between assumption and enforcement is where you work.",
+      "gender": {
+        "male": "You walk like you're in a hurry to be somewhere specific. Campus security only stops people who look lost.",
+        "female": "You engage the guard in a question about parking. By the end of it you have their schedule."
+      }
+    },
+    "Cancer Center": {
+      "default": "Hope measured in percentages and the particular courage of people fighting a very long game. Someone here has information tied to the case.",
+      "gender": {
+        "male": "You sit in the waiting area. People waiting here talk to strangers. It's that kind of place.",
+        "female": "You speak quietly and without hurry. In a place like this, someone who listens gets trusted fast."
+      }
+    },
+    "Canopy Lighting": {
+      "default": "Overhead floods that eliminate shadow. Whoever installed this didn't want anything happening in the dark. Something is happening anyway.",
+      "gender": {
+        "male": "You stay outside the lit perimeter and observe. The light is the border. You stay on your side.",
+        "female": "You walk under it without breaking stride. Confidence under good lighting is its own kind of cover."
+      }
+    },
+    "Captain Office": {
+      "default": "The rank that runs the floor. Operational decisions live here, and so do the records that don't make it to the official log.",
+      "gender": {
+        "male": "You knock and enter in the same motion. Captains respect people who don't ask permission to be somewhere.",
+        "female": "You introduce yourself with the title that belongs to the job you're doing. The captain reassesses you in real time."
+      }
+    },
+    "Car Service": {
+      "default": "Door-to-door and logged. Where did this vehicle go, who called it, and what time did it come back.",
+      "gender": {
+        "male": "You request the run history for a specific account. The dispatcher gives you more than they should.",
+        "female": "You ask about a regular booking under the guise of confirming a reservation. The dispatcher confirms it and tells you the rest."
+      }
+    },
+    "Car Wash": {
+      "default": "Evidence removed by machine and pressure and the unsuspecting efficiency of a five-dollar wash.",
+      "gender": {
+        "male": "You check the drain. Water washes most things. Not everything.",
+        "female": "You note the vehicle in bay three. The detail work being done on it isn't standard service."
+      }
+    },
+    "Cardiac Care": {
+      "default": "The unit where the body's most important failure gets managed. What someone's heart did under pressure is what you're here to understand.",
+      "gender": {
+        "male": "You speak to the attending under the pretence of a transfer query. The admission record is in the answer.",
+        "female": "You introduce yourself to the nurse coordinator and explain what you need clearly. Clarity earns faster cooperation here than rank."
+      }
+    },
+    "Cardio Equipment": {
+      "default": "Treadmills and monitors and the grinding patience of people running toward nothing in particular. You run toward something.",
+      "gender": {
+        "male": "You take the machine with the best sight line to the room and set a pace that lets you stay for forty minutes.",
+        "female": "You match the pace of the person next to you. Side by side is the easiest entry to a conversation."
+      }
+    },
+    "Caretaker Suite": {
+      "default": "Accommodation for the person who maintains the building and watches it sleep. The caretaker sees more than the owners.",
+      "gender": {
+        "male": "You knock on the caretaker's door after hours. People who work alone are glad for the company. Glad people talk.",
+        "female": "You ask the caretaker for help with something small. While they help, you ask the question you actually came for."
+      }
+    },
+    "Carousel": {
+      "default": "Slow rotation and the particular disorientation of watching the same things come around again. You feel that way about this case.",
+      "gender": {
+        "male": "You take a position at the centre and let the environment circle you. Fixed point. Moving periphery.",
+        "female": "You ride one circuit and use the elevation to take a full visual sweep of the surrounding space."
+      }
+    },
+    "Carrier Route": {
+      "default": "The delivery path that every parcel on this block follows. Somewhere on this route something was diverted.",
+      "gender": {
+        "male": "You walk the route in reverse. The return path is where the diversions happen.",
+        "female": "You speak to the postal carrier at the end of their shift. End of shift is when people say what they actually saw."
+      }
     }
   }
 }
