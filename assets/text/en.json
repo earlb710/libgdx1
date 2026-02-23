@@ -2513,6 +2513,146 @@
         "male": "You request a table with a view of the room and spend an hour letting it come to you.",
         "female": "You ask the server for a recommendation and use the exchange to position yourself for what comes next."
       }
+    },
+    "Dining Hall": {
+      "default": "Mass catering and the particular democracy of shared tables. Everything spoken at a communal table carries.",
+      "gender": {
+        "male": "You take the end seat at the middle table. The middle table hears both ends of the room.",
+        "female": "You sit down opposite someone eating alone. Shared meals create fast trust. You use that."
+      }
+    },
+    "Directory Kiosk": {
+      "default": "The building's official map of itself. What's not listed on the directory is sometimes more useful than what is.",
+      "gender": {
+        "male": "You look for the floor that doesn't appear on the directory. It's there in the gap between floors eight and ten.",
+        "female": "You photograph the directory before anyone notices. Some omissions are more informative than inclusions."
+      }
+    },
+    "Dispatch Center": {
+      "default": "The brain of the operation. Every resource, every unit, every call comes through here. So does everything it's trying to suppress.",
+      "gender": {
+        "male": "You read the call board like it's a case map. It is.",
+        "female": "You ask the dispatcher to replay the radio log for a specific window. They do. The gap in coverage is deliberate."
+      }
+    },
+    "Dispatch Office": {
+      "default": "Schedules and routes and the coordination of movement. Something moved off-route. The dispatch office knows.",
+      "gender": {
+        "male": "You review the run sheets with the authority of someone conducting an audit. You are, in a way.",
+        "female": "You ask the dispatcher what changed on Tuesday's roster. The change wasn't in the system. It was verbal."
+      }
+    },
+    "Display Windows": {
+      "default": "The store's public face and the first impression it chooses. What the window shows tells you what it wants you to see, which is useful for working out what it doesn't.",
+      "gender": {
+        "male": "You study the reflection in the glass as much as the display. The street at your back matters.",
+        "female": "You photograph the window from across the street. The interior arrangement visible through it tells you who's inside."
+      }
+    },
+    "District Attorney": {
+      "default": "The law's front line against organised crime — or organised crime's best cover, depending on who the DA is. You're here to find out which.",
+      "gender": {
+        "male": "You present your case clearly and watch the DA's reaction to the name you mention.",
+        "female": "You request a meeting and come prepared. The DA doesn't dismiss people who come prepared."
+      }
+    },
+    "Document Storage": {
+      "default": "Paper and boxes and the institutional compulsion to keep records of everything that happened. Everything includes the things they'd rather forget.",
+      "gender": {
+        "male": "You find the box by date and cross-reference it against the access log. One file was pulled and not returned.",
+        "female": "You ask the archivist for records under a broad but legitimate category. The pull includes the document you needed."
+      }
+    },
+    "Dog Park": {
+      "default": "Off-lead dogs and on-lead conversations. Dog owners talk freely. Their dogs don't filter anything either.",
+      "gender": {
+        "male": "You sit at the bench and watch the pack dynamics. The humans aren't much different.",
+        "female": "You strike up conversation with the regular who's there every morning. They tell you about the car that parks and watches."
+      }
+    },
+    "Dog Run": {
+      "default": "A bounded space for unrestricted movement. What the animals do tells you something. What the owners do tells you more.",
+      "gender": {
+        "male": "You use the perimeter bench as a fixed observation point. Good sight lines on three sides.",
+        "female": "You bring a dog biscuit you happened to have and introduce yourself to the group. You're included in the next conversation immediately."
+      }
+    },
+    "Dog Ward": {
+      "default": "Canine patients and the staff who manage them with the careful attention that only animals who can't lie receive.",
+      "gender": {
+        "male": "You ask about a specific animal by description. The vet nurse checks the intake log.",
+        "female": "You spend a minute with the animals before asking your question. People who are good with animals get trusted faster."
+      }
+    },
+    "Dog Wash": {
+      "default": "Self-service cleaning and the unhurried conversations of owners who came for the same forty-minute window.",
+      "gender": {
+        "male": "You use the station and listen to the owner next to you. They've been coming here for three years and noticed the change last week.",
+        "female": "You help someone with an uncooperative dog and earn a conversation that covers everything you needed."
+      }
+    },
+    "Dolby Atmos": {
+      "default": "Immersive sound that makes the world outside disappear. Everyone in the theatre is fully focused on the screen and fully unaware of you.",
+      "gender": {
+        "male": "You stay near the exit during the big scene and watch who else isn't watching.",
+        "female": "You sit three rows back from the front. Front-row viewers never look behind them."
+      }
+    },
+    "Doorman": {
+      "default": "The first and last person in this building to see everyone who enters or leaves. The doorman's memory is the building's real security log.",
+      "gender": {
+        "male": "You tip and ask. The doorman has been watching this door for eleven years and has decided you're worth answering.",
+        "female": "You greet them by name — it's on the tag — and ask your question as though you already know the answer. You get it."
+      }
+    },
+    "Drama Theater": {
+      "default": "A stage, a lighting rig, and the particular permission of a performance space to be someone else. You use that permission.",
+      "gender": {
+        "male": "You arrive at rehearsal under the guise of a tech question. The drama department talks during rehearsal breaks.",
+        "female": "You take a seat in the house and watch the rehearsal. Directors notice attentive observers. You get five minutes of undivided access."
+      }
+    },
+    "Drive-Through": {
+      "default": "Frictionless transactions and a camera on every lane. Someone drove through here at a specific time that matters to the case.",
+      "gender": {
+        "male": "You ask the manager about the CCTV coverage on the drive-through. The camera is positioned more precisely than the average franchise requires.",
+        "female": "You ask a simple question from the window and the server tells you the shift supervisor is the one to speak to. Good."
+      }
+    },
+    "Drive-Through Lane": {
+      "default": "A fixed path between point A and point B with cameras at both ends. Everyone who uses it is logged.",
+      "gender": {
+        "male": "You queue in the lane and study the sequence of other vehicles. Pattern breaks are the point.",
+        "female": "You note the timestamp on your receipt. You triangulate it against the incident window."
+      }
+    },
+    "Drive-Through Window": {
+      "default": "Thirty seconds of face time and a receipt that records what you ordered and when. That's more than most surveillance produces.",
+      "gender": {
+        "male": "You make a specific order at a specific time and verify the timestamp on your receipt matches the system.",
+        "female": "You chat with the server and ask who was on this window yesterday evening. They check the schedule without asking why."
+      }
+    },
+    "Driver Facilities": {
+      "default": "Rest areas and amenities for the people who move everything the city consumes. Drivers know routes, loads, and what they were told not to notice.",
+      "gender": {
+        "male": "You buy a coffee in the driver lounge and sit down. You're accepted as one of them without a word.",
+        "female": "You ask for the operations manager. Drivers stop and look. You use the thirty seconds of distraction."
+      }
+    },
+    "Drop-Off Service": {
+      "default": "Garments or packages surrendered and logged. The log has a name attached. That name interests you.",
+      "gender": {
+        "male": "You ask about a drop-off from earlier in the week. The counter staff checks and reads the name aloud.",
+        "female": "You review the collection receipts under the pretext of a mismatch. The timestamp on one of them places someone at the wrong address."
+      }
+    },
+    "Dry Cleaning": {
+      "default": "Chemicals and precision and the removal of stains that have a story behind them. The dry cleaner sees the story before they remove the evidence.",
+      "gender": {
+        "male": "You ask the cleaner about a specific garment description. They remember it. Cleaners always remember the ones that were difficult.",
+        "female": "You drop off a jacket and ask while you're there about the spot-treatment protocols for organic material. The cleaner looks up."
+      }
     }
   }
 }
