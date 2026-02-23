@@ -429,12 +429,13 @@ public class NovelTextEngine {
     /**
      * Calculates the recommended number of description variants needed so that,
      * given {@code expectedInstances} copies of a building on the map, there is
-     * approximately a 50&percnt; probability that at least two of them share the
+     * approximately a 50% probability that at least two of them share the
      * same description (the <em>birthday problem</em>).
      *
-     * <p>The formula used is {@code k = ceil(n * (n - 1) / (2 * ln 2))}, where
-     * {@code n} is the expected number of instances and {@code k} is the number
-     * of distinct variants required for a ~50&percnt; collision probability.</p>
+     * <p>The formula used is {@code k = ceil(n * (n - 1) / (2 * ln(2)))}, where
+     * {@code n} is the expected number of instances, {@code k} is the number
+     * of distinct variants required for a ~50% collision probability, and
+     * {@code ln} denotes the natural logarithm ({@link Math#log(double)}).</p>
      *
      * @param expectedInstances Average number of times this building type
      *                          appears on the city map (must be &ge; 0)
