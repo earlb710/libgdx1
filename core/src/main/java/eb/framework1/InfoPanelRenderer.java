@@ -470,12 +470,12 @@ class InfoPanelRenderer {
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
-                            // Novel improvement description
+                            // Novel improvement description (smaller font)
                             List<String> impNovel = improvementNovelLines(imp, impWrapWidth);
-                            font.setColor(NOVEL_COLOR);
+                            smallFont.setColor(NOVEL_COLOR);
                             for (String nLine : impNovel) {
-                                font.draw(batch, nLine, idx, textY + drawScrollY);
-                                textY -= fontLineH;
+                                smallFont.draw(batch, nLine, idx, textY + drawScrollY);
+                                textY -= smallLineH;
                             }
                         } else {
                             font.setColor(Color.WHITE);
@@ -484,20 +484,21 @@ class InfoPanelRenderer {
                         }
                     }
 
-                    // Building description (if available)
+                    // Building description (if available) – no label, smaller font
                     String desc = buildingDescription(building);
                     if (desc != null) {
                         textY -= fontLineH;
-                        textY = drawLabelValue(font, "Description: ", desc, textX, textY);
-                        textY -= fontLineH;
+                        smallFont.setColor(Color.WHITE);
+                        smallFont.draw(batch, desc, textX - drawScrollX, textY + drawScrollY);
+                        textY -= smallLineH;
                     }
 
-                    // Novel-engine contextual description (word-wrapped to fit)
+                    // Novel-engine contextual description (word-wrapped, smaller font)
                     List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
-                    font.setColor(NOVEL_COLOR);
+                    smallFont.setColor(NOVEL_COLOR);
                     for (String nLine : novelLines) {
-                        font.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
-                        textY -= fontLineH;
+                        smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                        textY -= smallLineH;
                     }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
