@@ -2373,6 +2373,146 @@
         "male": "You sit at the table and work at something slowly. The room talks around you within ten minutes.",
         "female": "You join the group and ask what they're making. The conversation that follows covers considerably more than the project."
       }
+    },
+    "Cross-Dock Area": {
+      "default": "Product in, product out, minimal storage time, maximum movement. The cross-dock is where things disappear before they're ever recorded as arriving.",
+      "gender": {
+        "male": "You study the manifests at both ends of the dock. The numbers only match if you're not looking carefully.",
+        "female": "You ask the dock supervisor about the most recent non-standard transfer. The description doesn't match any legitimate category."
+      }
+    },
+    "Currency Counter": {
+      "default": "Machines that count money faster and more accurately than the people depositing it. That precision is its own kind of evidence.",
+      "gender": {
+        "male": "You watch the output tape. The total doesn't match the deposit slip.",
+        "female": "You ask the teller to explain the variance. They reach for the manager instead of the answer."
+      }
+    },
+    "Customer Lounge": {
+      "default": "Comfortable seating and the extended wait that makes people talkative. You're very comfortable waiting.",
+      "gender": {
+        "male": "You settle in and project the patience of a man who has nowhere to be. The lounge fills around you.",
+        "female": "You take the chair nearest the door and strike up conversation with the person who's been waiting longest."
+      }
+    },
+    "Customer Parking": {
+      "default": "A lot that logs plate numbers and transaction times. What came and went here tells you more than the front desk will.",
+      "gender": {
+        "male": "You note which vehicles have been here since the lot opened. Two of them are on your list.",
+        "female": "You check the parking validation stamps. The timing on two transactions doesn't match the business hours on the door."
+      }
+    },
+    "Customer Service": {
+      "default": "The front line between a business and the people it disappointed. Complaint logs are a map of everything that went wrong and who was involved.",
+      "gender": {
+        "male": "You present a complaint that gets you to a supervisor. Supervisors have more access than the first line.",
+        "female": "You ask calmly and specifically. Customer service responds to clarity in a way they don't respond to authority."
+      }
+    },
+    "DJ Booth": {
+      "default": "Elevated and isolated with a view of the whole floor. The DJ sees everything. They just charge more to remember it.",
+      "gender": {
+        "male": "You get up to the booth under the pretence of a request. From up here the entire room is readable.",
+        "female": "You hand over a request slip with something written on the back. The DJ reads it and looks up."
+      }
+    },
+    "DVD Collection": {
+      "default": "Physical media in a streaming age. The titles still here tell you what got used and what got borrowed and never came back.",
+      "gender": {
+        "male": "You check the checkout log. The same title has been borrowed four times by four different cards.",
+        "female": "You ask the librarian about the most frequently requested titles this past month. One of them is not a genre film."
+      }
+    },
+    "Dance Floor": {
+      "default": "The performance space of a room where everyone pretends to be watching the music and nobody pretends to be watching each other. You watch everyone.",
+      "gender": {
+        "male": "You position yourself at the edge and read the floor from a fixed point.",
+        "female": "You move through the floor and come out with everything you needed in the time it takes for one song."
+      }
+    },
+    "Dance Studio": {
+      "default": "Mirrors and movement and the discipline of controlled bodies. The one thing you can't hide in a room full of mirrors is your reflection.",
+      "gender": {
+        "male": "You observe from the corridor. Studio sessions are focused. The students don't notice the door.",
+        "female": "You join the warm-up and use the mirrors to watch the whole room without turning around."
+      }
+    },
+    "Data Center": {
+      "default": "The physical infrastructure of information. Every server in this room is evidence. You just need a rack number and a warrant. Or neither.",
+      "gender": {
+        "male": "You badge in with a card that shouldn't work. It does. That's a problem for the security team. An opportunity for you.",
+        "female": "You present yourself as a vendor representative for the cooling system. Vendor access is broader than most people realise."
+      }
+    },
+    "Day Care": {
+      "default": "Morning drop-offs and the routine of parents handing over the most important thing they have. That routine can be read.",
+      "gender": {
+        "male": "You arrive at drop-off and observe who's not following the expected pattern.",
+        "female": "You speak with the key worker. Their concern about one child's recent change is the thread you pull."
+      }
+    },
+    "Daycare": {
+      "default": "Small children, watchful staff, and the daily exchange of information between parents who trust this place. That trust is leverage.",
+      "gender": {
+        "male": "You sign the visitor log and use your eight minutes of supervised access carefully.",
+        "female": "You speak to the director about enrollment procedures. In ten minutes you've seen the full facility."
+      }
+    },
+    "Decontamination Room": {
+      "default": "A room designed to make things clean before they enter somewhere important. What came through here that required this level of thoroughness?",
+      "gender": {
+        "male": "You check the protocol log. The last full decontamination cycle was triggered by something not in the standard category.",
+        "female": "You review the contamination threshold records. One entry was manually overridden. That override has a signature."
+      }
+    },
+    "Deli Counter": {
+      "default": "The social hub of any market. Conversation at the deli counter is as regular as the lunch rush.",
+      "gender": {
+        "male": "You order and wait. The wait is where the conversations happen and you make sure to be in one.",
+        "female": "You ask the server's recommendation. Servers who make recommendations talk. They tell you about the regular who ordered the same thing every Thursday until two weeks ago."
+      }
+    },
+    "Delivery Area": {
+      "default": "The back entrance that everyone uses and no one supervises. What came in through here that didn't go in through the front?",
+      "gender": {
+        "male": "You walk the delivery area with a clipboard. Nobody questions a clipboard near a loading bay.",
+        "female": "You ask the receiving clerk to cross-check a delivery. The discrepancy you point to makes them check the rest of the manifest."
+      }
+    },
+    "Delivery Station": {
+      "default": "Packages sorted and staged for the last mile. Every address on this station is a destination. One of them is not what it appears.",
+      "gender": {
+        "male": "You read the address labels in the unsorted stack. One of them matches a location you know.",
+        "female": "You ask about a missing package under a real-enough address. The station manager's search reveals the routing history."
+      }
+    },
+    "Dental Chairs": {
+      "default": "The reclined position of vulnerability. Nobody lies in a dental chair voluntarily about anything. It's the one room where the truth gets easier.",
+      "gender": {
+        "male": "You sit in the waiting-area chair adjacent to the treatment bay and listen to the muffled consultation.",
+        "female": "You make the appointment and use the waiting time to ask the receptionist about a specific patient's last visit."
+      }
+    },
+    "Dental Suite": {
+      "default": "A private clinical space where the conversation has nowhere to go but honest. Whatever was discussed in this suite mattered.",
+      "gender": {
+        "male": "You review the appointment schedule at the front desk under the guise of rescheduling.",
+        "female": "You ask the hygienist about the last time a specific patient was seen. The hygienist answers and adds detail."
+      }
+    },
+    "Department Store": {
+      "default": "Multiple floors of merchandise and the staff who see every customer who passes through. The floor staff remember more than their job description suggests.",
+      "gender": {
+        "male": "You approach the floor manager under the pretence of a product query and redirect the conversation.",
+        "female": "You ask the floor assistant for help finding something specific. They walk you through a section you needed access to."
+      }
+    },
+    "Dine-In Options": {
+      "default": "Sit-down service means time. Time means conversation. Conversation means something is being said that you want to hear.",
+      "gender": {
+        "male": "You request a table with a view of the room and spend an hour letting it come to you.",
+        "female": "You ask the server for a recommendation and use the exchange to position yourself for what comes next."
+      }
     }
   }
 }
