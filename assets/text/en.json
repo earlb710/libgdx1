@@ -20,7 +20,7 @@
       }
     },
     "parking_lot_large": {
-      "default": "A hundred cars and not one of them parked here by accident. Somewhere in this lot is the answer you need.",
+      "default": "A hundred cars and not one of them parked here by accident. The lot is big enough to swallow an afternoon and small enough that nothing quite disappears.",
       "time": {
         "morning": "Workers funnel in before the sun gets mean. Shift changes are the best time to watch without being watched.",
         "afternoon": "Full up and nowhere to hide. You keep moving — a still target is a dead one.",
@@ -213,7 +213,7 @@
       },
       "gender": {
         "male": "You linger by the vitamins long enough to catch the counter conversation. Health privacy ends where your case begins.",
-        "female": "The pharmacist answers your questions without hesitation. People underestimate how much women are trusted with the details."
+        "female": "The pharmacist knows every customer by prescription history and by name. The relationship between a pharmacist and a regular customer is built on trust and repetition."
       }
     },
     "bank_branch": {
@@ -285,7 +285,7 @@
           "AGILITY": "You map the training floor in a circuit that looks like exercise and works like reconnaissance."
         },
         "gender": {
-          "male": "Two regulars offer you a spot without being asked. Some spaces still run on old codes. You use it.",
+          "male": "Two regulars nod at newcomers and hold equipment for people they've never met. Some spaces run on old, unwritten codes of conduct.",
           "female": "You head for the free weights and ignore the stares. You've been ignoring them since day one. Doesn't stop you lifting."
         }
       },
@@ -407,7 +407,7 @@
         "night": "The kitchen's shutting down. Last round of drinks, last round of honesty."
       },
       "attribute": {
-        "CHARISMA": "The host gives you the good booth without being asked. You have that kind of face today.",
+        "CHARISMA": "The corner booth in the back is the most valuable table in the room. It fills quickly with people who want to see the room without being seen from it.",
         "EMPATHY": "You read every table in thirty seconds. Two arguments brewing. One reconciliation that won't take.",
         "PERCEPTION": "You were seated three minutes ago and you've already mapped every entrance and the fire exit behind the kitchen."
       },
@@ -484,7 +484,7 @@
         "PERCEPTION": "The receptionist just hid a file that was sitting out when you walked in. She didn't think you saw. She was wrong."
       },
       "gender": {
-        "male": "You give them a name that isn't yours and a reason that isn't real. The receptionist books you in without a second thought.",
+        "male": "The reception desk is the first checkpoint and the last line of courtesy. The staff are trained to manage the gap between what people say is wrong and what is actually wrong.",
         "female": "You're through the door and past the reception line before anyone thinks to ask why."
       }
     },
@@ -592,7 +592,7 @@
         "PERCEPTION": "One child has been watching the door since you arrived. Not waiting for a parent. Watching for something else."
       },
       "gender": {
-        "male": "You sign the visitor sheet and wait for the staff escort. An unaccompanied man in a daycare gets the full procedure. You cooperate. It's faster.",
+        "male": "An unaccompanied adult in a daycare centre attracts the full protocol. The sign-in sheet, the escort, the visible watchfulness — it's by design.",
         "female": "You're waved through the entrance with a smile. The assumption works in your favour. It won't last, so you move quickly."
       }
     },
@@ -698,7 +698,7 @@
       "attribute": {
         "MEMORY": "That face. That handwriting on the parcel at counter three. You've seen both before and not in this context.",
         "PERCEPTION": "The parcel addressed to a dead man is still in the collection bay. Third shelf from the bottom. You note the postmark.",
-        "INTELLIGENCE": "Routing codes, postmarks, registered sender addresses. This building is full of traceable evidence and it's all technically public."
+        "INTELLIGENCE": "Routing codes, postmarks, and registered sender addresses are built into every item that passes through this building. The paper trail is a product of the service itself."
       },
       "gender": {
         "male": "You fill in a form you don't intend to submit and wait in line. A man waiting at the post office is the most unremarkable thing in the world.",
@@ -829,7 +829,7 @@
       },
       "gender": {
         "male": "You nod at the concierge like a man who does this every night. They nod back. Transaction complete.",
-        "female": "The concierge is more attentive than you'd like. You give them a floor to call that gives you time on the one you actually need."
+        "female": "The concierge desk in a large building is the building's nervous system. It tracks everything and everyone that passes through the lobby."
       }
     },
     "luxury_apartment_tower": {
@@ -895,7 +895,7 @@
         "night": "Night-mode lobby. One desk lamp and a camera you've already catalogued."
       },
       "attribute": {
-        "CHARISMA": "The concierge gives you the relaxed greeting they reserve for residents they've seen enough to trust. Useful.",
+        "CHARISMA": "The concierge has a practiced way with long-term residents — an easy familiarity built on years of small interactions. Buildings like this reward familiarity.",
         "PERCEPTION": "You catch a reflection in the lobby mirror that places someone on a floor they haven't been assigned.",
         "STEALTH": "Shift timing. Blind-spot rotation. Entry window: ninety seconds. You've worked with less."
       },
@@ -936,7 +936,7 @@
         "MEMORY": "You've stayed in exactly this kind of place before. Same layout, same broken ice machine, same smell. You know where everything is."
       },
       "gender": {
-        "male": "You pay in cash and give the clerk a name that matches nothing in any system they'll bother to check.",
+        "male": "Cash at a budget hotel is unremarkable. The clerk processes a hundred transactions a day and applies the same level of scrutiny to each one.",
         "female": "The night clerk is more attentive than the job requires. You smile until they stop being useful and then you go to your room."
       }
     },
@@ -950,7 +950,7 @@
       },
       "attribute": {
         "CHARISMA": "The front desk upgrades you before you ask. You have the look of someone who expects it.",
-        "INTELLIGENCE": "The conference attendance list at the concierge desk tells you who's in town and why. Neither answer is what the signage claims.",
+        "INTELLIGENCE": "The conference attendance list posted at the concierge desk maps who is in town, what organisation they represent, and which floors they have access to.",
         "PERCEPTION": "You've clocked the room's sight lines, the corridor camera, and the stairwell exit before the porter finishes the room tour."
       },
       "gender": {
@@ -967,7 +967,7 @@
         "night": "The hotel turns to silk and shadows. The real conversations happen now."
       },
       "attribute": {
-        "CHARISMA": "The concierge remembers your name before you've given it. You gave it three visits ago under a different identity.",
+        "CHARISMA": "The luxury hotel concierge maintains a near-perfect memory for regular guests. Long-term repeat visitors are known by preference, habit, and quiet expectation.",
         "EMPATHY": "Every exchange here is a transaction. You read what's being bought and sold at each table.",
         "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van — all three connect to the same name."
       },
@@ -1403,7 +1403,7 @@
     "ATM": {
       "default": "A machine that knows exactly who was here and when. The bank will tell you. Eventually.",
       "gender": {
-        "male": "Cash leaves no trail. Which is precisely why the trail starts here.",
+        "male": "Cash is the oldest form of transaction anonymity. An ATM records the machine end of a cash exchange in full, even when the human end stays off the books.",
         "female": "The ATM screen logs every transaction with a timestamp. The gap between what's recorded and what actually happened is the inconsistency."
       }
     },
@@ -1425,13 +1425,13 @@
       "default": "Scheduled joy. Craft tables, folding chairs, and the resigned optimism of people making the best of their situation.",
       "gender": {
         "male": "You take a seat at the back and let the room come to you. It always does.",
-        "female": "You join the activity without being asked. In five minutes you know everyone's name. In ten you know why you came."
+        "female": "Activity rooms are designed to lower social barriers quickly. The shared task and the enclosed space do more to generate conversation than most formal settings."
       }
     },
     "Admin Office": {
       "default": "The engine room of the building's paperwork. Files, schedules, and the one record that shouldn't still be here.",
       "gender": {
-        "male": "You lean over the counter with the relaxed authority of someone expecting cooperation. They cooperate.",
+        "male": "The admin office is the operational core of a building — the place where access is granted, records are kept, and the day-to-day machinery is managed.",
         "female": "The admin clerk looks up and finds someone who clearly knows what they're looking for. You do."
       }
     },
@@ -1439,7 +1439,7 @@
       "default": "Bureaucracy in its purest form. Every answer is in here somewhere under a layer of procedure and coffee rings.",
       "gender": {
         "male": "You use the phrase 'urgent compliance review' and doors open that weren't even closed.",
-        "female": "You ask exactly the right question and watch the administrator's hands go still for half a second."
+        "female": "The administrative layer of an institution holds the records, the approvals, and the history of every decision made above and below it."
       }
     },
     "Administrative Office": {
@@ -1501,8 +1501,8 @@
     "Archives": {
       "default": "The official record of everything that officially happened. The unofficial record is what you're actually after.",
       "gender": {
-        "male": "A technically legitimate purpose opens a wide door here. The archivist cooperates without asking what's behind the request.",
-        "female": "You know exactly which year, which box, which shelf. The archivist asks how. You smile and don't answer."
+        "male": "An archive's value is in what it contains and how well it is organised. Paper records, once filed, stay filed — whether or not anyone intended them to be found.",
+        "female": "A well-organised archive is a map of decisions made over time. The person who maintains it understands the collection better than the people who created it."
       }
     },
     "Armory": {
@@ -1586,7 +1586,7 @@
       "default": "Corporate fleet purchasing. The paperwork looks legitimate until the delivery addresses are checked against the registered entities.",
       "gender": {
         "male": "Volume discount conversations open back-office numbers. The figures in those numbers rarely match the official documentation.",
-        "female": "You ask to see the corporate account terms. The rep hesitates before showing you. That hesitation is the answer."
+        "female": "Corporate fleet purchasing runs on negotiated terms and volume agreements. The margin between the stated price and the actual cost is where the programme's real terms are written."
       }
     },
     "Auto Shop": {
@@ -1600,7 +1600,7 @@
       "default": "A vehicle on the lift tells you where it's been. The undercarriage doesn't lie.",
       "gender": {
         "male": "You step under with the tech and look where they're not looking.",
-        "female": "A walk-through of diagnostic findings covers more ground than a direct question. The technician's notes describe what the customer wasn't meant to see."
+        "female": "The diagnostic bay generates a detailed mechanical history of every vehicle that passes through it. Notes and observations accumulate in ways the standard paperwork doesn't always reflect."
       }
     },
     "Backup Generators": {
@@ -1621,7 +1621,7 @@
       "default": "Flour, heat, and people who arrive before dawn. The bakery shift starts when most of the city is still lying to itself in bed.",
       "gender": {
         "male": "You take a coffee at the counter and let the early-morning crew talk. They always do.",
-        "female": "The baker tells you about the regular who didn't come in this morning. That's unusual enough to matter."
+        "female": "A neighbourhood bakery runs on regulars. The rhythm of who comes in and when is as reliable as the baking schedule."
       }
     },
     "Ballroom": {
@@ -1723,7 +1723,7 @@
       }
     },
     "Bike Rack": {
-      "default": "A timestamp for every commuter. The bike that's been here since Tuesday belongs to someone who stopped commuting.",
+      "default": "A row of fixed anchor points in a covered or open position. Each bike locked here represents a journey that started somewhere else and will end somewhere else again.",
       "gender": {
         "male": "A high-end lock on a low-end bike is a mismatch worth noting. The reverse is equally interesting.",
         "female": "You note which racks are used daily and which one hasn't moved. One hasn't moved in four days."
@@ -1740,7 +1740,7 @@
       "default": "Unclaimed bikes become unclaimed time. Someone parked here and didn't come back. You want to know why.",
       "gender": {
         "male": "The pedal and tyre wear tells a more honest story than the stated usage. This bike has been used harder than it looks.",
-        "female": "The lock brand and registration mark on the stored bikes are both traceable. Both go somewhere."
+        "female": "The lock brand and registration mark on stored bikes are both recorded details. Long-term storage means a bike has been stationary long enough to accumulate context."
       }
     },
     "Billiards Area": {
@@ -1929,7 +1929,7 @@
       "default": "Door-to-door and logged. Where did this vehicle go, who called it, and what time did it come back.",
       "gender": {
         "male": "The run history for a specific account sits in the dispatcher's system. Dispatchers log more than the client ever intends.",
-        "female": "A booking confirmation covers more ground than intended. The dispatcher describes the full record without being asked twice."
+        "female": "A car service account is a timestamped record of movement — when, where, and how far. Regular clients build up a pattern over time."
       }
     },
     "Car Wash": {
@@ -1943,7 +1943,7 @@
       "default": "The unit where the body's most important failure gets managed. What someone's heart did under pressure is what you're here to understand.",
       "gender": {
         "male": "You speak to the attending under the pretence of a transfer query. The admission record is in the answer.",
-        "female": "You introduce yourself to the nurse coordinator and explain what you need clearly. Clarity earns faster cooperation here than rank."
+        "female": "The cardiac care unit maintains precise documentation of every patient contact. Clarity and brevity are the fastest path through its systems."
       }
     },
     "Cardio Equipment": {
@@ -1984,7 +1984,7 @@
     "Cast Room": {
       "default": "Plaster and patience and the documentation of exactly how someone's body broke. The fracture pattern tells a story.",
       "gender": {
-        "male": "A question about the mechanism of injury produces a pause. In a cast room, a pause before answering is an answer.",
+        "male": "The cast room's intake form records the mechanism of injury for every patient. Accuracy in that column matters both clinically and legally.",
         "female": "The intake form's mechanism of injury column has been left vague in a way that serves a purpose."
       }
     },
@@ -2006,7 +2006,7 @@
       "default": "Coins dispensed in exchange for paper. Untraceable tender for the person who prefers their transactions off the ledger.",
       "gender": {
         "male": "You feed in a note and count what comes back. Someone's been using this machine in quantities that don't match laundry.",
-        "female": "The float indicator on the side of the change machine shows a very recent restock. The manager can account for why."
+        "female": "A change machine float level is a record of recent use. High-volume periods leave a measurable mark on the denomination mix."
       }
     },
     "Chapel": {
@@ -2031,7 +2031,7 @@
       }
     },
     "Chef's Garden": {
-      "default": "Herbs and fresh produce and the particular pride of a kitchen that grows what it serves. Someone in this garden knows the schedule of everyone who works here.",
+      "default": "A working kitchen garden is tended to a precise schedule. Everything in it has a purpose and a harvest window.",
       "gender": {
         "male": "You find the head gardener at six a.m. and ask a question they weren't expecting before breakfast.",
         "female": "You admire the garden with genuine interest. The chef comes out personally. Chefs talk when they're proud."
@@ -2181,7 +2181,7 @@
       "default": "Slow-steeped and unhurried. There's a patience to cold brew that the clientele doesn't share. You do.",
       "gender": {
         "male": "You wait for the pour with the calm of someone who has nowhere to be. You have somewhere to be. You don't show it.",
-        "female": "A barista describing their day fills three minutes with detail. One of those details concerns a regular who hasn't been in."
+        "female": "A barista's day is built around regular customers at regular hours. The rhythm of a cold brew counter is as much about who comes in as what they order."
       }
     },
     "Cold Storage": {
@@ -2213,9 +2213,9 @@
       }
     },
     "Commercial Washers": {
-      "default": "Industrial-grade cleaning in volume and on schedule. What goes through these machines gets clean. What was on it before is the question.",
+      "default": "Industrial laundry machines running on volume and schedule. The load type, temperature, and cycle time are all recorded as part of the operational standard.",
       "gender": {
-        "male": "The wash log records cycle time, temperature, and load weight. One entry doesn't match standard linen processing.",
+        "male": "The wash log records cycle time, temperature, and load weight for every run. The record distinguishes between standard linen processing and any load that falls outside those parameters.",
         "female": "The laundry supervisor's memory for non-standard loads is reliable. A description from forty-eight hours ago comes back clearly."
       }
     },
@@ -2276,10 +2276,10 @@
       }
     },
     "Concierge Service": {
-      "default": "Discreet, skilled, and trained to remember preferences without being asked. The concierge service has a better memory than the security cameras.",
+      "default": "A concierge service maintains detailed records of guest preferences, requests, and patterns. The service is built on the memory of what was asked for and when.",
       "gender": {
         "male": "A description of someone's habits is enough for the concierge to identify them without a name. The concierge has been watching longer.",
-        "female": "The service that a frequent guest always requests is a recognisable pattern. The comparison the concierge draws is made without being asked for it."
+        "female": "A guest who uses the same concierge service consistently builds up a recognisable profile. The pattern of requests is as identifying as a name."
       }
     },
     "Conference Center": {
@@ -2299,7 +2299,7 @@
     "Conference Rooms": {
       "default": "Multiple closed sessions running in parallel. The building's most consequential business happening simultaneously and mostly off the record.",
       "gender": {
-        "male": "The booking system at the front desk shows three rooms without a record in the system. They're occupied anyway.",
+        "male": "The conference room booking system tracks every registered use against the physical room assignments. Unregistered use of a room appears as a discrepancy between the booking record and the room's own access log.",
         "female": "You walk the corridor slowly during a transition. What spills from open doors between sessions is unguarded."
       }
     },
@@ -2405,7 +2405,7 @@
       "default": "Machines that count money faster and more accurately than the people depositing it. That precision is its own kind of evidence.",
       "gender": {
         "male": "You watch the output tape. The total doesn't match the deposit slip.",
-        "female": "A variance explanation at the teller window reaches for the manager instead of the numbers. That substitution is the answer."
+        "female": "Variance at a currency counter is an event of record. When the explanation for a variance deflects to management rather than the count, something in the count needs explaining."
       }
     },
     "Customer Lounge": {
@@ -2425,7 +2425,7 @@
     "Customer Service": {
       "default": "The front line between a business and the people it disappointed. Complaint logs are a map of everything that went wrong and who was involved.",
       "gender": {
-        "male": "A complaint that escalates to a supervisor produces someone with more system access than the first line. The escalation is the point.",
+        "male": "A customer service escalation is a transfer of both the problem and the access level. Supervisors in that chain carry clearances that the first line doesn't.",
         "female": "You ask calmly and specifically. Customer service responds to clarity in a way they don't respond to authority."
       }
     },
@@ -2437,10 +2437,10 @@
       }
     },
     "DVD Collection": {
-      "default": "Physical media in a streaming age. The titles still here tell you what got used and what got borrowed and never came back.",
+      "default": "Physical media in a streaming age. The titles still here reflect what stayed in circulation, what got worn out from use, and what left the collection through routine checkout.",
       "gender": {
         "male": "The checkout log for the DVD collection shows one title borrowed four times by four different cards. That's not coincidence.",
-        "female": "The most frequently requested titles this past month include one that isn't a genre film. The access log for that title has names in it."
+        "female": "The library's DVD collection is logged by checkout record. Repeated requests for a single title by multiple borrowers over a short period marks that title in the system."
       }
     },
     "Dance Floor": {
@@ -2489,7 +2489,7 @@
       "default": "The social hub of any market. Conversation at the deli counter is as regular as the lunch rush.",
       "gender": {
         "male": "You order and wait. The wait is where the conversations happen and you make sure to be in one.",
-        "female": "A server describing their recommended item covers their regular customers in the process. One regular stopped coming two weeks ago."
+        "female": "A deli counter server's day is structured around the same faces at the same times. The regularity of the customer base is part of the counter's own operational rhythm."
       }
     },
     "Delivery Area": {
@@ -2521,7 +2521,7 @@
       }
     },
     "Department Store": {
-      "default": "Multiple floors of merchandise and the staff who see every customer who passes through. The floor staff remember more than their job description suggests.",
+      "default": "Multiple floors of retail with a staff complement large enough to cover every department. The floor team absorbs foot traffic across a wide surface and maintains a general picture of who's in the building.",
       "gender": {
         "male": "You approach the floor manager under the pretence of a product query and redirect the conversation.",
         "female": "A request for help finding something specific walks you through a section of the floor that has its own story."
@@ -2552,7 +2552,7 @@
       "default": "The brain of the operation. Every resource, every unit, every call comes through here. So does everything it's trying to suppress.",
       "gender": {
         "male": "You read the call board like it's a case map. It is.",
-        "female": "The radio log replay for a specific window shows a gap in coverage. The gap is deliberate."
+        "female": "The radio log at a dispatch centre covers every communication window across the shift. The log distinguishes between active periods and periods of silence."
       }
     },
     "Dispatch Office": {
@@ -2647,10 +2647,10 @@
       }
     },
     "Drive-Through Window": {
-      "default": "Thirty seconds of face time and a receipt that records what you ordered and when. That's more than most surveillance produces.",
+      "default": "A drive-through window is a brief, repeated transaction point. Each pass generates a receipt, a timestamp, and a record of the vehicle on the camera above the lane.",
       "gender": {
         "male": "You make a specific order at a specific time and verify the timestamp on your receipt matches the system.",
-        "female": "You chat with the server and ask who was on this window yesterday evening. They check the schedule without asking why."
+        "female": "The drive-through window operates on a shift schedule with dedicated camera coverage. Each shift is a distinct operational period with its own staff and transaction record."
       }
     },
     "Driver Facilities": {
@@ -2691,7 +2691,7 @@
     "EV Chargers": {
       "default": "Multiple charging points and multiple timestamps. The lot logs every vehicle that plugged in. So do you.",
       "gender": {
-        "male": "The charger unit IDs cross-referenced against the access log produce a sequence that doesn't match normal usage.",
+        "male": "EV charger unit IDs log every session against an access record. A sequence of sessions that doesn't match normal usage patterns is visible in the combined data.",
         "female": "A charger in use at an unusual hour is memorable because it blocked a bay. The attendant's memory is specific."
       }
     },
@@ -2706,11 +2706,11 @@
       "default": "Infrastructure for the future with the accountability of the past. Every charge session creates a record.",
       "gender": {
         "male": "You note the vehicles currently charging and the ones that finished recently. One didn't leave.",
-        "female": "The building attendant's charging log is produced as a matter of routine. The routine produces more than was expected."
+        "female": "The building attendant's charging log is a standard operational record. Routine documentation at this level captures more activity than its purpose requires."
       }
     },
     "Electric Car Charging": {
-      "default": "Quiet vehicles and traceable sessions. The silence is its own kind of cover. The log is yours.",
+      "default": "Dedicated charging stations for electric vehicles. Every session is logged against a vehicle identifier and a time window. The log is a record of who parked here and for how long.",
       "gender": {
         "male": "The session data shows three entries in the last week at hours that suggest surveillance rather than a commute.",
         "female": "You verify the session timing against the incident. The vehicle was here when it shouldn't have been."
@@ -2748,7 +2748,7 @@
       "default": "Panic buttons and response protocols. A system like this keeps logs. One of those logs shows an activation that never became an incident.",
       "gender": {
         "male": "One activation in the system history was manually cleared before a response was dispatched.",
-        "female": "The suppressed alert from three days ago is on record. The supervisor consults notes before explaining it."
+        "female": "A suppressed alert in the emergency call system generates a record of the suppression event itself. Alerts that are cleared before a response is dispatched leave a distinct entry in the activation log."
       }
     },
     "Emergency Exits": {
@@ -2797,14 +2797,14 @@
       "default": "Internal retail with staff-only access. What the employee store stocks tells you what the workforce is being managed with.",
       "gender": {
         "male": "You use a visitor lanyard to get past the door. The store hasn't been stocked in two weeks. That matters.",
-        "female": "You ask a staff member to help you find the store. On the way there, the staff member explains why they haven't been going."
+        "female": "An employee store is a benefit that runs on shift eligibility. The patterns of who uses it, and when, follow the roster."
       }
     },
     "Engineering Office": {
       "default": "Blueprints and specifications and the technical memory of every system in the building. The answer to what's wrong with this place is probably in here.",
       "gender": {
         "male": "You ask to see the current building schematic under the pretext of a facilities review.",
-        "female": "You enquire about a specific system discrepancy. The engineer pulls the design specs without hesitation and walks you through the anomaly themselves."
+        "female": "The engineering office holds technical documentation for every system in the building. Design specs, anomaly reports, and service history are maintained as working reference."
       }
     },
     "Entertainment Suite": {
@@ -2824,7 +2824,7 @@
     "Equipment Storage": {
       "default": "Everything the building uses to function, locked away and catalogued. One item on the shelf isn't on the catalogue.",
       "gender": {
-        "male": "The cage inventory against the issue log shows a two-item discrepancy. That's not a counting error.",
+        "male": "The cage inventory and the issue log are two separate counts of the same equipment. A gap between them is an equipment discrepancy, not an accounting one.",
         "female": "The stores manager's memory for non-standard draws is specific. The date comes back without consultation."
       }
     },
@@ -2859,22 +2859,22 @@
     "Event Space": {
       "default": "Neutral ground built for occasions. What occasion was held here recently that nobody put on the public calendar?",
       "gender": {
-        "male": "The booking register for the event three nights ago carries a different name from what the public record shows.",
+        "male": "The booking register for an event space is the formal record of scheduled use. Any use that falls outside the registered events is either uncategorised in the system or absent from it altogether.",
         "female": "You speak to the venue coordinator about catering logistics. Catering details include guest counts and specific names."
       }
     },
     "Evidence Room": {
       "default": "Chain of custody and the locked record of every case the building has touched. Something in here shouldn't be here, or something that should be here isn't.",
       "gender": {
-        "male": "The access log shows three sign-outs in forty-eight hours for a case closed six months ago.",
-        "female": "A specific exhibit request returns a different item number than what was logged. That discrepancy is the lead."
+        "male": "The evidence room access log records every entry and exit against a case number. Repeat access to a closed case is anomalous and leaves a trail in the log.",
+        "female": "An evidence room exhibit request generates both a record of the request and a record of what was retrieved. A mismatch between the two is its own kind of entry."
       }
     },
     "Exam Rooms": {
       "default": "Clinical space and clinical conversation. The examination is where the body tells the truth whether the patient intends it to or not.",
       "gender": {
         "male": "You check which rooms were occupied during the relevant window. Three were booked. One wasn't in the appointment system.",
-        "female": "You speak to the charge nurse about the intake from Tuesday evening. The nurse consults the chart and the expression changes."
+        "female": "The intake chart for an exam room records the presenting complaint and the assigned staff. A chart that doesn't reflect what the patient reported is a clinical documentation problem."
       }
     },
     "Executive Floors": {
@@ -2937,7 +2937,7 @@
       "default": "Applications and assessments and the intimate financial disclosure of people trying to get ahead. One of those files has a different kind of value.",
       "gender": {
         "male": "The institutional process description includes a workflow gap that isn't in the written policy.",
-        "female": "Financial aid offices respond to reviews because reviews can close the funding. The response is fuller than a standard enquiry produces."
+        "female": "Financial aid offices operate under review cycles that affect funding decisions. Institutional responsiveness to that cycle varies by how much is at stake."
       }
     },
     "Fine Dining": {
@@ -2978,7 +2978,7 @@
     "Fire Safety System": {
       "default": "Sensors and alarms calibrated to detect the specific kind of heat and smoke produced by an accident. Not the kind produced on purpose.",
       "gender": {
-        "male": "One sensor in the system log was manually disabled during the window in question.",
+        "male": "The fire safety system log records every sensor activation and every manual override. A disabled sensor leaves a specific type of entry in the record.",
         "female": "The last system test result has an exception that was never explained."
       }
     },
@@ -2986,7 +2986,7 @@
       "default": "Automated chemical response to heat signatures. If this system activated, there's a record. If it didn't when it should have, there's also a record.",
       "gender": {
         "male": "The suppression log recorded the heat event. The system saw it and didn't respond. That response was overridden.",
-        "female": "One zone was isolated from the suppression network three hours before the incident. The isolation is in the system record."
+        "female": "Fire suppression zones can be isolated independently. An isolated zone during an event is a system state that's captured in the installation's operational log."
       }
     },
     "Fireplace": {
@@ -3097,15 +3097,15 @@
     "Fuel Pumps": {
       "default": "Petroleum and transaction records. Every fill-up is logged by pump, by time, by card. Someone stopped here at the right time for the wrong reason.",
       "gender": {
-        "male": "The station pump records for the relevant window show one cash transaction out of forty. That's the anomaly.",
-        "female": "The attendant knows which pumps have their own cameras versus shared coverage. The answer maps the blind spots."
+        "male": "Pump records at a fuel station track payment method alongside volume. Cash transactions are the minority at a site with camera coverage — that ratio is part of the record.",
+        "female": "Fuel station camera coverage is not uniform across all pump positions. The layout of cameras relative to pump assignments is visible from the forecourt."
       }
     },
     "Fuel Station": {
       "default": "Fuel in exchange for identity. The card reader knows who stopped here and when, and the system keeps records longer than people expect.",
       "gender": {
         "male": "The forecourt camera timestamps show two vehicles at the same pump forty seconds apart. The proximity is not accidental.",
-        "female": "A fuel log for a specific account number is produced without a formal request. The manager cooperates more readily than procedure requires."
+        "female": "Fuel accounts at a commercial station carry a log of activity by account number. Management access to those records follows the station's own authorisation procedures."
       }
     },
     "Fueling Station": {
@@ -3125,7 +3125,7 @@
     "Funeral Services": {
       "default": "The formal management of grief and the paperwork that gives legal form to death. Someone in this building's records crossed your case.",
       "gender": {
-        "male": "The service record for a specific date includes a detail the director assumed was already known.",
+        "male": "Funeral service records for a given date include the service details, the client contact, and every administrative note attached to the arrangement.",
         "female": "You speak with the director with the measured tone that the occasion requires. The director speaks more openly in response."
       }
     },
@@ -3168,7 +3168,7 @@
       "default": "The concealment of content beneath presentation. What's being wrapped, for whom, and by whose account — all of that is recorded.",
       "gender": {
         "male": "You enquire about a specific order number under the pretext of a pickup. The counter staff checks the system.",
-        "female": "A standing gift wrapping order from a specific client is on record. The staff describe the service period and the client."
+        "female": "A standing gift wrapping order at a retail service desk generates a recurring service record. The record covers dates, quantities, and the client details attached to the arrangement."
       }
     },
     "Golf Simulator": {
@@ -3202,7 +3202,7 @@
     "Grooming Station": {
       "default": "Animal hygiene and the owners who watch the process like it matters personally. It does. That attachment is leverage.",
       "gender": {
-        "male": "The grooming appointment log for a specific client is accessible without a formal request. The entry exists.",
+        "male": "A grooming appointment log is a dated record of client visits. Regular clients build up an attendance pattern that reflects their routine.",
         "female": "You book an appointment under a pretext and use the time to observe the facility and the clients waiting."
       }
     },
@@ -3210,7 +3210,7 @@
       "default": "Collective exertion and the stripped-down honesty of people who've worked too hard to maintain their usual presentation.",
       "gender": {
         "male": "You join the class and push hard enough to be noticed. Being noticed earns a conversation after.",
-        "female": "You arrive early and introduce yourself to the instructor. Instructors know their regulars, including the one who stopped coming."
+        "female": "The group fitness studio runs on a roster of regulars. The instructor manages that roster and tracks attendance as a standard part of running the class."
       }
     },
     "Guest Apartments": {
@@ -3293,14 +3293,14 @@
     "Health Clinic": {
       "default": "Routine care and the clinical record of everything routine that turned out not to be.",
       "gender": {
-        "male": "An occupational health query produces full cooperation from the clinic manager. Occupational health access is broader than routine access.",
+        "male": "Occupational health records are maintained separately from general patient records. The access pathway for those records follows the clinic's own authorisation framework.",
         "female": "The clinic nurse describes the last incident report before confirming the access level of the person asking."
       }
     },
     "Hearing Aid Center": {
       "default": "Assistive devices and the patients who depend on them. The hearing aid centre keeps exact calibration records tied to specific users.",
       "gender": {
-        "male": "You enquire about a service appointment for a specific device model. The technician checks the serial number log.",
+        "male": "A hearing aid service log tracks every appointment by device serial number. The service history for each registered device is part of the clinic's standard client record.",
         "female": "The urgent calibration appointment from last week is documented in full. The appointment detail is provided before a second thought is applied."
       }
     },
@@ -3308,7 +3308,7 @@
       "default": "Accommodation that documents who needed it and when. The record of assistance is more specific than most people assume.",
       "gender": {
         "male": "The accommodation log for the facility during a specific event has a name on it.",
-        "female": "The hearing loop installation date and the last event it was activated for produce dates that correlate with a relevant timeline."
+        "female": "A hearing loop activation log records the date and event for every use of the system. The activation history maps the facility's event calendar with precision."
       }
     },
     "Helipad": {
@@ -3371,14 +3371,14 @@
       "default": "A service counter where brief transactions and briefer conversations add up to a complete picture of the morning.",
       "gender": {
         "male": "You order and wait. The wait at a hot food counter is never silent.",
-        "female": "You compliment the service and ask how long they've been on. The server answers and mentions who was in earlier."
+        "female": "A hot food counter operates on a shift schedule with a parallel order record. The two together document every transaction and every staff member on duty across the service day."
       }
     },
     "Human Resources": {
       "default": "Personnel records and the institutional memory of every complaint, review, and termination. The HR file on the person you're looking for is more complete than their CV.",
       "gender": {
-        "male": "An employee relations review opens the records. HR cooperates with reviews because the alternative is worse.",
-        "female": "A welfare concern framing produces a more complete response than a formal request would."
+        "male": "Human resources holds employment records, complaint logs, and review documentation. Access to those records follows the department's own authorisation hierarchy.",
+        "female": "A welfare concern is processed through a different documentation pathway than a formal request. The resulting record varies by route."
       }
     },
     "ICU": {
@@ -3420,7 +3420,7 @@
       "default": "Specialised machinery and the maintenance schedule that keeps it running. The rink has off-hours that aren't in the public calendar.",
       "gender": {
         "male": "The ice resurfacing schedule runs twice a night. The second pass covers the window when the rink is empty.",
-        "female": "The equipment room tour covers the off-hours schedule. The operator explains it without being asked."
+        "female": "The equipment room for an ice rink holds the resurfacing schedule, the maintenance log, and the off-hours access record. Each is a separate document."
       }
     },
     "Ice Skating Rink": {
@@ -3503,15 +3503,15 @@
     "Inventory System": {
       "default": "The digital ledger of everything the building has and where it is. When the inventory lies, it lies consistently, which makes the lie visible.",
       "gender": {
-        "male": "You run the variance report. Three product categories have a pattern that a random system error doesn't produce.",
-        "female": "The reconciliation process walkthrough produces the evidence in the process of explaining itself."
+        "male": "A variance report on a product inventory identifies categories where recorded stock and actual stock diverge. Repeated variance in the same category is a pattern, not an error.",
+        "female": "The reconciliation process for an inventory system documents every discrepancy it finds. The documentation is a product of the process, not an exception to it."
       }
     },
     "Isolation Ward": {
       "default": "Containment and the particular privacy of a space designed to keep things in and people out. Something in here doesn't need to be contained for medical reasons.",
       "gender": {
-        "male": "An inspection protocol produces access. The ward supervisor verifies the authorisation level and steps aside.",
-        "female": "You speak to the ward nurse with the precision of someone who knows exactly what they're looking for. The nurse responds with the same precision."
+        "male": "Isolation ward access follows a formal inspection protocol. The authorisation level required to enter the ward is checked at the entry point.",
+        "female": "The isolation ward nursing staff maintain precise records of every patient contact. The precision is a clinical requirement, not a preference."
       }
     },
     "Judge's Chambers": {
@@ -3539,14 +3539,14 @@
       "default": "Citizens waiting to perform a civic function they mostly didn't volunteer for. The jury assembly room is the most candid room in the courthouse.",
       "gender": {
         "male": "You take the rear row and let the room's anxiety work on everyone else.",
-        "female": "You join the group conversation that forms naturally while people wait. Two hours of waiting produces remarkable candour."
+        "female": "Jury assembly brings people together from across the general population for an extended period of shared waiting. The setting is informal and the waiting period is long enough to generate candid exchange."
       }
     },
     "Kennels": {
       "default": "Animals in temporary housing and the staff who manage them. The kennel log has a name attached to every animal. One of those names matters.",
       "gender": {
         "male": "The kennel intake log is consulted for a specific breed and circumstance. The entry exists.",
-        "female": "You enquire about an animal brought in under unusual circumstances. The worker remembers because unusual stays with you."
+        "female": "A kennel intake log records every animal admission with a description and circumstance. Unusual intake circumstances are noted in the same record."
       }
     },
     "Kids Area": {
@@ -3587,7 +3587,7 @@
     "Lab": {
       "default": "Scientific process and the records that document it. What was tested in this lab, and what those tests found, is what you're here for.",
       "gender": {
-        "male": "A quality assurance review produces access. Labs cooperate with QA because QA can shut them down.",
+        "male": "Laboratory access is controlled by a quality assurance framework that runs alongside the research protocols. QA access follows a separate authorisation path from general visitor access.",
         "female": "You speak directly to the lead researcher. Researchers respond to specific, well-framed questions. You have one."
       }
     },
@@ -3601,15 +3601,15 @@
     "Lab Services": {
       "default": "The administrative interface between the lab and the outside world. Sample requests, result reporting, the paperwork that surrounds clinical science.",
       "gender": {
-        "male": "A sample query with sufficient technical detail produces a request history pull. The coordinator responds to precision.",
+        "male": "A lab services request history is logged by sample type and turnaround time. The coordinator maintains a record of every active and completed request in the system.",
         "female": "The capacity for tracking specific sample origins is explained in more detail than the original question required."
       }
     },
     "Laboratory": {
       "default": "Controlled environment and the formal documentation of what happened in it. Every procedure in a laboratory leaves a record. You're reading the record.",
       "gender": {
-        "male": "The lab entrance log shows the last three entries in a different handwriting. The regular researcher hasn't been in.",
-        "female": "You speak to the research technician and ask about the most recent anomalous result. The tech explains it and hands you the supporting data without being asked."
+        "male": "The lab entrance log tracks researcher access across every session. The handwriting pattern in a physical log reflects the regular users of the space.",
+        "female": "The laboratory's anomalous result log sits alongside the standard research documentation. Results that deviate from expected ranges are recorded with supporting data."
       }
     },
     "Landscaping": {
@@ -3629,7 +3629,7 @@
     "Laundry": {
       "default": "Industrial washing and the methodical removal of what things were carrying. What was washed here recently mattered enough to clean quickly.",
       "gender": {
-        "male": "The laundry log shows rush items processed outside normal hours. The record is specific about time and load type.",
+        "male": "The laundry log at a commercial facility records every load by time, temperature, and type. Loads processed outside scheduled hours are a distinct category in the record.",
         "female": "The laundry supervisor's account of non-standard processing in the last week covers one item that stood out."
       }
     },
@@ -3651,7 +3651,7 @@
       "default": "Sports administration and the institutional memory of every game, every player, and every transaction that kept the season running.",
       "gender": {
         "male": "Sports administration is perpetually nervous about compliance. A compliance presentation opens the administrative floor.",
-        "female": "A scheduling meeting gives access to the administrative floor. The meeting is the pretext. The floor is the point."
+        "female": "The league office administrative floor holds scheduling, compliance, and governance records. Access to that floor follows the office's own internal clearance structure."
       }
     },
     "Lecture Halls": {
@@ -3711,10 +3711,10 @@
       }
     },
     "Loading Dock": {
-      "default": "Pallets and movement and the chain of custody that begins at the dock. Where did the dock log show a shipment going that never arrived?",
+      "default": "Pallets and movement and the chain of custody that begins the moment something enters the building. The dock log is where that chain starts.",
       "gender": {
         "male": "The dock log for the day in question shows one inbound without a corresponding outbound disposition.",
-        "female": "You approach the dock supervisor with a discrepancy you identified. The supervisor explains it and in explaining creates a new problem."
+        "female": "A dock supervisor's account of a cargo discrepancy is the first line of the documentary record. What the supervisor says and what the paperwork shows are two separate things."
       }
     },
     "Loading Docks": {
@@ -3727,8 +3727,8 @@
     "Loan Office": {
       "default": "Credit and the paper trail of who borrowed what under what terms and what they did with it.",
       "gender": {
-        "male": "You enquire about a specific account under an authorisation that technically covers it. The officer checks and confirms the credit history.",
-        "female": "You sit down with the loan officer and present a query about a specific lending pattern. The officer describes it before asking why you want to know."
+        "male": "A loan office account record includes the full credit history and authorisation chain for every transaction. Access to that record follows the institution's compliance framework.",
+        "female": "A lending pattern query at a loan office covers the institutional record and the surrounding documentation. The two are often more informative together than either is separately."
       }
     },
     "Lobby": {
@@ -3741,7 +3741,7 @@
     "Local History Archive": {
       "default": "The neighbourhood's paper memory going back further than anyone living remembers. The answer to what happened here before it was what it is now.",
       "gender": {
-        "male": "The files from a specific decade are located without hesitation. The archivist knows exactly which box holds them.",
+        "male": "A local history archive is organised by decade and collection. The archivist knows the physical layout of the holdings and can locate a specific box without searching.",
         "female": "A connection between two addresses across a thirty-year gap exists in the records. The archive is where it's been sitting."
       }
     },
@@ -3749,7 +3749,7 @@
       "default": "The space between performance and identity. The locker room is where people say what they actually mean after they've stopped performing.",
       "gender": {
         "male": "You enter during the quiet period between sessions. The room tells you things when it doesn't know anyone's listening.",
-        "female": "You speak with the attendant about the facility's security procedures. The attendant describes a recent breach that wasn't in the report."
+        "female": "The facility attendant's record of security procedures includes both the official log and the informal knowledge built up over time on the job."
       }
     },
     "Locker Rooms": {
@@ -3762,15 +3762,15 @@
     "Lost and Found": {
       "default": "Everything people didn't care enough to come back for. Or couldn't. The lost and found is an inventory of people's last known movements.",
       "gender": {
-        "male": "A description of an item without an explanation of why it matters produces a thorough search. Every box gets checked.",
+        "male": "A lost and found holds items by category and date of deposit. A thorough search of the holdings is conducted by the attendant on request.",
         "female": "A specific description of a recently turned-in item type is recognisable enough that the attendant makes the match immediately."
       }
     },
     "Lottery Terminal": {
       "default": "Small stakes and the paper evidence of hope. The lottery terminal log places specific people in specific locations at specific times.",
       "gender": {
-        "male": "The cashier recalls one customer who was at the terminal for an unusual length of time during a specific date.",
-        "female": "You purchase a ticket and ask about the terminal's busiest hours. The cashier tells you and mentions the regular who was there the night of the incident."
+        "male": "The terminal cashier's memory for unusual behaviour at the machine is reliable in direct proportion to how unusual it was. Anomalous usage stands out.",
+        "female": "The terminal cashier tracks busy hours and regular users as part of the standard routine. A break in a regular's pattern is noticed because the pattern was noticed first."
       }
     },
     "Lounge Area": {
@@ -3788,10 +3788,10 @@
       }
     },
     "Luggage Storage": {
-      "default": "Bags checked and tagged. The luggage storage log places people in the building at the time they left their bags. One person left their bags and never came back.",
+      "default": "Bags checked and tagged against a time of deposit. The luggage storage system records both the deposit and the collection. Items that are deposited but not collected remain in the system.",
       "gender": {
         "male": "An uncollected bag with a check-in date tells you how long it's been sitting and why it was never picked up.",
-        "female": "A claim ticket check against the storage system produces a result whether the bag is there or not."
+        "female": "A claim ticket check at a luggage storage desk returns a record of whether the item was deposited and whether it was collected. Both answers are in the system."
       }
     },
     "Detailing Bay": {
@@ -3816,7 +3816,7 @@
       }
     },
     "Diagnostic Station": {
-      "default": "A terminal of blinking readouts and cable bundles. Whatever runs through here, someone's watching every number it produces.",
+      "default": "A terminal of blinking readouts and cable bundles. Every number it generates is logged against a timestamp and a device identifier.",
       "gender": {
         "male": "You scan the readouts. Data doesn't lie — people just misread it on purpose. You won't.",
         "female": "The screens show vitals, error codes, system states. You read diagnostics like other people read faces — same skill, different subject."
@@ -4036,7 +4036,7 @@
       "default": "Upscale conference rooms with catering and privacy glass. The premium option for conversations people really don't want overheard.",
       "gender": {
         "male": "The meeting suites are designed for discretion. You've learned that premium privacy usually means premium secrets.",
-        "female": "The booking log for the meeting suites shows one reserved under conditions designed to avoid a record. The conditions failed."
+        "female": "Meeting suite bookings are logged as a matter of operational record. A booking made under conditions that suppress the standard record leaves a gap between what was used and what was logged."
       }
     },
     "Memorial Garden": {
@@ -4168,7 +4168,7 @@
     "Music Room": {
       "default": "Instrument cases and acoustic tiles. Someone pours their soul out in here on a daily basis. You envy them the outlet.",
       "gender": {
-        "male": "The music room is empty but it still hums with absence. Whoever plays in here hasn't been back in a few days.",
+        "male": "The music room absorbs use over time — scored pages, tuning adjustments, the residue of practice sessions in the acoustic quality of the space.",
         "female": "You step into the music room. The instruments are well kept. The person who plays them cares about something. That's useful."
       }
     },
@@ -4259,7 +4259,7 @@
     "Office Block": {
       "default": "A grid of offices arranged for maximum productivity and minimum personality. The city's white-collar machinery at full hum.",
       "gender": {
-        "male": "The office block stretches down the hall. Closed doors, muffled calls. Somewhere in here is the answer you need.",
+        "male": "An office block is a structure of closed doors and parallel activities. The floor is dense with information — conversations, schedules, and the quiet movement of people who know exactly where they're going.",
         "female": "You move through the office block methodically. Every closed door is a question. You intend to ask them all."
       }
     },
@@ -4348,7 +4348,7 @@
       }
     },
     "Package Lockers": {
-      "default": "Electronic storage units for unattended deliveries. Convenient, contactless, and entirely traceable if you know where to pull the logs.",
+      "default": "Electronic storage units for unattended deliveries. Each transaction is logged with a unit identifier, a timestamp, and a device record for the party that opened the locker.",
       "gender": {
         "male": "Package lockers. You've pulled delivery records from these before. What gets sent and received writes a person's story.",
         "female": "The package locker bank logs every transaction with a unit number and a timestamp."
@@ -4418,7 +4418,7 @@
       }
     },
     "Parking Sensors": {
-      "default": "Electronic eyes that track occupancy and time. They see everything. The question is whether anyone's looking at the data.",
+      "default": "Electronic sensors tracking occupancy and dwell time across every bay in the facility. The data accumulates in real time and is part of the facility's operational record.",
       "gender": {
         "male": "Parking sensors — passive surveillance infrastructure. You know how to pull the logs when nobody else thought to ask.",
         "female": "You note the sensor placement. They've been recording every arrival and departure. That data is going to help you."
@@ -4477,7 +4477,7 @@
       "default": "Documents that grant passage. In this office, identity is a service rendered. That makes it a liability if it's done wrong.",
       "gender": {
         "male": "Passport services. You've sent people through here you knew were lying. Sometimes the paperwork is easier than the truth.",
-        "female": "Passport services credentials produce a different kind of attention from the clerk. The attention is useful."
+        "female": "Passport services require verified credentials for every transaction. The desk processes identity documentation daily and applies the same scrutiny regardless of who presents."
       }
     },
     "Pastor's Office": {
@@ -4523,7 +4523,7 @@
       }
     },
     "Payment Kiosk": {
-      "default": "Self-service transactions logged to a timestamp. Anonymous in intention, traceable in practice.",
+      "default": "Self-service payment terminals handle anonymous transactions by design. Each transaction generates a machine-side record regardless of the payment method used.",
       "gender": {
         "male": "The payment kiosk logs every transaction with a time, a method, and an amount. The log is accessible.",
         "female": "The payment kiosk terminal keeps a record regardless of method. Cash and card both leave a trace."
@@ -4539,7 +4539,7 @@
     "Payment Terminal": {
       "default": "A device where money changes hands and records get made. The simplest point in a transaction is often the most revealing.",
       "gender": {
-        "male": "The payment terminal records the last fifty transactions before it. The timestamp on one of them is the last point of contact.",
+        "male": "The payment terminal is the final transaction point before someone leaves a commercial space. The device log captures every exchange in the sequence leading up to departure.",
         "female": "You look at the payment terminal screen. The last transaction was flagged by two different systems. That's your next thread to pull."
       }
     },
@@ -4560,7 +4560,7 @@
     "Permit Center": {
       "default": "Where the city's intentions go through official channels — or try to. The permit center is a map of everything people want to build, change, or hide.",
       "gender": {
-        "male": "The permit history on a specific property shows three amendments in eighteen months. Someone kept changing what they said they were building.",
+        "male": "A property permit history records every application, amendment, and approval for a given address. Multiple amendments over a short period indicate a project that kept changing scope.",
         "female": "The permit center has records going back decades. You find the application you're looking for. The signatory name is one you recognize."
       }
     },
@@ -4652,7 +4652,7 @@
       "default": "Where the city's future gets drawn in pencil and fought over in ink. Every variance filed here has a story behind it.",
       "gender": {
         "male": "The planning department is stacked with blueprints and municipal ambition. Somebody has been pushing a project through this office. You want the file.",
-        "female": "The planning desk has been waiting for someone to start asking questions. The department head cooperates with visible relief."
+        "female": "The planning department holds zoning records, amendment histories, and correspondence for every application in its jurisdiction. The department head has oversight of all active and archived files."
       }
     },
     "Platforms": {
@@ -4666,7 +4666,7 @@
       "default": "A contained space for children, full of small objects and large energy. The parents on the benches see everything.",
       "gender": {
         "male": "You scan the play area from the entrance. Nobody matching the description. The parent at the far bench has been watching you since you walked in.",
-        "female": "You move through the play area carefully. Whoever you're looking for brought a child here recently. The attendant remembers the visit."
+        "female": "A supervised play area maintains an attendance record and a staff log. The attendant on duty is responsible for both."
       }
     },
     "Playground": {
@@ -4736,7 +4736,7 @@
       "default": "A pharmacist's workstation where controlled schedules are managed and patient trust is maintained. Until it isn't.",
       "gender": {
         "male": "The pharmacist's cooperation extends to every question except the controlled log. The hesitation around that one is deliberate.",
-        "female": "The prescription counter protocol covers every question up to the one about the exception. The hesitation at that point is the lead."
+        "female": "The prescription counter protocol includes a controlled substances log maintained alongside the standard dispensing record. Each has its own documentation standard."
       }
     },
     "Presidential Suite": {
@@ -4792,7 +4792,7 @@
       "default": "A dining room that isn't on the public menu. Deals made over private meals are the city's most enduring traditions.",
       "gender": {
         "male": "The private dining room has been cleaned since last night's reservation. Cleaned very thoroughly. You note what's been removed.",
-        "female": "The private dining reservation log shows a booking with no name, paid in advance. The server's memory covers what the log doesn't."
+        "female": "The private dining reservation log maintains a record of every booking, including the payment method and the contact details provided at the time of reservation."
       }
     },
     "Private Dining Room": {
@@ -4847,7 +4847,7 @@
     "Probation Office": {
       "default": "A room of check-ins and conditions. The probation office sits at the edge of freedom and failure. You know both margins well.",
       "gender": {
-        "male": "The probation office has files on everyone who walked through its door. You're here about someone who stopped walking through it.",
+        "male": "The probation office holds compliance records and attendance histories for everyone assigned to report there. Regular check-ins generate a timestamped attendance record.",
         "female": "You check in with the probation supervisor. She has an eye for trouble and a memory for absences. You share what you know and listen harder."
       }
     },
@@ -4876,7 +4876,7 @@
       "default": "Caged cylinders of compressed fuel waiting to be traded. The propane exchange is managed by volume and records. Discrepancies in either are your business.",
       "gender": {
         "male": "You count the propane cages. The inventory log says twelve. You see nine. That's a conversation starter.",
-        "female": "The propane exchange log shows a transaction at 3 AM that wasn't authorized by any staff member on the overnight shift."
+        "female": "The propane exchange log records every transaction by time, quantity, and the credential used to authorise it. Overnight activity is captured in the same log as daytime activity."
       }
     },
     "Public Defender": {
@@ -4918,7 +4918,7 @@
       "default": "A lot large enough for the mobile life. RV parking draws people who want to stay close without staying put. That kind of flexibility interests you.",
       "gender": {
         "male": "You walk the RV lot. Three rigs that haven't moved in a week. The plates on one of them don't match its registration.",
-        "female": "An RV parking permit issued under an expired license is on record. The name on the application is traceable."
+        "female": "An RV parking permit is issued against a vehicle registration and an owner identity. The application record is held by the issuing authority for the permit period."
       }
     },
     "Rabbi's Office": {
@@ -4980,7 +4980,7 @@
     "Records Office": {
       "default": "The institutional memory of any organization. The records office is where the history lives — and where people go when they want to rewrite it.",
       "gender": {
-        "male": "A warrant at the records office produces files with the speed of someone who has been expecting the request.",
+        "male": "A records office processes formal document requests under a defined clearance framework. The speed of fulfilment reflects the level of preparation the office applies to expected requests.",
         "female": "The records office is orderly and purposeful. You know exactly which file you need. You also know three have been removed recently."
       }
     },
@@ -5065,14 +5065,14 @@
       "default": "A workout room that serves the building's population. Who uses it, when, and how regularly tells you more than the front desk ever will.",
       "gender": {
         "male": "The sign-in log for the residents gym runs daily. The gap in one member's pattern started six days ago.",
-        "female": "The gym usage log shows three sessions a week for eight months from one member. The gap started four days ago. That kind of pattern doesn't break without a reason."
+        "female": "The gym usage log captures every session by member and time. A consistent usage pattern is one of the most reliable indicators of a member's schedule and routine."
       }
     },
     "Residents Only Elevator": {
       "default": "Access-controlled vertical transit. Only the building's residents can call this elevator. You check which key card last summoned it.",
       "gender": {
         "male": "The residents-only elevator requires a building key. You have a warrant. The building manager is slow to accept that.",
-        "female": "The elevator access log shows three trips on the night in question. The last trip went down and has no return."
+        "female": "The residents-only elevator maintains a floor-by-floor access log keyed to the credential used. Every trip is recorded with a time, a floor, and the authorising entry."
       }
     },
     "Restaurant": {
@@ -5107,7 +5107,7 @@
       "default": "Small, mobile retail points positioned for maximum foot traffic. Easy to set up. Easy to walk away from.",
       "gender": {
         "male": "The retail kiosks rotate vendors. Whoever was operating the one near the east entrance last week isn't here anymore. You find the permit.",
-        "female": "One kiosk permit was registered under a name that doesn't match a valid ID. The payment method is traceable."
+        "female": "A kiosk permit is issued against a registered identity and a payment method. The permit record and the payment record are both maintained by the issuing authority."
       }
     },
     "Retail Section": {
@@ -5162,7 +5162,7 @@
     "Rolling Carts": {
       "default": "Utility carts that move things across floors and between departments. What they carry is supposed to be logged. Supposed to be.",
       "gender": {
-        "male": "A cart near the service exit with contents that don't match the transfer slip is a material discrepancy. The documentation trail starts here.",
+        "male": "A transfer cart near a service exit carries both the contents and the transfer documentation. A mismatch between the two is a discrepancy in the chain of custody.",
         "female": "The rolling cart was logged out from storage and never returned. The attendant who signed it out is no longer on staff."
       }
     },
@@ -5197,7 +5197,7 @@
     "Rooftop Pool": {
       "default": "Water above the city line. The rooftop pool is private and exposed in equal measure. What happens up here happens under open sky.",
       "gender": {
-        "male": "The rooftop pool is drained. The drainage log and the last known presence at this location are both on record.",
+        "male": "The rooftop pool is a seasonal facility with its own operational schedule. The drainage and maintenance log documents every change in the pool's physical state.",
         "female": "You stand at the edge of the rooftop pool. The water is still and cold. The story of what happened here isn't."
       }
     },
@@ -5212,13 +5212,13 @@
       "default": "Meals delivered to where you're staying, no questions asked. Room service workers see every floor at every hour. They're better witnesses than they know.",
       "gender": {
         "male": "You track down the room service order from suite 1402. Delivery at 11 PM. The server is still on shift.",
-        "female": "You speak to the room service supervisor. She pulls the delivery log for the night in question without being asked. Efficient."
+        "female": "The room service delivery log records every order by room, time, and item. A complete log for a given night is a movement record for the floor."
       }
     },
     "Safe Deposit Boxes": {
       "default": "Two-key access to the city's private confessions, stored in steel drawers. What's inside is known only to the holder — until it becomes evidence.",
       "gender": {
-        "male": "A court order for a specific safe deposit box produces a bank manager who reads it carefully and says nothing when done.",
+        "male": "A court order for a safe deposit box initiates a formal access record. The bank manager reviews the order in full before the access process begins.",
         "female": "Safe deposit access requires a warrant and a witness. You have both. The box has been untouched for three months."
       }
     },
@@ -5233,14 +5233,14 @@
       "default": "A room of heat and reduced inhibition. Conversations in the sauna tend toward honesty. You note who uses this facility and when.",
       "gender": {
         "male": "The sauna is empty but was used recently. The temperature log and the towel on the bench tell you when.",
-        "female": "The sauna access log shows two entries in one evening under guest passes. The names behind those passes are traceable."
+        "female": "The sauna access system logs every entry by credential type. Guest pass usage is a distinct category in the access record, separate from resident and membership access."
       }
     },
     "Scale Station": {
       "default": "Industrial weighing equipment for precise measurement. What gets weighed here gets logged. The log says everything moved was authorized. You find the entry that wasn't.",
       "gender": {
         "male": "The scale station records every load to the gram. The overnight run had an unlogged weight event. You flag it.",
-        "female": "The scale station printout shows a pallet that moved without a corresponding order number. The record starts a backward trace."
+        "female": "The scale station printout is a weight record keyed to a pallet identifier. A pallet that moved without a corresponding order number is an exception in the weight record."
       }
     },
     "Science Building": {
@@ -5288,7 +5288,7 @@
     "Security Camera": {
       "default": "A single eye mounted at an angle that shows more than it's supposed to. The security camera is the city's most honest narrator.",
       "gender": {
-        "male": "The footage from a specific date has been requested by three different parties. The request log shows who and when.",
+        "male": "Camera footage for a given date generates a request log whenever it is accessed. Multiple requests for the same footage create a record of who reviewed it and when.",
         "female": "The camera position and the calculated field of view establish exactly what was captured. The footage is consistent with the record."
       }
     },
@@ -5302,7 +5302,7 @@
     "Security Checkpoint": {
       "default": "A controlled access point where everyone is scanned and logged. The checkpoint knows who came in. You want to know who didn't come out.",
       "gender": {
-        "male": "You move through the security checkpoint with your credentials. The officer checks twice. You appreciate the thoroughness.",
+        "male": "The security checkpoint credential log records every pass through the point. A double-check of credentials by the officer on duty generates a secondary entry in that record.",
         "female": "The security checkpoint log shows an entry without a corresponding exit. The interior camera coverage is the next question."
       }
     },
@@ -5330,7 +5330,7 @@
     "Security Patrol": {
       "default": "Mobile oversight of a defined territory. The patrol officer walks the same route at the same time unless something makes them deviate. Find the deviation.",
       "gender": {
-        "male": "The patrol log shows one officer whose route deviated at a specific time. The officer and the deviation are both findable.",
+        "male": "The patrol log records every route deviation with a time and officer identifier. Route variations outside the standard pattern are a distinct category of entry in the patrol record.",
         "female": "The patrol officer's route is documented to the minute. You find the minute where it changed and trace it forward."
       }
     },
@@ -5344,7 +5344,7 @@
     "Self-Checkout": {
       "default": "Automated checkout lanes that eliminate the human witness — or so people assume. Every swipe is still logged.",
       "gender": {
-        "male": "The lane with the malfunctioning camera still has a card transaction record. The transaction is in the system.",
+        "male": "A malfunctioning camera above a self-checkout lane doesn't affect the card transaction record. The card log and the camera record are independent systems.",
         "female": "The self-checkout terminal log carries cash and card transactions differently. Card transactions leave enough."
       }
     },
@@ -5450,7 +5450,7 @@
       "default": "A managed transport loop connecting this location to somewhere else. The shuttle knows exactly who boarded and when.",
       "gender": {
         "male": "You speak to the shuttle driver. They run the same route twelve hours a day and remember faces. Yours included, now.",
-        "female": "The shuttle service log is digital and timestamped. The boarding record for a specific run is the last traceable point of contact."
+        "female": "The shuttle service log is a digital record of every boarding event. Each run generates a timestamped manifest of passengers and their boarding points."
       }
     },
     "Signage Pylon": {
@@ -5506,7 +5506,7 @@
       "default": "Speakers and amplifiers built to fill a space with managed audio. The sound system also picks up what it isn't supposed to when the wrong settings are active.",
       "gender": {
         "male": "The AV tech's answer to a question about the recording buffer takes a long moment to arrive.",
-        "female": "The sound system was active during the relevant event. The ambient capture settings are on record. The technician checks with their supervisor before confirming them."
+        "female": "A venue sound system with ambient capture capability maintains a settings log. Active capture parameters are stored as part of the event record."
       }
     },
     "Spa": {
@@ -5533,8 +5533,8 @@
     "Spin Room": {
       "default": "A cycling studio of synchronized effort and loud music. The spin room is an alibi that can be verified by thirty witnesses at once.",
       "gender": {
-        "male": "The spin class roster shows a booking that went unoccupied. The bike was never taken.",
-        "female": "The spin room instructor's memory for her regulars is specific. An absence from a standing booking is recalled without hesitation."
+        "male": "The spin studio runs on a booking system that tracks every reserved slot. Each session has a registered occupant and a corresponding attendance record.",
+        "female": "The spin studio instructor tracks attendance against bookings as a standard class management practice. A booked spot that goes unoccupied for a session is noted in the attendance record."
       }
     },
     "Sports Bar": {
@@ -5573,10 +5573,10 @@
       }
     },
     "Stamp Vending": {
-      "default": "Automated postage dispensers. In a digital city, stamps are used by people who need physical, traceable correspondence. Or who trust paper more than servers.",
+      "default": "Automated postage dispensers for physical correspondence. In an era of digital communication, a stamp purchase is a deliberate act with a paper record on both ends.",
       "gender": {
         "male": "The stamp vending machine's last activity was at an unusual hour. The transaction record is retrievable.",
-        "female": "The stamp machine's last activity timestamp covers a mailing made outside normal hours. The postmark is traceable."
+        "female": "The stamp machine records every transaction with a time and a denomination. Physical correspondence begins with the stamp purchase and ends with a dated postmark."
       }
     },
     "Sterilization Room": {
@@ -5617,12 +5617,12 @@
     "Storage Units": {
       "default": "Individual locked compartments rented by the city's people to hold what they can't keep at home. What's stored here is personal, guarded, and occasionally incriminating.",
       "gender": {
-        "male": "A court order at the storage facility desk produces an access record for a unit belonging to someone who stopped paying two weeks ago.",
+        "male": "A court order for a storage unit generates an access record at the facility desk. The unit's rental history and payment record are retrieved as part of the formal access process.",
         "female": "The storage unit door rolls up slowly. Whatever is inside was placed here with care. You document everything before you touch anything."
       }
     },
     "Storm Drains": {
-      "default": "Infrastructure that handles what the city produces when it rains. Storm drains move water and occasionally carry other things the city wants to forget.",
+      "default": "Storm drain infrastructure moves water volume across the site and into the city's drainage network. The intake points and flow capacity are documented in the building's environmental compliance record.",
       "gender": {
         "male": "You crouch at the storm drain grate. Something was pushed through here. You pull it before the next rain washes it further.",
         "female": "The storm drain access hatch shows recent disturbance. You call for an environmental forensics team before proceeding."
@@ -5646,7 +5646,7 @@
       "default": "Bookable quiet spaces for focused work. The study room reservation system is a detailed record of who was where and when.",
       "gender": {
         "male": "The study room booking log shows a reservation held for three hours with a departure forty-five minutes in.",
-        "female": "A student ID that hadn't been used in a semester was used to make a study room reservation. The record is in the system."
+        "female": "A study room booking system logs credentials against reservations. An inactive credential used to make a reservation creates an anomaly in the booking record."
       }
     },
     "Styling Stations": {
@@ -5673,7 +5673,7 @@
     "Surgery Center": {
       "default": "A facility where precision is mandatory and every event is documented. The surgery center holds records of what was done — and occasionally what was undone.",
       "gender": {
-        "male": "You speak to the surgery center director. The procedure in question is documented. So is the anomaly you're here to investigate.",
+        "male": "The surgery centre documentation covers every scheduled procedure and every anomaly in the standard process. Both are maintained as part of the same compliance record.",
         "female": "The surgery center's record management is meticulous. You find the inconsistency in the pre-op documentation and ask who approved it."
       }
     },
@@ -5701,7 +5701,7 @@
     "Take-Out Counter": {
       "default": "A service point for orders placed and picked up without ceremony. The take-out counter sees the city in transit.",
       "gender": {
-        "male": "You lean on the take-out counter. The cashier remembers the order and the face. They always do when something feels wrong.",
+        "male": "The take-out counter's camera covers the point of transaction and the approach from the street. The cashier log and the footage are both retained for the operational period.",
         "female": "The take-out counter ticket roll logs every order. You find the one placed at 10:52 PM and ask about the customer."
       }
     },
@@ -5751,7 +5751,7 @@
       "default": "Marked lines and a net between two points of view. The tennis court is where the city's privileged argue about rules in a game they set up themselves.",
       "gender": {
         "male": "The tennis court booking system shows a sign-in without a sign-out. The gap is on record.",
-        "female": "A match scheduled and abandoned mid-set produced a formal complaint from the other player. The complaint is findable."
+        "female": "A tennis court booking that ends before the scheduled time is recorded as an early termination. The facility's complaint log covers any session that concluded abnormally."
       }
     },
     "Terrace Gardens": {
@@ -5820,7 +5820,7 @@
     "Tool Storage": {
       "default": "A secured area holding equipment used in the building's maintenance or production. What's missing from tool storage is sometimes more important than what's there.",
       "gender": {
-        "male": "The tool storage master inventory has a three-month reconciliation gap. The current count against the last recorded count produces a discrepancy.",
+        "male": "The tool storage master inventory is reconciled on a fixed schedule. A gap between the reconciliation cycles leaves a window where the actual count and the recorded count diverge.",
         "female": "The tool storage shelves show a recently reorganised section. The dust pattern confirms the disturbance was recent."
       }
     },
@@ -5856,7 +5856,7 @@
       "default": "A room reserved for developing skill under observation. The training room is where people are watched closely. Not all of them know by whom.",
       "gender": {
         "male": "The training room was accessed after hours by a user credential that expired last quarter. You find out how it was still active.",
-        "female": "The training room setup shows a recent session that ran off-schedule and without a log entry. The instructor is findable."
+        "female": "The training room booking and session log cover scheduled and unscheduled use independently. A session that doesn't appear in the booking system is still visible in the room's access record."
       }
     },
     "Transit Hub": {
@@ -5870,7 +5870,7 @@
       "default": "A managed transit operation running on schedule and obligation. The transportation service records every trip, every driver, every destination.",
       "gender": {
         "male": "The transportation service manifest shows a documented pickup request and a documented destination. The destination is a next step.",
-        "female": "The digital dispatch logs for a specific period are produced without hesitation. The records are complete."
+        "female": "Digital dispatch logs for a transportation service are timestamped records of every completed and requested trip. The records are maintained for the standard operational retention period."
       }
     },
     "Trash Chute": {
@@ -5883,7 +5883,7 @@
     "Trash Enclosure": {
       "default": "A fenced or walled area containing the building's refuse containers. The trash enclosure is where things go when people think no one is watching.",
       "gender": {
-        "male": "The trash enclosure padlock was replaced recently. The lock replacement is traceable to a specific date and reason.",
+        "male": "The trash enclosure padlock and the replacement record are both maintained by the property management office. Lock changes are documented with a date and a reason code.",
         "female": "The trash enclosure is the last stop before disposal. What's in there is evidence of what was in the building."
       }
     },
@@ -5912,7 +5912,7 @@
       "default": "Oversized loading and unloading stations for heavy freight. The truck bays handle what the rest of the building can't. That includes things that don't appear on any manifest.",
       "gender": {
         "male": "You walk the truck bays during the shift change. The driver from the last overnight run is still in the yard. You find them before they leave.",
-        "female": "The truck bay access log shows a rig that wasn't on the delivery schedule pulling in at 1 AM. The origin is traceable."
+        "female": "The truck bay access log records every vehicle entry by time and dock assignment. Activity outside the scheduled delivery window is logged with the same detail as authorised activity."
       }
     },
     "UPS Room": {
@@ -5940,7 +5940,7 @@
       "default": "A property of history, repaint, and previous ownership. The used car lot trades in second chances — not all of them legitimate.",
       "gender": {
         "male": "You walk the used car lot with your VIN scanner. One of these vehicles has a title history that doesn't hold together.",
-        "female": "The lot manager pulls the sales records when you ask. Three vehicles moved in the last month with documentation gaps. You start there."
+        "female": "A used car lot's sales record tracks every vehicle by date of sale and documentation status. Vehicles that moved with incomplete documentation are a distinct category in the lot's own records."
       }
     },
     "VIP Entrance": {
@@ -5954,7 +5954,7 @@
       "default": "Expedited access routes for those who paid for priority. VIP lanes create a two-tier system with two different sets of witnesses.",
       "gender": {
         "male": "The VIP lane attendant's memory for recent sessions is specific. The face from the session in question is described with confidence.",
-        "female": "The VIP lane access log shows a credential used by someone other than its registered holder. The credential trail is followable."
+        "female": "The VIP lane access system logs every credential use against the registered holder. The system records both the event and the credential presented."
       }
     },
     "VIP Lounge": {
@@ -5975,7 +5975,7 @@
       "default": "Premium positions at any event, with better access and higher visibility. Whoever sat in VIP seating last night saw everything. You find them.",
       "gender": {
         "male": "The VIP seating assignments show a seat adjacent to a point of interest registered under an alias. The name is runnable.",
-        "female": "The VIP section ticket scanner creates an entry log. The scan-in time is on record. The scan-out is the question."
+        "female": "The VIP section uses a ticket scanner that generates an entry log for the event period. The scanner records the admission event but not the departure."
       }
     },
     "Vaccine Station": {
@@ -5996,7 +5996,7 @@
       "default": "Keys handed over and vehicles moved on trust. The valet service touches every car that passes through. They also see who drives them and who they're driving away from.",
       "gender": {
         "male": "The valet operation logs every vehicle with entry and exit times. A four-hour stay is recorded and timestamped.",
-        "female": "The valet log records every handoff. You find the entry for Tuesday night and the note the valet made in the margin. That note is your lead."
+        "female": "The valet log records every vehicle handoff with a timestamp and a note field. Observations made by the valet on duty are retained as part of the handoff record."
       }
     },
     "Valet Service": {
@@ -6094,7 +6094,7 @@
       "default": "Sub-zero storage where temperature is identity. The walk-in freezer is the coldest point in the operation — in every sense.",
       "gender": {
         "male": "You pull open the walk-in freezer door. Whatever you expected to find in here, you found something else.",
-        "female": "The walk-in freezer access log shows a late entry with no corresponding food service activity. The credential used is traceable."
+        "female": "The walk-in freezer access log records every entry by time and authorising credential. Late entries outside standard food service hours are captured in the same record as routine access."
       }
     },
     "Wash Bay": {
@@ -6114,8 +6114,8 @@
     "Weight Room": {
       "default": "Iron and rubber and the effort of physical transformation. The weight room is where the body's limits get tested. You note who stopped showing up.",
       "gender": {
-        "male": "The weight room log shows a recent personal record entry. The rack is still set up from that session. No return since.",
-        "female": "The weight room attendance system shows eight months of daily entries followed by a four-day gap. That kind of pattern doesn't break without a reason."
+        "male": "The weight room log captures personal records, equipment settings, and session history. Rack configuration left between sessions reflects the last user's session details.",
+        "female": "The weight room attendance system captures every session by member and time. A consistent usage log reflects the member's training schedule and physical routine."
       }
     },
     "Welding Shop": {
@@ -6144,14 +6144,14 @@
         "default": "Wireless network access serving the building's population. The WiFi router logs every device that connects. In the right hands, that's a complete attendance record.",
         "gender": {
           "male": "The WiFi router logs every device that connects, with timestamps and MAC addresses. Device records are better than visitor logs.",
-          "female": "The network admin pulls the connection history from a specific overnight window without being asked twice. The device that was active in the early hours is registered to someone you've been looking for."
+          "female": "The router's connection history for a specific window is part of the network administrator's standard access log. Device MAC addresses are retained for the operational period."
         }
       },
       {
         "default": "Wireless access point covering the space. Every connection is a timestamp, and timestamps are evidence.",
         "gender": {
           "male": "The IT manager's access log printout is complete. The print is produced before the content is reviewed.",
-          "female": "One device connection authenticated from outside the building's footprint. The anomaly is in the record."
+          "female": "A device connection authenticated from outside a building's physical footprint is a network anomaly. The anomaly is recorded in the connection log."
         }
       }
     ],
@@ -6200,7 +6200,7 @@
     "X-Ray Equipment": {
       "default": "Clinical imaging hardware for diagnostic assessment. Every activation is logged with a timestamp and an authorising name. The log is a precise record of who needed what and when.",
       "gender": {
-        "male": "The activation log shows four unscheduled uses in the past week. The physical access record for each window narrows the field considerably.",
+        "male": "The X-ray activation log records every use with a timestamp and an authorising credential. Unscheduled activations appear as distinct entries in the log.",
         "female": "The X-ray equipment usage records are available through the compliance officer. The records are produced and the results are examined."
       }
     },
