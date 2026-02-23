@@ -5593,6 +5593,146 @@
         "male": "The storage room inventory doesn't match the purchase orders from last month. You start with the discrepancy and work outward.",
         "female": "You move through the storage room systematically. The disorganization is cultivated \u2014 designed to make things hard to find. You find them anyway."
       }
+    },
+    "Storage Units": {
+      "default": "Individual locked compartments rented by the city's people to hold what they can't keep at home. What's stored here is personal, guarded, and occasionally incriminating.",
+      "gender": {
+        "male": "You present the court order at the storage facility desk. Unit 47 belongs to someone who stopped paying rent two weeks ago.",
+        "female": "The storage unit door rolls up slowly. Whatever is inside was placed here with care. You document everything before you touch anything."
+      }
+    },
+    "Storm Drains": {
+      "default": "Infrastructure that handles what the city produces when it rains. Storm drains move water and occasionally carry other things the city wants to forget.",
+      "gender": {
+        "male": "You crouch at the storm drain grate. Something was pushed through here. You pull it before the next rain washes it further.",
+        "female": "The storm drain access hatch shows recent disturbance. You call for an environmental forensics team before proceeding."
+      }
+    },
+    "Striping": {
+      "default": "Painted lines organizing movement and space. The striping tells you where things are supposed to go. The scuffs tell you where they actually went.",
+      "gender": {
+        "male": "You follow the striping pattern across the lot. One lane shows heavy tire wear that doesn't fit the parking configuration. Someone used this approach differently.",
+        "female": "You photograph the striping damage near the loading zone. Fresh rubber marks. A vehicle stopped here hard and recently."
+      }
+    },
+    "Student Center": {
+      "default": "The hub of campus social life, where ambition and exhaustion share a common space. Everyone passes through here eventually.",
+      "gender": {
+        "male": "The student center is busy and loud. Good cover for anyone who wants to move through campus unnoticed. You note who's sitting alone.",
+        "female": "You move through the student center with your credentials visible. Students make room. One of them looks like they've been waiting for someone."
+      }
+    },
+    "Study Rooms": {
+      "default": "Bookable quiet spaces for focused work. The study room reservation system is a detailed record of who was where and when.",
+      "gender": {
+        "male": "You pull the study room booking log. Your subject reserved room 3B for three hours on Tuesday. They were gone in forty-five minutes.",
+        "female": "The study room was booked under a student ID that hadn't been used in a semester. You trace the reservation."
+      }
+    },
+    "Styling Stations": {
+      "default": "Chairs and mirrors where appearances are constructed and conversations flow freely. The styling station is where people talk without thinking.",
+      "gender": {
+        "male": "You take a seat near the styling stations and let the ambient conversation work on your behalf.",
+        "female": "You introduce yourself to the lead stylist. She's been doing this long enough to know what's worth mentioning. She mentions it."
+      }
+    },
+    "Sunday School Rooms": {
+      "default": "Classrooms attached to a faith community where the youngest members are taught to understand the world. Someone with access to these rooms used that access after hours.",
+      "gender": {
+        "male": "The Sunday school rooms should be empty on weekdays. The lights in room 4 were on last Wednesday night. You ask the custodian.",
+        "female": "You check the Sunday school room schedule. An unauthorized booking was added and then deleted. You find the timestamp."
+      }
+    },
+    "Supervisor Office": {
+      "default": "The authority at the center of an operation's daily running. The supervisor office sees the whole floor and knows where the problems live.",
+      "gender": {
+        "male": "You knock on the supervisor office door. The occupant is expecting an employee issue. You're something else entirely.",
+        "female": "The supervisor reviews your credentials carefully. She's protective of her team. You respect that. You ask your questions accordingly."
+      }
+    },
+    "Surgery Center": {
+      "default": "A facility where precision is mandatory and every event is documented. The surgery center holds records of what was done \u2014 and occasionally what was undone.",
+      "gender": {
+        "male": "You speak to the surgery center director. The procedure in question is documented. So is the anomaly you're here to investigate.",
+        "female": "The surgery center's record management is meticulous. You find the inconsistency in the pre-op documentation and ask who approved it."
+      }
+    },
+    "Surgery Suite": {
+      "default": "A sterile operating theater where lives are worked on with instruments and intention. Every move in here is recorded and accountable.",
+      "gender": {
+        "male": "The surgery suite access log shows a credential use outside of scheduled procedure time. You identify the credential holder.",
+        "female": "You enter the surgery suite with the compliance officer. The equipment logs tell a story the official record doesn't match."
+      }
+    },
+    "Swimming Pool": {
+      "default": "A contained body of water that reflects everything above it. The pool is quiet in the off-hours and loud with implication when something happens near it.",
+      "gender": {
+        "male": "The swimming pool area is locked at 10 PM. The gate was forced at 11:17 PM. The water was disturbed. You start working the timeline.",
+        "female": "You stand at the edge of the pool with your evidence kit. The water is still now. It wasn't three hours ago."
+      }
+    },
+    "TV": {
+      "default": "A screen delivering managed information to whoever is in the room. The TV was on. Someone was watching. You find out what was on and who was watching it.",
+      "gender": {
+        "male": "You check the streaming history on the room TV. It was accessed at 2 AM. You cross-reference with the door access log.",
+        "female": "The television was left on when your subject departed. The channel matters less than the timestamp."
+      }
+    },
+    "Take-Out Counter": {
+      "default": "A service point for orders placed and picked up without ceremony. The take-out counter sees the city in transit.",
+      "gender": {
+        "male": "You lean on the take-out counter. The cashier remembers the order and the face. They always do when something feels wrong.",
+        "female": "The take-out counter ticket roll logs every order. You find the one placed at 10:52 PM and ask about the customer."
+      }
+    },
+    "Tasting Room": {
+      "default": "A curated experience of flavors and decisions. The tasting room is where business happens over small pours and large implications.",
+      "gender": {
+        "male": "You sit at the tasting room bar. The winemaker is proud of what they've built here. You're interested in what else they've built.",
+        "female": "The tasting room is warm and deliberate. You accept a glass and let the proprietor relax before you ask the question that brought you here."
+      }
+    },
+    "Teacher Lounge": {
+      "default": "A staff-only room carrying the pressure of public service on a limited budget. The teacher lounge is honest in its exhaustion and its loyalty.",
+      "gender": {
+        "male": "You enter the teacher lounge during the free period. The staff is tired and candid. You ask about the absence pattern you noticed.",
+        "female": "The teacher lounge is quiet between classes. A veteran teacher pours you a coffee before you even ask. She's ready to talk."
+      }
+    },
+    "Teaching Facility": {
+      "default": "A purpose-built space for instruction at scale. The teaching facility documents attendance, schedules, and academic activity. It also documents gaps in all three.",
+      "gender": {
+        "male": "The teaching facility maintains digital attendance. Your subject was marked present. Three classmates say otherwise. You interview all three.",
+        "female": "You speak with the teaching facility coordinator. She runs a tight schedule and knows when something doesn't fit it."
+      }
+    },
+    "Team Facilities": {
+      "default": "Locker rooms, training rooms, and the institutional infrastructure of competitive performance. Team facilities are where pressure lives before it shows up on the field.",
+      "gender": {
+        "male": "You get access to the team facilities with organizational clearance. The locker room is empty but the argument from last night is still in the air.",
+        "female": "You enter the team facilities with the equipment manager. She's seen enough to know what you're looking for before you say it."
+      }
+    },
+    "Teen Zone": {
+      "default": "A designated space for adolescent energy and honest conversation. The teen zone hears things adults don't get told. Sometimes it hears too much.",
+      "gender": {
+        "male": "You sit with the youth counselor near the teen zone entrance. The kids have been asking about the same thing you have.",
+        "female": "The teen zone coordinator knows her regulars. She tells you which one hasn't been coming in. You ask why they might have stopped."
+      }
+    },
+    "Teller Stations": {
+      "default": "Transaction desks inside a financial institution where money changes hands across a counter and under a camera.",
+      "gender": {
+        "male": "You approach the teller stations with your warrant. The branch manager intercepts you before you reach the counter. That's fine. It's the manager you wanted to talk to.",
+        "female": "The teller station logs show an irregular transaction at the end of business Tuesday. The teller who processed it is still on shift."
+      }
+    },
+    "Tennis Court": {
+      "default": "Marked lines and a net between two points of view. The tennis court is where the city's privileged argue about rules in a game they set up themselves.",
+      "gender": {
+        "male": "The tennis courts are reserved by member access. Your subject signed in last Thursday. There's no record of them signing out.",
+        "female": "You check the tennis court booking system. A match was scheduled and abandoned mid-set. The other player filed a complaint. You find the complaint."
+      }
     }
   }
 }
