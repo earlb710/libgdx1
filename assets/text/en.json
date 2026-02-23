@@ -3073,6 +3073,146 @@
         "male": "You stop on the path and ask for directions. The porch conversation that follows covers more than you came for.",
         "female": "You make the approach from the sidewalk and stay at the gate. Asking from the gate is less threatening than the porch. People answer questions from a safe distance."
       }
+    },
+    "Fuel Pumps": {
+      "default": "Petroleum and transaction records. Every fill-up is logged by pump, by time, by card. Someone stopped here at the right time for the wrong reason.",
+      "gender": {
+        "male": "You check the station's pump records for the relevant window. One transaction was cash. One cash transaction out of forty.",
+        "female": "You ask the attendant which pumps have their own cameras versus shared coverage. The answer maps the blind spots."
+      }
+    },
+    "Fuel Station": {
+      "default": "Fuel in exchange for identity. The card reader knows who stopped here and when, and the system keeps records longer than people expect.",
+      "gender": {
+        "male": "You review the forecourt camera timestamps. Two vehicles at the same pump, forty seconds apart. That's not a coincidence.",
+        "female": "You ask about the fuel log for a specific account number. The manager produces it without a formal request."
+      }
+    },
+    "Fueling Station": {
+      "default": "Bulk fuel distribution for a fleet or facility. High-volume fueling is tracked precisely because fuel is expensive and theft is easy.",
+      "gender": {
+        "male": "You cross-reference the fuel dispensed against the declared mileage. Twelve vehicles are running longer routes than their logs admit.",
+        "female": "You ask the fuel supervisor about variance on a specific unit. The variance is deliberate. The supervisor knows."
+      }
+    },
+    "Full Kitchen": {
+      "default": "Commercial cooking capability and the tight social structure of a kitchen crew. The kitchen knows the building's schedule before anyone else does.",
+      "gender": {
+        "male": "You enter during prep and look like you're there for a handover. The kitchen absorbs you.",
+        "female": "You arrive with a delivery confirmation that needs a signature. The chef signs and offers information you didn't ask for."
+      }
+    },
+    "Funeral Services": {
+      "default": "The formal management of grief and the paperwork that gives legal form to death. Someone in this building's records crossed your case.",
+      "gender": {
+        "male": "You request the service record for a specific date. The director checks and mentions a detail they assumed you already knew.",
+        "female": "You speak with the director with the measured tone that the occasion requires. The director speaks more openly in response."
+      }
+    },
+    "Game Room": {
+      "default": "Recreation space and the informal governance of the people who use it most. The game room has a social hierarchy and a history.",
+      "gender": {
+        "male": "You challenge the current champion. Either they beat you and you've earned their attention, or you beat them and you've earned the room's.",
+        "female": "You join a game already in progress and bring enough skill to be welcomed. The room opens up over the next thirty minutes."
+      }
+    },
+    "Garden": {
+      "default": "Private green space where the rhythms of a household play out in view of anyone who takes the time to observe.",
+      "gender": {
+        "male": "You find the angle from the lane where the garden is visible. You've been patient before.",
+        "female": "You offer to help with the weeding. Gardeners talk. You're very willing to listen while your hands are occupied."
+      }
+    },
+    "Gas Station": {
+      "default": "Petrol, snacks, and the timestamp that puts someone at a specific location at a specific moment. The forecourt camera doesn't lie.",
+      "gender": {
+        "male": "You pay cash at the pump and ask the attendant about the vehicle that was here around the time you're interested in.",
+        "female": "You review the pump receipt dispenser times against your window. One receipt is missing. Cash transaction."
+      }
+    },
+    "Genealogy Room": {
+      "default": "Family histories and the archival record of who came from where and who's related to whom. A genealogy room can connect two names that don't appear to be connected.",
+      "gender": {
+        "male": "You request the records for a specific surname in the relevant location. The connection you find isn't one the family publicises.",
+        "female": "You ask the genealogy librarian to help you trace a specific line. The librarian's expertise takes you somewhere the direct search wouldn't."
+      }
+    },
+    "Gift Shop": {
+      "default": "Souvenirs and the particular transaction of people buying things they'll never use. What they buy tells you who they're buying it for.",
+      "gender": {
+        "male": "You browse and let the shop assistant assume you need help. You don't. The assumption generates conversation.",
+        "female": "You ask about a bulk order placed recently. The shop assistant checks the log and describes the buyer."
+      }
+    },
+    "Gift Wrapping": {
+      "default": "The concealment of content beneath presentation. What's being wrapped, for whom, and by whose account — all of that is recorded.",
+      "gender": {
+        "male": "You enquire about a specific order number under the pretext of a pickup. The counter staff checks the system.",
+        "female": "You request gift wrapping for something small and ask about the service's busiest period. The staff describe a specific client's standing order."
+      }
+    },
+    "Golf Simulator": {
+      "default": "Synthetic fairways and real conversations. The golf simulator is where deals get done with the plausible deniability of sport.",
+      "gender": {
+        "male": "You take a bay and play three holes while the conversation in the next bay completes its first nine.",
+        "female": "You request the bay adjacent to the one you're interested in. The partition is thin and the conversations carry."
+      }
+    },
+    "Green Roof": {
+      "default": "Vegetation on top of the building and the unmonitored access that comes with maintenance access. Nobody cameras the green roof.",
+      "gender": {
+        "male": "You get to the roof during a maintenance window and use the elevated position for what it's worth.",
+        "female": "You request a sustainability tour. Green roof tours are a genuine service and they give you the building's highest vantage point."
+      }
+    },
+    "Green Room": {
+      "default": "Where performers wait to go on. What gets said in a green room before a performance is what people actually mean — the performance hasn't started yet.",
+      "gender": {
+        "male": "You enter as part of the crew and are immediately included in the pre-show conversation.",
+        "female": "You arrive with something that needed to be delivered backstage. The delivery brings you into the room and the room brings you into the conversation."
+      }
+    },
+    "Grilling Area": {
+      "default": "Open flame and the particular social ease of outdoor cooking. People relax at a grill in ways they don't relax indoors.",
+      "gender": {
+        "male": "You offer to take a turn at the grill. Whoever controls the grill controls the conversation.",
+        "female": "You bring something to contribute and join the group around the grill. The contribution makes you immediately part of the social structure."
+      }
+    },
+    "Grooming Station": {
+      "default": "Animal hygiene and the owners who watch the process like it matters personally. It does. That attachment is leverage.",
+      "gender": {
+        "male": "You ask about the grooming appointment log for a specific client. The groomer checks without questioning why.",
+        "female": "You book an appointment under a pretext and use the time to observe the facility and the clients waiting."
+      }
+    },
+    "Group Fitness Studio": {
+      "default": "Collective exertion and the stripped-down honesty of people who've worked too hard to maintain their usual presentation.",
+      "gender": {
+        "male": "You join the class and push hard enough to be noticed. Being noticed earns a conversation after.",
+        "female": "You arrive early and introduce yourself to the instructor. Instructors know their regulars, including the one who stopped coming."
+      }
+    },
+    "Guest Apartments": {
+      "default": "Short-term accommodation inside the building's perimeter with all the access that implies. Whoever stayed here had more than just a bed.",
+      "gender": {
+        "male": "You request the guest apartment log under a service maintenance pretext. The occupancy record tells you who was here and when.",
+        "female": "You ask the concierge about the last occupant of the unit you're interested in. The concierge remembers."
+      }
+    },
+    "Guest Lounge": {
+      "default": "A comfortable room for people who are technically here for someone else. What guests observe while waiting is unfiltered by the building's official narrative.",
+      "gender": {
+        "male": "You settle into the guest lounge and let the building move around you for twenty minutes.",
+        "female": "You strike up a conversation with the person who's been waiting longest. They have opinions about what they've seen."
+      }
+    },
+    "Guest Parking": {
+      "default": "Vehicles registered to visitors. The guest parking log is where everyone who came here and didn't have a permanent space gets recorded.",
+      "gender": {
+        "male": "You check the validation stamps. One vehicle was validated six times this month. Nobody visits this building six times in a month casually.",
+        "female": "You ask the parking attendant about the regular in the reserved guest bay. They have a regular who uses the same bay every Tuesday."
+      }
     }
   }
 }
