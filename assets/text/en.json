@@ -2233,6 +2233,146 @@
         "male": "You walk the row of machines and read what's been left open. People always leave something open.",
         "female": "You speak to the lab monitor about a technical question. While they answer, you read the activity log on the nearest terminal."
       }
+    },
+    "Concession Stand": {
+      "default": "Overpriced snacks and the last honest conversation before the main event starts. People talk at concession stands.",
+      "gender": {
+        "male": "You queue and listen. The line is slow and people fill the silence.",
+        "female": "You work the counter briefly under a volunteer pretext. From behind the stand you see everything."
+      }
+    },
+    "Concession Stands": {
+      "default": "Multiple points of sale and multiple conversations happening simultaneously. You can't cover all of them. You pick the one that matters.",
+      "gender": {
+        "male": "You position yourself between two stands and catch fragments from both.",
+        "female": "You identify the stand with the longest queue. People waiting talk more than people moving."
+      }
+    },
+    "Concierge": {
+      "default": "The building's human directory. The concierge knows who comes and goes, what time they arrive, and which requests they make at unusual hours.",
+      "gender": {
+        "male": "You tip before you ask. The concierge becomes the most cooperative source in the building.",
+        "female": "You ask for a recommendation and get a conversation. By the end of it you know the floor layout and three notable guests."
+      }
+    },
+    "Concierge Service": {
+      "default": "Discreet, skilled, and trained to remember preferences without being asked. The concierge service has a better memory than the security cameras.",
+      "gender": {
+        "male": "You describe the person you're looking for in terms of their habits. The concierge has it in thirty seconds.",
+        "female": "You request the same service the person you're tracking always requests. The concierge volunteers the comparison."
+      }
+    },
+    "Conference Center": {
+      "default": "Booked rooms and NDAs and the particular tension of people making decisions in borrowed spaces.",
+      "gender": {
+        "male": "You arrive with a name badge from a different event and walk every floor.",
+        "female": "You check the conference schedule at the front desk and ask which rooms are running late. Late rooms are the ones with problems."
+      }
+    },
+    "Conference Room": {
+      "default": "A closed door with windows that people forget don't block sound from the corridor.",
+      "gender": {
+        "male": "You take the seat outside and review a document you don't need to review.",
+        "female": "You deliver a message to the wrong room and hold the door just long enough."
+      }
+    },
+    "Conference Rooms": {
+      "default": "Multiple closed sessions running in parallel. The building's most consequential business happening simultaneously and mostly off the record.",
+      "gender": {
+        "male": "You check the booking system at the front desk for today's schedule. Three rooms aren't in the system.",
+        "female": "You walk the corridor slowly during a transition. What spills from open doors between sessions is unguarded."
+      }
+    },
+    "Consultation Office": {
+      "default": "Private conversation between professional and client. The confidentiality cuts both ways — and you're about to test which way it cuts today.",
+      "gender": {
+        "male": "You schedule a consultation to get in the room. Getting in the room is usually enough.",
+        "female": "You're direct about what you need from the consultation. Direct requests get direct answers here more often than elsewhere."
+      }
+    },
+    "Consultation Room": {
+      "default": "A room designed for difficult conversations. Whatever was said in here, it was difficult.",
+      "gender": {
+        "male": "You check the notepad on the table. The top sheet is gone. The impression isn't.",
+        "female": "You look at the chair arrangement. Who sat where tells you something about how the conversation went."
+      }
+    },
+    "Convenience Store": {
+      "default": "Open late, no questions asked, and a security feed that covers every square foot of the floor. The store sees everything.",
+      "gender": {
+        "male": "You buy something you don't need and chat with the clerk. Clerks on overnight shifts tell you things.",
+        "female": "You ask the clerk about the regular who was in last night. They remember the regulars better than their own family."
+      }
+    },
+    "Conveyor System": {
+      "default": "Automated movement of product through a space. Whatever's been diverted from this line left a gap in the count.",
+      "gender": {
+        "male": "You walk the line from intake to output. The discrepancy is at the second junction.",
+        "female": "You ask the floor supervisor about throughput variance. They explain the numbers and accidentally explain the problem."
+      }
+    },
+    "Cooling System": {
+      "default": "The temperature management of a building that can't afford to let something get warm. What's in there that needs to stay cold?",
+      "gender": {
+        "male": "You read the system panel. The load is higher than the building's declared use would require.",
+        "female": "You request the maintenance log from the super. The cooling system has been serviced three times this month."
+      }
+    },
+    "Cosmetics Section": {
+      "default": "Premium product and the social performance of appearance. The cosmetics section is where people talk while they try things they haven't decided on yet.",
+      "gender": {
+        "male": "You browse adjacent to the section and listen to the consultant's pitch. It's covering something.",
+        "female": "You ask for a consultation. In twenty minutes you've covered the floor and heard enough."
+      }
+    },
+    "Council Chambers": {
+      "default": "The room where the city decides things publicly that it already decided privately. The chambers are theatre. The back corridor is where the business is done.",
+      "gender": {
+        "male": "You take a seat in the public gallery and watch who watches who.",
+        "female": "You introduce yourself as a constituent with a concern. Council members talk more to constituents than to investigators."
+      }
+    },
+    "Counseling Center": {
+      "default": "Confidential sessions and the records that summarise them. Something in this building's clinical file tells the story you need.",
+      "gender": {
+        "male": "You present credentials that are technically sufficient. The receptionist calls to verify. While they call, you read the waiting room.",
+        "female": "You enquire about intake procedures. The counsellor explains more than the procedure requires."
+      }
+    },
+    "Counselor Office": {
+      "default": "One chair for the counsellor, one for the client, and a file drawer between them full of what the second chair said.",
+      "gender": {
+        "male": "You knock and find the office empty. The notepad on the desk has an impression from the last session.",
+        "female": "You schedule the appointment under the guise of a routine matter. The counsellor takes notes. So do you."
+      }
+    },
+    "Courtrooms": {
+      "default": "Public record in session. Every word spoken here is transcribed and eventually available. The transcript is what you need.",
+      "gender": {
+        "male": "You sit in the gallery for the case you didn't come to watch and look for the faces you did.",
+        "female": "You request the public transcript. The clerk tells you how long it'll take. You ask if today's session is on record. It is."
+      }
+    },
+    "Courtyard": {
+      "default": "Open space enclosed by the building. A courtyard is watched from above by every window that faces it. And by you from ground level.",
+      "gender": {
+        "male": "You use the courtyard as a cut-through and note every window with a view of it.",
+        "female": "You take the bench at the centre and let the building look at you. You look back, and harder."
+      }
+    },
+    "Covered Walkway": {
+      "default": "Shelter from the weather and from observation. The covered walkway is the path people take when they don't want to be seen taking a path.",
+      "gender": {
+        "male": "You walk the length at half pace. The walkway connects two buildings that officially have no connection.",
+        "female": "You note the cameras on the walkway and the gaps between them. The gap at the second pillar is three metres wide."
+      }
+    },
+    "Craft Room": {
+      "default": "Scissors, glue, and the particular candour of people doing something with their hands while their mouths run unsupervised.",
+      "gender": {
+        "male": "You sit at the table and work at something slowly. The room talks around you within ten minutes.",
+        "female": "You join the group and ask what they're making. The conversation that follows covers considerably more than the project."
+      }
     }
   }
 }
