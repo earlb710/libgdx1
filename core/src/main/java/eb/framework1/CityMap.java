@@ -47,6 +47,20 @@ public class CityMap {
     };
 
     /**
+     * Required building groups: at least one ID in each inner array must appear on the map.
+     * Groups with multiple IDs are alternatives (e.g. small or large hospital both satisfy
+     * the "hospital" requirement).
+     */
+    private static final String[][] REQUIRED_BUILDING_GROUPS = {
+        { "hospital_small", "hospital_large" },
+        { "police_station" },
+        { "prison" },
+        { "library" },
+        { "gym_fitness_center" },
+        { "office_building_small" }
+    };
+
+    /**
      * Represents the four sides of the map for beach placement.
      */
     public enum Side {
@@ -148,6 +162,11 @@ public class CityMap {
                 
                 cells[x][y] = new Cell(x, y, terrain, building);
             }
+        }
+        
+        // Guarantee all required buildings appear at least once
+        if (gameData != null) {
+            ensureRequiredBuildings(random);
         }
         
         // Build road access map and remove ~30% of roads while preserving connectivity
@@ -268,9 +287,16 @@ public class CityMap {
      * Generates a building using BuildingDefinition with weighted random selection.
      */
     private Building generateBuildingFromDefinition(Random random, int x, int y) {
-        // Select building definition using weighted random
         BuildingDefinition definition = selectWeightedBuilding(random);
-        
+        return buildingFromDefinition(definition, random, x, y);
+    }
+
+    /**
+     * Creates a Building instance from an explicit BuildingDefinition.
+     * Shared by the normal weighted-random generation path and the
+     * required-building guarantee path.
+     */
+    private Building buildingFromDefinition(BuildingDefinition definition, Random random, int x, int y) {
         // Generate random number of floors within the definition's range
         int minFloors = Math.max(1, definition.getMinFloors());
         int maxFloors = Math.max(minFloors, definition.getMaxFloors());
@@ -361,6 +387,63 @@ public class CityMap {
         }
         
         return new Building(buildingName, improvements);
+    }
+
+    /**
+     * Ensures that each required building group has at least one representative on the map.
+     * For any group that is absent, a random building cell is replaced with the first
+     * listed building ID in that group.  Replacement cells are chosen from a shuffled
+     * list of all building cells, so required buildings are spread around the map.
+     */
+    private void ensureRequiredBuildings(Random random) {
+        // Collect all building cells
+        List<Cell> buildingCells = new ArrayList<>();
+        for (int x = 0; x < MAP_SIZE; x++) {
+            for (int y = 0; y < MAP_SIZE; y++) {
+                if (cells[x][y].getTerrainType() == TerrainType.BUILDING) {
+                    buildingCells.add(cells[x][y]);
+                }
+            }
+        }
+        // Shuffle so replacements are spread around the map rather than clustered
+        Collections.shuffle(buildingCells, random);
+        int nextReplacementIdx = 0;
+
+        for (String[] group : REQUIRED_BUILDING_GROUPS) {
+            // Check whether any building cell already satisfies this group
+            boolean found = false;
+            outer:
+            for (Cell cell : buildingCells) {
+                Building b = cell.getBuilding();
+                if (b == null || b.getDefinition() == null) continue;
+                String defId = b.getDefinition().getId();
+                for (String id : group) {
+                    if (id.equals(defId)) {
+                        found = true;
+                        break outer;
+                    }
+                }
+            }
+
+            if (!found) {
+                // Use the first ID in the group as the preferred replacement
+                BuildingDefinition def = gameData.getBuildingById(group[0]);
+                if (def == null) {
+                    System.err.println("CityMap: required building definition '" + group[0]
+                            + "' not found in game data – cannot guarantee its presence on the map.");
+                    continue;
+                }
+                if (nextReplacementIdx >= buildingCells.size()) {
+                    System.err.println("CityMap: not enough building cells to place required building '"
+                            + group[0] + "' – map may be too small.");
+                    break;
+                }
+                Cell cell = buildingCells.get(nextReplacementIdx++);
+                Building newBuilding = buildingFromDefinition(def, random, cell.getX(), cell.getY());
+                cells[cell.getX()][cell.getY()] =
+                        new Cell(cell.getX(), cell.getY(), TerrainType.BUILDING, newBuilding);
+            }
+        }
     }
 
     /**

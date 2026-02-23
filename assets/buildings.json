@@ -378,6 +378,23 @@
       ]
     },
     {
+      "id": "prison",
+      "name": "Prison",
+      "category": "public_services",
+      "minFloors": 2,
+      "maxFloors": 5,
+      "unitsPerFloor": 10,
+      "capacity": 300,
+      "percentage": 0.1,
+      "description": "A correctional facility for housing inmates",
+      "improvements": [
+        "Cell Block A", "Cell Block B", "Guard Tower", "Solitary Confinement",
+        "Warden Office", "Visitation Room", "Cafeteria", "Infirmary",
+        "Rehabilitation Center", "Exercise Yard", "Control Room", "Chapel",
+        "Library Wing", "Workshop"
+      ]
+    },
+    {
       "id": "post_office",
       "name": "Post Office",
       "category": "public_services",
