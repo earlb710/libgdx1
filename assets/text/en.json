@@ -7,12 +7,12 @@
       "time": {
         "morning": "Dawn hasn't done the place any favours. Grease stains and cigarette butts are the morning crowd.",
         "afternoon": "Heat shimmers off the blacktop. Every car is an alibi waiting to be picked apart.",
-        "evening": "The lot empties like a bar at last call \u2014 fast, and without a backward glance.",
+        "evening": "The lot empties like a bar at last call — fast, and without a backward glance.",
         "night": "One lamp still burns. The rest are dead, same as half the leads you've followed here."
       },
       "attribute": {
         "PERCEPTION": "You clock every plate, every dent, every smear of mud that doesn't belong on a city car.",
-        "AGILITY": "You cut across the lot the short way \u2014 ducking mirrors, skipping kerbs \u2014 because waiting is for suckers."
+        "AGILITY": "You cut across the lot the short way — ducking mirrors, skipping kerbs — because waiting is for suckers."
       },
       "gender": {
         "male": "You walk it like you own the block. Nobody checks a man who moves like he's got a reason.",
@@ -23,18 +23,18 @@
       "default": "A hundred cars and not one of them parked here by accident. Somewhere in this lot is the answer you need.",
       "time": {
         "morning": "Workers funnel in before the sun gets mean. Shift changes are the best time to watch without being watched.",
-        "afternoon": "Full up and nowhere to hide. You keep moving \u2014 a still target is a dead one.",
+        "afternoon": "Full up and nowhere to hide. You keep moving — a still target is a dead one.",
         "evening": "The tide goes out. Engines turn over in the dark, and you watch which ones hesitate.",
         "night": "The lot sprawls under a bruised sky. One wrong shadow and this job gets complicated."
       },
       "attribute": {
         "PERCEPTION": "Three vehicles here don't fit the zip code. You've already memorised the plates.",
         "STEALTH": "A hundred places to disappear in a space this size. You pick the best three and rotate.",
-        "AGILITY": "You move through the rows like a ghost \u2014 no sound, no straight lines, no witnesses."
+        "AGILITY": "You move through the rows like a ghost — no sound, no straight lines, no witnesses."
       },
       "gender": {
         "male": "You stroll it like you're headed nowhere. The best tail never looks like one.",
-        "female": "You note every face that clocks you twice. In this business, being noticed isn't always a problem \u2014 if you control what they see."
+        "female": "You note every face that clocks you twice. In this business, being noticed isn't always a problem — if you control what they see."
       }
     },
     "parking_garage_small": {
@@ -43,16 +43,16 @@
         "morning": "Early arrivals echo off the ceiling. You catalogue each one before they see you.",
         "afternoon": "Every level occupied. Every car a question. You don't leave until you have answers.",
         "evening": "The stream of departures covers your movement. Good. You need the noise.",
-        "night": "The garage breathes on its own now \u2014 creaks, drips, the groan of settling steel. You breathe with it."
+        "night": "The garage breathes on its own now — creaks, drips, the groan of settling steel. You breathe with it."
       },
       "attribute": {
         "STEALTH": "The pillars give you cover every twelve feet. You use all of them.",
         "PERCEPTION": "Sound bounces off concrete in ways most people never bother to learn. You learned long ago.",
-        "AGILITY": "Every ramp, every chokepoint, every blind corner \u2014 you mapped it before you got out of the car."
+        "AGILITY": "Every ramp, every chokepoint, every blind corner — you mapped it before you got out of the car."
       },
       "gender": {
         "male": "You stay in the shadows and let the dark work for you. The dark owes you at least that.",
-        "female": "You hit every stairwell light on the way up. Darkness is a tool \u2014 you decide who gets to use it."
+        "female": "You hit every stairwell light on the way up. Darkness is a tool — you decide who gets to use it."
       }
     },
     "parking_garage_large": {
@@ -69,7 +69,7 @@
         "AGILITY": "Stairs, not elevators. Always stairs. Elevators are traps with buttons."
       },
       "gender": {
-        "male": "You move through it like you built the place \u2014 sure, deliberate, nobody's problem until you decide to be.",
+        "male": "You move through it like you built the place — sure, deliberate, nobody's problem until you decide to be.",
         "female": "You've learned to treat every multi-storey as a maze someone designed to disadvantage you. You solve it anyway."
       }
     },
@@ -82,8 +82,8 @@
         "night": "The last trains scrape to a halt. Sparse crowd. Every face accountable. You like those odds."
       },
       "attribute": {
-        "PERCEPTION": "You spot the one who doesn't move with the flow \u2014 stationary in a river of bodies. That's your person.",
-        "AGILITY": "You thread through the crowd without breaking stride. Turnstiles, stairs, platforms \u2014 one clean line.",
+        "PERCEPTION": "You spot the one who doesn't move with the flow — stationary in a river of bodies. That's your person.",
+        "AGILITY": "You thread through the crowd without breaking stride. Turnstiles, stairs, platforms — one clean line.",
         "STAMINA": "The noise and the press of strangers would grind most people down. You've been through worse and stayed standing."
       },
       "gender": {
@@ -113,7 +113,7 @@
       "default": "Fluorescent light and stale coffee. The kind of place where lives quietly fall apart between the shelves.",
       "time": {
         "morning": "First customers of the day. The cashier looks like the night never ended. For them, maybe it didn't.",
-        "afternoon": "The slow afternoon burns. Bored staff and restless regulars \u2014 someone in here is waiting for something.",
+        "afternoon": "The slow afternoon burns. Bored staff and restless regulars — someone in here is waiting for something.",
         "evening": "After-shift crowd. Tired, distracted, and telling the truth without knowing it.",
         "night": "Three a.m. and the place is lit up like a crime scene. One customer too many for this hour."
       },
@@ -127,11 +127,11 @@
       }
     },
     "gas_station": {
-      "default": "Petrol and paranoia. Every gas station is a checkpoint \u2014 people pass through without thinking. You think for them.",
+      "default": "Petrol and paranoia. Every gas station is a checkpoint — people pass through without thinking. You think for them.",
       "time": {
         "morning": "Commuters queuing at the pumps, barely awake. The perfect time to watch without being watched.",
         "afternoon": "Midday lull. The forecourt is exposed and quiet. Neither of those is necessarily a good thing.",
-        "evening": "Evening traffic. Everyone's in a hurry to be somewhere. Find out where \u2014 that's the job.",
+        "evening": "Evening traffic. Everyone's in a hurry to be somewhere. Find out where — that's the job.",
         "night": "The canopy lights blaze in the dark and nothing moves for minutes at a time. Then something does."
       },
       "attribute": {
@@ -141,7 +141,7 @@
       },
       "gender": {
         "male": "You pay at the pump, keep your head down. Transaction complete. Nobody noticed. That's the idea.",
-        "female": "The attendant offers help you don't need. You let them talk \u2014 chatty people fill silence with facts you can use."
+        "female": "The attendant offers help you don't need. You let them talk — chatty people fill silence with facts you can use."
       }
     },
     "fast_food_restaurant": {
@@ -165,14 +165,14 @@
     "coffee_shop": {
       "default": "Seven-dollar coffee and secrets sold by the pound. Everyone in here is running from something or toward something worse.",
       "time": {
-        "morning": "The morning rush brings them in loud and caffeinated. Loose mouths, tight schedules \u2014 money can't buy discretion.",
+        "morning": "The morning rush brings them in loud and caffeinated. Loose mouths, tight schedules — money can't buy discretion.",
         "afternoon": "The afternoon crowd settles in with laptops and long drinks. They think they're hiding. They're not.",
         "evening": "Quieter now. The ones who remain have nowhere better to be. Neither do you.",
         "night": "Last customers of the night nursing cold cups. The barista wants to close. You don't care what the barista wants."
       },
       "attribute": {
         "INTELLIGENCE": "You pick a corner table with the full room in view and order something that gives you ninety minutes of cover.",
-        "MEMORY": "The regular at the end of the bar \u2014 you know that face. Case file seventeen. The one you thought was cold.",
+        "MEMORY": "The regular at the end of the bar — you know that face. Case file seventeen. The one you thought was cold.",
         "CHARISMA": "The barista has your order started before you reach the counter. Regular. Perfect cover."
       },
       "gender": {
@@ -181,7 +181,7 @@
       }
     },
     "small_retail_store": {
-      "default": "Everything for sale, including information \u2014 though most shopkeepers don't know they're selling it.",
+      "default": "Everything for sale, including information — though most shopkeepers don't know they're selling it.",
       "time": {
         "morning": "Freshly stocked shelves and a shopkeeper who hasn't had their guard up long enough to keep it steady.",
         "afternoon": "The slow burn of a quiet afternoon. Both you and the owner have time to size each other up.",
@@ -207,7 +207,7 @@
         "night": "Dark and locked. Only the emergency window glows. Whatever brought someone out this late matters."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the shelves like a case file \u2014 what's low stock, what's over-ordered, what shouldn't be here at all.",
+        "INTELLIGENCE": "You read the shelves like a case file — what's low stock, what's over-ordered, what shouldn't be here at all.",
         "EMPATHY": "Every prescription tells a story. You're reading the chapters nobody came here to share.",
         "PERCEPTION": "The pharmacist's hands froze for half a second on one name. Just half a second. Enough."
       },
@@ -225,7 +225,7 @@
         "night": "Locked. The ATM hums in the dark. Someone's using it at this hour for a reason."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the floor plan in ten seconds \u2014 vault access, teller positions, the one camera with the bad angle.",
+        "INTELLIGENCE": "You read the floor plan in ten seconds — vault access, teller positions, the one camera with the bad angle.",
         "INTIMIDATION": "You walk past the guard without slowing. They straighten up. Good.",
         "PERCEPTION": "The customer three places ahead in the queue is sweating through a suit jacket on a cool day. That's not the weather."
       },
@@ -244,7 +244,7 @@
       },
       "attribute": {
         "PERCEPTION": "The man in the corner hasn't looked at his laundry once. He's watching the door.",
-        "MEMORY": "That face \u2014 you know it from a different neighbourhood. Different context. Same trouble.",
+        "MEMORY": "That face — you know it from a different neighbourhood. Different context. Same trouble.",
         "STEALTH": "Fold something. Look occupied. A laundromat is the best surveillance post in the city."
       },
       "gender": {
@@ -270,24 +270,44 @@
         "female": "You've been in enough salons to know that the mirror shows more than a reflection. You watch every face in it."
       }
     },
-    "gym_fitness_center": {
-      "default": "Iron and sweat and the quiet desperation of people trying to outrun something. You know the feeling.",
-      "time": {
-        "morning": "The early crowd punishes themselves before dawn. Either very disciplined or very guilty.",
-        "afternoon": "Midday regulars. Less competition, better sight lines. You watch the room like it owes you something.",
-        "evening": "After-work rush. Every frustration in the city works itself out on a machine. Some frustrations don't belong in a gym.",
-        "night": "The diehards. The ones who can't sleep or won't. You understand them better than you'd like."
+    "gym_fitness_center": [
+      {
+        "default": "Iron and sweat and the quiet desperation of people trying to outrun something. You know the feeling.",
+        "time": {
+          "morning": "The early crowd punishes themselves before dawn. Either very disciplined or very guilty.",
+          "afternoon": "Midday regulars. Less competition, better sight lines. You watch the room like it owes you something.",
+          "evening": "After-work rush. Every frustration in the city works itself out on a machine. Some frustrations don't belong in a gym.",
+          "night": "The diehards. The ones who can't sleep or won't. You understand them better than you'd like."
+        },
+        "attribute": {
+          "STRENGTH": "You rack the weights nobody else touches and feel the familiar burn. This is the one place the body doesn't lie to you.",
+          "STAMINA": "You hit the cardio floor and settle into a pace that would wreck most people. You're just warming up.",
+          "AGILITY": "You map the training floor in a circuit that looks like exercise and works like reconnaissance."
+        },
+        "gender": {
+          "male": "Two regulars offer you a spot without being asked. Some spaces still run on old codes. You use it.",
+          "female": "You head for the free weights and ignore the stares. You've been ignoring them since day one. Doesn't stop you lifting."
+        }
       },
-      "attribute": {
-        "STRENGTH": "You rack the weights nobody else touches and feel the familiar burn. This is the one place the body doesn't lie to you.",
-        "STAMINA": "You hit the cardio floor and settle into a pace that would wreck most people. You're just warming up.",
-        "AGILITY": "You map the training floor in a circuit that looks like exercise and works like reconnaissance."
-      },
-      "gender": {
-        "male": "Two regulars offer you a spot without being asked. Some spaces still run on old codes. You use it.",
-        "female": "You head for the free weights and ignore the stares. You've been ignoring them since day one. Doesn't stop you lifting."
+      {
+        "default": "Rubber floors and the relentless smell of effort. The kind of place that measures you whether you want it to or not.",
+        "time": {
+          "morning": "The machines are all taken by six. Serious people, early hours, no conversation.",
+          "afternoon": "The lunch crowd works fast and leaves fast. The floor is yours between sets.",
+          "evening": "The after-work crush. Every machine occupied, every mirror watched. You find your space anyway.",
+          "night": "Past ten, the gym belongs to people with unusual schedules and interesting reasons for them."
+        },
+        "attribute": {
+          "STRENGTH": "The weights here are honest. You settle in and let the routine do what the day couldn't.",
+          "STAMINA": "The cardio section runs on suffering. You add yours to the total without complaint.",
+          "AGILITY": "You move through the crowded floor without breaking pace. Obstacle or opportunity — same thing."
+        },
+        "gender": {
+          "male": "The regulars clock you and move on. You're not interesting enough to bother. Good.",
+          "female": "You take the far corner and work without interruption. The stares stop when the weights get heavy enough."
+        }
       }
-    },
+    ],
     "strip_mall": {
       "default": "A string of businesses held together by a parking lot and low expectations. Somebody's running something here that isn't on the signage.",
       "time": {
@@ -351,7 +371,7 @@
         "night": "Night-shift restocking in near-silence. The back corridors open up. Interesting."
       },
       "attribute": {
-        "PERCEPTION": "You spot the gap on the shelf before the stockist does \u2014 and you know what it means.",
+        "PERCEPTION": "You spot the gap on the shelf before the stockist does — and you know what it means.",
         "MEMORY": "Last time you were in a place like this, the prices told you a distribution chain was being bypassed. You're checking the numbers again.",
         "INTELLIGENCE": "Empty shelves aren't always out of stock. Sometimes they're evidence."
       },
@@ -406,7 +426,7 @@
       },
       "attribute": {
         "CHARISMA": "The maitre d' decides in five seconds that you're someone worth accommodating. You give them reason to keep deciding that.",
-        "INTELLIGENCE": "The wine list, the menu pricing, the clientele \u2014 this is a front for something. You're already three steps into finding out what.",
+        "INTELLIGENCE": "The wine list, the menu pricing, the clientele — this is a front for something. You're already three steps into finding out what.",
         "EMPATHY": "Table six has been smiling all evening. The body language says the conversation ended badly three courses ago."
       },
       "gender": {
@@ -425,7 +445,7 @@
       "attribute": {
         "CHARISMA": "The salesperson clocks your confidence and drops the canned pitch. Now you're having a real conversation.",
         "INTELLIGENCE": "You know the invoice price, the holdback, the incentives. The salesperson realises this at the same moment you tell them.",
-        "INTUITION": "The floor manager keeps looking at the lot. Not at the cars \u2014 at one specific space. And what it used to hold."
+        "INTUITION": "The floor manager keeps looking at the lot. Not at the cars — at one specific space. And what it used to hold."
       },
       "gender": {
         "male": "They open with the high end. You redirect to what you actually want. Takes thirty seconds.",
@@ -489,10 +509,10 @@
     "veterinary_clinic": {
       "default": "Animals don't lie, and the people who love them are halfway honest. A good place to ask questions.",
       "time": {
-        "morning": "First clients of the day \u2014 worried owners, anxious animals, and no reason yet to be on guard.",
+        "morning": "First clients of the day — worried owners, anxious animals, and no reason yet to be on guard.",
         "afternoon": "Routine visits and the kind of chatter that happens when everyone's been waiting too long.",
         "evening": "Last few cases. The day's weight shows on the staff. Weight makes people talk.",
-        "night": "Emergency hours only. Whatever brings someone here at this time of night \u2014 it matters."
+        "night": "Emergency hours only. Whatever brings someone here at this time of night — it matters."
       },
       "attribute": {
         "EMPATHY": "The clinic cat decides you're alright. You've been validated by worse sources.",
@@ -519,7 +539,7 @@
       },
       "gender": {
         "male": "You walk the ward with the posture of someone who belongs there. Nobody stops a man with a purpose and a pace.",
-        "female": "A nurse stops to check on you \u2014 genuine concern, no suspicion. You answer one question and ask three."
+        "female": "A nurse stops to check on you — genuine concern, no suspicion. You answer one question and ask three."
       }
     },
     "hospital_large": {
@@ -531,7 +551,7 @@
         "night": "Skeleton crew, long corridors, and something in wing C that doesn't belong in a hospital."
       },
       "attribute": {
-        "INTELLIGENCE": "You find the inefficiency in the system \u2014 the records room with the unmanned desk, the supply chain that doesn't add up.",
+        "INTELLIGENCE": "You find the inefficiency in the system — the records room with the unmanned desk, the supply chain that doesn't add up.",
         "EMPATHY": "The weight of the place lands on you the moment you walk in. You carry it without breaking stride.",
         "PERCEPTION": "Restricted corridor. No badge. Moving quickly. Three facts. You follow at a distance."
       },
@@ -555,7 +575,7 @@
       },
       "gender": {
         "male": "You take the seat nearest the triage desk and look like a man with a pulled muscle. Nobody questions a pulled muscle.",
-        "female": "You're through intake fast \u2014 the staff here move quickly on presenting patients. You use the access before anyone second-guesses it."
+        "female": "You're through intake fast — the staff here move quickly on presenting patients. You use the access before anyone second-guesses it."
       }
     },
     "daycare_center": {
@@ -580,12 +600,12 @@
       "default": "Crayon drawings and the kind of secrets kids carry without knowing they're carrying them. Handle with care.",
       "time": {
         "morning": "Assembly echoes down the corridor. Every adult in the building is busy. The best time to be invisible.",
-        "afternoon": "Classes in session. The halls are empty between periods \u2014 a window of maybe forty seconds.",
+        "afternoon": "Classes in session. The halls are empty between periods — a window of maybe forty seconds.",
         "evening": "After-school activities. Fewer staff, looser protocols, kids who've been here long enough to drop their guard.",
         "night": "Locked and dark. A janitor's cart outside one room. The building keeps hours you don't."
       },
       "attribute": {
-        "EMPATHY": "Kids read sincerity faster than any polygraph. You don't fake it \u2014 you mean it, which is why they talk.",
+        "EMPATHY": "Kids read sincerity faster than any polygraph. You don't fake it — you mean it, which is why they talk.",
         "CHARISMA": "Teachers fall into step with you naturally. You carry the authority of someone who should be here.",
         "PERCEPTION": "The corner of one classroom is off. The usual visual noise of a primary school and then one thing that doesn't belong."
       },
@@ -608,7 +628,7 @@
         "PERCEPTION": "The kid who should be in class isn't. You know the three most likely reasons. One of them involves the case."
       },
       "gender": {
-        "male": "You get assessed immediately \u2014 visitor, authority, or threat. You settle into authority before anyone finishes the calculation.",
+        "male": "You get assessed immediately — visitor, authority, or threat. You settle into authority before anyone finishes the calculation.",
         "female": "The front office waves you through. The second you mention a student's name, doors open that formal channels wouldn't."
       }
     },
@@ -633,7 +653,7 @@
     "fire_station": {
       "default": "These people run toward the thing everyone else runs from. You have more in common with them than you'd admit.",
       "time": {
-        "morning": "Morning check is ritual \u2014 gear, vehicles, the discipline of people who know the cost of being unprepared.",
+        "morning": "Morning check is ritual — gear, vehicles, the discipline of people who know the cost of being unprepared.",
         "afternoon": "A call-out empties the station in forty seconds. You count the seconds and make your move.",
         "evening": "Evening shift settling in. The shared meal is where the real conversation happens.",
         "night": "Between calls, the station breathes. You're quiet enough to breathe with it."
@@ -645,7 +665,7 @@
       },
       "gender": {
         "male": "The crew reads you by your hands and your posture. They decide quickly. They decide right.",
-        "female": "The station goes quiet when you walk in \u2014 not hostile, just recalibrating. You let them recalibrate and get to work."
+        "female": "The station goes quiet when you walk in — not hostile, just recalibrating. You let them recalibrate and get to work."
       }
     },
     "police_station": {
@@ -673,7 +693,7 @@
         "morning": "First queue of the day. People who came to collect something that arrived overnight.",
         "afternoon": "Numbered tickets and long waits. The longer people wait, the more they talk.",
         "evening": "Counter down to one window. Whatever comes through at this hour, it wasn't sent through official channels.",
-        "night": "Locked. The sorting room runs overnight. Shift workers who see everything and say nothing \u2014 until you give them a reason."
+        "night": "Locked. The sorting room runs overnight. Shift workers who see everything and say nothing — until you give them a reason."
       },
       "attribute": {
         "MEMORY": "That face. That handwriting on the parcel at counter three. You've seen both before and not in this context.",
@@ -741,7 +761,7 @@
       }
     },
     "courthouse": {
-      "default": "Justice \u2014 or the paperwork approximation of it. You've seen both up close. The paperwork lasts longer.",
+      "default": "Justice — or the paperwork approximation of it. You've seen both up close. The paperwork lasts longer.",
       "time": {
         "morning": "Lawyers and defendants funnelling through the metal detectors before the docket opens. You watch who walks in together.",
         "afternoon": "Full session. Courtroom four has a case that keeps being adjourned. You want to know why.",
@@ -754,7 +774,7 @@
         "PERCEPTION": "A lawyer just passed a note they shouldn't have and received one they'll deny receiving. You saw both."
       },
       "gender": {
-        "male": "You're read as counsel or investigator \u2014 either way, you belong here. Nobody's going to check.",
+        "male": "You're read as counsel or investigator — either way, you belong here. Nobody's going to check.",
         "female": "A female presence in the gallery reads as invisible to people who've been staring at the same faces all week. Perfect."
       }
     },
@@ -880,7 +900,7 @@
         "STEALTH": "Shift timing. Blind-spot rotation. Entry window: ninety seconds. You've worked with less."
       },
       "gender": {
-        "male": "You fold a newspaper under your arm and walk to the elevator. Man with a newspaper going up \u2014 nobody's problem.",
+        "male": "You fold a newspaper under your arm and walk to the elevator. Man with a newspaper going up — nobody's problem.",
         "female": "The concierge is chattier than their job requires. You trade small talk for building access and come out ahead."
       }
     },
@@ -906,7 +926,7 @@
       "default": "Thin walls and cheaper regrets. Every budget hotel is a short story collection that nobody's proud of.",
       "time": {
         "morning": "The breakfast queue is a parade of people who slept badly and still have to function. You're among them. Sort of.",
-        "afternoon": "The lobby is transit \u2014 everyone passing through, nobody staying.",
+        "afternoon": "The lobby is transit — everyone passing through, nobody staying.",
         "evening": "Check-in rush. One overworked clerk, a queue that tests patience. You use the wait to learn who else is checking in.",
         "night": "Somewhere down the hall a door slams. Somewhere else, a call ends badly. You lie on the bed and listen to the building tell its secrets."
       },
@@ -949,7 +969,7 @@
       "attribute": {
         "CHARISMA": "The concierge remembers your name before you've given it. You gave it three visits ago under a different identity.",
         "EMPATHY": "Every exchange here is a transaction. You read what's being bought and sold at each table.",
-        "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van \u2014 all three connect to the same name."
+        "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van — all three connect to the same name."
       },
       "gender": {
         "male": "You wear the hotel's assumptions like a second suit. Nobody questions the man at the corner table who hasn't ordered yet.",
@@ -957,7 +977,7 @@
       }
     },
     "office_building_small": {
-      "default": "Small office, small secrets \u2014 but they're the kind that fit in a briefcase and travel well.",
+      "default": "Small office, small secrets — but they're the kind that fit in a briefcase and travel well.",
       "time": {
         "morning": "Staff arriving, coffee in hand, guard not yet up. The freshest intelligence of the day is at nine a.m.",
         "afternoon": "Post-lunch slowdown. Everyone's a little more honest when they're a little more tired.",
@@ -975,7 +995,7 @@
       }
     },
     "office_building_medium": {
-      "default": "Mid-size offices, mid-size lies. The crimes here are the unglamorous kind \u2014 fraud, cover-ups, the daily corruption of small decisions.",
+      "default": "Mid-size offices, mid-size lies. The crimes here are the unglamorous kind — fraud, cover-ups, the daily corruption of small decisions.",
       "time": {
         "morning": "The building wakes with the particular energy of people about to spend eight hours being someone else.",
         "afternoon": "Conference rooms booked solid, hallways full of conversations that stop when you pass. You've already heard enough.",
@@ -1021,7 +1041,7 @@
       "attribute": {
         "INTELLIGENCE": "Power has a grammar. You speak it without accent. You also know exactly where the sentences fall apart.",
         "CHARISMA": "Senior executives open doors for people who look like they're about to open them anyway. You have that look.",
-        "INTIMIDATION": "You make it clear \u2014 without raising your voice or breaking a smile \u2014 that you will not be managed."
+        "INTIMIDATION": "You make it clear — without raising your voice or breaking a smile — that you will not be managed."
       },
       "gender": {
         "male": "A boardroom full of men in suits assumes you're one of the men in suits. That assumption buys you twelve minutes.",
@@ -1092,7 +1112,7 @@
       },
       "attribute": {
         "CHARISMA": "The VIP corridor opens without a conversation. You carry the right frequency for rooms like this.",
-        "STEALTH": "You move through the crowd and leave no impression on anyone. Not because you blend in \u2014 because you choose to.",
+        "STEALTH": "You move through the crowd and leave no impression on anyone. Not because you blend in — because you choose to.",
         "INTUITION": "The energy in this room has an undercurrent the regular crowd hasn't caught yet. You feel it before you see it."
       },
       "gender": {
@@ -1110,7 +1130,7 @@
       },
       "attribute": {
         "STRENGTH": "You read the physical performance on the field with the eye of someone who understands exactly what it costs.",
-        "STAMINA": "The crowd, the noise, the pressure \u2014 it wires most people up and wears them down. You run on it.",
+        "STAMINA": "The crowd, the noise, the pressure — it wires most people up and wears them down. You run on it.",
         "AGILITY": "You move through a packed crowd the way a fish moves through water. Nobody notices. Nobody's supposed to."
       },
       "gender": {
@@ -1127,7 +1147,7 @@
         "night": "Locked up and alarmed. Except for the dock bay on the east side that was deliberately not alarmed."
       },
       "attribute": {
-        "STRENGTH": "Heavy freight and high shelving \u2014 the physical language of this place. You speak it.",
+        "STRENGTH": "Heavy freight and high shelving — the physical language of this place. You speak it.",
         "PERCEPTION": "The inventory sheets don't match the shelf count. Someone's moving product through here without logging it.",
         "STEALTH": "Racking twelve feet high on every side. You could run an operation from in here and nobody would know where to look."
       },
@@ -1164,7 +1184,7 @@
       },
       "attribute": {
         "STRENGTH": "Honest, physical work. You speak that language without condescension.",
-        "INTELLIGENCE": "The production schedule, the supply invoices, the deviation logs \u2014 the machinery of this place is hiding something in the numbers.",
+        "INTELLIGENCE": "The production schedule, the supply invoices, the deviation logs — the machinery of this place is hiding something in the numbers.",
         "PERCEPTION": "One line is running out of calibration. It's been running that way for weeks. Someone told it to."
       },
       "gender": {
@@ -1181,7 +1201,7 @@
         "night": "The facility runs without daylight. The servers don't sleep and neither do you."
       },
       "attribute": {
-        "INTELLIGENCE": "Rack layout, cooling architecture, access log structure \u2014 you read the infrastructure like a floor plan of the investigation.",
+        "INTELLIGENCE": "Rack layout, cooling architecture, access log structure — you read the infrastructure like a floor plan of the investigation.",
         "PERCEPTION": "One rack is running three degrees warmer than its neighbours. That's not a cooling fault. That's activity.",
         "STEALTH": "You move with the certainty of someone with keycard access. Certainty is most of what keycard access buys you anyway."
       },
@@ -1194,7 +1214,7 @@
       "default": "Everything people can't throw away and won't admit to keeping. The private archaeology of a life. One of these units is yours to crack.",
       "time": {
         "morning": "Early access before the day gets complicated. People retrieving things they need urgently don't look casual.",
-        "afternoon": "Regular traffic, regular faces \u2014 and one that doesn't belong to the pattern.",
+        "afternoon": "Regular traffic, regular faces — and one that doesn't belong to the pattern.",
         "evening": "Last entry before the after-hours lockdown. Whatever someone needs that urgently, it couldn't wait.",
         "night": "Access code required. Corridors empty and lit by motion sensors. The unit you need is at the far end."
       },
@@ -1253,7 +1273,7 @@
         "night": "Locked. The Ner Tamid burns without end. The eternal light is the only honest thing still running at this hour."
       },
       "attribute": {
-        "EMPATHY": "The community's depth of history is not academic here \u2014 it's lived. You meet it without flinching.",
+        "EMPATHY": "The community's depth of history is not academic here — it's lived. You meet it without flinching.",
         "MEMORY": "The archives in the back room go back further than any police record. The shammes knows where they are. So do you.",
         "INTELLIGENCE": "A building that is simultaneously a house of worship, a community centre, and a library has more answers per square foot than most precincts."
       },
@@ -1271,7 +1291,7 @@
         "night": "Empty floor, one light burning. That's not the cleaner and it's not overtime."
       },
       "attribute": {
-        "INTELLIGENCE": "You read the workspace in thirty seconds flat \u2014 who sits where, what's on their screens, whose desk has been tidied too recently.",
+        "INTELLIGENCE": "You read the workspace in thirty seconds flat — who sits where, what's on their screens, whose desk has been tidied too recently.",
         "PERCEPTION": "A sticky note face-down on a keyboard. A filing cabinet drawer that doesn't close flush. Small things. Important ones.",
         "STEALTH": "You move through the open plan like a shadow in a building full of people too busy to look sideways.",
         "EMPATHY": "The stress in this place has a texture. You can feel it before anyone speaks."
@@ -1310,7 +1330,7 @@
       },
       "attribute": {
         "EMPATHY": "The weight of this place settles on you the moment you walk in. You carry it. You've been carrying heavier.",
-        "INTELLIGENCE": "The chart, the ward allocation, the medication schedule \u2014 you read between the lines until the lines stop hiding things.",
+        "INTELLIGENCE": "The chart, the ward allocation, the medication schedule — you read between the lines until the lines stop hiding things.",
         "STAMINA": "The hospital never stops. You haven't either. It's a fair trade.",
         "PERCEPTION": "Someone in this building is where they shouldn't be. You identify the floor before you've left the lobby."
       },
@@ -1335,14 +1355,14 @@
       },
       "gender": {
         "male": "You walk the main path and let the park's usual population decide you're not their problem.",
-        "female": "Daylight, main path, aware of every entrance. Not paranoia \u2014 procedure."
+        "female": "Daylight, main path, aware of every entrance. Not paranoia — procedure."
       }
     },
     "restaurant": {
       "default": "Hot food and cold truths. Every table in a restaurant is a negotiation. You want to know who's losing theirs.",
       "time": {
         "morning": "Breakfast crowd with nowhere urgent to be. Loose with it, honest about it.",
-        "afternoon": "The lunchtime rush \u2014 overworked, underpaid, and spilling their day to anyone who's listening. That's you.",
+        "afternoon": "The lunchtime rush — overworked, underpaid, and spilling their day to anyone who's listening. That's you.",
         "evening": "Dinner service. Soft lighting over hard conversations. The city conducting its private business in a public place.",
         "night": "Kitchen winding down. Last round of drinks. The hour when people say what they've been holding since the appetiser."
       },
@@ -1395,7 +1415,7 @@
       }
     },
     "Ablution Area": {
-      "default": "The ritual wash before prayer. Clean hands, clean conscience \u2014 or at least the attempt at one. You've seen what waits on the other side of both.",
+      "default": "The ritual wash before prayer. Clean hands, clean conscience — or at least the attempt at one. You've seen what waits on the other side of both.",
       "gender": {
         "male": "You observe the space with respect and note the detail most visitors miss.",
         "female": "The women's section is quieter, and the quiet holds more than most people realise."
@@ -1521,7 +1541,7 @@
       }
     },
     "Assembly Line": {
-      "default": "Identical repetition. Every product the same, every motion the same \u2014 which makes the one deviation impossible to miss.",
+      "default": "Identical repetition. Every product the same, every motion the same — which makes the one deviation impossible to miss.",
       "gender": {
         "male": "You walk the line slow. The workers clock you. One of them clocks you twice.",
         "female": "You take a position at the end of the run and watch every unit coming off it. One in eight is different."
@@ -1734,7 +1754,7 @@
       "default": "The quiet transaction of taking something from someone's body and logging where it goes. The log is what interests you.",
       "gender": {
         "male": "You make the appointment and use the waiting time to understand who else is in the system.",
-        "female": "You ask the phlebotomist about volume \u2014 how many draws today. The answer is one more than the schedule shows."
+        "female": "You ask the phlebotomist about volume — how many draws today. The answer is one more than the schedule shows."
       }
     },
     "Blood Pressure Station": {
@@ -1829,7 +1849,7 @@
       }
     },
     "Burn Center": {
-      "default": "Specialized care for the kind of damage that changes everything. What ended up here, and how \u2014 that's the case.",
+      "default": "Specialized care for the kind of damage that changes everything. What ended up here, and how — that's the case.",
       "gender": {
         "male": "You show credentials to the ward nurse and make it clear you're not asking permission.",
         "female": "You speak to the attending with the clinical directness of someone who belongs here. They respond in kind."
@@ -2284,7 +2304,7 @@
       }
     },
     "Consultation Office": {
-      "default": "Private conversation between professional and client. The confidentiality cuts both ways \u2014 and you're about to test which way it cuts today.",
+      "default": "Private conversation between professional and client. The confidentiality cuts both ways — and you're about to test which way it cuts today.",
       "gender": {
         "male": "You schedule a consultation to get in the room. Getting in the room is usually enough.",
         "female": "You're direct about what you need from the consultation. Direct requests get direct answers here more often than elsewhere."
@@ -2550,7 +2570,7 @@
       }
     },
     "District Attorney": {
-      "default": "The law's front line against organised crime \u2014 or organised crime's best cover, depending on who the DA is. You're here to find out which.",
+      "default": "The law's front line against organised crime — or organised crime's best cover, depending on who the DA is. You're here to find out which.",
       "gender": {
         "male": "You present your case clearly and watch the DA's reaction to the name you mention.",
         "female": "You request a meeting and come prepared. The DA doesn't dismiss people who come prepared."
@@ -2602,7 +2622,7 @@
       "default": "The first and last person in this building to see everyone who enters or leaves. The doorman's memory is the building's real security log.",
       "gender": {
         "male": "You tip and ask. The doorman has been watching this door for eleven years and has decided you're worth answering.",
-        "female": "You greet them by name \u2014 it's on the tag \u2014 and ask your question as though you already know the answer. You get it."
+        "female": "You greet them by name — it's on the tag — and ask your question as though you already know the answer. You get it."
       }
     },
     "Drama Theater": {
@@ -2739,7 +2759,7 @@
       }
     },
     "Emergency Lighting": {
-      "default": "Backup illumination for when the main power fails. Someone wanted to make sure they could still see \u2014 or still be seen \u2014 when everything else went dark.",
+      "default": "Backup illumination for when the main power fails. Someone wanted to make sure they could still see — or still be seen — when everything else went dark.",
       "gender": {
         "male": "You check the battery charge on the emergency panels. Fresh. Tested recently. Anticipation or routine?",
         "female": "You note which areas the emergency lighting covers and which it deliberately doesn't. The gap is informative."
@@ -2788,7 +2808,7 @@
       }
     },
     "Entertainment Suite": {
-      "default": "A private room designed for pleasure and the off-the-record conversations that happen inside it. What gets said in an entertainment suite stays there \u2014 unless you were in it.",
+      "default": "A private room designed for pleasure and the off-the-record conversations that happen inside it. What gets said in an entertainment suite stays there — unless you were in it.",
       "gender": {
         "male": "You get the suite number from the concierge and arrive at exactly the right moment.",
         "female": "You enter with the composure of someone who was expected. Nobody corrects that assumption."
@@ -3145,7 +3165,7 @@
       }
     },
     "Gift Wrapping": {
-      "default": "The concealment of content beneath presentation. What's being wrapped, for whom, and by whose account \u2014 all of that is recorded.",
+      "default": "The concealment of content beneath presentation. What's being wrapped, for whom, and by whose account — all of that is recorded.",
       "gender": {
         "male": "You enquire about a specific order number under the pretext of a pickup. The counter staff checks the system.",
         "female": "You request gift wrapping for something small and ask about the service's busiest period. The staff describe a specific client's standing order."
@@ -3166,7 +3186,7 @@
       }
     },
     "Green Room": {
-      "default": "Where performers wait to go on. What gets said in a green room before a performance is what people actually mean \u2014 the performance hasn't started yet.",
+      "default": "Where performers wait to go on. What gets said in a green room before a performance is what people actually mean — the performance hasn't started yet.",
       "gender": {
         "male": "You enter as part of the crew and are immediately included in the pre-show conversation.",
         "female": "You arrive with something that needed to be delivered backstage. The delivery brings you into the room and the room brings you into the conversation."
@@ -3334,7 +3354,7 @@
       }
     },
     "Hot Desks": {
-      "default": "Unassigned workstations where the previous occupant always leaves something behind \u2014 usually something they didn't mean to.",
+      "default": "Unassigned workstations where the previous occupant always leaves something behind — usually something they didn't mean to.",
       "gender": {
         "male": "You claim a desk near the charging bar and note the browser tab left open on the adjacent screen.",
         "female": "You set up at a desk that was clearly used this morning. The notepad impression under the blotter is legible."
@@ -3777,7 +3797,7 @@
     "Detailing Bay": {
       "default": "The bay smells of wax and chemicals. Someone worked hard to make something look clean. You wonder what they were covering up.",
       "gender": {
-        "male": "You've run plates in worse places. The detailing bay is slick floors and chemical shine \u2014 the kind of clean that hides a multitude of sins.",
+        "male": "You've run plates in worse places. The detailing bay is slick floors and chemical shine — the kind of clean that hides a multitude of sins.",
         "female": "The bay reeks of solvent and effort. You've learned that the more someone polishes, the more they're trying to erase."
       }
     },
@@ -3791,15 +3811,15 @@
     "Detergent Dispenser": {
       "default": "A wall-mounted dispenser, half empty. Whoever uses this place cleans up their messes on a schedule. Or tries to.",
       "gender": {
-        "male": "Functional. Impersonal. Tells you this place processes a lot of dirty laundry \u2014 the literal kind, at least.",
+        "male": "Functional. Impersonal. Tells you this place processes a lot of dirty laundry — the literal kind, at least.",
         "female": "You note the soap level. Someone refills it regularly. Someone's paying attention to the small things around here."
       }
     },
     "Diagnostic Station": {
       "default": "A terminal of blinking readouts and cable bundles. Whatever runs through here, someone's watching every number it produces.",
       "gender": {
-        "male": "You scan the readouts. Data doesn't lie \u2014 people just misread it on purpose. You won't.",
-        "female": "The screens show vitals, error codes, system states. You read diagnostics like other people read faces \u2014 same skill, different subject."
+        "male": "You scan the readouts. Data doesn't lie — people just misread it on purpose. You won't.",
+        "female": "The screens show vitals, error codes, system states. You read diagnostics like other people read faces — same skill, different subject."
       }
     },
     "Digital Menu Boards": {
@@ -3819,14 +3839,14 @@
     "Imaging": {
       "default": "A room of machines that see through skin and bone. Everything looks different when you strip away the surface.",
       "gender": {
-        "male": "The imaging suite hums quietly. Whatever it finds in there, you'll deal with it the same way you deal with everything \u2014 straight on.",
+        "male": "The imaging suite hums quietly. Whatever it finds in there, you'll deal with it the same way you deal with everything — straight on.",
         "female": "The machines here reveal what's hidden. You respect that. You've spent a career doing the same thing."
       }
     },
     "Luxury Suites": {
       "default": "Suites reserved for those who can afford to be comfortable while everyone else isn't. Thick walls. Thicker secrets.",
       "gender": {
-        "male": "Luxury suites \u2014 the kind of rooms where deals get made that never appear in any record. You've cracked a few of those deals before.",
+        "male": "Luxury suites — the kind of rooms where deals get made that never appear in any record. You've cracked a few of those deals before.",
         "female": "The suites up here are polished to a mirror sheen. The higher the floor, the less they expect someone like you to come knocking."
       }
     },
@@ -3834,7 +3854,7 @@
       "default": "A corridor where the carpet is thick enough to muffle footsteps and conversations alike. Somebody paid for that privacy.",
       "gender": {
         "male": "The luxury wing. You walk it slowly. Expensive silence has a way of hiding expensive problems.",
-        "female": "You move through the wing carefully. Places this quiet aren't peaceful \u2014 they're controlled. Someone controls them."
+        "female": "You move through the wing carefully. Places this quiet aren't peaceful — they're controlled. Someone controls them."
       }
     },
     "Mail Center": {
@@ -3847,7 +3867,7 @@
     "Mail Room": {
       "default": "Packages stacked, envelopes sorted. The overlooked nerve center of any operation. Nobody notices the mail room until something goes missing.",
       "gender": {
-        "male": "The mail room \u2014 underpaid, underestimated, and the first place you check when things disappear.",
+        "male": "The mail room — underpaid, underestimated, and the first place you check when things disappear.",
         "female": "You've solved cases that started in rooms exactly like this. What gets delivered tells you everything about what people want."
       }
     },
@@ -3882,7 +3902,7 @@
     "Maintenance Shop": {
       "default": "Tools on every surface and a work order board covered in jobs. Somebody keeps this place running. That somebody sees everything.",
       "gender": {
-        "male": "The shop is organized the way a careful mind works \u2014 everything in its place, everything for a reason.",
+        "male": "The shop is organized the way a careful mind works — everything in its place, everything for a reason.",
         "female": "You step into the maintenance shop. The supervisor looks up with a measuring gaze. You return it with interest."
       }
     },
@@ -3901,10 +3921,10 @@
       }
     },
     "Massage Chair": {
-      "default": "A chair designed to unknot human tension. You note it's been used recently. Hard work or hard stress \u2014 either way, someone needed it.",
+      "default": "A chair designed to unknot human tension. You note it's been used recently. Hard work or hard stress — either way, someone needed it.",
       "gender": {
         "male": "You glance at the massage chair. Not now. Maybe never, on this job.",
-        "female": "The massage chair hums invitingly. Not the right moment. The case still has its grip \u2014 if it ever lets go."
+        "female": "The massage chair hums invitingly. Not the right moment. The case still has its grip — if it ever lets go."
       }
     },
     "Maternity Ward": {
@@ -3931,26 +3951,26 @@
     "Media Booth": {
       "default": "A glass box of lenses and broadcasting equipment. Whoever sits in there controls what the public sees. That's a dangerous power.",
       "gender": {
-        "male": "You glance up at the media booth. The camera never lies \u2014 but the person controlling it decides what it points at.",
+        "male": "You glance up at the media booth. The camera never lies — but the person controlling it decides what it points at.",
         "female": "The media booth looks down on everything. You make a mental note: everything said within range of those microphones is on record."
       }
     },
     "Mediation Rooms": {
       "default": "Rooms designed for compromise. You've seen what happens when compromise fails. That's usually when you get called in.",
       "gender": {
-        "male": "The mediation rooms are quiet and neutral. Don't let that fool you \u2014 the silence in here has broken people.",
+        "male": "The mediation rooms are quiet and neutral. Don't let that fool you — the silence in here has broken people.",
         "female": "You step into the mediation room. Disputes walked in here and left as settlements. Or grievances. Sometimes both."
       }
     },
     "Medical Clinic": {
-      "default": "A clinic humming with hurried purpose. People come here with pain and leave with answers \u2014 or more questions.",
+      "default": "A clinic humming with hurried purpose. People come here with pain and leave with answers — or more questions.",
       "gender": {
         "male": "You've visited enough medical clinics to know: the waiting room tells you more than the diagnosis ever will.",
         "female": "The clinic smells of antiseptic and anxiety. You read the faces in the waiting area. One of them isn't here for their health."
       }
     },
     "Medical Office": {
-      "default": "A doctor's office \u2014 certificates on the wall, files locked away, and a degree in keeping secrets that the diploma never mentions.",
+      "default": "A doctor's office — certificates on the wall, files locked away, and a degree in keeping secrets that the diploma never mentions.",
       "gender": {
         "male": "You scan the medical office. Credentials displayed, patient files locked. You have a warrant and a reason.",
         "female": "The medical office is organized and guarded. Getting information out of a doctor takes patience and a subpoena. You have both."
@@ -3959,7 +3979,7 @@
     "Medical Records": {
       "default": "A room full of what people never wanted to tell their doctors but eventually had to. Every folder is a confession.",
       "gender": {
-        "male": "Medical records \u2014 the truth written in clinical language. You read between the diagnoses.",
+        "male": "Medical records — the truth written in clinical language. You read between the diagnoses.",
         "female": "You approach the records desk. Every file in here is someone's private history. You only need one."
       }
     },
@@ -3973,12 +3993,12 @@
     "Medical Storage": {
       "default": "Shelves of supplies under lock and key. What's stored here can heal or harm depending on the hands that reach for it.",
       "gender": {
-        "male": "Medical storage \u2014 controlled, catalogued, and occasionally a motive.",
+        "male": "Medical storage — controlled, catalogued, and occasionally a motive.",
         "female": "You check the lock on the storage cabinet. Everything in here is accounted for. Something always gets unaccounted for eventually."
       }
     },
     "Medication Storage": {
-      "default": "A secure room of compounds and controlled substances. The inventory is tight. It has to be \u2014 because the demand never stops.",
+      "default": "A secure room of compounds and controlled substances. The inventory is tight. It has to be — because the demand never stops.",
       "gender": {
         "male": "You stand in the medication storage room. A lot of people would risk a lot to get their hands on what's in these cabinets.",
         "female": "Every vial and bottle is logged. You check the log. A detective knows that the gap between what's recorded and what's present is where crime lives."
@@ -4001,7 +4021,7 @@
     "Meeting Rooms": {
       "default": "A cluster of conference rooms where decisions are made, deals are struck, and cover stories are rehearsed.",
       "gender": {
-        "male": "Meeting rooms \u2014 the city's busiest theater. Every door hides a different performance.",
+        "male": "Meeting rooms — the city's busiest theater. Every door hides a different performance.",
         "female": "You walk past the meeting rooms. Murmured conversations, closed blinds. You make note of which rooms are in use."
       }
     },
@@ -4041,7 +4061,7 @@
       }
     },
     "Mezzanine": {
-      "default": "A level between levels \u2014 the vantage point that nobody thinks to look at. You always look at the mezzanine.",
+      "default": "A level between levels — the vantage point that nobody thinks to look at. You always look at the mezzanine.",
       "gender": {
         "male": "You step onto the mezzanine and survey everything below. Height is clarity. You've lived by that.",
         "female": "The mezzanine gives you sight lines nobody downstairs realizes you have. You use them."
@@ -4050,12 +4070,12 @@
     "Microwave Rooms": {
       "default": "Shared appliances, communal lunches, overheard grievances. The break room of building infrastructure. People talk here.",
       "gender": {
-        "male": "The microwave rooms \u2014 where office politics simmer alongside reheated leftovers.",
+        "male": "The microwave rooms — where office politics simmer alongside reheated leftovers.",
         "female": "You pass through the microwave room. Someone left a note on the machine. Someone else crossed it out. Small wars everywhere."
       }
     },
     "Mikvah": {
-      "default": "A ritual bath of ancient meaning, hidden in plain sight. Private, purposeful, and not your business \u2014 unless you make it yours.",
+      "default": "A ritual bath of ancient meaning, hidden in plain sight. Private, purposeful, and not your business — unless you make it yours.",
       "gender": {
         "male": "The mikvah is a quiet, sacred space. You respect the purpose here even as you do your job.",
         "female": "You enter the mikvah area carefully. Sacred spaces deserve measured steps. You offer that much, even now."
@@ -4071,7 +4091,7 @@
     "Mobile Order Pickup": {
       "default": "A shelf of labeled bags and cold drinks. Modern efficiency. Nobody makes eye contact. Nobody has to.",
       "gender": {
-        "male": "Mobile pickup \u2014 the city's way of saying 'transact and move on.' You prefer to linger.",
+        "male": "Mobile pickup — the city's way of saying 'transact and move on.' You prefer to linger.",
         "female": "You scan the pickup shelf. Dozens of orders, dozens of names. One of them is a lie."
       }
     },
@@ -4083,7 +4103,7 @@
       }
     },
     "Motorcycle Parking": {
-      "default": "A row of bikes chained up and waiting. Each one a quick exit \u2014 which is exactly why you're paying attention to it.",
+      "default": "A row of bikes chained up and waiting. Each one a quick exit — which is exactly why you're paying attention to it.",
       "gender": {
         "male": "You walk the motorcycle lot. You know three ways out from every corner. Habit. These bikes know one.",
         "female": "The motorcycle parking is around back. Away from cameras. Of course it is."
@@ -4111,7 +4131,7 @@
       }
     },
     "Multiple Anchors": {
-      "default": "Several main tenants anchoring the same property \u2014 each one drawing its own crowd, each crowd useful cover for someone who doesn't want to be found.",
+      "default": "Several main tenants anchoring the same property — each one drawing its own crowd, each crowd useful cover for someone who doesn't want to be found.",
       "gender": {
         "male": "Multiple anchors, multiple exits, multiple problems. You draw a map in your head and start walking.",
         "female": "You note the anchor stores. Several entry points, several crowds. Whoever you're looking for could be inside any of them."
@@ -4134,7 +4154,7 @@
     "Multiple Elevators": {
       "default": "Banks of elevators serving a tall building's guilty conscience. You never take the same one twice.",
       "gender": {
-        "male": "Multiple elevators \u2014 and multiple ways for someone to slip between floors without you tracking them. Not today.",
+        "male": "Multiple elevators — and multiple ways for someone to slip between floors without you tracking them. Not today.",
         "female": "You note the elevator banks. Cameras in each one. Good. You'll want that footage."
       }
     },
@@ -4170,18 +4190,18 @@
       "default": "A medical station for breathing treatments. Simple, necessary, and quietly revealing about the health of a place and its people.",
       "gender": {
         "male": "The nebulizer station stands ready in the corner. You note it was used recently. Someone needed help breathing.",
-        "female": "You pass the nebulizer station. The small things tell the story \u2014 what people need, what they struggle with."
+        "female": "You pass the nebulizer station. The small things tell the story — what people need, what they struggle with."
       }
     },
     "Network Operations Center": {
-      "default": "The nerve center of digital infrastructure \u2014 screens everywhere, cable bundles like arteries, and analysts who know where every packet goes.",
+      "default": "The nerve center of digital infrastructure — screens everywhere, cable bundles like arteries, and analysts who know where every packet goes.",
       "gender": {
         "male": "You stand in the NOC. The operators track everything. You need to know what they saw during a specific late-night window.",
         "female": "The network operations center never sleeps. Neither did you last night. You have questions that only these screens can answer."
       }
     },
     "Newsstand": {
-      "default": "Papers, magazines, and cigarettes. The newsstand is the city's original social media \u2014 and the person behind the counter misses nothing.",
+      "default": "Papers, magazines, and cigarettes. The newsstand is the city's original social media — and the person behind the counter misses nothing.",
       "gender": {
         "male": "You buy a paper you won't read. The vendor sizes you up the way they size up everyone. You let them.",
         "female": "You pause at the newsstand. The vendor has been at this corner for twenty years. That's twenty years of watching who comes and goes."
@@ -4191,11 +4211,11 @@
       "default": "A slot in the wall where money vanishes after hours. No witnesses, no receipts, just a transaction in the dark.",
       "gender": {
         "male": "The night deposit slot. You've pulled cases from evidence worse than what's been dropped through here.",
-        "female": "You examine the night deposit unit. Unmarked envelopes are a detective's specialty \u2014 so is finding out what's in them."
+        "female": "You examine the night deposit unit. Unmarked envelopes are a detective's specialty — so is finding out what's in them."
       }
     },
     "Nitrous System": {
-      "default": "A boost system built for speed \u2014 and for the kind of risks that make paperwork for someone in your position.",
+      "default": "A boost system built for speed — and for the kind of risks that make paperwork for someone in your position.",
       "gender": {
         "male": "Nitrous. The last resort of the impatient and the desperate. You've chased both.",
         "female": "You note the nitrous system. Street racers, modified vehicles, and the accidents that follow them into your case files."
@@ -4209,7 +4229,7 @@
       }
     },
     "Nurse Station": {
-      "default": "The command post of a ward \u2014 charts, medications, and a level of controlled chaos that takes years to master.",
+      "default": "The command post of a ward — charts, medications, and a level of controlled chaos that takes years to master.",
       "gender": {
         "male": "You approach the nurse station. Busy, efficient, and currently assessing how much of a problem you're going to be. Fair.",
         "female": "The nurse station runs on precision and exhaustion. You recognize the rhythm. You've worked under it too."
@@ -4233,7 +4253,7 @@
       "default": "Four walls, a desk, and everything that gets buried in a drawer and forgotten. Offices are where truth goes to disappear.",
       "gender": {
         "male": "Your kind of room. A desk to anchor you, a door to close, and enough shadows to think in.",
-        "female": "You stand in the office. Whoever works here is careful \u2014 nothing personal on display. That's a choice that tells you something."
+        "female": "You stand in the office. Whoever works here is careful — nothing personal on display. That's a choice that tells you something."
       }
     },
     "Office Block": {
@@ -4253,21 +4273,21 @@
     "Oil Change Bay": {
       "default": "A pit and a lift. Thirty minutes under your vehicle and someone knows exactly what you've been driving through.",
       "gender": {
-        "male": "You watch the mechanic work the oil change bay. They see more than oil \u2014 they see mileage, wear patterns, and destinations.",
+        "male": "You watch the mechanic work the oil change bay. They see more than oil — they see mileage, wear patterns, and destinations.",
         "female": "The oil change bay smells like motor oil and diesel. The mechanic looks up. You have questions that are going to take longer than thirty minutes."
       }
     },
     "Online Pickup": {
       "default": "A designated counter for the already-decided. People who use online pickup know exactly what they want and don't want to talk to anyone about it.",
       "gender": {
-        "male": "Online pickup \u2014 efficient, anonymous, and capable of hiding a transaction you'd otherwise have to explain.",
+        "male": "Online pickup — efficient, anonymous, and capable of hiding a transaction you'd otherwise have to explain.",
         "female": "You check the pickup counter. Order history is a paper trail. And paper trails are your specialty."
       }
     },
     "Open Kitchen": {
       "default": "The whole operation on display, nothing hidden. You appreciate the transparency. In this city, it's rare.",
       "gender": {
-        "male": "Open kitchen \u2014 glass and stainless steel, every move visible. You prefer things this way.",
+        "male": "Open kitchen — glass and stainless steel, every move visible. You prefer things this way.",
         "female": "You take a seat near the open kitchen. Watch the rhythm of it. Who's in charge, who cuts corners, who's watching the door."
       }
     },
@@ -4303,7 +4323,7 @@
       "default": "Metal frames and worn rubber. Where kids learn the city's geometry before the city teaches them something harder.",
       "gender": {
         "male": "You scan the playground from the gate. Nobody matching your description. You ask the bench sitters. They've been watching.",
-        "female": "The outdoor playground is busy. You move carefully through it. Whoever you're looking for isn't here \u2014 but someone saw them nearby."
+        "female": "The outdoor playground is busy. You move carefully through it. Whoever you're looking for isn't here — but someone saw them nearby."
       }
     },
     "Outdoor Seating": {
@@ -4351,7 +4371,7 @@
     "Packing Supplies": {
       "default": "Boxes, tape, bubble wrap. The infrastructure of moving things from one place to another without anyone asking why.",
       "gender": {
-        "male": "Packing supplies \u2014 the tools of relocation. Someone stocked up recently. You note the amount.",
+        "male": "Packing supplies — the tools of relocation. Someone stocked up recently. You note the amount.",
         "female": "You examine the packing supply inventory. Someone was preparing to move something. You intend to find out what, and where."
       }
     },
@@ -4377,7 +4397,7 @@
       }
     },
     "Parking": {
-      "default": "Spaces marked and filled, a temporary land of comings and goings. Who parks where, when, and for how long \u2014 that's your business.",
+      "default": "Spaces marked and filled, a temporary land of comings and goings. Who parks where, when, and for how long — that's your business.",
       "gender": {
         "male": "You walk the parking area. License plates are a language. You're fluent.",
         "female": "You move through the parking lot methodically. Time stamps and cameras. Someone was here at the wrong time in the right vehicle."
@@ -4400,7 +4420,7 @@
     "Parking Sensors": {
       "default": "Electronic eyes that track occupancy and time. They see everything. The question is whether anyone's looking at the data.",
       "gender": {
-        "male": "Parking sensors \u2014 passive surveillance infrastructure. You know how to pull the logs when nobody else thought to ask.",
+        "male": "Parking sensors — passive surveillance infrastructure. You know how to pull the logs when nobody else thought to ask.",
         "female": "You note the sensor placement. They've been recording every arrival and departure. That data is going to help you."
       }
     },
@@ -4422,7 +4442,7 @@
       "default": "Shelves of components and serial numbers. The parts department knows exactly what was ordered, what was installed, and what went missing.",
       "gender": {
         "male": "You walk the parts department aisles. Everything catalogued, everything numbered. The inventory discrepancy you're here about starts on aisle three.",
-        "female": "The parts department is meticulously organized. That precision cuts both ways \u2014 it makes irregularities easy to spot. You spot several."
+        "female": "The parts department is meticulously organized. That precision cuts both ways — it makes irregularities easy to spot. You spot several."
       }
     },
     "Parts Storage": {
@@ -4461,7 +4481,7 @@
       }
     },
     "Pastor's Office": {
-      "default": "A private office of counsel and confession. Whatever was said in here is protected \u2014 unless it crosses the line into something you can't ignore.",
+      "default": "A private office of counsel and confession. Whatever was said in here is protected — unless it crosses the line into something you can't ignore.",
       "gender": {
         "male": "You knock on the pastor's door. Sacred confidences are real. So are crimes committed behind them.",
         "female": "The pastor's office is warm and deliberate. You choose your words carefully. Some rooms require that."
@@ -4524,7 +4544,7 @@
       }
     },
     "Pediatric Unit": {
-      "default": "A ward designed around small patients and their very protective families. You tread carefully here \u2014 professionally and personally.",
+      "default": "A ward designed around small patients and their very protective families. You tread carefully here — professionally and personally.",
       "gender": {
         "male": "You step into the pediatric unit. Your pace slows automatically. Some places change how you move.",
         "female": "The pediatric unit is brightly decorated and staffed with extraordinary patience. You match the tone of the ward and get to work."
@@ -4538,7 +4558,7 @@
       }
     },
     "Permit Center": {
-      "default": "Where the city's intentions go through official channels \u2014 or try to. The permit center is a map of everything people want to build, change, or hide.",
+      "default": "Where the city's intentions go through official channels — or try to. The permit center is a map of everything people want to build, change, or hide.",
       "gender": {
         "male": "You pull the permit history on the property. Three amendments in eighteen months. Someone kept changing what they said they were building.",
         "female": "The permit center has records going back decades. You find the application you're looking for. The signatory name is one you recognize."
@@ -4587,7 +4607,7 @@
       }
     },
     "Pharmacy": {
-      "default": "Prescriptions filled and questions not asked. The pharmacy carries everything the city needs to function \u2014 and occasionally what it uses to stop functioning.",
+      "default": "Prescriptions filled and questions not asked. The pharmacy carries everything the city needs to function — and occasionally what it uses to stop functioning.",
       "gender": {
         "male": "You flash your badge at the pharmacy counter. Controlled substance logs. You need the last ninety days.",
         "female": "The pharmacist knows every customer by name and prescription. You ask about the one who stopped filling refills two weeks ago."
@@ -4729,7 +4749,7 @@
     "Press Box": {
       "default": "An elevated booth where the story gets written before the game ends. You've noticed that narratives decided from altitude are always more curated.",
       "gender": {
-        "male": "You climb to the press box. The view is comprehensive. The person who sat here last night saw everything that happened on the field \u2014 and off it.",
+        "male": "You climb to the press box. The view is comprehensive. The person who sat here last night saw everything that happened on the field — and off it.",
         "female": "The press box gives you the best sight line in the building. You take it. The reporters here didn't report what they saw. You want to know why not."
       }
     },
@@ -4757,7 +4777,7 @@
     "Private Beach": {
       "default": "Sand reserved for people who bought the right to keep others off it. Exclusion is expensive. What happens here is private by design.",
       "gender": {
-        "male": "The private beach. No public access, no witnesses you didn't pay. That's why you're here \u2014 and they didn't expect you.",
+        "male": "The private beach. No public access, no witnesses you didn't pay. That's why you're here — and they didn't expect you.",
         "female": "You step onto the private beach with your badge. The security guard pauses. You don't."
       }
     },
@@ -4923,14 +4943,14 @@
       }
     },
     "Raw Material Storage": {
-      "default": "The beginning of a production chain \u2014 unprocessed, unaccounted for, and occasionally the origin of very large problems.",
+      "default": "The beginning of a production chain — unprocessed, unaccounted for, and occasionally the origin of very large problems.",
       "gender": {
         "male": "You check the raw material intake logs. The load that came in Tuesday didn't match the manifest. Somebody signed off on it anyway.",
         "female": "The raw material storage is logged by weight and unit. The discrepancy you found is eight hundred pounds. That's not a clerical error."
       }
     },
     "Reception": {
-      "default": "The first face of any operation. The reception desk sees everyone who enters \u2014 and remembers more than the visitor log reflects.",
+      "default": "The first face of any operation. The reception desk sees everyone who enters — and remembers more than the visitor log reflects.",
       "gender": {
         "male": "You stop at reception. The person behind the desk is already assessing you. You let them. Then you ask your question.",
         "female": "The receptionist has a practiced neutral expression. You've learned to read past practiced. You ask about Thursday at four."
@@ -4944,7 +4964,7 @@
       }
     },
     "Reception Desk": {
-      "default": "A counter between the public and the private. The person behind it is the building's first line of defense \u2014 and your first source of information.",
+      "default": "A counter between the public and the private. The person behind it is the building's first line of defense — and your first source of information.",
       "gender": {
         "male": "You approach the reception desk and show your badge. The attendant's expression shifts. You ask before they can compose themselves.",
         "female": "The reception desk is the building's front intelligence post. You know how to make a receptionist an ally. You start now."
@@ -4958,7 +4978,7 @@
       }
     },
     "Records Office": {
-      "default": "The institutional memory of any organization. The records office is where the history lives \u2014 and where people go when they want to rewrite it.",
+      "default": "The institutional memory of any organization. The records office is where the history lives — and where people go when they want to rewrite it.",
       "gender": {
         "male": "You present your warrant at the records office. The clerk pulls files with the speed of someone who has been expecting this request.",
         "female": "The records office is orderly and purposeful. You know exactly which file you need. You also know three have been removed recently."
@@ -4979,14 +4999,14 @@
       }
     },
     "Records Vault": {
-      "default": "The most protected documents in the building are in here. The vault is built to survive a fire \u2014 and an inconvenient investigation.",
+      "default": "The most protected documents in the building are in here. The vault is built to survive a fire — and an inconvenient investigation.",
       "gender": {
         "male": "The records vault requires two keys and a court order. You have both. The administrator stares at the paperwork for a long time.",
         "female": "You stand outside the records vault while the on-site attorney reviews your order. You've done this before. The vault always opens."
       }
     },
     "Recovery Room": {
-      "default": "A room designed for emergence from difficulty \u2014 medical or otherwise. The recovery room is honest about what people have been through.",
+      "default": "A room designed for emergence from difficulty — medical or otherwise. The recovery room is honest about what people have been through.",
       "gender": {
         "male": "You sit with the witness in the recovery room. They're still under, but you'll be here when they come around.",
         "female": "The recovery room is quiet and monitored. You wait outside with your notepad and whatever patience you have left."
@@ -5035,7 +5055,7 @@
       }
     },
     "Research Labs": {
-      "default": "Controlled environments where hypotheses are tested and conclusions are reached \u2014 or suppressed. The research lab's real findings are in the discarded drafts.",
+      "default": "Controlled environments where hypotheses are tested and conclusions are reached — or suppressed. The research lab's real findings are in the discarded drafts.",
       "gender": {
         "male": "You put on a lab coat and walk the research labs. Nobody stops you. They should have.",
         "female": "The research labs require keycard access and a non-disclosure agreement. You have the first. You're here about what the second was covering."
@@ -5101,7 +5121,7 @@
       "default": "Individual storefronts inside a larger property. Each one its own operation, its own story, its own reason to be here.",
       "gender": {
         "male": "You walk the retail shops one by one. The one at the end of the row has the lights off and a closed sign that wasn't there yesterday.",
-        "female": "The retail shops are all accounted for in the lease records \u2014 except one, which was sublet without approval. You find the subletter."
+        "female": "The retail shops are all accounted for in the lease records — except one, which was sublet without approval. You find the subletter."
       }
     },
     "Retail Space": {
@@ -5115,7 +5135,7 @@
       "default": "The intake desk for what didn't work out. Returns processing handles exceptions. You're investigating one.",
       "gender": {
         "male": "You review the returns processing log. One item came back without a receipt and without a reason logged. That's unusual.",
-        "female": "The returns processing desk sees the fringe of retail \u2014 the damaged, the disputed, the fraudulent. You ask about the outlier from a recent transaction."
+        "female": "The returns processing desk sees the fringe of retail — the damaged, the disputed, the fraudulent. You ask about the outlier from a recent transaction."
       }
     },
     "Roasting Equipment": {
@@ -5168,7 +5188,7 @@
       }
     },
     "Rooftop Lounge": {
-      "default": "A relaxed elevation above the crowd. The rooftop lounge attracts people who want to be seen \u2014 and those who want to see without being noticed.",
+      "default": "A relaxed elevation above the crowd. The rooftop lounge attracts people who want to be seen — and those who want to see without being noticed.",
       "gender": {
         "male": "You arrive at the rooftop lounge late. The crowd has thinned. The conversations that remain are the ones you came for.",
         "female": "You take a seat on the rooftop lounge terrace and let the ambient talk of the city wash over you. You catch the thread you've been following."
@@ -5196,14 +5216,14 @@
       }
     },
     "Safe Deposit Boxes": {
-      "default": "Two-key access to the city's private confessions, stored in steel drawers. What's inside is known only to the holder \u2014 until it becomes evidence.",
+      "default": "Two-key access to the city's private confessions, stored in steel drawers. What's inside is known only to the holder — until it becomes evidence.",
       "gender": {
         "male": "You present a court order for safe deposit box 217. The bank manager reads it slowly and says nothing when he's done.",
         "female": "Safe deposit access requires a warrant and a witness. You have both. The box has been untouched for three months."
       }
     },
     "Sanctuary": {
-      "default": "The main worship space \u2014 vaulted, quiet, and carrying the weight of everyone who has come here with something they couldn't carry alone.",
+      "default": "The main worship space — vaulted, quiet, and carrying the weight of everyone who has come here with something they couldn't carry alone.",
       "gender": {
         "male": "You step into the sanctuary slowly. Your voice stays low. Your questions get asked anyway.",
         "female": "The sanctuary is still and vast. You stand in it a moment before the work begins. Some rooms earn a pause."
@@ -5255,13 +5275,13 @@
       "default": "Chairs and common space where people wait and watch. The seating area is the city's most productive passive surveillance.",
       "gender": {
         "male": "You take a seat and let the room run. In ten minutes, you know who's been here too long and who's waiting for the wrong thing.",
-        "female": "The seating area is full of people in transit. You read the room the way you read case files \u2014 quickly and without missing the margin notes."
+        "female": "The seating area is full of people in transit. You read the room the way you read case files — quickly and without missing the margin notes."
       }
     },
     "Security": {
       "default": "Uniformed presence and institutional watchfulness. The security team sees everything the cameras don't and forgets nothing convenient to remember.",
       "gender": {
-        "male": "You badge in to the security supervisor. Professional courtesy between people who know how buildings work \u2014 and how they don't.",
+        "male": "You badge in to the security supervisor. Professional courtesy between people who know how buildings work — and how they don't.",
         "female": "You approach the security desk. The officer sizes you up. You let them finish and then ask for the incident log."
       }
     },
@@ -5301,7 +5321,7 @@
       }
     },
     "Security Operations": {
-      "default": "The active monitoring center for a large property \u2014 screens, analysts, and the ongoing business of watching for what shouldn't be there.",
+      "default": "The active monitoring center for a large property — screens, analysts, and the ongoing business of watching for what shouldn't be there.",
       "gender": {
         "male": "Security operations is staffed around the clock. You arrive at shift change deliberately. The outgoing team remembers more than the incoming one has been told.",
         "female": "You enter security operations with credentials and questions. The analyst on duty pulls up the timeline before you can ask. She already connected the dots."
@@ -5322,7 +5342,7 @@
       }
     },
     "Self-Checkout": {
-      "default": "Automated checkout lanes that eliminate the human witness \u2014 or so people assume. Every swipe is still logged.",
+      "default": "Automated checkout lanes that eliminate the human witness — or so people assume. Every swipe is still logged.",
       "gender": {
         "male": "Self-checkout. The lane with the malfunctioning camera is the one your subject always used. You pull the card transaction data instead.",
         "female": "You check the self-checkout terminal logs. Cash transactions leave less trace. Card transactions leave enough."
@@ -5350,7 +5370,7 @@
       }
     },
     "Server Room": {
-      "default": "Cold air and server hum \u2014 the infrastructure of everything digital in this building. The server room is where data lives until someone decides it shouldn't.",
+      "default": "Cold air and server hum — the infrastructure of everything digital in this building. The server room is where data lives until someone decides it shouldn't.",
       "gender": {
         "male": "The server room access log shows an entry at 3 AM by a maintenance credential that was deactivated six weeks ago.",
         "female": "You stand in the server room with your IT forensics contact. Cold air, live drives, and a deletion event from a recent overnight window."
@@ -5378,7 +5398,7 @@
       }
     },
     "Shampoo Bowls": {
-      "default": "Tilted chairs and running water for hair washing \u2014 where people close their eyes and talk. The shampoo bowl is an accidental confessional.",
+      "default": "Tilted chairs and running water for hair washing — where people close their eyes and talk. The shampoo bowl is an accidental confessional.",
       "gender": {
         "male": "You wait near the shampoo area. The stylist is mid-rinse and mid-conversation. The conversation is more useful to you.",
         "female": "You take a chair near the shampoo bowls and listen. Clients talk freely here. One of them said something last week that hasn't left the stylist's mind."
@@ -5448,7 +5468,7 @@
       }
     },
     "Sky Lounge": {
-      "default": "A premium lounge above the city's competing noise. The sky lounge is for the kind of people who conduct their business where nobody else can overhear \u2014 or so they think.",
+      "default": "A premium lounge above the city's competing noise. The sky lounge is for the kind of people who conduct their business where nobody else can overhear — or so they think.",
       "gender": {
         "male": "You ride the express elevator to the sky lounge. The sommelier recognizes you. You've been here before, under different circumstances.",
         "female": "The sky lounge operates on reservation and appearance. You arrive without either and let your badge handle the introductions."
@@ -5479,7 +5499,7 @@
       "default": "A professional wine service post where expertise meets occasion. The sommelier knows who orders what and who they order it with.",
       "gender": {
         "male": "You speak to the sommelier. He remembers the table in the corner, the bottle they selected, and the conversation that was louder than the guests intended.",
-        "female": "The sommelier is meticulous and observant. She describes the table, the guests, and the moment when the mood shifted \u2014 unprompted."
+        "female": "The sommelier is meticulous and observant. She describes the table, the guests, and the moment when the mood shifted — unprompted."
       }
     },
     "Sound System": {
@@ -5493,7 +5513,7 @@
       "default": "A space of deliberate calm layered over whatever brought the client here. The spa staff see people in their most unguarded state.",
       "gender": {
         "male": "You check in with the spa manager. Appointment logs, treatment records, and a client who left without completing a session.",
-        "female": "The spa is quiet and controlled. The esthetician remembers your subject clearly. Something about them wasn't relaxed \u2014 not even here."
+        "female": "The spa is quiet and controlled. The esthetician remembers your subject clearly. Something about them wasn't relaxed — not even here."
       }
     },
     "Special Ed Room": {
@@ -5525,7 +5545,7 @@
       }
     },
     "Staff Lounge": {
-      "default": "The room where employees are briefly off-duty. The staff lounge is where the real institutional knowledge lives \u2014 in the conversations nobody thinks to record.",
+      "default": "The room where employees are briefly off-duty. The staff lounge is where the real institutional knowledge lives — in the conversations nobody thinks to record.",
       "gender": {
         "male": "You enter the staff lounge during the overlap break. The workers are tired and candid. You ask your question and listen.",
         "female": "The staff lounge is where the real building operates. You make coffee, take a seat, and let the room decide you're safe to talk to."
@@ -5542,11 +5562,11 @@
       "default": "An elevated platform designed for performance and attention. The stage is where people become what they need to be seen as.",
       "gender": {
         "male": "You stand on the stage in the empty hall. The sightlines from up here cut both ways.",
-        "female": "The stage was occupied last night. You note the position of the lighting rig and what it would have illuminated \u2014 and what it would have hidden."
+        "female": "The stage was occupied last night. You note the position of the lighting rig and what it would have illuminated — and what it would have hidden."
       }
     },
     "Stairwell": {
-      "default": "Concrete and metal between floors \u2014 utilitarian and overlooked. The stairwell is where the city's off-the-record movement happens.",
+      "default": "Concrete and metal between floors — utilitarian and overlooked. The stairwell is where the city's off-the-record movement happens.",
       "gender": {
         "male": "You take the stairwell instead of the elevator. Old habit. The camera on the third floor landing has been taped over.",
         "female": "You descend the stairwell with your hand on your jacket. The acoustics carry sound from two floors up. You stop and listen."
@@ -5567,7 +5587,7 @@
       }
     },
     "Storage": {
-      "default": "General-purpose holding space for things that haven't found their final purpose. Storage rooms accumulate everything \u2014 supplies, records, and secrets.",
+      "default": "General-purpose holding space for things that haven't found their final purpose. Storage rooms accumulate everything — supplies, records, and secrets.",
       "gender": {
         "male": "You push open the storage room door. The light flickers on. Whatever's in here has been here a while.",
         "female": "The storage room is the building's repository of things nobody handles daily. That's why what you're looking for is here."
@@ -5591,7 +5611,7 @@
       "default": "A utility space that holds more than inventory. Storage rooms are archives, repositories, and occasionally the answer to the question you couldn't place.",
       "gender": {
         "male": "The storage room inventory doesn't match the purchase orders from last month. You start with the discrepancy and work outward.",
-        "female": "You move through the storage room systematically. The disorganization is cultivated \u2014 designed to make things hard to find. You find them anyway."
+        "female": "You move through the storage room systematically. The disorganization is cultivated — designed to make things hard to find. You find them anyway."
       }
     },
     "Storage Units": {
@@ -5651,7 +5671,7 @@
       }
     },
     "Surgery Center": {
-      "default": "A facility where precision is mandatory and every event is documented. The surgery center holds records of what was done \u2014 and occasionally what was undone.",
+      "default": "A facility where precision is mandatory and every event is documented. The surgery center holds records of what was done — and occasionally what was undone.",
       "gender": {
         "male": "You speak to the surgery center director. The procedure in question is documented. So is the anomaly you're here to investigate.",
         "female": "The surgery center's record management is meticulous. You find the inconsistency in the pre-op documentation and ask who approved it."
@@ -5763,7 +5783,7 @@
       }
     },
     "Ticket Office": {
-      "default": "The front gate of an event \u2014 where access is purchased and attendees are logged. The ticket office knows who was supposed to be there.",
+      "default": "The front gate of an event — where access is purchased and attendees are logged. The ticket office knows who was supposed to be there.",
       "gender": {
         "male": "You check the ticket office sales record. The will-call list has a name that recurs in your case file.",
         "female": "The ticket office supervisor pulls the night's transaction log without argument. She's been watching this case from a distance. Now it arrived at her window."
@@ -5805,7 +5825,7 @@
       }
     },
     "Towel Service": {
-      "default": "Laundered linens for guests or members \u2014 a service that tracks consumption and circulation. The towel service log knows who was where and for how long.",
+      "default": "Laundered linens for guests or members — a service that tracks consumption and circulation. The towel service log knows who was where and for how long.",
       "gender": {
         "male": "You check the towel service records. Pool towels were issued to a room late at night. The pool had already closed.",
         "female": "The towel service desk issues and logs every item. You ask about the issuance that wasn't tied to an active room booking."
@@ -5819,7 +5839,7 @@
       }
     },
     "Training Center": {
-      "default": "A facility for developing capability \u2014 physical, professional, or operational. The training center shapes how people respond under pressure. You look for who didn't apply the training.",
+      "default": "A facility for developing capability — physical, professional, or operational. The training center shapes how people respond under pressure. You look for who didn't apply the training.",
       "gender": {
         "male": "You check the training center completion records. Your subject passed every module. The problem isn't competence. It's motive.",
         "female": "The training center director has documentation on every candidate. She pulls the file before you ask. She had a feeling."
@@ -5875,7 +5895,7 @@
       }
     },
     "Travel Services": {
-      "default": "A desk that handles the logistics of getting somewhere else. Travel services know where people were going \u2014 and when they stopped buying tickets.",
+      "default": "A desk that handles the logistics of getting somewhere else. Travel services know where people were going — and when they stopped buying tickets.",
       "gender": {
         "male": "You present your badge at the travel services desk. The agent pulls the booking history. Your subject purchased a one-way ticket two days ago.",
         "female": "The travel services agent is cooperative and precise. She shows you every reservation made and cancelled in the last two weeks."
@@ -5917,7 +5937,7 @@
       }
     },
     "Used Car Lot": {
-      "default": "A property of history, repaint, and previous ownership. The used car lot trades in second chances \u2014 not all of them legitimate.",
+      "default": "A property of history, repaint, and previous ownership. The used car lot trades in second chances — not all of them legitimate.",
       "gender": {
         "male": "You walk the used car lot with your VIN scanner. One of these vehicles has a title history that doesn't hold together.",
         "female": "The lot manager pulls the sales records when you ask. Three vehicles moved in the last month with documentation gaps. You start there."
@@ -5966,7 +5986,7 @@
       }
     },
     "Vacuum Station": {
-      "default": "Industrial or commercial vacuum equipment for vehicle or facility cleaning. The vacuum station is where things get removed \u2014 not always just dirt.",
+      "default": "Industrial or commercial vacuum equipment for vehicle or facility cleaning. The vacuum station is where things get removed — not always just dirt.",
       "gender": {
         "male": "The vacuum station filter bag was pulled recently. You have the lab process it before the bin is cleared.",
         "female": "You arrive at the vacuum station before the cleaning service completes their run. The debris collected here is now evidence."
@@ -5994,7 +6014,7 @@
       }
     },
     "Vehicle Storage": {
-      "default": "A secured compound for long-term vehicle holding. What gets stored here is out of circulation \u2014 until someone decides it isn't.",
+      "default": "A secured compound for long-term vehicle holding. What gets stored here is out of circulation — until someone decides it isn't.",
       "gender": {
         "male": "You locate the vehicle in storage and document its condition before anyone can prepare an explanation.",
         "female": "The vehicle storage manifest shows the unit was checked in but not checked out. You verify the vehicle is still there. It isn't."
@@ -6022,7 +6042,7 @@
       }
     },
     "Ventilation System": {
-      "default": "Integrated HVAC infrastructure running through every wall and ceiling in the building. It circulates air \u2014 and carries sound further than people realize.",
+      "default": "Integrated HVAC infrastructure running through every wall and ceiling in the building. It circulates air — and carries sound further than people realize.",
       "gender": {
         "male": "You trace the ventilation system floor by floor. The smell coming from the east duct doesn't belong here. You find the source.",
         "female": "The ventilation system map shows a route from the secured server room to the maintenance corridor. It wasn't in the original drawings."
@@ -6036,7 +6056,7 @@
       }
     },
     "Wait Station": {
-      "default": "A service staging area in a restaurant or event space. The wait station is the operational nerve center of the front of house \u2014 and the place most conversations get overheard.",
+      "default": "A service staging area in a restaurant or event space. The wait station is the operational nerve center of the front of house — and the place most conversations get overheard.",
       "gender": {
         "male": "You position yourself near the wait station. The servers consolidate here between runs. So does the conversation about what happened at table seven.",
         "female": "You speak with the lead server at the wait station. She has a professional memory for every table's needs and every odd moment of service."
@@ -6064,14 +6084,14 @@
       }
     },
     "Walk-In Cooler": {
-      "default": "Industrial cold storage for food or medical product. The walk-in cooler is a controlled environment \u2014 and occasionally an uncontrolled one.",
+      "default": "Industrial cold storage for food or medical product. The walk-in cooler is a controlled environment — and occasionally an uncontrolled one.",
       "gender": {
         "male": "The walk-in cooler door was left ajar last night. The temperature alarm triggered at 2:14 AM. You find out who was inside.",
         "female": "You examine the walk-in cooler log. An after-hours entry that wasn't authorized. You check the product inventory for what was touched."
       }
     },
     "Walk-In Freezer": {
-      "default": "Sub-zero storage where temperature is identity. The walk-in freezer is the coldest point in the operation \u2014 in every sense.",
+      "default": "Sub-zero storage where temperature is identity. The walk-in freezer is the coldest point in the operation — in every sense.",
       "gender": {
         "male": "You pull open the walk-in freezer door. Whatever you expected to find in here, you found something else.",
         "female": "The walk-in freezer access log shows a late entry with no corresponding food service activity. You trace the credential used."
@@ -6099,7 +6119,7 @@
       }
     },
     "Welding Shop": {
-      "default": "Sparks and structure \u2014 metal joined under controlled heat. The welding shop records what it fabricates. Not everything fabricated is on the log.",
+      "default": "Sparks and structure — metal joined under controlled heat. The welding shop records what it fabricates. Not everything fabricated is on the log.",
       "gender": {
         "male": "The welding shop has a job ticket system. One ticket was completed off-schedule and the material used doesn't match the order.",
         "female": "You examine the welding shop output log. A custom fabrication job was run after hours. No client name, no PO number."
@@ -6119,13 +6139,22 @@
         "female": "The whitening room technician had a full appointment with your subject. She remembers the conversation in detail. It's relevant."
       }
     },
-    "WiFi": {
-      "default": "Wireless network access serving the building's population. The WiFi router logs every device that connects. In the right hands, that's a complete attendance record.",
-      "gender": {
-        "male": "You request the WiFi access logs from the building's network administrator. Device MAC addresses are better than visitor logs.",
-        "female": "The network admin pulls the connection history from a specific overnight window without being asked twice. The device that was active in the early hours is registered to someone you've been looking for."
+    "WiFi": [
+      {
+        "default": "Wireless network access serving the building's population. The WiFi router logs every device that connects. In the right hands, that's a complete attendance record.",
+        "gender": {
+          "male": "You request the WiFi access logs from the building's network administrator. Device MAC addresses are better than visitor logs.",
+          "female": "The network admin pulls the connection history from a specific overnight window without being asked twice. The device that was active in the early hours is registered to someone you've been looking for."
+        }
+      },
+      {
+        "default": "Wireless access point covering the space. Every connection is a timestamp, and timestamps are evidence.",
+        "gender": {
+          "male": "You ask the IT manager about the access logs. He prints them without reading them first. That's useful.",
+          "female": "You pull the device connection records. One device authenticated from outside the building's footprint. That takes some explaining."
+        }
       }
-    },
+    ],
     "Wine Cellar": {
       "default": "Temperature-controlled storage for premium bottles and their implicit value. The wine cellar keeps track of what came in, what went out, and what's inexplicably missing.",
       "gender": {
@@ -6176,7 +6205,7 @@
       }
     },
     "X-Ray Room": {
-      "default": "A shielded space for diagnostic imaging. Access is controlled and every session logged. A room designed for seeing clearly \u2014 which is exactly what you intend to do.",
+      "default": "A shielded space for diagnostic imaging. Access is controlled and every session logged. A room designed for seeing clearly — which is exactly what you intend to do.",
       "gender": {
         "male": "The X-ray room was accessed during a period when no patients were scheduled. You find the access log and the credential it belongs to.",
         "female": "You enter the X-ray room with the radiation safety officer. The lead shielding makes the room feel absolute. You ask your questions with the same quality."
@@ -6204,7 +6233,7 @@
       }
     },
     "Youth Lounge": {
-      "default": "An informal gathering space for adolescents \u2014 furniture, screens, and the social complexity of young people working out who they are.",
+      "default": "An informal gathering space for adolescents — furniture, screens, and the social complexity of young people working out who they are.",
       "gender": {
         "male": "You wait in the youth lounge for the program supervisor. The teenagers give you a wide berth. That's fine. You're not here for them.",
         "female": "The youth lounge coordinator knows her regulars by name and by trouble type. She introduces you to the one you need to speak with."

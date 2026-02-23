@@ -615,4 +615,331 @@ public class NovelTextEngineTest {
         assertEquals("Hour-based overload should respect gender selection",
                 "Officers treat you with guarded professional neutrality.", desc);
     }
+
+    // ===== Location-based variant selection =====
+
+    private static final String MULTI_VARIANT_JSON =
+        "{" +
+        "  \"version\": \"1.3\"," +
+        "  \"language\": \"en\"," +
+        "  \"descriptions\": {" +
+        "    \"gym\": [" +
+        "      {" +
+        "        \"default\": \"Gym variant A — iron and sweat.\"," +
+        "        \"time\": {" +
+        "          \"morning\": \"Gym-A morning: early crowd.\"," +
+        "          \"evening\": \"Gym-A evening: after-work rush.\"" +
+        "        }," +
+        "        \"attribute\": {" +
+        "          \"STRENGTH\": \"Gym-A strength: you feel at home.\"" +
+        "        }," +
+        "        \"gender\": {" +
+        "          \"male\": \"Gym-A male.\"," +
+        "          \"female\": \"Gym-A female.\"" +
+        "        }" +
+        "      }," +
+        "      {" +
+        "        \"default\": \"Gym variant B — rubber floors.\"," +
+        "        \"time\": {" +
+        "          \"morning\": \"Gym-B morning: machines taken.\"" +
+        "        }," +
+        "        \"attribute\": {" +
+        "          \"STAMINA\": \"Gym-B stamina: cardio section.\"" +
+        "        }," +
+        "        \"gender\": {" +
+        "          \"male\": \"Gym-B male.\"," +
+        "          \"female\": \"Gym-B female.\"" +
+        "        }" +
+        "      }" +
+        "    ]," +
+        "    \"office\": {" +
+        "      \"default\": \"Single-variant office.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Office morning.\"" +
+        "      }" +
+        "    }" +
+        "  }," +
+        "  \"improvements\": {" +
+        "    \"WiFi\": [" +
+        "      {" +
+        "        \"default\": \"WiFi variant A: router logs every device.\"," +
+        "        \"gender\": {" +
+        "          \"male\": \"WiFi-A male: access logs requested.\"," +
+        "          \"female\": \"WiFi-A female: device history pulled.\"" +
+        "        }" +
+        "      }," +
+        "      {" +
+        "        \"default\": \"WiFi variant B: every connection is a timestamp.\"," +
+        "        \"gender\": {" +
+        "          \"male\": \"WiFi-B male: IT manager prints logs.\"," +
+        "          \"female\": \"WiFi-B female: device outside footprint.\"" +
+        "        }" +
+        "      }" +
+        "    ]," +
+        "    \"Security Camera\": {" +
+        "      \"default\": \"Single-variant camera.\"" +
+        "    }" +
+        "  }" +
+        "}";
+
+    // Known-good location constants:
+    //   "A1" hashes to variant index 0 for count=2
+    //   "B1" hashes to variant index 1 for count=2
+    private static final String LOC_VARIANT_A = "A1";
+    private static final String LOC_VARIANT_B = "B1";
+
+    private NovelTextEngine multiVariantEngine;
+
+    @org.junit.Before
+    public void setUpMultiVariantEngine() {
+        multiVariantEngine = NovelTextEngine.fromJsonString(MULTI_VARIANT_JSON);
+    }
+
+    // --- selectVariantIndex unit tests ---
+
+    @Test
+    public void testSelectVariantIndexNullLocationReturnsZero() {
+        assertEquals(0, NovelTextEngine.selectVariantIndex(null, 3));
+    }
+
+    @Test
+    public void testSelectVariantIndexEmptyLocationReturnsZero() {
+        assertEquals(0, NovelTextEngine.selectVariantIndex("", 3));
+    }
+
+    @Test
+    public void testSelectVariantIndexSingleVariantAlwaysReturnsZero() {
+        assertEquals(0, NovelTextEngine.selectVariantIndex("G6", 1));
+        assertEquals(0, NovelTextEngine.selectVariantIndex("H1", 1));
+        assertEquals(0, NovelTextEngine.selectVariantIndex("A1", 1));
+    }
+
+    @Test
+    public void testSelectVariantIndexInRange() {
+        int variantCount = 5;
+        for (String loc : new String[]{"A1", "B2", "C3", "G6", "H1", "P16"}) {
+            int idx = NovelTextEngine.selectVariantIndex(loc, variantCount);
+            assertTrue("Index must be in [0, variantCount)", idx >= 0 && idx < variantCount);
+        }
+    }
+
+    @Test
+    public void testSelectVariantIndexDeterministic() {
+        // Same location must always produce the same index
+        String loc = "G6";
+        int first = NovelTextEngine.selectVariantIndex(loc, 2);
+        for (int i = 0; i < 10; i++) {
+            assertEquals("selectVariantIndex must be deterministic for same location",
+                    first, NovelTextEngine.selectVariantIndex(loc, 2));
+        }
+    }
+
+    @Test
+    public void testSelectVariantIndexKnownValues() {
+        // A1 → 0, B1 → 1 for count=2 (used as anchors throughout the location tests)
+        assertEquals("A1 should map to variant index 0", 0,
+                NovelTextEngine.selectVariantIndex(LOC_VARIANT_A, 2));
+        assertEquals("B1 should map to variant index 1", 1,
+                NovelTextEngine.selectVariantIndex(LOC_VARIANT_B, 2));
+    }
+
+    @Test
+    public void testSelectVariantIndexDifferentLocations() {
+        // A1 and B1 map to different variants for count=2
+        int a1 = NovelTextEngine.selectVariantIndex(LOC_VARIANT_A, 2);
+        int b1 = NovelTextEngine.selectVariantIndex(LOC_VARIANT_B, 2);
+        assertNotEquals("A1 and B1 should select different variants", a1, b1);
+    }
+
+    // --- Multi-variant loading and dispatch ---
+
+    @Test
+    public void testMultiVariantEngineLoads() {
+        assertNotNull(multiVariantEngine);
+    }
+
+    @Test
+    public void testNullLocationUsesFirstVariant() {
+        // null location → index 0 → variant A default
+        String desc = multiVariantEngine.getDescription("gym", (String) null,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Null location should use first variant",
+                "Gym variant A — iron and sweat.", desc);
+    }
+
+    @Test
+    public void testLocationA1AlwaysReturnsSameVariant() {
+        String first = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        String second = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Same location must always return same variant", first, second);
+    }
+
+    @Test
+    public void testDifferentLocationsReturnDifferentVariants() {
+        // A1 → variant A default, B1 → variant B default
+        String a1 = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        String b1 = multiVariantEngine.getDescription("gym", LOC_VARIANT_B,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertNotEquals("A1 and B1 should return different variant defaults", a1, b1);
+    }
+
+    @Test
+    public void testLocationA1SelectsVariantADefault() {
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("A1 should return variant A default",
+                "Gym variant A — iron and sweat.", desc);
+    }
+
+    @Test
+    public void testLocationB1SelectsVariantBDefault() {
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_B,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("B1 should return variant B default",
+                "Gym variant B — rubber floors.", desc);
+    }
+
+    @Test
+    public void testVariantATimeOfDayMorning() {
+        // A1 → variant A → morning time variant
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.MORNING, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Variant A morning time variant", "Gym-A morning: early crowd.", desc);
+    }
+
+    @Test
+    public void testVariantBTimeOfDayMorning() {
+        // B1 → variant B → morning time variant
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_B,
+                TimeOfDay.MORNING, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Variant B morning time variant", "Gym-B morning: machines taken.", desc);
+    }
+
+    @Test
+    public void testVariantAAttributeStrength() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STRENGTH", 9);
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, attrs, null);
+        assertEquals("Variant A STRENGTH attribute", "Gym-A strength: you feel at home.", desc);
+    }
+
+    @Test
+    public void testVariantBAttributeStamina() {
+        Map<String, Integer> attrs = new HashMap<String, Integer>();
+        attrs.put("STAMINA", 9);
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_B,
+                TimeOfDay.AFTERNOON, attrs, null);
+        assertEquals("Variant B STAMINA attribute", "Gym-B stamina: cardio section.", desc);
+    }
+
+    @Test
+    public void testVariantAGenderMale() {
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), "male");
+        assertEquals("Variant A male gender", "Gym-A male.", desc);
+    }
+
+    @Test
+    public void testVariantBGenderFemale() {
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_B,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), "female");
+        assertEquals("Variant B female gender", "Gym-B female.", desc);
+    }
+
+    @Test
+    public void testSingleVariantWithLocationIgnoresLocation() {
+        // "office" has only one variant — any location returns the same text
+        String descA1 = multiVariantEngine.getDescription("office", LOC_VARIANT_A,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        String descB1 = multiVariantEngine.getDescription("office", LOC_VARIANT_B,
+                TimeOfDay.AFTERNOON, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Single-variant entry must be location-independent", descA1, descB1);
+        assertEquals("Single-variant default text", "Single-variant office.", descA1);
+    }
+
+    @Test
+    public void testSingleVariantObjectFormatWithLocationStillWorks() {
+        // Existing single-object format still works when a location is provided
+        String desc = multiVariantEngine.getDescription("office", LOC_VARIANT_A,
+                TimeOfDay.MORNING, Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Single-object format + location should return time variant",
+                "Office morning.", desc);
+    }
+
+    // --- Multi-variant improvements ---
+
+    @Test
+    public void testImprovementNullLocationUsesFirstVariant() {
+        String desc = multiVariantEngine.getImprovementDescription("WiFi", null, null);
+        assertEquals("Null location should use first WiFi variant default",
+                "WiFi variant A: router logs every device.", desc);
+    }
+
+    @Test
+    public void testImprovementLocationA1AlwaysReturnsSameVariant() {
+        String first  = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_A, null);
+        String second = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_A, null);
+        assertEquals("Same location must always return same WiFi variant", first, second);
+    }
+
+    @Test
+    public void testImprovementDifferentLocationsReturnDifferentVariants() {
+        String a1 = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_A, null);
+        String b1 = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_B, null);
+        assertNotEquals("A1 and B1 should return different WiFi variant defaults", a1, b1);
+    }
+
+    @Test
+    public void testImprovementVariantAGenderMale() {
+        String desc = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_A, "male");
+        assertEquals("WiFi variant A male gender", "WiFi-A male: access logs requested.", desc);
+    }
+
+    @Test
+    public void testImprovementVariantBGenderFemale() {
+        String desc = multiVariantEngine.getImprovementDescription("WiFi", LOC_VARIANT_B, "female");
+        assertEquals("WiFi variant B female gender", "WiFi-B female: device outside footprint.", desc);
+    }
+
+    @Test
+    public void testSingleVariantImprovementWithLocationIgnoresLocation() {
+        String descA1 = multiVariantEngine.getImprovementDescription("Security Camera", LOC_VARIANT_A, null);
+        String descB1 = multiVariantEngine.getImprovementDescription("Security Camera", LOC_VARIANT_B, null);
+        assertEquals("Single-variant improvement must be location-independent", descA1, descB1);
+        assertEquals("Single-variant camera default", "Single-variant camera.", descA1);
+    }
+
+    // --- Location overload of getDescription with hour ---
+
+    @Test
+    public void testLocationHourOverload() {
+        // A1 → variant A; hour 9 → MORNING → time variant
+        String desc = multiVariantEngine.getDescription("gym", LOC_VARIANT_A, 9,
+                Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Location + hour overload should resolve time variant",
+                "Gym-A morning: early crowd.", desc);
+    }
+
+    // --- Backward-compat: existing no-location calls still work ---
+
+    @Test
+    public void testExistingNoLocationCallsStillWorkOnMultiVariantEntry() {
+        // The original 4-arg overload (no location) must still work for multi-variant entries
+        // It will always use variant at index 0
+        String desc = multiVariantEngine.getDescription("gym", TimeOfDay.AFTERNOON,
+                Collections.<String, Integer>emptyMap(), null);
+        assertEquals("No-location call on multi-variant entry should use first variant",
+                "Gym variant A — iron and sweat.", desc);
+    }
+
+    @Test
+    public void testExistingNoLocationImprovementCallStillWorksOnMultiVariantEntry() {
+        String desc = multiVariantEngine.getImprovementDescription("WiFi", null);
+        assertEquals("No-location improvement call should use first variant default",
+                "WiFi variant A: router logs every device.", desc);
+    }
 }
