@@ -591,9 +591,11 @@ class InfoPanelRenderer {
         ty -= fontLineH;
 
         // Attributes — centred-[total] layout:
-        //   Name (left, PAD)  |  [total] (centred)  |  : base ±loc ±equip ±body (right of centre)
+        //   Name (right-aligned left of bracket)  |  [total] (centred)  |  base ±loc ±equip ±body (right of centre)
         float contentW  = s.screenWidth - SB;           // usable width (no scrollbar)
         float centerX   = contentW / 2f;                // X centre of the [total] token
+        glyphLayout.setText(smallFont, " ");
+        float spaceW = glyphLayout.width;               // measured once; reused per attribute row
 
         for (CharacterAttribute attr : attrs) {
             int base     = profile.getAttribute(attr.name());
@@ -612,10 +614,13 @@ class InfoPanelRenderer {
             float bracketX  = centerX - bracketW / 2f;  // left edge of "[total]"
             float afterX    = centerX + bracketW / 2f;  // first pixel right of "]"
 
-            // Attribute name — white, left-aligned, stops before the bracket
+            // Attribute name — white, right-aligned immediately left of bracket (one space gap)
             String nameStr = attr.getDisplayName();
+            glyphLayout.setText(smallFont, nameStr);
+            float nameW = glyphLayout.width;
+            float nameX = bracketX - spaceW - nameW;
             smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, nameStr, PAD, ay);
+            smallFont.draw(batch, nameStr, nameX, ay);
 
             // "[" — white
             smallFont.setColor(Color.WHITE);
@@ -638,11 +643,11 @@ class InfoPanelRenderer {
             String baseStr = String.valueOf(base);
             boolean hasAdditions = locMod != 0 || equipMod != 0 || bodyMod != 0;
             if (hasAdditions) {
-                // ": base" — white
-                String colonBase = ": " + baseStr;
+                // " base" — white (space before base, colon removed)
+                String spaceBase = " " + baseStr;
                 smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, colonBase, cx, ay);
-                glyphLayout.setText(smallFont, colonBase);
+                smallFont.draw(batch, spaceBase, cx, ay);
+                glyphLayout.setText(smallFont, spaceBase);
                 cx += glyphLayout.width;
             }
 
