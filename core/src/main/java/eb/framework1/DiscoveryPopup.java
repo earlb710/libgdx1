@@ -170,7 +170,9 @@ class DiscoveryPopup {
         scrollLines.addAll(novelLines);
         if (!improvementLines.isEmpty()) {
             scrollLines.add("Improvements found:");
-            scrollLines.addAll(improvementLines);
+            for (String impLine : improvementLines) {
+                scrollLines.addAll(WordWrapper.wrap(impLine, textAreaMaxW, measurer));
+            }
         }
 
         // Track which line-index range is novel (for NOVEL_COLOR rendering)
