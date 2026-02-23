@@ -4193,6 +4193,146 @@
         "male": "The night deposit slot. You've pulled cases from evidence worse than what's been dropped through here.",
         "female": "You examine the night deposit unit. Unmarked envelopes are a detective's specialty \u2014 so is finding out what's in them."
       }
+    },
+    "Nitrous System": {
+      "default": "A boost system built for speed \u2014 and for the kind of risks that make paperwork for someone in your position.",
+      "gender": {
+        "male": "Nitrous. The last resort of the impatient and the desperate. You've chased both.",
+        "female": "You note the nitrous system. Street racers, modified vehicles, and the accidents that follow them into your case files."
+      }
+    },
+    "Nurse Office": {
+      "default": "A small room with a cot and a cabinet full of what people reach for when the day gets too hard.",
+      "gender": {
+        "male": "You stop by the nurse's office. Cold pack on the right, aspirin on the left. You've learned to find these rooms by instinct.",
+        "female": "The nurse's office is clean and functional. The person who runs it sees the building's stress load up close. You ask them about it."
+      }
+    },
+    "Nurse Station": {
+      "default": "The command post of a ward \u2014 charts, medications, and a level of controlled chaos that takes years to master.",
+      "gender": {
+        "male": "You approach the nurse station. Busy, efficient, and currently assessing how much of a problem you're going to be. Fair.",
+        "female": "The nurse station runs on precision and exhaustion. You recognize the rhythm. You've worked under it too."
+      }
+    },
+    "Nursery": {
+      "default": "A room designed for the smallest and most fragile. You keep your voice low and your questions brief.",
+      "gender": {
+        "male": "You stand in the nursery doorway. Whatever you came here for, it doesn't belong in this room. You get in and out fast.",
+        "female": "The nursery is calm and carefully lit. You do what you need to do here quickly and without disturbing anything."
+      }
+    },
+    "Nursing Lab": {
+      "default": "Simulation mannequins and medical equipment for practice runs. Learning how to save lives under artificial pressure. You know something about that.",
+      "gender": {
+        "male": "The nursing lab is set up for scenarios. You've run a few of your own.",
+        "female": "You walk through the nursing lab. It's designed to prepare people for emergencies. You've been living in one."
+      }
+    },
+    "Office": {
+      "default": "Four walls, a desk, and everything that gets buried in a drawer and forgotten. Offices are where truth goes to file itself away.",
+      "gender": {
+        "male": "Your kind of room. A desk to anchor you, a door to close, and enough shadows to think in.",
+        "female": "You stand in the office. Whoever works here is careful \u2014 nothing personal on display. That's a choice that tells you something."
+      }
+    },
+    "Office Block": {
+      "default": "A grid of offices arranged for maximum productivity and minimum personality. The city's white-collar machinery at full hum.",
+      "gender": {
+        "male": "The office block stretches down the hall. Closed doors, muffled calls. Somewhere in here is the answer you need.",
+        "female": "You move through the office block methodically. Every closed door is a question. You intend to ask them all."
+      }
+    },
+    "Office Space": {
+      "default": "Flexible square footage with fluorescent lighting and the faint smell of ambition. Somebody's running something out of here.",
+      "gender": {
+        "male": "The office space is generic enough to be anything. That flexibility is exactly what concerns you.",
+        "female": "You assess the office space. Neutral, adaptable, anonymous. Perfect for someone who doesn't want their name on a lease."
+      }
+    },
+    "Oil Change Bay": {
+      "default": "A pit and a lift. Thirty minutes under your vehicle and someone knows exactly what you've been driving through.",
+      "gender": {
+        "male": "You watch the mechanic work the oil change bay. They see more than oil \u2014 they see mileage, wear patterns, and destinations.",
+        "female": "The oil change bay smells like motor oil and diesel. The mechanic looks up. You have questions that are going to take longer than thirty minutes."
+      }
+    },
+    "Online Pickup": {
+      "default": "A designated counter for the already-decided. People who use online pickup know exactly what they want and don't want to talk to anyone about it.",
+      "gender": {
+        "male": "Online pickup \u2014 efficient, anonymous, and capable of hiding a transaction you'd otherwise have to explain.",
+        "female": "You check the pickup counter. Order history is a paper trail. And paper trails are your specialty."
+      }
+    },
+    "Open Kitchen": {
+      "default": "The whole operation on display, nothing hidden. You appreciate the transparency. In this city, it's rare.",
+      "gender": {
+        "male": "Open kitchen \u2014 glass and stainless steel, every move visible. You prefer things this way.",
+        "female": "You take a seat near the open kitchen. Watch the rhythm of it. Who's in charge, who cuts corners, who's watching the door."
+      }
+    },
+    "Optical Center": {
+      "default": "Glasses and lenses and the careful art of seeing clearly. Everyone in this city could stand to see a little more clearly.",
+      "gender": {
+        "male": "The optical center. You've had your vision checked. Everything's fine. It's everyone else's story that's blurry.",
+        "female": "You step into the optical center. The optometrist has steady hands and observant eyes. You ask them what they've seen."
+      }
+    },
+    "Outdoor Courtyard": {
+      "default": "An open space carved into the middle of the building. Where people come to breathe between obligations.",
+      "gender": {
+        "male": "You step into the outdoor courtyard. Open sky, clear sightlines. You take a breath and do a three-sixty.",
+        "female": "The courtyard is quiet right now. You note the sight lines from every window above. Someone has a view of everything down here."
+      }
+    },
+    "Outdoor Garden": {
+      "default": "Maintained greenery in a city that mostly forgets to grow things. Someone tends this with intention.",
+      "gender": {
+        "male": "You walk the outdoor garden. Whoever maintains this place is patient and methodical. You make a note.",
+        "female": "The garden is immaculate. That level of care speaks to someone with time and a reason to invest it. You want to know who."
+      }
+    },
+    "Outdoor Patio": {
+      "default": "Tables and chairs in fresh air, where conversations carry and strangers listen. The outdoor patio is the most honest room in any building.",
+      "gender": {
+        "male": "You take a corner table on the patio. The wind carries voices. You let it.",
+        "female": "You sit on the patio with your coffee. Open air and ambient conversation. The best office in the city."
+      }
+    },
+    "Outdoor Playground": {
+      "default": "Metal frames and worn rubber. Where kids learn the city's geometry before the city teaches them something harder.",
+      "gender": {
+        "male": "You scan the playground from the gate. Nobody matching your description. You ask the bench sitters. They've been watching.",
+        "female": "The outdoor playground is busy. You move carefully through it. Whoever you're looking for isn't here \u2014 but someone saw them nearby."
+      }
+    },
+    "Outdoor Seating": {
+      "default": "Sidewalk chairs facing the street. Front-row seats to the city's theatre, where the price of admission is being watched back.",
+      "gender": {
+        "male": "You take outdoor seating near the entrance. You want to see who comes and goes without being inside when they arrive.",
+        "female": "You choose a seat on the outdoor terrace. Good angles. You order something you won't finish and start watching."
+      }
+    },
+    "Outdoor Terrace": {
+      "default": "A rooftop or elevated deck open to the air. Where people go to feel above it all without actually leaving.",
+      "gender": {
+        "male": "You step onto the outdoor terrace. The city sprawls below. From up here, patterns become visible.",
+        "female": "The terrace gives you height and perspective. You use both. Someone up here saw something they didn't report."
+      }
+    },
+    "PO Boxes": {
+      "default": "Numbered compartments for keeping correspondence private. In this city, a PO Box is just a secret with a lock.",
+      "gender": {
+        "male": "You check the PO boxes. One's been rented recently. You want the name on the application.",
+        "female": "PO boxes. Anonymous. Intentional. You know the kind of person who pays for this kind of distance from their own mail."
+      }
+    },
+    "Package Lockers": {
+      "default": "Electronic storage units for unattended deliveries. Convenient, contactless, and entirely traceable if you know where to pull the logs.",
+      "gender": {
+        "male": "Package lockers. You've pulled delivery records from these before. What gets sent and received writes a person's story.",
+        "female": "You examine the package locker bank. Every transaction has a timestamp. You note the unit numbers and start making calls."
+      }
     }
   }
 }
