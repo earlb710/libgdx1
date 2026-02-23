@@ -5173,6 +5173,146 @@
         "male": "You arrive at the rooftop lounge late. The crowd has thinned. The conversations that remain are the ones you came for.",
         "female": "You take a seat on the rooftop lounge terrace and let the ambient talk of the city wash over you. You catch the thread you've been following."
       }
+    },
+    "Rooftop Pool": {
+      "default": "Water above the city line. The rooftop pool is private and exposed in equal measure. What happens up here happens under open sky.",
+      "gender": {
+        "male": "The rooftop pool is drained. It wasn't when your subject was last seen up here.",
+        "female": "You stand at the edge of the rooftop pool. The water is still and cold. The story of what happened here isn't."
+      }
+    },
+    "Rooftop Terrace": {
+      "default": "An outdoor elevated platform overlooking whatever the city offers below. The terrace is where deals are made in open air and deniability.",
+      "gender": {
+        "male": "The rooftop terrace is empty in the morning light. Something was dragged across the tile recently. You photograph the marks.",
+        "female": "You step onto the rooftop terrace. A witness from the neighboring building saw two people up here at midnight. You find the witness first."
+      }
+    },
+    "Room Service": {
+      "default": "Meals delivered to where you're staying, no questions asked. Room service workers see every floor at every hour. They're better witnesses than they know.",
+      "gender": {
+        "male": "You track down the room service order from suite 1402. Delivery at 11 PM. The server is still on shift.",
+        "female": "You speak to the room service supervisor. She pulls the delivery log for the night in question without being asked. Efficient."
+      }
+    },
+    "Safe Deposit Boxes": {
+      "default": "Two-key access to the city's private confessions, stored in steel drawers. What's inside is known only to the holder \u2014 until it becomes evidence.",
+      "gender": {
+        "male": "You present a court order for safe deposit box 217. The bank manager reads it slowly and says nothing when he's done.",
+        "female": "Safe deposit access requires a warrant and a witness. You have both. The box has been untouched for three months."
+      }
+    },
+    "Sanctuary": {
+      "default": "The main worship space \u2014 vaulted, quiet, and carrying the weight of everyone who has come here with something they couldn't carry alone.",
+      "gender": {
+        "male": "You step into the sanctuary slowly. Your voice stays low. Your questions get asked anyway.",
+        "female": "The sanctuary is still and vast. You stand in it a moment before the work begins. Some rooms earn a pause."
+      }
+    },
+    "Sauna": {
+      "default": "A room of heat and reduced inhibition. Conversations in the sauna tend toward honesty. You note who uses this facility and when.",
+      "gender": {
+        "male": "The sauna is empty but was used recently. The temperature log and the towel on the bench tell you when.",
+        "female": "You check the sauna access log. Two entries last Friday evening, both under guest passes. You trace the names."
+      }
+    },
+    "Scale Station": {
+      "default": "Industrial weighing equipment for precise measurement. What gets weighed here gets logged. The log says everything moved was authorized. You find the entry that wasn't.",
+      "gender": {
+        "male": "The scale station records every load to the gram. The overnight run had an unlogged weight event. You flag it.",
+        "female": "You review the scale station printout. A pallet moved without a corresponding order number. You start tracing it backward."
+      }
+    },
+    "Science Building": {
+      "default": "Laboratories and lecture halls organized around the process of asking questions and testing answers. The building itself asks questions you weren't ready for.",
+      "gender": {
+        "male": "You clear your ID at the science building security desk. The research here is funded by people you already know from other cases.",
+        "female": "The science building is a grid of closed doors and specific access requirements. You move through it with your authorization and your patience."
+      }
+    },
+    "Science Lab": {
+      "default": "Controlled environment, precision instruments, and the kind of work that doesn't tolerate interference. You interfere anyway.",
+      "gender": {
+        "male": "You suit up at the science lab door. The lead researcher looks up from the bench. You ask your question before they can tell you not to.",
+        "female": "The science lab is meticulous and cool. You locate the research notes you need. Someone already went through them. You find what they missed."
+      }
+    },
+    "Science Labs": {
+      "default": "Multiple research spaces operating in parallel, each chasing a different piece of the same complex truth.",
+      "gender": {
+        "male": "You work through the science labs systematically. Lab three has been locked from the inside since Tuesday. You ask for a master key.",
+        "female": "The science labs share a central corridor. You note which ones have logged entries in the last 48 hours. Lab five hasn't."
+      }
+    },
+    "Seafood Counter": {
+      "default": "Ice-packed cases of fresh catch and the staff who handle them daily. The seafood counter sees regulars, and regulars are creatures of habit.",
+      "gender": {
+        "male": "You step up to the seafood counter. The monger has been here since 5 AM. They've seen your subject. They're not sure what to do about it.",
+        "female": "The seafood counter is cold and busy. You lean in and ask the question quietly. The response tells you more than you expected."
+      }
+    },
+    "Seating Area": {
+      "default": "Chairs and common space where people wait and watch. The seating area is the city's most productive passive surveillance.",
+      "gender": {
+        "male": "You take a seat and let the room run. In ten minutes, you know who's been here too long and who's waiting for the wrong thing.",
+        "female": "The seating area is full of people in transit. You read the room the way you read case files \u2014 quickly and without missing the margin notes."
+      }
+    },
+    "Security": {
+      "default": "Uniformed presence and institutional watchfulness. The security team sees everything the cameras don't and forgets nothing convenient to remember.",
+      "gender": {
+        "male": "You badge in to the security supervisor. Professional courtesy between people who know how buildings work \u2014 and how they don't.",
+        "female": "You approach the security desk. The officer sizes you up. You let them finish and then ask for the incident log."
+      }
+    },
+    "Security Camera": {
+      "default": "A single eye mounted at an angle that shows more than it's supposed to. The security camera is the city's most honest narrator.",
+      "gender": {
+        "male": "You trace the camera angle. The footage from Tuesday has been requested by three different people. You want to know who the other two are.",
+        "female": "You identify the camera position and calculate the field of view. What it caught is exactly what you needed."
+      }
+    },
+    "Security Cameras": {
+      "default": "A network of eyes covering every significant surface in the building. The camera system is only as good as whoever watches the footage.",
+      "gender": {
+        "male": "You review the security camera grid map. Three dead zones that nobody patched. You start there.",
+        "female": "You request the camera export for the past 72 hours. The security supervisor pulls up the access log. You're not the first one who asked for this."
+      }
+    },
+    "Security Checkpoint": {
+      "default": "A controlled access point where everyone is scanned and logged. The checkpoint knows who came in. You want to know who didn't come out.",
+      "gender": {
+        "male": "You move through the security checkpoint with your credentials. The officer checks twice. You appreciate the thoroughness.",
+        "female": "The security checkpoint log shows your subject entered at 7:43 PM. They did not exit. You ask for the interior camera coverage."
+      }
+    },
+    "Security Desk": {
+      "default": "The ground-floor command post of building security. The desk officer has seen everything from this chair. You ask them what they remember about Wednesday night.",
+      "gender": {
+        "male": "You lean on the security desk. The guard knows trouble walks on two feet. You flash your badge and ask for the visitor log.",
+        "female": "The security desk officer is alert and practiced. She remembers the visitor from Wednesday without being prompted. She's been waiting to tell someone."
+      }
+    },
+    "Security Office": {
+      "default": "The operational center of a building's safety infrastructure. The security office holds footage, incident reports, and conversations you're going to want to hear.",
+      "gender": {
+        "male": "You sit down in the security office and start from the top. Camera grid, access logs, incident reports. You'll be here a while.",
+        "female": "The security office is organized and current. The chief officer knows exactly which footage you need. She also knows why you need it."
+      }
+    },
+    "Security Operations": {
+      "default": "The active monitoring center for a large property \u2014 screens, analysts, and the ongoing business of watching for what shouldn't be there.",
+      "gender": {
+        "male": "Security operations is staffed around the clock. You arrive at shift change deliberately. The outgoing team remembers more than the incoming one has been told.",
+        "female": "You enter security operations with credentials and questions. The analyst on duty pulls up the timeline before you can ask. She already connected the dots."
+      }
+    },
+    "Security Patrol": {
+      "default": "Mobile oversight of a defined territory. The patrol officer walks the same route at the same time unless something makes them deviate. Find the deviation.",
+      "gender": {
+        "male": "You check the patrol log. Officer 7's route varied at 2:17 AM. You find Officer 7.",
+        "female": "The patrol officer's route is documented to the minute. You find the minute where it changed and trace it forward."
+      }
     }
   }
 }
