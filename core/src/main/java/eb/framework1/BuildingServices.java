@@ -69,7 +69,7 @@ final class BuildingServices {
     static final int   GYM_TIME_SELF  =  90;   // minutes
     static final int   GYM_TIME_PT    =  60;   // PT is more focused
     /** Base chance of attribute gain for self-guided training (first session of the day). */
-    static final float GYM_CHANCE_SELF = 0.35f;
+    static final float GYM_CHANCE_SELF = 0.40f;
     /** Base chance of attribute gain for personal-trainer session. */
     static final float GYM_CHANCE_PT   = 0.70f;
 
