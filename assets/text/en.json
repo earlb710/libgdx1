@@ -3353,6 +3353,146 @@
         "male": "You order and wait. The wait at a hot food counter is never silent.",
         "female": "You compliment the service and ask how long they've been on. The server answers and mentions who was in earlier."
       }
+    },
+    "Human Resources": {
+      "default": "Personnel records and the institutional memory of every complaint, review, and termination. The HR file on the person you're looking for is more complete than their CV.",
+      "gender": {
+        "male": "You request records under an employee relations review. HR cooperates with reviews because the alternative is worse.",
+        "female": "You present your query as a welfare concern. HR is more responsive to welfare concerns than formal requests."
+      }
+    },
+    "ICU": {
+      "default": "Intensive care and the critical period where the most important facts about a person are written in their physiology. The chart tells you what happened even if the patient can't.",
+      "gender": {
+        "male": "You speak to the attending with the directness of someone who needs the clinical picture. They provide it.",
+        "female": "You identify the lead nurse and introduce yourself briefly. Nurses control access to information in the ICU more than anyone else."
+      }
+    },
+    "IMAX Screen": {
+      "default": "Maximum immersion and minimum awareness of anything outside the frame. The IMAX screen puts a thousand people in the same mental state simultaneously. You're the only one watching the audience.",
+      "gender": {
+        "male": "You take the back row centre and spend the film watching what the film was designed to prevent you from watching.",
+        "female": "You find the seat with the best peripheral view and spend two hours in professional observation."
+      }
+    },
+    "IT Department": {
+      "default": "The nervous system of the building's digital life. Every email, every access log, every flagged file exists somewhere in the IT department's records.",
+      "gender": {
+        "male": "You submit a help-desk ticket that gives you a reason to be in the department. Once you're in the department, you're in.",
+        "female": "You speak to the IT manager about a network anomaly you've prepared in advance. The anomaly is real enough to discuss. The discussion covers what you came for."
+      }
+    },
+    "IV Therapy": {
+      "default": "Intravenous administration logged to patient, substance, and time. What was administered here, and under what authorisation, tells a story.",
+      "gender": {
+        "male": "You review the administration record for the relevant window. One IV order was verbal, not written. That's a protocol deviation.",
+        "female": "You ask the duty nurse about the patient's treatment plan. The nurse describes the IV protocol and notes the deviation themselves."
+      }
+    },
+    "Ice Machine": {
+      "default": "The one appliance in any building that people visit at all hours without thinking about it. The hallway outside an ice machine is the best casual surveillance point in the building.",
+      "gender": {
+        "male": "You take the corridor outside the ice machine and look like you're waiting for someone. Everyone comes to the ice machine eventually.",
+        "female": "You fill your bucket and step back into the corridor. The ice machine sees more foot traffic than the lobby at two in the morning."
+      }
+    },
+    "Ice Rink Equipment": {
+      "default": "Specialised machinery and the maintenance schedule that keeps it running. The rink has off-hours that aren't in the public calendar.",
+      "gender": {
+        "male": "You ask about the maintenance window schedule. The ice is resurfaced twice a night. The second resurface is when the rink is empty.",
+        "female": "You request a tour of the equipment room under a facilities pretext. The operator explains the off-hours schedule without being asked."
+      }
+    },
+    "Ice Skating Rink": {
+      "default": "Open ice and exposure. Nowhere to hide on a rink, which means the people who choose to be seen here are choosing deliberately.",
+      "gender": {
+        "male": "You skate the perimeter twice and use the circuit to cover the whole venue.",
+        "female": "You rent skates and take to the ice. A woman on a rink alone gets watched. You watch back."
+      }
+    },
+    "Imam's Office": {
+      "default": "Private counsel and the weight of a community's trust. Whatever the Imam was told in confidence, the fact that they were told matters.",
+      "gender": {
+        "male": "You knock with respect and ask to speak privately. The Imam receives you. The conversation that follows is careful and honest on both sides.",
+        "female": "You ask for guidance on a matter that connects to the case. The guidance includes context the Imam hadn't realised they were sharing."
+      }
+    },
+    "Indoor Seating": {
+      "default": "Tables and chairs where transactions of every kind take place and where proximity creates the conditions for conversation you weren't meant to hear.",
+      "gender": {
+        "male": "You take the table against the wall with a line of sight to the rest of the room.",
+        "female": "You sit in the centre of the room. Centre tables hear everything. Most people avoid them for exactly that reason."
+      }
+    },
+    "Infant Care": {
+      "default": "The most closely supervised part of any facility because the stakes are absolute. The staff here notice everything.",
+      "gender": {
+        "male": "You present credentials and request to speak to the charge nurse. The charge nurse is the person who actually knows what happened.",
+        "female": "You introduce yourself with the appropriate weight and speak directly. The charge nurse responds to directness in a way they don't respond to rank."
+      }
+    },
+    "Infinity Pool": {
+      "default": "The edge of the building and the visual statement of a facility that wants you to believe the world stops where it does. It doesn't.",
+      "gender": {
+        "male": "You take the far end of the pool and observe the building's rooftop access points from the water.",
+        "female": "You're at the pool alone before the morning crowd arrives. The poolside attendant talks freely to someone at this hour."
+      }
+    },
+    "Information Booth": {
+      "default": "The official answer to questions the building is willing to answer. What they deflect from the information booth is as useful as what they provide.",
+      "gender": {
+        "male": "You ask a question you already know the answer to. The deflection tells you what you needed.",
+        "female": "You ask three routine questions and one that isn't. The information booth answers the first three and hesitates on the fourth. The hesitation is your answer."
+      }
+    },
+    "Innovation Lab": {
+      "default": "The space where the building's future gets developed and the present gets covered up. Innovation labs are poorly secured because security is seen as the opposite of innovation.",
+      "gender": {
+        "male": "You enter during a session and look like you're affiliated with the current project. Nobody checks affiliations in an innovation lab.",
+        "female": "You introduce yourself as a researcher and ask what they're working on. Innovators explain what they're working on to anyone who shows genuine interest."
+      }
+    },
+    "Insurance Services": {
+      "default": "Policies and claims and the paper trail of everything that was insured and everything that happened to it. The claim history is the case history.",
+      "gender": {
+        "male": "You present a query about a policy number. The adjuster pulls the file without asking for authorisation.",
+        "female": "You ask about a claim filed during the relevant period. The adjuster describes the claim before confirming your access level."
+      }
+    },
+    "Intercom System": {
+      "default": "Controlled entry and the recorded request at the door. Every buzz of an intercom is a logged contact between the outside and the inside.",
+      "gender": {
+        "male": "You ring the intercom and use the thirty-second response window to observe the street. The response tells you who's in.",
+        "female": "You ring and state your name with the assurance of someone who was expected. The door opens."
+      }
+    },
+    "Interrogation Room": {
+      "default": "One table, two chairs, a mirror that's only one-way from one side, and the deliberate architecture of pressure. You've been on both sides of this room.",
+      "gender": {
+        "male": "You take the chair that faces the door. Old habit.",
+        "female": "You sit in the chair that doesn't face the mirror. People talk more honestly when they're not performing for an audience they can't see."
+      }
+    },
+    "Interview Room": {
+      "default": "A contained space for controlled conversation. What gets said in this room is on the record. What doesn't get said is on your record.",
+      "gender": {
+        "male": "You arrange the chairs slightly asymmetrically before they arrive. Small physical discomfort generates informational discomfort.",
+        "female": "You adjust the room to make it feel less like an interview room before you begin. People answer questions more fully when they don't feel questioned."
+      }
+    },
+    "Inventory System": {
+      "default": "The digital ledger of everything the building has and where it is. When the inventory lies, it lies consistently, which makes the lie visible.",
+      "gender": {
+        "male": "You run the variance report. Three product categories have a pattern that a random system error doesn't produce.",
+        "female": "You ask the inventory manager to walk you through the reconciliation process. In the walkthrough, they create the evidence themselves."
+      }
+    },
+    "Isolation Ward": {
+      "default": "Containment and the particular privacy of a space designed to keep things in and people out. Something in here doesn't need to be contained for medical reasons.",
+      "gender": {
+        "male": "You request access under an inspection protocol. The ward supervisor checks your authorisation level and grants it.",
+        "female": "You speak to the ward nurse with the precision of someone who knows exactly what they're looking for. The nurse responds with the same precision."
+      }
     }
   }
 }
