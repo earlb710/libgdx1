@@ -4473,6 +4473,146 @@
         "male": "You wait in the patient education area. The walls are full of information nobody reads until they have to.",
         "female": "You scan the patient education materials. Whoever designed this wanted people to understand their situation clearly. You appreciate that approach."
       }
+    },
+    "Patient Hotel": {
+      "default": "A medical-adjacent accommodation where patients recover under the same roof as their treatment. Convenience with a clinical edge.",
+      "gender": {
+        "male": "The patient hotel runs on routine. You note who checked in last week and hasn't been seen at meals.",
+        "female": "You move through the patient hotel hallway quietly. Sick people and worried families. You do your work without adding to their weight."
+      }
+    },
+    "Patient Rooms": {
+      "default": "Rooms where vulnerability is the default setting. You've worked cases that started in rooms exactly like these.",
+      "gender": {
+        "male": "You approach the patient rooms with your badge and your questions. You keep both brief.",
+        "female": "The patient rooms are small and private and carefully maintained. You knock before entering. Always."
+      }
+    },
+    "Patio Seating": {
+      "default": "Chairs arranged for sunlight and conversation. What gets said on a patio carries farther than anyone intends.",
+      "gender": {
+        "male": "You take patio seating at the back. Good sightlines, open air, and nobody paying attention to the quiet one in the corner.",
+        "female": "You settle into patio seating facing the entrance. People come and go. You watch them all."
+      }
+    },
+    "Patios": {
+      "default": "Outdoor seating attached to a building that spills its interior conversations into the open air. Patios are confession booths with better lighting.",
+      "gender": {
+        "male": "The patios are busy in the evening. You find a seat on the edge and let the sound wash over you.",
+        "female": "You work the patios methodically. Different groups, different conversations. You pick out the one that doesn't belong."
+      }
+    },
+    "Payment Kiosk": {
+      "default": "Self-service transactions logged to a timestamp. Anonymous in intention, traceable in practice.",
+      "gender": {
+        "male": "The payment kiosk knows exactly when someone paid and with what. You pull the log.",
+        "female": "You examine the payment kiosk terminal. Cash or card, it keeps a record. You're here to read it."
+      }
+    },
+    "Payment Machines": {
+      "default": "Automated tellers for the frictionless exchange of money. Everything processed, everything recorded, everything potentially useful.",
+      "gender": {
+        "male": "Payment machines are the city's honest witnesses. They record everything and explain nothing.",
+        "female": "You approach the payment machines with your forensics contact on speed dial. Transaction data is as clean a trail as you can ask for."
+      }
+    },
+    "Payment Terminal": {
+      "default": "A device where money changes hands and records get made. The simplest point in a transaction is often the most revealing.",
+      "gender": {
+        "male": "The payment terminal. Last point of contact before someone disappears into the city. You pull the last fifty transactions.",
+        "female": "You look at the payment terminal screen. The last transaction was flagged by two different systems. That's your next thread to pull."
+      }
+    },
+    "Pediatric Unit": {
+      "default": "A ward designed around small patients and their very protective families. You tread carefully here \u2014 professionally and personally.",
+      "gender": {
+        "male": "You step into the pediatric unit. Your pace slows automatically. Some places change how you move.",
+        "female": "The pediatric unit is brightly decorated and staffed with extraordinary patience. You match the tone of the ward and get to work."
+      }
+    },
+    "Periodicals Section": {
+      "default": "Magazines and newspapers in ordered rows. The periodicals section holds the record of what people thought was important enough to print.",
+      "gender": {
+        "male": "You walk the periodicals section. Looking for a specific back issue. Someone highlighted an article they shouldn't have.",
+        "female": "The periodicals section is quiet and well ordered. You find the issue you were looking for. Someone else found it first."
+      }
+    },
+    "Permit Center": {
+      "default": "Where the city's intentions go through official channels \u2014 or try to. The permit center is a map of everything people want to build, change, or hide.",
+      "gender": {
+        "male": "You pull the permit history on the property. Three amendments in eighteen months. Someone kept changing what they said they were building.",
+        "female": "The permit center has records going back decades. You find the application you're looking for. The signatory name is one you recognize."
+      }
+    },
+    "Personal Shopping": {
+      "default": "A curated service for people who can afford to have their choices made for them. The assistant knows tastes, habits, and schedules.",
+      "gender": {
+        "male": "Personal shopping. You talk to the stylist. They know your subject's preferences better than most people in their life do.",
+        "female": "You approach the personal shopping desk. The associate is discreet and professional. You explain that discretion won't be possible today."
+      }
+    },
+    "Personal Training": {
+      "default": "One-on-one fitness instruction. The trainer knows exactly what their clients are capable of and exactly when they stopped showing up.",
+      "gender": {
+        "male": "You speak to the personal trainer. They track progress, attendance, and patterns. Your subject's pattern stopped three days ago.",
+        "female": "The trainer has a clipboard of session logs. You ask for the last two weeks. They hand it over without hesitating. Something's wrong, they say. You know."
+      }
+    },
+    "Pet Friendly Rooms": {
+      "default": "Accommodations designed for guests who bring their animals. The dog always knows when something is off. You ask the housekeeping staff if the dog in 412 barked last night.",
+      "gender": {
+        "male": "Pet friendly rooms. You've learned to ask what the animals did. They're honest witnesses.",
+        "female": "You check the pet-friendly wing. The cat in the end room was howling at 2 AM. You want to know who was in the hallway."
+      }
+    },
+    "Pet Retail": {
+      "default": "Food, toys, and supplies for animals whose owners spend more on them than they do on themselves. You judge no one.",
+      "gender": {
+        "male": "You move through the pet retail section. Someone on your list has a specific food brand they buy here. Monthly, until last month.",
+        "female": "The pet retail section is cheerful and loud. You locate the purchase history and find the gap. People don't just stop caring for their pets without a reason."
+      }
+    },
+    "Pet Spa": {
+      "default": "Grooming services for animals treated better than most city residents. The staff sees the same clients every six weeks. They notice when someone stops coming.",
+      "gender": {
+        "male": "The pet spa. You show the photo to the groomer. 'He came every month. Haven't seen him in six weeks.'",
+        "female": "You step into the pet spa. The groomer has a good memory and a relaxed rapport. She tells you more than she realizes."
+      }
+    },
+    "Pet Washing Station": {
+      "default": "Self-service dog wash bays, tiled and draining. People use these at odd hours. The surveillance camera is pointed at the wrong angle on purpose.",
+      "gender": {
+        "male": "Pet washing station. The drain tells a story. You send a sample to the lab anyway.",
+        "female": "You examine the pet washing station. Someone was here after close. The mat is still damp."
+      }
+    },
+    "Pharmacy": {
+      "default": "Prescriptions filled and questions not asked. The pharmacy carries everything the city needs to function \u2014 and occasionally what it uses to stop functioning.",
+      "gender": {
+        "male": "You flash your badge at the pharmacy counter. Controlled substance logs. You need the last ninety days.",
+        "female": "The pharmacist knows every customer by name and prescription. You ask about the one who stopped filling refills two weeks ago."
+      }
+    },
+    "Phone Booths": {
+      "default": "Relics of an analog era that someone still uses, which means someone is making calls they don't want traced.",
+      "gender": {
+        "male": "A phone booth. In this city. You check if it's been used recently. It has. You dust the handset.",
+        "female": "The phone booth has scratches on the receiver where someone gripped it hard. You bag the handset and move on."
+      }
+    },
+    "Photo Center": {
+      "default": "Prints and digital transfers from the city's documentation of itself. The photo center holds images that no one thought would matter.",
+      "gender": {
+        "male": "The photo center keeps digital records of every print order. You ask for last Tuesday. The technician nods slowly.",
+        "female": "You step up to the photo center counter. You know what you're looking for. Somebody printed something here they shouldn't have."
+      }
+    },
+    "Photography Studio": {
+      "default": "A controlled environment for constructing the image someone wants the world to see. You're more interested in what they don't photograph.",
+      "gender": {
+        "male": "The photography studio is all lights and backdrops. Constructed realities. You ask to see the outtakes.",
+        "female": "You move through the photography studio carefully. Every staged image is a decision about what to hide. You're looking for the gap."
+      }
     }
   }
 }
