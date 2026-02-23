@@ -1533,6 +1533,146 @@
         "male": "You cross the field at a jog. It looks like exercise. It's reconnaissance.",
         "female": "You stretch at the edge of the field and take a full visual sweep before you move."
       }
+    },
+    "Attic Storage": {
+      "default": "What people keep above the ceiling tells you more about them than anything on the floors below.",
+      "gender": {
+        "male": "You pull the hatch and go up without being asked. What's up here wasn't meant to be found.",
+        "female": "You note what's been moved recently. Attic dust keeps a perfect record."
+      }
+    },
+    "Attorney Meeting Rooms": {
+      "default": "Privileged conversations behind soundproofed walls. The law says you can't listen. The law isn't always in the room.",
+      "gender": {
+        "male": "You take the chair outside and wait. Lawyers always come back for something they forgot.",
+        "female": "You make yourself useful to the paralegal. Paralegal's see everything and are rarely thanked for it."
+      }
+    },
+    "Audiobook Section": {
+      "default": "Stories told aloud for people who'd rather not read between the lines. You always read between the lines.",
+      "gender": {
+        "male": "You select a title you've already heard and spend the time studying the person three rows over who's listening to something else entirely.",
+        "female": "The librarian recommends something. You accept it and ask what else they've had requests for lately."
+      }
+    },
+    "Auditorium": {
+      "default": "A stage and a thousand seats. Someone in here is performing and it isn't the act on the programme.",
+      "gender": {
+        "male": "You take the back row. Every exit is visible from the back row.",
+        "female": "You sit centre and watch the wings. Stage managers know where the bodies are. Figuratively speaking."
+      }
+    },
+    "Auto Buying Program": {
+      "default": "Corporate fleet purchasing. The paperwork looks legitimate until you check the delivery addresses.",
+      "gender": {
+        "male": "You ask about volume discounts. The sales rep opens up the back-office numbers to impress you.",
+        "female": "You ask to see the corporate account terms. The rep hesitates before showing you. That hesitation is the answer."
+      }
+    },
+    "Auto Shop": {
+      "default": "Grease and diagnostics and the mechanical truth that vehicles don't lie even when their owners do.",
+      "gender": {
+        "male": "You talk the work without translating. The mechanic relaxes. Relaxed mechanics answer questions they wouldn't otherwise.",
+        "female": "You know more than the tech expected. They stop explaining and start talking."
+      }
+    },
+    "Automotive Bay": {
+      "default": "A vehicle on the lift tells you where it's been. The undercarriage doesn't lie.",
+      "gender": {
+        "male": "You step under with the tech and look where they're not looking.",
+        "female": "You ask the tech to walk you through what they found. In the walk-through, you find what they missed."
+      }
+    },
+    "Backup Generators": {
+      "default": "Power that doesn't depend on the grid. Whatever this building is protecting, it's protecting it from the dark too.",
+      "gender": {
+        "male": "You check the fuel level. Last topped off forty-eight hours ago. That's consistent with someone who expected to need it.",
+        "female": "The generator specs are posted on the wall. You photograph them. Capacity tells you how long they planned to run."
+      }
+    },
+    "Backyard": {
+      "default": "Private open space. The neighbour can see it. The security camera can't. That asymmetry is useful.",
+      "gender": {
+        "male": "You climb the fence from the alley. The yard tells you who lives here without you going inside.",
+        "female": "You assess the yard from the lane. The garden tells a story about what the front door won't."
+      }
+    },
+    "Bakery": {
+      "default": "Flour, heat, and people who arrive before dawn. The bakery shift starts when most of the city is still lying to itself in bed.",
+      "gender": {
+        "male": "You take a coffee at the counter and let the early-morning crew talk. They always do.",
+        "female": "The baker tells you about the regular who didn't come in this morning. That's unusual enough to matter."
+      }
+    },
+    "Ballroom": {
+      "default": "Grand architecture built for performances that look social. The real conversations happen near the edges of the room, not the centre.",
+      "gender": {
+        "male": "You position yourself at the bar with a clear view of every table. You don't drink. You watch.",
+        "female": "You're asked to dance twice. Both times you use the two minutes on the floor to see what you couldn't from the side."
+      }
+    },
+    "Band Room": {
+      "default": "Soundproofed and unsupervised. The best conversations in a school happen where the teachers can't hear them.",
+      "gender": {
+        "male": "You push the door open and catch the tail end of something that wasn't a rehearsal.",
+        "female": "You sit in on the session. Music is the best cover for a conversation you're not supposed to be having."
+      }
+    },
+    "Bank Branch": {
+      "default": "Money changes hands here and somewhere in the transaction log is the move you've been looking for.",
+      "gender": {
+        "male": "You join the queue and study the tellers. One of them is too careful. That's as suspicious as careless.",
+        "female": "You ask to speak to the branch manager about a discrepancy. The manager's face before they compose it tells you everything."
+      }
+    },
+    "Banking Services": {
+      "default": "Financial products and the paper trail that comes with them. Someone's using this counter for something the prospectus doesn't mention.",
+      "gender": {
+        "male": "You ask for a service you don't need. The process gives you access to the back office.",
+        "female": "You enquire about wire transfer limits. The adviser explains more than the question required."
+      }
+    },
+    "Banquet Hall": {
+      "default": "A room built for celebration and the kind of deals that get toasted without being named.",
+      "gender": {
+        "male": "You position yourself near the service door. Staff see everything and get forgotten immediately.",
+        "female": "You move between tables with the ease of a professional host. Nobody questions whose guest you are."
+      }
+    },
+    "Bar": {
+      "default": "Liquid honesty. The bar is where people say what they mean when they've stopped trying not to.",
+      "gender": {
+        "male": "You order something cheap and make it last. A man nursing a drink at a bar is invisible.",
+        "female": "You order, you listen, and when the man next to you wants to talk you let him. He tells you more than he'll remember telling you."
+      }
+    },
+    "Bar Area": {
+      "default": "The gravitational centre of any room with a licence. Everything worth knowing gets said within ten feet of a bar.",
+      "gender": {
+        "male": "You lean against it and face the room. Everything in here is moving toward you.",
+        "female": "You take a stool with your back not quite to the wall and your eyes moving. Nobody takes up position like that accidentally."
+      }
+    },
+    "Bar Lounge": {
+      "default": "Softer lighting and harder drinks than the main floor. The bar lounge is where the real meetings happen.",
+      "gender": {
+        "male": "You claim the corner sofa before seven. It's the only seat that sees the whole room.",
+        "female": "You're approached before your drink arrives. That's three minutes of intelligence before you've said a word."
+      }
+    },
+    "Basement": {
+      "default": "Below ground and below scrutiny. The basement is where buildings keep what they don't want to explain.",
+      "gender": {
+        "male": "You find the stairs before you find the lift. The basement is never on the directory.",
+        "female": "You locate the utility access at the end of the ground-floor corridor. The way down is never the one they show you."
+      }
+    },
+    "Basketball Court": {
+      "default": "Concrete, screech of sneakers, and the unguarded conversation of people who left their filter in the locker room.",
+      "gender": {
+        "male": "You run a few sets. Physical effort is the fastest way to be accepted somewhere without a badge.",
+        "female": "You watch from the bench and wait for the moment the game ends. Post-game is when the talking starts."
+      }
     }
   }
 }
