@@ -471,13 +471,11 @@ class InfoPanelRenderer {
                     }
 
                     // Building description (if available)
-                    if (building.getDefinition() != null) {
-                        String desc = building.getDefinition().getDescription();
-                        if (desc != null && !desc.isEmpty()) {
-                            textY -= fontLineH;
-                            textY = drawLabelValue(font, "Description: ", desc, textX, textY);
-                            textY -= fontLineH;
-                        }
+                    String desc = buildingDescription(building);
+                    if (desc != null) {
+                        textY -= fontLineH;
+                        textY = drawLabelValue(font, "Description: ", desc, textX, textY);
+                        textY -= fontLineH;
                     }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
@@ -824,6 +822,16 @@ class InfoPanelRenderer {
     }
 
     /**
+     * Returns the description text for a building (from its definition),
+     * or {@code null} if the building has no definition or no non-empty description.
+     */
+    private static String buildingDescription(Building b) {
+        if (b.getDefinition() == null) return null;
+        String desc = b.getDefinition().getDescription();
+        return (desc != null && !desc.isEmpty()) ? desc : null;
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      */
@@ -838,11 +846,8 @@ class InfoPanelRenderer {
         if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
         h += fontLineH; // "Improvements:" header (advance)
         h += b.getImprovements().size() * fontLineH; // one row per improvement
-        if (b.getDefinition() != null) {
-            String desc = b.getDefinition().getDescription();
-            if (desc != null && !desc.isEmpty()) {
-                h += fontLineH * 2; // blank gap + description line
-            }
+        if (buildingDescription(b) != null) {
+            h += fontLineH * 2; // blank gap + description line
         }
         return h;
     }
@@ -894,14 +899,11 @@ class InfoPanelRenderer {
                     }
                     maxW = Math.max(maxW, lineW);
                 }
-                if (b.getDefinition() != null) {
-                    String desc = b.getDefinition().getDescription();
-                    if (desc != null && !desc.isEmpty()) {
-                        glyphLayout.setText(font, "Description: " + desc);
-                        maxW = Math.max(maxW, glyphLayout.width);
-                    }
-                }
-            } else {
+                String desc = buildingDescription(b);
+                if (desc != null) {
+                    glyphLayout.setText(font, "Description: " + desc);
+                    maxW = Math.max(maxW, glyphLayout.width);
+                }            } else {
                 glyphLayout.setText(font, "Building: ???");
                 maxW = Math.max(maxW, glyphLayout.width);
             }

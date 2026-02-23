@@ -165,6 +165,8 @@ public class MainScreen implements Screen {
             Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
         }
 
+        discoverStartingBuildings();
+
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
         mapRenderer.loadBuildingIcons();
@@ -1039,5 +1041,121 @@ public class MainScreen implements Screen {
             }
         }
         discoveryPopup.show(building.getName(), description, impLines);
+    }
+
+    /**
+     * Returns the nearest cell (by Manhattan distance from the reference point) whose
+     * building definition ID matches one of the supplied IDs, or {@code null} if none found.
+     */
+    private Cell findNearestBuilding(int refX, int refY, String... buildingIds) {
+        Cell nearest = null;
+        int minDist = Integer.MAX_VALUE;
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = cityMap.getCell(x, y);
+                if (!cell.hasBuilding() || cell.getBuilding().getDefinition() == null) continue;
+                String id = cell.getBuilding().getDefinition().getId();
+                for (String targetId : buildingIds) {
+                    if (targetId.equals(id)) {
+                        int dist = Math.abs(x - refX) + Math.abs(y - refY);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearest = cell;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return nearest;
+    }
+
+    /** Discovers the cell's building if the cell is non-null. */
+    private void discoverCellIfFound(Cell cell) {
+        if (cell != null) {
+            discoverCell(cell.getX(), cell.getY());
+        }
+    }
+
+    /**
+     * Pre-discovers civic buildings and attribute-related buildings at game start.
+     *
+     * <p>Always discovered (public knowledge):
+     * <ul>
+     *   <li>Nearest police station</li>
+     *   <li>Nearest hospital (small or large)</li>
+     * </ul>
+     *
+     * <p>Discovered when the relevant attribute score is &ge; 4:
+     * <ul>
+     *   <li>STRENGTH or STAMINA &rarr; gym/fitness centre</li>
+     *   <li>INTELLIGENCE &rarr; public library</li>
+     *   <li>PERCEPTION &rarr; fire station</li>
+     *   <li>MEMORY &rarr; post office</li>
+     *   <li>INTUITION &rarr; nearest religious building</li>
+     *   <li>AGILITY &rarr; sports arena</li>
+     *   <li>CHARISMA &rarr; nearest restaurant</li>
+     *   <li>EMPATHY &rarr; community centre</li>
+     *   <li>INTIMIDATION &rarr; courthouse</li>
+     * </ul>
+     */
+    private void discoverStartingBuildings() {
+        int refX = state.homeCellX;
+        int refY = state.homeCellY;
+        if (refX < 0 || refY < 0) return;
+
+        // Always discover: police station and hospital
+        discoverCellIfFound(findNearestBuilding(refX, refY, "police_station"));
+        discoverCellIfFound(findNearestBuilding(refX, refY, "hospital_small", "hospital_large"));
+
+        // STRENGTH or STAMINA >= 4 → gym
+        if (profile.getAttribute(CharacterAttribute.STRENGTH.name()) >= 4
+                || profile.getAttribute(CharacterAttribute.STAMINA.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "gym_fitness_center"));
+        }
+
+        // INTELLIGENCE >= 4 → library
+        if (profile.getAttribute(CharacterAttribute.INTELLIGENCE.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "library"));
+        }
+
+        // PERCEPTION >= 4 → fire station
+        if (profile.getAttribute(CharacterAttribute.PERCEPTION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "fire_station"));
+        }
+
+        // MEMORY >= 4 → post office
+        if (profile.getAttribute(CharacterAttribute.MEMORY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "post_office"));
+        }
+
+        // INTUITION >= 4 → nearest religious building
+        if (profile.getAttribute(CharacterAttribute.INTUITION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "church", "mosque", "synagogue"));
+        }
+
+        // AGILITY >= 4 → sports arena
+        if (profile.getAttribute(CharacterAttribute.AGILITY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "sports_arena"));
+        }
+
+        // CHARISMA >= 4 → nearest restaurant
+        if (profile.getAttribute(CharacterAttribute.CHARISMA.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY,
+                    "restaurant_casual", "restaurant_fine_dining"));
+        }
+
+        // EMPATHY >= 4 → community centre
+        if (profile.getAttribute(CharacterAttribute.EMPATHY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "community_center"));
+        }
+
+        // INTIMIDATION >= 4 → courthouse
+        if (profile.getAttribute(CharacterAttribute.INTIMIDATION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "courthouse"));
+        }
+
+        Gdx.app.log("MainScreen", "Starting buildings discovered from home "
+                + refX + "," + refY);
     }
 }
