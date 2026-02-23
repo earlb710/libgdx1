@@ -3493,6 +3493,146 @@
         "male": "You request access under an inspection protocol. The ward supervisor checks your authorisation level and grants it.",
         "female": "You speak to the ward nurse with the precision of someone who knows exactly what they're looking for. The nurse responds with the same precision."
       }
+    },
+    "Judge's Chambers": {
+      "default": "Private judicial space where the law gets decided before the courtroom announces it. The chambers are where the real arguments live.",
+      "gender": {
+        "male": "You wait in the clerk's anteroom and listen to what the clerk assumes you can't hear through the door.",
+        "female": "You request a meeting through the clerk with the stated purpose that the judge will find harder to decline than approve."
+      }
+    },
+    "Juice Bar": {
+      "default": "Health food and the candid morning conversation of people who came here to feel virtuous. They talk freely when they feel virtuous.",
+      "gender": {
+        "male": "You order something green and unpleasant and take the counter stool. The regular next to you fills the silence.",
+        "female": "You ask the staff about their busiest hour. The description includes a regular who isn't there anymore."
+      }
+    },
+    "Jumbotron": {
+      "default": "A screen designed to make sixty thousand people look in the same direction. You're looking at the sixty thousand.",
+      "gender": {
+        "male": "You position yourself below the Jumbotron. The crowd watching it isn't watching the ground level.",
+        "female": "You use the Jumbotron's reflective panel during the dark transitions. It shows you the section behind you."
+      }
+    },
+    "Jury Assembly": {
+      "default": "Citizens waiting to perform a civic function they mostly didn't volunteer for. The jury assembly room is the most candid room in the courthouse.",
+      "gender": {
+        "male": "You take the rear row and let the room's anxiety work on everyone else.",
+        "female": "You join the group conversation that forms naturally while people wait. Two hours of waiting produces remarkable candour."
+      }
+    },
+    "Kennels": {
+      "default": "Animals in temporary housing and the staff who manage them. The kennel log has a name attached to every animal. One of those names matters.",
+      "gender": {
+        "male": "You ask about a specific animal described by breed and circumstance. The kennel worker checks the intake log.",
+        "female": "You enquire about an animal brought in under unusual circumstances. The worker remembers because unusual stays with you."
+      }
+    },
+    "Kids Area": {
+      "default": "A dedicated space that draws families and the particular oversight of parents watching their children instead of anything else. You're watching something else.",
+      "gender": {
+        "male": "You position yourself at the boundary of the kids area with the unremarkable patience of a waiting parent.",
+        "female": "You help a child who can't reach something and earn an easy introduction to the parent. Parents talk to people who are kind to their children."
+      }
+    },
+    "Kids Play Area": {
+      "default": "Controlled chaos and the divided attention of adults managing it. The play area is the best place in any building to be unremarkable.",
+      "gender": {
+        "male": "You take the adult bench and look like you belong to a child somewhere in the area. Nobody checks.",
+        "female": "You engage with the activity briefly and earn the social acceptance of the other parents. Social acceptance grants you twenty minutes of unquestioned presence."
+      }
+    },
+    "Kids Zone": {
+      "default": "A branded entertainment space that exists to occupy children while their parents do other things. What the parents are doing while the kids are occupied is worth knowing.",
+      "gender": {
+        "male": "You observe who drops their children and stays close and who uses the zone to be somewhere else.",
+        "female": "You help with the check-in process and get a full view of the parent-child pairs coming through."
+      }
+    },
+    "Kiss and Ride": {
+      "default": "The transit facility designed for brief handoffs. Vehicles stop, exchange something or someone, and leave. Nobody watches the kiss and ride closely enough.",
+      "gender": {
+        "male": "You sit at the terminal bench and note every vehicle that stops longer than a drop-off requires.",
+        "female": "You observe from the platform above. The kiss and ride from above reveals the pattern a ground-level view hides."
+      }
+    },
+    "Kitchen": {
+      "default": "The engine room of any building that serves food. The kitchen knows the building's schedule before anyone else and talks about it freely.",
+      "gender": {
+        "male": "You enter through the service door and look like you belong on the line. The kitchen is too focused to question you.",
+        "female": "You arrive with a question about the kitchen's hours and get a full tour of the operation."
+      }
+    },
+    "Lab": {
+      "default": "Scientific process and the records that document it. What was tested in this lab, and what those tests found, is what you're here for.",
+      "gender": {
+        "male": "You request access under a quality assurance review. Labs cooperate with QA because QA can shut them down.",
+        "female": "You speak directly to the lead researcher. Researchers respond to specific, well-framed questions. You have one."
+      }
+    },
+    "Lab Area": {
+      "default": "Open bench space and the collaborative nature of scientific work. Lab areas are harder to compartmentalise than private labs. Which means more of it is visible to you.",
+      "gender": {
+        "male": "You observe from the doorway and note which work areas have been recently cleared. Cleared benches mean something was recently completed.",
+        "female": "You enter with a credentialed escort and use the escort's access to cover more ground than you'd manage alone."
+      }
+    },
+    "Lab Services": {
+      "default": "The administrative interface between the lab and the outside world. Sample requests, result reporting, the paperwork that surrounds clinical science.",
+      "gender": {
+        "male": "You present a sample query with just enough technical detail to be credible. The lab services coordinator pulls the request history.",
+        "female": "You ask about turnaround times and probe the system's capacity for tracking specific sample origins. The coordinator explains more than the question required."
+      }
+    },
+    "Laboratory": {
+      "default": "Controlled environment and the formal documentation of what happened in it. Every procedure in a laboratory leaves a record. You're reading the record.",
+      "gender": {
+        "male": "You review the log book near the entrance. The last three entries are in a different handwriting. The regular researcher hasn't been in.",
+        "female": "You speak to the research technician and ask about the most recent anomalous result. The tech explains it and hands you the supporting data without being asked."
+      }
+    },
+    "Landscaping": {
+      "default": "Managed vegetation and the outdoor perimeter of a building's identity. What grows where, and how it's maintained, tells you about the building's blind spots.",
+      "gender": {
+        "male": "You walk the perimeter under the cover of inspecting the grounds. The camera gaps are between the second and third trees on the east side.",
+        "female": "You speak to the groundskeeper as you pass. Groundskeepers observe the building from outside for hours every week. What they've seen is worth asking about."
+      }
+    },
+    "Laser Tag": {
+      "default": "Dark spaces and objective-based movement. Laser tag venues were built for the tactical mind. You're using the darkness for a different objective.",
+      "gender": {
+        "male": "You play the game and use the arena to cover the facility's layout. You were mapping the space before the briefing ended.",
+        "female": "You take the elevated position in the third zone and use it for what elevated positions are for."
+      }
+    },
+    "Laundry": {
+      "default": "Industrial washing and the methodical removal of what things were carrying. What was washed here recently mattered enough to clean quickly.",
+      "gender": {
+        "male": "You check the laundry log for rush items processed outside of normal hours.",
+        "female": "You ask the laundry supervisor about any non-standard processing in the last week. The supervisor describes one item that stood out."
+      }
+    },
+    "Laundry Room": {
+      "default": "Machines and the people who use them at strange hours. The laundry room at two in the morning attracts a specific kind of person.",
+      "gender": {
+        "male": "You sit with a book you're not reading and wait for the room to tell you something. It always does.",
+        "female": "You load a machine and sit down. Shared laundry spaces generate the kind of conversation that happens between strangers at two in the morning."
+      }
+    },
+    "Law Library": {
+      "default": "Casebooks and precedents and the research that tells you what the law says before the court decides what it means. You've spent time in these stacks.",
+      "gender": {
+        "male": "You pull the relevant case file and find the annotation someone left that wasn't intended to be found.",
+        "female": "You ask the librarian for the most recent citations to a specific statute. The access log for those citations has three names in it."
+      }
+    },
+    "League Office": {
+      "default": "Sports administration and the institutional memory of every game, every player, and every transaction that kept the season running.",
+      "gender": {
+        "male": "You present as a compliance officer. Sports administration is perpetually nervous about compliance.",
+        "female": "You request a meeting with the league director about a scheduling matter. The meeting gives you access to the administrative floor."
+      }
     }
   }
 }
