@@ -93,12 +93,62 @@ public class BuildingServicesTest {
     }
 
     @Test
-    public void testFitnessCenterHasGymWorkout() {
+    public void testFitnessCenterHasTalkToInstructor() {
         Building b = buildingWithDef("gym_fitness_center", "commercial");
         List<BuildingService> svcs = BuildingServices.getServices(b);
         assertEquals(1, svcs.size());
-        assertEquals(BuildingServices.SVC_GYM_WORKOUT, svcs.get(0).id);
-        assertEquals(15, svcs.get(0).cost);
+        assertEquals(BuildingServices.SVC_GYM_INSTRUCTOR, svcs.get(0).id);
+        assertEquals(0, svcs.get(0).cost);   // cost handled by handleGymTraining
+    }
+
+    @Test
+    public void testPtCostsMoreThanSelf() {
+        assertTrue("PT cost > self cost",
+                BuildingServices.GYM_COST_PT > BuildingServices.GYM_COST_SELF);
+    }
+
+    @Test
+    public void testPtHasHigherChanceThanSelf() {
+        assertTrue("PT chance > self chance",
+                BuildingServices.GYM_CHANCE_PT > BuildingServices.GYM_CHANCE_SELF);
+    }
+
+    @Test
+    public void testPtIsFasterThanSelf() {
+        assertTrue("PT time < self-guided time (more focused)",
+                BuildingServices.GYM_TIME_PT < BuildingServices.GYM_TIME_SELF);
+    }
+
+    @Test
+    public void testGymOptionConstantsAreDistinct() {
+        // Ensure the four option IDs are different integers
+        int[] opts = {
+            BuildingServices.GYM_OPT_STRENGTH_SELF,
+            BuildingServices.GYM_OPT_STRENGTH_PT,
+            BuildingServices.GYM_OPT_STAMINA_SELF,
+            BuildingServices.GYM_OPT_STAMINA_PT
+        };
+        for (int i = 0; i < opts.length; i++) {
+            for (int j = i + 1; j < opts.length; j++) {
+                assertNotEquals("GYM_OPT values must be distinct", opts[i], opts[j]);
+            }
+        }
+    }
+
+    @Test
+    public void testGymChanceLinesContainAttributes() {
+        String strengthSelf = GymInstructorPopup.chanceLine(BuildingServices.GYM_OPT_STRENGTH_SELF);
+        String strengthPt   = GymInstructorPopup.chanceLine(BuildingServices.GYM_OPT_STRENGTH_PT);
+        String staminaSelf  = GymInstructorPopup.chanceLine(BuildingServices.GYM_OPT_STAMINA_SELF);
+        String staminaPt    = GymInstructorPopup.chanceLine(BuildingServices.GYM_OPT_STAMINA_PT);
+        assertTrue(strengthSelf.contains("Strength"));
+        assertTrue(strengthPt.contains("Strength"));
+        assertTrue(staminaSelf.contains("Stamina"));
+        assertTrue(staminaPt.contains("Stamina"));
+        // PT has higher chance in description
+        int pctSelf = Integer.parseInt(strengthSelf.split("%")[0].trim());
+        int pctPt   = Integer.parseInt(strengthPt.split("%")[0].trim());
+        assertTrue("PT chance% > self chance% in description", pctPt > pctSelf);
     }
 
     @Test

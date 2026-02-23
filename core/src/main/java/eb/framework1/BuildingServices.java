@@ -26,9 +26,10 @@ final class BuildingServices {
     // Service IDs (used by MainScreen to dispatch execution logic)
     // -------------------------------------------------------------------------
 
-    static final String SVC_HOTEL_RECEPTION = "hotel_reception";
-    static final String SVC_GYM_WORKOUT    = "gym_workout";
-    static final String SVC_BUY_MEAL       = "buy_meal";
+    static final String SVC_HOTEL_RECEPTION  = "hotel_reception";
+    static final String SVC_GYM_INSTRUCTOR  = "gym_instructor";
+    static final String SVC_GYM_WORKOUT     = "gym_workout";      // legacy; unused in menus
+    static final String SVC_BUY_MEAL        = "buy_meal";
     static final String SVC_BUY_COFFEE     = "buy_coffee";
     static final String SVC_FINE_DINING    = "fine_dining";
     static final String SVC_BUY_MEDICINE   = "buy_medicine";
@@ -48,6 +49,36 @@ final class BuildingServices {
 
     /** Number of workouts performed on {@link #ATTR_GYM_DATE}. */
     static final String ATTR_GYM_USES = "GYM_USES";
+
+    // -------------------------------------------------------------------------
+    // Gym training option IDs (passed to MainScreen.handleGymTraining)
+    // -------------------------------------------------------------------------
+
+    /** Self-guided strength training (cheap, moderate chance). */
+    static final int GYM_OPT_STRENGTH_SELF = 0;
+    /** Personal-trainer strength session (expensive, high chance). */
+    static final int GYM_OPT_STRENGTH_PT   = 1;
+    /** Self-guided stamina training (cheap, moderate chance). */
+    static final int GYM_OPT_STAMINA_SELF  = 2;
+    /** Personal-trainer stamina session (expensive, high chance). */
+    static final int GYM_OPT_STAMINA_PT    = 3;
+
+    // Self-guided: $15, 90 min; PT: $60, 60 min
+    static final int   GYM_COST_SELF  =  15;
+    static final int   GYM_COST_PT    =  60;
+    static final int   GYM_TIME_SELF  =  90;   // minutes
+    static final int   GYM_TIME_PT    =  60;   // PT is more focused
+    /** Base chance of attribute gain for self-guided training (first session of the day). */
+    static final float GYM_CHANCE_SELF = 0.35f;
+    /** Base chance of attribute gain for personal-trainer session. */
+    static final float GYM_CHANCE_PT   = 0.70f;
+
+    /** Chance multiplier applied to the base success chance on the 2nd gym session of the day. */
+    static final float GYM_OVERUSE_SECOND_CHANCE_MULT = 0.50f;
+    /** Setback risk added on the 2nd gym session of the day. */
+    static final float GYM_OVERUSE_SECOND_RISK        = 0.10f;
+    /** Setback risk on the 3rd+ gym session of the day (no gain possible). */
+    static final float GYM_OVERUSE_THIRD_RISK         = 0.30f;
 
     // -------------------------------------------------------------------------
     // Profile attribute keys for hotel tracking
@@ -102,9 +133,8 @@ final class BuildingServices {
 
             // ---- Fitness Centre ---------------------------------------------
             case "gym_fitness_center":
-                return list(new BuildingService(SVC_GYM_WORKOUT,
-                        "Work Out", "Train at the fitness centre.",
-                        15, 90));
+                return list(new BuildingService(SVC_GYM_INSTRUCTOR,
+                        "Talk to Instructor", "Get professional training advice.", 0, 0));
 
             // ---- Food & Drink -----------------------------------------------
             case "fast_food_restaurant":

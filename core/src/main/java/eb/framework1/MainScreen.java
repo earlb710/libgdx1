@@ -61,6 +61,7 @@ public class MainScreen implements Screen {
     private ServiceResultPopup serviceResultPopup;
     private StashPopup         stashPopup;
     private HotelReceptionPopup hotelReceptionPopup;
+    private GymInstructorPopup  gymInstructorPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -203,6 +204,8 @@ public class MainScreen implements Screen {
 
         hotelReceptionPopup = new HotelReceptionPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        gymInstructorPopup = new GymInstructorPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -262,6 +265,10 @@ public class MainScreen implements Screen {
 
         if (hotelReceptionPopup.isVisible()) {
             hotelReceptionPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (gymInstructorPopup.isVisible()) {
+            gymInstructorPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -457,6 +464,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Gym instructor popup blocks all normal interaction until dismissed
+                if (gymInstructorPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -581,6 +597,20 @@ public class MainScreen implements Screen {
                                         hotelReceptionPopup.getNightlyCost(),
                                         hotelReceptionPopup.getStaminaBonus());
                             }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Gym instructor popup: training option or cancel
+                if (gymInstructorPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int option = gymInstructorPopup.onTap(screenX, flippedY);
+                            if (option >= 0) handleGymTraining(option);
                         }
                         infoAreaPressed = false;
                     }
@@ -1117,6 +1147,103 @@ public class MainScreen implements Screen {
     }
 
     /**
+     * Executes the chosen gym training option.
+     *
+     * <p>Training options are identified by the {@code BuildingServices.GYM_OPT_*} constants.
+     * The overuse mechanic applies to both strength and stamina training:
+     * successive sessions on the same day have reduced chance of success and
+     * an increasing risk of a setback.
+     *
+     * @param option one of {@link BuildingServices#GYM_OPT_STRENGTH_SELF},
+     *               {@link BuildingServices#GYM_OPT_STRENGTH_PT},
+     *               {@link BuildingServices#GYM_OPT_STAMINA_SELF},
+     *               {@link BuildingServices#GYM_OPT_STAMINA_PT}
+     */
+    private void handleGymTraining(int option) {
+        int cost    = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                    || option == BuildingServices.GYM_OPT_STAMINA_PT)
+                      ? BuildingServices.GYM_COST_PT : BuildingServices.GYM_COST_SELF;
+        int timeMins = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                     || option == BuildingServices.GYM_OPT_STAMINA_PT)
+                       ? BuildingServices.GYM_TIME_PT : BuildingServices.GYM_TIME_SELF;
+
+        List<String> resultLines = new ArrayList<>();
+
+        // Affordability check
+        if (cost > 0 && profile.getMoney() < cost) {
+            resultLines.add("You can't afford this session.");
+            resultLines.add("Required: $" + cost + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        // Deduct cost and advance time
+        profile.setMoney(profile.getMoney() - cost);
+        profile.advanceGameTime(timeMins);
+
+        // Overuse tracking (shared across all gym sessions today)
+        int todayDate = BuildingServices.gameDateInt(profile.getGameDateTime());
+        int usesToday = BuildingServices.gymUsesToday(profile, todayDate);
+        BuildingServices.recordGymUse(profile, todayDate);
+
+        boolean isStrength = (option == BuildingServices.GYM_OPT_STRENGTH_SELF
+                           || option == BuildingServices.GYM_OPT_STRENGTH_PT);
+        boolean isPT       = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                           || option == BuildingServices.GYM_OPT_STAMINA_PT);
+        String attrName  = isStrength ? CharacterAttribute.STRENGTH.name()
+                                      : CharacterAttribute.STAMINA.name();
+        String attrLabel = isStrength ? "Strength" : "Stamina";
+        int    current   = profile.getAttribute(attrName);
+
+        // Base chance from the option, scaled down by overuse
+        float baseChance  = isPT ? BuildingServices.GYM_CHANCE_PT : BuildingServices.GYM_CHANCE_SELF;
+        float chance;
+        float overuseRisk;
+        if (usesToday == 0) {
+            chance      = baseChance;
+            overuseRisk = 0f;
+        } else if (usesToday == 1) {
+            chance      = baseChance * BuildingServices.GYM_OVERUSE_SECOND_CHANCE_MULT;
+            overuseRisk = BuildingServices.GYM_OVERUSE_SECOND_RISK;
+        } else {
+            chance      = 0f;           // no gain possible on 3rd+ session
+            overuseRisk = BuildingServices.GYM_OVERUSE_THIRD_RISK;
+        }
+
+        float roll = MathUtils.random();
+
+        if (overuseRisk > 0f && roll < overuseRisk) {
+            // Setback from over-training (applies equally to strength and stamina attributes)
+            profile.setAttribute(attrName, Math.max(0, current - 1));
+            resultLines.add("Over-training! Your body is exhausted.");
+            resultLines.add("-1 " + attrLabel + ".");
+        } else if (chance > 0f && roll < chance) {
+            profile.setAttribute(attrName, current + 1);
+            if (isPT) {
+                resultLines.add("Excellent session with your trainer!");
+            } else {
+                resultLines.add("Great workout! Your effort paid off.");
+            }
+            resultLines.add("+1 " + attrLabel + ".");
+        } else if (usesToday >= 2) {
+            resultLines.add("You went through the motions, but your body needs rest.");
+            resultLines.add("No benefit from additional training today.");
+        } else {
+            resultLines.add(isPT ? "Good session. Your trainer pushed you hard."
+                                 : "Solid workout. Keep the consistency up.");
+            resultLines.add("No attribute change this time.");
+        }
+
+        resultLines.add("Cost: $" + cost + ".");
+        String title = isStrength
+                ? (isPT ? "Strength PT Session" : "Strength Training")
+                : (isPT ? "Stamina PT Session"  : "Stamina Training");
+        serviceResultPopup.show(title, resultLines);
+        Gdx.app.log("MainScreen", "Gym training opt=" + option + " cost=$" + cost
+                + " uses=" + usesToday + " roll=" + roll);
+    }
+
+    /**
      * Executes a building service for the character at the current cell.
      * Deducts money and game-time, applies effects, then shows the result popup.
      */
@@ -1152,53 +1279,10 @@ public class MainScreen implements Screen {
                 return;  // popup drives the rest; don't show serviceResultPopup now
             }
 
-            // ---- Gym workout: chance to increase STRENGTH -------------------
-            case BuildingServices.SVC_GYM_WORKOUT: {
-                int todayDate = BuildingServices.gameDateInt(profile.getGameDateTime());
-                int usesToday = BuildingServices.gymUsesToday(profile, todayDate);
-                BuildingServices.recordGymUse(profile, todayDate);
-
-                String strAttr = CharacterAttribute.STRENGTH.name();
-                int currentStr = profile.getAttribute(strAttr);
-                float roll     = MathUtils.random();
-
-                if (usesToday == 0) {
-                    // First workout: 40 % chance +1 STRENGTH
-                    if (roll < 0.40f) {
-                        profile.setAttribute(strAttr, currentStr + 1);
-                        resultLines.add("Great session! Your body responded well.");
-                        resultLines.add("+1 Strength.");
-                    } else {
-                        resultLines.add("Good workout. Keep at it.");
-                        resultLines.add("No attribute change this time.");
-                    }
-                } else if (usesToday == 1) {
-                    // Second workout: 20 % gain, 10 % loss
-                    if (roll < 0.20f) {
-                        profile.setAttribute(strAttr, currentStr + 1);
-                        resultLines.add("Pushing through pays off.");
-                        resultLines.add("+1 Strength.");
-                    } else if (roll < 0.30f) {
-                        profile.setAttribute(strAttr, Math.max(0, currentStr - 1));
-                        resultLines.add("You overdid it a little. Your muscles are fatigued.");
-                        resultLines.add("-1 Strength.");
-                    } else {
-                        resultLines.add("Second session done. Your body needs recovery now.");
-                        resultLines.add("No attribute change.");
-                    }
-                } else {
-                    // Third+ workout: 30 % chance -1 STRENGTH (over-training)
-                    if (roll < 0.30f) {
-                        profile.setAttribute(strAttr, Math.max(0, currentStr - 1));
-                        resultLines.add("Over-training! Your muscles are exhausted.");
-                        resultLines.add("-1 Strength.");
-                    } else {
-                        resultLines.add("You went through the motions, but your body needs rest.");
-                        resultLines.add("No benefit.");
-                    }
-                }
-                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
-                break;
+            // ---- Gym instructor: open the training-option popup -------------
+            case BuildingServices.SVC_GYM_INSTRUCTOR: {
+                gymInstructorPopup.show();
+                return;  // popup drives the rest
             }
 
             // ---- Food: restore stamina -----------------------------------
