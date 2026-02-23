@@ -184,9 +184,41 @@ public class Profile {
         currentStamina = Math.min(getMaxStamina(), getCurrentStamina() + amount);
     }
 
+    /** Divisor converting body weight (kg) to base carry capacity (kg). */
+    private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 10f;
+
     // -------------------------------------------------------------------------
-    // Weight / encumbrance
-    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the body-mass index (BMI) based on the character's
+     * {@link CharacterAttribute#HEIGHT_CM} and {@link CharacterAttribute#BODY_WEIGHT_KG}
+     * attributes.  Returns 0 if height is 0 (avoids division-by-zero).
+     */
+    public float getBmi() {
+        int heightCm = getAttribute(CharacterAttribute.HEIGHT_CM.name());
+        int weightKg = getAttribute(CharacterAttribute.BODY_WEIGHT_KG.name());
+        if (heightCm <= 0) return 0f;
+        float heightM = heightCm / 100f;
+        return weightKg / (heightM * heightM);
+    }
+
+    /**
+     * Returns a STRENGTH modifier derived from the character's BMI:
+     * <ul>
+     *   <li>BMI &lt; 18.5 (underweight) → −1</li>
+     *   <li>18.5 ≤ BMI &lt; 25 (optimal)   →  0</li>
+     *   <li>25 ≤ BMI &lt; 30 (overweight)  → +1</li>
+     *   <li>BMI ≥ 30 (obese)              → −1</li>
+     * </ul>
+     */
+    public int getBmiStrengthModifier() {
+        float bmi = getBmi();
+        if (bmi <= 0f)    return 0;
+        if (bmi < 18.5f)  return -1;
+        if (bmi < 25f)    return  0;
+        if (bmi < 30f)    return  1;
+        return -1; // obese
+    }
 
     /**
      * Returns the total weight (kg) of all currently equipped items
@@ -205,10 +237,18 @@ public class Profile {
 
     /**
      * Returns the maximum weight (kg) this character can carry.
-     * Equals the character's {@code STRENGTH} attribute value (minimum 1.0).
+     * <p>Formula: {@code bodyWeightKg / 10 + STRENGTH + bmiStrengthModifier}, minimum 1.0.
+     * <ul>
+     *   <li>Base carry = body weight / 10 (heavier characters are naturally stronger)</li>
+     *   <li>+ STRENGTH attribute</li>
+     *   <li>+ BMI modifier (underweight or obese −1; overweight +1; optimal 0)</li>
+     * </ul>
      */
     public float getWeightCapacity() {
-        return Math.max(1f, getAttribute(CharacterAttribute.STRENGTH.name()));
+        int bodyWeightKg = getAttribute(CharacterAttribute.BODY_WEIGHT_KG.name());
+        int strength     = getAttribute(CharacterAttribute.STRENGTH.name());
+        int bmiMod       = getBmiStrengthModifier();
+        return Math.max(1f, bodyWeightKg / BODY_WEIGHT_CAPACITY_DIVISOR + strength + bmiMod);
     }
 
     /**

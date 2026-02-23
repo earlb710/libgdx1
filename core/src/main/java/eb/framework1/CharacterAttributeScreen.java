@@ -74,6 +74,10 @@ public class CharacterAttributeScreen implements Screen {
         for (CharacterAttribute attr : CharacterAttribute.values()) {
             attributeValues.put(attr, MIN_ATTRIBUTE_VALUE);
         }
+        // Set gender-appropriate defaults for physical body measurements
+        boolean isFemale = "Female".equalsIgnoreCase(gender);
+        attributeValues.put(CharacterAttribute.HEIGHT_CM,      isFemale ? 163 : 175);
+        attributeValues.put(CharacterAttribute.BODY_WEIGHT_KG, isFemale ?  65 :  80);
         
         // Calculate initial points remaining (free distributable points only; $1000 starts in money)
         this.moneyBudget = STARTING_MONEY;
