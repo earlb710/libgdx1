@@ -6,7 +6,7 @@
       "default": "The lot is a slab of cracked asphalt and broken promises. You've worked worse.",
       "time": {
         "morning": "Dawn hasn't done the place any favours. Grease stains and cigarette butts are the morning crowd.",
-        "afternoon": "Heat shimmers off the blacktop. Every car baking in the sun has a story written in its paint.",
+        "afternoon": "Heat shimmers off the blacktop. Every car baking in the sun carries the marks of city life.",
         "evening": "The lot empties like a bar at last call — fast, and without a backward glance.",
         "night": "One lamp still burns. The rest are dead, same as every promise this lot ever made."
       },
@@ -48,7 +48,7 @@
       "attribute": {
         "STEALTH": "The pillars give you cover every twelve feet. You use all of them.",
         "PERCEPTION": "Sound bounces off concrete in ways most people never bother to learn. You learned long ago.",
-        "AGILITY": "Every ramp, every turn, every blind corner — you know this place before you've walked ten steps."
+        "AGILITY": "Every ramp, every turn, every blind corner — you read this place within ten steps."
       },
       "gender": {
         "male": "You stay in the shadows and let the dark work for you. The dark owes you at least that.",
@@ -1793,7 +1793,7 @@
       }
     },
     "Bookstore": {
-      "default": "Shelves that reveal how people think and buy in patterns. One title in here is flying off the shelves, and the staff can't explain why.",
+      "default": "Shelves that reveal how people think and buy in patterns. One title in here is outselling everything else, and nobody saw it coming.",
       "gender": {
         "male": "You browse the section you didn't come for and listen to the conversation two aisles over.",
         "female": "The bookseller asks if you need help. You let them recommend. People reveal themselves in what they recommend to strangers."
