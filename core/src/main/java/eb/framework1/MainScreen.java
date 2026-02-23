@@ -512,6 +512,7 @@ public class MainScreen implements Screen {
                 if (isDragging && flippedY > state.infoAreaHeight) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        if (state.helpVisible) state.helpVisible = false;
                         selectCellAt(screenX, flippedY);
                         // Double-click detection: two taps close together in time and space
                         long  now = System.currentTimeMillis();
