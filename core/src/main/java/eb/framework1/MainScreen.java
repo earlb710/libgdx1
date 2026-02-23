@@ -900,13 +900,11 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination – always discover
+            // Reached destination – always discover and always show popup
             state.isWalking = false;
             state.walkPath  = null;
             boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
-            if (newlyDiscovered) {
-                showDiscoveryPopup(state.charCellX, state.charCellY);
-            }
+            showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
@@ -1023,10 +1021,13 @@ public class MainScreen implements Screen {
     }
 
     /**
-     * Builds and shows the discovery popup for a newly discovered building.
-     * Collects all improvements that were auto-discovered (hiddenValue == 0).
+     * Builds and shows the discovery popup for a building arrival.
+     * Collects all improvements that were auto-discovered (hiddenValue == 0),
+     * along with their novel improvement descriptions.
+     *
+     * @param newDiscovery {@code true} if this is the first time this building is visited
      */
-    private void showDiscoveryPopup(int x, int y) {
+    private void showDiscoveryPopup(int x, int y, boolean newDiscovery) {
         Cell cell = cityMap.getCell(x, y);
         if (!cell.hasBuilding()) return;
         Building building = cell.getBuilding();
@@ -1049,9 +1050,17 @@ public class MainScreen implements Screen {
                 String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
                         + (mod.isEmpty() ? "" : " " + mod);
                 impLines.add(entry);
+                // Novel improvement description (if any)
+                if (novelTextEngine != null) {
+                    String impNovel = novelTextEngine.getImprovementDescription(
+                            imp.getName(), profile.getGender());
+                    if (impNovel != null && !impNovel.isEmpty()) {
+                        impLines.add("    " + impNovel);
+                    }
+                }
             }
         }
-        discoveryPopup.show(building.getName(), description, novelText, impLines);
+        discoveryPopup.show(building.getName(), description, novelText, impLines, newDiscovery);
     }
 
     /**
