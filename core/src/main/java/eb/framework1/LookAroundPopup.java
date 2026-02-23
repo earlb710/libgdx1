@@ -335,30 +335,32 @@ class LookAroundPopup {
         if (cell.hasBuilding()) {
             // Attribute key matches how CharacterAttributeScreen saves it (enum .name())
             int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.name());
+
+            // Always test against the easiest (lowest hiddenValue > 0) undiscovered improvement
+            Improvement easiest = null;
             for (Improvement imp : cell.getBuilding().getImprovements()) {
-                if (imp.isDiscovered()) continue;
-                int hv = imp.getHiddenValue();
-                if (hv == 0) {
-                    // hiddenValue 0 is auto-discovered on arrival; skip here
-                    continue;
+                if (imp.isDiscovered() || imp.getHiddenValue() == 0) continue;
+                if (easiest == null || imp.getHiddenValue() < easiest.getHiddenValue()) {
+                    easiest = imp;
                 }
+            }
+            if (easiest != null) {
                 // Sliding probability: chance = min(1.0, perception / hiddenValue)
                 // e.g. perception=5, hiddenValue=5 → 100%; perception=3, hiddenValue=5 → 60%
-                float chance = Math.min(1.0f, (float) perception / hv);
+                float chance = Math.min(1.0f, (float) perception / easiest.getHiddenValue());
                 if (rng.nextFloat() < chance) {
-                    imp.discover();
-                    String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
-                    String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")"
+                    easiest.discover();
+                    String mod = InfoPanelRenderer.formatAttributeModifiers(easiest.getAttributeModifiers());
+                    String entry = easiest.getName() + " (Lvl " + easiest.getLevel() + ")"
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
                     if (novelTextEngine != null) {
                         String desc = novelTextEngine.getImprovementDescription(
-                                imp.getName(), profile.getGender());
+                                easiest.getName(), profile.getGender());
                         if (desc != null && !desc.isEmpty()) {
                             novelDesc = desc;
                         }
                     }
-                    break; // only 1 new improvement discovered per look-around
                 }
             }
         }

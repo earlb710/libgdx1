@@ -59,6 +59,7 @@ public class MainScreen implements Screen {
     private HelpPopup         helpPopup;
     private DiscoveryPopup    discoveryPopup;
     private ServiceResultPopup serviceResultPopup;
+    private StashPopup         stashPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -197,6 +198,8 @@ public class MainScreen implements Screen {
 
         serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        stashPopup = new StashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -248,6 +251,10 @@ public class MainScreen implements Screen {
 
         if (serviceResultPopup.isVisible()) {
             serviceResultPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (stashPopup.isVisible()) {
+            stashPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -425,6 +432,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Stash popup blocks all normal interaction until dismissed
+                if (stashPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -524,6 +540,20 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Stash popup: Close or Take button
+                if (stashPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = stashPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleTakeFromStash(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -574,6 +604,8 @@ public class MainScreen implements Screen {
                         checkRestButtonClick(screenX, flippedY);
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
+                        checkOpenStashButtonClick(screenX, flippedY);
+                        checkEquipDropButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
@@ -827,6 +859,29 @@ public class MainScreen implements Screen {
         }
     }
 
+    private void checkOpenStashButtonClick(int screenX, int flippedY) {
+        if (state.openStashBtnW <= 0) return;
+        if (screenX >= state.openStashBtnX && screenX <= state.openStashBtnX + state.openStashBtnW
+                && flippedY >= state.openStashBtnY && flippedY <= state.openStashBtnY + state.openStashBtnH) {
+            stashPopup.show();
+            Gdx.app.log("MainScreen", "Stash opened");
+        }
+    }
+
+    private void checkEquipDropButtonClick(int screenX, int flippedY) {
+        if (state.equipDropBtnCount <= 0) return;
+        for (int i = 0; i < state.equipDropBtnCount && i < MapViewState.MAX_EQUIP_BTNS; i++) {
+            if (state.equipDropBtnW[i] <= 0) continue;
+            if (screenX >= state.equipDropBtnX[i]
+                    && screenX <= state.equipDropBtnX[i] + state.equipDropBtnW[i]
+                    && flippedY >= state.equipDropBtnY[i]
+                    && flippedY <= state.equipDropBtnY[i] + state.equipDropBtnH) {
+                handleEquipDrop(i);
+                return;
+            }
+        }
+    }
+
     private void checkUnitExitButtonClick(int screenX, int flippedY) {
         if (!state.unitInteriorOpen) return;
         if (state.unitExitBtnW > 0
@@ -909,6 +964,63 @@ public class MainScreen implements Screen {
         state.unitInteriorOpen = false;
         contextMenu.dismiss();
         Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
+    }
+
+    /**
+     * Drops or stashes the carried item at the given index in the flat
+     * allItems order (main slots first, then utility items, matching the
+     * order InfoPanelRenderer uses when drawing the character tab).
+     *
+     * When the player is inside their home office the item is moved to the
+     * stash instead of being permanently deleted.
+     */
+    private void handleEquipDrop(int idx) {
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        List<EquipItem>      allItems   = new ArrayList<>();
+        List<EquipmentSlot>  slotsUsed  = new ArrayList<>();
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) { allItems.add(item); slotsUsed.add(slot); }
+        }
+        List<EquipItem> utility = new ArrayList<>(profile.getUtilityItems());
+        int mainCount = allItems.size();
+        allItems.addAll(utility);
+
+        if (idx < 0 || idx >= allItems.size()) return;
+
+        boolean inOffice = state.unitInteriorOpen
+                && state.charCellX == state.homeCellX
+                && state.charCellY == state.homeCellY;
+
+        if (idx < mainCount) {
+            EquipItem item = allItems.get(idx);
+            if (inOffice) profile.addToStash(item);
+            profile.unequip(slotsUsed.get(idx));
+            Gdx.app.log("MainScreen", (inOffice ? "Stashed" : "Dropped") + " " + item.getName());
+        } else {
+            int utilIdx = idx - mainCount;
+            EquipItem item = utility.get(utilIdx);
+            if (inOffice) profile.addToStash(item);
+            profile.removeUtilityItemAt(utilIdx);
+            Gdx.app.log("MainScreen", (inOffice ? "Stashed" : "Dropped") + " " + item.getName());
+        }
+    }
+
+    /**
+     * Takes the stash item at {@code index} back into the character's inventory.
+     * Non-utility items are (re-)equipped in their slot; utility items are added
+     * back to the utility list.
+     */
+    private void handleTakeFromStash(int index) {
+        EquipItem item = profile.takeFromStash(index);
+        if (item == null) return;
+        if (item.getSlot() == EquipmentSlot.UTILITY) {
+            profile.addUtilityItem(item);
+        } else {
+            profile.equip(item);
+        }
+        Gdx.app.log("MainScreen", "Took from stash: " + item.getName());
     }
 
     /**

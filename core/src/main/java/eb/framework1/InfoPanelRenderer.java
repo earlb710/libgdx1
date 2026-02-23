@@ -42,6 +42,7 @@ class InfoPanelRenderer {
     private static final Color MOVE_TO_BUTTON_COLOR   = new Color(0.1f,  0.5f,  0.15f, 1f);
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
     private static final Color OFFICE_BTN_COLOR         = new Color(0.45f, 0.35f, 0.0f,  1f);
+    private static final Color STASH_BTN_COLOR           = new Color(0.35f, 0.15f, 0.50f, 1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
@@ -339,9 +340,19 @@ class InfoPanelRenderer {
         }
         s.goToOfficeBtnX = btnX; s.goToOfficeBtnH = BTN_H; s.goToOfficeBtnW = showOfficeButton ? OFFICE_W : 0f;
         s.goToOfficeBtnY = curRowBottom;
-        if (showOfficeButton) { lowestBtnBottom = curRowBottom; }
+        if (showOfficeButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton;
+        // Open Stash button (when physically standing at home building)
+        boolean showStashButton = atCurrentBuilding && atHome;
+        float STASH_W = 0f;
+        if (showStashButton) {
+            STASH_W = TextMeasurer.measure(font, glyphLayout, "Open Stash", PAD_X, PAD_Y).width;
+        }
+        s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = showStashButton ? STASH_W : 0f;
+        s.openStashBtnY = curRowBottom;
+        if (showStashButton) { lowestBtnBottom = curRowBottom; }
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -376,6 +387,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
+        if (showStashButton) {
+            shapeRenderer.setColor(STASH_BTN_COLOR);
+            shapeRenderer.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
+        }
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -391,6 +406,10 @@ class InfoPanelRenderer {
         if (showOfficeButton) {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
+        }
+        if (showStashButton) {
+            shapeRenderer.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
+            shapeRenderer.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
         }
         shapeRenderer.end();
 
@@ -427,6 +446,13 @@ class InfoPanelRenderer {
             font.draw(batch, officeBtnLabel,
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
+        }
+        if (showStashButton) {
+            glyphLayout.setText(font, "Open Stash");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Open Stash",
+                    s.openStashBtnX + (STASH_W - glyphLayout.width) / 2,
+                    s.openStashBtnY + (BTN_H + glyphLayout.height) / 2);
         }
 
         // GL scissor
@@ -588,6 +614,7 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.openStashBtnW      = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
 
@@ -744,12 +771,31 @@ class InfoPanelRenderer {
         }
         allItems.addAll(profile.getUtilityItems());
 
+        // "Drop" vs "Stash" label: "Stash" when player is inside their home office
+        boolean inOffice = s.unitInteriorOpen
+                && s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
+        String dropLabel = inOffice ? "[Stash]" : "[Drop]";
+        Color  dropColor = inOffice ? new Color(1.0f, 0.65f, 0.2f, 1f)
+                                    : new Color(1.0f, 0.35f, 0.35f, 1f);
+
+        // Pre-measure the drop button label (same width for all rows)
+        glyphLayout.setText(smallFont, dropLabel);
+        float dropLabelW = glyphLayout.width;
+        float dropLabelX = contentW - 8f - dropLabelW; // right-aligned, 8px from scrollbar edge
+
+        // Clear old drop button bounds
+        for (int i = 0; i < MapViewState.MAX_EQUIP_BTNS; i++) s.equipDropBtnW[i] = 0f;
+        s.equipDropBtnH = smallCapH + 4f;
+
         if (allItems.isEmpty()) {
             smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
             smallFont.draw(batch, "(none)", PAD, ty + drawScrollY);
             ty -= smallLineH;
+            s.equipDropBtnCount = 0;
         } else {
-            for (EquipItem item : allItems) {
+            s.equipDropBtnCount = allItems.size();
+            for (int i = 0; i < allItems.size(); i++) {
+                EquipItem item = allItems.get(i);
                 float iy = ty + drawScrollY;
                 float cx = PAD;
 
@@ -779,6 +825,15 @@ class InfoPanelRenderer {
                     smallFont.setColor(Color.CYAN);
                     smallFont.draw(batch, "  " + modBuf, cx, iy);
                 }
+
+                // [Drop] / [Stash] button — right-aligned, only when visible in panel
+                if (i < MapViewState.MAX_EQUIP_BTNS && iy > 0 && iy <= panelH + smallCapH) {
+                    smallFont.setColor(dropColor);
+                    smallFont.draw(batch, dropLabel, dropLabelX, iy);
+                    s.equipDropBtnX[i] = dropLabelX;
+                    s.equipDropBtnY[i] = iy - smallCapH - 2f; // button bottom
+                    s.equipDropBtnW[i] = dropLabelW;
+                } // else W stays 0 (set above) — not clickable when scrolled off-screen
 
                 ty -= smallLineH;
             }

@@ -50,6 +50,15 @@ class MapViewState {
     float restBtnX, restBtnY, restBtnW, restBtnH;       // written by UnitInteriorPopup
     float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;   // written by UnitInteriorPopup
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
+    float openStashBtnX, openStashBtnY, openStashBtnW, openStashBtnH;
+
+    // Drop/Stash buttons in character tab (one per carried item; screen-space Y, updated each frame)
+    static final int MAX_EQUIP_BTNS = 20;
+    float[] equipDropBtnX = new float[MAX_EQUIP_BTNS];
+    float[] equipDropBtnY = new float[MAX_EQUIP_BTNS];
+    float[] equipDropBtnW = new float[MAX_EQUIP_BTNS];
+    float   equipDropBtnH = 0f;
+    int     equipDropBtnCount = 0;
 
     // --- Unit interior popup ---
     boolean unitInteriorOpen  = false;
