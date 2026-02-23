@@ -47,6 +47,7 @@ class LookAroundPopup {
     private float        timer = 0f;
     private int          lookCharX, lookCharY;
     private List<String> foundItems = new ArrayList<>();
+    private String       novelDesc  = null;
 
     // OK button bounds (written during draw, read by onTap)
     private float okX, okY, okW, okH;
@@ -89,6 +90,7 @@ class LookAroundPopup {
         lookCharX = charX;
         lookCharY = charY;
         foundItems.clear();
+        novelDesc = null;
         timer   = 0f;
         scrollY = 0f;
         state   = State.ANIMATING;
@@ -144,11 +146,16 @@ class LookAroundPopup {
         float okBtnH = okBounds.height;
 
         // --- Measure all text elements via TextMeasurer ---
+        // Pre-compute smallLineH so it's available in both sizing and scrollbar sections.
+        glyphLayout.setText(smallFont, "Hg");
+        float smallLineH = glyphLayout.height + GAP;
+
         // Heading line
         TextMeasurer.TextBounds headBounds;
         float headingH, headingLineH;
         float dialogW, dialogH;
         boolean needsScroll;
+        List<String> novelLines = java.util.Collections.emptyList();
 
         if (state == State.ANIMATING) {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Looking around...", 0f, 0f);
@@ -178,6 +185,18 @@ class LookAroundPopup {
                                 Math.max(maxItemW, okBounds.textWidth));
             dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
+            // Wrap novel description text to the available content width and add to height.
+            if (novelDesc != null) {
+                float wrapWidth = dialogW - 2 * PAD;
+                novelLines = WordWrapper.wrap(novelDesc, wrapWidth, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                });
+                if (!novelLines.isEmpty()) {
+                    itemsH += novelLines.size() * smallLineH;
+                }
+            }
+
             // Height formula:
             //   PAD (top border)
             //   + headingLineH  (heading text + gap)
@@ -195,12 +214,10 @@ class LookAroundPopup {
             maxScrollY   = needsScroll ? Math.max(0f, scrollableH - maxScrollableH) : 0f;
         }
 
-        // For drawing the text we still need cap-height references
+        // For drawing the text we still need fontLineH
         glyphLayout.setText(font, "Hg");
         float fontH      = glyphLayout.height;
         float fontLineH  = fontH + GAP;
-        glyphLayout.setText(smallFont, "Hg");
-        float smallLineH = glyphLayout.height + GAP;
 
         // Centred on screen
         float dialogX = (screenW - dialogW) / 2f;
@@ -229,7 +246,8 @@ class LookAroundPopup {
             shapeRenderer.rect(sbX, trackY, SCROLLBAR_W, trackH);
             // scrollableH = headingLineH + itemsH; visible area = trackH
             float scrollableH = headBounds.textHeight + GAP
-                    + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight;
+                    + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight
+                    + novelLines.size() * smallLineH;
             float thumbH  = MathUtils.clamp(trackH * (trackH / scrollableH), 12f, trackH);
             float thumbY  = trackY + (trackH - thumbH) * (maxScrollY > 0 ? 1f - scrollY / maxScrollY : 1f);
             shapeRenderer.setColor(0.6f, 0.65f, 0.75f, 1f);
@@ -279,6 +297,13 @@ class LookAroundPopup {
                         dialogX + PAD,
                         ty);
                 ty -= smallLineH;
+            }
+            if (!novelLines.isEmpty()) {
+                smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
+                for (String nLine : novelLines) {
+                    smallFont.draw(batch, nLine, dialogX + PAD, ty);
+                    ty -= smallLineH;
+                }
             }
         }
         batch.end();
@@ -330,7 +355,7 @@ class LookAroundPopup {
                         String desc = novelTextEngine.getImprovementDescription(
                                 imp.getName(), profile.getGender());
                         if (desc != null && !desc.isEmpty()) {
-                            foundItems.add("  " + desc);
+                            novelDesc = desc;
                         }
                     }
                     break; // only 1 new improvement discovered per look-around

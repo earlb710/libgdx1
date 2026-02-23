@@ -46,7 +46,7 @@ class InfoPanelRenderer {
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
-    private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
+    static final Color NOVEL_COLOR                    = new Color(0.70f, 0.90f, 1.00f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
