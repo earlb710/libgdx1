@@ -547,9 +547,18 @@ class InfoPanelRenderer {
         final float PAD = 16f;
 
         CharacterAttribute[] attrs = CharacterAttribute.values();
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
 
-        // Total virtual content height: name row + one row per attribute
-        float totalH = fontLineH + attrs.length * smallLineH;
+        // Total virtual content height:
+        //   name + attributes + blank separator + "Equipment" header + 4 main slots + utility row
+        float equipHeaderH = fontLineH;
+        float totalH = fontLineH                            // character name
+                + attrs.length * smallLineH                 // attributes
+                + smallLineH                                // blank separator
+                + equipHeaderH                              // "Equipment" header
+                + mainSlots.length * smallLineH             // weapon / body / legs / feet
+                + smallLineH;                               // utility row
         float contentAreaH = panelH - SB;
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
         s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
@@ -612,6 +621,47 @@ class InfoPanelRenderer {
 
             ty -= smallLineH;
         }
+
+        // --- Equipment section ---
+        ty -= smallLineH; // blank separator
+
+        // "Equipment" header
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Equipment", PAD, ty + drawScrollY);
+        ty -= equipHeaderH;
+
+        // Main slots
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            float ey = ty + drawScrollY;
+            smallFont.setColor(LABEL_COLOR);
+            smallFont.draw(batch, slot.getDisplayName() + ": ", PAD, ey);
+            glyphLayout.setText(smallFont, slot.getDisplayName() + ": ");
+            smallFont.setColor(item != null ? Color.WHITE : new Color(0.45f, 0.45f, 0.45f, 1f));
+            smallFont.draw(batch, item != null ? item.getName() : "(empty)",
+                    PAD + glyphLayout.width, ey);
+            ty -= smallLineH;
+        }
+
+        // Utility row
+        float uy = ty + drawScrollY;
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, "Utility: ", PAD, uy);
+        glyphLayout.setText(smallFont, "Utility: ");
+        java.util.List<EquipItem> utilItems = profile.getUtilityItems();
+        if (utilItems.isEmpty()) {
+            smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
+            smallFont.draw(batch, "(empty)", PAD + glyphLayout.width, uy);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < utilItems.size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(utilItems.get(i).getName());
+            }
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, sb.toString(), PAD + glyphLayout.width, uy);
+        }
+        ty -= smallLineH;
 
         batch.end();
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);

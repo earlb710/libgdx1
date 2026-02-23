@@ -61,6 +61,17 @@ public class GameSave {
     private final boolean[] improvementDiscovered;
 
     // -------------------------------------------------------------------------
+    // Equipment snapshot
+    // Stored as item names so the save is independent of EquipItem object identity.
+    // Non-utility slot → item name (null = empty).
+    // Utility items → ordered list of names.
+    // -------------------------------------------------------------------------
+    /** Non-utility slot → item name; null value means the slot is empty. */
+    private final Map<EquipmentSlot, String> equipmentNames;
+    /** Ordered names of utility items carried. */
+    private final List<String> utilityItemNames;
+
+    // -------------------------------------------------------------------------
     // Constructor (package-private; use GameSave.from() or SaveGameManager)
     // -------------------------------------------------------------------------
     GameSave(String characterName, String gender, String difficulty, String characterIcon,
@@ -68,7 +79,9 @@ public class GameSave {
              int gameDate, long randSeed, int money, String gameDateTime, int currentStamina,
              int charCellX, int charCellY, int homeCellX, int homeCellY,
              boolean[] buildingDiscovered, boolean[] buildingOwned,
-             boolean[] improvementDiscovered) {
+             boolean[] improvementDiscovered,
+             Map<EquipmentSlot, String> equipmentNames,
+             List<String> utilityItemNames) {
         this.characterName       = characterName;
         this.gender              = gender;
         this.difficulty          = difficulty;
@@ -86,6 +99,10 @@ public class GameSave {
         this.buildingDiscovered    = buildingDiscovered.clone();
         this.buildingOwned         = buildingOwned.clone();
         this.improvementDiscovered = improvementDiscovered.clone();
+        this.equipmentNames  = Collections.unmodifiableMap(
+                equipmentNames != null ? new java.util.EnumMap<>(equipmentNames) : new java.util.EnumMap<>(EquipmentSlot.class));
+        this.utilityItemNames = Collections.unmodifiableList(
+                utilityItemNames != null ? new java.util.ArrayList<>(utilityItemNames) : new java.util.ArrayList<>());
     }
 
     // -------------------------------------------------------------------------
@@ -140,7 +157,29 @@ public class GameSave {
                 profile.getCurrentStamina(),
                 charX, charY,
                 homeX, homeY,
-                bDisc, bOwned, iDisc);
+                bDisc, bOwned, iDisc,
+                snapshotEquipment(profile),
+                snapshotUtility(profile));
+    }
+
+    /** Snapshot non-utility slots as slot→name map. */
+    private static java.util.EnumMap<EquipmentSlot, String> snapshotEquipment(Profile profile) {
+        java.util.EnumMap<EquipmentSlot, String> map = new java.util.EnumMap<>(EquipmentSlot.class);
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot == EquipmentSlot.UTILITY) continue;
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) map.put(slot, item.getName());
+        }
+        return map;
+    }
+
+    /** Snapshot utility items as list of names. */
+    private static java.util.ArrayList<String> snapshotUtility(Profile profile) {
+        java.util.ArrayList<String> names = new java.util.ArrayList<>();
+        for (EquipItem item : profile.getUtilityItems()) {
+            names.add(item.getName());
+        }
+        return names;
     }
 
     // -------------------------------------------------------------------------
@@ -161,6 +200,22 @@ public class GameSave {
         profile.setGameDateTime(gameDateTime);
         profile.setAttributes(new HashMap<>(attributes));
         profile.setCurrentStamina(currentStamina);
+        // Restore non-utility equipment from catalogue by name
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot == EquipmentSlot.UTILITY) continue;
+            String name = equipmentNames.get(slot);
+            if (name == null) {
+                profile.unequip(slot);
+            } else {
+                EquipItem item = EquipItem.findByName(name, slot);
+                if (item != null) profile.equip(item);
+            }
+        }
+        // Restore utility items
+        for (String name : utilityItemNames) {
+            EquipItem item = EquipItem.findByName(name, EquipmentSlot.UTILITY);
+            if (item != null) profile.addUtilityItem(item);
+        }
     }
 
     /**
@@ -217,4 +272,14 @@ public class GameSave {
     /** Returns a copy of the flat improvement-discovered array
      *  (index = {@code (x*MAP_SIZE+y)*4+impIndex}). */
     public boolean[] getImprovementDiscovered() { return improvementDiscovered.clone(); }
+
+    /** Returns the non-utility equipment names (slot→name; null value = empty slot). */
+    public Map<EquipmentSlot, String> getEquipmentNames() {
+        return equipmentNames; // already unmodifiable
+    }
+
+    /** Returns the ordered list of utility item names. */
+    public List<String> getUtilityItemNames() {
+        return utilityItemNames; // already unmodifiable
+    }
 }

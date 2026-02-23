@@ -5,6 +5,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -143,6 +144,12 @@ public class SaveGameManager {
         d.buildingDiscovered    = save.getBuildingDiscovered();
         d.buildingOwned         = save.getBuildingOwned();
         d.improvementDiscovered = save.getImprovementDiscovered();
+        // Equipment — store as name strings, keyed by slot name
+        d.equipmentSlotNames = new HashMap<>();
+        for (Map.Entry<EquipmentSlot, String> e : save.getEquipmentNames().entrySet()) {
+            d.equipmentSlotNames.put(e.getKey().name(), e.getValue());
+        }
+        d.utilityItemNames = new ArrayList<>(save.getUtilityItemNames());
         return d;
     }
 
@@ -154,6 +161,17 @@ public class SaveGameManager {
         boolean[] bOwned = d.buildingOwned         != null ? d.buildingOwned         : new boolean[cells];
         boolean[] iDisc  = d.improvementDiscovered != null ? d.improvementDiscovered : new boolean[cells * 4];
         Map<String, Integer> attrs = d.attributes != null ? d.attributes : new HashMap<>();
+        // Rebuild equipment maps
+        java.util.EnumMap<EquipmentSlot, String> equipMap = new java.util.EnumMap<>(EquipmentSlot.class);
+        if (d.equipmentSlotNames != null) {
+            for (Map.Entry<String, String> e : d.equipmentSlotNames.entrySet()) {
+                try {
+                    equipMap.put(EquipmentSlot.valueOf(e.getKey()), e.getValue());
+                } catch (IllegalArgumentException ignored) { /* unknown slot */ }
+            }
+        }
+        java.util.List<String> utilNames = d.utilityItemNames != null
+                ? d.utilityItemNames : new ArrayList<>();
         return new GameSave(
                 d.characterName,
                 d.gender,
@@ -167,7 +185,8 @@ public class SaveGameManager {
                 d.currentStamina,
                 d.charCellX, d.charCellY,
                 d.homeCellX, d.homeCellY,
-                bDisc, bOwned, iDisc);
+                bDisc, bOwned, iDisc,
+                equipMap, utilNames);
     }
 
     // -------------------------------------------------------------------------
@@ -199,5 +218,9 @@ public class SaveGameManager {
         public boolean[] buildingOwned;
         /** Flat array, index = {@code (x * MAP_SIZE + y) * 4 + impIndex}. */
         public boolean[] improvementDiscovered;
+        /** Non-utility slot name → item name (null = empty). */
+        public Map<String, String> equipmentSlotNames;
+        /** Ordered utility item names. */
+        public java.util.List<String> utilityItemNames;
     }
 }

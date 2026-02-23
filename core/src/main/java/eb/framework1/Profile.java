@@ -1,7 +1,12 @@
 package eb.framework1;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class Profile {
     private String characterName;
@@ -14,6 +19,17 @@ public class Profile {
     private int money;     // Player's current money
     private String gameDateTime; // Full in-game date/time string (e.g. "2050-01-02 13:20")
     private int currentStamina = -1; // -1 = lazy-initialise from STAMINA attribute on first access
+
+    /**
+     * Unique identifier for this character instance.
+     * Allows multiple characters to coexist without name-based collisions.
+     */
+    private final String characterId;
+
+    // Equipment: one item per non-utility slot (null = empty)
+    private final Map<EquipmentSlot, EquipItem> equipment;
+    // Utility slot allows multiple items
+    private final List<EquipItem> utilityItems;
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -57,6 +73,11 @@ public class Profile {
         this.randSeed = randSeed;
         this.money = 1000;
         this.gameDateTime = "2050-01-02 13:20";
+        this.characterId = UUID.randomUUID().toString();
+        this.equipment   = new EnumMap<>(EquipmentSlot.class);
+        this.utilityItems = new ArrayList<>();
+        // Default starting weapon
+        equipment.put(EquipmentSlot.WEAPON, EquipItem.PISTOL);
     }
     
     // Character name serves as both the profile identifier and in-game name
@@ -225,16 +246,96 @@ public class Profile {
         }
     }
     
+    // -------------------------------------------------------------------------
+    // Identity
+    // -------------------------------------------------------------------------
+
+    /** Unique identifier for this character instance (UUID string). */
+    public String getCharacterId() { return characterId; }
+
+    // -------------------------------------------------------------------------
+    // Equipment
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the item currently equipped in the given non-utility slot, or
+     * {@code null} if the slot is empty.
+     */
+    public EquipItem getEquipped(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.UTILITY) return null; // utility uses getUtilityItems()
+        return equipment.get(slot);
+    }
+
+    /**
+     * Equips {@code item} in its designated slot, replacing any previous item.
+     * For {@link EquipmentSlot#UTILITY} items use {@link #addUtilityItem(EquipItem)}.
+     *
+     * @throws IllegalArgumentException if {@code item} is null or is a UTILITY item
+     */
+    public void equip(EquipItem item) {
+        if (item == null) throw new IllegalArgumentException("Item must not be null");
+        if (item.getSlot() == EquipmentSlot.UTILITY)
+            throw new IllegalArgumentException("Use addUtilityItem() for UTILITY items");
+        equipment.put(item.getSlot(), item);
+    }
+
+    /**
+     * Removes the item from the given non-utility slot (makes it empty).
+     * Has no effect if the slot is already empty or is UTILITY.
+     */
+    public void unequip(EquipmentSlot slot) {
+        if (slot != EquipmentSlot.UTILITY) equipment.remove(slot);
+    }
+
+    /**
+     * Adds a utility item.  Multiple utility items may be carried simultaneously.
+     *
+     * @throws IllegalArgumentException if {@code item} is null or is not a UTILITY item
+     */
+    public void addUtilityItem(EquipItem item) {
+        if (item == null) throw new IllegalArgumentException("Item must not be null");
+        if (item.getSlot() != EquipmentSlot.UTILITY)
+            throw new IllegalArgumentException("Item is not a UTILITY item");
+        utilityItems.add(item);
+    }
+
+    /** Removes the first utility item with the given name. Returns {@code true} if removed. */
+    public boolean removeUtilityItem(String itemName) {
+        return utilityItems.removeIf(i -> i.getName().equals(itemName));
+    }
+
+    /** Returns an unmodifiable view of all utility items currently carried. */
+    public List<EquipItem> getUtilityItems() {
+        return Collections.unmodifiableList(utilityItems);
+    }
+
+    /**
+     * Returns the total attribute modifier contributed by all currently equipped items
+     * (non-utility slots + all utility items).
+     */
+    public int getEquipmentModifier(CharacterAttribute attr) {
+        int total = 0;
+        for (EquipItem item : equipment.values()) {
+            total += item.getModifiers().getOrDefault(attr, 0);
+        }
+        for (EquipItem item : utilityItems) {
+            total += item.getModifiers().getOrDefault(attr, 0);
+        }
+        return total;
+    }
+
+    // -------------------------------------------------------------------------
+    // toString
+    // -------------------------------------------------------------------------
+
     @Override
     public String toString() {
         return "Profile{" +
-                "characterName='" + characterName + '\'' +
+                "characterId='" + characterId + '\'' +
+                ", characterName='" + characterName + '\'' +
                 ", gender='" + gender + '\'' +
                 ", difficulty='" + difficulty + '\'' +
-                ", characterIcon='" + characterIcon + '\'' +
-                ", attributes=" + attributes +
-                ", gameDate=" + gameDate +
-                ", randSeed=" + randSeed +
                 '}';
     }
 }
+
