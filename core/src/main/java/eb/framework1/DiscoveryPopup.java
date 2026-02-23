@@ -144,18 +144,34 @@ class DiscoveryPopup {
         glyph.setText(font, titleText);
         float titleW = glyph.width;
 
+        // Max pixel width available for text inside the dialog
+        final float textAreaMaxW = MAX_W - 2 * PAD - SCROLLBAR_W - 4f;
+
+        // Width measurer using the popup's smallFont + shared GlyphLayout
+        WordWrapper.WidthMeasurer measurer = t -> {
+            glyph.setText(smallFont, t);
+            return glyph.width;
+        };
+
         // --- Collect scrollable lines: description + novel text + improvements ---
+        List<String> descLines  = description != null
+                ? WordWrapper.wrap(description, textAreaMaxW, measurer)
+                : new ArrayList<>();
+        List<String> novelLines = novelText != null
+                ? WordWrapper.wrap(novelText, textAreaMaxW, measurer)
+                : new ArrayList<>();
+
         List<String> scrollLines = new ArrayList<>();
-        if (description != null) {
-            scrollLines.add(description);
-        }
-        if (novelText != null) {
-            scrollLines.add(novelText);
-        }
+        scrollLines.addAll(descLines);
+        scrollLines.addAll(novelLines);
         if (!improvementLines.isEmpty()) {
             scrollLines.add("Improvements found:");
             scrollLines.addAll(improvementLines);
         }
+
+        // Track which line-index range is novel (for NOVEL_COLOR rendering)
+        final int novelStartIdx = descLines.size();
+        final int novelEndIdx   = novelStartIdx + novelLines.size();
 
         // Measure scrollable content
         float maxLineW = titleW;
@@ -235,9 +251,10 @@ class DiscoveryPopup {
         ty -= fontLineH;
 
         // Content lines (novel text in light-blue, everything else white)
-        for (String line : scrollLines) {
-            boolean isNovel = line.equals(novelText);
+        for (int i = 0; i < scrollLines.size(); i++) {
+            boolean isNovel = i >= novelStartIdx && i < novelEndIdx;
             smallFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
+            String line = scrollLines.get(i);
             glyph.setText(smallFont, line);
             smallFont.draw(batch, line, dialogX + PAD, ty);
             ty -= smallLineH;

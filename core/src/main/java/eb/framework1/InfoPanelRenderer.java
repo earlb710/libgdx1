@@ -327,8 +327,10 @@ class InfoPanelRenderer {
         float contentAreaW      = s.screenWidth - SB;
 
         // --- Measure content and update max-scroll bounds ---
-        float totalContentH = computeContentHeight(s, fontLineH);
-        float totalContentW = computeContentWidth(s, 20f);
+        final float TEXT_X = 20f;
+        float wrapWidth = contentAreaW - TEXT_X;
+        float totalContentH = computeContentHeight(s, fontLineH, wrapWidth);
+        float totalContentW = computeContentWidth(s, TEXT_X);
         s.infoMaxScrollY = Math.max(0f, totalContentH - contentAreaH);
         s.infoMaxScrollX = Math.max(0f, totalContentW - contentAreaW);
         s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
@@ -481,13 +483,11 @@ class InfoPanelRenderer {
                         textY -= fontLineH;
                     }
 
-                    // Novel-engine contextual description
-                    String novel = buildingNovelText(building);
-                    if (novel != null) {
-                        float nx = textX - drawScrollX;
-                        float ny = textY + drawScrollY;
-                        font.setColor(NOVEL_COLOR);
-                        font.draw(batch, novel, nx, ny);
+                    // Novel-engine contextual description (word-wrapped to fit)
+                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+                    font.setColor(NOVEL_COLOR);
+                    for (String nLine : novelLines) {
+                        font.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
                         textY -= fontLineH;
                     }
                 } else {
@@ -859,10 +859,25 @@ class InfoPanelRenderer {
     }
 
     /**
+     * Returns the novel text for a building word-wrapped to {@code wrapWidth} pixels.
+     * Returns an empty list when no novel text is available.
+     */
+    private List<String> buildingNovelLines(Building b, float wrapWidth) {
+        String novel = buildingNovelText(b);
+        if (novel == null) return java.util.Collections.emptyList();
+        return WordWrapper.wrap(novel, wrapWidth, t -> {
+            glyphLayout.setText(font, t);
+            return glyphLayout.width;
+        });
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
+     *
+     * @param wrapWidth pixel width at which novel text should be wrapped
      */
-    private float computeContentHeight(MapViewState s, float fontLineH) {
+    private float computeContentHeight(MapViewState s, float fontLineH, float wrapWidth) {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float h = fontLineH; // Terrain (advance)
@@ -876,9 +891,8 @@ class InfoPanelRenderer {
         if (buildingDescription(b) != null) {
             h += fontLineH * 2; // blank gap + description line
         }
-        if (buildingNovelText(b) != null) {
-            h += fontLineH; // novel text line
-        }
+        int novelLineCount = buildingNovelLines(b, wrapWidth).size();
+        h += novelLineCount * fontLineH;
         return h;
     }
 
@@ -934,11 +948,9 @@ class InfoPanelRenderer {
                     glyphLayout.setText(font, "Description: " + desc);
                     maxW = Math.max(maxW, glyphLayout.width);
                 }
-                String novel = buildingNovelText(b);
-                if (novel != null) {
-                    glyphLayout.setText(font, novel);
-                    maxW = Math.max(maxW, glyphLayout.width);
-                }            } else {
+                // Novel text is always word-wrapped to the content area width,
+                // so it never contributes to horizontal scroll.
+            } else {
                 glyphLayout.setText(font, "Building: ???");
                 maxW = Math.max(maxW, glyphLayout.width);
             }
