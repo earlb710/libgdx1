@@ -29,6 +29,8 @@ import java.util.Map;
  * String json = Gdx.files.internal("text/en.json").readString("UTF-8");
  * NovelTextEngine engine = NovelTextEngine.fromJsonString(json);
  * String text = engine.getDescription("gym", TimeOfDay.EVENING, profile.getAttributes(), profile.getGender());
+ * // For a specific building improvement:
+ * String impText = engine.getImprovementDescription("Evidence Room", profile.getGender());
  * }</pre>
  * </p>
  */
@@ -59,16 +61,21 @@ public class NovelTextEngine {
     }
 
     private final Map<String, DescriptionEntry> entries;
+    private final Map<String, DescriptionEntry> improvements;
 
     /**
-     * Constructs the engine from a pre-built map of description entries.
+     * Constructs the engine from pre-built maps of description entries and improvement entries.
      * Intended for direct use and unit testing.
      *
-     * @param entries Map of description key → {@link DescriptionEntry}
+     * @param entries      Map of building description key → {@link DescriptionEntry}
+     * @param improvements Map of improvement name → {@link DescriptionEntry}
      */
-    NovelTextEngine(Map<String, DescriptionEntry> entries) {
+    NovelTextEngine(Map<String, DescriptionEntry> entries, Map<String, DescriptionEntry> improvements) {
         this.entries = entries != null
                 ? Collections.unmodifiableMap(new HashMap<>(entries))
+                : Collections.<String, DescriptionEntry>emptyMap();
+        this.improvements = improvements != null
+                ? Collections.unmodifiableMap(new HashMap<>(improvements))
                 : Collections.<String, DescriptionEntry>emptyMap();
     }
 
@@ -98,6 +105,15 @@ public class NovelTextEngine {
      *         "female": "..."
      *       }
      *     }
+     *   },
+     *   "improvements": {
+     *     "<Improvement Name>": {
+     *       "default": "...",
+     *       "gender": {
+     *         "male": "...",
+     *         "female": "..."
+     *       }
+     *     }
      *   }
      * }
      * }</pre>
@@ -115,49 +131,61 @@ public class NovelTextEngine {
         JsonValue root = reader.parse(json);
 
         Map<String, DescriptionEntry> entries = new HashMap<>();
+        Map<String, DescriptionEntry> improvements = new HashMap<>();
 
         JsonValue descriptionsNode = root.get("descriptions");
         if (descriptionsNode != null) {
             for (JsonValue entryNode = descriptionsNode.child; entryNode != null; entryNode = entryNode.next) {
-                String key = entryNode.name;
-                String defaultText = entryNode.getString("default", "");
-
-                // Parse time-of-day variants
-                Map<TimeOfDay, String> timeVariants = new EnumMap<>(TimeOfDay.class);
-                JsonValue timeNode = entryNode.get("time");
-                if (timeNode != null) {
-                    for (JsonValue t = timeNode.child; t != null; t = t.next) {
-                        TimeOfDay tod = parseTimeOfDay(t.name);
-                        if (tod != null) {
-                            timeVariants.put(tod, t.asString());
-                        }
-                    }
-                }
-
-                // Parse attribute variants
-                Map<String, String> attributeVariants = new HashMap<>();
-                JsonValue attrNode = entryNode.get("attribute");
-                if (attrNode != null) {
-                    for (JsonValue a = attrNode.child; a != null; a = a.next) {
-                        attributeVariants.put(a.name.toUpperCase(), a.asString());
-                    }
-                }
-
-                // Parse gender variants (keys stored lower-cased; unrecognised gender values at
-                // lookup time gracefully fall through to the time-of-day / default fallback)
-                Map<String, String> genderVariants = new HashMap<>();
-                JsonValue genderNode = entryNode.get("gender");
-                if (genderNode != null) {
-                    for (JsonValue g = genderNode.child; g != null; g = g.next) {
-                        genderVariants.put(g.name.toLowerCase(), g.asString());
-                    }
-                }
-
-                entries.put(key, new DescriptionEntry(defaultText, timeVariants, attributeVariants, genderVariants));
+                entries.put(entryNode.name, parseEntry(entryNode));
             }
         }
 
-        return new NovelTextEngine(entries);
+        JsonValue improvementsNode = root.get("improvements");
+        if (improvementsNode != null) {
+            for (JsonValue entryNode = improvementsNode.child; entryNode != null; entryNode = entryNode.next) {
+                improvements.put(entryNode.name, parseEntry(entryNode));
+            }
+        }
+
+        return new NovelTextEngine(entries, improvements);
+    }
+
+    /** Parses a single description/improvement entry node into a {@link DescriptionEntry}. */
+    private static DescriptionEntry parseEntry(JsonValue entryNode) {
+        String defaultText = entryNode.getString("default", "");
+
+        // Parse time-of-day variants
+        Map<TimeOfDay, String> timeVariants = new EnumMap<>(TimeOfDay.class);
+        JsonValue timeNode = entryNode.get("time");
+        if (timeNode != null) {
+            for (JsonValue t = timeNode.child; t != null; t = t.next) {
+                TimeOfDay tod = parseTimeOfDay(t.name);
+                if (tod != null) {
+                    timeVariants.put(tod, t.asString());
+                }
+            }
+        }
+
+        // Parse attribute variants
+        Map<String, String> attributeVariants = new HashMap<>();
+        JsonValue attrNode = entryNode.get("attribute");
+        if (attrNode != null) {
+            for (JsonValue a = attrNode.child; a != null; a = a.next) {
+                attributeVariants.put(a.name.toUpperCase(), a.asString());
+            }
+        }
+
+        // Parse gender variants (keys stored lower-cased; unrecognised gender values at
+        // lookup time gracefully fall through to the time-of-day / default fallback)
+        Map<String, String> genderVariants = new HashMap<>();
+        JsonValue genderNode = entryNode.get("gender");
+        if (genderNode != null) {
+            for (JsonValue g = genderNode.child; g != null; g = g.next) {
+                genderVariants.put(g.name.toLowerCase(), g.asString());
+            }
+        }
+
+        return new DescriptionEntry(defaultText, timeVariants, attributeVariants, genderVariants);
     }
 
     /**
@@ -242,6 +270,47 @@ public class NovelTextEngine {
      */
     public String getDescription(String key, int hour, Map<String, Integer> attributes) {
         return getDescription(key, TimeOfDay.fromHour(hour), attributes, null);
+    }
+
+    /**
+     * Returns the description for a building improvement, optionally tailored to the character's gender.
+     *
+     * <p>Selection priority:
+     * <ol>
+     *   <li>Gender variant matching {@code gender} ("male" or "female", case-insensitive).</li>
+     *   <li>Default text for the improvement.</li>
+     *   <li>Empty string if the improvement name is not found.</li>
+     * </ol>
+     * </p>
+     *
+     * @param name   Improvement name exactly as it appears in {@code buildings.json}
+     *               (e.g. {@code "Security Camera"}, {@code "Evidence Room"})
+     * @param gender Character gender string ("male" or "female", case-insensitive); may be null
+     * @return Selected description text, never {@code null}
+     */
+    public String getImprovementDescription(String name, String gender) {
+        if (name == null) return "";
+        DescriptionEntry entry = improvements.get(name);
+        if (entry == null) return "";
+
+        // 1. Check gender variant
+        if (gender != null && !entry.genderVariants.isEmpty()) {
+            String genderText = entry.genderVariants.get(gender.toLowerCase());
+            if (genderText != null) return genderText;
+        }
+
+        // 2. Fall back to default
+        return entry.defaultText;
+    }
+
+    /**
+     * Convenience overload that returns the gender-neutral improvement description.
+     *
+     * @param name Improvement name
+     * @return Selected description text, never {@code null}
+     */
+    public String getImprovementDescription(String name) {
+        return getImprovementDescription(name, null);
     }
 
     /**
