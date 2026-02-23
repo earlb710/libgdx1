@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -550,15 +552,21 @@ class InfoPanelRenderer {
         EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
                                       EquipmentSlot.LEGS,   EquipmentSlot.FEET };
 
-        // Total virtual content height:
-        //   name + attributes + blank separator + "Equipment" header + 4 main slots + utility row + weight row
+        // Count total carried items for equipment section height
+        int equippedItemCount = 0;
+        for (EquipmentSlot slot : mainSlots) {
+            if (profile.getEquipped(slot) != null) equippedItemCount++;
+        }
+        equippedItemCount += profile.getUtilityItems().size();
+        int equipRows = Math.max(1, equippedItemCount); // at least 1 for "(none)" row
+
+        // Total virtual content height (dynamic, based on actual item count)
         float equipHeaderH = fontLineH;
         float totalH = fontLineH                            // character name
                 + attrs.length * smallLineH                 // attributes
                 + smallLineH                                // blank separator
                 + equipHeaderH                              // "Equipment" header
-                + mainSlots.length * smallLineH             // weapon / body / legs / feet
-                + smallLineH                                // utility row
+                + equipRows * smallLineH                    // one row per carried item
                 + smallLineH;                               // weight row
         float contentAreaH = panelH - SB;
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
@@ -578,13 +586,14 @@ class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Attributes — one per row  Format: "Name [total] : base + mod"  or  "Name [base]"
+        // Attributes — one per row  Format: "Name [total] : base ±loc +equip"
         for (CharacterAttribute attr : attrs) {
-            int base = profile.getAttribute(attr.name());
-            int mod  = locationModFor(s.charCellX, s.charCellY, attr);
+            int base     = profile.getAttribute(attr.name());
+            int locMod   = locationModFor(s.charCellX, s.charCellY, attr);
+            int equipMod = profile.getEquipmentModifier(attr);
             float ay = ty + drawScrollY;
             float cx = PAD;
-            int    total    = base + mod;
+            int    total    = base + locMod + equipMod;
             String baseStr  = String.valueOf(base);
             String totalStr = String.valueOf(total);
 
@@ -601,7 +610,7 @@ class InfoPanelRenderer {
             glyphLayout.setText(smallFont, " [");
             cx += glyphLayout.width;
 
-            // total value — bright green (equals base when mod == 0)
+            // total value — bright green
             smallFont.setColor(ATTR_TOTAL_COLOR);
             smallFont.draw(batch, totalStr, cx, ay);
             glyphLayout.setText(smallFont, totalStr);
@@ -613,11 +622,20 @@ class InfoPanelRenderer {
             glyphLayout.setText(smallFont, "]");
             cx += glyphLayout.width;
 
-            if (mod != 0) {
-                // " : base +/- mod" — white
-                String modStr = " : " + baseStr + " " + (mod > 0 ? "+ " : "- ") + Math.abs(mod);
+            if (locMod != 0) {
+                // " : base ±loc" — white
+                String modStr = " : " + baseStr + " " + (locMod > 0 ? "+ " : "- ") + Math.abs(locMod);
                 smallFont.setColor(Color.WHITE);
                 smallFont.draw(batch, modStr, cx, ay);
+                glyphLayout.setText(smallFont, modStr);
+                cx += glyphLayout.width;
+            }
+
+            if (equipMod != 0) {
+                // " +X" / " -X" from equipment — cyan
+                String eqStr = " " + (equipMod > 0 ? "+" : "-") + Math.abs(equipMod);
+                smallFont.setColor(Color.CYAN);
+                smallFont.draw(batch, eqStr, cx, ay);
             }
 
             ty -= smallLineH;
@@ -631,38 +649,53 @@ class InfoPanelRenderer {
         font.draw(batch, "Equipment", PAD, ty + drawScrollY);
         ty -= equipHeaderH;
 
-        // Main slots
+        // Build flat list of all carried items (main slots first, then utility)
+        List<EquipItem> allItems = new ArrayList<>();
         for (EquipmentSlot slot : mainSlots) {
             EquipItem item = profile.getEquipped(slot);
-            float ey = ty + drawScrollY;
-            smallFont.setColor(LABEL_COLOR);
-            smallFont.draw(batch, slot.getDisplayName() + ": ", PAD, ey);
-            glyphLayout.setText(smallFont, slot.getDisplayName() + ": ");
-            smallFont.setColor(item != null ? Color.WHITE : new Color(0.45f, 0.45f, 0.45f, 1f));
-            smallFont.draw(batch, item != null ? item.getName() : "(empty)",
-                    PAD + glyphLayout.width, ey);
-            ty -= smallLineH;
+            if (item != null) allItems.add(item);
         }
+        allItems.addAll(profile.getUtilityItems());
 
-        // Utility row
-        float uy = ty + drawScrollY;
-        smallFont.setColor(LABEL_COLOR);
-        smallFont.draw(batch, "Utility: ", PAD, uy);
-        glyphLayout.setText(smallFont, "Utility: ");
-        java.util.List<EquipItem> utilItems = profile.getUtilityItems();
-        if (utilItems.isEmpty()) {
+        if (allItems.isEmpty()) {
             smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
-            smallFont.draw(batch, "(empty)", PAD + glyphLayout.width, uy);
+            smallFont.draw(batch, "(none)", PAD, ty + drawScrollY);
+            ty -= smallLineH;
         } else {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < utilItems.size(); i++) {
-                if (i > 0) sb.append(", ");
-                sb.append(utilItems.get(i).getName());
+            for (EquipItem item : allItems) {
+                float iy = ty + drawScrollY;
+                float cx = PAD;
+
+                // Item name — white
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, item.getName(), cx, iy);
+                glyphLayout.setText(smallFont, item.getName());
+                cx += glyphLayout.width;
+
+                // "  (Slot)" — dimmed
+                String slotLabel = "  (" + item.getSlot().getDisplayName() + ")";
+                smallFont.setColor(new Color(0.6f, 0.6f, 0.6f, 1f));
+                smallFont.draw(batch, slotLabel, cx, iy);
+                glyphLayout.setText(smallFont, slotLabel);
+                cx += glyphLayout.width;
+
+                // Attribute modifiers — cyan
+                if (!item.getModifiers().isEmpty()) {
+                    StringBuilder modBuf = new StringBuilder();
+                    for (Map.Entry<CharacterAttribute, Integer> e :
+                            item.getModifiers().entrySet()) {
+                        if (modBuf.length() > 0) modBuf.append(' ');
+                        int v = e.getValue();
+                        modBuf.append(v > 0 ? '+' : '-').append(Math.abs(v))
+                              .append(' ').append(e.getKey().getDisplayName());
+                    }
+                    smallFont.setColor(Color.CYAN);
+                    smallFont.draw(batch, "  " + modBuf, cx, iy);
+                }
+
+                ty -= smallLineH;
             }
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, sb.toString(), PAD + glyphLayout.width, uy);
         }
-        ty -= smallLineH;
 
         // Weight row  "Weight: 2.0 / 5.0"  — green / orange / red depending on load
         float carried  = profile.getTotalCarriedWeight();
