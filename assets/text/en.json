@@ -5453,6 +5453,146 @@
         "male": "You ride the express elevator to the sky lounge. The sommelier recognizes you. You've been here before, under different circumstances.",
         "female": "The sky lounge operates on reservation and appearance. You arrive without either and let your badge handle the introductions."
       }
+    },
+    "Snack Bar": {
+      "default": "Packaged food and cold drinks dispensed at a markup. The snack bar is where the city goes when it doesn't have time for a real meal. Which is always.",
+      "gender": {
+        "male": "You grab a coffee at the snack bar. Bad coffee, but it's hot. The attendant has been here all day. They've seen things.",
+        "female": "The snack bar is between the elevator bank and the exit. Everyone passes through. You take a position and wait."
+      }
+    },
+    "Social Hall": {
+      "default": "A large communal gathering space used for events, meals, and the kind of informal conversations that shape communities. Whoever runs the social hall runs the room.",
+      "gender": {
+        "male": "The social hall is set for a function that won't happen tonight. Not after what you found.",
+        "female": "You walk the social hall after the event. Folding chairs and leftover programs. The event coordinator remembers everyone who attended."
+      }
+    },
+    "Soda Fountain": {
+      "default": "An old-fashioned counter service feature. The soda fountain slows people down, which is exactly the kind of pace where conversations happen.",
+      "gender": {
+        "male": "You take a stool at the soda fountain. The server has been behind this counter for eleven years. They know the regulars.",
+        "female": "You order something cold at the soda fountain and let the counterperson talk. They always do eventually."
+      }
+    },
+    "Sommelier Station": {
+      "default": "A professional wine service post where expertise meets occasion. The sommelier knows who orders what and who they order it with.",
+      "gender": {
+        "male": "You speak to the sommelier. He remembers the table in the corner, the bottle they selected, and the conversation that was louder than the guests intended.",
+        "female": "The sommelier is meticulous and observant. She describes the table, the guests, and the moment when the mood shifted \u2014 unprompted."
+      }
+    },
+    "Sound System": {
+      "default": "Speakers and amplifiers built to fill a space with managed audio. The sound system also picks up what it isn't supposed to when the wrong settings are active.",
+      "gender": {
+        "male": "You ask the AV tech about the recording buffer. They go quiet for a long moment before answering.",
+        "female": "The sound system was active during the event. You ask the technician about the ambient capture settings. They check with their supervisor before responding."
+      }
+    },
+    "Spa": {
+      "default": "A space of deliberate calm layered over whatever brought the client here. The spa staff see people in their most unguarded state.",
+      "gender": {
+        "male": "You check in with the spa manager. Appointment logs, treatment records, and a client who left without completing a session.",
+        "female": "The spa is quiet and controlled. The esthetician remembers your subject clearly. Something about them wasn't relaxed \u2014 not even here."
+      }
+    },
+    "Special Ed Room": {
+      "default": "A specialized classroom built for individualized instruction. The level of care in here reflects the people who designed it and the staff who run it.",
+      "gender": {
+        "male": "You speak quietly with the special ed teacher. They know their students and their families intimately. They share what's relevant with practiced discretion.",
+        "female": "The special education room is thoughtfully arranged. The teacher has been watching the door since you arrived. She tells you what she knows."
+      }
+    },
+    "Speed Bumps": {
+      "default": "Asphalt ridges designed to slow vehicles down. Speed bumps mark the boundary between moving freely and moving carefully. You note who ignored them.",
+      "gender": {
+        "male": "The tire tracks over the speed bumps tell you the vehicle was moving fast. The time that damage was done tells you why.",
+        "female": "You photograph the speed bump damage. Fresh scrape marks. A vehicle cleared it at speed recently. You find the time on the camera."
+      }
+    },
+    "Spin Room": {
+      "default": "A cycling studio of synchronized effort and loud music. The spin room is an alibi that can be verified by thirty witnesses at once.",
+      "gender": {
+        "male": "You check the spin class roster. Your subject was signed up. They didn't show. Their bike went unoccupied.",
+        "female": "The spin room instructor has a photographic memory for her regulars. She confirms your subject wasn't in the 6 PM class despite the booking."
+      }
+    },
+    "Sports Bar": {
+      "default": "Multiple screens, loud opinions, and the kind of crowd that makes observation difficult but eavesdropping easy.",
+      "gender": {
+        "male": "You claim a corner stool at the sports bar. Loud, bright, anonymous. Your kind of working environment when you need to listen.",
+        "female": "The sports bar is the kind of loud that makes people feel invisible. You use that. The conversation two stools over is what you came for."
+      }
+    },
+    "Staff Lounge": {
+      "default": "The room where employees are briefly off-duty. The staff lounge is where the real institutional knowledge lives \u2014 in the conversations nobody thinks to record.",
+      "gender": {
+        "male": "You enter the staff lounge during the overlap break. The workers are tired and candid. You ask your question and listen.",
+        "female": "The staff lounge is where the real building operates. You make coffee, take a seat, and let the room decide you're safe to talk to."
+      }
+    },
+    "Staff Room": {
+      "default": "An employee-only space holding the accumulated detritus of daily work. The staff room tells you how the people here actually feel about their jobs.",
+      "gender": {
+        "male": "The staff room bulletin board is a newspaper of grievances and schedules. You read it carefully.",
+        "female": "You step into the staff room while the supervisor is occupied. The whiteboard and the table both have things to tell you."
+      }
+    },
+    "Stage": {
+      "default": "An elevated platform designed for performance and attention. The stage is where people become what they need to be seen as.",
+      "gender": {
+        "male": "You stand on the stage in the empty hall. The sightlines from up here cut both ways.",
+        "female": "The stage was occupied last night. You note the position of the lighting rig and what it would have illuminated \u2014 and what it would have hidden."
+      }
+    },
+    "Stairwell": {
+      "default": "Concrete and metal between floors \u2014 utilitarian and overlooked. The stairwell is where the city's off-the-record movement happens.",
+      "gender": {
+        "male": "You take the stairwell instead of the elevator. Old habit. The camera on the third floor landing has been taped over.",
+        "female": "You descend the stairwell with your hand on your jacket. The acoustics carry sound from two floors up. You stop and listen."
+      }
+    },
+    "Stamp Vending": {
+      "default": "Automated postage dispensers. In a digital city, stamps are used by people who need physical, traceable correspondence. Or who trust paper more than servers.",
+      "gender": {
+        "male": "The stamp vending machine was used last Tuesday at 2 AM. You request the transaction record and start thinking about what was mailed.",
+        "female": "You note the stamp machine's last activity timestamp. Someone mailed something at an unusual hour. You trace the postmark."
+      }
+    },
+    "Sterilization Room": {
+      "default": "A clinical room dedicated to eliminating contamination. The sterilization room is the medical facility's conscience. It maintains standards that are non-negotiable.",
+      "gender": {
+        "male": "The sterilization room log was falsified. You can tell by the autoclave temperature reading that doesn't match the recorded cycle time.",
+        "female": "You examine the sterilization records. A compliance deviation was noted and then the notation was removed. You find the original."
+      }
+    },
+    "Storage": {
+      "default": "General-purpose holding space for things that haven't found their final purpose. Storage rooms accumulate everything \u2014 supplies, records, and secrets.",
+      "gender": {
+        "male": "You push open the storage room door. The light flickers on. Whatever's in here has been here a while.",
+        "female": "The storage room is the building's repository of things nobody handles daily. That's why what you're looking for is here."
+      }
+    },
+    "Storage Closet": {
+      "default": "A small locked space where cleaning supplies and forgotten things share square footage. People underestimate storage closets. You don't.",
+      "gender": {
+        "male": "The storage closet was accessed three times last week by a credential that shouldn't have been active. You get the door open and start documenting.",
+        "female": "You open the storage closet with the master key. The contents are partly expected and partly not. You photograph everything."
+      }
+    },
+    "Storage Lot": {
+      "default": "An outdoor area for oversized or overflow items. The storage lot operates at the margins of the facility's attention. Things get lost in margins.",
+      "gender": {
+        "male": "You walk the storage lot perimeter. One bay hasn't been logged in or out for three weeks. The lock was cut recently.",
+        "female": "The storage lot is at the back of the property, out of direct camera coverage. That's deliberate. You photograph the blind spots."
+      }
+    },
+    "Storage Room": {
+      "default": "A utility space that holds more than inventory. Storage rooms are archives, repositories, and occasionally the answer to the question you couldn't place.",
+      "gender": {
+        "male": "The storage room inventory doesn't match the purchase orders from last month. You start with the discrepancy and work outward.",
+        "female": "You move through the storage room systematically. The disorganization is cultivated \u2014 designed to make things hard to find. You find them anyway."
+      }
     }
   }
 }
