@@ -1673,6 +1673,146 @@
         "male": "You run a few sets. Physical effort is the fastest way to be accepted somewhere without a badge.",
         "female": "You watch from the bench and wait for the moment the game ends. Post-game is when the talking starts."
       }
+    },
+    "Battery Charging": {
+      "default": "Power going in and information coming out. Every charge cycle logs a device to a time and a location.",
+      "gender": {
+        "male": "You plug in and wait. Waiting is most of the job. The rest is knowing what you waited for.",
+        "female": "You note which bays are occupied. What's charging here at this hour doesn't belong to the building."
+      }
+    },
+    "Battery Room": {
+      "default": "Racks of stored power humming in the dark. The building runs on these when everything else fails. Including the security system.",
+      "gender": {
+        "male": "You find the main disconnect and note the sequence. When the lights go out, you want to know the order.",
+        "female": "You photograph the maintenance log. The last service entry is three weeks overdue. That was deliberate."
+      }
+    },
+    "Beer Garden": {
+      "default": "Open air, cold pints, and people who've loosened everything including their discretion. You prefer this to the inside.",
+      "gender": {
+        "male": "You take the table closest to the conversation you came to hear and look like you're enjoying the weather.",
+        "female": "You join the table next to the one you want. People include the woman next to them. They don't include the man."
+      }
+    },
+    "Bicycle Storage": {
+      "default": "Bikes locked to racks in a room nobody visits unless they need to. Which makes it a useful room for other things.",
+      "gender": {
+        "male": "You lock your bike at the far end and stay in the room a little longer than it takes to do that.",
+        "female": "You act like you've mislocked your cable. Forty-five seconds is enough time to cover the room."
+      }
+    },
+    "Bike Rack": {
+      "default": "A timestamp for every commuter. The bike that's been here since Tuesday belongs to someone who stopped commuting.",
+      "gender": {
+        "male": "You check the lock type. High-end lock on a low-end bike. Or the other way around. Both are interesting.",
+        "female": "You note which racks are used daily and which one hasn't moved. One hasn't moved in four days."
+      }
+    },
+    "Bike Room": {
+      "default": "Residents' bikes and their schedules, helpfully stored together in one unsupervised room.",
+      "gender": {
+        "male": "You note the registration stickers on the frames. Three of them match vehicles you've been looking at.",
+        "female": "You hold the door and exchange nods with the resident on their way out. Their departure time is what you needed."
+      }
+    },
+    "Bike Storage": {
+      "default": "Unclaimed bikes become unclaimed time. Someone parked here and didn't come back. You want to know why.",
+      "gender": {
+        "male": "You check the wear on the pedals and tyres. This bike has been used harder than it looks.",
+        "female": "You photograph the lock brand and the bike's registration mark. Both lead somewhere."
+      }
+    },
+    "Billiards Area": {
+      "default": "A felt table and the steady geometry of people who think in angles. Some of them think in other kinds of angles too.",
+      "gender": {
+        "male": "You take a cue and offer a game. The table is where business gets done in rooms like this.",
+        "female": "You beat the first challenger without effort. After that, people take you seriously enough to talk."
+      }
+    },
+    "Blood Draw Station": {
+      "default": "The quiet transaction of taking something from someone's body and logging where it goes. The log is what interests you.",
+      "gender": {
+        "male": "You make the appointment and use the waiting time to understand who else is in the system.",
+        "female": "You ask the phlebotomist about volume — how many draws today. The answer is one more than the schedule shows."
+      }
+    },
+    "Blood Pressure Station": {
+      "default": "Anyone can walk up and use it. Most people do without thinking. That means the readings tell you something about who was here.",
+      "gender": {
+        "male": "You use the cuff. Your reading is steady. It always is.",
+        "female": "You note the last reading still displayed on the screen. High enough to be significant. Recent enough to matter."
+      }
+    },
+    "Board Room": {
+      "default": "Long table, leather chairs, and the space where decisions get made that the minutes never fully capture.",
+      "gender": {
+        "male": "You take the chair at the end that faces the door. Nobody questions who sits at the head of the table.",
+        "female": "You arrive before everyone else and position yourself where the conversation flows past you. It always does."
+      }
+    },
+    "Body Shop": {
+      "default": "Panels and paint and the craft of making damage invisible. You're interested in the damage they made invisible recently.",
+      "gender": {
+        "male": "You speak the shop's language and ask about the metallic blue they mixed last week.",
+        "female": "You ask about repair timelines. The painter explains the last rush job without realising they've explained something else entirely."
+      }
+    },
+    "Book Stacks": {
+      "default": "Rows of spines in the quiet. The book that's been pulled and replaced recently leaves a gap in the dust.",
+      "gender": {
+        "male": "You move through the stacks with the deliberate pace of someone who knows what they're looking for. Which you do.",
+        "female": "You find the gap on the shelf and pull the neighbouring volume. The margin notes answer your question."
+      }
+    },
+    "Booking Area": {
+      "default": "The formal intake of someone who's had a very bad night. Every name in this log connects to something.",
+      "gender": {
+        "male": "You read the booking sheet upside down from across the counter. An old trick. Still works.",
+        "female": "You ask the desk officer about a specific booking time. They give you more than the name."
+      }
+    },
+    "Bookstore": {
+      "default": "Shelves of evidence that people think and buy in patterns. One title in here is flying off the shelves for the wrong reason.",
+      "gender": {
+        "male": "You browse the section you didn't come for and listen to the conversation two aisles over.",
+        "female": "The bookseller asks if you need help. You let them recommend. People reveal themselves in what they recommend to strangers."
+      }
+    },
+    "Bottle Service": {
+      "default": "Marked-up spirits and the performance of status. The table that ordered bottle service isn't here for the drinks.",
+      "gender": {
+        "male": "You get close enough to see who's at the table and what they're not drinking.",
+        "female": "You make brief eye contact with the person at the table who's working the room. They're doing the same job you are."
+      }
+    },
+    "Bowling Alley": {
+      "default": "Pins and noise and the social ease of people who've stopped trying to impress each other. Conversations flow here.",
+      "gender": {
+        "male": "You bowl badly on purpose. Nothing makes people comfortable like beating you.",
+        "female": "You bowl well without announcing it. The scores create a conversation. The conversation creates an opening."
+      }
+    },
+    "Bowling Lanes": {
+      "default": "Twelve lanes and twelve separate conversations all happening under the same roof. You're only interested in one.",
+      "gender": {
+        "male": "You take the lane next to the one you came for and let the game do the work.",
+        "female": "You wait for the frame to end before you ask your question. The pause between frames is when people are honest."
+      }
+    },
+    "Box Office": {
+      "default": "Tickets and times. Someone was here, bought something, and the transaction was recorded. That record is yours.",
+      "gender": {
+        "male": "You buy a ticket for the wrong show and ask the cashier about last night's house.",
+        "female": "You enquire about group bookings and get the seating manifest without asking for it by name."
+      }
+    },
+    "Break Room": {
+      "default": "The most honest room in any building. People say what they actually think in break rooms because they've forgotten you're listening.",
+      "gender": {
+        "male": "You pour a coffee and say nothing. The room does the work.",
+        "female": "You join the table and ask how long people have been here. Six minutes later you know the whole floor."
+      }
     }
   }
 }
