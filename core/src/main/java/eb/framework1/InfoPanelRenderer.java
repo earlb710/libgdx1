@@ -172,59 +172,85 @@ class InfoPanelRenderer {
             tabWidths[i] = glyphLayout.width + tabPadX * 2f;
         }
 
-        // Draw tab backgrounds + store bounds
+        // The active tab is 3px taller at the top to appear "raised".
+        // Inactive tabs are shifted up by that same amount so the bottom of all tabs
+        // aligns with the separator, but the active tab sits 3px higher.
+        final float TAB_RAISE = 3f;
+
+        // Draw panel background first, then tab fills on top
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        // Panel background
         shapeRenderer.setColor(INFO_BG_COLOR);
         shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
+
         float tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             s.tabX[i] = tx;
-            s.tabY[i] = tabBarY;
             s.tabW[i] = tabWidths[i];
-            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
-            shapeRenderer.setColor(active
-                    ? new Color(0.25f, 0.35f, 0.5f, 1f)
-                    : new Color(0.12f, 0.12f, 0.18f, 1f));
-            shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
-            tx += tabWidths[i];
-        }
-        shapeRenderer.end();
-
-        // Tab borders + separator line
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        tx = 0f;
-        for (int i = 0; i < TAB_LABELS.length; i++) {
-            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             if (active) {
-                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+                // Active tab: same bg as panel, raised, sits flush with content below
+                s.tabY[i] = tabBarY;
+                shapeRenderer.setColor(INFO_BG_COLOR);
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH + TAB_RAISE);
             } else {
-                // Draw top/left/right border only; bottom merges with panel
-                shapeRenderer.line(tx,                    tabBarY + tabH, tx + tabWidths[i], tabBarY + tabH);
-                shapeRenderer.line(tx,                    tabBarY,        tx,                tabBarY + tabH);
-                shapeRenderer.line(tx + tabWidths[i],     tabBarY,        tx + tabWidths[i], tabBarY + tabH);
+                // Inactive tab: darker, not raised; sits on the separator line
+                s.tabY[i] = tabBarY;
+                shapeRenderer.setColor(new Color(0.10f, 0.10f, 0.14f, 1f));
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
             }
             tx += tabWidths[i];
         }
-        // Separator under tab bar extends across full width
+        shapeRenderer.end();
+
+        // Borders and separator
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.line(0, tabBarY, s.screenWidth, tabBarY);
+        tx = 0f;
+        float activeTabX = 0f, activeTabW = 0f;
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
+            if (active) {
+                activeTabX = tx;
+                activeTabW = tabWidths[i];
+                // Active tab: bright accent border, left + top + right only (no bottom)
+                shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
+                shapeRenderer.line(tx,               tabBarY,             tx,               tabBarY + tabH + TAB_RAISE);
+                shapeRenderer.line(tx,               tabBarY + tabH + TAB_RAISE, tx + tabWidths[i], tabBarY + tabH + TAB_RAISE);
+                shapeRenderer.line(tx + tabWidths[i], tabBarY,            tx + tabWidths[i], tabBarY + tabH + TAB_RAISE);
+                // Second inner line for a thicker look
+                shapeRenderer.line(tx + 1f,           tabBarY,            tx + 1f,           tabBarY + tabH + TAB_RAISE - 1f);
+                shapeRenderer.line(tx + 1f,           tabBarY + tabH + TAB_RAISE - 1f, tx + tabWidths[i] - 1f, tabBarY + tabH + TAB_RAISE - 1f);
+                shapeRenderer.line(tx + tabWidths[i] - 1f, tabBarY,       tx + tabWidths[i] - 1f, tabBarY + tabH + TAB_RAISE - 1f);
+            } else {
+                // Inactive tab: dimmer border on all four sides
+                shapeRenderer.setColor(new Color(0.35f, 0.35f, 0.45f, 1f));
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+            }
+            tx += tabWidths[i];
+        }
+        // Separator line across the full width except under the active tab
+        shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
+        shapeRenderer.line(0,                         tabBarY, activeTabX,              tabBarY);
+        shapeRenderer.line(activeTabX + activeTabW,   tabBarY, s.screenWidth,           tabBarY);
         // Top panel border
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
         shapeRenderer.end();
 
-        // Tab labels — active tab uses boldSmallFont; inactive uses smallFont
+        // Tab labels — active tab: bold white; inactive: dimmed regular
         batch.begin();
         tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
             boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             BitmapFont tabFont = active ? boldSmallFont : smallFont;
             glyphLayout.setText(tabFont, TAB_LABELS[i]);
-            tabFont.setColor(active ? Color.WHITE : new Color(0.6f, 0.6f, 0.7f, 1f));
+            tabFont.setColor(active ? Color.WHITE : new Color(0.55f, 0.55f, 0.65f, 1f));
+            float labelY = active
+                    ? tabBarY + tabPadY + tabFontH + TAB_RAISE / 2f  // vertically centred in raised tab
+                    : tabBarY + tabPadY + tabFontH;
             tabFont.draw(batch, TAB_LABELS[i],
                     tx + (tabWidths[i] - glyphLayout.width) / 2f,
-                    tabBarY + tabPadY + tabFontH);
+                    labelY);
             tx += tabWidths[i];
         }
         batch.end();
