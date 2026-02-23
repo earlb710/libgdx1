@@ -26,7 +26,7 @@ final class BuildingServices {
     // Service IDs (used by MainScreen to dispatch execution logic)
     // -------------------------------------------------------------------------
 
-    static final String SVC_HOTEL_ROOM     = "hotel_room";
+    static final String SVC_HOTEL_RECEPTION = "hotel_reception";
     static final String SVC_GYM_WORKOUT    = "gym_workout";
     static final String SVC_BUY_MEAL       = "buy_meal";
     static final String SVC_BUY_COFFEE     = "buy_coffee";
@@ -50,6 +50,30 @@ final class BuildingServices {
     static final String ATTR_GYM_USES = "GYM_USES";
 
     // -------------------------------------------------------------------------
+    // Profile attribute keys for hotel tracking
+    // -------------------------------------------------------------------------
+
+    /** Extra stamina added on each full-8h sleep while checked in (0 = not checked in). */
+    static final String ATTR_HOTEL_BONUS  = "HOTEL_BONUS";
+
+    /** Remaining prepaid nights (decremented by 1 after each qualifying sleep). */
+    static final String ATTR_HOTEL_NIGHTS = "HOTEL_NIGHTS";
+
+    // -------------------------------------------------------------------------
+    // Hotel tier data
+    // -------------------------------------------------------------------------
+
+    /** Stamina bonus awarded on a full 8-hour sleep at each hotel tier. */
+    static final int HOTEL_BONUS_BUDGET   =  5;
+    static final int HOTEL_BONUS_BUSINESS = 10;
+    static final int HOTEL_BONUS_LUXURY   = 20;
+
+    /** Nightly rate for each hotel tier. */
+    static final int HOTEL_COST_BUDGET   =  50;
+    static final int HOTEL_COST_BUSINESS = 120;
+    static final int HOTEL_COST_LUXURY   = 300;
+
+    // -------------------------------------------------------------------------
     // Primary API
     // -------------------------------------------------------------------------
 
@@ -67,11 +91,14 @@ final class BuildingServices {
         switch (id) {
             // ---- Hospitality ------------------------------------------------
             case "hotel_budget":
-                return list(hotelRoom("Budget Room", 50));
+                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                        "Talk to Reception", "Check in for a night's stay.", 0, 0));
             case "hotel_business":
-                return list(hotelRoom("Comfortable Room", 120));
+                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                        "Talk to Reception", "Check in for a night's stay.", 0, 0));
             case "hotel_luxury":
-                return list(hotelRoom("Luxury Suite", 300));
+                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                        "Talk to Reception", "Check in for a night's stay.", 0, 0));
 
             // ---- Fitness Centre ---------------------------------------------
             case "gym_fitness_center":
@@ -209,15 +236,45 @@ final class BuildingServices {
     }
 
     // -------------------------------------------------------------------------
-    // Private helpers
+    // Hotel tier helpers
     // -------------------------------------------------------------------------
 
-    private static BuildingService hotelRoom(String roomType, int cost) {
-        return new BuildingService(SVC_HOTEL_ROOM,
-                "Rent a Room",
-                "Check into a " + roomType.toLowerCase() + " for the night.",
-                cost, 8 * 60 /* 8 hours */);
+    /** Returns the nightly rate for the hotel building, or 0 if not a hotel. */
+    static int getHotelNightlyCost(Building building) {
+        if (building == null || building.getDefinition() == null) return 0;
+        switch (building.getDefinition().getId()) {
+            case "hotel_budget":   return HOTEL_COST_BUDGET;
+            case "hotel_business": return HOTEL_COST_BUSINESS;
+            case "hotel_luxury":   return HOTEL_COST_LUXURY;
+            default:               return 0;
+        }
     }
+
+    /** Returns the per-night stamina bonus for the hotel building, or 0 if not a hotel. */
+    static int getHotelStaminaBonus(Building building) {
+        if (building == null || building.getDefinition() == null) return 0;
+        switch (building.getDefinition().getId()) {
+            case "hotel_budget":   return HOTEL_BONUS_BUDGET;
+            case "hotel_business": return HOTEL_BONUS_BUSINESS;
+            case "hotel_luxury":   return HOTEL_BONUS_LUXURY;
+            default:               return 0;
+        }
+    }
+
+    /** Returns a human-readable room type label for the hotel building. */
+    static String getHotelRoomType(Building building) {
+        if (building == null || building.getDefinition() == null) return "Standard Room";
+        switch (building.getDefinition().getId()) {
+            case "hotel_budget":   return "Budget Room";
+            case "hotel_business": return "Comfortable Room";
+            case "hotel_luxury":   return "Luxury Suite";
+            default:               return "Standard Room";
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
 
     private static List<BuildingService> list(BuildingService svc) {
         List<BuildingService> result = new ArrayList<>(1);

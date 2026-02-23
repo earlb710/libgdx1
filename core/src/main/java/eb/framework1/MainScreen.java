@@ -60,6 +60,7 @@ public class MainScreen implements Screen {
     private DiscoveryPopup    discoveryPopup;
     private ServiceResultPopup serviceResultPopup;
     private StashPopup         stashPopup;
+    private HotelReceptionPopup hotelReceptionPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -200,6 +201,8 @@ public class MainScreen implements Screen {
 
         stashPopup = new StashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
 
+        hotelReceptionPopup = new HotelReceptionPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -255,6 +258,10 @@ public class MainScreen implements Screen {
 
         if (stashPopup.isVisible()) {
             stashPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (hotelReceptionPopup.isVisible()) {
+            hotelReceptionPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -441,6 +448,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Hotel reception popup blocks all normal interaction until dismissed
+                if (hotelReceptionPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -547,6 +563,24 @@ public class MainScreen implements Screen {
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = stashPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleTakeFromStash(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Hotel reception popup: night selection or cancel
+                if (hotelReceptionPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int nights = hotelReceptionPopup.onTap(screenX, flippedY);
+                            if (nights >= 1) {
+                                handleHotelCheckIn(nights,
+                                        hotelReceptionPopup.getNightlyCost(),
+                                        hotelReceptionPopup.getStaminaBonus());
+                            }
                         }
                         infoAreaPressed = false;
                     }
@@ -943,7 +977,24 @@ public class MainScreen implements Screen {
         int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
         profile.addStamina(staminaGain);
         profile.advanceGameTime(minutesSleep);
-        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +" + staminaGain + " stamina");
+
+        // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
+        int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
+        int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
+        int hotelBonusActual = 0;
+        if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
+            profile.addStamina(hotelBonus);
+            hotelBonusActual = hotelBonus;
+            int remaining = hotelNights - 1;
+            profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
+            if (remaining == 0) {
+                profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
+            }
+        }
+
+        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
+        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
+                + staminaGain + " stamina" + bonusNote);
     }
 
     private void handleMoveToClick() {
@@ -1024,6 +1075,48 @@ public class MainScreen implements Screen {
     }
 
     /**
+     * Checks the player into a hotel for the given number of nights.
+     *
+     * <p>Deducts the total cost ({@code nights × nightly}), stores the hotel
+     * stamina bonus and remaining nights in the player's profile attributes, and
+     * shows a confirmation popup.  If the player can't afford it, an error popup
+     * is shown instead.
+     *
+     * @param nights   number of nights to book (1–3)
+     * @param nightly  nightly rate in in-game currency
+     * @param bonus    extra stamina awarded per full 8-hour sleep while checked in
+     */
+    private void handleHotelCheckIn(int nights, int nightly, int bonus) {
+        int total = nights * nightly;
+        List<String> resultLines = new ArrayList<>();
+
+        if (total > 0 && profile.getMoney() < total) {
+            resultLines.add("You can't afford " + nights
+                    + (nights == 1 ? " night" : " nights") + " here.");
+            resultLines.add("Required: $" + total
+                    + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        if (total > 0) profile.setMoney(profile.getMoney() - total);
+        // Check-in time: 15 minutes at the front desk
+        profile.advanceGameTime(15);
+
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS,  bonus);
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, nights);
+
+        resultLines.add("You checked in for " + nights
+                + (nights == 1 ? " night." : " nights."));
+        if (total > 0) resultLines.add("Total cost: $" + total + ".");
+        resultLines.add("Sleep bonus: +" + bonus + " stamina per full 8h sleep.");
+        resultLines.add("Use the Sleep button when it is time for bed.");
+        serviceResultPopup.show("Checked In", resultLines);
+        Gdx.app.log("MainScreen", "Hotel check-in: " + nights + "n, $" + total
+                + ", bonus=" + bonus);
+    }
+
+    /**
      * Executes a building service for the character at the current cell.
      * Deducts money and game-time, applies effects, then shows the result popup.
      */
@@ -1046,16 +1139,17 @@ public class MainScreen implements Screen {
         String title = svc.name;
 
         switch (svc.id) {
-            // ---- Hotel room: full stamina restore (sleep) -------------------
-            case BuildingServices.SVC_HOTEL_ROOM: {
-                int maxSt  = profile.getMaxStamina();
-                int before = profile.getCurrentStamina();
-                profile.addStamina(maxSt);
-                int gained = profile.getCurrentStamina() - before;
-                resultLines.add("You checked in and had a good night's rest.");
-                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
-                resultLines.add("+" + gained + " stamina restored.");
-                break;
+            // ---- Hotel reception: open the night-selection popup ------------
+            case BuildingServices.SVC_HOTEL_RECEPTION: {
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                if (!cell.hasBuilding()) break;
+                Building hotel = cell.getBuilding();
+                hotelReceptionPopup.show(
+                        hotel.getName(),
+                        BuildingServices.getHotelRoomType(hotel),
+                        BuildingServices.getHotelNightlyCost(hotel),
+                        BuildingServices.getHotelStaminaBonus(hotel));
+                return;  // popup drives the rest; don't show serviceResultPopup now
             }
 
             // ---- Gym workout: chance to increase STRENGTH -------------------

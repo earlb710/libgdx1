@@ -32,32 +32,64 @@ public class BuildingServicesTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void testBudgetHotelHasRentRoom() {
+    public void testBudgetHotelHasTalkToReception() {
         Building b = buildingWithDef("hotel_budget", "hospitality");
         List<BuildingService> svcs = BuildingServices.getServices(b);
         assertEquals(1, svcs.size());
-        assertEquals(BuildingServices.SVC_HOTEL_ROOM, svcs.get(0).id);
-        assertEquals(50, svcs.get(0).cost);
+        assertEquals(BuildingServices.SVC_HOTEL_RECEPTION, svcs.get(0).id);
+        assertEquals(0, svcs.get(0).cost);   // cost handled by popup/handleHotelCheckIn
     }
 
     @Test
-    public void testBusinessHotelCostsMore() {
+    public void testAllHotelsTalkToReception() {
+        for (String id : new String[]{"hotel_budget", "hotel_business", "hotel_luxury"}) {
+            Building b = buildingWithDef(id, "hospitality");
+            List<BuildingService> svcs = BuildingServices.getServices(b);
+            assertEquals("Hotel " + id + " should have exactly one service", 1, svcs.size());
+            assertEquals("Hotel " + id + " service should be reception",
+                    BuildingServices.SVC_HOTEL_RECEPTION, svcs.get(0).id);
+        }
+    }
+
+    @Test
+    public void testHotelBonusesAreTiered() {
         Building budget  = buildingWithDef("hotel_budget",   "hospitality");
         Building business = buildingWithDef("hotel_business", "hospitality");
-        int budgetCost   = BuildingServices.getServices(budget).get(0).cost;
-        int businessCost = BuildingServices.getServices(business).get(0).cost;
-        assertTrue("Business hotel should cost more than budget hotel",
-                businessCost > budgetCost);
+        Building luxury  = buildingWithDef("hotel_luxury",   "hospitality");
+        assertTrue("Business bonus > budget bonus",
+                BuildingServices.getHotelStaminaBonus(business)
+                        > BuildingServices.getHotelStaminaBonus(budget));
+        assertTrue("Luxury bonus > business bonus",
+                BuildingServices.getHotelStaminaBonus(luxury)
+                        > BuildingServices.getHotelStaminaBonus(business));
     }
 
     @Test
-    public void testLuxuryHotelCostsMost() {
-        Building luxury  = buildingWithDef("hotel_luxury",   "hospitality");
+    public void testHotelNightlyCostsAreTiered() {
+        Building budget  = buildingWithDef("hotel_budget",   "hospitality");
         Building business = buildingWithDef("hotel_business", "hospitality");
-        int luxuryCost   = BuildingServices.getServices(luxury).get(0).cost;
-        int businessCost = BuildingServices.getServices(business).get(0).cost;
-        assertTrue("Luxury hotel should cost more than business hotel",
-                luxuryCost > businessCost);
+        Building luxury  = buildingWithDef("hotel_luxury",   "hospitality");
+        assertTrue("Business nightly > budget nightly",
+                BuildingServices.getHotelNightlyCost(business)
+                        > BuildingServices.getHotelNightlyCost(budget));
+        assertTrue("Luxury nightly > business nightly",
+                BuildingServices.getHotelNightlyCost(luxury)
+                        > BuildingServices.getHotelNightlyCost(business));
+    }
+
+    @Test
+    public void testHotelRoomTypeLabels() {
+        assertEquals("Budget Room",     BuildingServices.getHotelRoomType(buildingWithDef("hotel_budget",   "hospitality")));
+        assertEquals("Comfortable Room",BuildingServices.getHotelRoomType(buildingWithDef("hotel_business", "hospitality")));
+        assertEquals("Luxury Suite",    BuildingServices.getHotelRoomType(buildingWithDef("hotel_luxury",   "hospitality")));
+        assertEquals("Standard Room",   BuildingServices.getHotelRoomType(null));
+    }
+
+    @Test
+    public void testNonHotelBuildingHasZeroBonus() {
+        Building gym = buildingWithDef("gym_fitness_center", "commercial");
+        assertEquals(0, BuildingServices.getHotelStaminaBonus(gym));
+        assertEquals(0, BuildingServices.getHotelNightlyCost(gym));
     }
 
     @Test
