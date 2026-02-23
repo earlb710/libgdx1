@@ -4613,6 +4613,146 @@
         "male": "The photography studio is all lights and backdrops. Constructed realities. You ask to see the outtakes.",
         "female": "You move through the photography studio carefully. Every staged image is a decision about what to hide. You're looking for the gap."
       }
+    },
+    "Physical Therapy": {
+      "default": "A room of recovery where the body relearns what it's lost. The therapists watch how people move and what it costs them.",
+      "gender": {
+        "male": "You sit in on a session with permission. The therapist notes your subject was progressing well. Right up until they stopped coming.",
+        "female": "The physical therapy wing is all balance boards and careful encouragement. You speak with the lead therapist. She remembers every patient."
+      }
+    },
+    "Pick and Pack": {
+      "default": "An operation designed for speed and accuracy. Items pulled, orders filled, shipments out the door. The gap between logged and loaded is where you work.",
+      "gender": {
+        "male": "Pick and pack. The floor manager watches the line. You watch the manager.",
+        "female": "You walk the pick-and-pack floor. A discrepancy showed up in the inventory count. Small numbers, big implications."
+      }
+    },
+    "Planning Department": {
+      "default": "Where the city's future gets drawn in pencil and fought over in ink. Every variance filed here has a story behind it.",
+      "gender": {
+        "male": "The planning department is stacked with blueprints and municipal ambition. Somebody has been pushing a project through this office. You want the file.",
+        "female": "You present your credentials at the planning desk. The department head has been waiting for someone to start asking questions. She's relieved you finally showed up."
+      }
+    },
+    "Platforms": {
+      "default": "Elevated staging areas where goods or people wait to move. The platform is a moment of exposure before whatever comes next.",
+      "gender": {
+        "male": "You stand on the loading platform and survey the yard. Sight lines are clear. Whatever happened here, there were witnesses who didn't stay.",
+        "female": "The platform is empty now. You note the scuff marks at the far edge. Something heavy was moved in a hurry."
+      }
+    },
+    "Play Area": {
+      "default": "A contained space for children, full of small objects and large energy. The parents on the benches see everything.",
+      "gender": {
+        "male": "You scan the play area from the entrance. Nobody matching the description. The parent at the far bench has been watching you since you walked in.",
+        "female": "You move through the play area carefully. Whoever you're looking for brought a child here recently. The attendant remembers the visit."
+      }
+    },
+    "Playground": {
+      "default": "Metal and rubber engineered for childhood physics. The playground has its own social hierarchy. It also has regulars, and regulars notice strangers.",
+      "gender": {
+        "male": "You approach the playground slowly. The kids don't look up, but the adults do. One of them knows something.",
+        "female": "The playground is busy despite the hour. You find a bench on the perimeter. One of the parents here has a reason to be nervous about you."
+      }
+    },
+    "Playrooms": {
+      "default": "Rooms designed for imagination and energy. Whatever was imagined in here recently left marks on the carpet and questions on your notepad.",
+      "gender": {
+        "male": "You check the playrooms one by one. The schedule shows an unbooked session last Thursday. You ask who has a key.",
+        "female": "The playroom is brightly painted and carefully maintained. Somebody was in here after hours. The evidence is small and specific."
+      }
+    },
+    "Podcast Studio": {
+      "default": "Acoustic foam and recording equipment for broadcasting opinions and occasionally things that were supposed to stay off the record.",
+      "gender": {
+        "male": "The podcast studio is soundproofed and isolated. Whatever was recorded in here, you want the raw files before anything gets edited.",
+        "female": "You step into the podcast studio. Good acoustics, live recording logs, and a recent session that someone tried to delete. You retrieve it anyway."
+      }
+    },
+    "Point of Sale": {
+      "default": "The transaction terminal where money and goods exchange hands under the city's busiest, least-examined layer of commerce.",
+      "gender": {
+        "male": "You pull the point-of-sale logs. Every transaction is time-stamped. The one you're looking for is at 11:47 PM.",
+        "female": "The POS system keeps a clean record. You know how to read it and what it means when something isn't there."
+      }
+    },
+    "Pool": {
+      "default": "Water and tile reflecting the overhead lights. The pool holds its silence well. So do people who've been near it at the wrong time.",
+      "gender": {
+        "male": "The pool area is closed, but it wasn't closed last night. You can tell by the state of the towels.",
+        "female": "You stand at the edge of the pool. The water is still. That's not how it was described to you."
+      }
+    },
+    "Prayer Hall": {
+      "default": "A large, quiet space oriented toward something beyond the ceiling. People come here with weight on them. Some leave it. Some don't.",
+      "gender": {
+        "male": "You enter the prayer hall quietly. Respectful and observant. That's how you were trained. It applies here.",
+        "female": "The prayer hall is open and peaceful. You move through it with measured steps. Whoever you're looking for comes here every Friday."
+      }
+    },
+    "Prayer Room": {
+      "default": "A small, private space for devotion. The prayer room is honest in its purpose and discretionary in its visitors.",
+      "gender": {
+        "male": "You knock before entering the prayer room. The space is undisturbed and clean. Someone was here this morning.",
+        "female": "The prayer room is simple and sincere. A space meant to hold private things. You note who has access to it."
+      }
+    },
+    "Premium Large Format": {
+      "default": "An oversized screen in a premium environment. Everything is louder and brighter in here. Including the things people say when they think the film is covering it.",
+      "gender": {
+        "male": "The premium large format theater is nearly empty tonight. You take a seat in the back row, facing the audience.",
+        "female": "You move through the premium theater carefully. Someone left something in seat G7. You bag it and call it in."
+      }
+    },
+    "Preschool Classroom": {
+      "default": "Small chairs and big letters and the organized chaos of early minds exploring the world. Nothing complicated. Except why you're here.",
+      "gender": {
+        "male": "You step into the preschool classroom after hours. Quiet now. The children's drawings on the wall tell you the teacher has them trusting her completely.",
+        "female": "The preschool classroom is tidy and warm. The teacher has a consistent schedule. That schedule was disrupted last Tuesday."
+      }
+    },
+    "Prescription Counter": {
+      "default": "A pharmacist's workstation where controlled schedules are managed and patient trust is maintained. Until it isn't.",
+      "gender": {
+        "male": "You lean on the prescription counter. The pharmacist is cooperative until you ask about the controlled log. Then they're careful.",
+        "female": "The prescription counter is staffed by someone who has memorized every protocol. You ask about the exception. They hesitate. That hesitation is your lead."
+      }
+    },
+    "Presidential Suite": {
+      "default": "The most expensive room in the building. The best locks, the most cameras, and the most to hide.",
+      "gender": {
+        "male": "The presidential suite. You've been in rooms like this before, but never on the guest list. Today you're using the warrant.",
+        "female": "You enter the presidential suite with your badge and your patience. Whoever stayed here paid for privacy. They didn't pay enough."
+      }
+    },
+    "Press Box": {
+      "default": "An elevated booth where the story gets written before the game ends. You've noticed that narratives decided from altitude are always more curated.",
+      "gender": {
+        "male": "You climb to the press box. The view is comprehensive. The person who sat here last night saw everything that happened on the field \u2014 and off it.",
+        "female": "The press box gives you the best sight line in the building. You take it. The reporters here didn't report what they saw. You want to know why not."
+      }
+    },
+    "Press Room": {
+      "default": "Where statements are made and questions are deflected with practiced efficiency. You are here to ask the question they prepared for least.",
+      "gender": {
+        "male": "You enter the press room during the briefing. The spokesperson stops mid-sentence. Good.",
+        "female": "The press room is prepped for a statement. You walk in before the cameras roll. The room goes very quiet."
+      }
+    },
+    "Principal Office": {
+      "default": "A room with authority and a closed door. You've been sent here before, usually for the right reasons.",
+      "gender": {
+        "male": "You take the chair across from the principal's desk. This time you're the one asking the questions.",
+        "female": "The principal's office is orderly and deliberate. The person behind the desk is used to being in charge. You help them adjust to the new dynamic."
+      }
+    },
+    "Print Center": {
+      "default": "Copiers, laminators, and the permanent record of what people chose to put on paper. Somebody printed something here they shouldn't have kept.",
+      "gender": {
+        "male": "You pull the print logs. Digital records of analog documents. Whoever used this center did it in cash. You find the receipt anyway.",
+        "female": "The print center smells like toner and bad decisions. The queue history doesn't lie. You find the job from last Thursday."
+      }
     }
   }
 }
