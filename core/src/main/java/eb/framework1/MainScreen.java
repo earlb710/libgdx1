@@ -58,6 +58,7 @@ public class MainScreen implements Screen {
     private TirednessPopup    tirednessPopup;
     private HelpPopup         helpPopup;
     private DiscoveryPopup    discoveryPopup;
+    private ServiceResultPopup serviceResultPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -194,6 +195,8 @@ public class MainScreen implements Screen {
 
         discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -241,6 +244,10 @@ public class MainScreen implements Screen {
 
         if (discoveryPopup.isVisible()) {
             discoveryPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (serviceResultPopup.isVisible()) {
+            serviceResultPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -409,6 +416,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Service result popup blocks all normal interaction until dismissed
+                if (serviceResultPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -491,6 +507,17 @@ public class MainScreen implements Screen {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) discoveryPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Service result popup: only the OK button can dismiss it
+                if (serviceResultPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) serviceResultPopup.onTap(screenX, flippedY);
                         infoAreaPressed = false;
                     }
                     isDragging = false;
@@ -703,6 +730,12 @@ public class MainScreen implements Screen {
                     contextMenuItems.add("Look Around (10 min)");
                     contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
                 }
+                List<BuildingService> services = BuildingServices.getServices(b);
+                for (BuildingService svc : services) {
+                    final BuildingService captured = svc;
+                    contextMenuItems.add(captured.menuLabel());
+                    contextMenuActions.add(() -> handleServiceClick(captured));
+                }
                 if (atHome && b.getFloors() > 1) {
                     String officeLabel = "Go to your office : "
                             + floorOrdinal(state.homeFloor) + " Floor"
@@ -876,6 +909,188 @@ public class MainScreen implements Screen {
         state.unitInteriorOpen = false;
         contextMenu.dismiss();
         Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
+    }
+
+    /**
+     * Executes a building service for the character at the current cell.
+     * Deducts money and game-time, applies effects, then shows the result popup.
+     */
+    private void handleServiceClick(BuildingService svc) {
+        List<String> resultLines = new ArrayList<>();
+
+        // Check affordability
+        if (svc.cost > 0 && profile.getMoney() < svc.cost) {
+            resultLines.add("You can't afford this service.");
+            resultLines.add("Required: $" + svc.cost
+                    + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        // Deduct cost and advance time
+        if (svc.cost > 0) profile.setMoney(profile.getMoney() - svc.cost);
+        if (svc.timeCost > 0) profile.advanceGameTime(svc.timeCost);
+
+        String title = svc.name;
+
+        switch (svc.id) {
+            // ---- Hotel room: full stamina restore (sleep) -------------------
+            case BuildingServices.SVC_HOTEL_ROOM: {
+                int maxSt  = profile.getMaxStamina();
+                int before = profile.getCurrentStamina();
+                profile.addStamina(maxSt);
+                int gained = profile.getCurrentStamina() - before;
+                resultLines.add("You checked in and had a good night's rest.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gained + " stamina restored.");
+                break;
+            }
+
+            // ---- Gym workout: chance to increase STRENGTH -------------------
+            case BuildingServices.SVC_GYM_WORKOUT: {
+                int todayDate = BuildingServices.gameDateInt(profile.getGameDateTime());
+                int usesToday = BuildingServices.gymUsesToday(profile, todayDate);
+                BuildingServices.recordGymUse(profile, todayDate);
+
+                String strAttr = CharacterAttribute.STRENGTH.name();
+                int currentStr = profile.getAttribute(strAttr);
+                float roll     = MathUtils.random();
+
+                if (usesToday == 0) {
+                    // First workout: 40 % chance +1 STRENGTH
+                    if (roll < 0.40f) {
+                        profile.setAttribute(strAttr, currentStr + 1);
+                        resultLines.add("Great session! Your body responded well.");
+                        resultLines.add("+1 Strength.");
+                    } else {
+                        resultLines.add("Good workout. Keep at it.");
+                        resultLines.add("No attribute change this time.");
+                    }
+                } else if (usesToday == 1) {
+                    // Second workout: 20 % gain, 10 % loss
+                    if (roll < 0.20f) {
+                        profile.setAttribute(strAttr, currentStr + 1);
+                        resultLines.add("Pushing through pays off.");
+                        resultLines.add("+1 Strength.");
+                    } else if (roll < 0.30f) {
+                        profile.setAttribute(strAttr, Math.max(0, currentStr - 1));
+                        resultLines.add("You overdid it a little. Your muscles are fatigued.");
+                        resultLines.add("-1 Strength.");
+                    } else {
+                        resultLines.add("Second session done. Your body needs recovery now.");
+                        resultLines.add("No attribute change.");
+                    }
+                } else {
+                    // Third+ workout: 30 % chance -1 STRENGTH (over-training)
+                    if (roll < 0.30f) {
+                        profile.setAttribute(strAttr, Math.max(0, currentStr - 1));
+                        resultLines.add("Over-training! Your muscles are exhausted.");
+                        resultLines.add("-1 Strength.");
+                    } else {
+                        resultLines.add("You went through the motions, but your body needs rest.");
+                        resultLines.add("No benefit.");
+                    }
+                }
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                break;
+            }
+
+            // ---- Food: restore stamina -----------------------------------
+            case BuildingServices.SVC_BUY_MEAL: {
+                int gain = 4;
+                profile.addStamina(gain);
+                resultLines.add("You enjoyed a satisfying meal.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_BUY_COFFEE: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("You sipped a hot coffee.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_FINE_DINING: {
+                int gain = 6;
+                profile.addStamina(gain);
+                resultLines.add("An exquisite meal. You feel refreshed and energised.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Medicine / healthcare: stamina restore -------------------
+            case BuildingServices.SVC_BUY_MEDICINE: {
+                int gain = 4;
+                profile.addStamina(gain);
+                resultLines.add("You picked up the supplies and took them right away.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_DOCTOR: {
+                int before = profile.getCurrentStamina();
+                profile.addStamina(profile.getMaxStamina());
+                int gained = profile.getCurrentStamina() - before;
+                resultLines.add("You received full medical attention.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gained + " stamina restored.");
+                break;
+            }
+
+            // ---- Library / education: chance to gain INTELLIGENCE ----------
+            case BuildingServices.SVC_LIBRARY_STUDY:
+            case BuildingServices.SVC_ATTEND_CLASS: {
+                float gainChance = BuildingServices.SVC_LIBRARY_STUDY.equals(svc.id) ? 0.25f : 0.30f;
+                String intAttr = CharacterAttribute.INTELLIGENCE.name();
+                int currentInt = profile.getAttribute(intAttr);
+                if (MathUtils.random() < gainChance) {
+                    profile.setAttribute(intAttr, currentInt + 1);
+                    resultLines.add("Something clicked. You feel sharper.");
+                    resultLines.add("+1 Intelligence.");
+                } else {
+                    resultLines.add("A productive session. Knowledge builds slowly.");
+                    resultLines.add("No attribute change this time.");
+                }
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                break;
+            }
+
+            // ---- Entertainment: stamina restoration -----------------------
+            case BuildingServices.SVC_ENTERTAINMENT: {
+                int gain = 3;
+                profile.addStamina(gain);
+                resultLines.add("You had a great time!");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Religious service: small stamina bonus -------------------
+            case BuildingServices.SVC_ATTEND_SERVICE: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("You feel a sense of peace and calm.");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Haircut --------------------------------------------------
+            case BuildingServices.SVC_HAIRCUT: {
+                resultLines.add("You look sharp and feel confident.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                break;
+            }
+
+            default:
+                resultLines.add("Service completed.");
+                break;
+        }
+
+        serviceResultPopup.show(title, resultLines);
+        Gdx.app.log("MainScreen", "Service used: " + svc.id);
     }
 
     /** Called every frame while {@code state.isWalking} is true. */
