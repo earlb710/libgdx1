@@ -56,6 +56,7 @@ public class MainScreen implements Screen {
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
     private HelpPopup         helpPopup;
+    private DiscoveryPopup    discoveryPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -188,6 +189,8 @@ public class MainScreen implements Screen {
 
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -231,6 +234,10 @@ public class MainScreen implements Screen {
 
         if (tirednessPopup.isVisible()) {
             tirednessPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (discoveryPopup.isVisible()) {
+            discoveryPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -390,6 +397,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Discovery popup blocks all normal interaction until dismissed
+                if (discoveryPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -467,6 +483,17 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Discovery popup: only the OK button can dismiss it
+                if (discoveryPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) discoveryPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -534,7 +561,7 @@ public class MainScreen implements Screen {
                     state.clampMapOffset();
                     return true;
                 }
-                if (infoAreaPressed && !lookAroundPopup.isVisible()) {
+                if (infoAreaPressed && !lookAroundPopup.isVisible() && !discoveryPopup.isVisible()) {
                     // screenY is 0 at top, increases downward
                     // Drag up (screenY decreases) → reveal content below → increase infoScrollY
                     float dy = infoTouchStartY - screenY;
@@ -551,6 +578,10 @@ public class MainScreen implements Screen {
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 contextMenu.dismiss();
+                if (discoveryPopup.isVisible()) {
+                    discoveryPopup.scroll(amountY * 20f);
+                    return true;
+                }
                 float old = state.zoomLevel;
                 state.zoomLevel = MathUtils.clamp(state.zoomLevel - amountY * ZOOM_SPEED, MIN_ZOOM, MAX_ZOOM);
                 if (old != state.zoomLevel) state.clampMapOffset();
@@ -867,7 +898,10 @@ public class MainScreen implements Screen {
             // Reached destination – always discover
             state.isWalking = false;
             state.walkPath  = null;
-            discoverCell(state.charCellX, state.charCellY);
+            boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
+            if (newlyDiscovered) {
+                showDiscoveryPopup(state.charCellX, state.charCellY);
+            }
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
@@ -966,15 +1000,43 @@ public class MainScreen implements Screen {
     /**
      * Discovers the building and any hiddenValue==0 improvements at the given cell.
      * Called on arrival (game start or Move To).
+     *
+     * @return {@code true} if the building at this cell was newly discovered
+     *         (it was not discovered before this call); {@code false} otherwise.
      */
-    private void discoverCell(int x, int y) {
+    private boolean discoverCell(int x, int y) {
         Cell cell = cityMap.getCell(x, y);
-        if (!cell.hasBuilding()) return;
+        if (!cell.hasBuilding()) return false;
         Building building = cell.getBuilding();
+        boolean wasDiscovered = building.isDiscovered();
         building.discover();
         for (Improvement imp : building.getImprovements()) {
             if (imp.getHiddenValue() == 0) imp.discover();
         }
         Gdx.app.log("MainScreen", "Discovered " + x + "," + y + ": " + building.getName());
+        return !wasDiscovered;
+    }
+
+    /**
+     * Builds and shows the discovery popup for a newly discovered building.
+     * Collects all improvements that were auto-discovered (hiddenValue == 0).
+     */
+    private void showDiscoveryPopup(int x, int y) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        BuildingDefinition def = building.getDefinition();
+        String description = (def != null) ? def.getDescription() : null;
+
+        List<String> impLines = new ArrayList<>();
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
+                String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
+                String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
+                        + (mod.isEmpty() ? "" : " " + mod);
+                impLines.add(entry);
+            }
+        }
+        discoveryPopup.show(building.getName(), description, impLines);
     }
 }

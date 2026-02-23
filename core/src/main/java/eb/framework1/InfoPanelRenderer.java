@@ -469,6 +469,16 @@ class InfoPanelRenderer {
                         }
                         textY -= fontLineH;
                     }
+
+                    // Building description (if available)
+                    if (building.getDefinition() != null) {
+                        String desc = building.getDefinition().getDescription();
+                        if (desc != null && !desc.isEmpty()) {
+                            textY -= fontLineH;
+                            textY = drawLabelValue(font, "Description: ", desc, textX, textY);
+                            textY -= fontLineH;
+                        }
+                    }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
                 }
@@ -828,6 +838,12 @@ class InfoPanelRenderer {
         if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
         h += fontLineH; // "Improvements:" header (advance)
         h += b.getImprovements().size() * fontLineH; // one row per improvement
+        if (b.getDefinition() != null) {
+            String desc = b.getDefinition().getDescription();
+            if (desc != null && !desc.isEmpty()) {
+                h += fontLineH * 2; // blank gap + description line
+            }
+        }
         return h;
     }
 
@@ -877,6 +893,13 @@ class InfoPanelRenderer {
                         }
                     }
                     maxW = Math.max(maxW, lineW);
+                }
+                if (b.getDefinition() != null) {
+                    String desc = b.getDefinition().getDescription();
+                    if (desc != null && !desc.isEmpty()) {
+                        glyphLayout.setText(font, "Description: " + desc);
+                        maxW = Math.max(maxW, glyphLayout.width);
+                    }
                 }
             } else {
                 glyphLayout.setText(font, "Building: ???");
