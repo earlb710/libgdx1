@@ -5873,6 +5873,146 @@
         "male": "You stand in the trauma center corridor with your badge out and your voice low. The charge nurse is already looking for you.",
         "female": "The trauma center never stops. You navigate it with purpose and a clear ID. The attending physician meets you in the hallway."
       }
+    },
+    "Travel Services": {
+      "default": "A desk that handles the logistics of getting somewhere else. Travel services know where people were going \u2014 and when they stopped buying tickets.",
+      "gender": {
+        "male": "You present your badge at the travel services desk. The agent pulls the booking history. Your subject purchased a one-way ticket two days ago.",
+        "female": "The travel services agent is cooperative and precise. She shows you every reservation made and cancelled in the last two weeks."
+      }
+    },
+    "Triage Area": {
+      "default": "The front line of emergency care, where severity is sorted and priority is assigned. The triage area is the city's most honest waiting room.",
+      "gender": {
+        "male": "You work through the triage area with your warrant. The charge nurse knows why you're here and where the records are.",
+        "female": "The triage area is controlled chaos. You move through it with purpose. The information you need is in the intake log from Thursday night."
+      }
+    },
+    "Truck Bays": {
+      "default": "Oversized loading and unloading stations for heavy freight. The truck bays handle what the rest of the building can't. That includes things that don't appear on any manifest.",
+      "gender": {
+        "male": "You walk the truck bays during the shift change. The driver from the last overnight run is still in the yard. You find them before they leave.",
+        "female": "The truck bay access log is your first stop. A rig that wasn't on the delivery schedule pulled in at 1 AM. You trace the origin."
+      }
+    },
+    "UPS Room": {
+      "default": "Uninterruptible power supply infrastructure keeping the building alive when the city's grid fails. The UPS room log records every power event. Gaps in continuity are meaningful.",
+      "gender": {
+        "male": "The UPS room recorded a power interruption at 11:48 PM. That window killed the cameras on the fourth floor for six minutes.",
+        "female": "You examine the UPS power log. A deliberate load reduction event masked a seven-minute camera blackout. That was planned."
+      }
+    },
+    "Underground Parking": {
+      "default": "Below-grade vehicle storage where lighting is managed and surveillance is limited. Underground parking is where the city parks its unverifiable intentions.",
+      "gender": {
+        "male": "You descend into the underground parking facility. Your footsteps echo. You work the levels from bottom to top.",
+        "female": "The underground lot is dimly lit by design. You noted the camera blind spots on the building schematic before you came down here."
+      }
+    },
+    "Underground Tanks": {
+      "default": "Buried fuel or chemical storage operating below the visible surface of a property. Underground tanks are regulated, monitored, and occasionally the origin of significant problems.",
+      "gender": {
+        "male": "The underground tank inspection report was filed six months ago. You find the discrepancy the inspector noted and then didn't follow up on.",
+        "female": "You request the environmental compliance documentation for the underground tanks. Someone signed off on readings that don't match what the sensor recorded."
+      }
+    },
+    "Used Car Lot": {
+      "default": "A property of history, repaint, and previous ownership. The used car lot trades in second chances \u2014 not all of them legitimate.",
+      "gender": {
+        "male": "You walk the used car lot with your VIN scanner. One of these vehicles has a title history that doesn't hold together.",
+        "female": "The lot manager pulls the sales records when you ask. Three vehicles moved in the last month with documentation gaps. You start there."
+      }
+    },
+    "VIP Entrance": {
+      "default": "A separate access point for people who have arranged not to be seen by anyone they don't choose. The VIP entrance is where the official record ends.",
+      "gender": {
+        "male": "The VIP entrance camera was on but the footage was pulled. Someone knew where to look. You find who has access to the security system.",
+        "female": "You approach the VIP entrance with your warrant. Whoever came through here last night didn't use the main door for a reason."
+      }
+    },
+    "VIP Lanes": {
+      "default": "Expedited access routes for those who paid for priority. VIP lanes create a two-tier system with two different sets of witnesses.",
+      "gender": {
+        "male": "You ask about the VIP lane usage from last Friday. The attendant remembers the face you're describing. That's your confirmation.",
+        "female": "The VIP lane access is logged electronically. Your subject used a credential that wasn't theirs. You trace the credential."
+      }
+    },
+    "VIP Lounge": {
+      "default": "A restricted space for premium guests, away from general population and general oversight. The VIP lounge is where things get said that nobody writes down.",
+      "gender": {
+        "male": "You gain access to the VIP lounge. The bartender has a good memory and a professional inclination to share it with the right authority.",
+        "female": "The VIP lounge staff recognized you as law enforcement before you said a word. Good. They were waiting for someone to ask."
+      }
+    },
+    "VIP Parking": {
+      "default": "Reserved spaces close to the door, monitored and exclusive. The VIP parking log is a precise record of which vehicles were present for what events.",
+      "gender": {
+        "male": "VIP parking is plated and logged. You cross-reference last night's entries against your suspect list. One plate matches.",
+        "female": "The VIP parking attendant has a detailed log and a sharp memory. She describes the vehicle and its driver without prompting."
+      }
+    },
+    "VIP Seating": {
+      "default": "Premium positions at any event, with better access and higher visibility. Whoever sat in VIP seating last night saw everything. You find them.",
+      "gender": {
+        "male": "You trace the VIP seating assignments. The seat next to your subject belonged to a registered alias. You run the name.",
+        "female": "The VIP section ticket scanner creates an entry log. You pull it. Your subject was scanned in at 8:14 PM. You need to know when they were scanned out."
+      }
+    },
+    "Vaccine Station": {
+      "default": "A clinical station for immunization services. The vaccine station logs every patient. Every log is a record of who was here and when.",
+      "gender": {
+        "male": "The vaccine station records show your subject was here for a scheduled appointment. They left before it was completed. You ask why.",
+        "female": "You check the vaccine station appointment log. Your subject canceled last minute after four months of consistent attendance."
+      }
+    },
+    "Vacuum Station": {
+      "default": "Industrial or commercial vacuum equipment for vehicle or facility cleaning. The vacuum station is where things get removed \u2014 not always just dirt.",
+      "gender": {
+        "male": "The vacuum station filter bag was pulled recently. You have the lab process it before the bin is cleared.",
+        "female": "You arrive at the vacuum station before the cleaning service completes their run. The debris collected here is now evidence."
+      }
+    },
+    "Valet Parking": {
+      "default": "Keys handed over and vehicles moved on trust. The valet service touches every car that passes through. They also see who drives them and who they're driving away from.",
+      "gender": {
+        "male": "You talk to the valet supervisor. They run a disciplined operation and log every vehicle. Your subject's car was here for four hours.",
+        "female": "The valet log records every handoff. You find the entry for Tuesday night and the note the valet made in the margin. That note is your lead."
+      }
+    },
+    "Valet Service": {
+      "default": "Premium vehicle handling that creates a detailed record of arrivals, departures, and the gap between them.",
+      "gender": {
+        "male": "Valet service creates accountability on both ends of a visit. You use that accountability.",
+        "female": "The valet service documentation is precise. You find the discrepancy in the departure time against the witness account."
+      }
+    },
+    "Vault": {
+      "default": "The most secured space in any financial institution or high-value property. The vault's access log is the closest thing to a confession you can get without a courtroom.",
+      "gender": {
+        "male": "You stand at the vault door with your court order. The bank manager stares at it for a long time. Then they dial the combination.",
+        "female": "The vault access requires dual authorization and documentation. You have both. What's inside required someone to override one of them."
+      }
+    },
+    "Vehicle Storage": {
+      "default": "A secured compound for long-term vehicle holding. What gets stored here is out of circulation \u2014 until someone decides it isn't.",
+      "gender": {
+        "male": "You locate the vehicle in storage and document its condition before anyone can prepare an explanation.",
+        "female": "The vehicle storage manifest shows the unit was checked in but not checked out. You verify the vehicle is still there. It isn't."
+      }
+    },
+    "Vending": {
+      "default": "Automated transaction machines dispensing the city's minor needs. Vending machines are anonymous, widely used, and thoroughly logged.",
+      "gender": {
+        "male": "The vending machine near the loading dock was accessed at 2 AM. The product selection was odd. The payment method was odder.",
+        "female": "You pull the vending machine transaction history. The machine by the third-floor exit was used six times between midnight and 4 AM."
+      }
+    },
+    "Vending Machines": {
+      "default": "Rows of automated dispensers representing the full range of commercial human need. What people buy when they're alone tells you something.",
+      "gender": {
+        "male": "The vending machine block is across from the security desk. You check which ones were active during the blackout window.",
+        "female": "You review the vending machine activity logs. Two machines show activity during a period when the building was supposed to be empty."
+      }
     }
   }
 }
