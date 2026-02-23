@@ -4753,6 +4753,146 @@
         "male": "You pull the print logs. Digital records of analog documents. Whoever used this center did it in cash. You find the receipt anyway.",
         "female": "The print center smells like toner and bad decisions. The queue history doesn't lie. You find the job from last Thursday."
       }
+    },
+    "Private Beach": {
+      "default": "Sand reserved for people who bought the right to keep others off it. Exclusion is expensive. What happens here is private by design.",
+      "gender": {
+        "male": "The private beach. No public access, no witnesses you didn't pay. That's why you're here \u2014 and they didn't expect you.",
+        "female": "You step onto the private beach with your badge. The security guard pauses. You don't."
+      }
+    },
+    "Private Cinema": {
+      "default": "A screening room that doesn't appear on any public schedule. Whatever was watched in here was watched intentionally and selectively.",
+      "gender": {
+        "male": "The private cinema is dark and soundproofed. Whatever screening happened here last night didn't make the booking log. You find the gap.",
+        "female": "You enter the private cinema. Premium seating, no records, and a projection system that keeps its own cache. You pull it."
+      }
+    },
+    "Private Dining": {
+      "default": "A dining room that isn't on the public menu. Deals made over private meals are the city's most enduring traditions.",
+      "gender": {
+        "male": "The private dining room has been cleaned since last night's reservation. Cleaned very thoroughly. You note what's been removed.",
+        "female": "You check the private dining reservation log. One booking, no name, paid in advance. The server remembers the conversation anyway."
+      }
+    },
+    "Private Dining Room": {
+      "default": "Four walls, a table set for the privileged, and conversations that never leave the room. Or aren't supposed to.",
+      "gender": {
+        "male": "The private dining room is elegant and insulated. The kind of place people say things they regret. You're here about one of those things.",
+        "female": "You enter the private dining room with a subpoena. The manager looks unsurprised. These rooms always attract eventually."
+      }
+    },
+    "Private Elevator": {
+      "default": "A lift that doesn't stop at every floor. Reserved access, curated movement. The private elevator is how power moves vertically.",
+      "gender": {
+        "male": "The private elevator opens only with a key card. You have a copy. The building manager didn't ask how.",
+        "female": "You call the private elevator down. The camera inside was disabled three days ago. That tells you something."
+      }
+    },
+    "Private Events Space": {
+      "default": "A venue rented by the event and sealed from outside view. Whatever kind of evening this hosted, the public doesn't get to know.",
+      "gender": {
+        "male": "The private events space was booked under a shell company. You untangle the booking chain one layer at a time.",
+        "female": "You stand in the private events space after the guests have gone. Catering staff saw things. You ask them while the memory is still fresh."
+      }
+    },
+    "Private Garages": {
+      "default": "Locked bays that nobody passes through without a reason. Private garages hold more than vehicles.",
+      "gender": {
+        "male": "The private garage bays are numbered and gated. One hasn't been opened in three weeks. You want to know what's inside.",
+        "female": "You check the private garage access logs. One bay was accessed at 2 AM last Tuesday. The vehicle registered to that bay hasn't moved since."
+      }
+    },
+    "Private Karaoke": {
+      "default": "Soundproofed rooms where inhibitions go to die. The microphone picks up more than the music.",
+      "gender": {
+        "male": "Private karaoke rooms. You've worked a case that started in one of these booths. You always check the audio archives first.",
+        "female": "You open the private karaoke room door. Glitter, spilled drinks, and a confession someone sang at full volume at 1 AM. You pull the recording."
+      }
+    },
+    "Private Offices": {
+      "default": "Closed doors and frosted glass. The private offices are where the real conversations happen after the meeting ends.",
+      "gender": {
+        "male": "You walk the private office corridor. Each door is a different story. You're here to read one of them.",
+        "female": "The private offices are key-card access only. You have authorization. The occupant of the one you need doesn't know that yet."
+      }
+    },
+    "Pro Shop": {
+      "default": "Equipment and apparel sold at a premium. The pro shop's regulars are consistent, loyal, and easily identified by purchase history.",
+      "gender": {
+        "male": "The pro shop staff knows every member who comes through. You ask about the one who hasn't been back.",
+        "female": "You browse the pro shop for sixty seconds. The attendant has already made you for law enforcement. You don't bother maintaining the illusion."
+      }
+    },
+    "Probation Office": {
+      "default": "A room of check-ins and conditions. The probation office sits at the edge of freedom and failure. You know both margins well.",
+      "gender": {
+        "male": "The probation office has files on everyone who walked through its door. You're here about someone who stopped walking through it.",
+        "female": "You check in with the probation supervisor. She has an eye for trouble and a memory for absences. You share what you know and listen harder."
+      }
+    },
+    "Procedure Room": {
+      "default": "A clinical space where specific things are done in specific ways. The procedure room keeps a log. The log is what you came for.",
+      "gender": {
+        "male": "The procedure room is sealed and sterile. Whatever happened in here left a record that someone is hoping you won't find.",
+        "female": "You enter the procedure room with gloves. The documentation in here is thorough by design. Someone deviated from it. You trace the deviation."
+      }
+    },
+    "Product Display": {
+      "default": "Merchandise arranged to be seen and wanted. The display tells you what the business thinks matters. What's missing from it tells you more.",
+      "gender": {
+        "male": "You scan the product displays. Nothing out of place. Except the space where something used to be that isn't anymore.",
+        "female": "You note the product display gaps. Inventory pulled, not restocked. Something happened to the supply chain. You trace it backward."
+      }
+    },
+    "Projection Booth": {
+      "default": "A small, hot room above the audience where the illusion is manufactured. The projectionist sees the film and the crowd at the same time.",
+      "gender": {
+        "male": "You climb to the projection booth. Cramped and warm. The projectionist has a clear line of sight to every seat in the house.",
+        "female": "The projection booth has a window onto the whole theater. You sit with the operator and ask what they saw last Saturday during the late show."
+      }
+    },
+    "Propane Exchange": {
+      "default": "Caged cylinders of compressed fuel waiting to be traded. The propane exchange is managed by volume and records. Discrepancies in either are your business.",
+      "gender": {
+        "male": "You count the propane cages. The inventory log says twelve. You see nine. That's a conversation starter.",
+        "female": "The propane exchange log shows a transaction at 3 AM that wasn't authorized by any staff member on the overnight shift."
+      }
+    },
+    "Public Defender": {
+      "default": "A lawyer doing more with less than anyone should have to. The public defender's caseload is a chronicle of the city's failures and its occasional decencies.",
+      "gender": {
+        "male": "You wait outside the public defender's office. They're already in three meetings at once. You take a number and sit down.",
+        "female": "You meet with the public defender in a conference room that's been booked over twice. She fits you in anyway. Competence is the default around here."
+      }
+    },
+    "Public Works": {
+      "default": "The department that keeps the city's infrastructure honest. Pipes, cables, and contracts. Follow any one of them far enough and you find the same names.",
+      "gender": {
+        "male": "Public works files go back thirty years. You're here about something that was built six months ago under an emergency variance.",
+        "female": "You pull the public works maintenance records. The work order for the disputed structure was filed under a contractor that dissolved the next day."
+      }
+    },
+    "QC Station": {
+      "default": "The checkpoint where quality is either confirmed or flagged. The QC station is the last honest eye on what leaves this facility.",
+      "gender": {
+        "male": "You talk to the QC lead. He flagged a shipment three weeks ago. The flag was overridden from management. He kept a copy.",
+        "female": "The QC station logs every rejection. You look for the entries that were removed. They're always removed for a reason."
+      }
+    },
+    "Quality Control Lab": {
+      "default": "A lab where standards are enforced against the pressure of production. Someone here is always fighting that battle. Sometimes they lose.",
+      "gender": {
+        "male": "The quality control lab runs tests the production line would rather skip. You talk to the technician who was told to skip one.",
+        "female": "You put on your lab gloves and stand at the testing bench. The analyst shows you the data they weren't supposed to share. You listen."
+      }
+    },
+    "Quiet Reading Room": {
+      "default": "A room dedicated to silence and thought. In this city, both are rare. You respect the sign on the door and lower your voice anyway.",
+      "gender": {
+        "male": "The quiet reading room is exactly what it claims to be. You sit down, open your notepad, and let the silence do the work.",
+        "female": "You find a corner in the quiet reading room and review your notes. The stillness helps. So does the person two tables over who keeps looking at you."
+      }
     }
   }
 }
