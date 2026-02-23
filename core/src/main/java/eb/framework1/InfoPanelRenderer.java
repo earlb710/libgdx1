@@ -652,9 +652,9 @@ class InfoPanelRenderer {
             }
 
             if (locMod != 0) {
-                // " ±loc" — white
+                // " ±loc" — bright green (building / improvement bonus)
                 String locStr = " " + (locMod > 0 ? "+" : "-") + Math.abs(locMod);
-                smallFont.setColor(Color.WHITE);
+                smallFont.setColor(Color.GREEN);
                 smallFont.draw(batch, locStr, cx, ay);
                 glyphLayout.setText(smallFont, locStr);
                 cx += glyphLayout.width;
