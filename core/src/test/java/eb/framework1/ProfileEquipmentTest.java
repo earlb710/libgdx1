@@ -306,21 +306,21 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_weightCapacity_equalsBodyWeightPlusStrength() {
         Profile p = new Profile("Dave", "Male", "Normal");
-        // muscle=40, fat=40 → mfMod = 40/10 - 40/10 = 0; totalWeight=80
+        // muscle=40, fat=40 → body weight=80 kg; strength=5
+        // capacity = 80/4 + 5*2 = 20 + 10 = 30.0
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
-        // capacity = (40+40)/10 + 5 + 0 = 8 + 5 = 13.0
-        assertEquals(13f, p.getWeightCapacity(), 0.01f);
+        assertEquals(30f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
     public void profile_weightCapacity_minimumOne() {
         Profile p = new Profile("Eve", "Female", "Normal");
-        // muscle=5, fat=5 → mfMod=0; totalWeight=10; strength=0
-        // capacity = 10/10 + 0 + 0 = 1.0 → exactly at clamp boundary
-        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
-        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
+        // muscle=0, fat=0 → body weight=0; strength=0
+        // capacity = 0/4 + 0*2 = 0 → clamped to 1.0
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 0);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
         assertEquals(1f, p.getWeightCapacity(), 0.001f);
     }
@@ -328,7 +328,8 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_whenUnderCapacity() {
         Profile p = new Profile("Frank", "Male", "Normal");
-        // muscle=40, fat=40 → mfMod=0; strength=5 → capacity = 8+5=13; carried=0.9
+        // muscle=40, fat=40 → body weight=80 kg; strength=5
+        // capacity = 80/4 + 5*2 = 20 + 10 = 30; carried=0.9 (pistol)
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
@@ -338,10 +339,10 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_overEncumbered_whenExceedsCapacity() {
         Profile p = new Profile("Grace", "Female", "Normal");
-        // muscle=5, fat=5 → mfMod=0; strength=0; capacity=10/10+0+0=1.0
+        // muscle=0, fat=0 → body weight=0; strength=0 → capacity = max(1, 0+0) = 1.0
         // Pistol(0.9) + Binoculars(0.5) = 1.4 > 1.0
-        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
-        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 0);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
         p.addUtilityItem(EquipItem.BINOCULARS);
         assertTrue(p.isOverEncumbered());
@@ -350,10 +351,10 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_afterRemovingUtility() {
         Profile p = new Profile("Heidi", "Female", "Normal");
-        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 5);
-        p.setAttribute(CharacterAttribute.FAT_KG.name(), 5);
+        // muscle=0, fat=0 → capacity = 1.0; Pistol(0.9)+Binoculars(0.5)=1.4 → over
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 0);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
-        // capacity = 1.0; Pistol(0.9)+Binoculars(0.5)=1.4 → over
         p.addUtilityItem(EquipItem.BINOCULARS);
         assertTrue(p.isOverEncumbered());
         // remove binoculars: 0.9 ≤ 1.0 → fine
@@ -433,13 +434,13 @@ public class ProfileEquipmentTest {
     }
 
     @Test
-    public void weightCapacity_formula_totalWeightPlusStrengthPlusMuscleFatMod() {
+    public void weightCapacity_formula_bodyWeightDividedByFourPlusStrengthTimesTwo() {
         Profile p = new Profile("Olivia", "Female", "Normal");
-        // muscle=30, fat=30 → mfMod = 3-3 = 0; totalWeight=60; strength=3
+        // muscle=30, fat=30 → body weight=60 kg; strength=3
+        // capacity = 60/4 + 3*2 = 15 + 6 = 21.0
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 30);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 30);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 3);
-        // capacity = 60/10 + 3 + 0 = 9.0
-        assertEquals(9f, p.getWeightCapacity(), 0.01f);
+        assertEquals(21f, p.getWeightCapacity(), 0.01f);
     }
 }

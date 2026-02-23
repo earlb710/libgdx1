@@ -185,7 +185,10 @@ public class Profile {
     }
 
     /** Divisor converting body weight (kg) to base carry capacity (kg). */
-    private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 10f;
+    private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 4f;
+
+    /** Carry capacity gain (kg) per point of STRENGTH. */
+    private static final float STRENGTH_CARRY_KG_PER_POINT = 2f;
 
     /** Kg of muscle or fat needed to shift STRENGTH by ±1 point. */
     private static final int MUSCLE_FAT_STRENGTH_DIVISOR = 10;
@@ -220,19 +223,18 @@ public class Profile {
 
     /**
      * Returns the maximum weight (kg) this character can carry.
-     * <p>Formula: {@code (muscleKg + fatKg) / 10 + STRENGTH + muscleFatStrengthModifier}, minimum 1.0.
+     * <p>Formula: {@code (muscleKg + fatKg) / 4 + STRENGTH * 2}, minimum 1.0.
      * <ul>
-     *   <li>Base carry = total body weight / 10</li>
-     *   <li>+ STRENGTH attribute</li>
-     *   <li>+ muscle/fat modifier (muscle adds, fat subtracts)</li>
+     *   <li>Base carry = total body weight / 4 (20 kg for an 80 kg person)</li>
+     *   <li>+ 2 kg per point of STRENGTH attribute</li>
      * </ul>
      */
     public float getWeightCapacity() {
         int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
         int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
         int strength = getAttribute(CharacterAttribute.STRENGTH.name());
-        int mfMod    = getMuscleFatStrengthModifier();
-        return Math.max(1f, (muscleKg + fatKg) / BODY_WEIGHT_CAPACITY_DIVISOR + strength + mfMod);
+        return Math.max(1f, (muscleKg + fatKg) / BODY_WEIGHT_CAPACITY_DIVISOR
+                + strength * STRENGTH_CARRY_KG_PER_POINT);
     }
 
     /**

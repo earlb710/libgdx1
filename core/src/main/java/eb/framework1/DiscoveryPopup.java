@@ -22,10 +22,11 @@ import java.util.List;
 class DiscoveryPopup {
 
     // --- Colours ---
-    private static final Color BG_COLOR     = new Color(0.08f, 0.12f, 0.20f, 1f);
-    private static final Color BORDER_COLOR = new Color(0.40f, 0.60f, 0.90f, 1f);
-    private static final Color TITLE_COLOR  = new Color(1.00f, 0.85f, 0.30f, 1f);
-    private static final Color BTN_COLOR    = new Color(0.10f, 0.50f, 0.15f, 1f);
+    private static final Color BG_COLOR       = new Color(0.08f, 0.12f, 0.20f, 1f);
+    private static final Color BORDER_COLOR   = new Color(0.40f, 0.60f, 0.90f, 1f);
+    private static final Color TITLE_COLOR    = new Color(1.00f, 0.85f, 0.30f, 1f);
+    private static final Color BTN_COLOR      = new Color(0.10f, 0.50f, 0.15f, 1f);
+    private static final Color NOVEL_COLOR    = new Color(0.70f, 0.90f, 1.00f, 1f);
 
     private static final float SCROLLBAR_W = 8f;
 
@@ -40,6 +41,7 @@ class DiscoveryPopup {
     private boolean      visible = false;
     private String       buildingName;
     private String       description;
+    private String       novelText;
     private final List<String> improvementLines = new ArrayList<>();
 
     // OK button bounds (written during draw, read by onTap)
