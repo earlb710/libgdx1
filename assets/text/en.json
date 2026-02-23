@@ -1357,5 +1357,14 @@
         "female": "The server is attentive in ways you don't need. You redirect it into the conversation you do."
       }
     }
+  },
+  "improvements": {
+    "24hr Access": {
+      "default": "Round-the-clock access. Whoever owns this building trusts that nobody interesting shows up after midnight. They're wrong.",
+      "gender": {
+        "male": "The lock doesn't care what time it is. Neither do you.",
+        "female": "Twenty-four hours means twenty-four ways in. You've already picked the one that suits you."
+      }
+    }
   }
 }
