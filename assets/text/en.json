@@ -5033,6 +5033,146 @@
         "male": "You speak to the school director. Attendance is logged closely here. Your subject stopped coming to class twelve days ago.",
         "female": "The religious school has records going back years. You ask about the last month. The director sets down her coffee before answering."
       }
+    },
+    "Research Labs": {
+      "default": "Controlled environments where hypotheses are tested and conclusions are reached \u2014 or suppressed. The research lab's real findings are in the discarded drafts.",
+      "gender": {
+        "male": "You put on a lab coat and walk the research labs. Nobody stops you. They should have.",
+        "female": "The research labs require keycard access and a non-disclosure agreement. You have the first. You're here about what the second was covering."
+      }
+    },
+    "Residents Gym": {
+      "default": "A workout room that serves the building's population. Who uses it, when, and how regularly tells you more than the front desk ever will.",
+      "gender": {
+        "male": "The residents gym is empty this early. The sign-in log isn't. Your subject was here every morning until six days ago.",
+        "female": "You check the gym usage log. She was consistent. Three days a week, 7 AM. Then nothing. People don't break habits like that without a reason."
+      }
+    },
+    "Residents Only Elevator": {
+      "default": "Access-controlled vertical transit. Only the building's residents can call this elevator. You check which key card last summoned it.",
+      "gender": {
+        "male": "The residents-only elevator requires a building key. You have a warrant. The building manager is slow to accept that.",
+        "female": "You pull the elevator access log. Your subject used it three times the night in question. The last trip was down and never came back up."
+      }
+    },
+    "Restaurant": {
+      "default": "Tables, plates, and the city's eternal appetite. The restaurant sees the whole spectrum of humanity in a single dinner service.",
+      "gender": {
+        "male": "You take a back table facing the door. Old habit. Good habit.",
+        "female": "You ask the host for a table near the kitchen pass-through. Best seat for watching without being watched."
+      }
+    },
+    "Restaurant Space": {
+      "default": "A commercial space built for food service. Whoever operates out of here has access to a kitchen, a staff, and a rotating cast of strangers.",
+      "gender": {
+        "male": "The restaurant space is between tenants. You walk the empty dining room. The previous operators left in a hurry.",
+        "female": "You examine the restaurant space lease. Three operators in two years. You pull the health inspection logs for context."
+      }
+    },
+    "Restrooms": {
+      "default": "The part of any building where people are briefly alone and unobserved. Which is exactly why you check them.",
+      "gender": {
+        "male": "You clear the restrooms methodically. Somebody left something behind that wasn't meant to be found.",
+        "female": "The restroom was where the witness went when they needed to make a call without being seen. You find out who they called."
+      }
+    },
+    "Retail Counter": {
+      "default": "A transaction point where goods and payment meet. The retail counter is a register of every exchange made within range of its camera.",
+      "gender": {
+        "male": "You ask the counter clerk what time the register was opened and closed. They check twice before answering.",
+        "female": "You examine the retail counter. POS data, register tape, customer interaction log. Three sources. One story."
+      }
+    },
+    "Retail Kiosks": {
+      "default": "Small, mobile retail points positioned for maximum foot traffic. Easy to set up. Easy to walk away from.",
+      "gender": {
+        "male": "The retail kiosks rotate vendors. Whoever was operating the one near the east entrance last week isn't here anymore. You find the permit.",
+        "female": "You check the kiosk permit records. One vendor registered under a name that doesn't match a valid ID. You trace the payment method."
+      }
+    },
+    "Retail Section": {
+      "default": "A designated floor or wing of a facility dedicated to sales. What's on the shelves and what's behind the counter are usually two different inventories.",
+      "gender": {
+        "male": "You move through the retail section with a purpose that clears a path in the crowd.",
+        "female": "The retail section is busy and loud. You use both to your advantage."
+      }
+    },
+    "Retail Shops": {
+      "default": "Individual storefronts inside a larger property. Each one its own operation, its own story, its own reason to be here.",
+      "gender": {
+        "male": "You walk the retail shops one by one. The one at the end of the row has the lights off and a closed sign that wasn't there yesterday.",
+        "female": "The retail shops are all accounted for in the lease records \u2014 except one, which was sublet without approval. You find the subletter."
+      }
+    },
+    "Retail Space": {
+      "default": "Square footage designed for commerce. What it sells is obvious. What it moves through the back is what you came for.",
+      "gender": {
+        "male": "The retail space is clean and vacant. Somebody cleared it out recently. The cleaning was professional, which means they knew what to remove.",
+        "female": "You examine the empty retail space. Lease terminated two weeks ago. The previous tenant paid the break fee in cash."
+      }
+    },
+    "Returns Processing": {
+      "default": "The intake desk for what didn't work out. Returns processing handles exceptions. You're investigating one.",
+      "gender": {
+        "male": "You review the returns processing log. One item came back without a receipt and without a reason logged. That's unusual.",
+        "female": "The returns processing desk sees the fringe of retail \u2014 the damaged, the disputed, the fraudulent. You ask about the outlier from last Thursday."
+      }
+    },
+    "Roasting Equipment": {
+      "default": "Industrial coffee roasters and the rich, aggressive smell of transformation. What comes out of this machine is more than coffee. It's an alibi and a morning ritual.",
+      "gender": {
+        "male": "The roasting equipment is still warm from the morning batch. The operator is in early every day. Except the day you're asking about.",
+        "female": "You stand in the roasting room and ask your questions over the smell of fresh coffee. The roaster remembers every morning. She tells you about the one that was different."
+      }
+    },
+    "Roll Call Room": {
+      "default": "The morning briefing room where a shift takes stock of itself. What gets said here sets the tone for what happens next. You read the whiteboard.",
+      "gender": {
+        "male": "The roll call room is empty between shifts. You sit at the front and go through the briefing notes nobody erased.",
+        "female": "You stand in the roll call room and read the assignment board. The rotation tells you who was where and when. You photograph it."
+      }
+    },
+    "Roll-Up Doors": {
+      "default": "Industrial access panels that open onto the city's working life. Roll-up doors don't ask questions. Neither does whoever passes through them.",
+      "gender": {
+        "male": "You check the roll-up door access log. Manual override was used twice last week during off-hours. That's your window.",
+        "female": "The roll-up door was left open longer than it should have been. The sensor data says eighteen minutes. You ask who authorized the override."
+      }
+    },
+    "Rolling Carts": {
+      "default": "Utility carts that move things across floors and between departments. What they carry is supposed to be logged. Supposed to be.",
+      "gender": {
+        "male": "You intercept a cart near the service exit. Contents don't match the transfer slip. You stay with it.",
+        "female": "The rolling cart was logged out from storage and never returned. The attendant who signed it out is no longer on staff."
+      }
+    },
+    "Roof Garden": {
+      "default": "A garden above the city's eye line. Quiet, deliberate, maintained. The roof garden is where people go when they want to be alone and out of range.",
+      "gender": {
+        "male": "You push through the roof garden door. Good thinking space. Tonight, it's a crime scene.",
+        "female": "The roof garden is peaceful in a city that isn't. You stand at the railing and look down at the street where this started."
+      }
+    },
+    "Rooftop Bar": {
+      "default": "An elevated drinking establishment where the views are sold alongside the overpriced drinks. From up here, the city looks manageable. It isn't.",
+      "gender": {
+        "male": "You step onto the rooftop bar as the last light drops off the skyline. Someone up here was seen with your subject.",
+        "female": "The rooftop bar is wind and ambient sound. You get a glass of something cold and start asking the bartender what they remember."
+      }
+    },
+    "Rooftop Deck": {
+      "default": "An open-air amenity above the city's noise. The rooftop deck sees the skyline and the people who stand at its edge.",
+      "gender": {
+        "male": "You clear the rooftop deck from the door outward. Old habits. The person you're looking for spent an hour up here two nights ago.",
+        "female": "The rooftop deck is deserted except for one person on a folding chair who watched everything happen. You sit down beside them."
+      }
+    },
+    "Rooftop Lounge": {
+      "default": "A relaxed elevation above the crowd. The rooftop lounge attracts people who want to be seen \u2014 and those who want to see without being noticed.",
+      "gender": {
+        "male": "You arrive at the rooftop lounge late. The crowd has thinned. The conversations that remain are the ones you came for.",
+        "female": "You take a seat on the rooftop lounge terrace and let the ambient talk of the city wash over you. You catch the thread you've been following."
+      }
     }
   }
 }
