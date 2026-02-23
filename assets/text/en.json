@@ -5733,6 +5733,146 @@
         "male": "The tennis courts are reserved by member access. Your subject signed in last Thursday. There's no record of them signing out.",
         "female": "You check the tennis court booking system. A match was scheduled and abandoned mid-set. The other player filed a complaint. You find the complaint."
       }
+    },
+    "Terrace Gardens": {
+      "default": "Planted terraces stepping down the building's face. Green in a concrete city. Someone tends these with patience and purpose.",
+      "gender": {
+        "male": "You walk the terrace gardens at dusk. The landscaper was here this morning. So was someone who wasn't supposed to be.",
+        "female": "The terrace gardens are carefully maintained. You find a section where the ground has been recently disturbed. You call it in."
+      }
+    },
+    "Test Drive Lot": {
+      "default": "A controlled circuit where vehicles are evaluated under pressure. What people do with a car in an unfamiliar lot tells you a lot about them.",
+      "gender": {
+        "male": "You walk the test drive lot. One vehicle was taken out and not returned on schedule. The GPS tracker tells you where it went.",
+        "female": "The test drive log is missing a return entry from Tuesday afternoon. You find the vehicle. You find what was left in it."
+      }
+    },
+    "Testing Center": {
+      "default": "Controlled environments for evaluation under observation. The testing center creates records of performance and attendance. You read those records differently than most.",
+      "gender": {
+        "male": "The testing center uses biometric check-in. Your subject was verified at 9 AM. You check the system clock against their phone's location data.",
+        "female": "You request the testing center attendance log and the proctor's notes. Someone sat for an exam that wasn't theirs to sit."
+      }
+    },
+    "Theater Room": {
+      "default": "A private or institutional screening room. Whatever was shown in here was chosen deliberately. You want to know what and by whom.",
+      "gender": {
+        "male": "The theater room was reserved three nights ago. Off-hours, no official event. You pull the access log and the projector history.",
+        "female": "You enter the theater room. The presentation materials were cleared from the system. You recover the deletion timestamps."
+      }
+    },
+    "Ticket Office": {
+      "default": "The front gate of an event \u2014 where access is purchased and attendees are logged. The ticket office knows who was supposed to be there.",
+      "gender": {
+        "male": "You check the ticket office sales record. The will-call list has a name that recurs in your case file.",
+        "female": "The ticket office supervisor pulls the night's transaction log without argument. She's been watching this case from a distance. Now it arrived at her window."
+      }
+    },
+    "Tire Center": {
+      "default": "Stacks of rubber and the smell of vulcanized compound. The tire center knows what vehicles have been in and what condition they were in when they arrived.",
+      "gender": {
+        "male": "You ask the tire tech about unusual wear patterns on vehicles that came in last week. He shows you something that matches.",
+        "female": "The tire center documentation logs vehicle VINs. You run the one from Tuesday against the incident report. It matches."
+      }
+    },
+    "Tire Storage": {
+      "default": "Racks of mounted and unmounted tires waiting for their purpose. What gets stored between tires is hidden in plain sight.",
+      "gender": {
+        "male": "You move through the tire storage racks slowly. The package taped behind row seven wasn't supposed to be there.",
+        "female": "The tire storage area is at the back of the facility, past the cameras. You photograph the rack before pulling anything."
+      }
+    },
+    "Toddler Room": {
+      "default": "A small, safe space designed for the city's youngest. The toddler room is protected and honest and completely removed from the complications you brought in with you.",
+      "gender": {
+        "male": "You stand at the toddler room door. You lower your voice before you knock. Some rooms change the register you operate in.",
+        "female": "The toddler room is staffed with careful intention. You speak to the caregiver quietly and keep your questions to what's necessary."
+      }
+    },
+    "Tool Crib": {
+      "default": "Controlled inventory of tools checked in and out by workers. The tool crib log is a record of every pair of hands that touched every instrument.",
+      "gender": {
+        "male": "You audit the tool crib log. One tool was signed out Monday and never returned. The worker who signed it out called in sick Tuesday.",
+        "female": "The tool crib attendant runs a tight inventory. She noticed the discrepancy before you asked about it. She kept her own notes."
+      }
+    },
+    "Tool Storage": {
+      "default": "A secured area holding equipment used in the building's maintenance or production. What's missing from tool storage is sometimes more important than what's there.",
+      "gender": {
+        "male": "Tool storage has a master inventory that hasn't been reconciled in three months. You reconcile it now.",
+        "female": "You photograph the tool storage shelves before touching anything. One section has been recently reorganized. The dust pattern shows it."
+      }
+    },
+    "Towel Service": {
+      "default": "Laundered linens for guests or members \u2014 a service that tracks consumption and circulation. The towel service log knows who was where and for how long.",
+      "gender": {
+        "male": "You check the towel service records. Pool towels were issued to room 314 at 11 PM. The pool closed at 10.",
+        "female": "The towel service desk issues and logs every item. You ask about the issuance that wasn't tied to an active room booking."
+      }
+    },
+    "Track": {
+      "default": "A measured circuit for repetitive physical effort. The track is where consistency is built and endurance is tested. Someone's pattern broke on this track.",
+      "gender": {
+        "male": "You walk the track perimeter. Your subject ran here every morning at 6. Haven't been back in five days.",
+        "female": "The track attendance app shows your subject's last session. You speak to the trainer who noticed the absence."
+      }
+    },
+    "Training Center": {
+      "default": "A facility for developing capability \u2014 physical, professional, or operational. The training center shapes how people respond under pressure. You look for who didn't apply the training.",
+      "gender": {
+        "male": "You check the training center completion records. Your subject passed every module. The problem isn't competence. It's motive.",
+        "female": "The training center director has documentation on every candidate. She pulls the file before you ask. She had a feeling."
+      }
+    },
+    "Training Facility": {
+      "default": "A dedicated space built for the ongoing development of personnel or athletes. The training facility creates a paper trail of performance, attendance, and deviation.",
+      "gender": {
+        "male": "You work through the training facility access logs. The credential used to enter at midnight belongs to someone who completed their program two months ago.",
+        "female": "The training facility supervisor runs a disciplined operation. She knows which records you need and what they mean."
+      }
+    },
+    "Training Room": {
+      "default": "A room reserved for developing skill under observation. The training room is where people are watched closely. Not all of them know by whom.",
+      "gender": {
+        "male": "The training room was accessed after hours by a user credential that expired last quarter. You find out how it was still active.",
+        "female": "You examine the training room setup. The session that ran last Thursday was off-schedule and unlogged. You find the instructor."
+      }
+    },
+    "Transit Hub": {
+      "default": "A convergence point for multiple transportation modes. The transit hub moves thousands of people daily. It's the city's largest unscripted theater.",
+      "gender": {
+        "male": "The transit hub is all motion and ambient noise. You fix on one face in the crowd and follow it to its destination.",
+        "female": "You stand at the center of the transit hub. Hundreds of people, dozens of trajectories. You isolate the one you came for."
+      }
+    },
+    "Transportation Service": {
+      "default": "A managed transit operation running on schedule and obligation. The transportation service records every trip, every driver, every destination.",
+      "gender": {
+        "male": "You pull the transportation service manifests. Your subject requested a pickup. The driver documented the destination. That destination is your next stop.",
+        "female": "The transportation service maintains digital dispatch logs. You request the records for Tuesday. The dispatcher pulls them without hesitation."
+      }
+    },
+    "Trash Chute": {
+      "default": "A vertical disposal shaft that the building's occupants use to eliminate what they don't want. The trash chute is evidence waiting to be intercepted.",
+      "gender": {
+        "male": "You intercept the trash chute collection before the overnight pickup. Whatever was dropped in here last night is still in the compactor.",
+        "female": "You request a hold on the trash chute intake. What was disposed of here last night is part of what you're building a case around."
+      }
+    },
+    "Trash Enclosure": {
+      "default": "A fenced or walled area containing the building's refuse containers. The trash enclosure is where things go when people think no one is watching.",
+      "gender": {
+        "male": "The trash enclosure gate has a padlock that was replaced recently. You trace the lock replacement and find the reason.",
+        "female": "You examine the trash enclosure. Evidence doesn't always come gift-wrapped. Sometimes it comes in a bin at the back of a building."
+      }
+    },
+    "Trauma Center": {
+      "default": "A high-acuity medical unit built for the city's worst moments. The trauma center is where the city's violence arrives with a heartbeat and leaves with a record.",
+      "gender": {
+        "male": "You stand in the trauma center corridor with your badge out and your voice low. The charge nurse is already looking for you.",
+        "female": "The trauma center never stops. You navigate it with purpose and a clear ID. The attending physician meets you in the hallway."
+      }
     }
   }
 }
