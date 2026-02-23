@@ -17,31 +17,54 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE = "buildings.json";
+    private static final String BUILDINGS_FILE  = "buildings.json";
     private static final String CATEGORIES_FILE = "categories.json";
-    
+    private static final String TEXT_FILE       = "text/en.json";
+
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
     private final Map<String, List<BuildingDefinition>> buildingsByCategory;
     private final List<CategoryDefinition> categories;
     private final Map<String, CategoryDefinition> categoriesById;
-    
+
     private String buildingsVersion;
     private String categoriesVersion;
-    
+    private NovelTextEngine novelTextEngine;
+
     public GameDataManager() {
         this.buildings = new ArrayList<>();
         this.buildingsById = new HashMap<>();
         this.buildingsByCategory = new HashMap<>();
         this.categories = new ArrayList<>();
         this.categoriesById = new HashMap<>();
-        
+
         loadBuildings();
         loadCategories();
-        
+        loadNovelTextEngine();
+
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
     
+    /**
+     * Loads the novel text engine from {@code text/en.json}.
+     */
+    private void loadNovelTextEngine() {
+        try {
+            FileHandle file = Gdx.files.internal(TEXT_FILE);
+            if (!file.exists()) {
+                Gdx.app.error("GameDataManager", "Text file not found: " + TEXT_FILE);
+                novelTextEngine = new NovelTextEngine(null, null);
+                return;
+            }
+            String json = file.readString("UTF-8");
+            novelTextEngine = NovelTextEngine.fromJsonString(json);
+            Gdx.app.log("GameDataManager", "Loaded novel text engine from " + TEXT_FILE);
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager", "Error loading novel text engine: " + e.getMessage(), e);
+            novelTextEngine = new NovelTextEngine(null, null);
+        }
+    }
+
     /**
      * Loads building definitions from buildings.json
      */
@@ -211,5 +234,13 @@ public class GameDataManager {
      */
     public String getCategoriesVersion() {
         return categoriesVersion;
+    }
+
+    /**
+     * Returns the {@link NovelTextEngine} loaded from {@code text/en.json}.
+     * Never {@code null}; returns an empty engine if the file could not be loaded.
+     */
+    public NovelTextEngine getNovelTextEngine() {
+        return novelTextEngine;
     }
 }

@@ -43,8 +43,9 @@ public class MainScreen implements Screen {
     private boolean initialized = false;
 
     // Data
-    private CityMap  cityMap;
-    private Profile  profile;
+    private CityMap          cityMap;
+    private Profile          profile;
+    private NovelTextEngine  novelTextEngine;
 
     // Shared view state (layout, pan, zoom, selection, button bounds)
     private final MapViewState state = new MapViewState();
@@ -56,6 +57,7 @@ public class MainScreen implements Screen {
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
     private HelpPopup         helpPopup;
+    private DiscoveryPopup    discoveryPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -69,9 +71,9 @@ public class MainScreen implements Screen {
     private final ContextMenu      contextMenu        = new ContextMenu();
     private final List<String>     contextMenuItems   = new ArrayList<>();
     private final List<Runnable>   contextMenuActions = new ArrayList<>();
-    private long  lastMapTapTimeMs = 0L;
-    private float lastMapTapX      = -1f;
-    private float lastMapTapY      = -1f;
+    private long lastMapTapTimeMs  = 0L;
+    private int  lastMapTapCellX   = -1;
+    private int  lastMapTapCellY   = -1;
 
     // Quit confirmation (ESC key)
     private boolean quitConfirming   = false;
@@ -85,7 +87,6 @@ public class MainScreen implements Screen {
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
     private static final long  DOUBLE_CLICK_MS      = 400L;
-    private static final float DOUBLE_CLICK_PX      = 20f;
 
     // -------------------------------------------------------------------------
 
@@ -111,6 +112,7 @@ public class MainScreen implements Screen {
         tinyFont      = game.getFontManager().getTinyFont();
 
         GameDataManager gameData = game.getGameDataManager();
+        novelTextEngine = gameData.getNovelTextEngine();
         cityMap = new CityMap(profile, gameData);
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
 
@@ -164,6 +166,8 @@ public class MainScreen implements Screen {
             Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
         }
 
+        discoverStartingBuildings();
+
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
         mapRenderer.loadBuildingIcons();
@@ -176,7 +180,7 @@ public class MainScreen implements Screen {
         }
 
         infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont,
-                glyphLayout, cityMap, profile);
+                glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, cityMap, profile);
@@ -187,6 +191,8 @@ public class MainScreen implements Screen {
         tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -231,6 +237,10 @@ public class MainScreen implements Screen {
 
         if (tirednessPopup.isVisible()) {
             tirednessPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (discoveryPopup.isVisible()) {
+            discoveryPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -390,6 +400,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Discovery popup blocks all normal interaction until dismissed
+                if (discoveryPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -467,6 +486,17 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Discovery popup: only the OK button can dismiss it
+                if (discoveryPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) discoveryPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -485,21 +515,25 @@ public class MainScreen implements Screen {
                 if (isDragging && flippedY > state.infoAreaHeight) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        if (state.helpVisible) state.helpVisible = false;
                         selectCellAt(screenX, flippedY);
-                        // Double-click detection: two taps close together in time and space
-                        long  now = System.currentTimeMillis();
-                        float dd  = Vector2.len(screenX - lastMapTapX, screenY - lastMapTapY);
-                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && dd < DOUBLE_CLICK_PX
+                        // Double-click detection: same cell tapped twice within time window
+                        long    now      = System.currentTimeMillis();
+                        boolean sameCell = state.selectedCellX == lastMapTapCellX
+                                        && state.selectedCellY == lastMapTapCellY;
+                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && sameCell
                                 && !lookAroundPopup.isVisible()) {
                             contextMenu.dismiss();
                             buildContextMenu(screenX, flippedY);
                             Gdx.app.log("MainScreen", "Double-click menu at " + screenX + "," + flippedY
                                     + " items=" + contextMenuItems.size());
-                            lastMapTapTimeMs = 0L; // reset so triple-click doesn't re-trigger
+                            lastMapTapTimeMs = 0L;  // reset so triple-click doesn't re-trigger
+                            lastMapTapCellX  = -1;
+                            lastMapTapCellY  = -1;
                         } else {
                             lastMapTapTimeMs = now;
-                            lastMapTapX      = screenX;
-                            lastMapTapY      = screenY;
+                            lastMapTapCellX  = state.selectedCellX;
+                            lastMapTapCellY  = state.selectedCellY;
                         }
                     }
                 }
@@ -534,7 +568,7 @@ public class MainScreen implements Screen {
                     state.clampMapOffset();
                     return true;
                 }
-                if (infoAreaPressed && !lookAroundPopup.isVisible()) {
+                if (infoAreaPressed && !lookAroundPopup.isVisible() && !discoveryPopup.isVisible()) {
                     // screenY is 0 at top, increases downward
                     // Drag up (screenY decreases) → reveal content below → increase infoScrollY
                     float dy = infoTouchStartY - screenY;
@@ -551,6 +585,10 @@ public class MainScreen implements Screen {
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 contextMenu.dismiss();
+                if (discoveryPopup.isVisible()) {
+                    discoveryPopup.scroll(amountY * 20f);
+                    return true;
+                }
                 float old = state.zoomLevel;
                 state.zoomLevel = MathUtils.clamp(state.zoomLevel - amountY * ZOOM_SPEED, MIN_ZOOM, MAX_ZOOM);
                 if (old != state.zoomLevel) state.clampMapOffset();
@@ -864,10 +902,11 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination – always discover
+            // Reached destination – always discover and always show popup
             state.isWalking = false;
             state.walkPath  = null;
-            discoverCell(state.charCellX, state.charCellY);
+            boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
+            showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
@@ -966,15 +1005,179 @@ public class MainScreen implements Screen {
     /**
      * Discovers the building and any hiddenValue==0 improvements at the given cell.
      * Called on arrival (game start or Move To).
+     *
+     * @return {@code true} if the building at this cell was newly discovered
+     *         (it was not discovered before this call); {@code false} otherwise.
      */
-    private void discoverCell(int x, int y) {
+    private boolean discoverCell(int x, int y) {
         Cell cell = cityMap.getCell(x, y);
-        if (!cell.hasBuilding()) return;
+        if (!cell.hasBuilding()) return false;
         Building building = cell.getBuilding();
+        boolean wasDiscovered = building.isDiscovered();
         building.discover();
         for (Improvement imp : building.getImprovements()) {
             if (imp.getHiddenValue() == 0) imp.discover();
         }
         Gdx.app.log("MainScreen", "Discovered " + x + "," + y + ": " + building.getName());
+        return !wasDiscovered;
+    }
+
+    /**
+     * Builds and shows the discovery popup for a building arrival.
+     * Collects all improvements that were auto-discovered (hiddenValue == 0),
+     * along with their novel improvement descriptions.
+     *
+     * @param newDiscovery {@code true} if this is the first time this building is visited
+     */
+    private void showDiscoveryPopup(int x, int y, boolean newDiscovery) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        BuildingDefinition def = building.getDefinition();
+        String description = (def != null) ? def.getDescription() : null;
+
+        // Novel-engine contextual description
+        String novelText = null;
+        if (novelTextEngine != null && def != null) {
+            String raw = novelTextEngine.getDescription(
+                    def.getId(), profile.getCurrentHour(),
+                    profile.getAttributes(), profile.getGender());
+            novelText = (raw != null && !raw.isEmpty()) ? raw : null;
+        }
+
+        List<String> impLines = new ArrayList<>();
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
+                String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
+                String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
+                        + (mod.isEmpty() ? "" : " " + mod);
+                impLines.add(entry);
+                // Novel improvement description (if any)
+                if (novelTextEngine != null) {
+                    String impNovel = novelTextEngine.getImprovementDescription(
+                            imp.getName(), profile.getGender());
+                    if (impNovel != null && !impNovel.isEmpty()) {
+                        impLines.add("    " + impNovel);
+                    }
+                }
+            }
+        }
+        discoveryPopup.show(building.getName(), description, novelText, impLines, newDiscovery);
+    }
+
+    /**
+     * Returns the nearest cell (by Manhattan distance from the reference point) whose
+     * building definition ID matches one of the supplied IDs, or {@code null} if none found.
+     */
+    private Cell findNearestBuilding(int refX, int refY, String... buildingIds) {
+        Cell nearest = null;
+        int minDist = Integer.MAX_VALUE;
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = cityMap.getCell(x, y);
+                if (!cell.hasBuilding() || cell.getBuilding().getDefinition() == null) continue;
+                String id = cell.getBuilding().getDefinition().getId();
+                for (String targetId : buildingIds) {
+                    if (targetId.equals(id)) {
+                        int dist = Math.abs(x - refX) + Math.abs(y - refY);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearest = cell;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return nearest;
+    }
+
+    /** Discovers the cell's building if the cell is non-null. */
+    private void discoverCellIfFound(Cell cell) {
+        if (cell != null) {
+            discoverCell(cell.getX(), cell.getY());
+        }
+    }
+
+    /**
+     * Pre-discovers civic buildings and attribute-related buildings at game start.
+     *
+     * <p>Always discovered (public knowledge):
+     * <ul>
+     *   <li>Nearest police station</li>
+     *   <li>Nearest hospital (small or large)</li>
+     * </ul>
+     *
+     * <p>Discovered when the relevant attribute score is &ge; 4:
+     * <ul>
+     *   <li>STRENGTH or STAMINA &rarr; gym/fitness centre</li>
+     *   <li>INTELLIGENCE &rarr; public library</li>
+     *   <li>PERCEPTION &rarr; fire station</li>
+     *   <li>MEMORY &rarr; post office</li>
+     *   <li>INTUITION &rarr; nearest religious building</li>
+     *   <li>AGILITY &rarr; sports arena</li>
+     *   <li>CHARISMA &rarr; nearest restaurant</li>
+     *   <li>EMPATHY &rarr; community centre</li>
+     *   <li>INTIMIDATION &rarr; courthouse</li>
+     * </ul>
+     */
+    private void discoverStartingBuildings() {
+        int refX = state.homeCellX;
+        int refY = state.homeCellY;
+        if (refX < 0 || refY < 0) return;
+
+        // Always discover: police station and hospital
+        discoverCellIfFound(findNearestBuilding(refX, refY, "police_station"));
+        discoverCellIfFound(findNearestBuilding(refX, refY, "hospital_small", "hospital_large"));
+
+        // STRENGTH or STAMINA >= 4 → gym
+        if (profile.getAttribute(CharacterAttribute.STRENGTH.name()) >= 4
+                || profile.getAttribute(CharacterAttribute.STAMINA.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "gym_fitness_center"));
+        }
+
+        // INTELLIGENCE >= 4 → library
+        if (profile.getAttribute(CharacterAttribute.INTELLIGENCE.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "library"));
+        }
+
+        // PERCEPTION >= 4 → fire station
+        if (profile.getAttribute(CharacterAttribute.PERCEPTION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "fire_station"));
+        }
+
+        // MEMORY >= 4 → post office
+        if (profile.getAttribute(CharacterAttribute.MEMORY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "post_office"));
+        }
+
+        // INTUITION >= 4 → nearest religious building
+        if (profile.getAttribute(CharacterAttribute.INTUITION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "church", "mosque", "synagogue"));
+        }
+
+        // AGILITY >= 4 → sports arena
+        if (profile.getAttribute(CharacterAttribute.AGILITY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "sports_arena"));
+        }
+
+        // CHARISMA >= 4 → nearest restaurant
+        if (profile.getAttribute(CharacterAttribute.CHARISMA.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY,
+                    "restaurant_casual", "restaurant_fine_dining"));
+        }
+
+        // EMPATHY >= 4 → community centre
+        if (profile.getAttribute(CharacterAttribute.EMPATHY.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "community_center"));
+        }
+
+        // INTIMIDATION >= 4 → courthouse
+        if (profile.getAttribute(CharacterAttribute.INTIMIDATION.name()) >= 4) {
+            discoverCellIfFound(findNearestBuilding(refX, refY, "courthouse"));
+        }
+
+        Gdx.app.log("MainScreen", "Starting buildings discovered from home "
+                + refX + "," + refY);
     }
 }

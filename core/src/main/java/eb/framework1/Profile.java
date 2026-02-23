@@ -185,10 +185,20 @@ public class Profile {
     }
 
     /** Divisor converting body weight (kg) to base carry capacity (kg). */
-    private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 10f;
+    private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 4f;
+
+    /** Carry capacity gain (kg) per point of STRENGTH. */
+    private static final float STRENGTH_CARRY_KG_PER_POINT = 2f;
 
     /** Kg of muscle or fat needed to shift STRENGTH by ±1 point. */
     private static final int MUSCLE_FAT_STRENGTH_DIVISOR = 10;
+
+    /**
+     * Fallback body weights used when an old profile has no muscle/fat data.
+     * Values match the gender defaults in {@code CharacterAttributeScreen}.
+     */
+    private static final int DEFAULT_BODY_WEIGHT_MALE   = 80;
+    private static final int DEFAULT_BODY_WEIGHT_FEMALE = 65;
 
     // -------------------------------------------------------------------------
 
@@ -220,19 +230,30 @@ public class Profile {
 
     /**
      * Returns the maximum weight (kg) this character can carry.
-     * <p>Formula: {@code (muscleKg + fatKg) / 10 + STRENGTH + muscleFatStrengthModifier}, minimum 1.0.
+     * <p>Formula: {@code bodyWeight / 4 + STRENGTH * 2}, minimum 1.0, where
+     * {@code bodyWeight = muscleKg + fatKg}.
      * <ul>
-     *   <li>Base carry = total body weight / 10</li>
-     *   <li>+ STRENGTH attribute</li>
-     *   <li>+ muscle/fat modifier (muscle adds, fat subtracts)</li>
+     *   <li>Base carry = total body weight / 4 (20 kg for an 80 kg person)</li>
+     *   <li>+ 2 kg per point of STRENGTH attribute</li>
      * </ul>
+     *
+     * <p>Old profiles that were saved before body-composition tracking was added
+     * may have {@code MUSCLE_KG} and {@code FAT_KG} both at zero.  In that case
+     * a gender-average body weight is used as a fallback so the carry capacity is
+     * not unrealistically low.
      */
     public float getWeightCapacity() {
         int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
         int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
         int strength = getAttribute(CharacterAttribute.STRENGTH.name());
-        int mfMod    = getMuscleFatStrengthModifier();
-        return Math.max(1f, (muscleKg + fatKg) / BODY_WEIGHT_CAPACITY_DIVISOR + strength + mfMod);
+        int bodyWeight = muscleKg + fatKg;
+        if (bodyWeight == 0) {
+            // Old profile with no body-composition data — fall back to gender average
+            boolean isFemale = "female".equalsIgnoreCase(gender);
+            bodyWeight = isFemale ? DEFAULT_BODY_WEIGHT_FEMALE : DEFAULT_BODY_WEIGHT_MALE;
+        }
+        return Math.max(1f, bodyWeight / BODY_WEIGHT_CAPACITY_DIVISOR
+                + strength * STRENGTH_CARRY_KG_PER_POINT);
     }
 
     /**

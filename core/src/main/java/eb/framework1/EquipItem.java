@@ -53,7 +53,7 @@ public final class EquipItem {
 
     /**
      * Item weight in kilograms.  The sum of all carried items must not exceed
-     * {@link Profile#getWeightCapacity()} (= the character's {@code STRENGTH} attribute).
+     * {@link Profile#getWeightCapacity()} (body weight / 4 + STRENGTH × 2 kg).
      */
     public float getWeight() { return weight; }
 

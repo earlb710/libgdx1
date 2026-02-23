@@ -46,6 +46,7 @@ class InfoPanelRenderer {
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
+    private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -57,6 +58,7 @@ class InfoPanelRenderer {
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
+    private final NovelTextEngine novelTextEngine;
 
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;
@@ -65,16 +67,17 @@ class InfoPanelRenderer {
                       BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
                       BitmapFont tinyFont,
                       GlyphLayout glyphLayout,
-                      CityMap cityMap, Profile profile) {
-        this.batch         = batch;
-        this.shapeRenderer = shapeRenderer;
-        this.font          = font;
-        this.smallFont     = smallFont;
-        this.boldSmallFont = boldSmallFont;
-        this.tinyFont      = tinyFont;
-        this.glyphLayout   = glyphLayout;
-        this.cityMap       = cityMap;
-        this.profile       = profile;
+                      CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
+        this.batch           = batch;
+        this.shapeRenderer   = shapeRenderer;
+        this.font            = font;
+        this.smallFont       = smallFont;
+        this.boldSmallFont   = boldSmallFont;
+        this.tinyFont        = tinyFont;
+        this.glyphLayout     = glyphLayout;
+        this.cityMap         = cityMap;
+        this.profile         = profile;
+        this.novelTextEngine = novelTextEngine;
     }
 
     // -------------------------------------------------------------------------
@@ -324,8 +327,10 @@ class InfoPanelRenderer {
         float contentAreaW      = s.screenWidth - SB;
 
         // --- Measure content and update max-scroll bounds ---
-        float totalContentH = computeContentHeight(s, fontLineH);
-        float totalContentW = computeContentWidth(s, 20f);
+        final float TEXT_X = 20f;
+        float wrapWidth = contentAreaW - TEXT_X;
+        float totalContentH = computeContentHeight(s, fontLineH, smallLineH, wrapWidth);
+        float totalContentW = computeContentWidth(s, TEXT_X);
         s.infoMaxScrollY = Math.max(0f, totalContentH - contentAreaH);
         s.infoMaxScrollX = Math.max(0f, totalContentW - contentAreaW);
         s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
@@ -448,6 +453,7 @@ class InfoPanelRenderer {
                     font.setColor(LABEL_COLOR);
                     font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
+                    float impWrapWidth = contentAreaW - textX;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
                         if (idy < contentAreaBottom - fontLineH) break;
@@ -463,11 +469,36 @@ class InfoPanelRenderer {
                                 tinyFont.draw(batch, " " + modStr,
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
+                            textY -= fontLineH;
+                            // Novel improvement description (smaller font)
+                            List<String> impNovel = improvementNovelLines(imp, impWrapWidth);
+                            smallFont.setColor(NOVEL_COLOR);
+                            for (String nLine : impNovel) {
+                                smallFont.draw(batch, nLine, idx, textY + drawScrollY);
+                                textY -= smallLineH;
+                            }
                         } else {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
+                            textY -= fontLineH;
                         }
-                        textY -= fontLineH;
+                    }
+
+                    // Building description (if available) – no label, smaller font
+                    String desc = buildingDescription(building);
+                    if (desc != null) {
+                        textY -= smallLineH;
+                        smallFont.setColor(Color.WHITE);
+                        smallFont.draw(batch, desc, textX - drawScrollX, textY + drawScrollY);
+                        textY -= smallLineH;
+                    }
+
+                    // Novel-engine contextual description (word-wrapped, smaller font)
+                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+                    smallFont.setColor(NOVEL_COLOR);
+                    for (String nLine : novelLines) {
+                        smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                        textY -= smallLineH;
                     }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
@@ -814,10 +845,66 @@ class InfoPanelRenderer {
     }
 
     /**
+     * Returns the description text for a building (from its definition),
+     * or {@code null} if the building has no definition or no non-empty description.
+     */
+    private static String buildingDescription(Building b) {
+        if (b.getDefinition() == null) return null;
+        String desc = b.getDefinition().getDescription();
+        return (desc != null && !desc.isEmpty()) ? desc : null;
+    }
+
+    /**
+     * Returns the context-sensitive novel-engine text for a discovered building,
+     * using the current time of day and the character's attributes and gender.
+     * Returns {@code null} if the engine produces no text for this building.
+     */
+    private String buildingNovelText(Building b) {
+        if (novelTextEngine == null || b.getDefinition() == null) return null;
+        String key  = b.getDefinition().getId();
+        int    hour = profile.getCurrentHour();
+        String text = novelTextEngine.getDescription(
+                key, hour, profile.getAttributes(), profile.getGender());
+        return (text != null && !text.isEmpty()) ? text : null;
+    }
+
+    /**
+     * Returns the novel text for a building word-wrapped to {@code wrapWidth} pixels.
+     * Returns an empty list when no novel text is available.
+     */
+    private List<String> buildingNovelLines(Building b, float wrapWidth) {
+        String novel = buildingNovelText(b);
+        if (novel == null) return java.util.Collections.emptyList();
+        return WordWrapper.wrap(novel, wrapWidth, t -> {
+            glyphLayout.setText(font, t);
+            return glyphLayout.width;
+        });
+    }
+
+    /**
+     * Returns the novel improvement description for a discovered improvement, word-wrapped
+     * to {@code wrapWidth} pixels. Returns an empty list when no text is available.
+     */
+    private List<String> improvementNovelLines(Improvement imp, float wrapWidth) {
+        if (novelTextEngine == null) return java.util.Collections.emptyList();
+        String text = novelTextEngine.getImprovementDescription(imp.getName(), profile.getGender());
+        if (text == null || text.isEmpty()) return java.util.Collections.emptyList();
+        return WordWrapper.wrap(text, wrapWidth, t -> {
+            glyphLayout.setText(font, t);
+            return glyphLayout.width;
+        });
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
+     *
+     * @param fontLineH  line advance for the regular font
+     * @param smallLineH line advance for the smaller font (used by descriptions and novel text)
+     * @param wrapWidth  pixel width at which novel text should be wrapped
      */
-    private float computeContentHeight(MapViewState s, float fontLineH) {
+    private float computeContentHeight(MapViewState s, float fontLineH, float smallLineH,
+                                       float wrapWidth) {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float h = fontLineH; // Terrain (advance)
@@ -827,7 +914,17 @@ class InfoPanelRenderer {
         h += fontLineH; // Building (advance)
         if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
         h += fontLineH; // "Improvements:" header (advance)
-        h += b.getImprovements().size() * fontLineH; // one row per improvement
+        for (Improvement imp : b.getImprovements()) {
+            h += fontLineH; // improvement name row
+            if (imp.isDiscovered()) {
+                h += improvementNovelLines(imp, wrapWidth).size() * smallLineH;
+            }
+        }
+        if (buildingDescription(b) != null) {
+            h += smallLineH * 2; // blank gap + description line
+        }
+        int novelLineCount = buildingNovelLines(b, wrapWidth).size();
+        h += novelLineCount * smallLineH;
         return h;
     }
 
@@ -878,6 +975,13 @@ class InfoPanelRenderer {
                     }
                     maxW = Math.max(maxW, lineW);
                 }
+                String desc = buildingDescription(b);
+                if (desc != null) {
+                    glyphLayout.setText(font, "Description: " + desc);
+                    maxW = Math.max(maxW, glyphLayout.width);
+                }
+                // Novel text is always word-wrapped to the content area width,
+                // so it never contributes to horizontal scroll.
             } else {
                 glyphLayout.setText(font, "Building: ???");
                 maxW = Math.max(maxW, glyphLayout.width);
