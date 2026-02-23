@@ -3213,6 +3213,146 @@
         "male": "You check the validation stamps. One vehicle was validated six times this month. Nobody visits this building six times in a month casually.",
         "female": "You ask the parking attendant about the regular in the reserved guest bay. They have a regular who uses the same bay every Tuesday."
       }
+    },
+    "Guest Suite": {
+      "default": "Premium accommodation inside the building, extended-stay capable, and with access that the standard guest floor doesn't have.",
+      "gender": {
+        "male": "You book the suite adjacent to the one you need. Walls in this building are thinner than the rate card implies.",
+        "female": "You request the suite on a corporate account that opens doors the standard rate doesn't. You use every door it opens."
+      }
+    },
+    "Guest Suites": {
+      "default": "Multiple private units and the movement log that shows who occupied which one and when. One of those occupancies matters.",
+      "gender": {
+        "male": "You review the occupancy record for the relevant period. Suite four was occupied under a name that doesn't match any corporate account.",
+        "female": "You ask the front desk manager about a booking discrepancy. The suite was supposedly empty. The minibar charges say otherwise."
+      }
+    },
+    "Gymnasium": {
+      "default": "High ceiling, hard floor, the echo of exertion. The gymnasium is where effort gets stripped of pretence.",
+      "gender": {
+        "male": "You put in the work and earn the floor's acceptance. Physical credibility opens doors that credentials don't.",
+        "female": "You use the space with the focused efficiency of someone who isn't here for the exercise. Which is true."
+      }
+    },
+    "HOA Common Area": {
+      "default": "Shared space governed by bylaws and the unwritten rules of proximity. The HOA common area is where the neighbourhood's politics play out.",
+      "gender": {
+        "male": "You show up to the notice board at the right time and catch the conversation about what's been posted.",
+        "female": "You ask a resident about the recent changes to the common area rules. The conversation covers considerably more than rules."
+      }
+    },
+    "HOA Office": {
+      "default": "The administrative heart of a residential community with access to resident records, complaint histories, and maintenance logs.",
+      "gender": {
+        "male": "You request the complaint log for the last quarter under the pretext of a property query. The log is illuminating.",
+        "female": "You ask the HOA manager about a specific resident's service requests. The manager is more forthcoming than they realise."
+      }
+    },
+    "Hair Salon": {
+      "default": "Forty-five minutes of immobilised candour. The chair is where people say everything they've been holding since their last appointment.",
+      "gender": {
+        "male": "You make the appointment and listen. The stylist talks. So does the person in the next chair.",
+        "female": "You're in the chair and the whole salon knows it. The information flows without prompting."
+      }
+    },
+    "Handicap Spaces": {
+      "default": "Reserved access and the permit that grants it. One vehicle in a handicap space doesn't have a permit. It has a reason.",
+      "gender": {
+        "male": "You note the vehicle without a permit. The plate doesn't match any registered accommodation need.",
+        "female": "You photograph the space and the vehicle. The permit in the windscreen is a reproduction. A good one."
+      }
+    },
+    "Hazmat Storage": {
+      "default": "Regulated chemicals in a controlled room, logged and limited. What's in here is dangerous. What shouldn't be in here is more dangerous.",
+      "gender": {
+        "male": "You check the manifest against the physical inventory. Three chemicals are present that aren't on the manifest.",
+        "female": "You request the hazmat log from the safety officer. One entry was amended after the fact. The original phrasing was crossed out but still readable."
+      }
+    },
+    "Health Clinic": {
+      "default": "Routine care and the clinical record of everything routine that turned out not to be.",
+      "gender": {
+        "male": "You present a query about occupational health records. The clinic manager responds to occupational health queries with full cooperation.",
+        "female": "You ask the clinic nurse about the last incident report filed. The nurse describes it before checking whether you have access to it."
+      }
+    },
+    "Hearing Aid Center": {
+      "default": "Assistive devices and the patients who depend on them. The hearing aid centre keeps exact calibration records tied to specific users.",
+      "gender": {
+        "male": "You enquire about a service appointment for a specific device model. The technician checks the serial number log.",
+        "female": "You ask about the patient who came in for an urgent calibration last week. The technician provides the appointment detail before realising they shouldn't."
+      }
+    },
+    "Hearing Assistance": {
+      "default": "Accommodation that documents who needed it and when. The record of assistance is more specific than most people assume.",
+      "gender": {
+        "male": "You request the accommodation log for the facility during the relevant event. The log has a name you recognise.",
+        "female": "You ask about the hearing loop installation date and the last event it was activated for. The dates correlate with your timeline."
+      }
+    },
+    "Helipad": {
+      "default": "A rooftop landing zone that makes a building accessible without going through the front door. Whatever arrived or departed here, it bypassed all standard access points.",
+      "gender": {
+        "male": "You get access to the roof under a maintenance pretext and check the pad surface. Recent touchdown. Very recent.",
+        "female": "You review the building's air traffic log via the relevant authority. One unlogged landing, twelve days ago."
+      }
+    },
+    "Holding Cells": {
+      "default": "Temporary containment and the particular candour of people who've been separated from their lawyer for thirty minutes.",
+      "gender": {
+        "male": "You enter the cell block under official cover and use the five minutes of access carefully.",
+        "female": "You speak through the door in the quiet tone that's less threatening than rank. The occupant answers more questions."
+      }
+    },
+    "Home Medical Equipment": {
+      "default": "Clinical-grade equipment in a non-clinical setting. What's in this building that requires hospital-level support?",
+      "gender": {
+        "male": "You check the equipment against the prescription on file. The equipment is over-specified for the stated condition.",
+        "female": "You speak with the care coordinator about the equipment inventory. The inventory reveals a second user the case file doesn't mention."
+      }
+    },
+    "Home Office Nook": {
+      "default": "Private work within a shared living space. The nook is where the building's resident conducts business they don't discuss at the table.",
+      "gender": {
+        "male": "You note the monitor angle and what it reveals during a casual visit. What's on the screen has nothing to do with household accounts.",
+        "female": "You ask to use the space briefly. The desk surface tells you more than the resident intended."
+      }
+    },
+    "Hose Tower": {
+      "default": "Elevated equipment storage and a view over the station's operational footprint. The hose tower is the highest point with the best sight lines.",
+      "gender": {
+        "male": "You climb the tower during a training drill and use the elevation.",
+        "female": "You ask to observe from the tower as part of a facility assessment. The captain agrees. You use every minute of it."
+      }
+    },
+    "Host Stand": {
+      "default": "The first point of contact and the reservation record that names everyone who sat in this restaurant tonight.",
+      "gender": {
+        "male": "You arrive without a reservation and speak to the host with the unhurried confidence of someone who always gets a table.",
+        "female": "You ask the host about a specific table booking from earlier in the week. The host checks the book and confirms the party size."
+      }
+    },
+    "Hot Desks": {
+      "default": "Unassigned workstations where the previous occupant always leaves something behind — usually something they didn't mean to.",
+      "gender": {
+        "male": "You claim a desk near the charging bar and note the browser tab left open on the adjacent screen.",
+        "female": "You set up at a desk that was clearly used this morning. The notepad impression under the blotter is legible."
+      }
+    },
+    "Hot Food Bar": {
+      "default": "Prepared food and the social ease of a shared meal option. People make decisions quickly at a hot food bar. Sometimes they say things just as quickly.",
+      "gender": {
+        "male": "You take a position at the end of the bar where the queue forms and the conversations happen.",
+        "female": "You ask the server about the day's preparation. Servers describe their day. The day has a detail in it."
+      }
+    },
+    "Hot Food Counter": {
+      "default": "A service counter where brief transactions and briefer conversations add up to a complete picture of the morning.",
+      "gender": {
+        "male": "You order and wait. The wait at a hot food counter is never silent.",
+        "female": "You compliment the service and ask how long they've been on. The server answers and mentions who was in earlier."
+      }
     }
   }
 }
