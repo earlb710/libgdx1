@@ -501,14 +501,16 @@ class EmailPopup {
                 closeX + (closeW - glyph.width) / 2f,
                 closeY + (closeH + glyph.height) / 2f);
 
-        // Status symbol to the right of the Close button
+        // Status symbol in the lower-right corner of the dialog
         if (st == STATUS_ACCEPTED || st == STATUS_DECLINED) {
             String sym = (st == STATUS_ACCEPTED) ? CHECK_SYMBOL.trim() : CROSS_SYMBOL.trim();
             font.setColor(st == STATUS_ACCEPTED ? CHECK_COLOR : CROSS_COLOR);
             glyph.setText(font, sym);
+            float symW = glyph.width;
+            float symH = glyph.height;
             font.draw(batch, sym,
-                    closeX + closeW + 10f,
-                    closeY + (closeH + glyph.height) / 2f);
+                    dialogX + dialogW - PAD - symW,
+                    dialogY + PAD + (closeH + symH) / 2f);
             font.setColor(Color.WHITE);
         }
 
