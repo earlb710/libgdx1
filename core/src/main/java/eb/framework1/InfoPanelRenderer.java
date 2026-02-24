@@ -482,7 +482,7 @@ class InfoPanelRenderer {
                     font.draw(batch, "Building: ", dx, dy);
                     glyphLayout.setText(font, "Building: ");
                     float nameX = dx + glyphLayout.width;
-                    String bName = building.getName();
+                    String bName = building.getDisplayName();
                     smallFont.setColor(Color.WHITE);
                     smallFont.draw(batch, bName, nameX, dy - valCenterOff);
                     if (!bMod.isEmpty()) {
@@ -500,6 +500,21 @@ class InfoPanelRenderer {
                         textY = drawLabelValue(font, "Floors: ",
                                 String.valueOf(building.getFloors()), textX, textY);
                         textY -= fontLineH;
+                    }
+
+                    // Multi-tenant: show all company names
+                    List<String> tenants = building.getTenants();
+                    if (tenants.size() > 1) {
+                        font.setColor(LABEL_COLOR);
+                        font.draw(batch, "Tenants:", textX - drawScrollX, textY + drawScrollY);
+                        textY -= fontLineH;
+                        for (String tenant : tenants) {
+                            float tdy = textY + drawScrollY;
+                            if (tdy < contentAreaBottom - fontLineH) break;
+                            smallFont.setColor(Color.WHITE);
+                            smallFont.draw(batch, "  " + tenant, textX - drawScrollX, tdy);
+                            textY -= smallLineH;
+                        }
                     }
 
                     font.setColor(LABEL_COLOR);
@@ -972,6 +987,12 @@ class InfoPanelRenderer {
         if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
         h += fontLineH; // Building (advance)
         if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
+        // Multi-tenant: Tenants header + one line per extra tenant
+        List<String> tenants = b.getTenants();
+        if (tenants.size() > 1) {
+            h += fontLineH;               // "Tenants:" header
+            h += smallLineH * tenants.size();
+        }
         h += fontLineH; // "Improvements:" header (advance)
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
@@ -1003,7 +1024,7 @@ class InfoPanelRenderer {
                 String bMod = formatAttributeModifiers(b.getAttributeModifiers());
                 glyphLayout.setText(font, "Building: ");
                 float labW = glyphLayout.width;
-                glyphLayout.setText(smallFont, b.getName());
+                glyphLayout.setText(smallFont, b.getDisplayName());
                 float nameW = glyphLayout.width;
                 if (!bMod.isEmpty()) {
                     glyphLayout.setText(tinyFont, " " + bMod);
@@ -1015,6 +1036,14 @@ class InfoPanelRenderer {
                     maxW = Math.max(maxW, glyphLayout.width);
                     glyphLayout.setText(font, "Floors: " + b.getFloors());
                     maxW = Math.max(maxW, glyphLayout.width);
+                }
+                // Multi-tenant width
+                List<String> tenants = b.getTenants();
+                if (tenants.size() > 1) {
+                    for (String tenant : tenants) {
+                        glyphLayout.setText(smallFont, "  " + tenant);
+                        maxW = Math.max(maxW, glyphLayout.width);
+                    }
                 }
                 glyphLayout.setText(font, "Improvements:");
                 maxW = Math.max(maxW, glyphLayout.width);

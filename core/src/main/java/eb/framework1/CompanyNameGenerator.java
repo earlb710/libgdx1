@@ -202,9 +202,34 @@ public class CompanyNameGenerator {
     }
 
     /**
-     * Returns the company type ID that the given building belongs to,
-     * or {@code null} if the building is not mapped.
+     * Returns a company name appropriate for the given type, using the provided
+     * {@link Random} for deterministic generation (e.g. when called from map
+     * generation with the map's seeded random).
+     *
+     * @param typeId company type ID (e.g. {@code "retail"}), or {@code null}
+     * @param rng    the {@link Random} to use instead of the instance default
+     * @return generated name string, never {@code null}
      */
+    public String generate(String typeId, Random rng) {
+        List<NameTemplate> pool = buildPool(typeId);
+        if (pool.isEmpty()) return "Unknown Company";
+        return resolve(pool.get(rng.nextInt(pool.size())).template, rng);
+    }
+
+    /**
+     * Returns a company name appropriate for the given building ID, using the
+     * provided {@link Random} for deterministic generation.
+     *
+     * @param buildingId building definition ID (e.g. {@code "fast_food_restaurant"})
+     * @param rng        the {@link Random} to use
+     * @return generated name string, never {@code null}
+     */
+    public String generateForBuilding(String buildingId, Random rng) {
+        String typeId = buildingId != null ? buildingToType.get(buildingId) : null;
+        return generate(typeId, rng);
+    }
+
+
     public String getTypeForBuilding(String buildingId) {
         return buildingId != null ? buildingToType.get(buildingId) : null;
     }
@@ -260,11 +285,18 @@ public class CompanyNameGenerator {
      * {@value #SURNAME_TOKEN} with a randomly chosen surname.
      */
     private String resolve(String template) {
+        return resolve(template, random);
+    }
+
+    /**
+     * Resolves a template string using the provided {@link Random}.
+     */
+    private String resolve(String template, Random rng) {
         if (!template.contains(SURNAME_TOKEN)) return template;
         // A template may contain $surname more than once (e.g. "$surname & $surname Law")
         String result = template;
         while (result.contains(SURNAME_TOKEN)) {
-            String s = surnames.isEmpty() ? "" : surnames.get(random.nextInt(surnames.size()));
+            String s = surnames.isEmpty() ? "" : surnames.get(rng.nextInt(surnames.size()));
             result = result.replaceFirst("\\$surname", s);
         }
         return result.trim();

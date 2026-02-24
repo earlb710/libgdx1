@@ -1272,7 +1272,7 @@ public class MainScreen implements Screen {
                 if (!cell.hasBuilding()) break;
                 Building hotel = cell.getBuilding();
                 hotelReceptionPopup.show(
-                        hotel.getName(),
+                        hotel.getDisplayName(),
                         BuildingServices.getHotelRoomType(hotel),
                         BuildingServices.getHotelNightlyCost(hotel),
                         BuildingServices.getHotelStaminaBonus(hotel));
@@ -1567,7 +1567,7 @@ public class MainScreen implements Screen {
                 }
             }
         }
-        discoveryPopup.show(building.getName(), description, novelText, impLines, newDiscovery);
+        discoveryPopup.show(building.getDisplayName(), description, novelText, impLines, newDiscovery);
     }
 
     /**

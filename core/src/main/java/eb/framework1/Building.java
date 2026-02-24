@@ -22,6 +22,8 @@ public class Building {
     private boolean discovered;
     private boolean home;
     private boolean owned;
+    /** Company / tenant names for this building instance.  Empty for non-company buildings. */
+    private List<String> tenants;
 
     /**
      * Creates a building with just a name and improvements (legacy constructor).
@@ -47,10 +49,40 @@ public class Building {
         this.floors = floors;
         this.attributeModifiers = BuildingEffects.getEffects(this.name);
         this.discovered = false;
+        this.tenants = new ArrayList<>();
     }
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the display name for this building.  For company buildings this is the
+     * first (or only) tenant name; for non-company buildings it falls back to the
+     * building type name.
+     */
+    public String getDisplayName() {
+        return (tenants != null && !tenants.isEmpty()) ? tenants.get(0) : name;
+    }
+
+    /**
+     * Returns all tenant (company) names assigned to this building.
+     * Single-company buildings have exactly one entry; multi-tenant buildings have
+     * several.  Non-company buildings return an empty list.
+     */
+    public List<String> getTenants() {
+        return (tenants != null && !tenants.isEmpty())
+                ? Collections.unmodifiableList(tenants)
+                : Collections.<String>emptyList();
+    }
+
+    /**
+     * Assigns the tenant (company) names for this building.
+     *
+     * @param tenants list of company names; {@code null} is treated as empty
+     */
+    public void setTenants(List<String> tenants) {
+        this.tenants = tenants != null ? new ArrayList<>(tenants) : new ArrayList<>();
     }
 
     public List<Improvement> getImprovements() {
