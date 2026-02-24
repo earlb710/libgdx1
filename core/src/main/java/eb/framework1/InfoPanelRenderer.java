@@ -57,6 +57,7 @@ class InfoPanelRenderer {
     private final BitmapFont    smallFont;
     private final BitmapFont    boldSmallFont;
     private final BitmapFont    tinyFont;
+    private final BitmapFont    noteFont;
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
@@ -67,7 +68,7 @@ class InfoPanelRenderer {
 
     InfoPanelRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
                       BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
-                      BitmapFont tinyFont,
+                      BitmapFont tinyFont, BitmapFont noteFont,
                       GlyphLayout glyphLayout,
                       CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
         this.batch           = batch;
@@ -76,6 +77,7 @@ class InfoPanelRenderer {
         this.smallFont       = smallFont;
         this.boldSmallFont   = boldSmallFont;
         this.tinyFont        = tinyFont;
+        this.noteFont        = noteFont;
         this.glyphLayout     = glyphLayout;
         this.cityMap         = cityMap;
         this.profile         = profile;
@@ -949,11 +951,11 @@ class InfoPanelRenderer {
             // List notes
             List<String> notesList = active.getNotes();
             for (int i = 0; i < notesList.size(); i++) {
-                smallFont.setColor(NOTE_COLOR);
-                smallFont.draw(batch, "\u2022 " + notesList.get(i), PAD + 8f, contentY);
+                noteFont.setColor(NOTE_COLOR);
+                noteFont.draw(batch, "\u2022 " + notesList.get(i), PAD + 8f, contentY);
                 contentY -= fontLineH * 0.9f;
             }
-            smallFont.setColor(Color.WHITE);
+            noteFont.setColor(Color.WHITE);
 
             batch.end();
 

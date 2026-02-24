@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Disposable;
 public class FontManager implements Disposable {
     
     private FreeTypeFontGenerator generator;
+    private FreeTypeFontGenerator handwrittenGenerator;
     private BitmapFont titleFont;
     private BitmapFont subtitleFont;
     private BitmapFont bodyFont;
@@ -28,6 +29,7 @@ public class FontManager implements Disposable {
     private BitmapFont boldBodyFont;
     private BitmapFont boldSmallFont;
     private BitmapFont boldTinyFont;
+    private BitmapFont noteFont;
     
     private float screenWidth;
     private float screenHeight;
@@ -108,6 +110,21 @@ public class FontManager implements Disposable {
             }
             generator = new FreeTypeFontGenerator(fontFile);
             Gdx.app.log("FontManager", "FreeTypeFontGenerator initialized successfully");
+
+            // Load handwritten font for player notes
+            FileHandle handwrittenFile = Gdx.files.internal("handwritten.ttf");
+            if (handwrittenFile.exists()) {
+                try {
+                    handwrittenGenerator = new FreeTypeFontGenerator(handwrittenFile);
+                    Gdx.app.log("FontManager", "Handwritten font generator initialized");
+                } catch (Exception e) {
+                    Gdx.app.error("FontManager", "Error loading handwritten font, notes will use regular font", e);
+                    handwrittenGenerator = null;
+                }
+            } else {
+                Gdx.app.log("FontManager", "No handwritten.ttf found, notes will use regular font");
+                handwrittenGenerator = null;
+            }
         } catch (Exception e) {
             Gdx.app.error("FontManager", "Error loading font, will use fallback", e);
             generator = null;
@@ -195,6 +212,21 @@ public class FontManager implements Disposable {
         boldParameter.color = Color.LIGHT_GRAY;
         boldTinyFont = generator.generateFont(boldParameter);
         Gdx.app.log("FontManager", "Generated bold tiny font at size: " + tinySize);
+
+        // Handwritten font for player notes (uses separate TTF)
+        if (handwrittenGenerator != null) {
+            FreeTypeFontParameter noteParam = new FreeTypeFontParameter();
+            noteParam.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
+            noteParam.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
+            noteParam.genMipMaps = true;
+            noteParam.size = smallSize;
+            noteParam.color = Color.WHITE;
+            noteFont = handwrittenGenerator.generateFont(noteParam);
+            Gdx.app.log("FontManager", "Generated handwritten note font at size: " + smallSize);
+        } else {
+            noteFont = smallFont; // fallback to regular small font
+            Gdx.app.log("FontManager", "Using regular small font as note font fallback");
+        }
     }
     
     /**
@@ -243,6 +275,9 @@ public class FontManager implements Disposable {
         boldTinyFont = new BitmapFont();
         boldTinyFont.setColor(Color.LIGHT_GRAY);
         boldTinyFont.getData().setScale(2.2f, 2.0f);
+
+        // Note font fallback – same as small font (no handwritten TTF available)
+        noteFont = smallFont;
         
         Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x, Tiny: 2.0x");
         Gdx.app.log("FontManager", "Bold BitmapFont scales - Body: 3.85×3.5x, Small: 2.75×2.5x, Tiny: 2.2×2.0x");
@@ -368,6 +403,11 @@ public class FontManager implements Disposable {
     public BitmapFont getBoldTinyFont() {
         return boldTinyFont;
     }
+
+    /** Handwritten-style font for player notes. */
+    public BitmapFont getNoteFont() {
+        return noteFont;
+    }
     
     /**
      * Get screen width used for font generation.
@@ -402,9 +442,13 @@ public class FontManager implements Disposable {
         if (boldBodyFont != null) boldBodyFont.dispose();
         if (boldSmallFont != null) boldSmallFont.dispose();
         if (boldTinyFont != null) boldTinyFont.dispose();
+        if (noteFont != null && noteFont != smallFont) noteFont.dispose();
         
         if (generator != null) {
             generator.dispose();
+        }
+        if (handwrittenGenerator != null) {
+            handwrittenGenerator.dispose();
         }
     }
 }

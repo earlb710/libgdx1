@@ -39,6 +39,7 @@ public class MainScreen implements Screen {
     private BitmapFont    smallFont;
     private BitmapFont    boldSmallFont;
     private BitmapFont    tinyFont;
+    private BitmapFont    noteFont;
     private GlyphLayout   glyphLayout;
     private boolean initialized = false;
 
@@ -110,6 +111,7 @@ public class MainScreen implements Screen {
         smallFont     = game.getFontManager().getSmallFont();
         boldSmallFont = game.getFontManager().getBoldSmallFont();
         tinyFont      = game.getFontManager().getTinyFont();
+        noteFont      = game.getFontManager().getNoteFont();
 
         GameDataManager gameData = game.getGameDataManager();
         novelTextEngine = gameData.getNovelTextEngine();
@@ -179,7 +181,7 @@ public class MainScreen implements Screen {
             mapRenderer.setCharacterIconTexture(charTex);
         }
 
-        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont,
+        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont, noteFont,
                 glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
