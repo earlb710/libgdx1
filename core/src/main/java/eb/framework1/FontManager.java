@@ -30,6 +30,7 @@ public class FontManager implements Disposable {
     private BitmapFont boldSmallFont;
     private BitmapFont boldTinyFont;
     private BitmapFont noteFont;
+    private boolean noteFontIsOwned; // true when noteFont uses its own instance (not a fallback reference)
     
     private float screenWidth;
     private float screenHeight;
@@ -222,9 +223,11 @@ public class FontManager implements Disposable {
             noteParam.size = smallSize;
             noteParam.color = Color.WHITE;
             noteFont = handwrittenGenerator.generateFont(noteParam);
+            noteFontIsOwned = true;
             Gdx.app.log("FontManager", "Generated handwritten note font at size: " + smallSize);
         } else {
             noteFont = smallFont; // fallback to regular small font
+            noteFontIsOwned = false;
             Gdx.app.log("FontManager", "Using regular small font as note font fallback");
         }
     }
@@ -278,6 +281,7 @@ public class FontManager implements Disposable {
 
         // Note font fallback – same as small font (no handwritten TTF available)
         noteFont = smallFont;
+        noteFontIsOwned = false;
         
         Gdx.app.log("FontManager", "BitmapFont scales - Title: 6.0x, Subtitle: 4.5x, Body: 3.5x, Small: 2.5x, Tiny: 2.0x");
         Gdx.app.log("FontManager", "Bold BitmapFont scales - Body: 3.85×3.5x, Small: 2.75×2.5x, Tiny: 2.2×2.0x");
@@ -442,7 +446,7 @@ public class FontManager implements Disposable {
         if (boldBodyFont != null) boldBodyFont.dispose();
         if (boldSmallFont != null) boldSmallFont.dispose();
         if (boldTinyFont != null) boldTinyFont.dispose();
-        if (noteFont != null && noteFont != smallFont) noteFont.dispose();
+        if (noteFont != null && noteFontIsOwned) noteFont.dispose();
         
         if (generator != null) {
             generator.dispose();
