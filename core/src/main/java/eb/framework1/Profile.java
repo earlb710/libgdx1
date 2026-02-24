@@ -32,6 +32,8 @@ public class Profile {
     private final List<EquipItem> utilityItems;
     // Stash: items stored at the player's home office (not carried)
     private final List<EquipItem> stash;
+    // Calendar: accepted appointments / case starts
+    private final List<CalendarEntry> calendarEntries;
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -79,6 +81,7 @@ public class Profile {
         this.equipment   = new EnumMap<>(EquipmentSlot.class);
         this.utilityItems = new ArrayList<>();
         this.stash        = new ArrayList<>();
+        this.calendarEntries = new ArrayList<>();
         // Default starting weapon
         equipment.put(EquipmentSlot.WEAPON, EquipItem.PISTOL);
     }
@@ -400,6 +403,20 @@ public class Profile {
     /** Adds {@code item} to the stash (must not be null). */
     public void addToStash(EquipItem item) {
         if (item != null) stash.add(item);
+    }
+
+    // -------------------------------------------------------------------------
+    // Calendar
+    // -------------------------------------------------------------------------
+
+    /** Returns an unmodifiable view of all calendar entries. */
+    public List<CalendarEntry> getCalendarEntries() {
+        return Collections.unmodifiableList(calendarEntries);
+    }
+
+    /** Adds a calendar entry (must not be null). */
+    public void addCalendarEntry(CalendarEntry entry) {
+        if (entry != null) calendarEntries.add(entry);
     }
 
     /**

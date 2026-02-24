@@ -43,6 +43,7 @@ class InfoPanelRenderer {
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
     private static final Color OFFICE_BTN_COLOR         = new Color(0.45f, 0.35f, 0.0f,  1f);
     private static final Color STASH_BTN_COLOR           = new Color(0.35f, 0.15f, 0.50f, 1f);
+    private static final Color EMAIL_BTN_COLOR           = new Color(0.10f, 0.30f, 0.50f, 1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
@@ -153,7 +154,7 @@ class InfoPanelRenderer {
         // =====================================================================
         // TAB BAR — drawn at the top of the info panel
         // =====================================================================
-        final String[] TAB_LABELS = { "Info", "Character" };
+        final String[] TAB_LABELS = { "Info", "Character", "Calendar" };
         // Use smallFont for tabs so they fit at any info-panel size
         glyphLayout.setText(smallFont, "Hg");
         float tabFontH  = glyphLayout.height;
@@ -264,6 +265,8 @@ class InfoPanelRenderer {
         // =====================================================================
         if ("CHARACTER".equalsIgnoreCase(s.activeInfoTab)) {
             drawCharacterTab(s, contentPanelH);
+        } else if ("CALENDAR".equalsIgnoreCase(s.activeInfoTab)) {
+            drawCalendarTab(s, contentPanelH);
         } else {
             drawInfoTab(s, lookAroundIdle, contentPanelH);
         }
@@ -350,9 +353,19 @@ class InfoPanelRenderer {
         }
         s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = showStashButton ? STASH_W : 0f;
         s.openStashBtnY = curRowBottom;
-        if (showStashButton) { lowestBtnBottom = curRowBottom; }
+        if (showStashButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton;
+        // Check Emails button (when at home building)
+        boolean showCheckEmailsButton = atCurrentBuilding && atHome;
+        float CHECK_EMAILS_W = 0f;
+        if (showCheckEmailsButton) {
+            CHECK_EMAILS_W = TextMeasurer.measure(font, glyphLayout, "Check Emails", PAD_X, PAD_Y).width;
+        }
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = showCheckEmailsButton ? CHECK_EMAILS_W : 0f;
+        s.checkEmailsBtnY = curRowBottom;
+        if (showCheckEmailsButton) { lowestBtnBottom = curRowBottom; }
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -391,6 +404,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(STASH_BTN_COLOR);
             shapeRenderer.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
         }
+        if (showCheckEmailsButton) {
+            shapeRenderer.setColor(EMAIL_BTN_COLOR);
+            shapeRenderer.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, CHECK_EMAILS_W, BTN_H);
+        }
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -411,9 +428,11 @@ class InfoPanelRenderer {
             shapeRenderer.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
             shapeRenderer.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
         }
+        if (showCheckEmailsButton) {
+            shapeRenderer.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     CHECK_EMAILS_W,     BTN_H);
+            shapeRenderer.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, CHECK_EMAILS_W - 2, BTN_H - 2);
+        }
         shapeRenderer.end();
-
-        // --- Text ---
         batch.begin();
         float textX = 20f;
 
@@ -453,6 +472,13 @@ class InfoPanelRenderer {
             font.draw(batch, "Open Stash",
                     s.openStashBtnX + (STASH_W - glyphLayout.width) / 2,
                     s.openStashBtnY + (BTN_H + glyphLayout.height) / 2);
+        }
+        if (showCheckEmailsButton) {
+            glyphLayout.setText(font, "Check Emails");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Check Emails",
+                    s.checkEmailsBtnX + (CHECK_EMAILS_W - glyphLayout.width) / 2,
+                    s.checkEmailsBtnY + (BTN_H + glyphLayout.height) / 2);
         }
 
         // GL scissor
@@ -630,6 +656,7 @@ class InfoPanelRenderer {
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
         s.openStashBtnW      = 0f;
+        s.checkEmailsBtnW    = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
 
@@ -889,6 +916,99 @@ class InfoPanelRenderer {
             float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
             float thumbY      = SB + (1f - scrollRatio) * (trackH - thumbH);
             shapeRenderer.setColor(0.5f, 0.5f, 0.7f, 1f);
+            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
+        }
+        shapeRenderer.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Calendar tab content
+    // -------------------------------------------------------------------------
+
+    private void drawCalendarTab(MapViewState s, int panelH) {
+        // Disable action buttons when calendar tab is active
+        s.moveToButtonW   = 0f;
+        s.lookAroundBtnW  = 0f;
+        s.restBtnW        = 0f;
+        s.sleepBtnW       = 0f;
+        s.goToOfficeBtnW  = 0f;
+        s.openStashBtnW   = 0f;
+        s.checkEmailsBtnW = 0f;
+        s.infoMaxScrollX  = 0f;
+        s.infoScrollX     = 0f;
+
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
+        glyphLayout.setText(smallFont, "Hg");
+        float smallCapH  = glyphLayout.height;
+        float smallLineH = smallCapH * 1.4f;
+
+        final float SB  = MapViewState.SCROLLBAR_THICKNESS;
+        final float PAD = 16f;
+
+        java.util.List<CalendarEntry> entries = profile.getCalendarEntries();
+
+        // Compute virtual height
+        float totalH = fontLineH;  // "Calendar" header
+        if (entries.isEmpty()) {
+            totalH += smallLineH;
+        } else {
+            for (CalendarEntry ignored : entries) {
+                totalH += smallLineH + fontLineH + smallLineH + smallLineH * 0.4f;
+            }
+        }
+
+        float contentAreaH = panelH - SB;
+        s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
+        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(0, 0, (int)(s.screenWidth - SB), Math.max(0, panelH));
+
+        batch.begin();
+        drawScrollY = s.infoScrollY;
+
+        float ty = panelH - PAD;
+
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Calendar", PAD, ty + drawScrollY);
+        ty -= fontLineH;
+
+        if (entries.isEmpty()) {
+            smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
+            smallFont.draw(batch, "(no appointments)", PAD, ty + drawScrollY);
+        } else {
+            for (CalendarEntry entry : entries) {
+                // Date/time
+                smallFont.setColor(new Color(0.50f, 0.80f, 1.00f, 1f));
+                smallFont.draw(batch, entry.dateTime, PAD, ty + drawScrollY);
+                ty -= smallLineH;
+                // Title
+                font.setColor(Color.WHITE);
+                font.draw(batch, entry.title, PAD + 8f, ty + drawScrollY);
+                ty -= fontLineH;
+                // Location
+                smallFont.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
+                smallFont.draw(batch, entry.location, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH + smallLineH * 0.4f; // entry spacing
+            }
+        }
+
+        batch.end();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        drawScrollY = 0f;
+
+        // Vertical scrollbar
+        float sbX = s.screenWidth - SB;
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
+        shapeRenderer.rect(sbX, SB, SB, contentAreaH);
+        if (s.infoMaxScrollY > 0f) {
+            float thumbH      = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
+            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
+            float thumbY      = SB + (1f - scrollRatio) * (contentAreaH - thumbH);
+            shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();

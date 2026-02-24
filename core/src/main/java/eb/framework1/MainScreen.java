@@ -62,6 +62,7 @@ public class MainScreen implements Screen {
     private StashPopup         stashPopup;
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
+    private EmailPopup           emailPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -206,6 +207,8 @@ public class MainScreen implements Screen {
 
         gymInstructorPopup = new GymInstructorPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -269,6 +272,10 @@ public class MainScreen implements Screen {
 
         if (gymInstructorPopup.isVisible()) {
             gymInstructorPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (emailPopup.isVisible()) {
+            emailPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -473,6 +480,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Email popup blocks all normal interaction until dismissed
+                if (emailPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -618,6 +634,20 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Email popup: Accept, Decline, or Close
+                if (emailPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = emailPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleEmailAccepted(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -669,6 +699,7 @@ public class MainScreen implements Screen {
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
                         checkOpenStashButtonClick(screenX, flippedY);
+                        checkCheckEmailsButtonClick(screenX, flippedY);
                         checkEquipDropButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
                     }
@@ -863,7 +894,7 @@ public class MainScreen implements Screen {
 
     private void checkTabClick(int screenX, int flippedY) {
         if (state.tabH <= 0) return;
-        String[] tabIds = { "INFO", "CHARACTER" };
+        String[] tabIds = { "INFO", "CHARACTER", "CALENDAR" };
         for (int i = 0; i < tabIds.length; i++) {
             if (state.tabW[i] <= 0) continue;
             if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]
@@ -929,6 +960,14 @@ public class MainScreen implements Screen {
                 && flippedY >= state.openStashBtnY && flippedY <= state.openStashBtnY + state.openStashBtnH) {
             stashPopup.show();
             Gdx.app.log("MainScreen", "Stash opened");
+        }
+    }
+
+    private void checkCheckEmailsButtonClick(int screenX, int flippedY) {
+        if (state.checkEmailsBtnW <= 0) return;
+        if (screenX >= state.checkEmailsBtnX && screenX <= state.checkEmailsBtnX + state.checkEmailsBtnW
+                && flippedY >= state.checkEmailsBtnY && flippedY <= state.checkEmailsBtnY + state.checkEmailsBtnH) {
+            handleCheckEmailsClick();
         }
     }
 
@@ -1601,6 +1640,96 @@ public class MainScreen implements Screen {
     private void discoverCellIfFound(Cell cell) {
         if (cell != null) {
             discoverCell(cell.getX(), cell.getY());
+        }
+    }
+
+    /**
+     * Generates 1–2 random emails (client requests and/or police cases) and
+     * opens the email popup so the player can accept or decline each one.
+     */
+    private void handleCheckEmailsClick() {
+        java.util.Random rng = new java.util.Random(System.currentTimeMillis());
+        java.util.List<EmailPopup.EmailData> emails = new java.util.ArrayList<>();
+
+        PersonNameGenerator png = (game.getGameDataManager() != null)
+                ? game.getGameDataManager().getPersonNameGenerator() : null;
+
+        int count = 1 + rng.nextInt(2); // 1 or 2 emails
+        for (int i = 0; i < count; i++) {
+            boolean isPolice = (i > 0) && rng.nextBoolean();
+            if (isPolice) {
+                String detective = (png != null) ? png.generateFull("M") : "James Carter";
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2));
+                emails.add(new EmailPopup.EmailData(
+                        "Det. " + detective + " (NYPD)",
+                        "Consulting Request \u2014 Homicide",
+                        "Detective,\n\nWe need a private investigator to consult on a homicide case.\n"
+                                + "Please report to the crime scene at your earliest convenience.\n\n"
+                                + "\u2014 Det. " + detective,
+                        "NYPD: Crime Scene",
+                        dt,
+                        "Crime Scene (TBD)"
+                ));
+            } else {
+                String gender = rng.nextBoolean() ? "M" : "F";
+                String clientName = (png != null) ? png.generateFull(gender) : "Alex Morgan";
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3));
+                boolean atOffice = rng.nextBoolean();
+                String loc = atOffice ? "Your Office" : "Downtown Cafe";
+                emails.add(new EmailPopup.EmailData(
+                        clientName,
+                        "I need your help urgently",
+                        "Dear Detective,\n\nI require your assistance with a matter of great urgency.\n"
+                                + "Could we meet "
+                                + (atOffice ? "at your office" : "at a coffee shop downtown") + "?\n\n"
+                                + "Regards,\n" + clientName,
+                        "Meeting: " + clientName,
+                        dt,
+                        loc
+                ));
+            }
+        }
+
+        emailPopup.show(emails);
+        Gdx.app.log("MainScreen", "Check emails: " + emails.size() + " email(s) generated");
+    }
+
+    /**
+     * Called when the player accepts an email.  Adds the associated appointment
+     * to the profile's calendar.
+     *
+     * @param emailIndex index in the email popup's list (from {@link EmailPopup#onTap})
+     */
+    private void handleEmailAccepted(int emailIndex) {
+        EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
+        if (email == null) return;
+        profile.addCalendarEntry(
+                new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation));
+        Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
+                + " @ " + email.calendarDateTime);
+    }
+
+    /**
+     * Returns a game date-time string {@code daysAhead} days from {@code currentDT},
+     * at 09:00.  Format: {@code "YYYY-MM-DD 09:00"}.
+     */
+    private static String nextAppointmentDT(String currentDT, int daysAhead) {
+        try {
+            String[] parts = currentDT.split(" ")[0].split("-");
+            int year  = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day   = Integer.parseInt(parts[2]);
+            day += daysAhead;
+            while (true) {
+                boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+                int[] dim = {31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                if (day <= dim[month - 1]) break;
+                day -= dim[month - 1];
+                if (++month > 12) { month = 1; year++; }
+            }
+            return String.format("%04d-%02d-%02d 09:00", year, month, day);
+        } catch (Exception e) {
+            return currentDT.split(" ")[0] + " 09:00";
         }
     }
 

@@ -51,6 +51,7 @@ class MapViewState {
     float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;   // written by UnitInteriorPopup
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
     float openStashBtnX, openStashBtnY, openStashBtnW, openStashBtnH;
+    float checkEmailsBtnX, checkEmailsBtnY, checkEmailsBtnW, checkEmailsBtnH;
 
     // Drop/Stash buttons in character tab (one per carried item; screen-space Y, updated each frame)
     static final int MAX_EQUIP_BTNS = 20;
@@ -77,14 +78,14 @@ class MapViewState {
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
 
     // --- Info panel tab bar ---
-    /** Currently active tab: {@code "INFO"} or {@code "CHARACTER"}. */
+    /** Currently active tab: {@code "INFO"}, {@code "CHARACTER"}, or {@code "CALENDAR"}. */
     String activeInfoTab = "INFO";
     /** Tab bar height (written by InfoPanelRenderer, read by MainScreen). */
     float tabBarHeight = 0f;
-    /** Tab bounds: [0] = Info tab, [1] = Character tab (x, y, w, h). */
-    float[] tabX = new float[2];
-    float[] tabY = new float[2];
-    float[] tabW = new float[2];
+    /** Tab bounds: [0] = Info, [1] = Character, [2] = Calendar (x, y, w, h). */
+    float[] tabX = new float[3];
+    float[] tabY = new float[3];
+    float[] tabW = new float[3];
     float   tabH = 0f;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
