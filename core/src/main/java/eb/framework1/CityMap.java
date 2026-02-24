@@ -61,6 +61,33 @@ public class CityMap {
     };
 
     /**
+     * Company type IDs that should NOT receive generated company names.
+     * These are public/civic/institutional buildings.
+     */
+    private static final java.util.Set<String> SKIP_COMPANY_TYPES;
+
+    /**
+     * Buildings that host multiple companies.
+     * Values are [minTenants, maxTenants] (inclusive).
+     */
+    private static final Map<String, int[]> MULTI_TENANT_RANGE;
+
+    static {
+        SKIP_COMPANY_TYPES = new java.util.HashSet<>(Arrays.asList(
+                "government", "education", "residential"));
+
+        MULTI_TENANT_RANGE = new HashMap<>();
+        MULTI_TENANT_RANGE.put("office_building_small",  new int[]{2, 4});
+        MULTI_TENANT_RANGE.put("office_building_medium", new int[]{3, 6});
+        MULTI_TENANT_RANGE.put("office_building_large",  new int[]{5, 10});
+        MULTI_TENANT_RANGE.put("corporate_headquarters", new int[]{1, 2});
+        MULTI_TENANT_RANGE.put("strip_mall",             new int[]{4, 8});
+        MULTI_TENANT_RANGE.put("shopping_center",        new int[]{8, 15});
+        MULTI_TENANT_RANGE.put("regional_mall",          new int[]{12, 20});
+        MULTI_TENANT_RANGE.put("coworking_space",        new int[]{3, 7});
+    }
+
+    /**
      * Represents the four sides of the map for beach placement.
      */
     public enum Side {
@@ -302,8 +329,8 @@ public class CityMap {
         int maxFloors = Math.max(minFloors, definition.getMaxFloors());
         int floors = minFloors + random.nextInt(maxFloors - minFloors + 1);
         
-        // Build name with coordinates
-        String buildingName = definition.getName() + "-" + x + "," + y;
+        // Building name is the definition type name (no coordinates suffix)
+        String buildingName = definition.getName();
         
         // Select 4 random improvements from the definition's improvement list
         List<String> availableImprovements = definition.getImprovements();
@@ -336,7 +363,55 @@ public class CityMap {
             }
         }
         
-        return new Building(buildingName, selectedImprovements, definition, floors);
+        Building building = new Building(buildingName, selectedImprovements, definition, floors);
+
+        // Assign company / tenant names for company-type buildings
+        List<String> tenants = generateTenants(definition, random);
+        if (!tenants.isEmpty()) {
+            building.setTenants(tenants);
+        }
+
+        return building;
+    }
+
+    /**
+     * Generates company / tenant names for a building definition.
+     *
+     * <p>Returns an empty list for non-company buildings (government, education,
+     * residential, religious, infrastructure, transit).  Single-company buildings
+     * receive exactly 1 name; multi-tenant buildings (office blocks, strip malls,
+     * shopping centres, etc.) receive between the defined min and max number of
+     * names pulled from the {@link CompanyNameGenerator}.
+     *
+     * <p>The supplied {@link Random} is the map seed's random instance so that
+     * names are fully deterministic for a given map seed.
+     */
+    private List<String> generateTenants(BuildingDefinition definition, Random random) {
+        if (gameData == null) return new ArrayList<>();
+        CompanyNameGenerator gen = gameData.getCompanyNameGenerator();
+        if (gen == null) return new ArrayList<>();
+
+        String buildingId = definition.getId();
+        String typeId = gen.getTypeForBuilding(buildingId);
+
+        // No mapping → not a company building, or explicitly skipped
+        if (typeId == null) return new ArrayList<>();
+        if (SKIP_COMPANY_TYPES.contains(typeId)) return new ArrayList<>();
+
+        // Determine tenant count
+        int[] range = MULTI_TENANT_RANGE.get(buildingId);
+        int count;
+        if (range != null) {
+            count = range[0] + random.nextInt(range[1] - range[0] + 1);
+        } else {
+            count = 1;
+        }
+
+        List<String> tenants = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            tenants.add(gen.generateForBuilding(buildingId, random));
+        }
+        return tenants;
     }
 
     /**

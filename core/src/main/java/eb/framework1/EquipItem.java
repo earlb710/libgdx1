@@ -27,6 +27,7 @@ public final class EquipItem {
     private final EquipmentSlot slot;
     private final String        description;
     private final float         weight;
+    private final boolean       caseItem;
     private final Map<CharacterAttribute, Integer> modifiers;
 
     private EquipItem(Builder b) {
@@ -34,6 +35,7 @@ public final class EquipItem {
         this.slot        = b.slot;
         this.description = b.description != null ? b.description : "";
         this.weight      = Math.max(0f, b.weight);
+        this.caseItem    = b.caseItem;
         this.modifiers   = Collections.unmodifiableMap(
                 new EnumMap<>(b.modifiers));
     }
@@ -50,6 +52,12 @@ public final class EquipItem {
 
     /** Short human-readable description. */
     public String getDescription() { return description; }
+
+    /**
+     * Returns {@code true} if this item belongs to an active case and must not
+     * be dropped or stashed by the player.
+     */
+    public boolean isCaseItem() { return caseItem; }
 
     /**
      * Item weight in kilograms.  The sum of all carried items must not exceed
@@ -76,8 +84,9 @@ public final class EquipItem {
     public static final class Builder {
         private final String        name;
         private final EquipmentSlot slot;
-        private String description;
-        private float  weight = 0f;
+        private String  description;
+        private float   weight   = 0f;
+        private boolean caseItem = false;
         private final Map<CharacterAttribute, Integer> modifiers = new EnumMap<>(CharacterAttribute.class);
 
         /**
@@ -99,11 +108,18 @@ public final class EquipItem {
             return this;
         }
 
-        /**
-         * Sets the item weight in kilograms (must be ≥ 0; negative values are clamped to 0).
-         */
+        /** Sets the item weight in kilograms (must be ≥ 0; negative values are clamped to 0). */
         public Builder weight(float kg) {
             this.weight = kg;
+            return this;
+        }
+
+        /**
+         * Marks this item as belonging to an active case; case items cannot be
+         * dropped or stashed by the player.
+         */
+        public Builder caseItem(boolean value) {
+            this.caseItem = value;
             return this;
         }
 

@@ -138,17 +138,6 @@ public class NovelTextEngine {
                 : Collections.<String, List<DescriptionEntry>>emptyMap();
     }
 
-    /** Wraps each single entry in a singleton list. */
-    private static Map<String, List<DescriptionEntry>> wrapInLists(
-            Map<String, DescriptionEntry> map) {
-        if (map == null) return Collections.emptyMap();
-        Map<String, List<DescriptionEntry>> result = new HashMap<>();
-        for (Map.Entry<String, DescriptionEntry> e : map.entrySet()) {
-            result.put(e.getKey(), Collections.singletonList(e.getValue()));
-        }
-        return result;
-    }
-
     /**
      * Parses a JSON string and creates a {@link NovelTextEngine} from it.
      *

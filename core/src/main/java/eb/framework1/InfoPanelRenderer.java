@@ -42,6 +42,8 @@ class InfoPanelRenderer {
     private static final Color MOVE_TO_BUTTON_COLOR   = new Color(0.1f,  0.5f,  0.15f, 1f);
     private static final Color LOOK_AROUND_BTN_COLOR  = new Color(0.1f,  0.3f,  0.6f,  1f);
     private static final Color OFFICE_BTN_COLOR         = new Color(0.45f, 0.35f, 0.0f,  1f);
+    private static final Color STASH_BTN_COLOR           = new Color(0.35f, 0.15f, 0.50f, 1f);
+    private static final Color EMAIL_BTN_COLOR           = new Color(0.10f, 0.30f, 0.50f, 1f);
     private static final Color SCROLLBAR_TRACK_COLOR  = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
@@ -156,7 +158,7 @@ class InfoPanelRenderer {
         // =====================================================================
         // TAB BAR — drawn at the top of the info panel
         // =====================================================================
-        final String[] TAB_LABELS = { "Info", "Character", "Case File" };
+        final String[] TAB_LABELS = { "Info", "Character", "Calendar", "Case File" };
         // Use smallFont for tabs so they fit at any info-panel size
         glyphLayout.setText(smallFont, "Hg");
         float tabFontH  = glyphLayout.height;
@@ -176,59 +178,85 @@ class InfoPanelRenderer {
             tabWidths[i] = glyphLayout.width + tabPadX * 2f;
         }
 
-        // Draw tab backgrounds + store bounds
+        // The active tab is 3px taller at the top to appear "raised".
+        // Inactive tabs are shifted up by that same amount so the bottom of all tabs
+        // aligns with the separator, but the active tab sits 3px higher.
+        final float TAB_RAISE = 3f;
+
+        // Draw panel background first, then tab fills on top
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        // Panel background
         shapeRenderer.setColor(INFO_BG_COLOR);
         shapeRenderer.rect(0, 0, s.screenWidth, s.infoAreaHeight);
+
         float tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             s.tabX[i] = tx;
-            s.tabY[i] = tabBarY;
             s.tabW[i] = tabWidths[i];
-            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
-            shapeRenderer.setColor(active
-                    ? new Color(0.25f, 0.35f, 0.5f, 1f)
-                    : new Color(0.12f, 0.12f, 0.18f, 1f));
-            shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
-            tx += tabWidths[i];
-        }
-        shapeRenderer.end();
-
-        // Tab borders + separator line
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        tx = 0f;
-        for (int i = 0; i < TAB_LABELS.length; i++) {
-            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             if (active) {
-                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+                // Active tab: same bg as panel, raised, sits flush with content below
+                s.tabY[i] = tabBarY;
+                shapeRenderer.setColor(INFO_BG_COLOR);
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH + TAB_RAISE);
             } else {
-                // Draw top/left/right border only; bottom merges with panel
-                shapeRenderer.line(tx,                    tabBarY + tabH, tx + tabWidths[i], tabBarY + tabH);
-                shapeRenderer.line(tx,                    tabBarY,        tx,                tabBarY + tabH);
-                shapeRenderer.line(tx + tabWidths[i],     tabBarY,        tx + tabWidths[i], tabBarY + tabH);
+                // Inactive tab: darker, not raised; sits on the separator line
+                s.tabY[i] = tabBarY;
+                shapeRenderer.setColor(new Color(0.10f, 0.10f, 0.14f, 1f));
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
             }
             tx += tabWidths[i];
         }
-        // Separator under tab bar extends across full width
+        shapeRenderer.end();
+
+        // Borders and separator
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.line(0, tabBarY, s.screenWidth, tabBarY);
+        tx = 0f;
+        float activeTabX = 0f, activeTabW = 0f;
+        for (int i = 0; i < TAB_LABELS.length; i++) {
+            boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
+            if (active) {
+                activeTabX = tx;
+                activeTabW = tabWidths[i];
+                // Active tab: bright accent border, left + top + right only (no bottom)
+                shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
+                shapeRenderer.line(tx,               tabBarY,             tx,               tabBarY + tabH + TAB_RAISE);
+                shapeRenderer.line(tx,               tabBarY + tabH + TAB_RAISE, tx + tabWidths[i], tabBarY + tabH + TAB_RAISE);
+                shapeRenderer.line(tx + tabWidths[i], tabBarY,            tx + tabWidths[i], tabBarY + tabH + TAB_RAISE);
+                // Second inner line for a thicker look
+                shapeRenderer.line(tx + 1f,           tabBarY,            tx + 1f,           tabBarY + tabH + TAB_RAISE - 1f);
+                shapeRenderer.line(tx + 1f,           tabBarY + tabH + TAB_RAISE - 1f, tx + tabWidths[i] - 1f, tabBarY + tabH + TAB_RAISE - 1f);
+                shapeRenderer.line(tx + tabWidths[i] - 1f, tabBarY,       tx + tabWidths[i] - 1f, tabBarY + tabH + TAB_RAISE - 1f);
+            } else {
+                // Inactive tab: dimmer border on all four sides
+                shapeRenderer.setColor(new Color(0.35f, 0.35f, 0.45f, 1f));
+                shapeRenderer.rect(tx, tabBarY, tabWidths[i], tabH);
+            }
+            tx += tabWidths[i];
+        }
+        // Separator line across the full width except under the active tab
+        shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
+        shapeRenderer.line(0,                         tabBarY, activeTabX,              tabBarY);
+        shapeRenderer.line(activeTabX + activeTabW,   tabBarY, s.screenWidth,           tabBarY);
         // Top panel border
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
         shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
         shapeRenderer.end();
 
-        // Tab labels — active tab uses boldSmallFont; inactive uses smallFont
+        // Tab labels — active tab: bold white; inactive: dimmed regular
         batch.begin();
         tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
             boolean active = TAB_LABELS[i].equalsIgnoreCase(s.activeInfoTab);
             BitmapFont tabFont = active ? boldSmallFont : smallFont;
             glyphLayout.setText(tabFont, TAB_LABELS[i]);
-            tabFont.setColor(active ? Color.WHITE : new Color(0.6f, 0.6f, 0.7f, 1f));
+            tabFont.setColor(active ? Color.WHITE : new Color(0.55f, 0.55f, 0.65f, 1f));
+            float labelY = active
+                    ? tabBarY + tabPadY + tabFontH + TAB_RAISE / 2f  // vertically centred in raised tab
+                    : tabBarY + tabPadY + tabFontH;
             tabFont.draw(batch, TAB_LABELS[i],
                     tx + (tabWidths[i] - glyphLayout.width) / 2f,
-                    tabBarY + tabPadY + tabFontH);
+                    labelY);
             tx += tabWidths[i];
         }
         batch.end();
@@ -241,6 +269,8 @@ class InfoPanelRenderer {
         // =====================================================================
         if ("CHARACTER".equalsIgnoreCase(s.activeInfoTab)) {
             drawCharacterTab(s, contentPanelH);
+        } else if ("CALENDAR".equalsIgnoreCase(s.activeInfoTab)) {
+            drawCalendarTab(s, contentPanelH);
         } else if ("CASE FILE".equalsIgnoreCase(s.activeInfoTab)) {
             drawCaseFileTab(s, contentPanelH);
         } else {
@@ -322,9 +352,19 @@ class InfoPanelRenderer {
         }
         s.goToOfficeBtnX = btnX; s.goToOfficeBtnH = BTN_H; s.goToOfficeBtnW = showOfficeButton ? OFFICE_W : 0f;
         s.goToOfficeBtnY = curRowBottom;
-        if (showOfficeButton) { lowestBtnBottom = curRowBottom; }
+        if (showOfficeButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton;
+        // Open Stash button – shown inside the office (UnitInteriorPopup), not here
+        boolean showStashButton = false;
+        s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = 0f;
+        s.openStashBtnY = curRowBottom;
+
+        // Check Emails button – shown inside the office (UnitInteriorPopup), not here
+        boolean showCheckEmailsButton = false;
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f;
+        s.checkEmailsBtnY = curRowBottom;
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -359,6 +399,7 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
+        
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -375,9 +416,8 @@ class InfoPanelRenderer {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
         }
+        
         shapeRenderer.end();
-
-        // --- Text ---
         batch.begin();
         float textX = 20f;
 
@@ -411,6 +451,7 @@ class InfoPanelRenderer {
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
         }
+        
 
         // GL scissor
         batch.flush();
@@ -439,7 +480,7 @@ class InfoPanelRenderer {
                     font.draw(batch, "Building: ", dx, dy);
                     glyphLayout.setText(font, "Building: ");
                     float nameX = dx + glyphLayout.width;
-                    String bName = building.getName();
+                    String bName = building.getDisplayName();
                     smallFont.setColor(Color.WHITE);
                     smallFont.draw(batch, bName, nameX, dy - valCenterOff);
                     if (!bMod.isEmpty()) {
@@ -459,10 +500,24 @@ class InfoPanelRenderer {
                         textY -= fontLineH;
                     }
 
+                    // Multi-tenant: show all company names
+                    List<String> tenants = building.getTenants();
+                    if (tenants.size() > 1) {
+                        font.setColor(LABEL_COLOR);
+                        font.draw(batch, "Tenants:", textX - drawScrollX, textY + drawScrollY);
+                        textY -= fontLineH;
+                        for (String tenant : tenants) {
+                            float tdy = textY + drawScrollY;
+                            if (tdy < contentAreaBottom - fontLineH) break;
+                            smallFont.setColor(Color.WHITE);
+                            smallFont.draw(batch, "  " + tenant, textX - drawScrollX, tdy);
+                            textY -= smallLineH;
+                        }
+                    }
+
                     font.setColor(LABEL_COLOR);
                     font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
-                    float impWrapWidth = contentAreaW - textX;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
                         if (idy < contentAreaBottom - fontLineH) break;
@@ -479,13 +534,6 @@ class InfoPanelRenderer {
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
-                            // Novel improvement description (smaller font)
-                            List<String> impNovel = improvementNovelLines(imp, impWrapWidth);
-                            smallFont.setColor(NOVEL_COLOR);
-                            for (String nLine : impNovel) {
-                                smallFont.draw(batch, nLine, idx, textY + drawScrollY);
-                                textY -= smallLineH;
-                            }
                         } else {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
@@ -579,6 +627,8 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.openStashBtnW      = 0f;
+        s.checkEmailsBtnW    = 0f;
         s.addNoteBtnW        = 0f;
         s.noteTimeCbW        = 0f;
         s.noteLocCbW         = 0f;
@@ -738,12 +788,31 @@ class InfoPanelRenderer {
         }
         allItems.addAll(profile.getUtilityItems());
 
+        // "Drop" vs "Stash" label: "Stash" when player is inside their home office
+        boolean inOffice = s.unitInteriorOpen
+                && s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
+        String dropLabel = inOffice ? "[Stash]" : "[Drop]";
+        Color  dropColor = inOffice ? new Color(1.0f, 0.65f, 0.2f, 1f)
+                                    : new Color(1.0f, 0.35f, 0.35f, 1f);
+
+        // Pre-measure the drop button label (same width for all rows)
+        glyphLayout.setText(smallFont, dropLabel);
+        float dropLabelW = glyphLayout.width;
+        float dropLabelX = contentW - 8f - dropLabelW; // right-aligned, 8px from scrollbar edge
+
+        // Clear old drop button bounds
+        for (int i = 0; i < MapViewState.MAX_EQUIP_BTNS; i++) s.equipDropBtnW[i] = 0f;
+        s.equipDropBtnH = smallCapH + 4f;
+
         if (allItems.isEmpty()) {
             smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
             smallFont.draw(batch, "(none)", PAD, ty + drawScrollY);
             ty -= smallLineH;
+            s.equipDropBtnCount = 0;
         } else {
-            for (EquipItem item : allItems) {
+            s.equipDropBtnCount = allItems.size();
+            for (int i = 0; i < allItems.size(); i++) {
+                EquipItem item = allItems.get(i);
                 float iy = ty + drawScrollY;
                 float cx = PAD;
 
@@ -773,6 +842,22 @@ class InfoPanelRenderer {
                     smallFont.setColor(Color.CYAN);
                     smallFont.draw(batch, "  " + modBuf, cx, iy);
                 }
+
+                // [Drop] / [Stash] button — right-aligned, only when visible in panel
+                if (i < MapViewState.MAX_EQUIP_BTNS && iy > 0 && iy <= panelH + smallCapH) {
+                    if (item.isCaseItem()) {
+                        // Case items: show a locked [Case] label — no drop button
+                        smallFont.setColor(Color.YELLOW);
+                        smallFont.draw(batch, "[Case]", dropLabelX, iy);
+                        // equipDropBtnW[i] stays 0 (already cleared above)
+                    } else {
+                        smallFont.setColor(dropColor);
+                        smallFont.draw(batch, dropLabel, dropLabelX, iy);
+                        s.equipDropBtnX[i] = dropLabelX;
+                        s.equipDropBtnY[i] = iy - smallCapH - 2f; // button bottom
+                        s.equipDropBtnW[i] = dropLabelW;
+                    }
+                } // else W stays 0 (set above) — not clickable when scrolled off-screen
 
                 ty -= smallLineH;
             }
@@ -819,6 +904,112 @@ class InfoPanelRenderer {
     }
 
     // -------------------------------------------------------------------------
+    // Calendar tab content
+    // -------------------------------------------------------------------------
+
+    private void drawCalendarTab(MapViewState s, int panelH) {
+        // Disable action buttons when calendar tab is active
+        s.moveToButtonW   = 0f;
+        s.lookAroundBtnW  = 0f;
+        s.restBtnW        = 0f;
+        s.sleepBtnW       = 0f;
+        s.goToOfficeBtnW  = 0f;
+        s.openStashBtnW   = 0f;
+        s.checkEmailsBtnW = 0f;
+        s.infoMaxScrollX  = 0f;
+        s.infoScrollX     = 0f;
+      
+        glyphLayout.setText(smallFont, "Hg");
+        float smallCapH  = glyphLayout.height;
+        float smallLineH = smallCapH * 1.4f;
+
+        final float SB  = MapViewState.SCROLLBAR_THICKNESS;
+        final float PAD = 16f;
+
+        java.util.List<CalendarEntry> entries = profile.getCalendarEntries();
+
+        // Compute virtual height
+        float totalH = fontLineH;  // "Calendar" header
+        if (entries.isEmpty()) {
+            totalH += smallLineH;
+        } else {
+            for (CalendarEntry e : entries) {
+                totalH += smallLineH + fontLineH + smallLineH; // date + title + location
+                if (e.rewardMoney > 0 || e.rewardItemName != null) totalH += smallLineH;
+                totalH += smallLineH * 0.4f; // entry gap
+            }
+        }
+
+        float contentAreaH = panelH - SB;
+        s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
+        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(0, 0, (int)(s.screenWidth - SB), Math.max(0, panelH));
+
+        batch.begin();
+        drawScrollY = s.infoScrollY;
+
+        float ty = panelH - PAD;
+
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Calendar", PAD, ty + drawScrollY);
+        ty -= fontLineH;
+
+        if (entries.isEmpty()) {
+            smallFont.setColor(new Color(0.45f, 0.45f, 0.45f, 1f));
+            smallFont.draw(batch, "(no appointments)", PAD, ty + drawScrollY);
+        } else {
+            for (CalendarEntry entry : entries) {
+                // Date/time
+                smallFont.setColor(new Color(0.50f, 0.80f, 1.00f, 1f));
+                smallFont.draw(batch, entry.dateTime, PAD, ty + drawScrollY);
+                ty -= smallLineH;
+                // Title
+                font.setColor(Color.WHITE);
+                font.draw(batch, entry.title, PAD + 8f, ty + drawScrollY);
+                ty -= fontLineH;
+                // Location
+                smallFont.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
+                smallFont.draw(batch, entry.location, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH;
+                // Reward (if any)
+                if (entry.rewardMoney > 0 || entry.rewardItemName != null) {
+                    String rewardTxt;
+                    if (entry.rewardMoney > 0 && entry.rewardItemName != null)
+                        rewardTxt = "Reward: $" + entry.rewardMoney + " + " + entry.rewardItemName;
+                    else if (entry.rewardMoney > 0)
+                        rewardTxt = "Reward: $" + entry.rewardMoney;
+                    else
+                        rewardTxt = "Reward: " + entry.rewardItemName;
+                    smallFont.setColor(new Color(1.00f, 0.85f, 0.20f, 1f));
+                    smallFont.draw(batch, rewardTxt, PAD + 8f, ty + drawScrollY);
+                    ty -= smallLineH;
+                }
+                ty -= smallLineH * 0.4f; // entry spacing
+            }
+        }
+
+        batch.end();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        drawScrollY = 0f;
+
+        // Vertical scrollbar
+        float sbX = s.screenWidth - SB;
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
+        shapeRenderer.rect(sbX, SB, SB, contentAreaH);
+        if (s.infoMaxScrollY > 0f) {
+            float thumbH      = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
+            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
+            float thumbY      = SB + (1f - scrollRatio) * (contentAreaH - thumbH);
+            shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
+            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
+        }
+        shapeRenderer.end();
+
+      
+      
     // Case File tab content
     // -------------------------------------------------------------------------
 
@@ -834,10 +1025,6 @@ class InfoPanelRenderer {
         s.addNoteBtnW        = 0f;
         s.noteTimeCbW        = 0f;
         s.noteLocCbW         = 0f;
-
-        glyphLayout.setText(font, "Hg");
-        float fontCapH  = glyphLayout.height;
-        float fontLineH = fontCapH * 1.4f;
 
         final float PAD = 12f;
 
@@ -1143,20 +1330,6 @@ class InfoPanelRenderer {
     }
 
     /**
-     * Returns the novel improvement description for a discovered improvement, word-wrapped
-     * to {@code wrapWidth} pixels. Returns an empty list when no text is available.
-     */
-    private List<String> improvementNovelLines(Improvement imp, float wrapWidth) {
-        if (novelTextEngine == null) return java.util.Collections.emptyList();
-        String text = novelTextEngine.getImprovementDescription(imp.getName(), profile.getGender());
-        if (text == null || text.isEmpty()) return java.util.Collections.emptyList();
-        return WordWrapper.wrap(text, wrapWidth, t -> {
-            glyphLayout.setText(font, t);
-            return glyphLayout.width;
-        });
-    }
-
-    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      *
@@ -1174,12 +1347,15 @@ class InfoPanelRenderer {
         if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
         h += fontLineH; // Building (advance)
         if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
+        // Multi-tenant: Tenants header + one line per extra tenant
+        List<String> tenants = b.getTenants();
+        if (tenants.size() > 1) {
+            h += fontLineH;               // "Tenants:" header
+            h += smallLineH * tenants.size();
+        }
         h += fontLineH; // "Improvements:" header (advance)
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
-            if (imp.isDiscovered()) {
-                h += improvementNovelLines(imp, wrapWidth).size() * smallLineH;
-            }
         }
         if (buildingDescription(b) != null) {
             h += smallLineH * 2; // blank gap + description line
@@ -1208,7 +1384,7 @@ class InfoPanelRenderer {
                 String bMod = formatAttributeModifiers(b.getAttributeModifiers());
                 glyphLayout.setText(font, "Building: ");
                 float labW = glyphLayout.width;
-                glyphLayout.setText(smallFont, b.getName());
+                glyphLayout.setText(smallFont, b.getDisplayName());
                 float nameW = glyphLayout.width;
                 if (!bMod.isEmpty()) {
                     glyphLayout.setText(tinyFont, " " + bMod);
@@ -1220,6 +1396,14 @@ class InfoPanelRenderer {
                     maxW = Math.max(maxW, glyphLayout.width);
                     glyphLayout.setText(font, "Floors: " + b.getFloors());
                     maxW = Math.max(maxW, glyphLayout.width);
+                }
+                // Multi-tenant width
+                List<String> tenants = b.getTenants();
+                if (tenants.size() > 1) {
+                    for (String tenant : tenants) {
+                        glyphLayout.setText(smallFont, "  " + tenant);
+                        maxW = Math.max(maxW, glyphLayout.width);
+                    }
                 }
                 glyphLayout.setText(font, "Improvements:");
                 maxW = Math.max(maxW, glyphLayout.width);

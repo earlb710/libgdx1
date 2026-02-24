@@ -59,6 +59,12 @@ public class MainScreen implements Screen {
     private TirednessPopup    tirednessPopup;
     private HelpPopup         helpPopup;
     private DiscoveryPopup    discoveryPopup;
+    private ServiceResultPopup serviceResultPopup;
+    private StashPopup         stashPopup;
+    private HotelReceptionPopup hotelReceptionPopup;
+    private GymInstructorPopup  gymInstructorPopup;
+    private EmailPopup           emailPopup;
+    private ConfirmPopup         confirmDropPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -185,7 +191,7 @@ public class MainScreen implements Screen {
                 glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
-                glyphLayout, cityMap, profile);
+                glyphLayout, cityMap, profile, novelTextEngine);
 
         unitInteriorPopup = new UnitInteriorPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, profile);
@@ -195,6 +201,18 @@ public class MainScreen implements Screen {
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        stashPopup = new StashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
+
+        hotelReceptionPopup = new HotelReceptionPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        gymInstructorPopup = new GymInstructorPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -243,6 +261,30 @@ public class MainScreen implements Screen {
 
         if (discoveryPopup.isVisible()) {
             discoveryPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (serviceResultPopup.isVisible()) {
+            serviceResultPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (stashPopup.isVisible()) {
+            stashPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (hotelReceptionPopup.isVisible()) {
+            hotelReceptionPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (gymInstructorPopup.isVisible()) {
+            gymInstructorPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (emailPopup.isVisible()) {
+            emailPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (confirmDropPopup.isVisible()) {
+            confirmDropPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -411,6 +453,60 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Service result popup blocks all normal interaction until dismissed
+                if (serviceResultPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Stash popup blocks all normal interaction until dismissed
+                if (stashPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Confirm drop popup blocks all normal interaction until dismissed
+                if (confirmDropPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Hotel reception popup blocks all normal interaction until dismissed
+                if (hotelReceptionPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Gym instructor popup blocks all normal interaction until dismissed
+                if (gymInstructorPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Email popup blocks all normal interaction until dismissed
+                if (emailPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -499,6 +595,93 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Service result popup: only the OK button can dismiss it
+                if (serviceResultPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) serviceResultPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Stash popup: Close or Take button
+                if (stashPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = stashPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleTakeFromStash(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Confirm drop popup: Yes drops/stashes the item; No cancels
+                if (confirmDropPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = confirmDropPopup.onTap(screenX, flippedY);
+                            if (result == ConfirmPopup.RESULT_YES) {
+                                handleEquipDrop(confirmDropPopup.getPendingIdx());
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Hotel reception popup: night selection or cancel
+                if (hotelReceptionPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int nights = hotelReceptionPopup.onTap(screenX, flippedY);
+                            if (nights >= 1) {
+                                handleHotelCheckIn(nights,
+                                        hotelReceptionPopup.getNightlyCost(),
+                                        hotelReceptionPopup.getStaminaBonus());
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Gym instructor popup: training option or cancel
+                if (gymInstructorPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int option = gymInstructorPopup.onTap(screenX, flippedY);
+                            if (option >= 0) handleGymTraining(option);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Email popup: Accept, Decline, or Close
+                if (emailPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = emailPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleEmailAccepted(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -549,6 +732,9 @@ public class MainScreen implements Screen {
                         checkRestButtonClick(screenX, flippedY);
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
+                        checkOpenStashButtonClick(screenX, flippedY);
+                        checkCheckEmailsButtonClick(screenX, flippedY);
+                        checkEquipDropButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
                         checkNoteCheckboxClick(screenX, flippedY);
                         checkAddNoteButtonClick(screenX, flippedY);
@@ -707,6 +893,12 @@ public class MainScreen implements Screen {
                     contextMenuItems.add("Look Around (10 min)");
                     contextMenuActions.add(() -> lookAroundPopup.start(state.charCellX, state.charCellY));
                 }
+                List<BuildingService> services = BuildingServices.getServices(b);
+                for (BuildingService svc : services) {
+                    final BuildingService captured = svc;
+                    contextMenuItems.add(captured.menuLabel());
+                    contextMenuActions.add(() -> handleServiceClick(captured));
+                }
                 if (atHome && b.getFloors() > 1) {
                     String officeLabel = "Go to your office : "
                             + floorOrdinal(state.homeFloor) + " Floor"
@@ -738,7 +930,7 @@ public class MainScreen implements Screen {
 
     private void checkTabClick(int screenX, int flippedY) {
         if (state.tabH <= 0) return;
-        String[] tabIds = { "INFO", "CHARACTER", "CASE FILE" };
+        String[] tabIds = { "INFO", "CHARACTER", "CALENDAR", "CASE FILE" };
         for (int i = 0; i < tabIds.length; i++) {
             if (state.tabW[i] <= 0) continue;
             if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]
@@ -796,6 +988,56 @@ public class MainScreen implements Screen {
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
         }
+    }
+
+    private void checkOpenStashButtonClick(int screenX, int flippedY) {
+        if (state.openStashBtnW <= 0) return;
+        if (screenX >= state.openStashBtnX && screenX <= state.openStashBtnX + state.openStashBtnW
+                && flippedY >= state.openStashBtnY && flippedY <= state.openStashBtnY + state.openStashBtnH) {
+            stashPopup.show();
+            Gdx.app.log("MainScreen", "Stash opened");
+        }
+    }
+
+    private void checkCheckEmailsButtonClick(int screenX, int flippedY) {
+        if (state.checkEmailsBtnW <= 0) return;
+        if (screenX >= state.checkEmailsBtnX && screenX <= state.checkEmailsBtnX + state.checkEmailsBtnW
+                && flippedY >= state.checkEmailsBtnY && flippedY <= state.checkEmailsBtnY + state.checkEmailsBtnH) {
+            handleCheckEmailsClick();
+        }
+    }
+
+    private void checkEquipDropButtonClick(int screenX, int flippedY) {
+        if (state.equipDropBtnCount <= 0) return;
+        for (int i = 0; i < state.equipDropBtnCount && i < MapViewState.MAX_EQUIP_BTNS; i++) {
+            if (state.equipDropBtnW[i] <= 0) continue;
+            if (screenX >= state.equipDropBtnX[i]
+                    && screenX <= state.equipDropBtnX[i] + state.equipDropBtnW[i]
+                    && flippedY >= state.equipDropBtnY[i]
+                    && flippedY <= state.equipDropBtnY[i] + state.equipDropBtnH) {
+                boolean inOffice = state.unitInteriorOpen
+                        && state.charCellX == state.homeCellX
+                        && state.charCellY == state.homeCellY;
+                String action   = inOffice ? "stash" : "drop";
+                String itemName = getCarriedItemName(i);
+                confirmDropPopup.show("Are you sure?",
+                        "Do you want to " + action + ": " + itemName + "?", i);
+                return;
+            }
+        }
+    }
+
+    /** Returns the display name of carried item at flat index {@code idx}, or "item" if not found. */
+    private String getCarriedItemName(int idx) {
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        List<EquipItem> allItems = new ArrayList<>();
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) allItems.add(item);
+        }
+        allItems.addAll(profile.getUtilityItems());
+        return (idx >= 0 && idx < allItems.size()) ? allItems.get(idx).getName() : "item";
     }
 
     private void checkUnitExitButtonClick(int screenX, int flippedY) {
@@ -918,7 +1160,24 @@ public class MainScreen implements Screen {
         int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
         profile.addStamina(staminaGain);
         profile.advanceGameTime(minutesSleep);
-        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +" + staminaGain + " stamina");
+
+        // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
+        int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
+        int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
+        int hotelBonusActual = 0;
+        if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
+            profile.addStamina(hotelBonus);
+            hotelBonusActual = hotelBonus;
+            int remaining = hotelNights - 1;
+            profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
+            if (remaining == 0) {
+                profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
+            }
+        }
+
+        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
+        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
+                + staminaGain + " stamina" + bonusNote);
     }
 
     private void handleMoveToClick() {
@@ -939,6 +1198,348 @@ public class MainScreen implements Screen {
         state.unitInteriorOpen = false;
         contextMenu.dismiss();
         Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
+    }
+
+    /**
+     * Drops or stashes the carried item at the given index in the flat
+     * allItems order (main slots first, then utility items, matching the
+     * order InfoPanelRenderer uses when drawing the character tab).
+     *
+     * When the player is inside their home office the item is moved to the
+     * stash instead of being permanently deleted.
+     */
+    private void handleEquipDrop(int idx) {
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        List<EquipItem>      allItems   = new ArrayList<>();
+        List<EquipmentSlot>  slotsUsed  = new ArrayList<>();
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) { allItems.add(item); slotsUsed.add(slot); }
+        }
+        List<EquipItem> utility = new ArrayList<>(profile.getUtilityItems());
+        int mainCount = allItems.size();
+        allItems.addAll(utility);
+
+        if (idx < 0 || idx >= allItems.size()) return;
+
+        // Case items are locked to active cases and can never be dropped or stashed
+        if (allItems.get(idx).isCaseItem()) {
+            Gdx.app.log("MainScreen", "Cannot drop case item: " + allItems.get(idx).getName());
+            return;
+        }
+
+        boolean inOffice = state.unitInteriorOpen
+                && state.charCellX == state.homeCellX
+                && state.charCellY == state.homeCellY;
+
+        if (idx < mainCount) {
+            EquipItem item = allItems.get(idx);
+            if (inOffice) profile.addToStash(item);
+            profile.unequip(slotsUsed.get(idx));
+            Gdx.app.log("MainScreen", (inOffice ? "Stashed" : "Dropped") + " " + item.getName());
+        } else {
+            int utilIdx = idx - mainCount;
+            EquipItem item = utility.get(utilIdx);
+            if (inOffice) profile.addToStash(item);
+            profile.removeUtilityItemAt(utilIdx);
+            Gdx.app.log("MainScreen", (inOffice ? "Stashed" : "Dropped") + " " + item.getName());
+        }
+    }
+
+    /**
+     * Takes the stash item at {@code index} back into the character's inventory.
+     * Non-utility items are (re-)equipped in their slot; utility items are added
+     * back to the utility list.
+     */
+    private void handleTakeFromStash(int index) {
+        EquipItem item = profile.takeFromStash(index);
+        if (item == null) return;
+        if (item.getSlot() == EquipmentSlot.UTILITY) {
+            profile.addUtilityItem(item);
+        } else {
+            profile.equip(item);
+        }
+        Gdx.app.log("MainScreen", "Took from stash: " + item.getName());
+    }
+
+    /**
+     * Checks the player into a hotel for the given number of nights.
+     *
+     * <p>Deducts the total cost ({@code nights × nightly}), stores the hotel
+     * stamina bonus and remaining nights in the player's profile attributes, and
+     * shows a confirmation popup.  If the player can't afford it, an error popup
+     * is shown instead.
+     *
+     * @param nights   number of nights to book (1–3)
+     * @param nightly  nightly rate in in-game currency
+     * @param bonus    extra stamina awarded per full 8-hour sleep while checked in
+     */
+    private void handleHotelCheckIn(int nights, int nightly, int bonus) {
+        int total = nights * nightly;
+        List<String> resultLines = new ArrayList<>();
+
+        if (total > 0 && profile.getMoney() < total) {
+            resultLines.add("You can't afford " + nights
+                    + (nights == 1 ? " night" : " nights") + " here.");
+            resultLines.add("Required: $" + total
+                    + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        if (total > 0) profile.setMoney(profile.getMoney() - total);
+        // Check-in time: 15 minutes at the front desk
+        profile.advanceGameTime(15);
+
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS,  bonus);
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, nights);
+
+        resultLines.add("You checked in for " + nights
+                + (nights == 1 ? " night." : " nights."));
+        if (total > 0) resultLines.add("Total cost: $" + total + ".");
+        resultLines.add("Sleep bonus: +" + bonus + " stamina per full 8h sleep.");
+        resultLines.add("Use the Sleep button when it is time for bed.");
+        serviceResultPopup.show("Checked In", resultLines);
+        Gdx.app.log("MainScreen", "Hotel check-in: " + nights + "n, $" + total
+                + ", bonus=" + bonus);
+    }
+
+    /**
+     * Executes the chosen gym training option.
+     *
+     * <p>Training options are identified by the {@code BuildingServices.GYM_OPT_*} constants.
+     * The overuse mechanic applies to both strength and stamina training:
+     * successive sessions on the same day have reduced chance of success and
+     * an increasing risk of a setback.
+     *
+     * @param option one of {@link BuildingServices#GYM_OPT_STRENGTH_SELF},
+     *               {@link BuildingServices#GYM_OPT_STRENGTH_PT},
+     *               {@link BuildingServices#GYM_OPT_STAMINA_SELF},
+     *               {@link BuildingServices#GYM_OPT_STAMINA_PT}
+     */
+    private void handleGymTraining(int option) {
+        int cost    = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                    || option == BuildingServices.GYM_OPT_STAMINA_PT)
+                      ? BuildingServices.GYM_COST_PT : BuildingServices.GYM_COST_SELF;
+        int timeMins = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                     || option == BuildingServices.GYM_OPT_STAMINA_PT)
+                       ? BuildingServices.GYM_TIME_PT : BuildingServices.GYM_TIME_SELF;
+
+        List<String> resultLines = new ArrayList<>();
+
+        // Affordability check
+        if (cost > 0 && profile.getMoney() < cost) {
+            resultLines.add("You can't afford this session.");
+            resultLines.add("Required: $" + cost + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        // Deduct cost and advance time
+        profile.setMoney(profile.getMoney() - cost);
+        profile.advanceGameTime(timeMins);
+
+        // Overuse tracking (shared across all gym sessions today)
+        int todayDate = BuildingServices.gameDateInt(profile.getGameDateTime());
+        int usesToday = BuildingServices.gymUsesToday(profile, todayDate);
+        BuildingServices.recordGymUse(profile, todayDate);
+
+        boolean isStrength = (option == BuildingServices.GYM_OPT_STRENGTH_SELF
+                           || option == BuildingServices.GYM_OPT_STRENGTH_PT);
+        boolean isPT       = (option == BuildingServices.GYM_OPT_STRENGTH_PT
+                           || option == BuildingServices.GYM_OPT_STAMINA_PT);
+        String attrName  = isStrength ? CharacterAttribute.STRENGTH.name()
+                                      : CharacterAttribute.STAMINA.name();
+        String attrLabel = isStrength ? "Strength" : "Stamina";
+        int    current   = profile.getAttribute(attrName);
+
+        // Base chance from the option, scaled down by overuse
+        float baseChance  = isPT ? BuildingServices.GYM_CHANCE_PT : BuildingServices.GYM_CHANCE_SELF;
+        float chance;
+        float overuseRisk;
+        if (usesToday == 0) {
+            chance      = baseChance;
+            overuseRisk = 0f;
+        } else if (usesToday == 1) {
+            chance      = baseChance * BuildingServices.GYM_OVERUSE_SECOND_CHANCE_MULT;
+            overuseRisk = BuildingServices.GYM_OVERUSE_SECOND_RISK;
+        } else {
+            chance      = 0f;           // no gain possible on 3rd+ session
+            overuseRisk = BuildingServices.GYM_OVERUSE_THIRD_RISK;
+        }
+
+        float roll = MathUtils.random();
+
+        if (overuseRisk > 0f && roll < overuseRisk) {
+            // Setback from over-training (applies equally to strength and stamina attributes)
+            profile.setAttribute(attrName, Math.max(0, current - 1));
+            resultLines.add("Over-training! Your body is exhausted.");
+            resultLines.add("-1 " + attrLabel + ".");
+        } else if (chance > 0f && roll < chance) {
+            profile.setAttribute(attrName, current + 1);
+            if (isPT) {
+                resultLines.add("Excellent session with your trainer!");
+            } else {
+                resultLines.add("Great workout! Your effort paid off.");
+            }
+            resultLines.add("+1 " + attrLabel + ".");
+        } else if (usesToday >= 2) {
+            resultLines.add("You went through the motions, but your body needs rest.");
+            resultLines.add("No benefit from additional training today.");
+        } else {
+            resultLines.add(isPT ? "Good session. Your trainer pushed you hard."
+                                 : "Solid workout. Keep the consistency up.");
+            resultLines.add("No attribute change this time.");
+        }
+
+        resultLines.add("Cost: $" + cost + ".");
+        String title = isStrength
+                ? (isPT ? "Strength PT Session" : "Strength Training")
+                : (isPT ? "Stamina PT Session"  : "Stamina Training");
+        serviceResultPopup.show(title, resultLines);
+        Gdx.app.log("MainScreen", "Gym training opt=" + option + " cost=$" + cost
+                + " uses=" + usesToday + " roll=" + roll);
+    }
+
+    /**
+     * Executes a building service for the character at the current cell.
+     * Deducts money and game-time, applies effects, then shows the result popup.
+     */
+    private void handleServiceClick(BuildingService svc) {
+        List<String> resultLines = new ArrayList<>();
+
+        // Check affordability
+        if (svc.cost > 0 && profile.getMoney() < svc.cost) {
+            resultLines.add("You can't afford this service.");
+            resultLines.add("Required: $" + svc.cost
+                    + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", resultLines);
+            return;
+        }
+
+        // Deduct cost and advance time
+        if (svc.cost > 0) profile.setMoney(profile.getMoney() - svc.cost);
+        if (svc.timeCost > 0) profile.advanceGameTime(svc.timeCost);
+
+        String title = svc.name;
+
+        switch (svc.id) {
+            // ---- Hotel reception: open the night-selection popup ------------
+            case BuildingServices.SVC_HOTEL_RECEPTION: {
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                if (!cell.hasBuilding()) break;
+                Building hotel = cell.getBuilding();
+                hotelReceptionPopup.show(
+                        hotel.getDisplayName(),
+                        BuildingServices.getHotelRoomType(hotel),
+                        BuildingServices.getHotelNightlyCost(hotel),
+                        BuildingServices.getHotelStaminaBonus(hotel));
+                return;  // popup drives the rest; don't show serviceResultPopup now
+            }
+
+            // ---- Gym instructor: open the training-option popup -------------
+            case BuildingServices.SVC_GYM_INSTRUCTOR: {
+                gymInstructorPopup.show();
+                return;  // popup drives the rest
+            }
+
+            // ---- Food: restore stamina -----------------------------------
+            case BuildingServices.SVC_BUY_MEAL: {
+                int gain = 4;
+                profile.addStamina(gain);
+                resultLines.add("You enjoyed a satisfying meal.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_BUY_COFFEE: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("You sipped a hot coffee.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_FINE_DINING: {
+                int gain = 6;
+                profile.addStamina(gain);
+                resultLines.add("An exquisite meal. You feel refreshed and energised.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Medicine / healthcare: stamina restore -------------------
+            case BuildingServices.SVC_BUY_MEDICINE: {
+                int gain = 4;
+                profile.addStamina(gain);
+                resultLines.add("You picked up the supplies and took them right away.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case BuildingServices.SVC_DOCTOR: {
+                int before = profile.getCurrentStamina();
+                profile.addStamina(profile.getMaxStamina());
+                int gained = profile.getCurrentStamina() - before;
+                resultLines.add("You received full medical attention.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gained + " stamina restored.");
+                break;
+            }
+
+            // ---- Library / education: chance to gain INTELLIGENCE ----------
+            case BuildingServices.SVC_LIBRARY_STUDY:
+            case BuildingServices.SVC_ATTEND_CLASS: {
+                float gainChance = BuildingServices.SVC_LIBRARY_STUDY.equals(svc.id) ? 0.25f : 0.30f;
+                String intAttr = CharacterAttribute.INTELLIGENCE.name();
+                int currentInt = profile.getAttribute(intAttr);
+                if (MathUtils.random() < gainChance) {
+                    profile.setAttribute(intAttr, currentInt + 1);
+                    resultLines.add("Something clicked. You feel sharper.");
+                    resultLines.add("+1 Intelligence.");
+                } else {
+                    resultLines.add("A productive session. Knowledge builds slowly.");
+                    resultLines.add("No attribute change this time.");
+                }
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                break;
+            }
+
+            // ---- Entertainment: stamina restoration -----------------------
+            case BuildingServices.SVC_ENTERTAINMENT: {
+                int gain = 3;
+                profile.addStamina(gain);
+                resultLines.add("You had a great time!");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Religious service: small stamina bonus -------------------
+            case BuildingServices.SVC_ATTEND_SERVICE: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("You feel a sense of peace and calm.");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Haircut --------------------------------------------------
+            case BuildingServices.SVC_HAIRCUT: {
+                resultLines.add("You look sharp and feel confident.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                break;
+            }
+
+            default:
+                resultLines.add("Service completed.");
+                break;
+        }
+
+        serviceResultPopup.show(title, resultLines);
+        Gdx.app.log("MainScreen", "Service used: " + svc.id);
     }
 
     /** Called every frame while {@code state.isWalking} is true. */
@@ -1125,7 +1726,7 @@ public class MainScreen implements Screen {
                 }
             }
         }
-        discoveryPopup.show(building.getName(), description, novelText, impLines, newDiscovery);
+        discoveryPopup.show(building.getDisplayName(), description, novelText, impLines, newDiscovery);
     }
 
     /**
@@ -1159,6 +1760,137 @@ public class MainScreen implements Screen {
     private void discoverCellIfFound(Cell cell) {
         if (cell != null) {
             discoverCell(cell.getX(), cell.getY());
+        }
+    }
+
+    /**
+     * Generates 1–2 random emails (client requests and/or police cases) and
+     * opens the email popup so the player can accept or decline each one.
+     * Emails are only generated once per in-game day; subsequent calls on the
+     * same day show a "no new emails" notice instead.
+     */
+    private void handleCheckEmailsClick() {
+        // Once-per-day guard
+        String today = profile.getGameDateTime().substring(0, 10);
+        if (today.equals(profile.getLastEmailCheckDate())) {
+            java.util.List<String> lines = new java.util.ArrayList<>();
+            lines.add("No new emails today.");
+            lines.add("Check back tomorrow.");
+            serviceResultPopup.show("Inbox", lines);
+            return;
+        }
+        profile.setLastEmailCheckDate(today);
+
+        java.util.Random rng = new java.util.Random(System.currentTimeMillis());
+        java.util.List<EmailPopup.EmailData> emails = new java.util.ArrayList<>();
+
+        PersonNameGenerator png = (game.getGameDataManager() != null)
+                ? game.getGameDataManager().getPersonNameGenerator() : null;
+
+        // Seed the used-datetime set from already-accepted calendar entries so
+        // newly generated appointments never clash with existing ones.
+        java.util.Set<String> usedDTs = new java.util.HashSet<>();
+        for (CalendarEntry ce : profile.getCalendarEntries()) {
+            usedDTs.add(ce.dateTime);
+        }
+
+        int count = 1 + rng.nextInt(2); // 1 or 2 emails
+        for (int i = 0; i < count; i++) {
+            boolean isPolice = (i > 0) && rng.nextBoolean();
+            if (isPolice) {
+                String detective = (png != null) ? png.generateFull("M") : "James Carter";
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
+                int reward = 500 + rng.nextInt(6) * 100; // $500–$1000
+                emails.add(new EmailPopup.EmailData(
+                        "Det. " + detective + " (NYPD)",
+                        "Consulting Request \u2014 Homicide",
+                        "Detective,\n\nWe need a private investigator to consult on a homicide case.\n"
+                                + "Please report to the crime scene at your earliest convenience.\n\n"
+                                + "\u2014 Det. " + detective,
+                        "NYPD: Crime Scene",
+                        dt,
+                        "Crime Scene (TBD)",
+                        reward, null
+                ));
+            } else {
+                String gender = rng.nextBoolean() ? "M" : "F";
+                String clientName = (png != null) ? png.generateFull(gender) : "Alex Morgan";
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3), usedDTs);
+                boolean atOffice = rng.nextBoolean();
+                String loc = atOffice ? "Your Office" : "Downtown Cafe";
+                int reward = 200 + rng.nextInt(5) * 100; // $200–$600
+                emails.add(new EmailPopup.EmailData(
+                        clientName,
+                        "I need your help urgently",
+                        "Dear Detective,\n\nI require your assistance with a matter of great urgency.\n"
+                                + "Could we meet "
+                                + (atOffice ? "at your office" : "at a coffee shop downtown") + "?\n\n"
+                                + "Regards,\n" + clientName,
+                        "Meeting: " + clientName,
+                        dt,
+                        loc,
+                        reward, null
+                ));
+            }
+        }
+
+        emailPopup.show(emails);
+        Gdx.app.log("MainScreen", "Check emails: " + emails.size() + " email(s) generated");
+    }
+
+    /**
+     * Called when the player accepts an email.  Adds the associated appointment
+     * to the profile's calendar.
+     *
+     * @param emailIndex index in the email popup's list (from {@link EmailPopup#onTap})
+     */
+    private void handleEmailAccepted(int emailIndex) {
+        EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
+        if (email == null) return;
+        profile.addCalendarEntry(
+                new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
+                        email.rewardMoney, email.rewardItemName));
+        Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
+                + " @ " + email.calendarDateTime
+                + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
+    }
+
+    /**
+     * Returns a game date-time string that is at least {@code daysAhead} days
+     * from {@code currentDT}, at 09:00, and not already present in
+     * {@code usedDTs}.  The chosen datetime is added to {@code usedDTs} so
+     * subsequent calls in the same batch automatically receive a different slot.
+     * Format: {@code "YYYY-MM-DD 09:00"}.
+     */
+    private static String nextAppointmentDT(String currentDT, int daysAhead,
+                                             java.util.Set<String> usedDTs) {
+        try {
+            String[] parts = currentDT.split(" ")[0].split("-");
+            int year  = Integer.parseInt(parts[0]);
+            int month = Integer.parseInt(parts[1]);
+            int day   = Integer.parseInt(parts[2]);
+            day += daysAhead;
+            // Advance until we land on a free slot
+            while (true) {
+                // Normalise the date (roll over month/year boundaries)
+                while (true) {
+                    boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+                    int[] dim = {31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                    if (day <= dim[month - 1]) break;
+                    day -= dim[month - 1];
+                    if (++month > 12) { month = 1; year++; }
+                }
+                String candidate = String.format("%04d-%02d-%02d 09:00", year, month, day);
+                if (!usedDTs.contains(candidate)) {
+                    usedDTs.add(candidate);
+                    return candidate;
+                }
+                day++; // slot taken — try the next day
+            }
+        } catch (Exception e) {
+            String fallback = currentDT.split(" ")[0] + " 09:00";
+            usedDTs.add(fallback);
+            return fallback;
         }
     }
 

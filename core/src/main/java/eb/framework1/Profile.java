@@ -30,6 +30,12 @@ public class Profile {
     private final Map<EquipmentSlot, EquipItem> equipment;
     // Utility slot allows multiple items
     private final List<EquipItem> utilityItems;
+    // Stash: items stored at the player's home office (not carried)
+    private final List<EquipItem> stash;
+    // Calendar: accepted appointments / case starts
+    private final List<CalendarEntry> calendarEntries;
+    // Date (YYYY-MM-DD) when emails were last generated; "" = never
+    private String lastEmailCheckDate = "";
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -76,6 +82,8 @@ public class Profile {
         this.characterId = UUID.randomUUID().toString();
         this.equipment   = new EnumMap<>(EquipmentSlot.class);
         this.utilityItems = new ArrayList<>();
+        this.stash        = new ArrayList<>();
+        this.calendarEntries = new ArrayList<>();
         // Default starting weapon
         equipment.put(EquipmentSlot.WEAPON, EquipItem.PISTOL);
     }
@@ -387,6 +395,57 @@ public class Profile {
     /** Returns an unmodifiable view of all utility items currently carried. */
     public List<EquipItem> getUtilityItems() {
         return Collections.unmodifiableList(utilityItems);
+    }
+
+    /** Returns an unmodifiable view of all items currently in the stash. */
+    public List<EquipItem> getStash() {
+        return Collections.unmodifiableList(stash);
+    }
+
+    /** Adds {@code item} to the stash (must not be null). */
+    public void addToStash(EquipItem item) {
+        if (item != null) stash.add(item);
+    }
+
+    // -------------------------------------------------------------------------
+    // Calendar
+    // -------------------------------------------------------------------------
+
+    /** Returns an unmodifiable view of all calendar entries. */
+    public List<CalendarEntry> getCalendarEntries() {
+        return Collections.unmodifiableList(calendarEntries);
+    }
+
+    /** Adds a calendar entry (must not be null). */
+    public void addCalendarEntry(CalendarEntry entry) {
+        if (entry != null) calendarEntries.add(entry);
+    }
+
+    /** Returns the game-date string (YYYY-MM-DD) when emails were last generated, or "" if never. */
+    public String getLastEmailCheckDate() { return lastEmailCheckDate; }
+
+    /** Records the game-date string (YYYY-MM-DD) when emails were last generated. */
+    public void setLastEmailCheckDate(String date) {
+        this.lastEmailCheckDate = date != null ? date : "";
+    }
+
+    /**
+     * Removes and returns the stash item at {@code index}, or {@code null} if the
+     * index is out of range.
+     */
+    public EquipItem takeFromStash(int index) {
+        if (index < 0 || index >= stash.size()) return null;
+        return stash.remove(index);
+    }
+
+    /**
+     * Removes the utility item at the given 0-based index in {@link #getUtilityItems()}.
+     * Returns {@code true} if the item was removed.
+     */
+    public boolean removeUtilityItemAt(int index) {
+        if (index < 0 || index >= utilityItems.size()) return false;
+        utilityItems.remove(index);
+        return true;
     }
 
     /**

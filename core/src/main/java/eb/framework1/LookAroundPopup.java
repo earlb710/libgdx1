@@ -40,12 +40,14 @@ class LookAroundPopup {
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
+    private final NovelTextEngine novelTextEngine;
 
     // State
     private State        state = State.IDLE;
     private float        timer = 0f;
     private int          lookCharX, lookCharY;
     private List<String> foundItems = new ArrayList<>();
+    private String       novelDesc  = null;
 
     // OK button bounds (written during draw, read by onTap)
     private float okX, okY, okW, okH;
@@ -60,14 +62,15 @@ class LookAroundPopup {
 
     LookAroundPopup(SpriteBatch batch, ShapeRenderer shapeRenderer,
                     BitmapFont font, BitmapFont smallFont, GlyphLayout glyphLayout,
-                    CityMap cityMap, Profile profile) {
-        this.batch         = batch;
-        this.shapeRenderer = shapeRenderer;
-        this.font          = font;
-        this.smallFont     = smallFont;
-        this.glyphLayout   = glyphLayout;
-        this.cityMap       = cityMap;
-        this.profile       = profile;
+                    CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
+        this.batch           = batch;
+        this.shapeRenderer   = shapeRenderer;
+        this.font            = font;
+        this.smallFont       = smallFont;
+        this.glyphLayout     = glyphLayout;
+        this.cityMap         = cityMap;
+        this.profile         = profile;
+        this.novelTextEngine = novelTextEngine;
     }
 
     // -------------------------------------------------------------------------
@@ -87,6 +90,7 @@ class LookAroundPopup {
         lookCharX = charX;
         lookCharY = charY;
         foundItems.clear();
+        novelDesc = null;
         timer   = 0f;
         scrollY = 0f;
         state   = State.ANIMATING;
@@ -142,11 +146,16 @@ class LookAroundPopup {
         float okBtnH = okBounds.height;
 
         // --- Measure all text elements via TextMeasurer ---
+        // Pre-compute smallLineH so it's available in both sizing and scrollbar sections.
+        glyphLayout.setText(smallFont, "Hg");
+        float smallLineH = glyphLayout.height + GAP;
+
         // Heading line
         TextMeasurer.TextBounds headBounds;
         float headingH, headingLineH;
         float dialogW, dialogH;
         boolean needsScroll;
+        List<String> novelLines = java.util.Collections.emptyList();
 
         if (state == State.ANIMATING) {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Looking around...", 0f, 0f);
@@ -176,6 +185,18 @@ class LookAroundPopup {
                                 Math.max(maxItemW, okBounds.textWidth));
             dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
+            // Wrap novel description text to the available content width and add to height.
+            if (novelDesc != null) {
+                float wrapWidth = dialogW - 2 * PAD;
+                novelLines = WordWrapper.wrap(novelDesc, wrapWidth, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                });
+                if (!novelLines.isEmpty()) {
+                    itemsH += novelLines.size() * smallLineH;
+                }
+            }
+
             // Height formula:
             //   PAD (top border)
             //   + headingLineH  (heading text + gap)
@@ -193,12 +214,10 @@ class LookAroundPopup {
             maxScrollY   = needsScroll ? Math.max(0f, scrollableH - maxScrollableH) : 0f;
         }
 
-        // For drawing the text we still need cap-height references
+        // For drawing the text we still need fontLineH
         glyphLayout.setText(font, "Hg");
         float fontH      = glyphLayout.height;
         float fontLineH  = fontH + GAP;
-        glyphLayout.setText(smallFont, "Hg");
-        float smallLineH = glyphLayout.height + GAP;
 
         // Centred on screen
         float dialogX = (screenW - dialogW) / 2f;
@@ -227,7 +246,8 @@ class LookAroundPopup {
             shapeRenderer.rect(sbX, trackY, SCROLLBAR_W, trackH);
             // scrollableH = headingLineH + itemsH; visible area = trackH
             float scrollableH = headBounds.textHeight + GAP
-                    + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight;
+                    + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight
+                    + novelLines.size() * smallLineH;
             float thumbH  = MathUtils.clamp(trackH * (trackH / scrollableH), 12f, trackH);
             float thumbY  = trackY + (trackH - thumbH) * (maxScrollY > 0 ? 1f - scrollY / maxScrollY : 1f);
             shapeRenderer.setColor(0.6f, 0.65f, 0.75f, 1f);
@@ -278,6 +298,13 @@ class LookAroundPopup {
                         ty);
                 ty -= smallLineH;
             }
+            if (!novelLines.isEmpty()) {
+                smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
+                for (String nLine : novelLines) {
+                    smallFont.draw(batch, nLine, dialogX + PAD, ty);
+                    ty -= smallLineH;
+                }
+            }
         }
         batch.end();
 
@@ -308,23 +335,32 @@ class LookAroundPopup {
         if (cell.hasBuilding()) {
             // Attribute key matches how CharacterAttributeScreen saves it (enum .name())
             int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.name());
+
+            // Always test against the easiest (lowest hiddenValue > 0) undiscovered improvement
+            Improvement easiest = null;
             for (Improvement imp : cell.getBuilding().getImprovements()) {
-                if (imp.isDiscovered()) continue;
-                int hv = imp.getHiddenValue();
-                if (hv == 0) {
-                    // hiddenValue 0 is auto-discovered on arrival; skip here
-                    continue;
+                if (imp.isDiscovered() || imp.getHiddenValue() == 0) continue;
+                if (easiest == null || imp.getHiddenValue() < easiest.getHiddenValue()) {
+                    easiest = imp;
                 }
+            }
+            if (easiest != null) {
                 // Sliding probability: chance = min(1.0, perception / hiddenValue)
                 // e.g. perception=5, hiddenValue=5 → 100%; perception=3, hiddenValue=5 → 60%
-                float chance = Math.min(1.0f, (float) perception / hv);
+                float chance = Math.min(1.0f, (float) perception / easiest.getHiddenValue());
                 if (rng.nextFloat() < chance) {
-                    imp.discover();
-                    String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
-                    String entry = imp.getName() + " (Lvl " + imp.getLevel() + ")"
+                    easiest.discover();
+                    String mod = InfoPanelRenderer.formatAttributeModifiers(easiest.getAttributeModifiers());
+                    String entry = easiest.getName() + " (Lvl " + easiest.getLevel() + ")"
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
-                    break; // only 1 new improvement discovered per look-around
+                    if (novelTextEngine != null) {
+                        String desc = novelTextEngine.getImprovementDescription(
+                                easiest.getName(), profile.getGender());
+                        if (desc != null && !desc.isEmpty()) {
+                            novelDesc = desc;
+                        }
+                    }
                 }
             }
         }
