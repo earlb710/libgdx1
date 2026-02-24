@@ -60,6 +60,11 @@ class MapViewState {
     float[] equipDropBtnW = new float[MAX_EQUIP_BTNS];
     float   equipDropBtnH = 0f;
     int     equipDropBtnCount = 0;
+    float addNoteBtnX, addNoteBtnY, addNoteBtnW, addNoteBtnH;
+    boolean noteIncludeTime     = true;
+    boolean noteIncludeLocation = true;
+    float noteTimeCbX, noteTimeCbY, noteTimeCbW, noteTimeCbH;
+    float noteLocCbX,  noteLocCbY,  noteLocCbW,  noteLocCbH;
 
     // --- Unit interior popup ---
     boolean unitInteriorOpen  = false;
@@ -78,11 +83,11 @@ class MapViewState {
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
 
     // --- Info panel tab bar ---
-    /** Currently active tab: {@code "INFO"}, {@code "CHARACTER"}, or {@code "CALENDAR"}. */
+    /** Currently active tab: {@code "INFO"}, {@code "CHARACTER"}, or {@code "CASE FILE"}. */
     String activeInfoTab = "INFO";
     /** Tab bar height (written by InfoPanelRenderer, read by MainScreen). */
     float tabBarHeight = 0f;
-    /** Tab bounds: [0] = Info, [1] = Character, [2] = Calendar (x, y, w, h). */
+    /** Tab bounds: [0] = Info tab, [1] = Character tab, [2] = Case File tab (x, y, w, h). */
     float[] tabX = new float[3];
     float[] tabY = new float[3];
     float[] tabW = new float[3];
