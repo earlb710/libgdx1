@@ -190,6 +190,53 @@ public class BuildingServicesTest {
         assertTrue(BuildingServices.getServices(b).isEmpty());
     }
 
+    @Test
+    public void testConvenienceStoreHasBuySupplies() {
+        Building b = buildingWithDef("convenience_store", "commercial");
+        List<BuildingService> svcs = BuildingServices.getServices(b);
+        assertEquals(1, svcs.size());
+        assertEquals(BuildingServices.SVC_BUY_SUPPLIES, svcs.get(0).id);
+    }
+
+    @Test
+    public void testSupermarketHasBuySupplies() {
+        Building b = buildingWithDef("supermarket", "commercial");
+        List<BuildingService> svcs = BuildingServices.getServices(b);
+        assertEquals(1, svcs.size());
+        assertEquals(BuildingServices.SVC_BUY_SUPPLIES, svcs.get(0).id);
+    }
+
+    @Test
+    public void testWarehouseStoreHasBuySupplies() {
+        Building b = buildingWithDef("warehouse_store", "commercial");
+        List<BuildingService> svcs = BuildingServices.getServices(b);
+        assertEquals(1, svcs.size());
+        assertEquals(BuildingServices.SVC_BUY_SUPPLIES, svcs.get(0).id);
+    }
+
+    @Test
+    public void testAllSupplyBuildingsHaveBuySuppliesService() {
+        String[] supplyIds = {
+            "convenience_store", "gas_station", "supermarket", "warehouse_store",
+            "small_retail_store", "strip_mall", "shopping_center", "regional_mall"
+        };
+        for (String id : supplyIds) {
+            Building b = buildingWithDef(id, "commercial");
+            List<BuildingService> svcs = BuildingServices.getServices(b);
+            assertFalse("Supply building '" + id + "' should have at least one service", svcs.isEmpty());
+            assertEquals("Supply building '" + id + "' service should be buy_supplies",
+                    BuildingServices.SVC_BUY_SUPPLIES, svcs.get(0).id);
+        }
+    }
+
+    @Test
+    public void testLaundromatHasLaundryService() {
+        Building b = buildingWithDef("laundromat", "commercial");
+        List<BuildingService> svcs = BuildingServices.getServices(b);
+        assertEquals(1, svcs.size());
+        assertEquals(BuildingServices.SVC_LAUNDRY, svcs.get(0).id);
+    }
+
     // -------------------------------------------------------------------------
     // menuLabel
     // -------------------------------------------------------------------------

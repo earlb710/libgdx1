@@ -7,10 +7,10 @@ import java.util.Map;
 /**
  * Provides attribute modifier effects for improvements based on keyword matching.
  * Each improvement name is matched against keywords to determine which character
- * attributes are affected and by how much (-3 to +3).
+ * attributes are affected and by how much (-1 to +2).
  *
  * <p>Keywords are matched case-insensitively against the improvement name.
- * When multiple keywords match, effects are combined (summed) and clamped to -3..+3.
+ * When multiple keywords match, effects are combined (summed) and clamped to -1..+2.
  */
 public final class ImprovementEffects {
 
@@ -272,7 +272,7 @@ public final class ImprovementEffects {
     /**
      * Computes attribute modifiers for an improvement by matching its name
      * against known keywords. Modifiers from multiple matching keywords
-     * are combined and clamped to the range -3..+3.
+     * are combined and clamped to the range -1..+2.
      *
      * @param improvementName The name of the improvement
      * @return An unmodifiable map of attribute modifiers (only non-zero values)
@@ -293,10 +293,10 @@ public final class ImprovementEffects {
             }
         }
 
-        // Clamp values to -3..+3 and remove zeros
+        // Clamp values to -1..+2 and remove zeros
         Map<CharacterAttribute, Integer> result = new HashMap<>();
         for (Map.Entry<CharacterAttribute, Integer> entry : combined.entrySet()) {
-            int clamped = Math.max(-3, Math.min(3, entry.getValue()));
+            int clamped = Math.max(-1, Math.min(2, entry.getValue()));
             if (clamped != 0) {
                 result.put(entry.getKey(), clamped);
             }

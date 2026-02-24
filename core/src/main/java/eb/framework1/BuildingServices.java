@@ -40,6 +40,8 @@ final class BuildingServices {
     static final String SVC_ATTEND_SERVICE = "attend_service";
     static final String SVC_HAIRCUT        = "haircut";
     static final String SVC_BUY_GEAR       = "buy_gear";
+    static final String SVC_BUY_SUPPLIES   = "buy_supplies";
+    static final String SVC_LAUNDRY        = "laundry";
 
     // -------------------------------------------------------------------------
     // Profile attribute keys for gym tracking
@@ -223,6 +225,43 @@ final class BuildingServices {
                 return list(new BuildingService(SVC_BUY_GEAR,
                         "Browse Gear", "Buy surveillance and protective equipment.",
                         0, 15));
+            // ---- Supply / Retail ----------------------------------------
+            case "convenience_store":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Buy Supplies", "Pick up everyday essentials.",
+                        5, 10));
+            case "gas_station":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Buy Snacks", "Grab a quick bite and a drink.",
+                        4, 5));
+            case "supermarket":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Buy Groceries", "Stock up on food and household items.",
+                        15, 20));
+            case "warehouse_store":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Buy in Bulk", "Load up on supplies at wholesale prices.",
+                        30, 30));
+            case "small_retail_store":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Browse Store", "Pick up a few items.",
+                        10, 15));
+            case "strip_mall":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Run Errands", "Knock out a few errands.",
+                        10, 20));
+            case "shopping_center":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Go Shopping", "Browse the shops for what you need.",
+                        20, 45));
+            case "regional_mall":
+                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                        "Shop at the Mall", "Spend some time shopping.",
+                        30, 60));
+            case "laundromat":
+                return list(new BuildingService(SVC_LAUNDRY,
+                        "Do Laundry", "Wash and dry your clothes.",
+                        8, 45));
 
             default:
                 return Collections.emptyList();
