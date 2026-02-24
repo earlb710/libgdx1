@@ -1255,7 +1255,7 @@ public class MainScreen implements Screen {
 
         int effectiveCap = calculateEffectiveStaminaCap();
         int   staminaGain = Math.round(effectiveCap * fraction);
-        profile.addStaminaUpTo(staminaGain, effectiveCap);
+        // Stamina is now filled incrementally per dot during the animation
         profile.advanceGameTime(minutesSleep);
 
         // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
@@ -1276,8 +1276,10 @@ public class MainScreen implements Screen {
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
                 + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
 
-        // Show animated sleeping popup (2 dots per hour slept, min 2)
-        int animDots = Math.max(2, Math.round(hoursSlept) * 2);
+        // Show animated sleeping popup: 1 dot per hour, 200ms/dot, fill stamina per dot
+        int animDots = Math.max(1, Math.round(hoursSlept));
+        final int staminaPerDot = staminaGain / animDots;
+        final int cap           = effectiveCap;
         // Determine if a day-part boundary was crossed during sleep
         String resultMsg = null;
         int hourAfter = profile.getCurrentHour();
@@ -1286,7 +1288,8 @@ public class MainScreen implements Screen {
         } else if (hourBefore < 18 && hourAfter >= 18) {
             resultMsg = "It became night.";
         }
-        restingPopup.start(resultMsg, animDots, "Sleeping");
+        restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f,
+                () -> profile.addStaminaUpTo(staminaPerDot, cap));
     }
 
     private void handleMoveToClick() {

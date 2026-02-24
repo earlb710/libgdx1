@@ -54,12 +54,15 @@ class RestingPopup {
     private final GlyphLayout   glyph;
 
     // --- State ---
-    private State  state   = State.IDLE;
-    private float  timer   = 0f;
-    private int    dots    = 0;
-    private int    maxDots = MAX_DOTS;
-    private String label   = "Resting";
-    private String resultMsg = null;   // null → skip RESULT phase
+    private State    state          = State.IDLE;
+    private float    timer          = 0f;
+    private int      dots           = 0;
+    private int      lastDots       = 0;   // tracks previous dot count to detect new dots
+    private int      maxDots        = MAX_DOTS;
+    private float    dotIntervalSec = DOT_INTERVAL_SEC;
+    private String   label          = "Resting";
+    private String   resultMsg      = null;   // null → skip RESULT phase
+    private Runnable perDotAction   = null;   // called once per new dot (may be null)
 
     // OK button bounds (RESULT phase only)
     private float okX, okY, okW, okH;
@@ -90,24 +93,41 @@ class RestingPopup {
      * @param resultMessage Optional message shown after the animation, or {@code null}.
      */
     void start(String resultMessage) {
-        start(resultMessage, MAX_DOTS, "Resting");
+        start(resultMessage, MAX_DOTS, "Resting", DOT_INTERVAL_SEC, null);
     }
 
     /**
      * Starts the animation with a custom dot count and label (used for Sleep).
      *
      * @param resultMessage Optional message shown after the animation, or {@code null}.
-     * @param numDots       Number of dots to display (e.g. hoursSlept × 2 for sleep).
+     * @param numDots       Number of dots to display (e.g. hoursSlept for sleep).
      * @param animLabel     Text shown during the animation (e.g. "Sleeping").
      */
     void start(String resultMessage, int numDots, String animLabel) {
-        this.resultMsg = resultMessage;
-        this.maxDots   = Math.max(1, numDots);
-        this.label     = animLabel != null ? animLabel : "Resting";
-        this.timer     = 0f;
-        this.dots      = 0;
-        this.okW       = 0f;
-        this.state     = State.ANIMATING;
+        start(resultMessage, numDots, animLabel, DOT_INTERVAL_SEC, null);
+    }
+
+    /**
+     * Starts the animation with full control over timing and a per-dot callback.
+     *
+     * @param resultMessage  Optional message shown after the animation, or {@code null}.
+     * @param numDots        Number of dots (1 dot per hour slept for Sleep).
+     * @param animLabel      Label shown during animation.
+     * @param intervalSec    Seconds between each dot (0.25 for Rest, 0.2 for Sleep).
+     * @param perDotCallback Called each time a new dot appears; may be {@code null}.
+     */
+    void start(String resultMessage, int numDots, String animLabel,
+               float intervalSec, Runnable perDotCallback) {
+        this.resultMsg      = resultMessage;
+        this.maxDots        = Math.max(1, numDots);
+        this.label          = animLabel != null ? animLabel : "Resting";
+        this.dotIntervalSec = Math.max(0.05f, intervalSec);
+        this.perDotAction   = perDotCallback;
+        this.timer          = 0f;
+        this.dots           = 0;
+        this.lastDots       = 0;
+        this.okW            = 0f;
+        this.state          = State.ANIMATING;
     }
 
     /**
@@ -117,8 +137,16 @@ class RestingPopup {
     void update(float delta) {
         if (state != State.ANIMATING) return;
         timer += delta;
-        dots = Math.min(maxDots, (int) (timer / DOT_INTERVAL_SEC) + 1);
-        if (dots >= maxDots && timer >= maxDots * DOT_INTERVAL_SEC) {
+        int newDots = Math.min(maxDots, (int) (timer / dotIntervalSec) + 1);
+        // Fire per-dot callback for each newly revealed dot
+        if (newDots > lastDots && perDotAction != null) {
+            for (int i = lastDots; i < newDots; i++) {
+                perDotAction.run();
+            }
+        }
+        dots     = newDots;
+        lastDots = newDots;
+        if (dots >= maxDots && timer >= maxDots * dotIntervalSec) {
             // Animation complete — advance to result or close
             if (resultMsg != null && !resultMsg.isEmpty()) {
                 state = State.RESULT;
