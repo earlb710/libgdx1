@@ -1885,18 +1885,21 @@ public class MainScreen implements Screen {
         }
 
         List<String> impLines = new ArrayList<>();
-        for (Improvement imp : building.getImprovements()) {
-            if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
-                String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
-                String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
-                        + (mod.isEmpty() ? "" : " " + mod);
-                impLines.add(entry);
-                // Novel improvement description (if any)
-                if (novelTextEngine != null) {
-                    String impNovel = novelTextEngine.getImprovementDescription(
-                            imp.getName(), profile.getGender());
-                    if (impNovel != null && !impNovel.isEmpty()) {
-                        impLines.add("    " + impNovel);
+        if (newDiscovery) {
+            // Only show improvements on first discovery, not on repeat visits
+            for (Improvement imp : building.getImprovements()) {
+                if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
+                    String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
+                    String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
+                            + (mod.isEmpty() ? "" : " " + mod);
+                    impLines.add(entry);
+                    // Novel improvement description (if any)
+                    if (novelTextEngine != null) {
+                        String impNovel = novelTextEngine.getImprovementDescription(
+                                imp.getName(), profile.getGender());
+                        if (impNovel != null && !impNovel.isEmpty()) {
+                            impLines.add("    " + impNovel);
+                        }
                     }
                 }
             }
