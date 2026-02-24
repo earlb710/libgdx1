@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents a case file in the game.  Each case tracks clues gathered by the
- * player during an investigation.  Multiple cases may be open at the same time.
+ * Represents a case file in the game.  Each case tracks clues and evidence
+ * gathered by the player during an investigation.  Multiple cases may be open
+ * at the same time.
  */
 public class CaseFile {
 
@@ -23,23 +24,26 @@ public class CaseFile {
     private String dateOpened;
     private String dateClosed;
     private final List<String> clues;
+    private final List<String> evidence;
 
     /**
-     * Creates a new open case file with a generated id and no clues.
+     * Creates a new open case file with a generated id and no clues or evidence.
      *
      * @param name        short name of the case (shown in the poplist)
      * @param description longer summary of the case
      * @param dateOpened  in-game date/time when the case was opened
      */
     public CaseFile(String name, String description, String dateOpened) {
-        this(UUID.randomUUID().toString(), name, description, Status.OPEN, dateOpened, null, new ArrayList<>());
+        this(UUID.randomUUID().toString(), name, description, Status.OPEN, dateOpened, null,
+                new ArrayList<>(), new ArrayList<>());
     }
 
     /**
      * Full constructor — used mainly when restoring a case from a save file.
      */
     public CaseFile(String id, String name, String description, Status status,
-                    String dateOpened, String dateClosed, List<String> clues) {
+                    String dateOpened, String dateClosed, List<String> clues,
+                    List<String> evidence) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Case name cannot be null or empty");
         }
@@ -50,6 +54,7 @@ public class CaseFile {
         this.dateOpened   = dateOpened != null ? dateOpened : "";
         this.dateClosed   = dateClosed;
         this.clues       = clues != null ? new ArrayList<>(clues) : new ArrayList<>();
+        this.evidence    = evidence != null ? new ArrayList<>(evidence) : new ArrayList<>();
     }
 
     // -------------------------------------------------------------------------
@@ -72,6 +77,11 @@ public class CaseFile {
         return Collections.unmodifiableList(clues);
     }
 
+    /** Returns an unmodifiable view of the evidence recorded against this case. */
+    public List<String> getEvidence() {
+        return Collections.unmodifiableList(evidence);
+    }
+
     // -------------------------------------------------------------------------
     // Mutation helpers
     // -------------------------------------------------------------------------
@@ -80,6 +90,13 @@ public class CaseFile {
     public void addClue(String clue) {
         if (clue != null && !clue.trim().isEmpty()) {
             clues.add(clue);
+        }
+    }
+
+    /** Adds a piece of evidence to this case. */
+    public void addEvidence(String item) {
+        if (item != null && !item.trim().isEmpty()) {
+            evidence.add(item);
         }
     }
 
@@ -107,6 +124,6 @@ public class CaseFile {
 
     @Override
     public String toString() {
-        return "CaseFile{name='" + name + "', status=" + status + ", clues=" + clues.size() + "}";
+        return "CaseFile{name='" + name + "', status=" + status + ", clues=" + clues.size() + ", evidence=" + evidence.size() + "}";
     }
 }

@@ -112,5 +112,27 @@
       "code": "other",
       "description": "Miscellaneous items that do not fit other categories"
     }
+  ],
+  "evidence_categories": [
+    {
+      "code": "physical",
+      "description": "Tangible objects or materials collected from a scene"
+    },
+    {
+      "code": "documentary",
+      "description": "Written records, contracts, letters, or printed documents"
+    },
+    {
+      "code": "digital",
+      "description": "Electronic data, files, emails, or digital media"
+    },
+    {
+      "code": "testimonial",
+      "description": "Statements or accounts provided by witnesses or persons of interest"
+    },
+    {
+      "code": "forensic",
+      "description": "Scientific analysis results such as fingerprints, DNA, or ballistics"
+    }
   ]
 }

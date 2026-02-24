@@ -911,6 +911,22 @@ class InfoPanelRenderer {
                 contentY -= fontLineH * 0.9f;
             }
 
+            // Evidence count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Evidence: ", PAD, contentY);
+            glyphLayout.setText(font, "Evidence: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getEvidence().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List evidence
+            List<String> evidenceList = active.getEvidence();
+            for (int i = 0; i < evidenceList.size(); i++) {
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "\u2022 " + evidenceList.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+
             batch.end();
         } else {
             batch.begin();
