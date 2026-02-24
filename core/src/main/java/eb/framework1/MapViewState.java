@@ -50,6 +50,7 @@ class MapViewState {
     float restBtnX, restBtnY, restBtnW, restBtnH;       // written by UnitInteriorPopup
     float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;   // written by UnitInteriorPopup
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
+    float addNoteBtnX, addNoteBtnY, addNoteBtnW, addNoteBtnH;
 
     // --- Unit interior popup ---
     boolean unitInteriorOpen  = false;

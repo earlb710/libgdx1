@@ -47,6 +47,8 @@ class InfoPanelRenderer {
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
     private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
+    private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
+    private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -249,6 +251,7 @@ class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawInfoTab(MapViewState s, boolean lookAroundIdle, int panelH) {
+        s.addNoteBtnW = 0f; // Add Note button is only on the Case File tab
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -572,6 +575,7 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.addNoteBtnW        = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
 
@@ -821,6 +825,7 @@ class InfoPanelRenderer {
         s.goToOfficeBtnW     = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
+        s.addNoteBtnW        = 0f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -927,6 +932,52 @@ class InfoPanelRenderer {
                 contentY -= fontLineH * 0.9f;
             }
 
+            // Notes count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Notes: ", PAD, contentY);
+            glyphLayout.setText(font, "Notes: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getNotes().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List notes
+            List<String> notesList = active.getNotes();
+            for (int i = 0; i < notesList.size(); i++) {
+                smallFont.setColor(NOTE_COLOR);
+                smallFont.draw(batch, "\u2022 " + notesList.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+            smallFont.setColor(Color.WHITE);
+
+            batch.end();
+
+            // --- "Add Note" button ---
+            float btnW = 120f;
+            float btnH = fontCapH + 12f;
+            float btnX = PAD;
+            float btnY = contentY - btnH - 4f;
+
+            s.addNoteBtnX = btnX;
+            s.addNoteBtnY = btnY;
+            s.addNoteBtnW = btnW;
+            s.addNoteBtnH = btnH;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(ADD_NOTE_BTN_COLOR);
+            shapeRenderer.rect(btnX, btnY, btnW, btnH);
+            shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(btnX, btnY, btnW, btnH);
+            shapeRenderer.end();
+
+            batch.begin();
+            font.setColor(Color.WHITE);
+            glyphLayout.setText(font, "Add Note");
+            font.draw(batch, "Add Note",
+                    btnX + (btnW - glyphLayout.width) / 2f,
+                    btnY + (btnH + glyphLayout.height) / 2f);
             batch.end();
         } else {
             batch.begin();

@@ -27,6 +27,7 @@ public class CaseFileTest {
         assertNotNull(cf.getId());
         assertTrue(cf.getClues().isEmpty());
         assertTrue(cf.getEvidence().isEmpty());
+        assertTrue(cf.getNotes().isEmpty());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -74,6 +75,23 @@ public class CaseFileTest {
     }
 
     @Test
+    public void addNote() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.addNote("Check the alley behind the bar");
+        cf.addNote("Talk to the bartender again");
+        assertEquals(2, cf.getNotes().size());
+        assertEquals("Check the alley behind the bar", cf.getNotes().get(0));
+    }
+
+    @Test
+    public void addNullOrBlankNoteIgnored() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.addNote(null);
+        cf.addNote("  ");
+        assertEquals(0, cf.getNotes().size());
+    }
+
+    @Test
     public void closeCase() {
         CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
         cf.close("2050-02-10 15:00");
@@ -103,8 +121,9 @@ public class CaseFileTest {
     public void fullConstructor() {
         List<String> clues = Arrays.asList("clue1", "clue2");
         List<String> evidence = Arrays.asList("knife", "photo");
+        List<String> notes = Arrays.asList("note1", "note2", "note3");
         CaseFile cf = new CaseFile("id1", "Name", "Desc", CaseFile.Status.CLOSED,
-                "2050-01-01 00:00", "2050-06-01 12:00", clues, evidence);
+                "2050-01-01 00:00", "2050-06-01 12:00", clues, evidence, notes);
         assertEquals("id1", cf.getId());
         assertEquals("Name", cf.getName());
         assertEquals("Desc", cf.getDescription());
@@ -114,17 +133,20 @@ public class CaseFileTest {
         assertEquals(2, cf.getClues().size());
         assertEquals(2, cf.getEvidence().size());
         assertEquals("knife", cf.getEvidence().get(0));
+        assertEquals(3, cf.getNotes().size());
+        assertEquals("note1", cf.getNotes().get(0));
     }
 
     @Test
     public void fullConstructorDefaults() {
-        CaseFile cf = new CaseFile(null, "Name", null, null, null, null, null, null);
+        CaseFile cf = new CaseFile(null, "Name", null, null, null, null, null, null, null);
         assertNotNull(cf.getId());
         assertEquals("", cf.getDescription());
         assertEquals(CaseFile.Status.OPEN, cf.getStatus());
         assertEquals("", cf.getDateOpened());
         assertTrue(cf.getClues().isEmpty());
         assertTrue(cf.getEvidence().isEmpty());
+        assertTrue(cf.getNotes().isEmpty());
     }
 
     @Test

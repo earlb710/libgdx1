@@ -25,6 +25,7 @@ public class CaseFile {
     private String dateClosed;
     private final List<String> clues;
     private final List<String> evidence;
+    private final List<String> notes;
 
     /**
      * Creates a new open case file with a generated id and no clues or evidence.
@@ -35,7 +36,7 @@ public class CaseFile {
      */
     public CaseFile(String name, String description, String dateOpened) {
         this(UUID.randomUUID().toString(), name, description, Status.OPEN, dateOpened, null,
-                new ArrayList<>(), new ArrayList<>());
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     /**
@@ -43,7 +44,7 @@ public class CaseFile {
      */
     public CaseFile(String id, String name, String description, Status status,
                     String dateOpened, String dateClosed, List<String> clues,
-                    List<String> evidence) {
+                    List<String> evidence, List<String> notes) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Case name cannot be null or empty");
         }
@@ -55,6 +56,7 @@ public class CaseFile {
         this.dateClosed   = dateClosed;
         this.clues       = clues != null ? new ArrayList<>(clues) : new ArrayList<>();
         this.evidence    = evidence != null ? new ArrayList<>(evidence) : new ArrayList<>();
+        this.notes       = notes != null ? new ArrayList<>(notes) : new ArrayList<>();
     }
 
     // -------------------------------------------------------------------------
@@ -82,6 +84,11 @@ public class CaseFile {
         return Collections.unmodifiableList(evidence);
     }
 
+    /** Returns an unmodifiable view of the player notes recorded against this case. */
+    public List<String> getNotes() {
+        return Collections.unmodifiableList(notes);
+    }
+
     // -------------------------------------------------------------------------
     // Mutation helpers
     // -------------------------------------------------------------------------
@@ -97,6 +104,13 @@ public class CaseFile {
     public void addEvidence(String item) {
         if (item != null && !item.trim().isEmpty()) {
             evidence.add(item);
+        }
+    }
+
+    /** Adds a player note to this case. */
+    public void addNote(String note) {
+        if (note != null && !note.trim().isEmpty()) {
+            notes.add(note);
         }
     }
 
@@ -124,6 +138,6 @@ public class CaseFile {
 
     @Override
     public String toString() {
-        return "CaseFile{name='" + name + "', status=" + status + ", clues=" + clues.size() + ", evidence=" + evidence.size() + "}";
+        return "CaseFile{name='" + name + "', status=" + status + ", clues=" + clues.size() + ", evidence=" + evidence.size() + ", notes=" + notes.size() + "}";
     }
 }

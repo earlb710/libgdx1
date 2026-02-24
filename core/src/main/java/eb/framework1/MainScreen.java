@@ -548,6 +548,7 @@ public class MainScreen implements Screen {
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
+                        checkAddNoteButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -814,6 +815,29 @@ public class MainScreen implements Screen {
         if (screenX >= state.helpBtnX && screenX <= state.helpBtnX + state.helpBtnW
                 && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {
             state.helpVisible = !state.helpVisible;
+        }
+    }
+
+    private void checkAddNoteButtonClick(int screenX, int flippedY) {
+        if (state.addNoteBtnW <= 0) return;
+        if (screenX >= state.addNoteBtnX && screenX <= state.addNoteBtnX + state.addNoteBtnW
+                && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
+            CaseFile active = profile.getActiveCaseFile();
+            if (active != null) {
+                Gdx.input.getTextInput(new Input.TextInputListener() {
+                    @Override
+                    public void input(String text) {
+                        if (text != null && !text.trim().isEmpty()) {
+                            active.addNote(text.trim());
+                            Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
+                        }
+                    }
+                    @Override
+                    public void canceled() {
+                        // User cancelled — do nothing
+                    }
+                }, "Add Note", "", "Enter your note...");
+            }
         }
     }
 
