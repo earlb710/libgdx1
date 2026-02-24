@@ -980,7 +980,7 @@ class InfoPanelRenderer {
                             s.charCellX, s.charCellY,
                             entry.locationCellX, entry.locationCellY);
                     String travelStr = route.formatTime(); // returns "Unreachable" when not reachable
-                    locLine += "  (" + entry.locationCellX + "," + entry.locationCellY
+                    locLine += "  (" + MapRenderer.cellLabel(entry.locationCellX, entry.locationCellY)
                              + " \u00b7 " + travelStr + ")";
                 }
                 smallFont.draw(batch, locLine, PAD + 8f, ty + drawScrollY);
