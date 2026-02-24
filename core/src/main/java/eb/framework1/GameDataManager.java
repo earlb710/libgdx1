@@ -17,9 +17,11 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE  = "buildings.json";
-    private static final String CATEGORIES_FILE = "categories.json";
-    private static final String TEXT_FILE       = "text/en.json";
+    private static final String BUILDINGS_FILE    = "buildings.json";
+    private static final String CATEGORIES_FILE   = "categories.json";
+    private static final String TEXT_FILE         = "text/en.json";
+    private static final String PERSON_NAMES_FILE = "person_names.json";
+    private static final String SURNAMES_FILE     = "person_surnames.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -30,6 +32,7 @@ public class GameDataManager {
     private String buildingsVersion;
     private String categoriesVersion;
     private NovelTextEngine novelTextEngine;
+    private PersonNameGenerator personNameGenerator;
 
     public GameDataManager() {
         this.buildings = new ArrayList<>();
@@ -41,6 +44,7 @@ public class GameDataManager {
         loadBuildings();
         loadCategories();
         loadNovelTextEngine();
+        loadPersonNames();
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
@@ -63,6 +67,62 @@ public class GameDataManager {
             Gdx.app.error("GameDataManager", "Error loading novel text engine: " + e.getMessage(), e);
             novelTextEngine = new NovelTextEngine(null, null);
         }
+    }
+
+    /**
+     * Loads first names from {@code person_names.json} and surnames from
+     * {@code person_surnames.json}, then constructs the {@link PersonNameGenerator}.
+     */
+    private void loadPersonNames() {
+        List<PersonNameGenerator.NameEntry> firstNames = new ArrayList<>();
+        List<String> surnames = new ArrayList<>();
+
+        // --- First names ---
+        try {
+            FileHandle file = Gdx.files.internal(PERSON_NAMES_FILE);
+            if (!file.exists()) {
+                Gdx.app.error("GameDataManager", "File not found: " + PERSON_NAMES_FILE);
+            } else {
+                JsonReader reader = new JsonReader();
+                JsonValue root = reader.parse(file);
+                JsonValue namesArr = root.get("names");
+                if (namesArr != null) {
+                    for (JsonValue entry = namesArr.child; entry != null; entry = entry.next) {
+                        String name   = entry.getString("name",   "");
+                        String gender = entry.getString("gender", "B");
+                        if (!name.isEmpty()) {
+                            firstNames.add(new PersonNameGenerator.NameEntry(name, gender));
+                        }
+                    }
+                }
+                Gdx.app.log("GameDataManager", "Loaded " + firstNames.size() + " first names from " + PERSON_NAMES_FILE);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager", "Error loading " + PERSON_NAMES_FILE + ": " + e.getMessage(), e);
+        }
+
+        // --- Surnames ---
+        try {
+            FileHandle file = Gdx.files.internal(SURNAMES_FILE);
+            if (!file.exists()) {
+                Gdx.app.error("GameDataManager", "File not found: " + SURNAMES_FILE);
+            } else {
+                JsonReader reader = new JsonReader();
+                JsonValue root = reader.parse(file);
+                JsonValue surnamesArr = root.get("surnames");
+                if (surnamesArr != null) {
+                    for (JsonValue entry = surnamesArr.child; entry != null; entry = entry.next) {
+                        String s = entry.asString();
+                        if (s != null && !s.isEmpty()) surnames.add(s);
+                    }
+                }
+                Gdx.app.log("GameDataManager", "Loaded " + surnames.size() + " surnames from " + SURNAMES_FILE);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager", "Error loading " + SURNAMES_FILE + ": " + e.getMessage(), e);
+        }
+
+        personNameGenerator = new PersonNameGenerator(firstNames, surnames);
     }
 
     /**
@@ -242,5 +302,15 @@ public class GameDataManager {
      */
     public NovelTextEngine getNovelTextEngine() {
         return novelTextEngine;
+    }
+
+    /**
+     * Returns the {@link PersonNameGenerator} loaded from
+     * {@code person_names.json} and {@code person_surnames.json}.
+     * Never {@code null}; returns a generator backed by empty lists if the
+     * files could not be loaded.
+     */
+    public PersonNameGenerator getPersonNameGenerator() {
+        return personNameGenerator;
     }
 }
