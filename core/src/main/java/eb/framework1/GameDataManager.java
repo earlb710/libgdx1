@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public class GameDataManager {
     private static final String BUILDINGS_FILE      = "buildings.json";
-    private static final String CATEGORIES_FILE     = "categories.json";
-    private static final String TEXT_FILE           = "text/en.json";
     private static final String PERSON_NAMES_FILE   = "person_names.json";
     private static final String SURNAMES_FILE       = "person_surnames.json";
     private static final String COMPANY_NAMES_FILE  = "company_names.json";
@@ -56,7 +54,7 @@ public class GameDataManager {
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
-    
+
     /**
      * Loads the novel text engine from {@code text/description_en.json}.
      */
@@ -216,19 +214,19 @@ public class GameDataManager {
                 Gdx.app.error("GameDataManager", "Buildings file not found: " + BUILDINGS_FILE);
                 return;
             }
-            
+
             JsonReader reader = new JsonReader();
             JsonValue root = reader.parse(file);
-            
+
             buildingsVersion = root.getString("version", "unknown");
-            
+
             JsonValue buildingsArray = root.get("buildings");
             if (buildingsArray != null) {
                 for (JsonValue buildingJson = buildingsArray.child; buildingJson != null; buildingJson = buildingJson.next) {
                     BuildingDefinition building = parseBuildingDefinition(buildingJson);
                     buildings.add(building);
                     buildingsById.put(building.getId(), building);
-                    
+
                     // Cache by category for fast lookup
                     String category = building.getCategory();
                     if (!buildingsByCategory.containsKey(category)) {
@@ -237,13 +235,13 @@ public class GameDataManager {
                     buildingsByCategory.get(category).add(building);
                 }
             }
-            
+
             Gdx.app.log("GameDataManager", "Loaded buildings.json v" + buildingsVersion + " with " + buildings.size() + " buildings");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading buildings: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Parses a single building definition from JSON.
      */
@@ -258,7 +256,7 @@ public class GameDataManager {
         building.setCapacity(json.getInt("capacity"));
         building.setPercentage(json.getDouble("percentage"));
         building.setDescription(json.getString("description"));
-        
+
         List<String> improvements = new ArrayList<>();
         JsonValue improvementsArray = json.get("improvements");
         if (improvementsArray != null) {
@@ -267,10 +265,10 @@ public class GameDataManager {
             }
         }
         building.setImprovements(improvements);
-        
+
         return building;
     }
-    
+
     /**
      * Loads category definitions from text/category_en.json
      */
@@ -281,12 +279,12 @@ public class GameDataManager {
                 Gdx.app.error("GameDataManager", "Categories file not found: " + CATEGORIES_FILE);
                 return;
             }
-            
+
             JsonReader reader = new JsonReader();
             JsonValue root = reader.parse(file);
-            
+
             categoriesVersion = root.getString("version", "unknown");
-            
+
             JsonValue categoriesArray = root.get("building_categories");
             if (categoriesArray != null) {
                 for (JsonValue categoryJson = categoriesArray.child; categoryJson != null; categoryJson = categoryJson.next) {
@@ -295,13 +293,13 @@ public class GameDataManager {
                     categoriesById.put(category.getId(), category);
                 }
             }
-            
+
             Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion + " with " + categories.size() + " categories");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading categories: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Parses a single category definition from JSON.
      * Supports both {@code "id"} and {@code "code"} as the identifier field,
@@ -316,23 +314,23 @@ public class GameDataManager {
         category.setColor(json.getString("color", null));
         return category;
     }
-    
+
     // ===== Accessors =====
-    
+
     /**
      * Returns all building definitions.
      */
     public List<BuildingDefinition> getBuildings() {
         return Collections.unmodifiableList(buildings);
     }
-    
+
     /**
      * Returns a building definition by its ID.
      */
     public BuildingDefinition getBuildingById(String id) {
         return buildingsById.get(id);
     }
-    
+
     /**
      * Returns all buildings in a specific category.
      */
@@ -343,21 +341,21 @@ public class GameDataManager {
         }
         return Collections.unmodifiableList(result);
     }
-    
+
     /**
      * Returns all category definitions.
      */
     public List<CategoryDefinition> getCategories() {
         return Collections.unmodifiableList(categories);
     }
-    
+
     /**
      * Returns a category definition by its ID.
      */
     public CategoryDefinition getCategoryById(String id) {
         return categoriesById.get(id);
     }
-    
+
     /**
      * Returns the category for a building.
      */
@@ -365,14 +363,14 @@ public class GameDataManager {
         if (building == null) return null;
         return categoriesById.get(building.getCategory());
     }
-    
+
     /**
      * Returns the version of the loaded buildings.json file.
      */
     public String getBuildingsVersion() {
         return buildingsVersion;
     }
-    
+
     /**
      * Returns the version of the loaded category file.
      */

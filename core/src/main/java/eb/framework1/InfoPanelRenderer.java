@@ -399,7 +399,7 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
-        
+
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -416,7 +416,7 @@ class InfoPanelRenderer {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
         }
-        
+
         shapeRenderer.end();
         batch.begin();
         float textX = 20f;
@@ -451,7 +451,7 @@ class InfoPanelRenderer {
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
         }
-        
+
 
         // GL scissor
         batch.flush();
@@ -909,21 +909,21 @@ class InfoPanelRenderer {
 
     private void drawCalendarTab(MapViewState s, int panelH) {
         // Disable action buttons when calendar tab is active
-        s.moveToButtonW   = 0f;
-        s.lookAroundBtnW  = 0f;
-        s.restBtnW        = 0f;
-        s.sleepBtnW       = 0f;
-        s.goToOfficeBtnW  = 0f;
-        s.openStashBtnW   = 0f;
+        s.moveToButtonW = 0f;
+        s.lookAroundBtnW = 0f;
+        s.restBtnW = 0f;
+        s.sleepBtnW = 0f;
+        s.goToOfficeBtnW = 0f;
+        s.openStashBtnW = 0f;
         s.checkEmailsBtnW = 0f;
-        s.infoMaxScrollX  = 0f;
-        s.infoScrollX     = 0f;
-      
+        s.infoMaxScrollX = 0f;
+        s.infoScrollX = 0f;
+
         glyphLayout.setText(smallFont, "Hg");
-        float smallCapH  = glyphLayout.height;
+        float smallCapH = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
 
-        final float SB  = MapViewState.SCROLLBAR_THICKNESS;
+        final float SB = MapViewState.SCROLLBAR_THICKNESS;
         final float PAD = 16f;
 
         java.util.List<CalendarEntry> entries = profile.getCalendarEntries();
@@ -942,10 +942,10 @@ class InfoPanelRenderer {
 
         float contentAreaH = panelH - SB;
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
-        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+        s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
 
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor(0, 0, (int)(s.screenWidth - SB), Math.max(0, panelH));
+        Gdx.gl.glScissor(0, 0, (int) (s.screenWidth - SB), Math.max(0, panelH));
 
         batch.begin();
         drawScrollY = s.infoScrollY;
@@ -1000,16 +1000,16 @@ class InfoPanelRenderer {
         shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
         shapeRenderer.rect(sbX, SB, SB, contentAreaH);
         if (s.infoMaxScrollY > 0f) {
-            float thumbH      = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
+            float thumbH = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
             float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
-            float thumbY      = SB + (1f - scrollRatio) * (contentAreaH - thumbH);
+            float thumbY = SB + (1f - scrollRatio) * (contentAreaH - thumbH);
             shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();
+    }
 
-      
-      
+
     // Case File tab content
     // -------------------------------------------------------------------------
 
