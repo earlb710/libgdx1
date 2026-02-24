@@ -127,21 +127,21 @@
       }
     },
     "gas_station": {
-      "default": "Petrol and paranoia. Every gas station is a checkpoint — people pass through without thinking. You think for them.",
+      "default": "Pump logs, forecourt cameras, and a shop stocked for people who didn't plan ahead. A fuel station with a convenience store records everything — card details, timestamps, the face at the counter. Most people filling up don't think about that.",
       "time": {
-        "morning": "Commuters queuing at the pumps, barely awake. The perfect time to watch without being watched.",
-        "afternoon": "Midday lull. The forecourt is exposed and quiet. Neither of those is necessarily a good thing.",
-        "evening": "Evening traffic. Everyone's in a hurry to be somewhere. Find out where — that's the job.",
-        "night": "The canopy lights blaze in the dark and nothing moves for minutes at a time. Then something does."
+        "morning": "Early fill-ups before the commute locks in. Drivers on automatic, buying fuel and coffee without looking at anything too closely. Wide-open observation window.",
+        "afternoon": "The pumps quiet down and the shop carries the trade. People stopping for reasons that have nothing to do with fuel — gap between cover story and real intent is where the work is.",
+        "evening": "Rush-hour volume. Every pump occupied and the shop a revolving door. Busy enough to move through without standing out. Not so busy the wrong detail gets lost.",
+        "night": "Forecourt lights hard against the dark and nothing on the road. One attendant, one angle of coverage, and a fill-up that gets remembered because there's nothing else to remember."
       },
       "attribute": {
-        "PERCEPTION": "You count the cameras, note the angles, spot the car that's been idling at pump four for twelve minutes without buying anything.",
-        "AGILITY": "In and out before the receipt clears the slot. The forecourt doesn't register you leaving.",
-        "INTUITION": "That van's been parked on the air side since before you pulled in. It's not waiting for air."
+        "PERCEPTION": "Camera positions, pump layout, the one approach angle that doesn't feed the monitor behind the counter. Mapped in under a minute.",
+        "AGILITY": "Fuel, one item from the shop, clear before the next driver pulls in. The transaction is logged. The exit isn't.",
+        "INTUITION": "The car at pump six filled up ten minutes ago and hasn't moved. Drivers who've paid don't wait at the pump. Someone's watching something."
       },
       "gender": {
-        "male": "You pay at the pump, keep your head down. Transaction complete. Nobody noticed. That's the idea.",
-        "female": "The attendant offers help you don't need. You let them talk — chatty people fill silence with facts you can use."
+        "male": "Cash at the pump, nothing from the shop. No record past the nozzle sensor. A stop that leaves almost no trace.",
+        "female": "The attendant clocks the stop — standard procedure. What they don't clock is what you noted on the way in."
       }
     },
     "fast_food_restaurant": {
