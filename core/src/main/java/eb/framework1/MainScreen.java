@@ -96,6 +96,7 @@ public class MainScreen implements Screen {
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
     private static final long  DOUBLE_CLICK_MS      = 400L;
+    private static final String BUILDING_ID_COFFEE_SHOP = "coffee_shop";
 
     // -------------------------------------------------------------------------
 
@@ -1883,7 +1884,8 @@ public class MainScreen implements Screen {
                         "NYPD: Crime Scene",
                         dt,
                         "Crime Scene (TBD)",
-                        reward, null
+                        reward, null,
+                        -1, -1   // crime scene location unknown at scheduling time
                 ));
             } else {
                 String gender = rng.nextBoolean() ? "M" : "F";
@@ -1892,6 +1894,16 @@ public class MainScreen implements Screen {
                 boolean atOffice = rng.nextBoolean();
                 String loc = atOffice ? "Your Office" : "Downtown Cafe";
                 int reward = 200 + rng.nextInt(5) * 100; // $200–$600
+                int locCellX, locCellY;
+                if (atOffice) {
+                    locCellX = state.homeCellX;
+                    locCellY = state.homeCellY;
+                } else {
+                    // Pick the first discovered coffee shop cell as the meeting point
+                    int[] cafeCell = findFirstBuildingCell(BUILDING_ID_COFFEE_SHOP);
+                    locCellX = cafeCell != null ? cafeCell[0] : -1;
+                    locCellY = cafeCell != null ? cafeCell[1] : -1;
+                }
                 emails.add(new EmailPopup.EmailData(
                         clientName,
                         "I need your help urgently",
@@ -1902,7 +1914,8 @@ public class MainScreen implements Screen {
                         "Meeting: " + clientName,
                         dt,
                         loc,
-                        reward, null
+                        reward, null,
+                        locCellX, locCellY
                 ));
             }
         }
@@ -1922,10 +1935,31 @@ public class MainScreen implements Screen {
         if (email == null) return;
         profile.addCalendarEntry(
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
-                        email.rewardMoney, email.rewardItemName));
+                        email.rewardMoney, email.rewardItemName,
+                        email.locationCellX, email.locationCellY));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
+    }
+
+    /**
+     * Scans the city map and returns the coordinates {@code [x, y]} of the first
+     * cell whose building has the given {@code buildingId}, or {@code null} if none.
+     */
+    private int[] findFirstBuildingCell(String buildingId) {
+        if (buildingId == null) return null;
+        Cell[][] cells = cityMap.getCells();
+        if (cells == null) return null;
+        for (Cell[] row : cells) {
+            if (row == null) continue;
+            for (Cell cell : row) {
+                if (cell == null || !cell.hasBuilding()) continue;
+                if (buildingId.equals(cell.getBuilding().getDefinition().getId())) {
+                    return new int[]{ cell.getX(), cell.getY() };
+                }
+            }
+        }
+        return null;
     }
 
     /**

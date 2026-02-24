@@ -196,7 +196,7 @@ class RestingPopup {
 
         // --- Text ---
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH;
+        float ty = dialogY + dialogH - PAD;
         font.setColor(state == State.ANIMATING ? TITLE_COLOR : MSG_COLOR);
         glyph.setText(font, mainText);
         font.draw(batch, mainText, dialogX + (dialogW - glyph.width) / 2f, ty);

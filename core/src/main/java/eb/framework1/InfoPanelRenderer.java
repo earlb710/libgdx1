@@ -972,9 +972,18 @@ class InfoPanelRenderer {
                 font.setColor(Color.WHITE);
                 font.draw(batch, entry.title, PAD + 8f, ty + drawScrollY);
                 ty -= fontLineH;
-                // Location
+                // Location + cell + travel time
                 smallFont.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
-                smallFont.draw(batch, entry.location, PAD + 8f, ty + drawScrollY);
+                String locLine = entry.location;
+                if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                    CityMap.RouteResult route = cityMap.findFastestRoute(
+                            s.charCellX, s.charCellY,
+                            entry.locationCellX, entry.locationCellY);
+                    String travelStr = route.formatTime(); // returns "Unreachable" when not reachable
+                    locLine += "  (" + entry.locationCellX + "," + entry.locationCellY
+                             + " \u00b7 " + travelStr + ")";
+                }
+                smallFont.draw(batch, locLine, PAD + 8f, ty + drawScrollY);
                 ty -= smallLineH;
                 // Reward (if any)
                 if (entry.rewardMoney > 0 || entry.rewardItemName != null) {

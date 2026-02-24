@@ -41,15 +41,26 @@ class EmailPopup {
         final String calendarLocation;
         final int    rewardMoney;       // 0 = no money reward
         final String rewardItemName;    // null = no item reward
+        /** Map cell of the appointment location; -1 if unknown. */
+        final int    locationCellX;
+        final int    locationCellY;
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation) {
-            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null);
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1);
         }
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation,
                   int rewardMoney, String rewardItemName) {
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
+                    rewardMoney, rewardItemName, -1, -1);
+        }
+
+        EmailData(String from, String subject, String body,
+                  String calendarTitle, String calendarDateTime, String calendarLocation,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY) {
             this.from             = from             != null ? from             : "";
             this.subject          = subject          != null ? subject          : "";
             this.body             = body             != null ? body             : "";
@@ -58,6 +69,8 @@ class EmailPopup {
             this.calendarLocation = calendarLocation != null ? calendarLocation : "";
             this.rewardMoney      = Math.max(0, rewardMoney);
             this.rewardItemName   = rewardItemName;
+            this.locationCellX    = locationCellX;
+            this.locationCellY    = locationCellY;
         }
     }
 
