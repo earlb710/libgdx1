@@ -1031,6 +1031,10 @@ class InfoPanelRenderer {
 
         final float PAD = 12f;
 
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
+
         // --- Poplist header: open cases ---
         List<CaseFile> openCases = profile.getOpenCases();
         String selectedCase;
