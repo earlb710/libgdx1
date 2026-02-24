@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Align;
 
 /**
  * Simple Yes/No confirmation popup.
@@ -84,16 +85,13 @@ class ConfirmPopup {
         if (!visible) return;
 
         final float PAD         = 24f;
-        final float GAP         = 8f;
+        final float GAP         = 10f;
         final float BTN_SPACING = 20f;
+        final float BTN_GAP     = 18f; // extra space between message block and buttons
 
         glyph.setText(font, "Hg");
         float titleH     = glyph.height;
         float titleLineH = titleH + GAP;
-
-        glyph.setText(smallFont, "Hg");
-        float smallH     = glyph.height;
-        float smallLineH = smallH + GAP;
 
         TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(font, glyph, "Yes", 24f, 10f);
         TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(font, glyph, "No",  24f, 10f);
@@ -101,15 +99,17 @@ class ConfirmPopup {
         float yesW_ = yesBounds.width;
         float noW_  = noBounds.width;
 
-        // Measure dialog width to fit title, message, and both buttons
+        // Dialog width: wide enough for title and both buttons, capped at 85% screen width
         glyph.setText(font, title);
-        float maxW = glyph.width;
-        glyph.setText(smallFont, message);
-        if (glyph.width > maxW) maxW = glyph.width;
-        maxW = Math.max(maxW, yesW_ + BTN_SPACING + noW_);
+        float minW = Math.max(glyph.width, yesW_ + BTN_SPACING + noW_);
+        float dialogW = Math.min(screenW * 0.85f, minW + 2 * PAD);
+        float contentW = dialogW - 2 * PAD;
 
-        float dialogW = Math.min(screenW * 0.9f, maxW + 2 * PAD);
-        float dialogH = PAD + titleLineH + smallLineH + PAD + btnH + PAD;
+        // Word-wrap message to content width; measure real wrapped height
+        glyph.setText(smallFont, message, Color.WHITE, contentW, Align.center, true);
+        float msgH = glyph.height;
+
+        float dialogH = PAD + titleLineH + msgH + BTN_GAP + btnH + PAD;
 
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;
@@ -117,8 +117,8 @@ class ConfirmPopup {
         float totalBtnW = yesW_ + BTN_SPACING + noW_;
         float btnStartX = dialogX + (dialogW - totalBtnW) / 2f;
 
-        yesX = btnStartX;                    yesY = dialogY + PAD; yesW = yesW_; yesH = btnH;
-        noX  = btnStartX + yesW_ + BTN_SPACING; noY  = dialogY + PAD; noW  = noW_;  noH  = btnH;
+        yesX = btnStartX;                        yesY = dialogY + PAD; yesW = yesW_; yesH = btnH;
+        noX  = btnStartX + yesW_ + BTN_SPACING;  noY  = dialogY + PAD; noW  = noW_;  noH  = btnH;
 
         // --- Shapes ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
@@ -149,9 +149,10 @@ class ConfirmPopup {
         font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, ty);
         ty -= titleLineH;
 
+        // Draw the pre-wrapped message (GlyphLayout already set for contentW + center align)
+        glyph.setText(smallFont, message, Color.WHITE, contentW, Align.center, true);
         smallFont.setColor(Color.WHITE);
-        glyph.setText(smallFont, message);
-        smallFont.draw(batch, message, dialogX + (dialogW - glyph.width) / 2f, ty);
+        smallFont.draw(batch, glyph, dialogX + PAD, ty);
 
         font.setColor(Color.WHITE);
         glyph.setText(font, "Yes");
