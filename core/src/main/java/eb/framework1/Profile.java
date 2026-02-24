@@ -34,6 +34,8 @@ public class Profile {
     private final List<EquipItem> stash;
     // Calendar: accepted appointments / case starts
     private final List<CalendarEntry> calendarEntries;
+    // Date (YYYY-MM-DD) when emails were last generated; "" = never
+    private String lastEmailCheckDate = "";
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -417,6 +419,14 @@ public class Profile {
     /** Adds a calendar entry (must not be null). */
     public void addCalendarEntry(CalendarEntry entry) {
         if (entry != null) calendarEntries.add(entry);
+    }
+
+    /** Returns the game-date string (YYYY-MM-DD) when emails were last generated, or "" if never. */
+    public String getLastEmailCheckDate() { return lastEmailCheckDate; }
+
+    /** Records the game-date string (YYYY-MM-DD) when emails were last generated. */
+    public void setLastEmailCheckDate(String date) {
+        this.lastEmailCheckDate = date != null ? date : "";
     }
 
     /**

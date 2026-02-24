@@ -924,8 +924,10 @@ class InfoPanelRenderer {
         if (entries.isEmpty()) {
             totalH += smallLineH;
         } else {
-            for (CalendarEntry ignored : entries) {
-                totalH += smallLineH + fontLineH + smallLineH + smallLineH * 0.4f;
+            for (CalendarEntry e : entries) {
+                totalH += smallLineH + fontLineH + smallLineH; // date + title + location
+                if (e.rewardMoney > 0 || e.rewardItemName != null) totalH += smallLineH;
+                totalH += smallLineH * 0.4f; // entry gap
             }
         }
 
@@ -961,7 +963,21 @@ class InfoPanelRenderer {
                 // Location
                 smallFont.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
                 smallFont.draw(batch, entry.location, PAD + 8f, ty + drawScrollY);
-                ty -= smallLineH + smallLineH * 0.4f; // entry spacing
+                ty -= smallLineH;
+                // Reward (if any)
+                if (entry.rewardMoney > 0 || entry.rewardItemName != null) {
+                    String rewardTxt;
+                    if (entry.rewardMoney > 0 && entry.rewardItemName != null)
+                        rewardTxt = "Reward: $" + entry.rewardMoney + " + " + entry.rewardItemName;
+                    else if (entry.rewardMoney > 0)
+                        rewardTxt = "Reward: $" + entry.rewardMoney;
+                    else
+                        rewardTxt = "Reward: " + entry.rewardItemName;
+                    smallFont.setColor(new Color(1.00f, 0.85f, 0.20f, 1f));
+                    smallFont.draw(batch, rewardTxt, PAD + 8f, ty + drawScrollY);
+                    ty -= smallLineH;
+                }
+                ty -= smallLineH * 0.4f; // entry spacing
             }
         }
 

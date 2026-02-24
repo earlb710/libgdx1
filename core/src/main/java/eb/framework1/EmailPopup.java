@@ -39,15 +39,25 @@ class EmailPopup {
         final String calendarTitle;
         final String calendarDateTime;
         final String calendarLocation;
+        final int    rewardMoney;       // 0 = no money reward
+        final String rewardItemName;    // null = no item reward
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation) {
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null);
+        }
+
+        EmailData(String from, String subject, String body,
+                  String calendarTitle, String calendarDateTime, String calendarLocation,
+                  int rewardMoney, String rewardItemName) {
             this.from             = from             != null ? from             : "";
             this.subject          = subject          != null ? subject          : "";
             this.body             = body             != null ? body             : "";
             this.calendarTitle    = calendarTitle    != null ? calendarTitle    : "";
             this.calendarDateTime = calendarDateTime != null ? calendarDateTime : "";
             this.calendarLocation = calendarLocation != null ? calendarLocation : "";
+            this.rewardMoney      = Math.max(0, rewardMoney);
+            this.rewardItemName   = rewardItemName;
         }
     }
 
@@ -57,6 +67,13 @@ class EmailPopup {
     static final int RESULT_CLOSED   = -1;
     /** Returned by {@link #onTap} when no button was hit. */
     static final int RESULT_MISS     = -3;
+    /** Returned by {@link #onTap} when a navigation (prev/next) button was tapped. */
+    static final int RESULT_NAV      = -4;
+
+    // Email status constants
+    private static final int STATUS_UNREAD   = 0;
+    private static final int STATUS_ACCEPTED = 1;
+    private static final int STATUS_DECLINED = 2;
 
     // --- Colors ---
     private static final Color BG_COLOR      = new Color(0.06f, 0.10f, 0.16f, 1f);
@@ -68,6 +85,9 @@ class EmailPopup {
     private static final Color ACCEPT_COLOR  = new Color(0.10f, 0.45f, 0.12f, 1f);
     private static final Color DECLINE_COLOR = new Color(0.40f, 0.15f, 0.15f, 1f);
     private static final Color CLOSE_COLOR   = new Color(0.20f, 0.20f, 0.30f, 1f);
+    private static final Color NAV_COLOR     = new Color(0.18f, 0.28f, 0.42f, 1f);
+    private static final Color CHECK_COLOR   = new Color(0.20f, 0.85f, 0.30f, 1f);
+    private static final Color CROSS_COLOR   = new Color(0.85f, 0.25f, 0.25f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -80,11 +100,14 @@ class EmailPopup {
     private boolean         visible = false;
     private List<EmailData> emails  = new ArrayList<>();
     private int             current = 0;
+    private int[]           status  = new int[0]; // STATUS_UNREAD/ACCEPTED/DECLINED per email
 
     // Button bounds (written during draw, read by onTap)
     private float acceptX,  acceptY,  acceptW,  acceptH;
     private float declineX, declineY, declineW, declineH;
     private float closeX,   closeY,   closeW,   closeH;
+    private float prevX,    prevY,    prevW,    prevH;
+    private float nextX,    nextY,    nextW,    nextH;
 
     // -------------------------------------------------------------------------
 
@@ -115,6 +138,7 @@ class EmailPopup {
     void show(List<EmailData> list) {
         this.emails  = new ArrayList<>(list);
         this.current = 0;
+        this.status  = new int[this.emails.size()]; // all STATUS_UNREAD (0)
         this.visible = !this.emails.isEmpty();
         this.closeW  = 0f;
         Gdx.app.log("EmailPopup", "Opened with " + this.emails.size() + " email(s)");
@@ -124,25 +148,41 @@ class EmailPopup {
      * Handles a tap on this popup.
      *
      * @return index (≥ 0) of the accepted email, {@link #RESULT_DECLINED},
-     *         {@link #RESULT_CLOSED}, or {@link #RESULT_MISS}
+     *         {@link #RESULT_CLOSED}, {@link #RESULT_NAV}, or {@link #RESULT_MISS}
      */
     int onTap(int screenX, int flippedY) {
         if (!visible || emails.isEmpty()) return RESULT_MISS;
 
-        // Accept
+        // Prev nav
+        if (prevW > 0
+                && screenX >= prevX && screenX <= prevX + prevW
+                && flippedY >= prevY && flippedY <= prevY + prevH) {
+            if (current > 0) current--;
+            return RESULT_NAV;
+        }
+
+        // Next nav
+        if (nextW > 0
+                && screenX >= nextX && screenX <= nextX + nextW
+                && flippedY >= nextY && flippedY <= nextY + nextH) {
+            if (current < emails.size() - 1) current++;
+            return RESULT_NAV;
+        }
+
+        // Accept (only for unread emails)
         if (acceptW > 0
                 && screenX >= acceptX && screenX <= acceptX + acceptW
                 && flippedY >= acceptY && flippedY <= acceptY + acceptH) {
             int idx = current;
-            advance();
-            return idx;
+            status[idx] = STATUS_ACCEPTED;
+            return idx; // caller uses ≥ 0 to detect acceptance
         }
 
-        // Decline
+        // Decline (only for unread emails)
         if (declineW > 0
                 && screenX >= declineX && screenX <= declineX + declineW
                 && flippedY >= declineY && flippedY <= declineY + declineH) {
-            advance();
+            status[current] = STATUS_DECLINED;
             return RESULT_DECLINED;
         }
 
@@ -163,7 +203,8 @@ class EmailPopup {
 
     void draw(int screenW, int screenH) {
         if (!visible || current >= emails.size()) return;
-        EmailData email = emails.get(current);
+        EmailData email  = emails.get(current);
+        int       st     = (status != null && current < status.length) ? status[current] : STATUS_UNREAD;
 
         final float PAD      = 24f;
         final float GAP      = 10f;
@@ -179,8 +220,16 @@ class EmailPopup {
         float smallH     = glyph.height;
         float smallLineH = smallH + GAP;
 
-        // Title line
-        String titleStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]";
+        // Nav button labels
+        String prevLabel = "<<";
+        String nextLabel = ">>";
+        TextMeasurer.TextBounds prevBounds = TextMeasurer.measure(smallFont, glyph, prevLabel, 14f, 8f);
+        TextMeasurer.TextBounds nextBounds = TextMeasurer.measure(smallFont, glyph, nextLabel, 14f, 8f);
+
+        // Status indicator suffix: " ✓" or " ✗" or ""
+        String statusSuffix = st == STATUS_ACCEPTED ? " \u2713"
+                            : st == STATUS_DECLINED ? " \u2717" : "";
+        String titleStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]" + statusSuffix;
 
         // Measure for dialog width
         TextMeasurer.TextBounds acceptBounds  = TextMeasurer.measure(font, glyph, "Accept",  28f, 12f);
@@ -189,7 +238,7 @@ class EmailPopup {
         float btnH = acceptBounds.height;
 
         glyph.setText(font, titleStr);
-        float minLineW = glyph.width;
+        float minLineW = glyph.width + prevBounds.width + BTN_GAP * 2 + nextBounds.width;
         glyph.setText(smallFont, "From: " + email.from);
         minLineW = Math.max(minLineW, glyph.width);
         glyph.setText(smallFont, "Subject: " + email.subject);
@@ -210,17 +259,34 @@ class EmailPopup {
             return glyph.width;
         });
 
+        // Reward line (only if reward > 0 or item present)
+        String rewardLine = null;
+        if (email.rewardMoney > 0 && email.rewardItemName != null) {
+            rewardLine = "Reward:  $" + email.rewardMoney + "  +  " + email.rewardItemName;
+        } else if (email.rewardMoney > 0) {
+            rewardLine = "Reward:  $" + email.rewardMoney;
+        } else if (email.rewardItemName != null) {
+            rewardLine = "Reward:  " + email.rewardItemName;
+        }
+        List<String> rewardLines = rewardLine != null
+                ? WordWrapper.wrap(rewardLine, wrapW, t -> { glyph.setText(smallFont, t); return glyph.width; })
+                : java.util.Collections.emptyList();
+
+        // Action buttons height — hidden when already processed
+        float actionBtnH = (st == STATUS_UNREAD) ? (btnH + BTN_GAP) : 0f;
+
         // Compute dialog height
         float dialogH = PAD
-                + fontLineH                          // title
+                + fontLineH                          // title row (inc nav buttons)
                 + smallLineH                         // From
                 + smallLineH                         // Subject
                 + GAP                                // spacer
                 + bodyLines.size() * smallLineH      // body
                 + GAP                                // spacer
                 + apptLines.size() * smallLineH      // appointment
+                + (!rewardLines.isEmpty() ? GAP + rewardLines.size() * smallLineH : 0f)
                 + GAP                                // spacer before buttons
-                + btnH + BTN_GAP                     // Accept + Decline row
+                + actionBtnH                         // Accept + Decline (when unread)
                 + closeBounds.height                 // Close
                 + PAD;
 
@@ -237,24 +303,46 @@ class EmailPopup {
         closeH = closeBounds.height;
         cy += closeBounds.height + BTN_GAP;
 
-        float totalBtnW = acceptBounds.width + BTN_GAP + declineBounds.width;
-        acceptX  = dialogX + (dialogW - totalBtnW) / 2f;
-        acceptY  = cy;
-        acceptW  = acceptBounds.width;
-        acceptH  = btnH;
-        declineX = acceptX + acceptBounds.width + BTN_GAP;
-        declineY = cy;
-        declineW = declineBounds.width;
-        declineH = btnH;
+        if (st == STATUS_UNREAD) {
+            float totalBtnW = acceptBounds.width + BTN_GAP + declineBounds.width;
+            acceptX  = dialogX + (dialogW - totalBtnW) / 2f;
+            acceptY  = cy;
+            acceptW  = acceptBounds.width;
+            acceptH  = btnH;
+            declineX = acceptX + acceptBounds.width + BTN_GAP;
+            declineY = cy;
+            declineW = declineBounds.width;
+            declineH = btnH;
+        } else {
+            acceptW = declineW = 0f; // not clickable
+        }
+
+        // Nav buttons in title row (written below during text layout)
+        float titleRowY = dialogY + dialogH - PAD - fontH;
+        prevX = dialogX + PAD;
+        prevY = titleRowY - (prevBounds.height - fontH) / 2f;
+        prevW = prevBounds.width;
+        prevH = prevBounds.height;
+        nextX = dialogX + dialogW - PAD - nextBounds.width;
+        nextY = prevY;
+        nextW = nextBounds.width;
+        nextH = nextBounds.height;
 
         // Shapes
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dialogW, dialogH);
-        sr.setColor(ACCEPT_COLOR);
-        sr.rect(acceptX, acceptY, acceptW, acceptH);
-        sr.setColor(DECLINE_COLOR);
-        sr.rect(declineX, declineY, declineW, declineH);
+        // Nav buttons
+        sr.setColor(current > 0 ? NAV_COLOR : new Color(0.10f, 0.15f, 0.22f, 1f));
+        sr.rect(prevX, prevY, prevW, prevH);
+        sr.setColor(current < emails.size() - 1 ? NAV_COLOR : new Color(0.10f, 0.15f, 0.22f, 1f));
+        sr.rect(nextX, nextY, nextW, nextH);
+        if (st == STATUS_UNREAD) {
+            sr.setColor(ACCEPT_COLOR);
+            sr.rect(acceptX, acceptY, acceptW, acceptH);
+            sr.setColor(DECLINE_COLOR);
+            sr.rect(declineX, declineY, declineW, declineH);
+        }
         sr.setColor(CLOSE_COLOR);
         sr.rect(closeX, closeY, closeW, closeH);
         sr.end();
@@ -263,10 +351,14 @@ class EmailPopup {
         sr.setColor(BORDER_COLOR);
         sr.rect(dialogX,      dialogY,      dialogW,      dialogH);
         sr.rect(dialogX + 1,  dialogY + 1,  dialogW - 2,  dialogH - 2);
-        sr.rect(acceptX,      acceptY,      acceptW,      acceptH);
-        sr.rect(acceptX  + 1, acceptY  + 1, acceptW  - 2, acceptH  - 2);
-        sr.rect(declineX,     declineY,     declineW,     declineH);
-        sr.rect(declineX + 1, declineY + 1, declineW - 2, declineH - 2);
+        sr.rect(prevX,        prevY,        prevW,        prevH);
+        sr.rect(nextX,        nextY,        nextW,        nextH);
+        if (st == STATUS_UNREAD) {
+            sr.rect(acceptX,      acceptY,      acceptW,      acceptH);
+            sr.rect(acceptX  + 1, acceptY  + 1, acceptW  - 2, acceptH  - 2);
+            sr.rect(declineX,     declineY,     declineW,     declineH);
+            sr.rect(declineX + 1, declineY + 1, declineW - 2, declineH - 2);
+        }
         sr.rect(closeX,       closeY,       closeW,       closeH);
         sr.rect(closeX  + 1,  closeY  + 1,  closeW  - 2,  closeH  - 2);
         sr.end();
@@ -275,9 +367,26 @@ class EmailPopup {
         batch.begin();
         float ty = dialogY + dialogH - PAD;
 
+        // Title row: [<<]  Inbox [n/m] ✓  [>>]
+        smallFont.setColor(current > 0 ? TITLE_COLOR : FROM_COLOR);
+        smallFont.draw(batch, prevLabel, prevX + (prevW - prevBounds.width + 14f) / 2f,
+                prevY + (prevH + prevBounds.height) / 2f);
+        smallFont.setColor(current < emails.size() - 1 ? TITLE_COLOR : FROM_COLOR);
+        smallFont.draw(batch, nextLabel, nextX + (nextW - nextBounds.width + 14f) / 2f,
+                nextY + (nextH + nextBounds.height) / 2f);
+
         font.setColor(TITLE_COLOR);
-        glyph.setText(font, titleStr);
-        font.draw(batch, titleStr, dialogX + (dialogW - glyph.width) / 2f, ty);
+        // Title text (without status suffix for colour split)
+        String inboxStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]";
+        glyph.setText(font, inboxStr);
+        float titleX = dialogX + (dialogW - glyph.width) / 2f;
+        font.draw(batch, inboxStr, titleX, ty);
+        if (!statusSuffix.isEmpty()) {
+            glyph.setText(font, inboxStr);
+            float suffixX = titleX + glyph.width;
+            font.setColor(st == STATUS_ACCEPTED ? CHECK_COLOR : CROSS_COLOR);
+            font.draw(batch, statusSuffix, suffixX, ty);
+        }
         ty -= fontLineH;
 
         smallFont.setColor(FROM_COLOR);
@@ -301,17 +410,28 @@ class EmailPopup {
             ty -= smallLineH;
         }
 
+        if (!rewardLines.isEmpty()) {
+            ty -= GAP;
+            smallFont.setColor(new Color(1.00f, 0.85f, 0.20f, 1f)); // gold
+            for (String line : rewardLines) {
+                smallFont.draw(batch, line, dialogX + PAD, ty);
+                ty -= smallLineH;
+            }
+        }
+
+        if (st == STATUS_UNREAD) {
+            font.setColor(Color.WHITE);
+            glyph.setText(font, "Accept");
+            font.draw(batch, "Accept",
+                    acceptX  + (acceptW  - glyph.width) / 2f,
+                    acceptY  + (acceptH  + glyph.height) / 2f);
+            glyph.setText(font, "Decline");
+            font.draw(batch, "Decline",
+                    declineX + (declineW - glyph.width) / 2f,
+                    declineY + (declineH + glyph.height) / 2f);
+        }
+
         font.setColor(Color.WHITE);
-        glyph.setText(font, "Accept");
-        font.draw(batch, "Accept",
-                acceptX  + (acceptW  - glyph.width) / 2f,
-                acceptY  + (acceptH  + glyph.height) / 2f);
-
-        glyph.setText(font, "Decline");
-        font.draw(batch, "Decline",
-                declineX + (declineW - glyph.width) / 2f,
-                declineY + (declineH + glyph.height) / 2f);
-
         glyph.setText(font, "Close");
         font.draw(batch, "Close",
                 closeX + (closeW - glyph.width) / 2f,
@@ -323,11 +443,4 @@ class EmailPopup {
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
-
-    private void advance() {
-        current++;
-        if (current >= emails.size()) {
-            visible = false;
-        }
-    }
 }

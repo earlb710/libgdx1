@@ -1703,8 +1703,21 @@ public class MainScreen implements Screen {
     /**
      * Generates 1–2 random emails (client requests and/or police cases) and
      * opens the email popup so the player can accept or decline each one.
+     * Emails are only generated once per in-game day; subsequent calls on the
+     * same day show a "no new emails" notice instead.
      */
     private void handleCheckEmailsClick() {
+        // Once-per-day guard
+        String today = profile.getGameDateTime().substring(0, 10);
+        if (today.equals(profile.getLastEmailCheckDate())) {
+            java.util.List<String> lines = new java.util.ArrayList<>();
+            lines.add("No new emails today.");
+            lines.add("Check back tomorrow.");
+            serviceResultPopup.show("Inbox", lines);
+            return;
+        }
+        profile.setLastEmailCheckDate(today);
+
         java.util.Random rng = new java.util.Random(System.currentTimeMillis());
         java.util.List<EmailPopup.EmailData> emails = new java.util.ArrayList<>();
 
@@ -1724,6 +1737,7 @@ public class MainScreen implements Screen {
             if (isPolice) {
                 String detective = (png != null) ? png.generateFull("M") : "James Carter";
                 String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
+                int reward = 500 + rng.nextInt(6) * 100; // $500–$1000
                 emails.add(new EmailPopup.EmailData(
                         "Det. " + detective + " (NYPD)",
                         "Consulting Request \u2014 Homicide",
@@ -1732,7 +1746,8 @@ public class MainScreen implements Screen {
                                 + "\u2014 Det. " + detective,
                         "NYPD: Crime Scene",
                         dt,
-                        "Crime Scene (TBD)"
+                        "Crime Scene (TBD)",
+                        reward, null
                 ));
             } else {
                 String gender = rng.nextBoolean() ? "M" : "F";
@@ -1740,6 +1755,7 @@ public class MainScreen implements Screen {
                 String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3), usedDTs);
                 boolean atOffice = rng.nextBoolean();
                 String loc = atOffice ? "Your Office" : "Downtown Cafe";
+                int reward = 200 + rng.nextInt(5) * 100; // $200–$600
                 emails.add(new EmailPopup.EmailData(
                         clientName,
                         "I need your help urgently",
@@ -1749,7 +1765,8 @@ public class MainScreen implements Screen {
                                 + "Regards,\n" + clientName,
                         "Meeting: " + clientName,
                         dt,
-                        loc
+                        loc,
+                        reward, null
                 ));
             }
         }
@@ -1768,9 +1785,11 @@ public class MainScreen implements Screen {
         EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
         if (email == null) return;
         profile.addCalendarEntry(
-                new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation));
+                new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
+                        email.rewardMoney, email.rewardItemName));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
-                + " @ " + email.calendarDateTime);
+                + " @ " + email.calendarDateTime
+                + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
     }
 
     /**
