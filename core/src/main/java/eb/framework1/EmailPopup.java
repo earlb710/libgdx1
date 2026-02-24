@@ -273,7 +273,7 @@ class EmailPopup {
 
         // Text
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH;
+        float ty = dialogY + dialogH - PAD;
 
         font.setColor(TITLE_COLOR);
         glyph.setText(font, titleStr);

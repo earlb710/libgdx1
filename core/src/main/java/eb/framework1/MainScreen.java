@@ -1711,12 +1711,19 @@ public class MainScreen implements Screen {
         PersonNameGenerator png = (game.getGameDataManager() != null)
                 ? game.getGameDataManager().getPersonNameGenerator() : null;
 
+        // Seed the used-datetime set from already-accepted calendar entries so
+        // newly generated appointments never clash with existing ones.
+        java.util.Set<String> usedDTs = new java.util.HashSet<>();
+        for (CalendarEntry ce : profile.getCalendarEntries()) {
+            usedDTs.add(ce.dateTime);
+        }
+
         int count = 1 + rng.nextInt(2); // 1 or 2 emails
         for (int i = 0; i < count; i++) {
             boolean isPolice = (i > 0) && rng.nextBoolean();
             if (isPolice) {
                 String detective = (png != null) ? png.generateFull("M") : "James Carter";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2));
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
                 emails.add(new EmailPopup.EmailData(
                         "Det. " + detective + " (NYPD)",
                         "Consulting Request \u2014 Homicide",
@@ -1730,7 +1737,7 @@ public class MainScreen implements Screen {
             } else {
                 String gender = rng.nextBoolean() ? "M" : "F";
                 String clientName = (png != null) ? png.generateFull(gender) : "Alex Morgan";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3));
+                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3), usedDTs);
                 boolean atOffice = rng.nextBoolean();
                 String loc = atOffice ? "Your Office" : "Downtown Cafe";
                 emails.add(new EmailPopup.EmailData(
@@ -1767,26 +1774,41 @@ public class MainScreen implements Screen {
     }
 
     /**
-     * Returns a game date-time string {@code daysAhead} days from {@code currentDT},
-     * at 09:00.  Format: {@code "YYYY-MM-DD 09:00"}.
+     * Returns a game date-time string that is at least {@code daysAhead} days
+     * from {@code currentDT}, at 09:00, and not already present in
+     * {@code usedDTs}.  The chosen datetime is added to {@code usedDTs} so
+     * subsequent calls in the same batch automatically receive a different slot.
+     * Format: {@code "YYYY-MM-DD 09:00"}.
      */
-    private static String nextAppointmentDT(String currentDT, int daysAhead) {
+    private static String nextAppointmentDT(String currentDT, int daysAhead,
+                                             java.util.Set<String> usedDTs) {
         try {
             String[] parts = currentDT.split(" ")[0].split("-");
             int year  = Integer.parseInt(parts[0]);
             int month = Integer.parseInt(parts[1]);
             int day   = Integer.parseInt(parts[2]);
             day += daysAhead;
+            // Advance until we land on a free slot
             while (true) {
-                boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-                int[] dim = {31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-                if (day <= dim[month - 1]) break;
-                day -= dim[month - 1];
-                if (++month > 12) { month = 1; year++; }
+                // Normalise the date (roll over month/year boundaries)
+                while (true) {
+                    boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+                    int[] dim = {31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                    if (day <= dim[month - 1]) break;
+                    day -= dim[month - 1];
+                    if (++month > 12) { month = 1; year++; }
+                }
+                String candidate = String.format("%04d-%02d-%02d 09:00", year, month, day);
+                if (!usedDTs.contains(candidate)) {
+                    usedDTs.add(candidate);
+                    return candidate;
+                }
+                day++; // slot taken — try the next day
             }
-            return String.format("%04d-%02d-%02d 09:00", year, month, day);
         } catch (Exception e) {
-            return currentDT.split(" ")[0] + " 09:00";
+            String fallback = currentDT.split(" ")[0] + " 09:00";
+            usedDTs.add(fallback);
+            return fallback;
         }
     }
 
