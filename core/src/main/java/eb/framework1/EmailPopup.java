@@ -501,6 +501,17 @@ class EmailPopup {
                 closeX + (closeW - glyph.width) / 2f,
                 closeY + (closeH + glyph.height) / 2f);
 
+        // Status symbol to the right of the Close button
+        if (st == STATUS_ACCEPTED || st == STATUS_DECLINED) {
+            String sym = (st == STATUS_ACCEPTED) ? CHECK_SYMBOL.trim() : CROSS_SYMBOL.trim();
+            font.setColor(st == STATUS_ACCEPTED ? CHECK_COLOR : CROSS_COLOR);
+            glyph.setText(font, sym);
+            font.draw(batch, sym,
+                    closeX + closeW + 10f,
+                    closeY + (closeH + glyph.height) / 2f);
+            font.setColor(Color.WHITE);
+        }
+
         batch.end();
     }
 
