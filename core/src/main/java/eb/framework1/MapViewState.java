@@ -79,6 +79,9 @@ class MapViewState {
     float walkTimer     = 0f;
     static final float WALK_STEP_SECONDS = 0.4f;
 
+    // --- Traveled road path (accumulates every cell visited while walking) ---
+    java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
+
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;

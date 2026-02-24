@@ -24,6 +24,7 @@ class MapRenderer {
     private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f,   0.8f,  1f,    1f);
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
+    private static final Color TRAVELED_ROAD_COLOR   = new Color(0f,   0.2f,  1f,    1f);
 
     static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -167,6 +168,44 @@ class MapRenderer {
                     for (int i = 0; i < thickness; i++) {
                         shapeRenderer.rect(drawX + i, drawY + i, cellSize - 2 * i, cellSize - 2 * i);
                     }
+                }
+            }
+            shapeRenderer.end();
+        }
+
+        // Traveled road segments – blue filled rectangles in the road-gap between consecutive cells
+        if (s.traveledPath != null && s.traveledPath.size() >= 2) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(TRAVELED_ROAD_COLOR);
+            for (int i = 0; i < s.traveledPath.size() - 1; i++) {
+                int[] c1 = s.traveledPath.get(i);
+                int[] c2 = s.traveledPath.get(i + 1);
+                int cx1 = c1[0], cy1 = c1[1];
+                int cx2 = c2[0], cy2 = c2[1];
+                // Only draw segments where at least one endpoint is within the visible range
+                boolean c1Vis = cx1 >= startCellX && cx1 < endCellX && cy1 >= startCellY && cy1 < endCellY;
+                boolean c2Vis = cx2 >= startCellX && cx2 < endCellX && cy2 >= startCellY && cy2 < endCellY;
+                if (!c1Vis && !c2Vis) continue;
+                float drawX1 = mapStartX + (cx1 - startCellX - fracOffsetX) * cellSize;
+                float drawY1 = mapStartY + (visibleCellsY - 1 - (cy1 - startCellY - fracOffsetY)) * cellSize;
+                float roadBorderWidth = borderSize * 2f;
+                float innerLen = cellSize - roadBorderWidth;
+                if (cx2 == cx1 + 1) {
+                    // East: gap at the right edge of c1
+                    shapeRenderer.rect(drawX1 + cellSize - borderSize, drawY1 + borderSize,
+                            roadBorderWidth, innerLen);
+                } else if (cx2 == cx1 - 1) {
+                    // West: gap at the left edge of c1
+                    shapeRenderer.rect(drawX1 - borderSize, drawY1 + borderSize,
+                            roadBorderWidth, innerLen);
+                } else if (cy2 == cy1 + 1) {
+                    // North (cy+1 rendered below c1 in screen space): gap below c1's rect
+                    shapeRenderer.rect(drawX1 + borderSize, drawY1 - borderSize,
+                            innerLen, roadBorderWidth);
+                } else if (cy2 == cy1 - 1) {
+                    // South (cy-1 rendered above c1 in screen space): gap above c1's rect
+                    shapeRenderer.rect(drawX1 + borderSize, drawY1 + cellSize - borderSize,
+                            innerLen, roadBorderWidth);
                 }
             }
             shapeRenderer.end();

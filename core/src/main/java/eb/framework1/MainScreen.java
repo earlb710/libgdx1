@@ -1332,6 +1332,17 @@ public class MainScreen implements Screen {
         profile.advanceGameTime(state.currentRoute.totalMinutes);
         profile.useStamina(2);
 
+        // Seed the traveled path with the starting cell (if not already there)
+        if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
+        if (!state.currentRoute.path.isEmpty()) {
+            int[] startCell = state.currentRoute.path.get(0);
+            if (state.traveledPath.isEmpty()
+                    || state.traveledPath.get(state.traveledPath.size() - 1)[0] != startCell[0]
+                    || state.traveledPath.get(state.traveledPath.size() - 1)[1] != startCell[1]) {
+                state.traveledPath.add(new int[]{startCell[0], startCell[1]});
+            }
+        }
+
         // Start walk animation along the route path
         state.walkPath     = state.currentRoute.path;
         state.walkStepIdx  = 1;  // index 0 is the current (start) cell – skip it
@@ -1798,9 +1809,16 @@ public class MainScreen implements Screen {
             return;
         }
 
+        int prevX = state.charCellX;
+        int prevY = state.charCellY;
+
         int[] cell = state.walkPath.get(state.walkStepIdx);
         state.charCellX = cell[0];
         state.charCellY = cell[1];
+
+        // Accumulate this cell into the persistent traveled path
+        if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
+        state.traveledPath.add(new int[]{state.charCellX, state.charCellY});
 
         // Centre the map on the current walk cell
         state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
@@ -1818,9 +1836,22 @@ public class MainScreen implements Screen {
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
-            // 10% chance of discovering an intermediate cell while passing through
-            if (MathUtils.random() < 0.10f) {
-                discoverCell(state.charCellX, state.charCellY);
+            // Discover the two cells perpendicular to the direction of movement,
+            // each with a 10% chance of discovery.
+            int dx = state.charCellX - prevX;
+            int dy = state.charCellY - prevY;
+            // Perpendicular vectors: rotate (dx,dy) by +90° and -90°
+            int side1X = state.charCellX + dy;
+            int side1Y = state.charCellY - dx;
+            int side2X = state.charCellX - dy;
+            int side2Y = state.charCellY + dx;
+            if (side1X >= 0 && side1X < CityMap.MAP_SIZE
+                    && side1Y >= 0 && side1Y < CityMap.MAP_SIZE) {
+                if (MathUtils.random() < 0.10f) discoverCell(side1X, side1Y);
+            }
+            if (side2X >= 0 && side2X < CityMap.MAP_SIZE
+                    && side2Y >= 0 && side2Y < CityMap.MAP_SIZE) {
+                if (MathUtils.random() < 0.10f) discoverCell(side2X, side2Y);
             }
             state.walkTimer = MapViewState.WALK_STEP_SECONDS;
         }
