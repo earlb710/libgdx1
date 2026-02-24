@@ -41,15 +41,26 @@ class EmailPopup {
         final String calendarLocation;
         final int    rewardMoney;       // 0 = no money reward
         final String rewardItemName;    // null = no item reward
+        /** Map cell of the appointment location; -1 if unknown. */
+        final int    locationCellX;
+        final int    locationCellY;
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation) {
-            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null);
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1);
         }
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation,
                   int rewardMoney, String rewardItemName) {
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
+                    rewardMoney, rewardItemName, -1, -1);
+        }
+
+        EmailData(String from, String subject, String body,
+                  String calendarTitle, String calendarDateTime, String calendarLocation,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY) {
             this.from             = from             != null ? from             : "";
             this.subject          = subject          != null ? subject          : "";
             this.body             = body             != null ? body             : "";
@@ -58,6 +69,8 @@ class EmailPopup {
             this.calendarLocation = calendarLocation != null ? calendarLocation : "";
             this.rewardMoney      = Math.max(0, rewardMoney);
             this.rewardItemName   = rewardItemName;
+            this.locationCellX    = locationCellX;
+            this.locationCellY    = locationCellY;
         }
     }
 
@@ -88,6 +101,9 @@ class EmailPopup {
     private static final Color NAV_COLOR     = new Color(0.18f, 0.28f, 0.42f, 1f);
     private static final Color CHECK_COLOR   = new Color(0.20f, 0.85f, 0.30f, 1f);
     private static final Color CROSS_COLOR   = new Color(0.85f, 0.25f, 0.25f, 1f);
+
+    private static final String CHECK_SYMBOL = "\u2713 ";
+    private static final String CROSS_SYMBOL = "\u2717 ";
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -142,6 +158,36 @@ class EmailPopup {
         this.visible = !this.emails.isEmpty();
         this.closeW  = 0f;
         Gdx.app.log("EmailPopup", "Opened with " + this.emails.size() + " email(s)");
+    }
+
+    /**
+     * Re-opens the popup restoring previously recorded accept/decline statuses.
+     * Use this when the same day's emails are shown again after being closed.
+     *
+     * @param list     The same email list passed to the original {@link #show} call.
+     * @param statuses Status array from {@link #getStatuses()}; a length mismatch
+     *                 is handled gracefully (unmatched entries default to unread).
+     */
+    void showWithStatus(List<EmailData> list, int[] statuses) {
+        this.emails  = new ArrayList<>(list);
+        this.current = 0;
+        this.status  = new int[this.emails.size()];
+        if (statuses != null) {
+            int len = Math.min(statuses.length, this.status.length);
+            System.arraycopy(statuses, 0, this.status, 0, len);
+        }
+        this.visible = !this.emails.isEmpty();
+        this.closeW  = 0f;
+        Gdx.app.log("EmailPopup", "Re-opened with " + this.emails.size() + " email(s) (statuses restored)");
+    }
+
+    /**
+     * Returns a snapshot of the current per-email status array.
+     * Save this before closing and pass it to {@link #showWithStatus} on re-open.
+     */
+    int[] getStatuses() {
+        if (status == null) return new int[0];
+        return java.util.Arrays.copyOf(status, status.length);
     }
 
     /**
@@ -227,8 +273,8 @@ class EmailPopup {
         TextMeasurer.TextBounds nextBounds = TextMeasurer.measure(smallFont, glyph, nextLabel, 14f, 8f);
 
         // Status indicator suffix: " ✓" or " ✗" or ""
-        String statusSuffix = st == STATUS_ACCEPTED ? " \u2713"
-                            : st == STATUS_DECLINED ? " \u2717" : "";
+        String statusSuffix = st == STATUS_ACCEPTED ? " " + CHECK_SYMBOL.trim()
+                            : st == STATUS_DECLINED ? " " + CROSS_SYMBOL.trim() : "";
         String titleStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]" + statusSuffix;
 
         // Measure for dialog width
@@ -241,7 +287,10 @@ class EmailPopup {
         float minLineW = glyph.width + prevBounds.width + BTN_GAP * 2 + nextBounds.width;
         glyph.setText(smallFont, "From: " + email.from);
         minLineW = Math.max(minLineW, glyph.width);
-        glyph.setText(smallFont, "Subject: " + email.subject);
+        // For processed emails include the status symbol prefix width in the subject measure
+        String subjectPrefix = (st == STATUS_ACCEPTED) ? CHECK_SYMBOL
+                             : (st == STATUS_DECLINED)  ? CROSS_SYMBOL : "";
+        glyph.setText(smallFont, subjectPrefix + "Subject: " + email.subject);
         minLineW = Math.max(minLineW, glyph.width);
 
         float dialogW = MathUtils.clamp(minLineW + 2 * PAD, MIN_W, MAX_W);
@@ -393,8 +442,23 @@ class EmailPopup {
         smallFont.draw(batch, "From: " + email.from, dialogX + PAD, ty);
         ty -= smallLineH;
 
-        smallFont.setColor(FROM_COLOR);
-        smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD, ty);
+        // Subject line: prefix with coloured ✓ or ✗ when already processed
+        if (st == STATUS_ACCEPTED) {
+            smallFont.setColor(CHECK_COLOR);
+            glyph.setText(smallFont, CHECK_SYMBOL);
+            smallFont.draw(batch, CHECK_SYMBOL, dialogX + PAD, ty);
+            smallFont.setColor(FROM_COLOR);
+            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD + glyph.width, ty);
+        } else if (st == STATUS_DECLINED) {
+            smallFont.setColor(CROSS_COLOR);
+            glyph.setText(smallFont, CROSS_SYMBOL);
+            smallFont.draw(batch, CROSS_SYMBOL, dialogX + PAD, ty);
+            smallFont.setColor(FROM_COLOR);
+            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD + glyph.width, ty);
+        } else {
+            smallFont.setColor(FROM_COLOR);
+            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD, ty);
+        }
         ty -= smallLineH + GAP;
 
         smallFont.setColor(BODY_COLOR);
@@ -436,6 +500,19 @@ class EmailPopup {
         font.draw(batch, "Close",
                 closeX + (closeW - glyph.width) / 2f,
                 closeY + (closeH + glyph.height) / 2f);
+
+        // Status symbol in the lower-right corner of the dialog
+        if (st == STATUS_ACCEPTED || st == STATUS_DECLINED) {
+            String sym = (st == STATUS_ACCEPTED) ? CHECK_SYMBOL.trim() : CROSS_SYMBOL.trim();
+            font.setColor(st == STATUS_ACCEPTED ? CHECK_COLOR : CROSS_COLOR);
+            glyph.setText(font, sym);
+            float symW = glyph.width;
+            float symH = glyph.height;
+            font.draw(batch, sym,
+                    dialogX + dialogW - PAD - symW,
+                    dialogY + PAD + (closeH + symH) / 2f);
+            font.setColor(Color.WHITE);
+        }
 
         batch.end();
     }

@@ -48,7 +48,7 @@ class InfoPanelRenderer {
     private static final Color SCROLLBAR_THUMB_COLOR  = new Color(0.5f,  0.5f,  0.7f,  1f);
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
-    private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
+    static final Color         NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
     private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
@@ -516,7 +516,7 @@ class InfoPanelRenderer {
                     if (!bMod.isEmpty()) {
                         glyphLayout.setText(smallFont, bName);
                         tinyFont.setColor(Color.WHITE);
-                        tinyFont.draw(batch, " " + bMod,
+                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
                                 nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
                     }
                     textY -= fontLineH;
@@ -560,7 +560,7 @@ class InfoPanelRenderer {
                             if (!modStr.isEmpty()) {
                                 glyphLayout.setText(font, namePart);
                                 tinyFont.setColor(Color.WHITE);
-                                tinyFont.draw(batch, " " + modStr,
+                                tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
@@ -1018,6 +1018,9 @@ class InfoPanelRenderer {
         s.infoMaxScrollX = 0f;
         s.infoScrollX = 0f;
 
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
         glyphLayout.setText(smallFont, "Hg");
         float smallCapH = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
@@ -1068,9 +1071,18 @@ class InfoPanelRenderer {
                 font.setColor(Color.WHITE);
                 font.draw(batch, entry.title, PAD + 8f, ty + drawScrollY);
                 ty -= fontLineH;
-                // Location
+                // Location + cell + travel time
                 smallFont.setColor(new Color(0.65f, 0.65f, 0.65f, 1f));
-                smallFont.draw(batch, entry.location, PAD + 8f, ty + drawScrollY);
+                String locLine = entry.location;
+                if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                    CityMap.RouteResult route = cityMap.findFastestRoute(
+                            s.charCellX, s.charCellY,
+                            entry.locationCellX, entry.locationCellY);
+                    String travelStr = route.formatTime(); // returns "Unreachable" when not reachable
+                    locLine += "  (" + MapRenderer.cellLabel(entry.locationCellX, entry.locationCellY)
+                             + " \u00b7 " + travelStr + ")";
+                }
+                smallFont.draw(batch, locLine, PAD + 8f, ty + drawScrollY);
                 ty -= smallLineH;
                 // Reward (if any)
                 if (entry.rewardMoney > 0 || entry.rewardItemName != null) {
@@ -1126,6 +1138,10 @@ class InfoPanelRenderer {
         s.noteLocCbW         = 0f;
 
         final float PAD = 12f;
+
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
 
         // --- Poplist header: open cases ---
         List<CaseFile> openCases = profile.getOpenCases();
@@ -1599,6 +1615,35 @@ class InfoPanelRenderer {
             sb.append(val);
         }
         return sb.append(']').toString();
+    }
+
+    /**
+     * Same as {@link #formatAttributeModifiers} but wraps each numeric value in a
+     * LibGDX colour-markup tag so it renders in bright green when drawn with a
+     * {@link com.badlogic.gdx.graphics.g2d.BitmapFont} that has
+     * {@code markupEnabled = true}.
+     *
+     * <p>Example output: {@code [[STR[#00EE44FF]+2[]]}</p>
+     */
+    static String formatAttributeModifiersMarkup(Map<CharacterAttribute, Integer> modifiers) {
+        if (modifiers == null || modifiers.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder("[["); // "[" rendered as "[[" in markup
+        boolean first = true;
+        for (Map.Entry<CharacterAttribute, Integer> e : modifiers.entrySet()) {
+            if (!first) sb.append(' ');
+            first = false;
+            String name = e.getKey().getDisplayName();
+            String abbr = name.length() >= 3 ? name.substring(0, 3).toUpperCase() : name.toUpperCase();
+            int val = e.getValue();
+            sb.append(abbr);
+            // Colour only the numeric part in bright green
+            sb.append("[#00EE44FF]");
+            if (val > 0) sb.append('+');
+            sb.append(val);
+            sb.append("[]"); // reset colour
+        }
+        sb.append(']');
+        return sb.toString();
     }
 
 }

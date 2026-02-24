@@ -145,16 +145,29 @@ public class FontManager implements Disposable {
     
     /**
      * Generate fonts using FreeTypeFontGenerator for best quality.
+     *
+     * <p>Anti-aliasing: LibGDX FreeType fonts are anti-aliased by default
+     * ({@code mono = false}).  We make this explicit here and use
+     * {@link FreeTypeFontGenerator.Hinting#AutoFull} for the highest-quality
+     * sub-pixel hinting, which produces the smoothest rendered glyphs.</p>
      */
     private void generateFontsWithFreeType() {
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        // Anti-aliasing: FreeType renders with AA when mono=false (the default).
+        // Setting it explicitly documents the intent and prevents accidental toggling.
+        parameter.mono = false;
+        // AutoFull hinting: best balance of sharpness and smooth AA curves
+        parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
         // Use MipMapLinearNearest for minFilter to reduce aliasing at small sizes
         // Use Linear for magFilter for smooth scaling when magnified
         // This combination provides crisp, high-quality text rendering
         parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         parameter.genMipMaps = true;  // Generate mipmaps for better quality at various sizes
-        
+        // Include status-icon glyphs (✓ U+2713, ✗ U+2717) used in email accepted/declined indicators.
+        // FreeTypeFontGenerator only bakes DEFAULT_CHARS (ASCII) unless these are added explicitly.
+        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
+
         // Title font - large, for headers
         int titleSize = calculateFontSize(TITLE_SIZE_DP);
         parameter.size = titleSize;
@@ -193,9 +206,12 @@ public class FontManager implements Disposable {
         // Bold variants – simulated via a thin border around each glyph
         // Use a fresh parameter to avoid state leaking from the regular-font parameter
         FreeTypeFontParameter boldParameter = new FreeTypeFontParameter();
+        boldParameter.mono = false;
+        boldParameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
         boldParameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         boldParameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         boldParameter.genMipMaps = true;
+        boldParameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
         boldParameter.borderWidth = 1f;
         boldParameter.borderStraight = true;
 
@@ -217,6 +233,8 @@ public class FontManager implements Disposable {
         // Handwritten font for player notes (uses separate TTF)
         if (handwrittenGenerator != null) {
             FreeTypeFontParameter noteParam = new FreeTypeFontParameter();
+            noteParam.mono = false;
+            noteParam.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             noteParam.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             noteParam.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             noteParam.genMipMaps = true;
@@ -329,9 +347,12 @@ public class FontManager implements Disposable {
             FreeTypeFontParameter parameter = new FreeTypeFontParameter();
             parameter.size = (int)(dp * density);
             parameter.color = color;
+            parameter.mono = false;
+            parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
             return generator.generateFont(parameter);
         } else {
             // Fallback to BitmapFont
@@ -358,9 +379,12 @@ public class FontManager implements Disposable {
             parameter.color = color;
             parameter.borderWidth = 1f;
             parameter.borderStraight = true;
+            parameter.mono = false;
+            parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
             return generator.generateFont(parameter);
         } else {
             BitmapFont font = new BitmapFont();

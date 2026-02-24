@@ -192,6 +192,19 @@ public class Profile {
         currentStamina = Math.min(getMaxStamina(), getCurrentStamina() + amount);
     }
 
+    /**
+     * Adds {@code amount} stamina points capped at {@code cap} instead of
+     * {@link #getMaxStamina()}.  Use this when a location bonus allows the
+     * effective maximum to exceed the base cap.
+     *
+     * @param amount amount to add (negative values are ignored)
+     * @param cap    hard upper limit (e.g. base max + location modifier × 10)
+     */
+    public void addStaminaUpTo(int amount, int cap) {
+        if (amount <= 0) return;
+        currentStamina = Math.min(cap, getCurrentStamina() + amount);
+    }
+
     /** Divisor converting body weight (kg) to base carry capacity (kg). */
     private static final float BODY_WEIGHT_CAPACITY_DIVISOR = 4f;
 

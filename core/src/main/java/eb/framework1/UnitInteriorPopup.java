@@ -23,13 +23,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
  */
 class UnitInteriorPopup {
 
-    private static final Color BG_COLOR        = new Color(0.08f, 0.08f, 0.18f, 1f);
-    private static final Color BORDER_COLOR    = new Color(0.5f,  0.5f,  0.8f,  1f);
-    private static final Color REST_BTN_COLOR  = new Color(0.4f,  0.25f, 0.05f, 1f);
-    private static final Color SLEEP_BTN_COLOR = new Color(0.08f, 0.08f, 0.45f, 1f);
-    private static final Color STASH_BTN_COLOR = new Color(0.35f, 0.15f, 0.50f, 1f);
-    private static final Color EMAIL_BTN_COLOR = new Color(0.10f, 0.30f, 0.50f, 1f);
-    private static final Color EXIT_BTN_COLOR  = new Color(0.35f, 0.05f, 0.05f, 1f);
+    private static final Color BG_COLOR             = new Color(0.08f, 0.08f, 0.18f, 1f);
+    private static final Color BORDER_COLOR         = new Color(0.5f,  0.5f,  0.8f,  1f);
+    private static final Color REST_BTN_COLOR       = new Color(0.4f,  0.25f, 0.05f, 1f);
+    private static final Color SLEEP_BTN_COLOR      = new Color(0.08f, 0.08f, 0.45f, 1f);
+    private static final Color SLEEP_DISABLED_COLOR = new Color(0.12f, 0.12f, 0.18f, 1f);
+    private static final Color STASH_BTN_COLOR      = new Color(0.35f, 0.15f, 0.50f, 1f);
+    private static final Color EMAIL_BTN_COLOR      = new Color(0.10f, 0.30f, 0.50f, 1f);
+    private static final Color EXIT_BTN_COLOR       = new Color(0.35f, 0.05f, 0.05f, 1f);
+    private static final Color DISABLED_TEXT_COLOR  = new Color(0.40f, 0.40f, 0.40f, 1f);
+    private static final Color DISABLED_BORDER_COLOR= new Color(0.25f, 0.25f, 0.35f, 1f);
 
     private final SpriteBatch   batch;
     private final ShapeRenderer sr;
@@ -73,22 +76,30 @@ class UnitInteriorPopup {
         final float EXIT_W   = exitBounds.width;
         final float fontCapH = restBounds.textHeight;
 
+        // Measure "1 hr" label so Sleep button is placed immediately after it
+        glyph.setText(smallFont, "1 hr");
+        final float ONE_HR_W = glyph.width;
+        final float ONE_HR_GAP = 10f;  // gap between Rest btn and "1 hr" text
+        final float SLEEP_GAP  = 16f;  // gap between "1 hr" text and Sleep btn
+
+        // Both Rest and Sleep are always visible
+        // Layout: title first, then [Rest] 1 hr [Sleep] until 6:00, then stash/email/exit
+        // Sleep is disabled (greyed out) during daytime (05:00–19:59)
         int curHour = profile.getCurrentHour();
-        boolean showRest  = curHour >= 5 && curHour < 20;
-        boolean showSleep = !showRest;
+        boolean isNight = curHour >= 20 || curHour < 5;
 
-        // Layout: title first, then buttons below it
         final float btnX = 20f;
-        float titleY = panelH - PAD_Y - fontCapH;   // top of title text
-        float curY   = titleY - fontCapH - BTN_SPACING - BTN_H; // first button below title
+        float titleY = panelH - PAD_Y - fontCapH;
+        float curY   = titleY - fontCapH - BTN_SPACING - BTN_H; // first row
 
-        s.restBtnX  = btnX; s.restBtnW  = showRest  ? REST_W  : 0f; s.restBtnH  = BTN_H;
+        // Rest and Sleep share the same row
+        s.restBtnX  = btnX; s.restBtnW  = REST_W;  s.restBtnH = BTN_H;
         s.restBtnY  = curY;
-        if (showRest)  curY -= BTN_H + BTN_SPACING;
 
-        s.sleepBtnX = btnX; s.sleepBtnW = showSleep ? SLEEP_W : 0f; s.sleepBtnH = BTN_H;
+        float sleepBtnX = btnX + REST_W + ONE_HR_GAP + ONE_HR_W + SLEEP_GAP;
+        s.sleepBtnX = sleepBtnX; s.sleepBtnW = isNight ? SLEEP_W : 0f; s.sleepBtnH = BTN_H;
         s.sleepBtnY = curY;
-        if (showSleep) curY -= BTN_H + BTN_SPACING;
+        curY -= BTN_H + BTN_SPACING;
 
         // Open Stash and Check Emails — always visible when inside office
         s.openStashBtnX  = btnX; s.openStashBtnW  = STASH_W; s.openStashBtnH  = BTN_H;
@@ -106,14 +117,10 @@ class UnitInteriorPopup {
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(0, 0, panelW, panelH);
-        if (showRest) {
-            sr.setColor(REST_BTN_COLOR);
-            sr.rect(s.restBtnX, s.restBtnY, REST_W, BTN_H);
-        }
-        if (showSleep) {
-            sr.setColor(SLEEP_BTN_COLOR);
-            sr.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
-        }
+        sr.setColor(REST_BTN_COLOR);
+        sr.rect(s.restBtnX, s.restBtnY, REST_W, BTN_H);
+        sr.setColor(isNight ? SLEEP_BTN_COLOR : SLEEP_DISABLED_COLOR);
+        sr.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
         sr.setColor(STASH_BTN_COLOR);
         sr.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
         sr.setColor(EMAIL_BTN_COLOR);
@@ -125,14 +132,12 @@ class UnitInteriorPopup {
         sr.begin(ShapeRenderer.ShapeType.Line);
         sr.setColor(BORDER_COLOR);
         sr.line(0, panelH, panelW, panelH);
-        if (showRest) {
-            sr.rect(s.restBtnX,     s.restBtnY,     REST_W,     BTN_H);
-            sr.rect(s.restBtnX + 1, s.restBtnY + 1, REST_W - 2, BTN_H - 2);
-        }
-        if (showSleep) {
-            sr.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
-            sr.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
-        }
+        sr.rect(s.restBtnX,     s.restBtnY,     REST_W,     BTN_H);
+        sr.rect(s.restBtnX + 1, s.restBtnY + 1, REST_W - 2, BTN_H - 2);
+        sr.setColor(isNight ? BORDER_COLOR : DISABLED_BORDER_COLOR);
+        sr.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
+        sr.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
+        sr.setColor(BORDER_COLOR);
         sr.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
         sr.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
         sr.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     EMAIL_W,     BTN_H);
@@ -143,30 +148,29 @@ class UnitInteriorPopup {
 
         // --- Draw text ---
         batch.begin();
-        // Unit title (uses same titleY computed above)
+        // Unit title
         font.setColor(Color.YELLOW);
         font.draw(batch, s.unitInteriorLabel != null ? s.unitInteriorLabel : "", 20f, titleY);
 
-        if (showRest) {
-            glyph.setText(font, "Rest");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Rest",
-                    s.restBtnX + (REST_W - glyph.width) / 2,
-                    s.restBtnY + (BTN_H + glyph.height) / 2);
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "1 hr", s.restBtnX + REST_W + 10f,
-                    s.restBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
-        }
-        if (showSleep) {
-            glyph.setText(font, "Sleep");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Sleep",
-                    s.sleepBtnX + (SLEEP_W - glyph.width) / 2,
-                    s.sleepBtnY + (BTN_H + glyph.height) / 2);
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
-                    s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
-        }
+        // Rest button
+        glyph.setText(font, "Rest");
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Rest",
+                s.restBtnX + (REST_W - glyph.width) / 2,
+                s.restBtnY + (BTN_H + glyph.height) / 2);
+        smallFont.setColor(Color.WHITE);
+        float oneHrY = s.restBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2;
+        smallFont.draw(batch, "1 hr", s.restBtnX + REST_W + ONE_HR_GAP, oneHrY);
+
+        // Sleep button (same row, right after "1 hr" text) — greyed out during daytime
+        glyph.setText(font, "Sleep");
+        font.setColor(isNight ? Color.WHITE : DISABLED_TEXT_COLOR);
+        font.draw(batch, "Sleep",
+                s.sleepBtnX + (SLEEP_W - glyph.width) / 2,
+                s.sleepBtnY + (BTN_H + glyph.height) / 2);
+        smallFont.setColor(isNight ? Color.WHITE : DISABLED_TEXT_COLOR);
+        smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + ONE_HR_GAP,
+                s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         glyph.setText(font, "Open Stash");
         font.setColor(Color.WHITE);
         font.draw(batch, "Open Stash",

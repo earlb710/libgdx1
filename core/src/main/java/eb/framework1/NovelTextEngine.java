@@ -544,6 +544,17 @@ public class NovelTextEngine {
         return bestText;
     }
 
+    /** Wraps each value in a single-element list, producing a map of lists. */
+    private static <K> Map<K, List<DescriptionEntry>> wrapInLists(Map<K, DescriptionEntry> map) {
+        Map<K, List<DescriptionEntry>> result = new HashMap<>();
+        if (map != null) {
+            for (Map.Entry<K, DescriptionEntry> e : map.entrySet()) {
+                result.put(e.getKey(), Collections.singletonList(e.getValue()));
+            }
+        }
+        return result;
+    }
+
     /** Converts a lower-case time-of-day string from JSON to a {@link TimeOfDay} constant. */
     private static TimeOfDay parseTimeOfDay(String name) {
         if (name == null) return null;

@@ -25,9 +25,23 @@ class MapRenderer {
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
 
-    private static final String[] HEX_DIGITS = {
+    static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
     };
+
+    /**
+     * Returns a map cell label in the same format shown on the rulers, e.g.
+     * column 8 + row 10 → {@code "8A"}.
+     *
+     * @param x column index (0–15)
+     * @param y row index (0–15)
+     * @return hex-digit label, or {@code "??"} when out of range
+     */
+    static String cellLabel(int x, int y) {
+        if (x < 0 || x >= HEX_DIGITS.length || y < 0 || y >= HEX_DIGITS.length)
+            return "??";
+        return HEX_DIGITS[x] + HEX_DIGITS[y];
+    }
     private static final int SELECTION_THICKNESS = 5;
 
     // --- Rendering resources ---

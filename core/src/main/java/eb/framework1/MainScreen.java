@@ -57,14 +57,20 @@ public class MainScreen implements Screen {
     private LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
+    private RestingPopup      restingPopup;
     private HelpPopup         helpPopup;
     private DiscoveryPopup    discoveryPopup;
     private ServiceResultPopup serviceResultPopup;
     private StashPopup         stashPopup;
+    private PutInStashPopup    putInStashPopup;
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private EmailPopup           emailPopup;
     private ConfirmPopup         confirmDropPopup;
+    /** The emails generated for today's inbox; null or empty = none generated yet today. */
+    private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
+    /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
+    private int[] todaysEmailStatuses = new int[0];
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -94,6 +100,19 @@ public class MainScreen implements Screen {
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
     private static final long  DOUBLE_CLICK_MS      = 400L;
+    private static final String BUILDING_ID_COFFEE_SHOP   = "coffee_shop";
+    private static final String BUILDING_ID_SECURITY_SHOP = "security_shop";
+
+    // Prices for purchasable gear at the security shop (item name → cost in $)
+    private static final java.util.Map<String, Integer> GEAR_PRICES;
+    static {
+        java.util.Map<String, Integer> m = new java.util.LinkedHashMap<>();
+        m.put("Pistol",       350);
+        m.put("Binoculars",   120);
+        m.put("Camera",       200);
+        m.put("Pepper Spray",  50);
+        GEAR_PRICES = java.util.Collections.unmodifiableMap(m);
+    }
 
     // -------------------------------------------------------------------------
 
@@ -118,6 +137,7 @@ public class MainScreen implements Screen {
         boldSmallFont = game.getFontManager().getBoldSmallFont();
         tinyFont      = game.getFontManager().getTinyFont();
         noteFont      = game.getFontManager().getNoteFont();
+        tinyFont.getData().markupEnabled = true;  // enables colour markup tags in tinyFont draw calls
 
         GameDataManager gameData = game.getGameDataManager();
         novelTextEngine = gameData.getNovelTextEngine();
@@ -198,6 +218,8 @@ public class MainScreen implements Screen {
 
         tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        restingPopup = new RestingPopup(batch, shapeRenderer, font, glyphLayout);
+
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -205,6 +227,8 @@ public class MainScreen implements Screen {
         serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         stashPopup = new StashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
+
+        putInStashPopup = new PutInStashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
 
         hotelReceptionPopup = new HotelReceptionPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
@@ -259,6 +283,11 @@ public class MainScreen implements Screen {
             tirednessPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (restingPopup.isVisible()) {
+            restingPopup.update(delta);
+            restingPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (discoveryPopup.isVisible()) {
             discoveryPopup.draw(state.screenWidth, state.screenHeight);
         }
@@ -269,6 +298,10 @@ public class MainScreen implements Screen {
 
         if (stashPopup.isVisible()) {
             stashPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (putInStashPopup.isVisible()) {
+            putInStashPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (hotelReceptionPopup.isVisible()) {
@@ -444,6 +477,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Resting popup blocks all normal interaction while visible
+                if (restingPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Discovery popup blocks all normal interaction until dismissed
                 if (discoveryPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -464,6 +506,15 @@ public class MainScreen implements Screen {
 
                 // Stash popup blocks all normal interaction until dismissed
                 if (stashPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Put-in-stash popup blocks all normal interaction until dismissed
+                if (putInStashPopup.isVisible()) {
                     infoAreaPressed = true;
                     infoTouchStartX = screenX;
                     infoTouchStartY = screenY;
@@ -584,6 +635,17 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Resting popup: only the OK button (RESULT phase) can dismiss it
+                if (restingPopup.isVisible()) {
+                    if (infoAreaPressed && !restingPopup.isAnimating()) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Discovery popup: only the OK button can dismiss it
                 if (discoveryPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -606,13 +668,29 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                // Stash popup: Close or Take button
+                // Stash popup: Close, Take, or Put in Stash button
                 if (stashPopup.isVisible()) {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = stashPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleTakeFromStash(result);
+                            else if (result == StashPopup.RESULT_PUT_IN_STASH)
+                                putInStashPopup.show();
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Put-in-stash popup: stash the selected item or close
+                if (putInStashPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = putInStashPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleEquipDrop(result);
                         }
                         infoAreaPressed = false;
                     }
@@ -675,6 +753,8 @@ public class MainScreen implements Screen {
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = emailPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleEmailAccepted(result);
+                            // Persist statuses after every interaction so re-opens restore marks
+                            todaysEmailStatuses = emailPopup.getStatuses();
                         }
                         infoAreaPressed = false;
                     }
@@ -725,20 +805,27 @@ public class MainScreen implements Screen {
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
+                        if (state.unitInteriorOpen) {
+                            // Office popup covers the info panel — only office buttons are active.
+                            // Map-navigation buttons (Look Around, Move To, etc.) must be suppressed
+                            // to prevent click-through to the info panel behind the popup.
+                            checkUnitExitButtonClick(screenX, flippedY);
+                            checkRestButtonClick(screenX, flippedY);
+                            checkSleepButtonClick(screenX, flippedY);
+                            checkOpenStashButtonClick(screenX, flippedY);
+                            checkCheckEmailsButtonClick(screenX, flippedY);
+                        } else {
+                            checkTabClick(screenX, flippedY);
+                            checkMoveToButtonClick(screenX, flippedY);
+                            checkLookAroundButtonClick(screenX, flippedY);
+                            checkGoToOfficeButtonClick(screenX, flippedY);
+                            checkEquipDropButtonClick(screenX, flippedY);
+                            checkHelpButtonClick(screenX, flippedY);
+                            checkNoteCheckboxClick(screenX, flippedY);
+                            checkAddNoteButtonClick(screenX, flippedY);
+                        }
                         checkTabClick(screenX, flippedY);
-                        checkUnitExitButtonClick(screenX, flippedY);
-                        checkMoveToButtonClick(screenX, flippedY);
-                        checkLookAroundButtonClick(screenX, flippedY);
-                        checkRestButtonClick(screenX, flippedY);
-                        checkSleepButtonClick(screenX, flippedY);
-                        checkGoToOfficeButtonClick(screenX, flippedY);
-                        checkOpenStashButtonClick(screenX, flippedY);
-                        checkCheckEmailsButtonClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
-                        checkEquipDropButtonClick(screenX, flippedY);
-                        checkHelpButtonClick(screenX, flippedY);
-                        checkNoteCheckboxClick(screenX, flippedY);
-                        checkAddNoteButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -1156,13 +1243,28 @@ public class MainScreen implements Screen {
     }
 
     private void handleRestClick() {
-        profile.addStamina(2);
+        int hourBefore = profile.getCurrentHour();
+        int effectiveCap = calculateEffectiveStaminaCap();
+        profile.addStaminaUpTo(2, effectiveCap);
         profile.advanceGameTime(60);
-        Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina");
+        int hourAfter  = profile.getCurrentHour();
+        Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina (cap=" + effectiveCap + ")");
+
+        // Determine if a day-part boundary was crossed during the rest hour
+        String resultMsg = null;
+        boolean crossedEvening = hourBefore < 18 && hourAfter >= 18;
+        boolean crossedMorning = (hourBefore >= 18 || hourBefore < 6) && hourAfter >= 6 && hourAfter < 18;
+        if (crossedEvening) {
+            resultMsg = "It became night.";
+        } else if (crossedMorning) {
+            resultMsg = "It became morning.";
+        }
+        restingPopup.start(resultMsg);
     }
 
     private void handleSleepClick() {
-        int hour   = profile.getCurrentHour();
+        int hourBefore = profile.getCurrentHour();
+        int hour   = hourBefore;
         int minute = profile.getCurrentMinute();
         int minutesSleep;
         if (hour >= 20) {
@@ -1175,16 +1277,16 @@ public class MainScreen implements Screen {
         if (minutesSleep <= 0) minutesSleep = 1;
         float hoursSlept  = minutesSleep / 60.0f;
         float fraction    = Math.min(1.0f, hoursSlept / 8.0f);
-        int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
-        profile.addStamina(staminaGain);
-        profile.advanceGameTime(minutesSleep);
+
+        int effectiveCap = calculateEffectiveStaminaCap();
+        int   staminaGain = Math.round(effectiveCap * fraction);
 
         // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
         int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
         int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
         int hotelBonusActual = 0;
         if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
-            profile.addStamina(hotelBonus);
+            profile.addStaminaUpTo(hotelBonus, effectiveCap);
             hotelBonusActual = hotelBonus;
             int remaining = hotelNights - 1;
             profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
@@ -1193,9 +1295,32 @@ public class MainScreen implements Screen {
             }
         }
 
+        // 1 dot per hour slept; each dot advances time + fills stamina incrementally
+        int animDots        = Math.max(1, Math.round(hoursSlept));
+        final int minutesPerDot = minutesSleep / animDots;
+        final int staminaPerDot = staminaGain  / animDots;
+        final int cap           = effectiveCap;
+
+        // Determine result message without mutating state yet (compute hourAfter arithmetically)
+        int hourAfter = ((hour * 60 + minute + minutesSleep) / 60) % 24;
+        String resultMsg = null;
+        if (hourBefore < 6 && hourAfter >= 6 && hourAfter < 18) {
+            resultMsg = "It became morning.";
+        } else if (hourBefore >= 20 && hourAfter >= 6 && hourAfter < 18) {
+            resultMsg = "It became morning.";
+        } else if (hourBefore < 18 && hourAfter >= 18) {
+            resultMsg = "It became night.";
+        }
+
         String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
-                + staminaGain + " stamina" + bonusNote);
+                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
+
+        // Per-dot callback: advance time + fill stamina together so both animate visibly
+        restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
+            profile.advanceGameTime(minutesPerDot);
+            profile.addStaminaUpTo(staminaPerDot, cap);
+        });
     }
 
     private void handleMoveToClick() {
@@ -1551,6 +1676,12 @@ public class MainScreen implements Screen {
                 break;
             }
 
+            // ---- Security shop: gear purchase ------------------------------
+            case BuildingServices.SVC_BUY_GEAR: {
+                // Time already advanced; cost=0 on the service — individual items are paid per purchase
+                handleBuyGear(resultLines);
+                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                return;
             // ---- Supply / Retail -----------------------------------------
             case BuildingServices.SVC_BUY_SUPPLIES: {
                 int gain = 2;
@@ -1578,6 +1709,81 @@ public class MainScreen implements Screen {
 
         serviceResultPopup.show(title, resultLines);
         Gdx.app.log("MainScreen", "Service used: " + svc.id);
+    }
+
+    /**
+     * Processes a gear purchase at the security shop.
+     *
+     * <p>Iterates the {@link #GEAR_PRICES} catalogue.  For each item the player
+     * can afford and does not already carry, the first affordable item is
+     * purchased automatically and feedback is added to {@code resultLines}.
+     * If the player already owns all available items the result says so.</p>
+     *
+     * <p>This is intentionally simple (auto-buys first affordable item).
+     * A full shop UI can be added later if needed.</p>
+     */
+    private void handleBuyGear(List<String> resultLines) {
+        // Build a set of names already carried (main slots + utility)
+        java.util.Set<String> carried = new java.util.HashSet<>();
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) carried.add(item.getName());
+        }
+        for (EquipItem item : profile.getUtilityItems()) carried.add(item.getName());
+
+        // Find purchasable items (not already carried, in catalogue)
+        List<String> available = new ArrayList<>();
+        for (String name : GEAR_PRICES.keySet()) {
+            if (!carried.contains(name)) available.add(name);
+        }
+
+        if (available.isEmpty()) {
+            resultLines.add("You already own everything in stock.");
+            return;
+        }
+
+        // List what's for sale along with prices
+        resultLines.add("Items available:");
+        for (String name : available) {
+            int price = GEAR_PRICES.get(name);
+            resultLines.add("  " + name + " — $" + price);
+        }
+        resultLines.add("");
+
+        // Auto-purchase first affordable item
+        for (String name : available) {
+            int price = GEAR_PRICES.get(name);
+            if (profile.getMoney() >= price) {
+                // Find the catalogue item
+                EquipItem bought = null;
+                for (EquipmentSlot slot : mainSlots) {
+                    EquipItem candidate = EquipItem.findByName(name, slot);
+                    if (candidate != null) { bought = candidate; break; }
+                }
+                if (bought == null) bought = EquipItem.findByName(name, EquipmentSlot.UTILITY);
+                if (bought == null) {
+                    Gdx.app.log("MainScreen", "WARN: gear '" + name + "' in GEAR_PRICES not found in EquipItem catalogue");
+                    continue;
+                }
+
+                profile.setMoney(profile.getMoney() - price);
+                if (bought.getSlot() == EquipmentSlot.UTILITY) {
+                    profile.addUtilityItem(bought);
+                } else {
+                    profile.equip(bought);
+                }
+                resultLines.add("Purchased: " + name + " for $" + price + ".");
+                resultLines.add("Remaining balance: $" + profile.getMoney() + ".");
+                Gdx.app.log("MainScreen", "Gear purchased: " + name + " for $" + price);
+                return;
+            }
+        }
+
+        // Can't afford anything
+        resultLines.add("You can't afford any items right now.");
+        resultLines.add("You have: $" + profile.getMoney() + ".");
     }
 
     /** Called every frame while {@code state.isWalking} is true. */
@@ -1705,6 +1911,41 @@ public class MainScreen implements Screen {
     }
 
     /**
+     * Returns the total STAMINA attribute modifier granted by the building (and
+     * its discovered improvements) at the character's current cell, or 0 if the
+     * cell has no discovered building.
+     *
+     * <p>Mirrors {@code InfoPanelRenderer.locationModFor} but lives in MainScreen
+     * so rest / sleep handlers can use it without cross-class coupling.</p>
+     */
+    private int getLocationStaminaMod() {
+        if (state.charCellX < 0 || state.charCellY < 0) return 0;
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        if (!cell.hasBuilding() || !cell.getBuilding().isDiscovered()) return 0;
+        Building b = cell.getBuilding();
+        int total = b.getAttributeModifiers().getOrDefault(CharacterAttribute.STAMINA, 0);
+        for (Improvement imp : b.getImprovements()) {
+            if (imp.isDiscovered()) {
+                total += imp.getAttributeModifiers().getOrDefault(CharacterAttribute.STAMINA, 0);
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Returns the effective stamina cap at the character's current location:
+     * {@code max(10, (staminaAttr + locationMod) × 10)}.
+     *
+     * <p>The multiplier of 10 converts each STAMINA attribute point (and each
+     * location modifier point) into 10 stamina pool points.</p>
+     */
+    private int calculateEffectiveStaminaCap() {
+        int locMod = getLocationStaminaMod();
+        // 10 stamina pool points per STAMINA attribute (and per location modifier) point
+        return Math.max(10, (profile.getAttribute(CharacterAttribute.STAMINA.name()) + locMod) * 10);
+    }
+
+    /**
      * Discovers the building and any hiddenValue==0 improvements at the given cell.
      * Called on arrival (game start or Move To).
      *
@@ -1747,24 +1988,8 @@ public class MainScreen implements Screen {
             novelText = (raw != null && !raw.isEmpty()) ? raw : null;
         }
 
-        List<String> impLines = new ArrayList<>();
-        for (Improvement imp : building.getImprovements()) {
-            if (imp.getHiddenValue() == 0 && imp.isDiscovered()) {
-                String mod = InfoPanelRenderer.formatAttributeModifiers(imp.getAttributeModifiers());
-                String entry = "  - " + imp.getName() + " (Lvl " + imp.getLevel() + ")"
-                        + (mod.isEmpty() ? "" : " " + mod);
-                impLines.add(entry);
-                // Novel improvement description (if any)
-                if (novelTextEngine != null) {
-                    String impNovel = novelTextEngine.getImprovementDescription(
-                            imp.getName(), profile.getGender());
-                    if (impNovel != null && !impNovel.isEmpty()) {
-                        impLines.add("    " + impNovel);
-                    }
-                }
-            }
-        }
-        discoveryPopup.show(building.getDisplayName(), description, novelText, impLines, newDiscovery);
+        discoveryPopup.show(building.getDisplayName(), description, novelText,
+                java.util.Collections.emptyList(), newDiscovery);
     }
 
     /**
@@ -1811,16 +2036,25 @@ public class MainScreen implements Screen {
         // Once-per-day guard
         String today = profile.getGameDateTime().substring(0, 10);
         if (today.equals(profile.getLastEmailCheckDate())) {
-            java.util.List<String> lines = new java.util.ArrayList<>();
-            lines.add("No new emails today.");
-            lines.add("Check back tomorrow.");
-            serviceResultPopup.show("Inbox", lines);
+            // Same day — re-show the existing emails restoring their accept/decline marks
+            if (!todaysEmails.isEmpty()) {
+                emailPopup.showWithStatus(todaysEmails, todaysEmailStatuses);
+                Gdx.app.log("MainScreen", "Re-opening today's inbox (" + todaysEmails.size() + " email(s))");
+            } else {
+                java.util.List<String> lines = new java.util.ArrayList<>();
+                lines.add("No new emails today.");
+                lines.add("Check back tomorrow.");
+                serviceResultPopup.show("Inbox", lines);
+            }
             return;
         }
+
+        // New day — generate fresh emails
         profile.setLastEmailCheckDate(today);
+        todaysEmails.clear();
+        todaysEmailStatuses = new int[0];
 
         java.util.Random rng = new java.util.Random(System.currentTimeMillis());
-        java.util.List<EmailPopup.EmailData> emails = new java.util.ArrayList<>();
 
         PersonNameGenerator png = (game.getGameDataManager() != null)
                 ? game.getGameDataManager().getPersonNameGenerator() : null;
@@ -1828,18 +2062,27 @@ public class MainScreen implements Screen {
         // Seed the used-datetime set from already-accepted calendar entries so
         // newly generated appointments never clash with existing ones.
         java.util.Set<String> usedDTs = new java.util.HashSet<>();
+        String latestApptDT = null;   // most recent appointment date in the calendar
         for (CalendarEntry ce : profile.getCalendarEntries()) {
             usedDTs.add(ce.dateTime);
+            if (latestApptDT == null || ce.dateTime.compareTo(latestApptDT) > 0) {
+                latestApptDT = ce.dateTime;
+            }
         }
+        // Anchor new appointments from the latest existing one (or today if none).
+        // nextAppointmentDT adds daysAhead=1 to find the first free slot, and each
+        // chosen slot is added to usedDTs — so successive emails in the same batch
+        // automatically chain: email 1 → anchor+1, email 2 → anchor+2, etc.
+        String apptAnchor = (latestApptDT != null) ? latestApptDT : profile.getGameDateTime();
 
-        int count = 1 + rng.nextInt(2); // 1 or 2 emails
+        int count = 1 + rng.nextInt(3); // 1–3 emails per day
         for (int i = 0; i < count; i++) {
             boolean isPolice = (i > 0) && rng.nextBoolean();
             if (isPolice) {
                 String detective = (png != null) ? png.generateFull("M") : "James Carter";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
+                String dt = nextAppointmentDT(apptAnchor, 1, usedDTs);
                 int reward = 500 + rng.nextInt(6) * 100; // $500–$1000
-                emails.add(new EmailPopup.EmailData(
+                todaysEmails.add(new EmailPopup.EmailData(
                         "Det. " + detective + " (NYPD)",
                         "Consulting Request \u2014 Homicide",
                         "Detective,\n\nWe need a private investigator to consult on a homicide case.\n"
@@ -1848,16 +2091,27 @@ public class MainScreen implements Screen {
                         "NYPD: Crime Scene",
                         dt,
                         "Crime Scene (TBD)",
-                        reward, null
+                        reward, null,
+                        -1, -1   // crime scene location unknown at scheduling time
                 ));
             } else {
                 String gender = rng.nextBoolean() ? "M" : "F";
                 String clientName = (png != null) ? png.generateFull(gender) : "Alex Morgan";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3), usedDTs);
+                String dt = nextAppointmentDT(apptAnchor, 1, usedDTs);
                 boolean atOffice = rng.nextBoolean();
                 String loc = atOffice ? "Your Office" : "Downtown Cafe";
                 int reward = 200 + rng.nextInt(5) * 100; // $200–$600
-                emails.add(new EmailPopup.EmailData(
+                int locCellX, locCellY;
+                if (atOffice) {
+                    locCellX = state.homeCellX;
+                    locCellY = state.homeCellY;
+                } else {
+                    // Pick the first discovered coffee shop cell as the meeting point
+                    int[] cafeCell = findFirstBuildingCell(BUILDING_ID_COFFEE_SHOP);
+                    locCellX = cafeCell != null ? cafeCell[0] : -1;
+                    locCellY = cafeCell != null ? cafeCell[1] : -1;
+                }
+                todaysEmails.add(new EmailPopup.EmailData(
                         clientName,
                         "I need your help urgently",
                         "Dear Detective,\n\nI require your assistance with a matter of great urgency.\n"
@@ -1867,13 +2121,15 @@ public class MainScreen implements Screen {
                         "Meeting: " + clientName,
                         dt,
                         loc,
-                        reward, null
+                        reward, null,
+                        locCellX, locCellY
                 ));
             }
         }
 
-        emailPopup.show(emails);
-        Gdx.app.log("MainScreen", "Check emails: " + emails.size() + " email(s) generated");
+        emailPopup.show(todaysEmails);
+        todaysEmailStatuses = emailPopup.getStatuses();
+        Gdx.app.log("MainScreen", "Check emails: " + todaysEmails.size() + " email(s) generated");
     }
 
     /**
@@ -1885,12 +2141,41 @@ public class MainScreen implements Screen {
     private void handleEmailAccepted(int emailIndex) {
         EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
         if (email == null) return;
+        // Guard against duplicate entries (e.g. accept → close → reopen → accept again)
+        for (CalendarEntry existing : profile.getCalendarEntries()) {
+            if (java.util.Objects.equals(existing.dateTime, email.calendarDateTime)
+                    && java.util.Objects.equals(existing.title, email.calendarTitle)) {
+                Gdx.app.log("MainScreen", "Duplicate calendar entry ignored: " + email.calendarTitle);
+                return;
+            }
+        }
         profile.addCalendarEntry(
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
-                        email.rewardMoney, email.rewardItemName));
+                        email.rewardMoney, email.rewardItemName,
+                        email.locationCellX, email.locationCellY));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
+    }
+
+    /**
+     * Scans the city map and returns the coordinates {@code [x, y]} of the first
+     * cell whose building has the given {@code buildingId}, or {@code null} if none.
+     */
+    private int[] findFirstBuildingCell(String buildingId) {
+        if (buildingId == null) return null;
+        Cell[][] cells = cityMap.getCells();
+        if (cells == null) return null;
+        for (Cell[] row : cells) {
+            if (row == null) continue;
+            for (Cell cell : row) {
+                if (cell == null || !cell.hasBuilding()) continue;
+                if (buildingId.equals(cell.getBuilding().getDefinition().getId())) {
+                    return new int[]{ cell.getX(), cell.getY() };
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -1959,9 +2244,10 @@ public class MainScreen implements Screen {
         int refY = state.homeCellY;
         if (refX < 0 || refY < 0) return;
 
-        // Always discover: police station and hospital
+        // Always discover: police station, hospital, and nearest security shop
         discoverCellIfFound(findNearestBuilding(refX, refY, "police_station"));
         discoverCellIfFound(findNearestBuilding(refX, refY, "hospital_small", "hospital_large"));
+        discoverCellIfFound(findNearestBuilding(refX, refY, BUILDING_ID_SECURITY_SHOP));
 
         // STRENGTH or STAMINA >= 4 → gym
         if (profile.getAttribute(CharacterAttribute.STRENGTH.name()) >= 4
