@@ -919,6 +919,9 @@ class InfoPanelRenderer {
         s.infoMaxScrollX = 0f;
         s.infoScrollX = 0f;
 
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
         glyphLayout.setText(smallFont, "Hg");
         float smallCapH = glyphLayout.height;
         float smallLineH = smallCapH * 1.4f;
