@@ -958,9 +958,10 @@ class InfoPanelRenderer {
             batch.end();
 
             // --- Checkboxes: Include current time / Include current location ---
+            final float CB_LABEL_GAP   = 6f;   // gap between checkbox square and label text
+            final float CB_ROW_PADDING = 4f;   // vertical padding around each checkbox row
             float cbSize = fontCapH;
-            float cbGap  = 6f;
-            float cbRowH = cbSize + 4f;
+            float cbRowH = cbSize + CB_ROW_PADDING;
 
             // "Include current time" checkbox
             float timeCbX = PAD;
@@ -988,7 +989,7 @@ class InfoPanelRenderer {
             batch.begin();
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "Include current time",
-                    timeCbX + cbSize + cbGap, timeCbY + cbSize - 2f);
+                    timeCbX + cbSize + CB_LABEL_GAP, timeCbY + cbSize - 2f);
             batch.end();
 
             contentY -= cbRowH;
@@ -1019,7 +1020,7 @@ class InfoPanelRenderer {
             batch.begin();
             smallFont.setColor(Color.WHITE);
             smallFont.draw(batch, "Include current location",
-                    locCbX + cbSize + cbGap, locCbY + cbSize - 2f);
+                    locCbX + cbSize + CB_LABEL_GAP, locCbY + cbSize - 2f);
             batch.end();
 
             contentY -= cbRowH;
