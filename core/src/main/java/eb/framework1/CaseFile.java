@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents a case file in the game.  Each case tracks clues and evidence
@@ -23,9 +24,10 @@ public class CaseFile {
     private Status status;
     private String dateOpened;
     private String dateClosed;
-    private final List<String> clues;
-    private final List<String> evidence;
-    private final List<String> notes;
+    private final List<String>       clues;
+    private final List<String>       evidence;
+    private final List<String>       notes;
+    private final List<EvidenceItem> evidenceItems;
 
     /**
      * Creates a new open case file with a generated id and no clues or evidence.
@@ -36,7 +38,7 @@ public class CaseFile {
      */
     public CaseFile(String name, String description, String dateOpened) {
         this(UUID.randomUUID().toString(), name, description, Status.OPEN, dateOpened, null,
-                new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     /**
@@ -45,6 +47,18 @@ public class CaseFile {
     public CaseFile(String id, String name, String description, Status status,
                     String dateOpened, String dateClosed, List<String> clues,
                     List<String> evidence, List<String> notes) {
+        this(id, name, description, status, dateOpened, dateClosed, clues, evidence, notes,
+                new ArrayList<>());
+    }
+
+    /**
+     * Full constructor including physical evidence items — used mainly when
+     * restoring a case from a save file.
+     */
+    public CaseFile(String id, String name, String description, Status status,
+                    String dateOpened, String dateClosed, List<String> clues,
+                    List<String> evidence, List<String> notes,
+                    List<EvidenceItem> evidenceItems) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Case name cannot be null or empty");
         }
@@ -54,9 +68,10 @@ public class CaseFile {
         this.status      = status != null ? status : Status.OPEN;
         this.dateOpened   = dateOpened != null ? dateOpened : "";
         this.dateClosed   = dateClosed;
-        this.clues       = clues != null ? new ArrayList<>(clues) : new ArrayList<>();
-        this.evidence    = evidence != null ? new ArrayList<>(evidence) : new ArrayList<>();
-        this.notes       = notes != null ? new ArrayList<>(notes) : new ArrayList<>();
+        this.clues         = clues != null ? new ArrayList<>(clues) : new ArrayList<>();
+        this.evidence      = evidence != null ? new ArrayList<>(evidence) : new ArrayList<>();
+        this.notes         = notes != null ? new ArrayList<>(notes) : new ArrayList<>();
+        this.evidenceItems = evidenceItems != null ? new ArrayList<>(evidenceItems) : new ArrayList<>();
     }
 
     // -------------------------------------------------------------------------
@@ -89,6 +104,24 @@ public class CaseFile {
         return Collections.unmodifiableList(notes);
     }
 
+    /**
+     * Returns an unmodifiable view of the physical {@link EvidenceItem}s
+     * collected for this case.
+     */
+    public List<EvidenceItem> getEvidenceItems() {
+        return Collections.unmodifiableList(evidenceItems);
+    }
+
+    /**
+     * Returns an unmodifiable list of physical evidence items that have at
+     * least one analysis submitted.
+     */
+    public List<EvidenceItem> getSubmittedEvidenceItems() {
+        return evidenceItems.stream()
+                .filter(item -> !item.getSubmittedModifiers().isEmpty())
+                .collect(Collectors.toList());
+    }
+
     // -------------------------------------------------------------------------
     // Mutation helpers
     // -------------------------------------------------------------------------
@@ -105,6 +138,19 @@ public class CaseFile {
         if (item != null && !item.trim().isEmpty()) {
             evidence.add(item);
         }
+    }
+
+    /**
+     * Adds a physical {@link EvidenceItem} to this case.
+     *
+     * @param item the item to add; must not be {@code null}
+     * @throws IllegalArgumentException if {@code item} is {@code null}
+     */
+    public void addEvidenceItem(EvidenceItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Evidence item must not be null");
+        }
+        evidenceItems.add(item);
     }
 
     /** Adds a player note to this case. */
