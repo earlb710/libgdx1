@@ -166,4 +166,20 @@ public class CaseFileTest {
         Profile p = new Profile("Eve", "Female", "Normal");
         p.addCaseFile(null);
     }
+
+    @Test
+    public void setActiveCaseFileToNullAllowed() {
+        Profile p = new Profile("Frank", "Male", "Normal");
+        CaseFile cf = new CaseFile("Case1", "d", "2050-01-02 10:00");
+        p.addCaseFile(cf);
+        p.setActiveCaseFile(null);
+        assertNull(p.getActiveCaseFile());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setActiveCaseFileNotInListThrows() {
+        Profile p = new Profile("Grace", "Female", "Normal");
+        CaseFile cf = new CaseFile("NotAdded", "d", "2050-01-02 10:00");
+        p.setActiveCaseFile(cf);
+    }
 }

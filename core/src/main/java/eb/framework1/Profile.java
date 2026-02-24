@@ -439,6 +439,9 @@ public class Profile {
 
     /** Sets the active case file (must already be in the case files list, or null). */
     public void setActiveCaseFile(CaseFile caseFile) {
+        if (caseFile != null && !caseFiles.contains(caseFile)) {
+            throw new IllegalArgumentException("CaseFile is not in the case files list");
+        }
         this.activeCaseFile = caseFile;
     }
 
