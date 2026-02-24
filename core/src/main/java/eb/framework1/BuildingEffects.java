@@ -1,7 +1,10 @@
 package eb.framework1;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -161,6 +164,9 @@ public final class BuildingEffects {
      * against known keywords. Modifiers from multiple matching keywords
      * are combined and clamped to the range -3..+3.
      *
+     * <p>At most 2 distinct positive attribute enhancements are kept (the highest values).
+     * Negative modifiers are not limited.
+     *
      * @param buildingName The name of the building
      * @return An unmodifiable map of attribute modifiers (only non-zero values)
      */
@@ -181,11 +187,32 @@ public final class BuildingEffects {
         }
 
         // Clamp values to -3..+3 and remove zeros
-        Map<CharacterAttribute, Integer> result = new HashMap<>();
+        Map<CharacterAttribute, Integer> clamped = new HashMap<>();
         for (Map.Entry<CharacterAttribute, Integer> entry : combined.entrySet()) {
-            int clamped = Math.max(-3, Math.min(3, entry.getValue()));
-            if (clamped != 0) {
-                result.put(entry.getKey(), clamped);
+            int val = Math.max(-3, Math.min(3, entry.getValue()));
+            if (val != 0) {
+                clamped.put(entry.getKey(), val);
+            }
+        }
+
+        // Separate positive and negative modifiers
+        List<Map.Entry<CharacterAttribute, Integer>> positives = new ArrayList<>();
+        Map<CharacterAttribute, Integer> result = new HashMap<>();
+        for (Map.Entry<CharacterAttribute, Integer> entry : clamped.entrySet()) {
+            if (entry.getValue() > 0) {
+                positives.add(entry);
+            } else {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        // Keep only the top 2 positive enhancements (by value, descending)
+        positives.sort(Comparator.comparingInt(Map.Entry<CharacterAttribute, Integer>::getValue).reversed());
+        int kept = 0;
+        for (Map.Entry<CharacterAttribute, Integer> entry : positives) {
+            if (kept < 2) {
+                result.put(entry.getKey(), entry.getValue());
+                kept++;
             }
         }
 

@@ -77,6 +77,31 @@ public class BuildingEffectsTest {
     }
 
     @Test
+    public void testMaxTwoPositiveAttributeEnhancements() {
+        // Fitness Center has STRENGTH+2, STAMINA+2, AGILITY+1 — 3 positives, should be capped at 2
+        Map<CharacterAttribute, Integer> mods = BuildingEffects.getEffects("Fitness Center");
+        long positiveCount = mods.values().stream().filter(v -> v > 0).count();
+        assertTrue("Building should have at most 2 positive attribute enhancements", positiveCount <= 2);
+    }
+
+    @Test
+    public void testAllBuildingsHaveAtMostTwoPositiveEnhancements() {
+        CityMap map = new CityMap(12345L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.hasBuilding()) {
+                    Building building = cell.getBuilding();
+                    long positiveCount = building.getAttributeModifiers().values().stream()
+                            .filter(v -> v > 0).count();
+                    assertTrue("Building '" + building.getName() + "' should have at most 2 positive enhancements",
+                            positiveCount <= 2);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testUnknownBuildingHasEmptyModifiers() {
         Map<CharacterAttribute, Integer> mods = BuildingEffects.getEffects("Zebra Enclosure");
         assertTrue("Unknown building should have empty modifiers", mods.isEmpty());
