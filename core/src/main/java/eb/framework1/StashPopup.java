@@ -28,12 +28,16 @@ import com.badlogic.gdx.math.MathUtils;
  */
 class StashPopup {
 
+    static final int RESULT_PUT_IN_STASH = -3;
+
     private static final Color BG_COLOR     = new Color(0.10f, 0.08f, 0.18f, 1f);
     private static final Color BORDER_COLOR = new Color(0.55f, 0.40f, 0.80f, 1f);
     private static final Color TITLE_COLOR  = new Color(0.85f, 0.70f, 1.00f, 1f);
     private static final Color TAKE_COLOR   = new Color(0.30f, 0.70f, 0.30f, 1f);
+    private static final Color PUT_BTN_COLOR = new Color(0.35f, 0.15f, 0.50f, 1f);
     private static final Color BTN_COLOR    = new Color(0.10f, 0.50f, 0.15f, 1f);
     private static final float SCROLLBAR_W  = 8f;
+    private static final float BTN_SPACING  = 16f;
 
     private final SpriteBatch   batch;
     private final ShapeRenderer sr;
@@ -48,6 +52,9 @@ class StashPopup {
 
     // Close button bounds
     private float closeX, closeY, closeW, closeH;
+
+    // Put in Stash button bounds
+    private float putX, putY, putW, putH;
 
     // Take button bounds (screen-space Y, updated each frame)
     private static final int MAX_ITEMS = 20;
@@ -84,6 +91,7 @@ class StashPopup {
         visible  = true;
         scrollY  = 0f;
         closeW   = 0f;
+        putW     = 0f;
         Gdx.app.log("StashPopup", "Opened, items=" + profile.getStash().size());
     }
 
@@ -96,6 +104,7 @@ class StashPopup {
      *
      * @return index of the stash item whose {@code [Take]} button was tapped (≥ 0),
      *         {@code -1} if the Close button was tapped (popup auto-dismissed),
+     *         {@link #RESULT_PUT_IN_STASH} if the Put in Stash button was tapped,
      *         or {@code -2} for a miss (popup stays open).
      */
     int onTap(int screenX, int flippedY) {
@@ -108,6 +117,15 @@ class StashPopup {
             visible = false;
             Gdx.app.log("StashPopup", "Closed");
             return -1;
+        }
+
+        // Put in Stash button
+        if (putW > 0
+                && screenX >= putX && screenX <= putX + putW
+                && flippedY >= putY && flippedY <= putY + putH) {
+            visible = false;
+            Gdx.app.log("StashPopup", "Put in Stash requested");
+            return RESULT_PUT_IN_STASH;
         }
 
         // [Take] buttons
@@ -146,10 +164,13 @@ class StashPopup {
 
         takeBtnH = smallH + 4f;
 
-        // OK / Close button
+        // OK / Close button and Put in Stash button — side by side at bottom
         TextMeasurer.TextBounds closeBounds = TextMeasurer.measure(font, glyph, "Close", 24f, 10f);
+        TextMeasurer.TextBounds putBounds   = TextMeasurer.measure(font, glyph, "Put in Stash", 24f, 10f);
         float closeBtnW = closeBounds.width;
         float closeBtnH = closeBounds.height;
+        float putBtnW   = putBounds.width;
+        // both buttons share the same height
 
         java.util.List<EquipItem> items = profile.getStash();
         stashCount = Math.min(items.size(), MAX_ITEMS);
@@ -166,7 +187,8 @@ class StashPopup {
         glyph.setText(font, "Your Stash");
         float titleW = glyph.width;
 
-        float rawContentW = Math.max(titleW, Math.max(maxLineW + 16f + takeLabelW, closeBounds.textWidth));
+        float rawContentW = Math.max(titleW, Math.max(maxLineW + 16f + takeLabelW,
+                Math.max(closeBounds.textWidth, putBtnW + BTN_SPACING + closeBtnW)));
         float dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
         // Height
@@ -190,10 +212,15 @@ class StashPopup {
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dialogW, dialogH);
-        closeX = dialogX + (dialogW - closeBtnW - SCROLLBAR_W) / 2f;
-        closeY = dialogY + PAD;
-        closeW = closeBtnW;
-        closeH = closeBtnH;
+
+        // Place "Put in Stash" and "Close" side-by-side, centred in the dialog
+        float totalBtnW = putBtnW + BTN_SPACING + closeBtnW;
+        float btnStartX = dialogX + (dialogW - SCROLLBAR_W - totalBtnW) / 2f;
+        putX = btnStartX;            putY = dialogY + PAD; putW = putBtnW;  putH = closeBtnH;
+        closeX = putX + putBtnW + BTN_SPACING; closeY = dialogY + PAD; closeW = closeBtnW; closeH = closeBtnH;
+
+        sr.setColor(PUT_BTN_COLOR);
+        sr.rect(putX, putY, putW, putH);
         sr.setColor(BTN_COLOR);
         sr.rect(closeX, closeY, closeW, closeH);
 
@@ -214,6 +241,8 @@ class StashPopup {
         sr.setColor(BORDER_COLOR);
         sr.rect(dialogX,     dialogY,     dialogW,     dialogH);
         sr.rect(dialogX + 1, dialogY + 1, dialogW - 2, dialogH - 2);
+        sr.rect(putX,     putY,     putW,     putH);
+        sr.rect(putX + 1, putY + 1, putW - 2, putH - 2);
         sr.rect(closeX,     closeY,     closeW,     closeH);
         sr.rect(closeX + 1, closeY + 1, closeW - 2, closeH - 2);
         sr.end();
@@ -276,9 +305,13 @@ class StashPopup {
         batch.end();
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
 
-        // Close button text (outside scissor — always visible)
+        // Button text (outside scissor — always visible)
         batch.begin();
         font.setColor(Color.WHITE);
+        glyph.setText(font, "Put in Stash");
+        font.draw(batch, "Put in Stash",
+                putX + (putW - glyph.width) / 2f,
+                putY + (putH + glyph.height) / 2f);
         glyph.setText(font, "Close");
         font.draw(batch, "Close",
                 closeX + (closeW - glyph.width) / 2f,

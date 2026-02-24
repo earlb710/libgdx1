@@ -606,13 +606,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                // Stash popup: Close or Take button
+                // Stash popup: Close, Take, or Put in Stash button
                 if (stashPopup.isVisible()) {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = stashPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleTakeFromStash(result);
+                            else if (result == StashPopup.RESULT_PUT_IN_STASH)
+                                state.activeInfoTab = "CHARACTER";
                         }
                         infoAreaPressed = false;
                     }

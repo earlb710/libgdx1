@@ -99,9 +99,12 @@ class ConfirmPopup {
         float yesW_ = yesBounds.width;
         float noW_  = noBounds.width;
 
-        // Dialog width: wide enough for title and both buttons, capped at 85% screen width
+        // Dialog width: wide enough for title, both buttons, and the unwrapped message text
         glyph.setText(font, title);
-        float minW = Math.max(glyph.width, yesW_ + BTN_SPACING + noW_);
+        float titleW = glyph.width;
+        glyph.setText(smallFont, message);
+        float msgRawW = glyph.width;
+        float minW = Math.max(titleW, Math.max(yesW_ + BTN_SPACING + noW_, msgRawW));
         float dialogW = Math.min(screenW * 0.85f, minW + 2 * PAD);
         float contentW = dialogW - 2 * PAD;
 
@@ -109,7 +112,9 @@ class ConfirmPopup {
         glyph.setText(smallFont, message, Color.WHITE, contentW, Align.center, true);
         float msgH = glyph.height;
 
-        float dialogH = PAD + titleLineH + msgH + BTN_GAP + btnH + PAD;
+        // BTN_GAP must be at least titleLineH so the wrapped message never overlaps the buttons
+        float btnGap = Math.max(BTN_GAP, titleLineH);
+        float dialogH = PAD + titleLineH + msgH + btnGap + btnH + PAD;
 
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;
