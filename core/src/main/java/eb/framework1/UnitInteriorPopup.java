@@ -27,6 +27,8 @@ class UnitInteriorPopup {
     private static final Color BORDER_COLOR    = new Color(0.5f,  0.5f,  0.8f,  1f);
     private static final Color REST_BTN_COLOR  = new Color(0.4f,  0.25f, 0.05f, 1f);
     private static final Color SLEEP_BTN_COLOR = new Color(0.08f, 0.08f, 0.45f, 1f);
+    private static final Color STASH_BTN_COLOR = new Color(0.35f, 0.15f, 0.50f, 1f);
+    private static final Color EMAIL_BTN_COLOR = new Color(0.10f, 0.30f, 0.50f, 1f);
     private static final Color EXIT_BTN_COLOR  = new Color(0.35f, 0.05f, 0.05f, 1f);
 
     private final SpriteBatch   batch;
@@ -58,13 +60,17 @@ class UnitInteriorPopup {
         final float panelW = s.screenWidth;
 
         // Button bounds via TextMeasurer (reuses glyph GlyphLayout – no per-frame allocation)
-        TextMeasurer.TextBounds restBounds  = TextMeasurer.measure(font, glyph, "Rest",  PAD_X, PAD_Y);
-        TextMeasurer.TextBounds sleepBounds = TextMeasurer.measure(font, glyph, "Sleep", PAD_X, PAD_Y);
-        TextMeasurer.TextBounds exitBounds  = TextMeasurer.measure(font, glyph, "Exit",  PAD_X, PAD_Y);
-        final float BTN_H   = restBounds.height;
-        final float REST_W  = restBounds.width;
-        final float SLEEP_W = sleepBounds.width;
-        final float EXIT_W  = exitBounds.width;
+        TextMeasurer.TextBounds restBounds   = TextMeasurer.measure(font, glyph, "Rest",        PAD_X, PAD_Y);
+        TextMeasurer.TextBounds sleepBounds  = TextMeasurer.measure(font, glyph, "Sleep",       PAD_X, PAD_Y);
+        TextMeasurer.TextBounds stashBounds  = TextMeasurer.measure(font, glyph, "Open Stash",  PAD_X, PAD_Y);
+        TextMeasurer.TextBounds emailBounds  = TextMeasurer.measure(font, glyph, "Check Emails",PAD_X, PAD_Y);
+        TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit",        PAD_X, PAD_Y);
+        final float BTN_H    = restBounds.height;
+        final float REST_W   = restBounds.width;
+        final float SLEEP_W  = sleepBounds.width;
+        final float STASH_W  = stashBounds.width;
+        final float EMAIL_W  = emailBounds.width;
+        final float EXIT_W   = exitBounds.width;
         final float fontCapH = restBounds.textHeight;
 
         int curHour = profile.getCurrentHour();
@@ -84,6 +90,15 @@ class UnitInteriorPopup {
         s.sleepBtnY = curY;
         if (showSleep) curY -= BTN_H + BTN_SPACING;
 
+        // Open Stash and Check Emails — always visible when inside office
+        s.openStashBtnX  = btnX; s.openStashBtnW  = STASH_W; s.openStashBtnH  = BTN_H;
+        s.openStashBtnY  = curY;
+        curY -= BTN_H + BTN_SPACING;
+
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnW = EMAIL_W; s.checkEmailsBtnH = BTN_H;
+        s.checkEmailsBtnY = curY;
+        curY -= BTN_H + BTN_SPACING;
+
         s.unitExitBtnX = btnX; s.unitExitBtnW = EXIT_W; s.unitExitBtnH = BTN_H;
         s.unitExitBtnY = curY;
 
@@ -99,6 +114,10 @@ class UnitInteriorPopup {
             sr.setColor(SLEEP_BTN_COLOR);
             sr.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
         }
+        sr.setColor(STASH_BTN_COLOR);
+        sr.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
+        sr.setColor(EMAIL_BTN_COLOR);
+        sr.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, EMAIL_W, BTN_H);
         sr.setColor(EXIT_BTN_COLOR);
         sr.rect(s.unitExitBtnX, s.unitExitBtnY, EXIT_W, BTN_H);
         sr.end();
@@ -114,6 +133,10 @@ class UnitInteriorPopup {
             sr.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
             sr.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
         }
+        sr.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
+        sr.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
+        sr.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     EMAIL_W,     BTN_H);
+        sr.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, EMAIL_W - 2, BTN_H - 2);
         sr.rect(s.unitExitBtnX,     s.unitExitBtnY,     EXIT_W,     BTN_H);
         sr.rect(s.unitExitBtnX + 1, s.unitExitBtnY + 1, EXIT_W - 2, BTN_H - 2);
         sr.end();
@@ -144,6 +167,16 @@ class UnitInteriorPopup {
             smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + 10f,
                     s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
         }
+        glyph.setText(font, "Open Stash");
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Open Stash",
+                s.openStashBtnX + (STASH_W - glyph.width) / 2,
+                s.openStashBtnY + (BTN_H + glyph.height) / 2);
+        glyph.setText(font, "Check Emails");
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Check Emails",
+                s.checkEmailsBtnX + (EMAIL_W - glyph.width) / 2,
+                s.checkEmailsBtnY + (BTN_H + glyph.height) / 2);
         glyph.setText(font, "Exit");
         font.setColor(Color.WHITE);
         font.draw(batch, "Exit",

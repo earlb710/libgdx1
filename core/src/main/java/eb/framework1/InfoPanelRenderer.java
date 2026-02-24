@@ -345,25 +345,15 @@ class InfoPanelRenderer {
         s.goToOfficeBtnY = curRowBottom;
         if (showOfficeButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // Open Stash button (when physically standing at home building)
-        boolean showStashButton = atCurrentBuilding && atHome;
-        float STASH_W = 0f;
-        if (showStashButton) {
-            STASH_W = TextMeasurer.measure(font, glyphLayout, "Open Stash", PAD_X, PAD_Y).width;
-        }
-        s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = showStashButton ? STASH_W : 0f;
+        // Open Stash button – shown inside the office (UnitInteriorPopup), not here
+        boolean showStashButton = false;
+        s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = 0f;
         s.openStashBtnY = curRowBottom;
-        if (showStashButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // Check Emails button (when at home building)
-        boolean showCheckEmailsButton = atCurrentBuilding && atHome;
-        float CHECK_EMAILS_W = 0f;
-        if (showCheckEmailsButton) {
-            CHECK_EMAILS_W = TextMeasurer.measure(font, glyphLayout, "Check Emails", PAD_X, PAD_Y).width;
-        }
-        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = showCheckEmailsButton ? CHECK_EMAILS_W : 0f;
+        // Check Emails button – shown inside the office (UnitInteriorPopup), not here
+        boolean showCheckEmailsButton = false;
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f;
         s.checkEmailsBtnY = curRowBottom;
-        if (showCheckEmailsButton) { lowestBtnBottom = curRowBottom; }
 
         boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton;
 
@@ -400,14 +390,7 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
-        if (showStashButton) {
-            shapeRenderer.setColor(STASH_BTN_COLOR);
-            shapeRenderer.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
-        }
-        if (showCheckEmailsButton) {
-            shapeRenderer.setColor(EMAIL_BTN_COLOR);
-            shapeRenderer.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, CHECK_EMAILS_W, BTN_H);
-        }
+        
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -424,14 +407,7 @@ class InfoPanelRenderer {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
         }
-        if (showStashButton) {
-            shapeRenderer.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
-            shapeRenderer.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
-        }
-        if (showCheckEmailsButton) {
-            shapeRenderer.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     CHECK_EMAILS_W,     BTN_H);
-            shapeRenderer.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, CHECK_EMAILS_W - 2, BTN_H - 2);
-        }
+        
         shapeRenderer.end();
         batch.begin();
         float textX = 20f;
@@ -466,20 +442,7 @@ class InfoPanelRenderer {
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
         }
-        if (showStashButton) {
-            glyphLayout.setText(font, "Open Stash");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Open Stash",
-                    s.openStashBtnX + (STASH_W - glyphLayout.width) / 2,
-                    s.openStashBtnY + (BTN_H + glyphLayout.height) / 2);
-        }
-        if (showCheckEmailsButton) {
-            glyphLayout.setText(font, "Check Emails");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Check Emails",
-                    s.checkEmailsBtnX + (CHECK_EMAILS_W - glyphLayout.width) / 2,
-                    s.checkEmailsBtnY + (BTN_H + glyphLayout.height) / 2);
-        }
+        
 
         // GL scissor
         batch.flush();
