@@ -51,6 +51,7 @@ class InfoPanelRenderer {
     private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
     private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
+    private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -364,7 +365,21 @@ class InfoPanelRenderer {
         s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f;
         s.checkEmailsBtnY = curRowBottom;
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton;
+        // Appointment button – shown when an upcoming appointment (≤ 3 h) is at the
+        // player's current location and the player is viewing their own cell.
+        CalendarEntry upcomingAppt = findUpcomingAppointmentAtLocation(s);
+        boolean showAppointmentButton = upcomingAppt != null
+                && s.selectedCellX == s.charCellX && s.selectedCellY == s.charCellY;
+        String apptBtnLabel = showAppointmentButton ? "Appointment: " + upcomingAppt.title : "";
+        float APPT_W = 0f;
+        if (showAppointmentButton) {
+            APPT_W = TextMeasurer.measure(font, glyphLayout, apptBtnLabel, PAD_X, PAD_Y).width;
+        }
+        s.appointmentBtnX = btnX; s.appointmentBtnH = BTN_H; s.appointmentBtnW = showAppointmentButton ? APPT_W : 0f;
+        s.appointmentBtnY = curRowBottom;
+        if (showAppointmentButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton || showAppointmentButton;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -399,6 +414,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
+        if (showAppointmentButton) {
+            shapeRenderer.setColor(APPOINTMENT_BTN_COLOR);
+            shapeRenderer.rect(s.appointmentBtnX, s.appointmentBtnY, APPT_W, BTN_H);
+        }
 
         shapeRenderer.end();
 
@@ -415,6 +434,10 @@ class InfoPanelRenderer {
         if (showOfficeButton) {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
+        }
+        if (showAppointmentButton) {
+            shapeRenderer.rect(s.appointmentBtnX,     s.appointmentBtnY,     APPT_W,     BTN_H);
+            shapeRenderer.rect(s.appointmentBtnX + 1, s.appointmentBtnY + 1, APPT_W - 2, BTN_H - 2);
         }
 
         shapeRenderer.end();
@@ -450,6 +473,13 @@ class InfoPanelRenderer {
             font.draw(batch, officeBtnLabel,
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
+        }
+        if (showAppointmentButton) {
+            glyphLayout.setText(font, apptBtnLabel);
+            font.setColor(Color.WHITE);
+            font.draw(batch, apptBtnLabel,
+                    s.appointmentBtnX + (APPT_W - glyphLayout.width) / 2,
+                    s.appointmentBtnY + (BTN_H + glyphLayout.height) / 2);
         }
 
 
@@ -901,6 +931,75 @@ class InfoPanelRenderer {
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Appointment helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the first calendar entry whose {@code location} matches the
+     * building the character is currently standing in, AND whose date/time is
+     * between now and 3 hours (180 minutes) in the future.
+     *
+     * <p>Special case: a calendar location of {@code "Your Office"} matches
+     * whenever the character is at {@code homeCellX / homeCellY}.
+     *
+     * @return the matching entry, or {@code null} if none qualifies
+     */
+    private CalendarEntry findUpcomingAppointmentAtLocation(MapViewState s) {
+        if (s.charCellX < 0 || s.charCellY < 0) return null;
+
+        Cell cell = cityMap.getCell(s.charCellX, s.charCellY);
+        String buildingName = (cell != null && cell.hasBuilding()
+                && cell.getBuilding().isDiscovered())
+                ? cell.getBuilding().getName() : null;
+        boolean atHome = s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
+
+        if (buildingName == null && !atHome) return null;
+
+        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        for (CalendarEntry entry : profile.getCalendarEntries()) {
+            boolean locationMatches;
+            if ("Your Office".equalsIgnoreCase(entry.location)) {
+                locationMatches = atHome;
+            } else {
+                locationMatches = buildingName != null
+                        && buildingName.equalsIgnoreCase(entry.location);
+            }
+            if (!locationMatches) continue;
+
+            // Show when the appointment is between now and 3 hours in the future
+            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            if (diff >= 0 && diff <= 180) return entry;
+        }
+        return null;
+    }
+
+    /**
+     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time to total minutes
+     * using the standard 365-day year with per-month day counts.
+     * Returns {@link Long#MAX_VALUE} / 2 on malformed input so that a bad
+     * date can never accidentally appear within the 3-hour appointment window.
+     */
+    private static long dateTimeToMinutes(String dt) {
+        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        try {
+            String[] halves = dt.split(" ");
+            String[] d = halves[0].split("-");
+            String[] t = halves[1].split(":");
+            int year  = Integer.parseInt(d[0]);
+            int month = Integer.parseInt(d[1]);
+            int day   = Integer.parseInt(d[2]);
+            int hour  = Integer.parseInt(t[0]);
+            int min   = Integer.parseInt(t[1]);
+            long totalDays = (long)(year - 2050) * 365L;
+            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
+            totalDays += day;
+            return totalDays * 24L * 60L + hour * 60L + min;
+        } catch (Exception e) {
+            return Long.MAX_VALUE / 2;
+        }
     }
 
     // -------------------------------------------------------------------------
