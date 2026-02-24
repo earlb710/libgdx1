@@ -133,6 +133,10 @@
     {
       "code": "forensic",
       "description": "Scientific analysis results such as fingerprints, DNA, or ballistics"
+    },
+    {
+      "code": "photographic",
+      "description": "Photographs, images, and visual documentation of scenes, persons, or objects"
     }
   ]
 }
