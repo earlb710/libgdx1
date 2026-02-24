@@ -102,8 +102,8 @@ class EmailPopup {
     private static final Color CHECK_COLOR   = new Color(0.20f, 0.85f, 0.30f, 1f);
     private static final Color CROSS_COLOR   = new Color(0.85f, 0.25f, 0.25f, 1f);
 
-    private static final String CHECK_SYMBOL = "\u2713 ";
-    private static final String CROSS_SYMBOL = "\u2717 ";
+    private static final String CHECK_SYMBOL = "[OK]" + " "; // trailing space is intentional padding
+    private static final String CROSS_SYMBOL = "[X]"  + "  "; // two spaces to match CHECK_SYMBOL length
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
