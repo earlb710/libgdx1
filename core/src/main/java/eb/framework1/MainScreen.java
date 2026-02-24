@@ -1879,16 +1879,25 @@ public class MainScreen implements Screen {
         // Seed the used-datetime set from already-accepted calendar entries so
         // newly generated appointments never clash with existing ones.
         java.util.Set<String> usedDTs = new java.util.HashSet<>();
+        String latestApptDT = null;   // most recent appointment date in the calendar
         for (CalendarEntry ce : profile.getCalendarEntries()) {
             usedDTs.add(ce.dateTime);
+            if (latestApptDT == null || ce.dateTime.compareTo(latestApptDT) > 0) {
+                latestApptDT = ce.dateTime;
+            }
         }
+        // Anchor new appointments from the latest existing one (or today if none).
+        // nextAppointmentDT adds daysAhead=1 to find the first free slot, and each
+        // chosen slot is added to usedDTs — so successive emails in the same batch
+        // automatically chain: email 1 → anchor+1, email 2 → anchor+2, etc.
+        String apptAnchor = (latestApptDT != null) ? latestApptDT : profile.getGameDateTime();
 
         int count = 1 + rng.nextInt(3); // 1–3 emails per day
         for (int i = 0; i < count; i++) {
             boolean isPolice = (i > 0) && rng.nextBoolean();
             if (isPolice) {
                 String detective = (png != null) ? png.generateFull("M") : "James Carter";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
+                String dt = nextAppointmentDT(apptAnchor, 1, usedDTs);
                 int reward = 500 + rng.nextInt(6) * 100; // $500–$1000
                 todaysEmails.add(new EmailPopup.EmailData(
                         "Det. " + detective + " (NYPD)",
@@ -1905,7 +1914,7 @@ public class MainScreen implements Screen {
             } else {
                 String gender = rng.nextBoolean() ? "M" : "F";
                 String clientName = (png != null) ? png.generateFull(gender) : "Alex Morgan";
-                String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(3), usedDTs);
+                String dt = nextAppointmentDT(apptAnchor, 1, usedDTs);
                 boolean atOffice = rng.nextBoolean();
                 String loc = atOffice ? "Your Office" : "Downtown Cafe";
                 int reward = 200 + rng.nextInt(5) * 100; // $200–$600
