@@ -1255,8 +1255,6 @@ public class MainScreen implements Screen {
 
         int effectiveCap = calculateEffectiveStaminaCap();
         int   staminaGain = Math.round(effectiveCap * fraction);
-        // Stamina is now filled incrementally per dot during the animation
-        profile.advanceGameTime(minutesSleep);
 
         // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
         int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
@@ -1272,24 +1270,32 @@ public class MainScreen implements Screen {
             }
         }
 
-        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
-        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
-                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
-
-        // Show animated sleeping popup: 1 dot per hour, 200ms/dot, fill stamina per dot
-        int animDots = Math.max(1, Math.round(hoursSlept));
-        final int staminaPerDot = staminaGain / animDots;
+        // 1 dot per hour slept; each dot advances time + fills stamina incrementally
+        int animDots        = Math.max(1, Math.round(hoursSlept));
+        final int minutesPerDot = minutesSleep / animDots;
+        final int staminaPerDot = staminaGain  / animDots;
         final int cap           = effectiveCap;
-        // Determine if a day-part boundary was crossed during sleep
+
+        // Determine result message without mutating state yet (compute hourAfter arithmetically)
+        int hourAfter = ((hour * 60 + minute + minutesSleep) / 60) % 24;
         String resultMsg = null;
-        int hourAfter = profile.getCurrentHour();
         if (hourBefore < 6 && hourAfter >= 6 && hourAfter < 18) {
+            resultMsg = "It became morning.";
+        } else if (hourBefore >= 20 && hourAfter >= 6 && hourAfter < 18) {
             resultMsg = "It became morning.";
         } else if (hourBefore < 18 && hourAfter >= 18) {
             resultMsg = "It became night.";
         }
-        restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f,
-                () -> profile.addStaminaUpTo(staminaPerDot, cap));
+
+        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
+        Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
+                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
+
+        // Per-dot callback: advance time + fill stamina together so both animate visibly
+        restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
+            profile.advanceGameTime(minutesPerDot);
+            profile.addStaminaUpTo(staminaPerDot, cap);
+        });
     }
 
     private void handleMoveToClick() {
