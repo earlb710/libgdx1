@@ -161,6 +161,36 @@ class EmailPopup {
     }
 
     /**
+     * Re-opens the popup restoring previously recorded accept/decline statuses.
+     * Use this when the same day's emails are shown again after being closed.
+     *
+     * @param list     The same email list passed to the original {@link #show} call.
+     * @param statuses Status array from {@link #getStatuses()}; a length mismatch
+     *                 is handled gracefully (unmatched entries default to unread).
+     */
+    void showWithStatus(List<EmailData> list, int[] statuses) {
+        this.emails  = new ArrayList<>(list);
+        this.current = 0;
+        this.status  = new int[this.emails.size()];
+        if (statuses != null) {
+            int len = Math.min(statuses.length, this.status.length);
+            System.arraycopy(statuses, 0, this.status, 0, len);
+        }
+        this.visible = !this.emails.isEmpty();
+        this.closeW  = 0f;
+        Gdx.app.log("EmailPopup", "Re-opened with " + this.emails.size() + " email(s) (statuses restored)");
+    }
+
+    /**
+     * Returns a snapshot of the current per-email status array.
+     * Save this before closing and pass it to {@link #showWithStatus} on re-open.
+     */
+    int[] getStatuses() {
+        if (status == null) return new int[0];
+        return java.util.Arrays.copyOf(status, status.length);
+    }
+
+    /**
      * Handles a tap on this popup.
      *
      * @return index (≥ 0) of the accepted email, {@link #RESULT_DECLINED},

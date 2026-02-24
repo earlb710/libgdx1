@@ -69,6 +69,8 @@ public class MainScreen implements Screen {
     private ConfirmPopup         confirmDropPopup;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
+    /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
+    private int[] todaysEmailStatuses = new int[0];
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -738,6 +740,8 @@ public class MainScreen implements Screen {
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = emailPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleEmailAccepted(result);
+                            // Persist statuses after every interaction so re-opens restore marks
+                            todaysEmailStatuses = emailPopup.getStatuses();
                         }
                         infoAreaPressed = false;
                     }
@@ -1849,9 +1853,9 @@ public class MainScreen implements Screen {
         // Once-per-day guard
         String today = profile.getGameDateTime().substring(0, 10);
         if (today.equals(profile.getLastEmailCheckDate())) {
-            // Same day — re-show the existing emails if we have them
+            // Same day — re-show the existing emails restoring their accept/decline marks
             if (!todaysEmails.isEmpty()) {
-                emailPopup.show(todaysEmails);
+                emailPopup.showWithStatus(todaysEmails, todaysEmailStatuses);
                 Gdx.app.log("MainScreen", "Re-opening today's inbox (" + todaysEmails.size() + " email(s))");
             } else {
                 java.util.List<String> lines = new java.util.ArrayList<>();
@@ -1865,6 +1869,7 @@ public class MainScreen implements Screen {
         // New day — generate fresh emails
         profile.setLastEmailCheckDate(today);
         todaysEmails.clear();
+        todaysEmailStatuses = new int[0];
 
         java.util.Random rng = new java.util.Random(System.currentTimeMillis());
 
@@ -1931,6 +1936,7 @@ public class MainScreen implements Screen {
         }
 
         emailPopup.show(todaysEmails);
+        todaysEmailStatuses = emailPopup.getStatuses();
         Gdx.app.log("MainScreen", "Check emails: " + todaysEmails.size() + " email(s) generated");
     }
 
@@ -1943,6 +1949,14 @@ public class MainScreen implements Screen {
     private void handleEmailAccepted(int emailIndex) {
         EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
         if (email == null) return;
+        // Guard against duplicate entries (e.g. accept → close → reopen → accept again)
+        for (CalendarEntry existing : profile.getCalendarEntries()) {
+            if (java.util.Objects.equals(existing.dateTime, email.calendarDateTime)
+                    && java.util.Objects.equals(existing.title, email.calendarTitle)) {
+                Gdx.app.log("MainScreen", "Duplicate calendar entry ignored: " + email.calendarTitle);
+                return;
+            }
+        }
         profile.addCalendarEntry(
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
                         email.rewardMoney, email.rewardItemName,
