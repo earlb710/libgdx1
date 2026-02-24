@@ -1238,7 +1238,8 @@ public class MainScreen implements Screen {
     }
 
     private void handleSleepClick() {
-        int hour   = profile.getCurrentHour();
+        int hourBefore = profile.getCurrentHour();
+        int hour   = hourBefore;
         int minute = profile.getCurrentMinute();
         int minutesSleep;
         if (hour >= 20) {
@@ -1274,6 +1275,18 @@ public class MainScreen implements Screen {
         String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
                 + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
+
+        // Show animated sleeping popup (2 dots per hour slept, min 2)
+        int animDots = Math.max(2, Math.round(hoursSlept) * 2);
+        // Determine if a day-part boundary was crossed during sleep
+        String resultMsg = null;
+        int hourAfter = profile.getCurrentHour();
+        if (hourBefore < 6 && hourAfter >= 6 && hourAfter < 18) {
+            resultMsg = "It became morning.";
+        } else if (hourBefore < 18 && hourAfter >= 18) {
+            resultMsg = "It became night.";
+        }
+        restingPopup.start(resultMsg, animDots, "Sleeping");
     }
 
     private void handleMoveToClick() {

@@ -35,7 +35,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
  */
 class RestingPopup {
 
-    private static final float DOT_INTERVAL_SEC = 0.3f;
+    private static final float DOT_INTERVAL_SEC = 0.25f;
     private static final int   MAX_DOTS         = 5;
 
     private enum State { IDLE, ANIMATING, RESULT }
@@ -57,6 +57,8 @@ class RestingPopup {
     private State  state   = State.IDLE;
     private float  timer   = 0f;
     private int    dots    = 0;
+    private int    maxDots = MAX_DOTS;
+    private String label   = "Resting";
     private String resultMsg = null;   // null → skip RESULT phase
 
     // OK button bounds (RESULT phase only)
@@ -83,13 +85,25 @@ class RestingPopup {
     // -------------------------------------------------------------------------
 
     /**
-     * Starts the resting animation.
+     * Starts the resting animation (Rest button — 5 dots, label "Resting").
      *
-     * @param resultMessage Optional message shown after the animation ("It became night",
-     *                      "It became morning"), or {@code null} to auto-dismiss.
+     * @param resultMessage Optional message shown after the animation, or {@code null}.
      */
     void start(String resultMessage) {
+        start(resultMessage, MAX_DOTS, "Resting");
+    }
+
+    /**
+     * Starts the animation with a custom dot count and label (used for Sleep).
+     *
+     * @param resultMessage Optional message shown after the animation, or {@code null}.
+     * @param numDots       Number of dots to display (e.g. hoursSlept × 2 for sleep).
+     * @param animLabel     Text shown during the animation (e.g. "Sleeping").
+     */
+    void start(String resultMessage, int numDots, String animLabel) {
         this.resultMsg = resultMessage;
+        this.maxDots   = Math.max(1, numDots);
+        this.label     = animLabel != null ? animLabel : "Resting";
         this.timer     = 0f;
         this.dots      = 0;
         this.okW       = 0f;
@@ -103,8 +117,8 @@ class RestingPopup {
     void update(float delta) {
         if (state != State.ANIMATING) return;
         timer += delta;
-        dots = Math.min(MAX_DOTS, (int) (timer / DOT_INTERVAL_SEC) + 1);
-        if (dots >= MAX_DOTS && timer >= MAX_DOTS * DOT_INTERVAL_SEC) {
+        dots = Math.min(maxDots, (int) (timer / DOT_INTERVAL_SEC) + 1);
+        if (dots >= maxDots && timer >= maxDots * DOT_INTERVAL_SEC) {
             // Animation complete — advance to result or close
             if (resultMsg != null && !resultMsg.isEmpty()) {
                 state = State.RESULT;
@@ -147,7 +161,7 @@ class RestingPopup {
 
         String mainText;
         if (state == State.ANIMATING) {
-            StringBuilder sb = new StringBuilder("Resting");
+            StringBuilder sb = new StringBuilder(label);
             for (int i = 0; i < dots; i++) sb.append('.');
             mainText = sb.toString();
         } else {
@@ -156,6 +170,13 @@ class RestingPopup {
 
         glyph.setText(font, mainText);
         float textW = glyph.width;
+        // Also measure the widest possible animated text to prevent dialog resizing mid-animation
+        if (state == State.ANIMATING) {
+            StringBuilder maxSb = new StringBuilder(label);
+            for (int i = 0; i < maxDots; i++) maxSb.append('.');
+            glyph.setText(font, maxSb.toString());
+            textW = Math.max(textW, glyph.width);
+        }
         float contentW = Math.max(textW, okBounds.textWidth);
         float dialogW  = Math.min(screenW * 0.75f, contentW + 2 * PAD);
         float dialogH;
