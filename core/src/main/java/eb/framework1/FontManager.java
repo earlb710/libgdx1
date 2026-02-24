@@ -148,7 +148,7 @@ public class FontManager implements Disposable {
      *
      * <p>Anti-aliasing: LibGDX FreeType fonts are anti-aliased by default
      * ({@code mono = false}).  We make this explicit here and use
-     * {@link FreeTypeFontParameter.Hinting#AutoFull} for the highest-quality
+     * {@link FreeTypeFontGenerator.Hinting#AutoFull} for the highest-quality
      * sub-pixel hinting, which produces the smoothest rendered glyphs.</p>
      */
     private void generateFontsWithFreeType() {
@@ -157,7 +157,7 @@ public class FontManager implements Disposable {
         // Setting it explicitly documents the intent and prevents accidental toggling.
         parameter.mono = false;
         // AutoFull hinting: best balance of sharpness and smooth AA curves
-        parameter.hinting = FreeTypeFontParameter.Hinting.AutoFull;
+        parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
         // Use MipMapLinearNearest for minFilter to reduce aliasing at small sizes
         // Use Linear for magFilter for smooth scaling when magnified
         // This combination provides crisp, high-quality text rendering
@@ -204,7 +204,7 @@ public class FontManager implements Disposable {
         // Use a fresh parameter to avoid state leaking from the regular-font parameter
         FreeTypeFontParameter boldParameter = new FreeTypeFontParameter();
         boldParameter.mono = false;
-        boldParameter.hinting = FreeTypeFontParameter.Hinting.AutoFull;
+        boldParameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
         boldParameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         boldParameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         boldParameter.genMipMaps = true;
@@ -230,7 +230,7 @@ public class FontManager implements Disposable {
         if (handwrittenGenerator != null) {
             FreeTypeFontParameter noteParam = new FreeTypeFontParameter();
             noteParam.mono = false;
-            noteParam.hinting = FreeTypeFontParameter.Hinting.AutoFull;
+            noteParam.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             noteParam.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             noteParam.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             noteParam.genMipMaps = true;
@@ -344,7 +344,7 @@ public class FontManager implements Disposable {
             parameter.size = (int)(dp * density);
             parameter.color = color;
             parameter.mono = false;
-            parameter.hinting = FreeTypeFontParameter.Hinting.AutoFull;
+            parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
@@ -375,7 +375,7 @@ public class FontManager implements Disposable {
             parameter.borderWidth = 1f;
             parameter.borderStraight = true;
             parameter.mono = false;
-            parameter.hinting = FreeTypeFontParameter.Hinting.AutoFull;
+            parameter.hinting = FreeTypeFontGenerator.Hinting.AutoFull;
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
