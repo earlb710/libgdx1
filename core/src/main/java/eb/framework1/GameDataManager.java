@@ -17,11 +17,13 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE    = "buildings.json";
-    private static final String CATEGORIES_FILE   = "categories.json";
-    private static final String TEXT_FILE         = "text/en.json";
-    private static final String PERSON_NAMES_FILE = "person_names.json";
-    private static final String SURNAMES_FILE     = "person_surnames.json";
+    private static final String BUILDINGS_FILE      = "buildings.json";
+    private static final String CATEGORIES_FILE     = "categories.json";
+    private static final String TEXT_FILE           = "text/en.json";
+    private static final String PERSON_NAMES_FILE   = "person_names.json";
+    private static final String SURNAMES_FILE       = "person_surnames.json";
+    private static final String COMPANY_NAMES_FILE  = "company_names.json";
+    private static final String COMPANY_TYPES_FILE  = "company_types.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -31,8 +33,11 @@ public class GameDataManager {
 
     private String buildingsVersion;
     private String categoriesVersion;
-    private NovelTextEngine novelTextEngine;
-    private PersonNameGenerator personNameGenerator;
+    private NovelTextEngine      novelTextEngine;
+    private PersonNameGenerator  personNameGenerator;
+    private CompanyNameGenerator companyNameGenerator;
+    /** Surname list shared between PersonNameGenerator and CompanyNameGenerator. */
+    private List<String>         loadedSurnames = new ArrayList<>();
 
     public GameDataManager() {
         this.buildings = new ArrayList<>();
@@ -45,6 +50,7 @@ public class GameDataManager {
         loadCategories();
         loadNovelTextEngine();
         loadPersonNames();
+        loadCompanyNames();
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
@@ -123,11 +129,82 @@ public class GameDataManager {
         }
 
         personNameGenerator = new PersonNameGenerator(firstNames, surnames);
+        loadedSurnames      = surnames;   // shared with companyNameGenerator
     }
 
     /**
-     * Loads building definitions from buildings.json
+     * Loads company name templates from {@code company_names.json} and company
+     * type definitions from {@code company_types.json}, then constructs the
+     * {@link CompanyNameGenerator}.
+     *
+     * <p>The surname list already parsed by {@link #loadPersonNames()} is reused
+     * so that {@code $surname} tokens in templates can be resolved at generation
+     * time.  Therefore {@code loadPersonNames()} must be called before this
+     * method.
      */
+    private void loadCompanyNames() {
+        List<CompanyNameGenerator.NameTemplate> templates = new ArrayList<>();
+        List<CompanyNameGenerator.CompanyType>  types     = new ArrayList<>();
+
+        // --- Company types ---
+        try {
+            FileHandle file = Gdx.files.internal(COMPANY_TYPES_FILE);
+            if (!file.exists()) {
+                Gdx.app.error("GameDataManager", "File not found: " + COMPANY_TYPES_FILE);
+            } else {
+                JsonReader reader = new JsonReader();
+                JsonValue root = reader.parse(file);
+                JsonValue typesArr = root.get("types");
+                if (typesArr != null) {
+                    for (JsonValue t = typesArr.child; t != null; t = t.next) {
+                        String id   = t.getString("id",   "");
+                        String name = t.getString("name", "");
+                        List<String> buildings = new ArrayList<>();
+                        JsonValue bArr = t.get("buildings");
+                        if (bArr != null) {
+                            for (JsonValue b = bArr.child; b != null; b = b.next) {
+                                String bid = b.asString();
+                                if (bid != null && !bid.isEmpty()) buildings.add(bid);
+                            }
+                        }
+                        if (!id.isEmpty()) types.add(new CompanyNameGenerator.CompanyType(id, name, buildings));
+                    }
+                }
+                Gdx.app.log("GameDataManager", "Loaded " + types.size() + " company types from " + COMPANY_TYPES_FILE);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager", "Error loading " + COMPANY_TYPES_FILE + ": " + e.getMessage(), e);
+        }
+
+        // --- Company name templates ---
+        try {
+            FileHandle file = Gdx.files.internal(COMPANY_NAMES_FILE);
+            if (!file.exists()) {
+                Gdx.app.error("GameDataManager", "File not found: " + COMPANY_NAMES_FILE);
+            } else {
+                JsonReader reader = new JsonReader();
+                JsonValue root = reader.parse(file);
+                JsonValue namesArr = root.get("names");
+                if (namesArr != null) {
+                    for (JsonValue n = namesArr.child; n != null; n = n.next) {
+                        String template = n.getString("template", "");
+                        String typeId   = n.getString("type",     CompanyNameGenerator.TYPE_GENERIC);
+                        if (!template.isEmpty()) {
+                            templates.add(new CompanyNameGenerator.NameTemplate(template, typeId));
+                        }
+                    }
+                }
+                Gdx.app.log("GameDataManager", "Loaded " + templates.size() + " company templates from " + COMPANY_NAMES_FILE);
+            }
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager", "Error loading " + COMPANY_NAMES_FILE + ": " + e.getMessage(), e);
+        }
+
+        // Reuse the surname list already loaded by loadPersonNames()
+        companyNameGenerator = new CompanyNameGenerator(templates, types, loadedSurnames);
+    }
+
+    /**
     private void loadBuildings() {
         try {
             FileHandle file = Gdx.files.internal(BUILDINGS_FILE);
@@ -312,5 +389,15 @@ public class GameDataManager {
      */
     public PersonNameGenerator getPersonNameGenerator() {
         return personNameGenerator;
+    }
+
+    /**
+     * Returns the {@link CompanyNameGenerator} loaded from
+     * {@code company_names.json} and {@code company_types.json}.
+     * Never {@code null}; returns a generator backed by empty lists if the
+     * files could not be loaded.
+     */
+    public CompanyNameGenerator getCompanyNameGenerator() {
+        return companyNameGenerator;
     }
 }
