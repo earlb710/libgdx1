@@ -61,6 +61,7 @@ public class MainScreen implements Screen {
     private DiscoveryPopup    discoveryPopup;
     private ServiceResultPopup serviceResultPopup;
     private StashPopup         stashPopup;
+    private PutInStashPopup    putInStashPopup;
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private EmailPopup           emailPopup;
@@ -206,6 +207,8 @@ public class MainScreen implements Screen {
 
         stashPopup = new StashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
 
+        putInStashPopup = new PutInStashPopup(batch, shapeRenderer, font, smallFont, glyphLayout, profile);
+
         hotelReceptionPopup = new HotelReceptionPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         gymInstructorPopup = new GymInstructorPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -269,6 +272,10 @@ public class MainScreen implements Screen {
 
         if (stashPopup.isVisible()) {
             stashPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (putInStashPopup.isVisible()) {
+            putInStashPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (hotelReceptionPopup.isVisible()) {
@@ -471,6 +478,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Put-in-stash popup blocks all normal interaction until dismissed
+                if (putInStashPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Confirm drop popup blocks all normal interaction until dismissed
                 if (confirmDropPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -614,7 +630,21 @@ public class MainScreen implements Screen {
                             int result = stashPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleTakeFromStash(result);
                             else if (result == StashPopup.RESULT_PUT_IN_STASH)
-                                state.activeInfoTab = "CHARACTER";
+                                putInStashPopup.show();
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Put-in-stash popup: stash the selected item or close
+                if (putInStashPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = putInStashPopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleEquipDrop(result);
                         }
                         infoAreaPressed = false;
                     }
