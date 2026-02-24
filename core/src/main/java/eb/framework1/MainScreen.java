@@ -805,19 +805,25 @@ public class MainScreen implements Screen {
                 if (infoAreaPressed) {
                     float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                     if (d < TAP_THRESHOLD_PIXELS) {
-                        checkTabClick(screenX, flippedY);
-                        checkUnitExitButtonClick(screenX, flippedY);
-                        checkMoveToButtonClick(screenX, flippedY);
-                        checkLookAroundButtonClick(screenX, flippedY);
-                        checkRestButtonClick(screenX, flippedY);
-                        checkSleepButtonClick(screenX, flippedY);
-                        checkGoToOfficeButtonClick(screenX, flippedY);
-                        checkOpenStashButtonClick(screenX, flippedY);
-                        checkCheckEmailsButtonClick(screenX, flippedY);
-                        checkEquipDropButtonClick(screenX, flippedY);
-                        checkHelpButtonClick(screenX, flippedY);
-                        checkNoteCheckboxClick(screenX, flippedY);
-                        checkAddNoteButtonClick(screenX, flippedY);
+                        if (state.unitInteriorOpen) {
+                            // Office popup covers the info panel — only office buttons are active.
+                            // Map-navigation buttons (Look Around, Move To, etc.) must be suppressed
+                            // to prevent click-through to the info panel behind the popup.
+                            checkUnitExitButtonClick(screenX, flippedY);
+                            checkRestButtonClick(screenX, flippedY);
+                            checkSleepButtonClick(screenX, flippedY);
+                            checkOpenStashButtonClick(screenX, flippedY);
+                            checkCheckEmailsButtonClick(screenX, flippedY);
+                        } else {
+                            checkTabClick(screenX, flippedY);
+                            checkMoveToButtonClick(screenX, flippedY);
+                            checkLookAroundButtonClick(screenX, flippedY);
+                            checkGoToOfficeButtonClick(screenX, flippedY);
+                            checkEquipDropButtonClick(screenX, flippedY);
+                            checkHelpButtonClick(screenX, flippedY);
+                            checkNoteCheckboxClick(screenX, flippedY);
+                            checkAddNoteButtonClick(screenX, flippedY);
+                        }
                     }
                     infoAreaPressed = false;
                 }
