@@ -67,6 +67,8 @@ public class MainScreen implements Screen {
     private GymInstructorPopup  gymInstructorPopup;
     private EmailPopup           emailPopup;
     private ConfirmPopup         confirmDropPopup;
+    /** The emails generated for today's inbox; null or empty = none generated yet today. */
+    private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -1847,16 +1849,24 @@ public class MainScreen implements Screen {
         // Once-per-day guard
         String today = profile.getGameDateTime().substring(0, 10);
         if (today.equals(profile.getLastEmailCheckDate())) {
-            java.util.List<String> lines = new java.util.ArrayList<>();
-            lines.add("No new emails today.");
-            lines.add("Check back tomorrow.");
-            serviceResultPopup.show("Inbox", lines);
+            // Same day — re-show the existing emails if we have them
+            if (!todaysEmails.isEmpty()) {
+                emailPopup.show(todaysEmails);
+                Gdx.app.log("MainScreen", "Re-opening today's inbox (" + todaysEmails.size() + " email(s))");
+            } else {
+                java.util.List<String> lines = new java.util.ArrayList<>();
+                lines.add("No new emails today.");
+                lines.add("Check back tomorrow.");
+                serviceResultPopup.show("Inbox", lines);
+            }
             return;
         }
+
+        // New day — generate fresh emails
         profile.setLastEmailCheckDate(today);
+        todaysEmails.clear();
 
         java.util.Random rng = new java.util.Random(System.currentTimeMillis());
-        java.util.List<EmailPopup.EmailData> emails = new java.util.ArrayList<>();
 
         PersonNameGenerator png = (game.getGameDataManager() != null)
                 ? game.getGameDataManager().getPersonNameGenerator() : null;
@@ -1868,14 +1878,14 @@ public class MainScreen implements Screen {
             usedDTs.add(ce.dateTime);
         }
 
-        int count = 1 + rng.nextInt(2); // 1 or 2 emails
+        int count = 1 + rng.nextInt(3); // 1–3 emails per day
         for (int i = 0; i < count; i++) {
             boolean isPolice = (i > 0) && rng.nextBoolean();
             if (isPolice) {
                 String detective = (png != null) ? png.generateFull("M") : "James Carter";
                 String dt = nextAppointmentDT(profile.getGameDateTime(), 1 + rng.nextInt(2), usedDTs);
                 int reward = 500 + rng.nextInt(6) * 100; // $500–$1000
-                emails.add(new EmailPopup.EmailData(
+                todaysEmails.add(new EmailPopup.EmailData(
                         "Det. " + detective + " (NYPD)",
                         "Consulting Request \u2014 Homicide",
                         "Detective,\n\nWe need a private investigator to consult on a homicide case.\n"
@@ -1904,7 +1914,7 @@ public class MainScreen implements Screen {
                     locCellX = cafeCell != null ? cafeCell[0] : -1;
                     locCellY = cafeCell != null ? cafeCell[1] : -1;
                 }
-                emails.add(new EmailPopup.EmailData(
+                todaysEmails.add(new EmailPopup.EmailData(
                         clientName,
                         "I need your help urgently",
                         "Dear Detective,\n\nI require your assistance with a matter of great urgency.\n"
@@ -1920,8 +1930,8 @@ public class MainScreen implements Screen {
             }
         }
 
-        emailPopup.show(emails);
-        Gdx.app.log("MainScreen", "Check emails: " + emails.size() + " email(s) generated");
+        emailPopup.show(todaysEmails);
+        Gdx.app.log("MainScreen", "Check emails: " + todaysEmails.size() + " email(s) generated");
     }
 
     /**
