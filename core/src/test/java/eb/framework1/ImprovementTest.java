@@ -148,9 +148,9 @@ public class ImprovementTest {
                         for (Map.Entry<CharacterAttribute, Integer> entry : imp.getAttributeModifiers().entrySet()) {
                             int val = entry.getValue();
                             assertTrue("Modifier for " + entry.getKey() + " in " + imp.getName() +
-                                       " should be >= -3 (was " + val + ")", val >= -3);
+                                       " should be >= -1 (was " + val + ")", val >= -1);
                             assertTrue("Modifier for " + entry.getKey() + " in " + imp.getName() +
-                                       " should be <= 3 (was " + val + ")", val <= 3);
+                                       " should be <= 2 (was " + val + ")", val <= 2);
                             assertTrue("Modifier should not be zero (was included in map)", val != 0);
                         }
                     }

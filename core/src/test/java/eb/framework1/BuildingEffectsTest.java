@@ -66,7 +66,7 @@ public class BuildingEffectsTest {
                     for (Map.Entry<CharacterAttribute, Integer> entry : building.getAttributeModifiers().entrySet()) {
                         int val = entry.getValue();
                         assertTrue("Modifier for " + entry.getKey() + " in " + building.getName() +
-                                   " should be >= -3 (was " + val + ")", val >= -3);
+                                   " should be >= -2 (was " + val + ")", val >= -2);
                         assertTrue("Modifier for " + entry.getKey() + " in " + building.getName() +
                                    " should be <= 3 (was " + val + ")", val <= 3);
                         assertTrue("Modifier should not be zero", val != 0);

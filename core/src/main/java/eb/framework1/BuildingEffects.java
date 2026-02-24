@@ -10,10 +10,12 @@ import java.util.Map;
 /**
  * Provides attribute modifier effects for buildings based on keyword matching.
  * Each building name is matched against keywords to determine which character
- * attributes are affected and by how much (-3 to +3).
+ * attributes are affected and by how much (-2 to +3).
  *
- * <p>Keywords are matched case-insensitively against the building name.
- * When multiple keywords match, effects are combined (summed) and clamped to -3..+3.
+ * <p>Only a small number of landmark/iconic building types carry attribute effects
+ * (effects are intentionally scarce). Keywords are matched case-insensitively
+ * against the building name. When multiple keywords match, effects are combined
+ * (summed) and clamped to -2..+3.
  */
 public final class BuildingEffects {
 
@@ -23,107 +25,38 @@ public final class BuildingEffects {
     private static final Map<String, Map<CharacterAttribute, Integer>> KEYWORD_EFFECTS = new HashMap<>();
 
     static {
-        // --- Parking ---
-        keyword("Parking Lot", CharacterAttribute.PERCEPTION, 1);
-        keyword("Parking Garage", CharacterAttribute.PERCEPTION, 1, CharacterAttribute.STEALTH, 1);
-
-        // --- Retail / Commercial ---
-        keyword("Convenience Store", CharacterAttribute.PERCEPTION, 1);
-        keyword("Gas Station", CharacterAttribute.PERCEPTION, 1, CharacterAttribute.STAMINA, -1);
-        keyword("Retail", CharacterAttribute.CHARISMA, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Pharmacy", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.MEMORY, 1);
-        keyword("Bank", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.INTIMIDATION, 1);
-        keyword("Laundromat", CharacterAttribute.STAMINA, 1);
-        keyword("Supermarket", CharacterAttribute.PERCEPTION, 1, CharacterAttribute.STAMINA, 1);
-        keyword("Warehouse Store", CharacterAttribute.STRENGTH, 1, CharacterAttribute.STAMINA, 1);
-        keyword("Mall", CharacterAttribute.CHARISMA, 2, CharacterAttribute.PERCEPTION, 1);
-        keyword("Shopping", CharacterAttribute.CHARISMA, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Strip Mall", CharacterAttribute.CHARISMA, 1);
-        keyword("Car Dealership", CharacterAttribute.CHARISMA, 2, CharacterAttribute.INTIMIDATION, 1);
-        keyword("Auto Repair", CharacterAttribute.STRENGTH, 1, CharacterAttribute.PERCEPTION, 1);
-
-        // --- Food / Dining ---
-        keyword("Fast Food", CharacterAttribute.STAMINA, -1, CharacterAttribute.CHARISMA, 1);
-        keyword("Coffee Shop", CharacterAttribute.STAMINA, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Restaurant", CharacterAttribute.CHARISMA, 2, CharacterAttribute.EMPATHY, 1);
-        keyword("Fine Dining", CharacterAttribute.CHARISMA, 3, CharacterAttribute.EMPATHY, 1);
-        keyword("Casual Restaurant", CharacterAttribute.CHARISMA, 1, CharacterAttribute.EMPATHY, 1);
-
-        // --- Fitness / Personal ---
-        keyword("Hair Salon", CharacterAttribute.CHARISMA, 2);
-        keyword("Fitness Center", CharacterAttribute.STRENGTH, 2, CharacterAttribute.STAMINA, 2, CharacterAttribute.AGILITY, 1);
-
-        // --- Medical ---
-        keyword("Medical Clinic", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.EMPATHY, 2);
-        keyword("Dental", CharacterAttribute.PERCEPTION, 1, CharacterAttribute.EMPATHY, 1);
-        keyword("Veterinary", CharacterAttribute.EMPATHY, 2, CharacterAttribute.INTUITION, 1);
-        keyword("Hospital", CharacterAttribute.INTELLIGENCE, 2, CharacterAttribute.EMPATHY, 2);
-        keyword("Urgent Care", CharacterAttribute.PERCEPTION, 2, CharacterAttribute.STAMINA, 1);
-
-        // --- Education ---
-        keyword("Daycare", CharacterAttribute.EMPATHY, 2, CharacterAttribute.CHARISMA, 1);
-        keyword("Elementary School", CharacterAttribute.EMPATHY, 2, CharacterAttribute.CHARISMA, 1);
-        keyword("High School", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.CHARISMA, 1);
-        keyword("Community College", CharacterAttribute.INTELLIGENCE, 2, CharacterAttribute.MEMORY, 1);
-        keyword("School", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.MEMORY, 1);
+        // Only landmark / iconic building types carry attribute effects (scarce).
 
         // --- Emergency / Law ---
-        keyword("Fire Station", CharacterAttribute.STRENGTH, 2, CharacterAttribute.STAMINA, 2);
-        keyword("Police Station", CharacterAttribute.PERCEPTION, 2, CharacterAttribute.INTIMIDATION, 2);
-        keyword("Police", CharacterAttribute.PERCEPTION, 2, CharacterAttribute.INTIMIDATION, 2);
+        keyword("Police Station", CharacterAttribute.PERCEPTION, 3, CharacterAttribute.INTIMIDATION, 2);
+        keyword("Fire Station",   CharacterAttribute.STRENGTH, 2, CharacterAttribute.STAMINA, 2);
 
         // --- Government / Civic ---
-        keyword("Post Office", CharacterAttribute.MEMORY, 1, CharacterAttribute.STAMINA, 1);
-        keyword("Library", CharacterAttribute.INTELLIGENCE, 3, CharacterAttribute.MEMORY, 2);
-        keyword("Community Center", CharacterAttribute.CHARISMA, 2, CharacterAttribute.EMPATHY, 2);
-        keyword("City Hall", CharacterAttribute.CHARISMA, 2, CharacterAttribute.INTELLIGENCE, 1);
-        keyword("Courthouse", CharacterAttribute.INTELLIGENCE, 2, CharacterAttribute.INTIMIDATION, 2);
-        keyword("Senior Living", CharacterAttribute.EMPATHY, 2, CharacterAttribute.MEMORY, 1);
+        keyword("Library",           CharacterAttribute.INTELLIGENCE, 3, CharacterAttribute.MEMORY, 2);
+        keyword("Courthouse",        CharacterAttribute.INTELLIGENCE, 2, CharacterAttribute.INTIMIDATION, 2);
+        keyword("Community College", CharacterAttribute.INTELLIGENCE, 2);
 
-        // --- Residential ---
-        keyword("Apartment", CharacterAttribute.STEALTH, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Luxury Apartment", CharacterAttribute.CHARISMA, 2, CharacterAttribute.STEALTH, 1);
-        keyword("High-Rise", CharacterAttribute.PERCEPTION, 2, CharacterAttribute.STEALTH, 1);
-        keyword("Townhouse", CharacterAttribute.STEALTH, 1, CharacterAttribute.EMPATHY, 1);
-        keyword("Condominium", CharacterAttribute.PERCEPTION, 1, CharacterAttribute.CHARISMA, 1);
-        keyword("Residential", CharacterAttribute.EMPATHY, 1);
+        // --- Medical ---
+        keyword("Hospital", CharacterAttribute.EMPATHY, 3, CharacterAttribute.INTELLIGENCE, 2);
 
-        // --- Hospitality ---
-        keyword("Budget Hotel", CharacterAttribute.STEALTH, 2, CharacterAttribute.PERCEPTION, 1);
-        keyword("Business Hotel", CharacterAttribute.CHARISMA, 1, CharacterAttribute.INTELLIGENCE, 1);
-        keyword("Luxury Hotel", CharacterAttribute.CHARISMA, 3, CharacterAttribute.EMPATHY, 1);
-        keyword("Hotel", CharacterAttribute.CHARISMA, 1, CharacterAttribute.STEALTH, 1);
+        // --- Fitness ---
+        keyword("Fitness Center", CharacterAttribute.STRENGTH, 3);
 
-        // --- Office ---
-        keyword("Office", CharacterAttribute.INTELLIGENCE, 1, CharacterAttribute.MEMORY, 1);
-        keyword("Corporate Headquarters", CharacterAttribute.INTELLIGENCE, 2, CharacterAttribute.INTIMIDATION, 2);
-        keyword("Coworking", CharacterAttribute.CHARISMA, 1, CharacterAttribute.INTELLIGENCE, 1);
+        // --- Industrial / Tech ---
+        keyword("Data Center", CharacterAttribute.INTELLIGENCE, 3, CharacterAttribute.MEMORY, 2);
+
+        // --- Food / Dining ---
+        keyword("Fine Dining", CharacterAttribute.CHARISMA, 3);
+        keyword("Fast Food",   CharacterAttribute.STAMINA, -2);
 
         // --- Entertainment ---
-        keyword("Movie Theater", CharacterAttribute.EMPATHY, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Bowling Alley", CharacterAttribute.AGILITY, 1, CharacterAttribute.CHARISMA, 1);
-        keyword("Nightclub", CharacterAttribute.CHARISMA, 2, CharacterAttribute.STEALTH, -1);
-        keyword("Sports Arena", CharacterAttribute.STRENGTH, 1, CharacterAttribute.STAMINA, 2, CharacterAttribute.AGILITY, 1);
-
-        // --- Industrial ---
-        keyword("Warehouse", CharacterAttribute.STRENGTH, 2, CharacterAttribute.STAMINA, 1);
-        keyword("Manufacturing", CharacterAttribute.STRENGTH, 2, CharacterAttribute.STAMINA, 1);
-        keyword("Data Center", CharacterAttribute.INTELLIGENCE, 3, CharacterAttribute.MEMORY, 2);
-        keyword("Self Storage", CharacterAttribute.MEMORY, 1, CharacterAttribute.STEALTH, 1);
-        keyword("Industrial", CharacterAttribute.STRENGTH, 1, CharacterAttribute.STAMINA, 1);
+        keyword("Sports Arena", CharacterAttribute.STRENGTH, 2, CharacterAttribute.AGILITY, 1);
+        keyword("Nightclub",    CharacterAttribute.CHARISMA, 2, CharacterAttribute.STEALTH, -2);
 
         // --- Religious ---
-        keyword("Church", CharacterAttribute.EMPATHY, 2, CharacterAttribute.INTUITION, 1);
-        keyword("Mosque", CharacterAttribute.EMPATHY, 2, CharacterAttribute.INTUITION, 1);
-        keyword("Synagogue", CharacterAttribute.EMPATHY, 2, CharacterAttribute.INTUITION, 1);
-
-        // --- Transit ---
-        keyword("Transit Station", CharacterAttribute.AGILITY, 1, CharacterAttribute.PERCEPTION, 1);
-        keyword("Bus Depot", CharacterAttribute.STAMINA, 1, CharacterAttribute.PERCEPTION, 1);
-
-        // --- Fallback building types ---
-        keyword("Park", CharacterAttribute.STAMINA, 1, CharacterAttribute.EMPATHY, 1);
-        keyword("Commercial", CharacterAttribute.CHARISMA, 1);
+        keyword("Church",    CharacterAttribute.EMPATHY, 2);
+        keyword("Mosque",    CharacterAttribute.EMPATHY, 2);
+        keyword("Synagogue", CharacterAttribute.EMPATHY, 2);
     }
 
     /**
@@ -162,10 +95,10 @@ public final class BuildingEffects {
     /**
      * Computes attribute modifiers for a building by matching its name
      * against known keywords. Modifiers from multiple matching keywords
-     * are combined and clamped to the range -3..+3.
+     * are combined and clamped to the range -2..+3.
      *
      * <p>At most 2 distinct positive attribute enhancements are kept (the highest values).
-     * Negative modifiers are not limited.
+     * Negative modifiers are not limited beyond the -2 floor.
      *
      * @param buildingName The name of the building
      * @return An unmodifiable map of attribute modifiers (only non-zero values)
@@ -186,10 +119,10 @@ public final class BuildingEffects {
             }
         }
 
-        // Clamp values to -3..+3 and remove zeros
+        // Clamp values to -2..+3 and remove zeros
         Map<CharacterAttribute, Integer> clamped = new HashMap<>();
         for (Map.Entry<CharacterAttribute, Integer> entry : combined.entrySet()) {
-            int val = Math.max(-3, Math.min(3, entry.getValue()));
+            int val = Math.max(-2, Math.min(3, entry.getValue()));
             if (val != 0) {
                 clamped.put(entry.getKey(), val);
             }
