@@ -205,6 +205,8 @@ public class GameDataManager {
     }
 
     /**
+     * Loads building definitions from buildings.json
+     */
     private void loadBuildings() {
         try {
             FileHandle file = Gdx.files.internal(BUILDINGS_FILE);
