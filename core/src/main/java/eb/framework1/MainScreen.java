@@ -734,6 +734,7 @@ public class MainScreen implements Screen {
                         checkGoToOfficeButtonClick(screenX, flippedY);
                         checkOpenStashButtonClick(screenX, flippedY);
                         checkCheckEmailsButtonClick(screenX, flippedY);
+                        checkAppointmentButtonClick(screenX, flippedY);
                         checkEquipDropButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
                         checkNoteCheckboxClick(screenX, flippedY);
@@ -748,7 +749,12 @@ public class MainScreen implements Screen {
             @Override
             public boolean touchDragged(int screenX, int screenY, int pointer) {
                 if (contextMenu.isVisible()) {
-                    contextMenu.dismiss();
+                    // Only dismiss if the finger has moved far enough to be a real drag.
+                    // Tiny jitter during a tap should not cancel the menu before touchUp fires.
+                    float dragDistance = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+                    if (dragDistance >= TAP_THRESHOLD_PIXELS) {
+                        contextMenu.dismiss();
+                    }
                     return true;
                 }
                 if (isDragging) {
@@ -1004,6 +1010,18 @@ public class MainScreen implements Screen {
         if (screenX >= state.checkEmailsBtnX && screenX <= state.checkEmailsBtnX + state.checkEmailsBtnW
                 && flippedY >= state.checkEmailsBtnY && flippedY <= state.checkEmailsBtnY + state.checkEmailsBtnH) {
             handleCheckEmailsClick();
+        }
+    }
+
+    private void checkAppointmentButtonClick(int screenX, int flippedY) {
+        if (state.appointmentBtnW <= 0) return;
+        if (screenX >= state.appointmentBtnX && screenX <= state.appointmentBtnX + state.appointmentBtnW
+                && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
+            // Switch to the Calendar tab so the player can see the appointment details
+            state.activeInfoTab = "CALENDAR";
+            state.infoScrollY   = 0f;
+            state.infoScrollX   = 0f;
+            Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
         }
     }
 
