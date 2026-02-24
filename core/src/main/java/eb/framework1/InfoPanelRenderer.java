@@ -152,7 +152,7 @@ class InfoPanelRenderer {
         // =====================================================================
         // TAB BAR — drawn at the top of the info panel
         // =====================================================================
-        final String[] TAB_LABELS = { "Info", "Character" };
+        final String[] TAB_LABELS = { "Info", "Character", "Case File" };
         // Use smallFont for tabs so they fit at any info-panel size
         glyphLayout.setText(smallFont, "Hg");
         float tabFontH  = glyphLayout.height;
@@ -237,6 +237,8 @@ class InfoPanelRenderer {
         // =====================================================================
         if ("CHARACTER".equalsIgnoreCase(s.activeInfoTab)) {
             drawCharacterTab(s, contentPanelH);
+        } else if ("CASE FILE".equalsIgnoreCase(s.activeInfoTab)) {
+            drawCaseFileTab(s, contentPanelH);
         } else {
             drawInfoTab(s, lookAroundIdle, contentPanelH);
         }
@@ -804,6 +806,122 @@ class InfoPanelRenderer {
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Case File tab content
+    // -------------------------------------------------------------------------
+
+    private void drawCaseFileTab(MapViewState s, int panelH) {
+        // Disable action buttons when case file tab is active
+        s.moveToButtonW      = 0f;
+        s.lookAroundBtnW     = 0f;
+        s.restBtnW           = 0f;
+        s.sleepBtnW          = 0f;
+        s.goToOfficeBtnW     = 0f;
+        s.infoMaxScrollX     = 0f;
+        s.infoScrollX        = 0f;
+
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
+
+        final float PAD = 12f;
+
+        // --- Poplist header: open cases ---
+        List<CaseFile> openCases = profile.getOpenCases();
+        String selectedCase;
+        if (openCases.isEmpty()) {
+            selectedCase = "None";
+        } else {
+            CaseFile active = profile.getActiveCaseFile();
+            selectedCase = active != null ? active.getName() : openCases.get(0).getName();
+        }
+
+        // Draw poplist-style selector at the top
+        float poplistY = panelH - PAD;
+        float poplistH = fontCapH + 10f;
+        float poplistW = s.screenWidth - PAD * 2f;
+        float poplistX = PAD;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
+        shapeRenderer.rect(poplistX, poplistY - poplistH, poplistW, poplistH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(poplistX, poplistY - poplistH, poplistW, poplistH);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Case: ", poplistX + 6f, poplistY - 4f);
+        glyphLayout.setText(font, "Case: ");
+        float labelW = glyphLayout.width;
+        font.setColor(Color.WHITE);
+        font.draw(batch, selectedCase, poplistX + 6f + labelW, poplistY - 4f);
+        batch.end();
+
+        // --- Case details below the poplist ---
+        float contentY = poplistY - poplistH - PAD;
+
+        if (!openCases.isEmpty()) {
+            CaseFile active = profile.getActiveCaseFile();
+            if (active == null) active = openCases.get(0);
+
+            batch.begin();
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Status: ", PAD, contentY);
+            glyphLayout.setText(font, "Status: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getStatus().name(), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Opened: ", PAD, contentY);
+            glyphLayout.setText(font, "Opened: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            if (!active.getDescription().isEmpty()) {
+                font.setColor(LABEL_COLOR);
+                font.draw(batch, "Description:", PAD, contentY);
+                contentY -= fontLineH;
+                smallFont.setColor(NOVEL_COLOR);
+                smallFont.draw(batch, active.getDescription(), PAD + 8f, contentY);
+                smallFont.setColor(Color.WHITE);
+                contentY -= fontLineH;
+            }
+
+            // Clue count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Clues: ", PAD, contentY);
+            glyphLayout.setText(font, "Clues: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getClues().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List clues
+            List<String> clues = active.getClues();
+            for (int i = 0; i < clues.size(); i++) {
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "\u2022 " + clues.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+
+            batch.end();
+        } else {
+            batch.begin();
+            smallFont.setColor(new Color(0.5f, 0.5f, 0.6f, 1f));
+            smallFont.draw(batch, "No open cases.", PAD, contentY);
+            smallFont.setColor(Color.WHITE);
+            batch.end();
+        }
+
+        // Scroll — set max scroll to 0 for now (content fits without scroll initially)
+        s.infoMaxScrollY = 0f;
     }
 
     // -------------------------------------------------------------------------

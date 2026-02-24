@@ -734,7 +734,7 @@ public class MainScreen implements Screen {
 
     private void checkTabClick(int screenX, int flippedY) {
         if (state.tabH <= 0) return;
-        String[] tabIds = { "INFO", "CHARACTER" };
+        String[] tabIds = { "INFO", "CHARACTER", "CASE FILE" };
         for (int i = 0; i < tabIds.length; i++) {
             if (state.tabW[i] <= 0) continue;
             if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]

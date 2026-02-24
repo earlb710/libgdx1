@@ -68,14 +68,14 @@ class MapViewState {
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
 
     // --- Info panel tab bar ---
-    /** Currently active tab: {@code "INFO"} or {@code "CHARACTER"}. */
+    /** Currently active tab: {@code "INFO"}, {@code "CHARACTER"}, or {@code "CASE FILE"}. */
     String activeInfoTab = "INFO";
     /** Tab bar height (written by InfoPanelRenderer, read by MainScreen). */
     float tabBarHeight = 0f;
-    /** Tab bounds: [0] = Info tab, [1] = Character tab (x, y, w, h). */
-    float[] tabX = new float[2];
-    float[] tabY = new float[2];
-    float[] tabW = new float[2];
+    /** Tab bounds: [0] = Info tab, [1] = Character tab, [2] = Case File tab (x, y, w, h). */
+    float[] tabX = new float[3];
+    float[] tabY = new float[3];
+    float[] tabW = new float[3];
     float   tabH = 0f;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---

@@ -63,44 +63,6 @@
       "color": "#9E9E9E"
     }
   ],
-  "case_categories": [
-    {
-      "code": "physical",
-      "description": "Tangible objects or marks found at a location"
-    },
-    {
-      "code": "testimonial",
-      "description": "Statements or accounts provided by witnesses or persons of interest"
-    },
-    {
-      "code": "documentary",
-      "description": "Written records, files, logs, or digital data"
-    },
-    {
-      "code": "environmental",
-      "description": "Conditions or changes in the surroundings that indicate activity"
-    },
-    {
-      "code": "behavioral",
-      "description": "Observable actions, habits, or patterns of people"
-    },
-    {
-      "code": "clues",
-      "description": "Hints or pieces of information that help solve a case"
-    },
-    {
-      "code": "evidence",
-      "description": "Material or information that establishes facts in a case"
-    },
-    {
-      "code": "investigation",
-      "description": "Systematic inquiry or examination to uncover facts"
-    },
-    {
-      "code": "surveillance",
-      "description": "Close observation of a person, place, or activity"
-    }
-  ],
   "item_categories": [
     {
       "code": "weapon",
@@ -129,6 +91,26 @@
     {
       "code": "key_item",
       "description": "Critical items required to advance the story"
+    },
+    {
+      "code": "clues",
+      "description": "Hints or pieces of information that help solve a case"
+    },
+    {
+      "code": "evidence",
+      "description": "Material or information that establishes facts in a case"
+    },
+    {
+      "code": "investigation",
+      "description": "Systematic inquiry or examination to uncover facts"
+    },
+    {
+      "code": "surveillance",
+      "description": "Close observation of a person, place, or activity"
+    },
+    {
+      "code": "other",
+      "description": "Miscellaneous items that do not fit other categories"
     }
   ]
 }
