@@ -251,7 +251,9 @@ class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawInfoTab(MapViewState s, boolean lookAroundIdle, int panelH) {
-        s.addNoteBtnW = 0f; // Add Note button is only on the Case File tab
+        s.addNoteBtnW = 0f; // Add Note button and checkboxes are only on the Case File tab
+        s.noteTimeCbW = 0f;
+        s.noteLocCbW  = 0f;
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -576,6 +578,8 @@ class InfoPanelRenderer {
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
         s.addNoteBtnW        = 0f;
+        s.noteTimeCbW        = 0f;
+        s.noteLocCbW         = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
 
@@ -826,6 +830,8 @@ class InfoPanelRenderer {
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
         s.addNoteBtnW        = 0f;
+        s.noteTimeCbW        = 0f;
+        s.noteLocCbW         = 0f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -950,6 +956,73 @@ class InfoPanelRenderer {
             smallFont.setColor(Color.WHITE);
 
             batch.end();
+
+            // --- Checkboxes: Include current time / Include current location ---
+            float cbSize = fontCapH;
+            float cbGap  = 6f;
+            float cbRowH = cbSize + 4f;
+
+            // "Include current time" checkbox
+            float timeCbX = PAD;
+            float timeCbY = contentY - cbSize - 2f;
+
+            s.noteTimeCbX = timeCbX;
+            s.noteTimeCbY = timeCbY;
+            s.noteTimeCbW = cbSize;
+            s.noteTimeCbH = cbSize;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(timeCbX, timeCbY, cbSize, cbSize);
+            shapeRenderer.end();
+
+            if (s.noteIncludeTime) {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(LABEL_COLOR);
+                float inset = 3f;
+                shapeRenderer.rect(timeCbX + inset, timeCbY + inset,
+                        cbSize - inset * 2, cbSize - inset * 2);
+                shapeRenderer.end();
+            }
+
+            batch.begin();
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "Include current time",
+                    timeCbX + cbSize + cbGap, timeCbY + cbSize - 2f);
+            batch.end();
+
+            contentY -= cbRowH;
+
+            // "Include current location" checkbox
+            float locCbX = PAD;
+            float locCbY = contentY - cbSize - 2f;
+
+            s.noteLocCbX = locCbX;
+            s.noteLocCbY = locCbY;
+            s.noteLocCbW = cbSize;
+            s.noteLocCbH = cbSize;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(locCbX, locCbY, cbSize, cbSize);
+            shapeRenderer.end();
+
+            if (s.noteIncludeLocation) {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(LABEL_COLOR);
+                float inset = 3f;
+                shapeRenderer.rect(locCbX + inset, locCbY + inset,
+                        cbSize - inset * 2, cbSize - inset * 2);
+                shapeRenderer.end();
+            }
+
+            batch.begin();
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "Include current location",
+                    locCbX + cbSize + cbGap, locCbY + cbSize - 2f);
+            batch.end();
+
+            contentY -= cbRowH;
 
             // --- "Add Note" button ---
             float btnW = 120f;

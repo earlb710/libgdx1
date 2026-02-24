@@ -548,6 +548,7 @@ public class MainScreen implements Screen {
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
+                        checkNoteCheckboxClick(screenX, flippedY);
                         checkAddNoteButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
@@ -818,17 +819,43 @@ public class MainScreen implements Screen {
         }
     }
 
+    private void checkNoteCheckboxClick(int screenX, int flippedY) {
+        if (state.noteTimeCbW > 0
+                && screenX >= state.noteTimeCbX && screenX <= state.noteTimeCbX + state.noteTimeCbW
+                && flippedY >= state.noteTimeCbY && flippedY <= state.noteTimeCbY + state.noteTimeCbH) {
+            state.noteIncludeTime = !state.noteIncludeTime;
+        }
+        if (state.noteLocCbW > 0
+                && screenX >= state.noteLocCbX && screenX <= state.noteLocCbX + state.noteLocCbW
+                && flippedY >= state.noteLocCbY && flippedY <= state.noteLocCbY + state.noteLocCbH) {
+            state.noteIncludeLocation = !state.noteIncludeLocation;
+        }
+    }
+
     private void checkAddNoteButtonClick(int screenX, int flippedY) {
         if (state.addNoteBtnW <= 0) return;
         if (screenX >= state.addNoteBtnX && screenX <= state.addNoteBtnX + state.addNoteBtnW
                 && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
             CaseFile active = profile.getActiveCaseFile();
             if (active != null) {
+                final boolean includeTime     = state.noteIncludeTime;
+                final boolean includeLocation = state.noteIncludeLocation;
                 Gdx.input.getTextInput(new Input.TextInputListener() {
                     @Override
                     public void input(String text) {
                         if (text != null && !text.trim().isEmpty()) {
-                            active.addNote(text.trim());
+                            StringBuilder sb = new StringBuilder();
+                            if (includeTime) {
+                                sb.append("[").append(profile.getGameDateTime()).append("] ");
+                            }
+                            if (includeLocation) {
+                                String loc = getCurrentLocationName();
+                                if (loc != null && !loc.isEmpty()) {
+                                    sb.append("@ ").append(loc).append(" ");
+                                }
+                            }
+                            sb.append(text.trim());
+                            active.addNote(sb.toString());
                             Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
                         }
                     }
@@ -839,6 +866,16 @@ public class MainScreen implements Screen {
                 }, "Add Note", "", "Enter your note...");
             }
         }
+    }
+
+    /** Returns the building name at the character's current location, or the cell coordinates. */
+    private String getCurrentLocationName() {
+        if (state.charCellX < 0 || state.charCellY < 0) return "";
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        if (cell != null && cell.hasBuilding() && cell.getBuilding().getName() != null) {
+            return cell.getBuilding().getName();
+        }
+        return "(" + state.charCellX + "," + state.charCellY + ")";
     }
 
     // -------------------------------------------------------------------------
