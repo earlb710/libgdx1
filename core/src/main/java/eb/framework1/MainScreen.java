@@ -1218,10 +1218,11 @@ public class MainScreen implements Screen {
 
     private void handleRestClick() {
         int hourBefore = profile.getCurrentHour();
-        profile.addStamina(2);
+        int effectiveCap = calculateEffectiveStaminaCap();
+        profile.addStaminaUpTo(2, effectiveCap);
         profile.advanceGameTime(60);
         int hourAfter  = profile.getCurrentHour();
-        Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina");
+        Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina (cap=" + effectiveCap + ")");
 
         // Determine if a day-part boundary was crossed during the rest hour
         String resultMsg = null;
@@ -1249,8 +1250,10 @@ public class MainScreen implements Screen {
         if (minutesSleep <= 0) minutesSleep = 1;
         float hoursSlept  = minutesSleep / 60.0f;
         float fraction    = Math.min(1.0f, hoursSlept / 8.0f);
-        int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
-        profile.addStamina(staminaGain);
+
+        int effectiveCap = calculateEffectiveStaminaCap();
+        int   staminaGain = Math.round(effectiveCap * fraction);
+        profile.addStaminaUpTo(staminaGain, effectiveCap);
         profile.advanceGameTime(minutesSleep);
 
         // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
@@ -1258,7 +1261,7 @@ public class MainScreen implements Screen {
         int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
         int hotelBonusActual = 0;
         if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
-            profile.addStamina(hotelBonus);
+            profile.addStaminaUpTo(hotelBonus, effectiveCap);
             hotelBonusActual = hotelBonus;
             int remaining = hotelNights - 1;
             profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
@@ -1269,7 +1272,7 @@ public class MainScreen implements Screen {
 
         String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
-                + staminaGain + " stamina" + bonusNote);
+                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
     }
 
     private void handleMoveToClick() {
@@ -1839,6 +1842,41 @@ public class MainScreen implements Screen {
         if (hours == 0) return mins + " min";
         if (mins  == 0) return hours + "h";
         return hours + "h " + mins + "min";
+    }
+
+    /**
+     * Returns the total STAMINA attribute modifier granted by the building (and
+     * its discovered improvements) at the character's current cell, or 0 if the
+     * cell has no discovered building.
+     *
+     * <p>Mirrors {@code InfoPanelRenderer.locationModFor} but lives in MainScreen
+     * so rest / sleep handlers can use it without cross-class coupling.</p>
+     */
+    private int getLocationStaminaMod() {
+        if (state.charCellX < 0 || state.charCellY < 0) return 0;
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        if (!cell.hasBuilding() || !cell.getBuilding().isDiscovered()) return 0;
+        Building b = cell.getBuilding();
+        int total = b.getAttributeModifiers().getOrDefault(CharacterAttribute.STAMINA, 0);
+        for (Improvement imp : b.getImprovements()) {
+            if (imp.isDiscovered()) {
+                total += imp.getAttributeModifiers().getOrDefault(CharacterAttribute.STAMINA, 0);
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Returns the effective stamina cap at the character's current location:
+     * {@code max(10, (staminaAttr + locationMod) × 10)}.
+     *
+     * <p>The multiplier of 10 converts each STAMINA attribute point (and each
+     * location modifier point) into 10 stamina pool points.</p>
+     */
+    private int calculateEffectiveStaminaCap() {
+        int locMod = getLocationStaminaMod();
+        // 10 stamina pool points per STAMINA attribute (and per location modifier) point
+        return Math.max(10, (profile.getAttribute(CharacterAttribute.STAMINA.name()) + locMod) * 10);
     }
 
     /**
