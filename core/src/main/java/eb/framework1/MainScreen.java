@@ -57,6 +57,7 @@ public class MainScreen implements Screen {
     private LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     private TirednessPopup    tirednessPopup;
+    private RestingPopup      restingPopup;
     private HelpPopup         helpPopup;
     private DiscoveryPopup    discoveryPopup;
     private ServiceResultPopup serviceResultPopup;
@@ -199,6 +200,8 @@ public class MainScreen implements Screen {
 
         tirednessPopup = new TirednessPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        restingPopup = new RestingPopup(batch, shapeRenderer, font, glyphLayout);
+
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -260,6 +263,11 @@ public class MainScreen implements Screen {
 
         if (tirednessPopup.isVisible()) {
             tirednessPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (restingPopup.isVisible()) {
+            restingPopup.update(delta);
+            restingPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (discoveryPopup.isVisible()) {
@@ -451,6 +459,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Resting popup blocks all normal interaction while visible
+                if (restingPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Discovery popup blocks all normal interaction until dismissed
                 if (discoveryPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -594,6 +611,17 @@ public class MainScreen implements Screen {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) tirednessPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Resting popup: only the OK button (RESULT phase) can dismiss it
+                if (restingPopup.isVisible()) {
+                    if (infoAreaPressed && !restingPopup.isAnimating()) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
                         infoAreaPressed = false;
                     }
                     isDragging = false;
@@ -1170,9 +1198,22 @@ public class MainScreen implements Screen {
     }
 
     private void handleRestClick() {
+        int hourBefore = profile.getCurrentHour();
         profile.addStamina(2);
         profile.advanceGameTime(60);
+        int hourAfter  = profile.getCurrentHour();
         Gdx.app.log("MainScreen", "Rested 1 hour, +2 stamina");
+
+        // Determine if a day-part boundary was crossed during the rest hour
+        String resultMsg = null;
+        boolean crossedEvening = hourBefore < 18 && hourAfter >= 18;
+        boolean crossedMorning = (hourBefore >= 18 || hourBefore < 6) && hourAfter >= 6 && hourAfter < 18;
+        if (crossedEvening) {
+            resultMsg = "It became night.";
+        } else if (crossedMorning) {
+            resultMsg = "It became morning.";
+        }
+        restingPopup.start(resultMsg);
     }
 
     private void handleSleepClick() {
