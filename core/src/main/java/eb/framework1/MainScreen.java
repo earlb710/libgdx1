@@ -100,7 +100,19 @@ public class MainScreen implements Screen {
     private static final float SCROLL_SPEED         = 0.5f;
     private static final float TAP_THRESHOLD_PIXELS = 10f;
     private static final long  DOUBLE_CLICK_MS      = 400L;
-    private static final String BUILDING_ID_COFFEE_SHOP = "coffee_shop";
+    private static final String BUILDING_ID_COFFEE_SHOP   = "coffee_shop";
+    private static final String BUILDING_ID_SECURITY_SHOP = "security_shop";
+
+    // Prices for purchasable gear at the security shop (item name → cost in $)
+    private static final java.util.Map<String, Integer> GEAR_PRICES;
+    static {
+        java.util.Map<String, Integer> m = new java.util.LinkedHashMap<>();
+        m.put("Pistol",       350);
+        m.put("Binoculars",   120);
+        m.put("Camera",       200);
+        m.put("Pepper Spray",  50);
+        GEAR_PRICES = java.util.Collections.unmodifiableMap(m);
+    }
 
     // -------------------------------------------------------------------------
 
@@ -1613,6 +1625,14 @@ public class MainScreen implements Screen {
                 break;
             }
 
+            // ---- Security shop: gear purchase ------------------------------
+            case BuildingServices.SVC_BUY_GEAR: {
+                // Time already advanced; cost=0 on the service — individual items are paid per purchase
+                handleBuyGear(resultLines);
+                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                return;
+            }
+
             default:
                 resultLines.add("Service completed.");
                 break;
@@ -1620,6 +1640,81 @@ public class MainScreen implements Screen {
 
         serviceResultPopup.show(title, resultLines);
         Gdx.app.log("MainScreen", "Service used: " + svc.id);
+    }
+
+    /**
+     * Processes a gear purchase at the security shop.
+     *
+     * <p>Iterates the {@link #GEAR_PRICES} catalogue.  For each item the player
+     * can afford and does not already carry, the first affordable item is
+     * purchased automatically and feedback is added to {@code resultLines}.
+     * If the player already owns all available items the result says so.</p>
+     *
+     * <p>This is intentionally simple (auto-buys first affordable item).
+     * A full shop UI can be added later if needed.</p>
+     */
+    private void handleBuyGear(List<String> resultLines) {
+        // Build a set of names already carried (main slots + utility)
+        java.util.Set<String> carried = new java.util.HashSet<>();
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) carried.add(item.getName());
+        }
+        for (EquipItem item : profile.getUtilityItems()) carried.add(item.getName());
+
+        // Find purchasable items (not already carried, in catalogue)
+        List<String> available = new ArrayList<>();
+        for (String name : GEAR_PRICES.keySet()) {
+            if (!carried.contains(name)) available.add(name);
+        }
+
+        if (available.isEmpty()) {
+            resultLines.add("You already own everything in stock.");
+            return;
+        }
+
+        // List what's for sale along with prices
+        resultLines.add("Items available:");
+        for (String name : available) {
+            int price = GEAR_PRICES.get(name);
+            resultLines.add("  " + name + " — $" + price);
+        }
+        resultLines.add("");
+
+        // Auto-purchase first affordable item
+        for (String name : available) {
+            int price = GEAR_PRICES.get(name);
+            if (profile.getMoney() >= price) {
+                // Find the catalogue item
+                EquipItem bought = null;
+                for (EquipmentSlot slot : mainSlots) {
+                    EquipItem candidate = EquipItem.findByName(name, slot);
+                    if (candidate != null) { bought = candidate; break; }
+                }
+                if (bought == null) bought = EquipItem.findByName(name, EquipmentSlot.UTILITY);
+                if (bought == null) {
+                    Gdx.app.log("MainScreen", "WARN: gear '" + name + "' in GEAR_PRICES not found in EquipItem catalogue");
+                    continue;
+                }
+
+                profile.setMoney(profile.getMoney() - price);
+                if (bought.getSlot() == EquipmentSlot.UTILITY) {
+                    profile.addUtilityItem(bought);
+                } else {
+                    profile.equip(bought);
+                }
+                resultLines.add("Purchased: " + name + " for $" + price + ".");
+                resultLines.add("Remaining balance: $" + profile.getMoney() + ".");
+                Gdx.app.log("MainScreen", "Gear purchased: " + name + " for $" + price);
+                return;
+            }
+        }
+
+        // Can't afford anything
+        resultLines.add("You can't afford any items right now.");
+        resultLines.add("You have: $" + profile.getMoney() + ".");
     }
 
     /** Called every frame while {@code state.isWalking} is true. */
@@ -2061,9 +2156,10 @@ public class MainScreen implements Screen {
         int refY = state.homeCellY;
         if (refX < 0 || refY < 0) return;
 
-        // Always discover: police station and hospital
+        // Always discover: police station, hospital, and nearest security shop
         discoverCellIfFound(findNearestBuilding(refX, refY, "police_station"));
         discoverCellIfFound(findNearestBuilding(refX, refY, "hospital_small", "hospital_large"));
+        discoverCellIfFound(findNearestBuilding(refX, refY, BUILDING_ID_SECURITY_SHOP));
 
         // STRENGTH or STAMINA >= 4 → gym
         if (profile.getAttribute(CharacterAttribute.STRENGTH.name()) >= 4

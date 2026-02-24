@@ -1165,6 +1165,21 @@
       ]
     },
     {
+      "id": "security_shop",
+      "name": "Security & Surveillance Shop",
+      "category": "retail",
+      "minFloors": 1,
+      "maxFloors": 2,
+      "unitsPerFloor": 1,
+      "capacity": 20,
+      "percentage": 0.5,
+      "description": "A specialist shop selling surveillance gear, protective equipment, and tools for private investigators",
+      "improvements": [
+        "Display Cases", "Security Camera Demo Wall", "Fitting Room", "Storage Room",
+        "Repair Bench", "Key Cutting Machine", "Safe Display", "Alarm System"
+      ]
+    },
+    {
       "id": "bus_depot",
       "name": "Bus Depot",
       "category": "infrastructure",

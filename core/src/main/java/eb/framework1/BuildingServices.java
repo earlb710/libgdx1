@@ -39,6 +39,7 @@ final class BuildingServices {
     static final String SVC_ENTERTAINMENT  = "entertainment";
     static final String SVC_ATTEND_SERVICE = "attend_service";
     static final String SVC_HAIRCUT        = "haircut";
+    static final String SVC_BUY_GEAR       = "buy_gear";
 
     // -------------------------------------------------------------------------
     // Profile attribute keys for gym tracking
@@ -216,6 +217,12 @@ final class BuildingServices {
                 return list(new BuildingService(SVC_HAIRCUT,
                         "Get a Haircut", "Look your best.",
                         25, 30));
+
+            // ---- Security & Surveillance Shop --------------------------------
+            case "security_shop":
+                return list(new BuildingService(SVC_BUY_GEAR,
+                        "Browse Gear", "Buy surveillance and protective equipment.",
+                        0, 15));
 
             default:
                 return Collections.emptyList();
