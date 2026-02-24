@@ -1551,6 +1551,26 @@ public class MainScreen implements Screen {
                 break;
             }
 
+            // ---- Supply / Retail -----------------------------------------
+            case BuildingServices.SVC_BUY_SUPPLIES: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("You picked up what you needed.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
+            // ---- Laundromat -----------------------------------------------
+            case BuildingServices.SVC_LAUNDRY: {
+                int gain = 2;
+                profile.addStamina(gain);
+                resultLines.add("Your clothes are clean and fresh.");
+                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+
             default:
                 resultLines.add("Service completed.");
                 break;
