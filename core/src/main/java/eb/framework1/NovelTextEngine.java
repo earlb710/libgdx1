@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Novel text engine: selects contextual location/action descriptions from JSON data files.
  *
- * <p>Each language has its own JSON file (e.g. {@code text/en.json}, {@code text/es.json}).
+ * <p>Each language has its own JSON file (e.g. {@code text/description_en.json}, {@code text/description_es.json}).
  * English is the default and is used as a fallback when a requested language has no entry for
  * the given key.</p>
  *
@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * <p>Usage (production — load via LibGDX):
  * <pre>{@code
- * String json = Gdx.files.internal("text/en.json").readString("UTF-8");
+ * String json = Gdx.files.internal("text/description_en.json").readString("UTF-8");
  * NovelTextEngine engine = NovelTextEngine.fromJsonString(json);
  *
  * // Single-variant (existing) format — location ignored, same as before:
@@ -109,14 +109,16 @@ public class NovelTextEngine {
     private final Map<String, List<DescriptionEntry>> improvements;
 
     /**
-     * Constructs the engine from pre-built maps of single description entries and improvement
+     * Creates an engine from pre-built maps of single description entries and improvement
      * entries.  Each entry is wrapped in a one-element list; intended for unit testing.
      *
      * @param entries      Map of building description key → {@link DescriptionEntry}
      * @param improvements Map of improvement name → {@link DescriptionEntry}
+     * @return New {@link NovelTextEngine} populated from the maps
      */
-    NovelTextEngine(Map<String, DescriptionEntry> entries, Map<String, DescriptionEntry> improvements) {
-        this(wrapInLists(entries), wrapInLists(improvements));
+    static NovelTextEngine fromSingleEntries(Map<String, DescriptionEntry> entries,
+                                             Map<String, DescriptionEntry> improvements) {
+        return new NovelTextEngine(wrapInLists(entries), wrapInLists(improvements));
     }
 
     /**
@@ -406,6 +408,82 @@ public class NovelTextEngine {
      */
     public String getImprovementDescription(String name) {
         return getImprovementDescription(name, null, null);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API — variant count queries and recommendations
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the number of description variants currently loaded for the given key.
+     *
+     * @param key Description key (e.g. {@code "gym_fitness_center"})
+     * @return Number of variants, or {@code 0} if the key is unknown
+     */
+    public int getVariantCount(String key) {
+        if (key == null) return 0;
+        List<DescriptionEntry> variants = entries.get(key);
+        return variants != null ? variants.size() : 0;
+    }
+
+    /**
+     * Calculates the recommended number of description variants needed so that,
+     * given {@code expectedInstances} copies of a building on the map, there is
+     * approximately a 50% probability that at least two of them share the
+     * same description (the <em>birthday problem</em>).
+     *
+     * <p>The formula used is {@code k = ceil(n * (n - 1) / (2 * ln(2)))}, where
+     * {@code n} is the expected number of instances, {@code k} is the number
+     * of distinct variants required for a ~50% collision probability, and
+     * {@code ln} denotes the natural logarithm ({@link Math#log(double)}).</p>
+     *
+     * @param expectedInstances Average number of times this building type
+     *                          appears on the city map (must be &ge; 0)
+     * @return Recommended number of description variants (&ge; 1)
+     */
+    public static int recommendedVariantCount(int expectedInstances) {
+        if (expectedInstances <= 1) return 1;
+        double n = expectedInstances;
+        double k = n * (n - 1) / (2.0 * Math.log(2));
+        return Math.max(1, (int) Math.ceil(k));
+    }
+
+    /**
+     * Calculates the recommended number of description variants for every building
+     * type, based on each building's percentage share and the total number of
+     * building cells on the map.
+     *
+     * <p>For each building the expected instance count is
+     * {@code totalBuildingCells * (percentage / totalPercentage)}, and the
+     * recommended variant count follows from the birthday-problem formula
+     * (see {@link #recommendedVariantCount(int)}).</p>
+     *
+     * @param buildings          List of building definitions (with percentage data)
+     * @param totalBuildingCells Total number of building cells on the map
+     * @return Map of building definition ID → recommended variant count
+     */
+    public static Map<String, Integer> recommendedVariantCounts(
+            List<BuildingDefinition> buildings, int totalBuildingCells) {
+        Map<String, Integer> result = new HashMap<>();
+        if (buildings == null || buildings.isEmpty() || totalBuildingCells <= 0) {
+            return result;
+        }
+        double totalPercentage = 0;
+        for (BuildingDefinition b : buildings) {
+            totalPercentage += b.getPercentage();
+        }
+        if (totalPercentage <= 0) {
+            for (BuildingDefinition b : buildings) {
+                result.put(b.getId(), 1);
+            }
+            return result;
+        }
+        for (BuildingDefinition b : buildings) {
+            double normalizedPct = b.getPercentage() / totalPercentage;
+            int expectedInstances = (int) Math.round(normalizedPct * totalBuildingCells);
+            result.put(b.getId(), recommendedVariantCount(expectedInstances));
+        }
+        return result;
     }
 
     // -------------------------------------------------------------------------

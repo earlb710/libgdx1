@@ -405,6 +405,47 @@ public class Profile {
     }
 
     // -------------------------------------------------------------------------
+    // Case files
+    // -------------------------------------------------------------------------
+
+    private final List<CaseFile> caseFiles = new ArrayList<>();
+    private CaseFile activeCaseFile = null;
+
+    /** Adds a case file and makes it the active case. */
+    public void addCaseFile(CaseFile caseFile) {
+        if (caseFile == null) throw new IllegalArgumentException("CaseFile must not be null");
+        caseFiles.add(caseFile);
+        activeCaseFile = caseFile;
+    }
+
+    /** Returns an unmodifiable view of all case files. */
+    public List<CaseFile> getCaseFiles() {
+        return Collections.unmodifiableList(caseFiles);
+    }
+
+    /** Returns only the open case files. */
+    public List<CaseFile> getOpenCases() {
+        List<CaseFile> open = new ArrayList<>();
+        for (CaseFile cf : caseFiles) {
+            if (cf.isOpen()) open.add(cf);
+        }
+        return open;
+    }
+
+    /** Returns the currently selected/active case file, or {@code null} if none. */
+    public CaseFile getActiveCaseFile() {
+        return activeCaseFile;
+    }
+
+    /** Sets the active case file (must already be in the case files list, or null). */
+    public void setActiveCaseFile(CaseFile caseFile) {
+        if (caseFile != null && !caseFiles.contains(caseFile)) {
+            throw new IllegalArgumentException("CaseFile is not in the case files list");
+        }
+        this.activeCaseFile = caseFile;
+    }
+
+    // -------------------------------------------------------------------------
     // toString
     // -------------------------------------------------------------------------
 

@@ -46,7 +46,7 @@ class HelpPopup {
     // -------------------------------------------------------------------------
     // Map-legend entries: label, R, G, B
     // Terrain colours match CityMap constants; building-category colours are the
-    // hex values from assets/categories.json converted to [0,1] floats.
+    // hex values from assets/text/category_en.json converted to [0,1] floats.
     // Keep these in sync with that file when category colours are changed.
     // -------------------------------------------------------------------------
     private static final Object[][] LEGEND = {

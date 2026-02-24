@@ -18,8 +18,8 @@ import java.util.Map;
  */
 public class GameDataManager {
     private static final String BUILDINGS_FILE  = "buildings.json";
-    private static final String CATEGORIES_FILE = "categories.json";
-    private static final String TEXT_FILE       = "text/en.json";
+    private static final String CATEGORIES_FILE = "text/category_en.json";
+    private static final String TEXT_FILE       = "text/description_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -46,7 +46,7 @@ public class GameDataManager {
     }
     
     /**
-     * Loads the novel text engine from {@code text/en.json}.
+     * Loads the novel text engine from {@code text/description_en.json}.
      */
     private void loadNovelTextEngine() {
         try {
@@ -131,7 +131,7 @@ public class GameDataManager {
     }
     
     /**
-     * Loads category definitions from categories.json
+     * Loads category definitions from text/category_en.json
      */
     private void loadCategories() {
         try {
@@ -146,7 +146,7 @@ public class GameDataManager {
             
             categoriesVersion = root.getString("version", "unknown");
             
-            JsonValue categoriesArray = root.get("categories");
+            JsonValue categoriesArray = root.get("building_categories");
             if (categoriesArray != null) {
                 for (JsonValue categoryJson = categoriesArray.child; categoryJson != null; categoryJson = categoryJson.next) {
                     CategoryDefinition category = parseCategoryDefinition(categoryJson);
@@ -155,7 +155,7 @@ public class GameDataManager {
                 }
             }
             
-            Gdx.app.log("GameDataManager", "Loaded categories.json v" + categoriesVersion + " with " + categories.size() + " categories");
+            Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion + " with " + categories.size() + " categories");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading categories: " + e.getMessage(), e);
         }
@@ -163,13 +163,16 @@ public class GameDataManager {
     
     /**
      * Parses a single category definition from JSON.
+     * Supports both {@code "id"} and {@code "code"} as the identifier field,
+     * and treats {@code "name"} as optional.
      */
     private CategoryDefinition parseCategoryDefinition(JsonValue json) {
         CategoryDefinition category = new CategoryDefinition();
-        category.setId(json.getString("id"));
-        category.setName(json.getString("name"));
+        String id = json.has("id") ? json.getString("id") : json.getString("code");
+        category.setId(id);
+        category.setName(json.getString("name", id));
         category.setDescription(json.getString("description"));
-        category.setColor(json.getString("color"));
+        category.setColor(json.getString("color", null));
         return category;
     }
     
@@ -230,14 +233,14 @@ public class GameDataManager {
     }
     
     /**
-     * Returns the version of the loaded categories.json file.
+     * Returns the version of the loaded category file.
      */
     public String getCategoriesVersion() {
         return categoriesVersion;
     }
 
     /**
-     * Returns the {@link NovelTextEngine} loaded from {@code text/en.json}.
+     * Returns the {@link NovelTextEngine} loaded from {@code text/description_en.json}.
      * Never {@code null}; returns an empty engine if the file could not be loaded.
      */
     public NovelTextEngine getNovelTextEngine() {

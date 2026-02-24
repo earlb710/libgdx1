@@ -47,6 +47,8 @@ class InfoPanelRenderer {
     static final Color         LABEL_COLOR            = new Color(0f,    1f,    0f,    1f);
     private static final Color ATTR_TOTAL_COLOR       = new Color(0.5f,  1.0f,  0.5f,  1f);
     private static final Color NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
+    private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
+    private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -55,6 +57,7 @@ class InfoPanelRenderer {
     private final BitmapFont    smallFont;
     private final BitmapFont    boldSmallFont;
     private final BitmapFont    tinyFont;
+    private final BitmapFont    noteFont;
     private final GlyphLayout   glyphLayout;
     private final CityMap       cityMap;
     private final Profile       profile;
@@ -65,7 +68,7 @@ class InfoPanelRenderer {
 
     InfoPanelRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
                       BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
-                      BitmapFont tinyFont,
+                      BitmapFont tinyFont, BitmapFont noteFont,
                       GlyphLayout glyphLayout,
                       CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
         this.batch           = batch;
@@ -74,6 +77,7 @@ class InfoPanelRenderer {
         this.smallFont       = smallFont;
         this.boldSmallFont   = boldSmallFont;
         this.tinyFont        = tinyFont;
+        this.noteFont        = noteFont;
         this.glyphLayout     = glyphLayout;
         this.cityMap         = cityMap;
         this.profile         = profile;
@@ -152,7 +156,7 @@ class InfoPanelRenderer {
         // =====================================================================
         // TAB BAR — drawn at the top of the info panel
         // =====================================================================
-        final String[] TAB_LABELS = { "Info", "Character" };
+        final String[] TAB_LABELS = { "Info", "Character", "Case File" };
         // Use smallFont for tabs so they fit at any info-panel size
         glyphLayout.setText(smallFont, "Hg");
         float tabFontH  = glyphLayout.height;
@@ -237,6 +241,8 @@ class InfoPanelRenderer {
         // =====================================================================
         if ("CHARACTER".equalsIgnoreCase(s.activeInfoTab)) {
             drawCharacterTab(s, contentPanelH);
+        } else if ("CASE FILE".equalsIgnoreCase(s.activeInfoTab)) {
+            drawCaseFileTab(s, contentPanelH);
         } else {
             drawInfoTab(s, lookAroundIdle, contentPanelH);
         }
@@ -247,6 +253,9 @@ class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawInfoTab(MapViewState s, boolean lookAroundIdle, int panelH) {
+        s.addNoteBtnW = 0f; // Add Note button and checkboxes are only on the Case File tab
+        s.noteTimeCbW = 0f;
+        s.noteLocCbW  = 0f;
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -570,6 +579,9 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.addNoteBtnW        = 0f;
+        s.noteTimeCbW        = 0f;
+        s.noteLocCbW         = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
 
@@ -804,6 +816,255 @@ class InfoPanelRenderer {
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Case File tab content
+    // -------------------------------------------------------------------------
+
+    private void drawCaseFileTab(MapViewState s, int panelH) {
+        // Disable action buttons when case file tab is active
+        s.moveToButtonW      = 0f;
+        s.lookAroundBtnW     = 0f;
+        s.restBtnW           = 0f;
+        s.sleepBtnW          = 0f;
+        s.goToOfficeBtnW     = 0f;
+        s.infoMaxScrollX     = 0f;
+        s.infoScrollX        = 0f;
+        s.addNoteBtnW        = 0f;
+        s.noteTimeCbW        = 0f;
+        s.noteLocCbW         = 0f;
+
+        glyphLayout.setText(font, "Hg");
+        float fontCapH  = glyphLayout.height;
+        float fontLineH = fontCapH * 1.4f;
+
+        final float PAD = 12f;
+
+        // --- Poplist header: open cases ---
+        List<CaseFile> openCases = profile.getOpenCases();
+        String selectedCase;
+        if (openCases.isEmpty()) {
+            selectedCase = "None";
+        } else {
+            CaseFile active = profile.getActiveCaseFile();
+            selectedCase = active != null ? active.getName() : openCases.get(0).getName();
+        }
+
+        // Draw poplist-style selector at the top
+        float poplistY = panelH - PAD;
+        float poplistH = fontCapH + 10f;
+        float poplistW = s.screenWidth - PAD * 2f;
+        float poplistX = PAD;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
+        shapeRenderer.rect(poplistX, poplistY - poplistH, poplistW, poplistH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(poplistX, poplistY - poplistH, poplistW, poplistH);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Case: ", poplistX + 6f, poplistY - 4f);
+        glyphLayout.setText(font, "Case: ");
+        float labelW = glyphLayout.width;
+        font.setColor(Color.WHITE);
+        font.draw(batch, selectedCase, poplistX + 6f + labelW, poplistY - 4f);
+        batch.end();
+
+        // --- Case details below the poplist ---
+        float contentY = poplistY - poplistH - PAD;
+
+        if (!openCases.isEmpty()) {
+            CaseFile active = profile.getActiveCaseFile();
+            if (active == null) active = openCases.get(0);
+
+            batch.begin();
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Status: ", PAD, contentY);
+            glyphLayout.setText(font, "Status: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getStatus().name(), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Opened: ", PAD, contentY);
+            glyphLayout.setText(font, "Opened: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            if (!active.getDescription().isEmpty()) {
+                font.setColor(LABEL_COLOR);
+                font.draw(batch, "Description:", PAD, contentY);
+                contentY -= fontLineH;
+                smallFont.setColor(NOVEL_COLOR);
+                smallFont.draw(batch, active.getDescription(), PAD + 8f, contentY);
+                smallFont.setColor(Color.WHITE);
+                contentY -= fontLineH;
+            }
+
+            // Clue count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Clues: ", PAD, contentY);
+            glyphLayout.setText(font, "Clues: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getClues().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List clues
+            List<String> clues = active.getClues();
+            for (int i = 0; i < clues.size(); i++) {
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "\u2022 " + clues.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+
+            // Evidence count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Evidence: ", PAD, contentY);
+            glyphLayout.setText(font, "Evidence: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getEvidence().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List evidence
+            List<String> evidenceList = active.getEvidence();
+            for (int i = 0; i < evidenceList.size(); i++) {
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "\u2022 " + evidenceList.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+
+            // Notes count
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Notes: ", PAD, contentY);
+            glyphLayout.setText(font, "Notes: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getNotes().size()), PAD + glyphLayout.width, contentY);
+            contentY -= fontLineH;
+
+            // List notes
+            List<String> notesList = active.getNotes();
+            for (int i = 0; i < notesList.size(); i++) {
+                noteFont.setColor(NOTE_COLOR);
+                noteFont.draw(batch, "\u2022 " + notesList.get(i), PAD + 8f, contentY);
+                contentY -= fontLineH * 0.9f;
+            }
+            noteFont.setColor(Color.WHITE);
+
+            batch.end();
+
+            // --- Checkboxes: Include current time / Include current location ---
+            final float CB_LABEL_GAP   = 6f;   // gap between checkbox square and label text
+            final float CB_ROW_PADDING = 4f;   // vertical padding around each checkbox row
+            float cbSize = fontCapH;
+            float cbRowH = cbSize + CB_ROW_PADDING;
+
+            // "Include current time" checkbox
+            float timeCbX = PAD;
+            float timeCbY = contentY - cbSize - 2f;
+
+            s.noteTimeCbX = timeCbX;
+            s.noteTimeCbY = timeCbY;
+            s.noteTimeCbW = cbSize;
+            s.noteTimeCbH = cbSize;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(timeCbX, timeCbY, cbSize, cbSize);
+            shapeRenderer.end();
+
+            if (s.noteIncludeTime) {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(LABEL_COLOR);
+                float inset = 3f;
+                shapeRenderer.rect(timeCbX + inset, timeCbY + inset,
+                        cbSize - inset * 2, cbSize - inset * 2);
+                shapeRenderer.end();
+            }
+
+            batch.begin();
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "Include current time",
+                    timeCbX + cbSize + CB_LABEL_GAP, timeCbY + cbSize - 2f);
+            batch.end();
+
+            contentY -= cbRowH;
+
+            // "Include current location" checkbox
+            float locCbX = PAD;
+            float locCbY = contentY - cbSize - 2f;
+
+            s.noteLocCbX = locCbX;
+            s.noteLocCbY = locCbY;
+            s.noteLocCbW = cbSize;
+            s.noteLocCbH = cbSize;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(locCbX, locCbY, cbSize, cbSize);
+            shapeRenderer.end();
+
+            if (s.noteIncludeLocation) {
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(LABEL_COLOR);
+                float inset = 3f;
+                shapeRenderer.rect(locCbX + inset, locCbY + inset,
+                        cbSize - inset * 2, cbSize - inset * 2);
+                shapeRenderer.end();
+            }
+
+            batch.begin();
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "Include current location",
+                    locCbX + cbSize + CB_LABEL_GAP, locCbY + cbSize - 2f);
+            batch.end();
+
+            contentY -= cbRowH;
+
+            // --- "Add Note" button ---
+            float btnW = 120f;
+            float btnH = fontCapH + 12f;
+            float btnX = PAD;
+            float btnY = contentY - btnH - 4f;
+
+            s.addNoteBtnX = btnX;
+            s.addNoteBtnY = btnY;
+            s.addNoteBtnW = btnW;
+            s.addNoteBtnH = btnH;
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(ADD_NOTE_BTN_COLOR);
+            shapeRenderer.rect(btnX, btnY, btnW, btnH);
+            shapeRenderer.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(btnX, btnY, btnW, btnH);
+            shapeRenderer.end();
+
+            batch.begin();
+            font.setColor(Color.WHITE);
+            glyphLayout.setText(font, "Add Note");
+            font.draw(batch, "Add Note",
+                    btnX + (btnW - glyphLayout.width) / 2f,
+                    btnY + (btnH + glyphLayout.height) / 2f);
+            batch.end();
+        } else {
+            batch.begin();
+            smallFont.setColor(new Color(0.5f, 0.5f, 0.6f, 1f));
+            smallFont.draw(batch, "No open cases.", PAD, contentY);
+            smallFont.setColor(Color.WHITE);
+            batch.end();
+        }
+
+        // Scroll — set max scroll to 0 for now (content fits without scroll initially)
+        s.infoMaxScrollY = 0f;
     }
 
     // -------------------------------------------------------------------------

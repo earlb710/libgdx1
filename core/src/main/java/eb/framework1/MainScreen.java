@@ -39,6 +39,7 @@ public class MainScreen implements Screen {
     private BitmapFont    smallFont;
     private BitmapFont    boldSmallFont;
     private BitmapFont    tinyFont;
+    private BitmapFont    noteFont;
     private GlyphLayout   glyphLayout;
     private boolean initialized = false;
 
@@ -110,6 +111,7 @@ public class MainScreen implements Screen {
         smallFont     = game.getFontManager().getSmallFont();
         boldSmallFont = game.getFontManager().getBoldSmallFont();
         tinyFont      = game.getFontManager().getTinyFont();
+        noteFont      = game.getFontManager().getNoteFont();
 
         GameDataManager gameData = game.getGameDataManager();
         novelTextEngine = gameData.getNovelTextEngine();
@@ -179,7 +181,7 @@ public class MainScreen implements Screen {
             mapRenderer.setCharacterIconTexture(charTex);
         }
 
-        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont,
+        infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont, noteFont,
                 glyphLayout, cityMap, profile, novelTextEngine);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
@@ -548,6 +550,8 @@ public class MainScreen implements Screen {
                         checkSleepButtonClick(screenX, flippedY);
                         checkGoToOfficeButtonClick(screenX, flippedY);
                         checkHelpButtonClick(screenX, flippedY);
+                        checkNoteCheckboxClick(screenX, flippedY);
+                        checkAddNoteButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -734,7 +738,7 @@ public class MainScreen implements Screen {
 
     private void checkTabClick(int screenX, int flippedY) {
         if (state.tabH <= 0) return;
-        String[] tabIds = { "INFO", "CHARACTER" };
+        String[] tabIds = { "INFO", "CHARACTER", "CASE FILE" };
         for (int i = 0; i < tabIds.length; i++) {
             if (state.tabW[i] <= 0) continue;
             if (screenX >= state.tabX[i] && screenX <= state.tabX[i] + state.tabW[i]
@@ -815,6 +819,65 @@ public class MainScreen implements Screen {
                 && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {
             state.helpVisible = !state.helpVisible;
         }
+    }
+
+    private void checkNoteCheckboxClick(int screenX, int flippedY) {
+        if (state.noteTimeCbW > 0
+                && screenX >= state.noteTimeCbX && screenX <= state.noteTimeCbX + state.noteTimeCbW
+                && flippedY >= state.noteTimeCbY && flippedY <= state.noteTimeCbY + state.noteTimeCbH) {
+            state.noteIncludeTime = !state.noteIncludeTime;
+        }
+        if (state.noteLocCbW > 0
+                && screenX >= state.noteLocCbX && screenX <= state.noteLocCbX + state.noteLocCbW
+                && flippedY >= state.noteLocCbY && flippedY <= state.noteLocCbY + state.noteLocCbH) {
+            state.noteIncludeLocation = !state.noteIncludeLocation;
+        }
+    }
+
+    private void checkAddNoteButtonClick(int screenX, int flippedY) {
+        if (state.addNoteBtnW <= 0) return;
+        if (screenX >= state.addNoteBtnX && screenX <= state.addNoteBtnX + state.addNoteBtnW
+                && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
+            CaseFile active = profile.getActiveCaseFile();
+            if (active != null) {
+                final boolean includeTime     = state.noteIncludeTime;
+                final boolean includeLocation = state.noteIncludeLocation;
+                Gdx.input.getTextInput(new Input.TextInputListener() {
+                    @Override
+                    public void input(String text) {
+                        if (text != null && !text.trim().isEmpty()) {
+                            StringBuilder sb = new StringBuilder();
+                            if (includeTime) {
+                                sb.append("[").append(profile.getGameDateTime()).append("] ");
+                            }
+                            if (includeLocation) {
+                                String loc = getCurrentLocationName();
+                                if (loc != null && !loc.isEmpty()) {
+                                    sb.append("@ ").append(loc).append(" ");
+                                }
+                            }
+                            sb.append(text.trim());
+                            active.addNote(sb.toString());
+                            Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
+                        }
+                    }
+                    @Override
+                    public void canceled() {
+                        // User cancelled — do nothing
+                    }
+                }, "Add Note", "", "Enter your note...");
+            }
+        }
+    }
+
+    /** Returns the building name at the character's current location, or the cell coordinates. */
+    private String getCurrentLocationName() {
+        if (state.charCellX < 0 || state.charCellY < 0) return "";
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        if (cell != null && cell.hasBuilding() && cell.getBuilding().getName() != null) {
+            return cell.getBuilding().getName();
+        }
+        return "(" + state.charCellX + "," + state.charCellY + ")";
     }
 
     // -------------------------------------------------------------------------
