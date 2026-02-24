@@ -66,11 +66,36 @@ public class BuildingEffectsTest {
                     for (Map.Entry<CharacterAttribute, Integer> entry : building.getAttributeModifiers().entrySet()) {
                         int val = entry.getValue();
                         assertTrue("Modifier for " + entry.getKey() + " in " + building.getName() +
-                                   " should be >= -3 (was " + val + ")", val >= -3);
+                                   " should be >= -2 (was " + val + ")", val >= -2);
                         assertTrue("Modifier for " + entry.getKey() + " in " + building.getName() +
                                    " should be <= 3 (was " + val + ")", val <= 3);
                         assertTrue("Modifier should not be zero", val != 0);
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testMaxTwoPositiveAttributeEnhancements() {
+        // Fitness Center has STRENGTH+2, STAMINA+2, AGILITY+1 — 3 positives, should be capped at 2
+        Map<CharacterAttribute, Integer> mods = BuildingEffects.getEffects("Fitness Center");
+        long positiveCount = mods.values().stream().filter(v -> v > 0).count();
+        assertTrue("Building should have at most 2 positive attribute enhancements", positiveCount <= 2);
+    }
+
+    @Test
+    public void testAllBuildingsHaveAtMostTwoPositiveEnhancements() {
+        CityMap map = new CityMap(12345L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.hasBuilding()) {
+                    Building building = cell.getBuilding();
+                    long positiveCount = building.getAttributeModifiers().values().stream()
+                            .filter(v -> v > 0).count();
+                    assertTrue("Building '" + building.getName() + "' should have at most 2 positive enhancements",
+                            positiveCount <= 2);
                 }
             }
         }
