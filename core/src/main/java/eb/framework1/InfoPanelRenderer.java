@@ -870,11 +870,18 @@ class InfoPanelRenderer {
 
                 // [Drop] / [Stash] button — right-aligned, only when visible in panel
                 if (i < MapViewState.MAX_EQUIP_BTNS && iy > 0 && iy <= panelH + smallCapH) {
-                    smallFont.setColor(dropColor);
-                    smallFont.draw(batch, dropLabel, dropLabelX, iy);
-                    s.equipDropBtnX[i] = dropLabelX;
-                    s.equipDropBtnY[i] = iy - smallCapH - 2f; // button bottom
-                    s.equipDropBtnW[i] = dropLabelW;
+                    if (item.isCaseItem()) {
+                        // Case items: show a locked [Case] label — no drop button
+                        smallFont.setColor(Color.YELLOW);
+                        smallFont.draw(batch, "[Case]", dropLabelX, iy);
+                        // equipDropBtnW[i] stays 0 (already cleared above)
+                    } else {
+                        smallFont.setColor(dropColor);
+                        smallFont.draw(batch, dropLabel, dropLabelX, iy);
+                        s.equipDropBtnX[i] = dropLabelX;
+                        s.equipDropBtnY[i] = iy - smallCapH - 2f; // button bottom
+                        s.equipDropBtnW[i] = dropLabelW;
+                    }
                 } // else W stays 0 (set above) — not clickable when scrolled off-screen
 
                 ty -= smallLineH;

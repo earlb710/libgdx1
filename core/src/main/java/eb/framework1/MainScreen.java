@@ -63,6 +63,7 @@ public class MainScreen implements Screen {
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private EmailPopup           emailPopup;
+    private ConfirmPopup         confirmDropPopup;
 
     // Input state
     private InputProcessor previousInputProcessor;
@@ -209,6 +210,8 @@ public class MainScreen implements Screen {
 
         emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -276,6 +279,10 @@ public class MainScreen implements Screen {
 
         if (emailPopup.isVisible()) {
             emailPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (confirmDropPopup.isVisible()) {
+            confirmDropPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (contextMenu.isVisible()) {
@@ -462,6 +469,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Confirm drop popup blocks all normal interaction until dismissed
+                if (confirmDropPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Hotel reception popup blocks all normal interaction until dismissed
                 if (hotelReceptionPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -595,6 +611,22 @@ public class MainScreen implements Screen {
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = stashPopup.onTap(screenX, flippedY);
                             if (result >= 0) handleTakeFromStash(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
+                // Confirm drop popup: Yes drops/stashes the item; No cancels
+                if (confirmDropPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = confirmDropPopup.onTap(screenX, flippedY);
+                            if (result == ConfirmPopup.RESULT_YES) {
+                                handleEquipDrop(confirmDropPopup.getPendingIdx());
+                            }
                         }
                         infoAreaPressed = false;
                     }
@@ -979,10 +1011,29 @@ public class MainScreen implements Screen {
                     && screenX <= state.equipDropBtnX[i] + state.equipDropBtnW[i]
                     && flippedY >= state.equipDropBtnY[i]
                     && flippedY <= state.equipDropBtnY[i] + state.equipDropBtnH) {
-                handleEquipDrop(i);
+                boolean inOffice = state.unitInteriorOpen
+                        && state.charCellX == state.homeCellX
+                        && state.charCellY == state.homeCellY;
+                String action   = inOffice ? "stash" : "drop";
+                String itemName = getCarriedItemName(i);
+                confirmDropPopup.show("Are you sure?",
+                        "Do you want to " + action + ": " + itemName + "?", i);
                 return;
             }
         }
+    }
+
+    /** Returns the display name of carried item at flat index {@code idx}, or "item" if not found. */
+    private String getCarriedItemName(int idx) {
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        List<EquipItem> allItems = new ArrayList<>();
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem item = profile.getEquipped(slot);
+            if (item != null) allItems.add(item);
+        }
+        allItems.addAll(profile.getUtilityItems());
+        return (idx >= 0 && idx < allItems.size()) ? allItems.get(idx).getName() : "item";
     }
 
     private void checkUnitExitButtonClick(int screenX, int flippedY) {
@@ -1108,6 +1159,12 @@ public class MainScreen implements Screen {
         allItems.addAll(utility);
 
         if (idx < 0 || idx >= allItems.size()) return;
+
+        // Case items are locked to active cases and can never be dropped or stashed
+        if (allItems.get(idx).isCaseItem()) {
+            Gdx.app.log("MainScreen", "Cannot drop case item: " + allItems.get(idx).getName());
+            return;
+        }
 
         boolean inOffice = state.unitInteriorOpen
                 && state.charCellX == state.homeCellX
