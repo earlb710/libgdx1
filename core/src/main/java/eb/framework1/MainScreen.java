@@ -137,6 +137,7 @@ public class MainScreen implements Screen {
         boldSmallFont = game.getFontManager().getBoldSmallFont();
         tinyFont      = game.getFontManager().getTinyFont();
         noteFont      = game.getFontManager().getNoteFont();
+        tinyFont.getData().markupEnabled = true;  // enables colour markup tags in tinyFont draw calls
 
         GameDataManager gameData = game.getGameDataManager();
         novelTextEngine = gameData.getNovelTextEngine();

@@ -486,7 +486,7 @@ class InfoPanelRenderer {
                     if (!bMod.isEmpty()) {
                         glyphLayout.setText(smallFont, bName);
                         tinyFont.setColor(Color.WHITE);
-                        tinyFont.draw(batch, " " + bMod,
+                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
                                 nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
                     }
                     textY -= fontLineH;
@@ -530,7 +530,7 @@ class InfoPanelRenderer {
                             if (!modStr.isEmpty()) {
                                 glyphLayout.setText(font, namePart);
                                 tinyFont.setColor(Color.WHITE);
-                                tinyFont.draw(batch, " " + modStr,
+                                tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
@@ -1516,6 +1516,35 @@ class InfoPanelRenderer {
             sb.append(val);
         }
         return sb.append(']').toString();
+    }
+
+    /**
+     * Same as {@link #formatAttributeModifiers} but wraps each numeric value in a
+     * LibGDX colour-markup tag so it renders in bright green when drawn with a
+     * {@link com.badlogic.gdx.graphics.g2d.BitmapFont} that has
+     * {@code markupEnabled = true}.
+     *
+     * <p>Example output: {@code [[STR[#00EE44FF]+2[]]}</p>
+     */
+    static String formatAttributeModifiersMarkup(Map<CharacterAttribute, Integer> modifiers) {
+        if (modifiers == null || modifiers.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder("[["); // "[" rendered as "[[" in markup
+        boolean first = true;
+        for (Map.Entry<CharacterAttribute, Integer> e : modifiers.entrySet()) {
+            if (!first) sb.append(' ');
+            first = false;
+            String name = e.getKey().getDisplayName();
+            String abbr = name.length() >= 3 ? name.substring(0, 3).toUpperCase() : name.toUpperCase();
+            int val = e.getValue();
+            sb.append(abbr);
+            // Colour only the numeric part in bright green
+            sb.append("[#00EE44FF]");
+            if (val > 0) sb.append('+');
+            sb.append(val);
+            sb.append("[]"); // reset colour
+        }
+        sb.append(']');
+        return sb.toString();
     }
 
 }
