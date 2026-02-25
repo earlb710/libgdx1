@@ -222,7 +222,7 @@ public class MainScreen implements Screen {
 
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
-        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, boldSmallFont, glyphLayout);
 
         serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 

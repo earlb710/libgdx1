@@ -35,6 +35,7 @@ class DiscoveryPopup {
     private final ShapeRenderer sr;
     private final BitmapFont    font;
     private final BitmapFont    smallFont;
+    private final BitmapFont    boldSmallFont;
     private final GlyphLayout   glyph;
 
     // --- State ---
@@ -56,12 +57,13 @@ class DiscoveryPopup {
     // -------------------------------------------------------------------------
 
     DiscoveryPopup(SpriteBatch batch, ShapeRenderer sr,
-                   BitmapFont font, BitmapFont smallFont, GlyphLayout glyph) {
-        this.batch     = batch;
-        this.sr        = sr;
-        this.font      = font;
-        this.smallFont = smallFont;
-        this.glyph     = glyph;
+                   BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont, GlyphLayout glyph) {
+        this.batch         = batch;
+        this.sr            = sr;
+        this.font          = font;
+        this.smallFont     = smallFont;
+        this.boldSmallFont = boldSmallFont;
+        this.glyph         = glyph;
     }
 
     // -------------------------------------------------------------------------
@@ -264,16 +266,18 @@ class DiscoveryPopup {
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
         ty -= fontLineH + TITLE_GAP;
 
-        // Content lines (building type in bright white; novel text in light-blue; everything else white)
+        // Content lines (building type in bold bright white; novel text in light-blue; everything else white)
         for (int i = 0; i < scrollLines.size(); i++) {
+            boolean isType  = buildingType != null && i == 0;
             boolean isNovel = i >= novelStartIdx && i < novelEndIdx;
-            smallFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
+            BitmapFont lineFont = isType ? boldSmallFont : smallFont;
+            lineFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
             String line = scrollLines.get(i);
-            glyph.setText(smallFont, line);
-            smallFont.draw(batch, line, dialogX + PAD, ty);
+            glyph.setText(lineFont, line);
+            lineFont.draw(batch, line, dialogX + PAD, ty);
             ty -= smallLineH;
             // Half-line gap after building type (before description)
-            if (buildingType != null && i == 0) {
+            if (isType) {
                 ty -= smallLineH * 0.5f;
             }
         }
