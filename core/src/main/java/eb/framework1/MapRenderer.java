@@ -154,6 +154,47 @@ class MapRenderer {
         }
         shapeRenderer.end();
 
+        // Mountain crosshatch overlay (black "/" and "\" diagonal lines)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLACK);
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                if (cityMap.getCell(cx, cy).getTerrainType() != TerrainType.MOUNTAIN) continue;
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                if (drawX + cellSize < mapStartX || drawX > mapStartX + cellSize * visibleCellsX
+                        || drawY + cellSize < mapStartY || drawY > mapStartY + cellSize * visibleCellsY) {
+                    continue;
+                }
+                float step = Math.max(3f, cellSize / 5f);
+                // "/" diagonals (bottom-left to top-right family)
+                for (float t = -cellSize + step; t < cellSize; t += step) {
+                    float x1, y1, x2, y2;
+                    if (t >= 0) {
+                        x1 = drawX;            y1 = drawY + t;
+                        x2 = drawX + cellSize - t; y2 = drawY + cellSize;
+                    } else {
+                        x1 = drawX - t;        y1 = drawY;
+                        x2 = drawX + cellSize; y2 = drawY + cellSize + t;
+                    }
+                    shapeRenderer.line(x1, y1, x2, y2);
+                }
+                // "\" diagonals (top-left to bottom-right family)
+                for (float t = step; t < 2 * cellSize; t += step) {
+                    float x1, y1, x2, y2;
+                    if (t <= cellSize) {
+                        x1 = drawX;            y1 = drawY + t;
+                        x2 = drawX + t;        y2 = drawY;
+                    } else {
+                        x1 = drawX + t - cellSize; y1 = drawY + cellSize;
+                        x2 = drawX + cellSize;     y2 = drawY + t - cellSize;
+                    }
+                    shapeRenderer.line(x1, y1, x2, y2);
+                }
+            }
+        }
+        shapeRenderer.end();
+
         // Blue road segments: preview for planned route AND accumulated traveled path
         boolean hasPreview  = s.currentRoute != null && s.currentRoute.isReachable()
                 && s.currentRoute.path != null && s.currentRoute.path.size() >= 2;
