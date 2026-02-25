@@ -85,8 +85,10 @@ class UnitInteriorPopup {
         // Both Rest and Sleep are always visible
         // Layout: title first, then [Rest] 1 hr [Sleep] until 6:00, then stash/email/exit
         // Sleep is disabled (greyed out) during daytime (05:00–19:59)
+        // Stash and email are hidden for hotel rooms (unitIsHotelRoom).
         int curHour = profile.getCurrentHour();
         boolean isNight = curHour >= 20 || curHour < 5;
+        boolean showStashEmail = !s.unitIsHotelRoom;
 
         final float btnX = 20f;
         float titleY = panelH - PAD_Y - fontCapH;
@@ -101,14 +103,16 @@ class UnitInteriorPopup {
         s.sleepBtnY = curY;
         curY -= BTN_H + BTN_SPACING;
 
-        // Open Stash and Check Emails — always visible when inside office
-        s.openStashBtnX  = btnX; s.openStashBtnW  = STASH_W; s.openStashBtnH  = BTN_H;
+        // Open Stash and Check Emails — only inside office (not hotel room)
+        s.openStashBtnX  = btnX; s.openStashBtnH  = BTN_H;
+        s.openStashBtnW  = showStashEmail ? STASH_W : 0f;
         s.openStashBtnY  = curY;
-        curY -= BTN_H + BTN_SPACING;
+        if (showStashEmail) curY -= BTN_H + BTN_SPACING;
 
-        s.checkEmailsBtnX = btnX; s.checkEmailsBtnW = EMAIL_W; s.checkEmailsBtnH = BTN_H;
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H;
+        s.checkEmailsBtnW = showStashEmail ? EMAIL_W : 0f;
         s.checkEmailsBtnY = curY;
-        curY -= BTN_H + BTN_SPACING;
+        if (showStashEmail) curY -= BTN_H + BTN_SPACING;
 
         s.unitExitBtnX = btnX; s.unitExitBtnW = EXIT_W; s.unitExitBtnH = BTN_H;
         s.unitExitBtnY = curY;
@@ -121,10 +125,12 @@ class UnitInteriorPopup {
         sr.rect(s.restBtnX, s.restBtnY, REST_W, BTN_H);
         sr.setColor(isNight ? SLEEP_BTN_COLOR : SLEEP_DISABLED_COLOR);
         sr.rect(s.sleepBtnX, s.sleepBtnY, SLEEP_W, BTN_H);
-        sr.setColor(STASH_BTN_COLOR);
-        sr.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
-        sr.setColor(EMAIL_BTN_COLOR);
-        sr.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, EMAIL_W, BTN_H);
+        if (showStashEmail) {
+            sr.setColor(STASH_BTN_COLOR);
+            sr.rect(s.openStashBtnX, s.openStashBtnY, STASH_W, BTN_H);
+            sr.setColor(EMAIL_BTN_COLOR);
+            sr.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, EMAIL_W, BTN_H);
+        }
         sr.setColor(EXIT_BTN_COLOR);
         sr.rect(s.unitExitBtnX, s.unitExitBtnY, EXIT_W, BTN_H);
         sr.end();
@@ -138,10 +144,12 @@ class UnitInteriorPopup {
         sr.rect(s.sleepBtnX,     s.sleepBtnY,     SLEEP_W,     BTN_H);
         sr.rect(s.sleepBtnX + 1, s.sleepBtnY + 1, SLEEP_W - 2, BTN_H - 2);
         sr.setColor(BORDER_COLOR);
-        sr.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
-        sr.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
-        sr.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     EMAIL_W,     BTN_H);
-        sr.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, EMAIL_W - 2, BTN_H - 2);
+        if (showStashEmail) {
+            sr.rect(s.openStashBtnX,     s.openStashBtnY,     STASH_W,     BTN_H);
+            sr.rect(s.openStashBtnX + 1, s.openStashBtnY + 1, STASH_W - 2, BTN_H - 2);
+            sr.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     EMAIL_W,     BTN_H);
+            sr.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, EMAIL_W - 2, BTN_H - 2);
+        }
         sr.rect(s.unitExitBtnX,     s.unitExitBtnY,     EXIT_W,     BTN_H);
         sr.rect(s.unitExitBtnX + 1, s.unitExitBtnY + 1, EXIT_W - 2, BTN_H - 2);
         sr.end();
@@ -171,16 +179,18 @@ class UnitInteriorPopup {
         smallFont.setColor(isNight ? Color.WHITE : DISABLED_TEXT_COLOR);
         smallFont.draw(batch, "until 6:00", s.sleepBtnX + SLEEP_W + ONE_HR_GAP,
                 s.sleepBtnY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2);
-        glyph.setText(font, "Open Stash");
-        font.setColor(Color.WHITE);
-        font.draw(batch, "Open Stash",
-                s.openStashBtnX + (STASH_W - glyph.width) / 2,
-                s.openStashBtnY + (BTN_H + glyph.height) / 2);
-        glyph.setText(font, "Check Emails");
-        font.setColor(Color.WHITE);
-        font.draw(batch, "Check Emails",
-                s.checkEmailsBtnX + (EMAIL_W - glyph.width) / 2,
-                s.checkEmailsBtnY + (BTN_H + glyph.height) / 2);
+        if (showStashEmail) {
+            glyph.setText(font, "Open Stash");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Open Stash",
+                    s.openStashBtnX + (STASH_W - glyph.width) / 2,
+                    s.openStashBtnY + (BTN_H + glyph.height) / 2);
+            glyph.setText(font, "Check Emails");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Check Emails",
+                    s.checkEmailsBtnX + (EMAIL_W - glyph.width) / 2,
+                    s.checkEmailsBtnY + (BTN_H + glyph.height) / 2);
+        }
         glyph.setText(font, "Exit");
         font.setColor(Color.WHITE);
         font.draw(batch, "Exit",

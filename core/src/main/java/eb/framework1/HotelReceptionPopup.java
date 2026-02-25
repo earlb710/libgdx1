@@ -199,7 +199,7 @@ class HotelReceptionPopup {
         float dialogH = PAD
                 + fontLineH + fontH     // title + character-size gap
                 + 3 * smallLineH        // room / rate / bonus
-                + GAP                   // spacer before buttons
+                + GAP + fontLineH       // spacer before buttons (full character line height)
                 + NUM_OPTIONS * (optH + BTN_SPACING)
                 + cancelBtnH + BTN_SPACING
                 + PAD;

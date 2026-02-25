@@ -50,6 +50,7 @@ class MapViewState {
     float restBtnX, restBtnY, restBtnW, restBtnH;       // written by UnitInteriorPopup
     float sleepBtnX, sleepBtnY, sleepBtnW, sleepBtnH;   // written by UnitInteriorPopup
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
+    float goToHotelRoomBtnX, goToHotelRoomBtnY, goToHotelRoomBtnW, goToHotelRoomBtnH;
     float openStashBtnX, openStashBtnY, openStashBtnW, openStashBtnH;
     float checkEmailsBtnX, checkEmailsBtnY, checkEmailsBtnW, checkEmailsBtnH;
     float appointmentBtnX, appointmentBtnY, appointmentBtnW, appointmentBtnH;
@@ -76,8 +77,9 @@ class MapViewState {
     float noteLocCbX,  noteLocCbY,  noteLocCbW,  noteLocCbH;
 
     // --- Unit interior popup ---
-    boolean unitInteriorOpen  = false;
-    String  unitInteriorLabel = "";
+    boolean unitInteriorOpen    = false;
+    boolean unitIsHotelRoom     = false;   // true when interior is a rented hotel room (no stash/email)
+    String  unitInteriorLabel   = "";
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
     float saveBtnX, saveBtnY, saveBtnW, saveBtnH;  // written by UnitInteriorPopup
 

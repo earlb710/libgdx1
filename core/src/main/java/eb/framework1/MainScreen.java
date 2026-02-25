@@ -837,6 +837,7 @@ public class MainScreen implements Screen {
                             checkMoveToButtonClick(screenX, flippedY);
                             checkLookAroundButtonClick(screenX, flippedY);
                             checkGoToOfficeButtonClick(screenX, flippedY);
+                            checkGoToHotelRoomButtonClick(screenX, flippedY);
                             checkEquipDropButtonClick(screenX, flippedY);
                             checkHelpButtonClick(screenX, flippedY);
                             checkNoteCheckboxClick(screenX, flippedY);
@@ -1097,8 +1098,23 @@ public class MainScreen implements Screen {
                 && flippedY >= state.goToOfficeBtnY && flippedY <= state.goToOfficeBtnY + state.goToOfficeBtnH) {
             state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                     + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
+            state.unitIsHotelRoom = false;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
+        }
+    }
+
+    private void checkGoToHotelRoomButtonClick(int screenX, int flippedY) {
+        if (state.goToHotelRoomBtnW <= 0) return;
+        if (screenX >= state.goToHotelRoomBtnX && screenX <= state.goToHotelRoomBtnX + state.goToHotelRoomBtnW
+                && flippedY >= state.goToHotelRoomBtnY && flippedY <= state.goToHotelRoomBtnY + state.goToHotelRoomBtnH) {
+            int roomNum = profile.getAttribute(BuildingServices.ATTR_HOTEL_ROOM);
+            Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+            String hotelName = cell.hasBuilding() ? cell.getBuilding().getDisplayName() : "Hotel";
+            state.unitInteriorLabel = hotelName + " \u2014 Room " + roomNum;
+            state.unitIsHotelRoom = true;
+            state.unitInteriorOpen = true;
+            Gdx.app.log("MainScreen", "Entered hotel room: " + state.unitInteriorLabel);
         }
     }
 
@@ -1182,6 +1198,7 @@ public class MainScreen implements Screen {
                 && screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
                 && flippedY >= state.unitExitBtnY && flippedY <= state.unitExitBtnY + state.unitExitBtnH) {
             state.unitInteriorOpen = false;
+            state.unitIsHotelRoom  = false;
             Gdx.app.log("MainScreen", "Exited unit");
         }
     }
@@ -1370,6 +1387,7 @@ public class MainScreen implements Screen {
         state.isWalking    = true;
         state.currentRoute = null;
         state.unitInteriorOpen = false;
+        state.unitIsHotelRoom  = false;
         contextMenu.dismiss();
         Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
     }
@@ -1467,6 +1485,8 @@ public class MainScreen implements Screen {
 
         profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS,  bonus);
         profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, nights);
+        int roomNum = (state.charCellX * 7 + state.charCellY * 13) % 99 + 1;
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_ROOM, roomNum);
 
         resultLines.add("You checked in for " + nights
                 + (nights == 1 ? " night." : " nights."));
@@ -1946,6 +1966,7 @@ public class MainScreen implements Screen {
         state.selectedCellX = state.homeCellX;
         state.selectedCellY = state.homeCellY;
         state.unitInteriorOpen = false;
+        state.unitIsHotelRoom  = false;
         state.currentRoute  = null;
         discoverCell(state.charCellX, state.charCellY);
 

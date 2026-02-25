@@ -94,6 +94,9 @@ final class BuildingServices {
     /** Remaining prepaid nights (decremented by 1 after each qualifying sleep). */
     static final String ATTR_HOTEL_NIGHTS = "HOTEL_NIGHTS";
 
+    /** Deterministic room number (1-99) assigned at check-in, derived from hotel cell coords. */
+    static final String ATTR_HOTEL_ROOM   = "HOTEL_ROOM";
+
     // -------------------------------------------------------------------------
     // Hotel tier data
     // -------------------------------------------------------------------------

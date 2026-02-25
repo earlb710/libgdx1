@@ -356,6 +356,21 @@ class InfoPanelRenderer {
         s.goToOfficeBtnY = curRowBottom;
         if (showOfficeButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
+        // "Go to Room" button — shown when player is standing at a hotel where they have nights booked.
+        boolean isHotel = selBuilding != null && BuildingServices.getHotelNightlyCost(selBuilding) > 0;
+        boolean showHotelRoomButton = isHotel
+                && profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS) > 0;
+        int hotelRoomNum = profile.getAttribute(BuildingServices.ATTR_HOTEL_ROOM);
+        String hotelRoomBtnLabel = showHotelRoomButton ? "Go to Room " + hotelRoomNum : "";
+        float HOTEL_ROOM_W = 0f;
+        if (showHotelRoomButton) {
+            HOTEL_ROOM_W = TextMeasurer.measure(font, glyphLayout, hotelRoomBtnLabel, PAD_X, PAD_Y).width;
+        }
+        s.goToHotelRoomBtnX = btnX; s.goToHotelRoomBtnH = BTN_H;
+        s.goToHotelRoomBtnW = showHotelRoomButton ? HOTEL_ROOM_W : 0f;
+        s.goToHotelRoomBtnY = curRowBottom;
+        if (showHotelRoomButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
+
         // Open Stash button – shown inside the office (UnitInteriorPopup), not here
         boolean showStashButton = false;
         s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = 0f;
@@ -399,7 +414,7 @@ class InfoPanelRenderer {
             s.svcBtnCount++;
         }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton || showAppointmentButton || s.svcBtnCount > 0;
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showHotelRoomButton || showStashButton || showCheckEmailsButton || showAppointmentButton || s.svcBtnCount > 0;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -434,6 +449,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(OFFICE_BTN_COLOR);
             shapeRenderer.rect(s.goToOfficeBtnX, s.goToOfficeBtnY, OFFICE_W, BTN_H);
         }
+        if (showHotelRoomButton) {
+            shapeRenderer.setColor(OFFICE_BTN_COLOR);
+            shapeRenderer.rect(s.goToHotelRoomBtnX, s.goToHotelRoomBtnY, HOTEL_ROOM_W, BTN_H);
+        }
         if (showAppointmentButton) {
             shapeRenderer.setColor(APPOINTMENT_BTN_COLOR);
             shapeRenderer.rect(s.appointmentBtnX, s.appointmentBtnY, APPT_W, BTN_H);
@@ -458,6 +477,10 @@ class InfoPanelRenderer {
         if (showOfficeButton) {
             shapeRenderer.rect(s.goToOfficeBtnX,     s.goToOfficeBtnY,     OFFICE_W,     BTN_H);
             shapeRenderer.rect(s.goToOfficeBtnX + 1, s.goToOfficeBtnY + 1, OFFICE_W - 2, BTN_H - 2);
+        }
+        if (showHotelRoomButton) {
+            shapeRenderer.rect(s.goToHotelRoomBtnX,     s.goToHotelRoomBtnY,     HOTEL_ROOM_W,     BTN_H);
+            shapeRenderer.rect(s.goToHotelRoomBtnX + 1, s.goToHotelRoomBtnY + 1, HOTEL_ROOM_W - 2, BTN_H - 2);
         }
         if (showAppointmentButton) {
             shapeRenderer.rect(s.appointmentBtnX,     s.appointmentBtnY,     APPT_W,     BTN_H);
@@ -501,6 +524,13 @@ class InfoPanelRenderer {
             font.draw(batch, officeBtnLabel,
                     s.goToOfficeBtnX + (OFFICE_W - glyphLayout.width) / 2,
                     s.goToOfficeBtnY + (BTN_H + glyphLayout.height) / 2);
+        }
+        if (showHotelRoomButton) {
+            glyphLayout.setText(font, hotelRoomBtnLabel);
+            font.setColor(Color.WHITE);
+            font.draw(batch, hotelRoomBtnLabel,
+                    s.goToHotelRoomBtnX + (HOTEL_ROOM_W - glyphLayout.width) / 2,
+                    s.goToHotelRoomBtnY + (BTN_H + glyphLayout.height) / 2);
         }
         if (showAppointmentButton) {
             glyphLayout.setText(font, apptBtnLabel);
@@ -687,6 +717,7 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.goToHotelRoomBtnW  = 0f;
         s.openStashBtnW      = 0f;
         s.checkEmailsBtnW    = 0f;
         s.addNoteBtnW        = 0f;
@@ -1043,6 +1074,7 @@ class InfoPanelRenderer {
         s.restBtnW = 0f;
         s.sleepBtnW = 0f;
         s.goToOfficeBtnW = 0f;
+        s.goToHotelRoomBtnW = 0f;
         s.openStashBtnW = 0f;
         s.checkEmailsBtnW = 0f;
         s.infoMaxScrollX = 0f;
@@ -1161,6 +1193,7 @@ class InfoPanelRenderer {
         s.restBtnW           = 0f;
         s.sleepBtnW          = 0f;
         s.goToOfficeBtnW     = 0f;
+        s.goToHotelRoomBtnW  = 0f;
         s.infoMaxScrollX     = 0f;
         s.infoScrollX        = 0f;
         s.addNoteBtnW        = 0f;
