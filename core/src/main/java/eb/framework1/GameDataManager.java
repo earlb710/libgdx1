@@ -266,6 +266,16 @@ public class GameDataManager {
         }
         building.setImprovements(improvements);
 
+        // Parse optional attribute_modifiers: {"STRENGTH": 2, "STAMINA": -1, ...}
+        Map<String, Integer> attrMods = new java.util.HashMap<>();
+        JsonValue attrModsJson = json.get("attribute_modifiers");
+        if (attrModsJson != null) {
+            for (JsonValue mod = attrModsJson.child; mod != null; mod = mod.next) {
+                attrMods.put(mod.name, mod.asInt());
+            }
+        }
+        building.setAttributeModifiers(attrMods);
+
         return building;
     }
 
