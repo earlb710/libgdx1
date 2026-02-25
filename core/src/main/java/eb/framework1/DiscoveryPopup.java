@@ -170,7 +170,7 @@ class DiscoveryPopup {
 
         List<String> scrollLines = new ArrayList<>();
         if (buildingType != null) {
-            scrollLines.add("Type: " + buildingType);
+            scrollLines.add(buildingType);
         }
         scrollLines.addAll(descLines);
         scrollLines.addAll(novelLines);
@@ -197,7 +197,8 @@ class DiscoveryPopup {
         // Height layout:
         //   PAD + titleLine + TITLE_GAP + scrollableArea + PAD + okBtnH + PAD
         final float TITLE_GAP = fontH;  // character-size space between heading and content
-        float scrollableContent = scrollLines.size() * smallLineH;
+        float scrollableContent = scrollLines.size() * smallLineH
+                + (buildingType != null ? smallLineH * 0.5f : 0f);
         float fixedH = PAD + fontLineH + TITLE_GAP + PAD + okBtnH + PAD;
         float maxScrollable = MAX_H - fixedH;
         boolean needsScroll = scrollableContent > maxScrollable;
@@ -263,7 +264,7 @@ class DiscoveryPopup {
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
         ty -= fontLineH + TITLE_GAP;
 
-        // Content lines (novel text in light-blue, everything else white)
+        // Content lines (building type in bright white; novel text in light-blue; everything else white)
         for (int i = 0; i < scrollLines.size(); i++) {
             boolean isNovel = i >= novelStartIdx && i < novelEndIdx;
             smallFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
@@ -271,6 +272,10 @@ class DiscoveryPopup {
             glyph.setText(smallFont, line);
             smallFont.draw(batch, line, dialogX + PAD, ty);
             ty -= smallLineH;
+            // Half-line gap after building type (before description)
+            if (buildingType != null && i == 0) {
+                ty -= smallLineH * 0.5f;
+            }
         }
         batch.end();
 
