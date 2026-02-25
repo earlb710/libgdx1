@@ -1404,14 +1404,26 @@ class InfoPanelRenderer {
     /**
      * Returns the building description from {@code description_en.json} via the novel text engine,
      * contextualised to the current time of day, the character's attributes and gender.
+     * When the building has a state ("good", "normal", "bad"), the state-specific description
+     * is preferred; otherwise the default contextual description is used.
      * Returns {@code null} if no description is available for this building.
      */
     private String buildingNovelText(Building b) {
         if (novelTextEngine == null || b.getDefinition() == null) return null;
-        String key  = b.getDefinition().getId();
-        int    hour = profile.getCurrentHour();
-        String text = novelTextEngine.getDescription(
-                key, hour, profile.getAttributes(), profile.getGender());
+        String key   = b.getDefinition().getId();
+        String state = b.getState();
+        String text;
+        if (state != null) {
+            text = novelTextEngine.getStateDescription(key, state);
+            // Fall back to time/attribute/gender-aware description if no state variant found
+            if (text == null || text.isEmpty()) {
+                text = novelTextEngine.getDescription(
+                        key, profile.getCurrentHour(), profile.getAttributes(), profile.getGender());
+            }
+        } else {
+            text = novelTextEngine.getDescription(
+                    key, profile.getCurrentHour(), profile.getAttributes(), profile.getGender());
+        }
         return (text != null && !text.isEmpty()) ? text : null;
     }
 

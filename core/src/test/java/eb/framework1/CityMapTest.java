@@ -261,4 +261,73 @@ public class CityMapTest {
         }
         return last;
     }
+
+    // ===== Building state tests =====
+
+    @Test
+    public void testBuildingStateIsValidValue() {
+        CityMap map = new CityMap(12345L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell cell = map.getCell(x, y);
+                if (cell.getTerrainType() == TerrainType.BUILDING && cell.hasBuilding()) {
+                    String state = cell.getBuilding().getState();
+                    assertTrue("Building state must be good, normal, or bad at (" + x + "," + y + ")",
+                            "good".equals(state) || "normal".equals(state) || "bad".equals(state));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testComputeBuildingStateCentrePreferredGood() {
+        // At the exact centre (7, 7) the probability of good is 60% — over many rolls
+        // we expect noticeably more "good" than "bad".
+        java.util.Random rng = new java.util.Random(99L);
+        int good = 0, bad = 0;
+        int trials = 1000;
+        int cx = (CityMap.MAP_SIZE - 1) / 2;
+        int cy = (CityMap.MAP_SIZE - 1) / 2;
+        for (int i = 0; i < trials; i++) {
+            String s = CityMap.computeBuildingState(rng, cx, cy);
+            if ("good".equals(s)) good++;
+            if ("bad".equals(s))  bad++;
+        }
+        assertTrue("Centre should produce more good than bad states (good=" + good + ", bad=" + bad + ")",
+                good > bad);
+    }
+
+    @Test
+    public void testComputeBuildingStateEdgePreferredBad() {
+        // At corner (0, 0) the probability of bad is 60% — over many rolls
+        // we expect noticeably more "bad" than "good".
+        java.util.Random rng = new java.util.Random(99L);
+        int good = 0, bad = 0;
+        int trials = 1000;
+        for (int i = 0; i < trials; i++) {
+            String s = CityMap.computeBuildingState(rng, 0, 0);
+            if ("good".equals(s)) good++;
+            if ("bad".equals(s))  bad++;
+        }
+        assertTrue("Corner should produce more bad than good states (good=" + good + ", bad=" + bad + ")",
+                bad > good);
+    }
+
+    @Test
+    public void testBuildingStateDeterministicWithSeed() {
+        // Same seed → same states across the whole map
+        CityMap map1 = new CityMap(42L);
+        CityMap map2 = new CityMap(42L);
+        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                Cell c1 = map1.getCell(x, y);
+                Cell c2 = map2.getCell(x, y);
+                if (c1.getTerrainType() == TerrainType.BUILDING && c1.hasBuilding()
+                        && c2.hasBuilding()) {
+                    assertEquals("Building state must be deterministic at (" + x + "," + y + ")",
+                            c1.getBuilding().getState(), c2.getBuilding().getState());
+                }
+            }
+        }
+    }
 }

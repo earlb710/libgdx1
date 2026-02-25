@@ -24,6 +24,11 @@ public class Building {
     private boolean owned;
     /** Company / tenant names for this building instance.  Empty for non-company buildings. */
     private List<String> tenants;
+    /**
+     * Maintenance/condition state of this building: "good", "normal", or "bad".
+     * Determined at map-generation time based on distance from the map centre.
+     */
+    private String state;
 
     /**
      * Creates a building with just a name and improvements (legacy constructor).
@@ -136,6 +141,20 @@ public class Building {
 
     public boolean isOwned() { return owned; }
     public void setOwned(boolean owned) { this.owned = owned; }
+
+    /**
+     * Returns the maintenance/condition state of this building.
+     * Values are "good", "normal", or "bad".  May be {@code null} for legacy buildings
+     * created without a state assignment.
+     */
+    public String getState() { return state; }
+
+    /**
+     * Sets the maintenance/condition state of this building.
+     *
+     * @param state "good", "normal", or "bad"; {@code null} is accepted (treated as unknown)
+     */
+    public void setState(String state) { this.state = state; }
 
     /**
      * Returns true if this building allows the player to rest (hotels, residential,

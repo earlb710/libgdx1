@@ -1983,9 +1983,21 @@ public class MainScreen implements Screen {
         // Use description_en.json as the building description; fall back to buildings.json if not found
         String description = null;
         if (novelTextEngine != null && def != null) {
-            String raw = novelTextEngine.getDescription(
-                    def.getId(), profile.getCurrentHour(),
-                    profile.getAttributes(), profile.getGender());
+            String state = building.getState();
+            String raw;
+            if (state != null) {
+                raw = novelTextEngine.getStateDescription(def.getId(), state);
+                // Fall back to contextual description if no state variant exists for this key
+                if (raw == null || raw.isEmpty()) {
+                    raw = novelTextEngine.getDescription(
+                            def.getId(), profile.getCurrentHour(),
+                            profile.getAttributes(), profile.getGender());
+                }
+            } else {
+                raw = novelTextEngine.getDescription(
+                        def.getId(), profile.getCurrentHour(),
+                        profile.getAttributes(), profile.getGender());
+            }
             description = (raw != null && !raw.isEmpty()) ? raw : null;
         }
         if (description == null && def != null) {

@@ -364,6 +364,7 @@ public class CityMap {
         }
         
         Building building = new Building(buildingName, selectedImprovements, definition, floors);
+        building.setState(computeBuildingState(random, x, y));
 
         // Assign company / tenant names for company-type buildings
         List<String> tenants = generateTenants(definition, random);
@@ -445,6 +446,40 @@ public class CityMap {
         
         // Fallback to last building (shouldn't happen)
         return buildings.get(buildings.size() - 1);
+    }
+
+    /**
+     * Computes the maintenance/condition state for a building at the given map coordinates.
+     *
+     * <p>Buildings closer to the centre of the map have a higher probability of being in
+     * a "good" state; buildings near the edges are more likely to be in a "bad" state.
+     * The three returned values are "good", "normal", and "bad".</p>
+     *
+     * <p>The algorithm normalises the Euclidean distance from the cell to the map centre
+     * ({@code (MAP_SIZE-1)/2.0}) on the range [0, 1], then uses that normalised distance
+     * to weight the probability thresholds:</p>
+     * <ul>
+     *   <li>At centre (dist=0): 60% good, 30% normal, 10% bad</li>
+     *   <li>At edge   (dist=1): 10% good, 30% normal, 60% bad</li>
+     * </ul>
+     */
+    static String computeBuildingState(Random random, int x, int y) {
+        double cx = (MAP_SIZE - 1) / 2.0;
+        double cy = (MAP_SIZE - 1) / 2.0;
+        double maxDist = Math.sqrt(cx * cx + cy * cy);
+        double dist = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+        double normDist = dist / maxDist; // 0 = centre, 1 = corner
+
+        // Probability of "good" decreases linearly from 0.60 (centre) to 0.10 (edge)
+        double goodProb   = 0.60 - normDist * 0.50;
+        // Probability of "bad" increases linearly from 0.10 (centre) to 0.60 (edge)
+        double badProb    = 0.10 + normDist * 0.50;
+        // "normal" takes the remainder (always ~0.30)
+
+        double roll = random.nextDouble();
+        if (roll < goodProb) return "good";
+        if (roll < goodProb + (1.0 - goodProb - badProb)) return "normal";
+        return "bad";
     }
 
     /**
