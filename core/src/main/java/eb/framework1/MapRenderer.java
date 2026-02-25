@@ -21,7 +21,6 @@ class MapRenderer {
     private static final Color RULER_BG_COLOR        = new Color(0.1f,  0.1f,  0.15f, 1f);
     private static final Color RULER_MARKER_COLOR    = new Color(1f,   0.5f,  0f,    1f);
     private static final Color SELECTION_COLOR       = new Color(1f,   1f,    0f,    1f);
-    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f,   0.8f,  1f,    1f);
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
     private static final Color TRAVELED_ROAD_COLOR   = new Color(0f,   0.2f,  1f,    1f);
@@ -154,24 +153,6 @@ class MapRenderer {
             }
         }
         shapeRenderer.end();
-
-        // Route path highlight (uniform cell-border rect)
-        if (s.currentRoute != null && s.currentRoute.isReachable() && s.currentRoute.path != null) {
-            int thickness = Math.max(1, Math.round(borderSize));
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
-            for (int[] pathCell : s.currentRoute.path) {
-                int cx = pathCell[0], cy = pathCell[1];
-                if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
-                    float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    for (int i = 0; i < thickness; i++) {
-                        shapeRenderer.rect(drawX + i, drawY + i, cellSize - 2 * i, cellSize - 2 * i);
-                    }
-                }
-            }
-            shapeRenderer.end();
-        }
 
         // Blue road segments: preview for planned route AND accumulated traveled path
         boolean hasPreview  = s.currentRoute != null && s.currentRoute.isReachable()
