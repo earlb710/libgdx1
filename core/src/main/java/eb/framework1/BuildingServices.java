@@ -99,9 +99,9 @@ final class BuildingServices {
     // -------------------------------------------------------------------------
 
     /** Stamina bonus awarded on a full 8-hour sleep at each hotel tier. */
-    static final int HOTEL_BONUS_BUDGET   =  5;
-    static final int HOTEL_BONUS_BUSINESS = 10;
-    static final int HOTEL_BONUS_LUXURY   = 20;
+    static final int HOTEL_BONUS_BUDGET   =  1;
+    static final int HOTEL_BONUS_BUSINESS =  2;
+    static final int HOTEL_BONUS_LUXURY   =  3;
 
     /** Nightly rate for each hotel tier. */
     static final int HOTEL_COST_BUDGET   =  50;
