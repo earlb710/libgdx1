@@ -740,7 +740,7 @@ public class MainScreen implements Screen {
                             int nights = hotelReceptionPopup.onTap(screenX, flippedY);
                             if (nights >= 1) {
                                 handleHotelCheckIn(nights,
-                                        hotelReceptionPopup.getNightlyCost(),
+                                        hotelReceptionPopup.getDiscountedTotal(nights),
                                         hotelReceptionPopup.getStaminaBonus());
                             }
                         }
@@ -1312,20 +1312,6 @@ public class MainScreen implements Screen {
         int effectiveCap = calculateEffectiveStaminaCap();
         int   staminaGain = Math.round(effectiveCap * fraction);
 
-        // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
-        int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
-        int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
-        int hotelBonusActual = 0;
-        if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
-            profile.addStaminaUpTo(hotelBonus, effectiveCap);
-            hotelBonusActual = hotelBonus;
-            int remaining = hotelNights - 1;
-            profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
-            if (remaining == 0) {
-                profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
-            }
-        }
-
         // 1 dot per hour slept; each dot advances time + fills stamina incrementally
         int animDots        = Math.max(1, Math.round(hoursSlept));
         final int minutesPerDot = minutesSleep / animDots;
@@ -1343,9 +1329,8 @@ public class MainScreen implements Screen {
             resultMsg = "It became night.";
         }
 
-        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
-                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
+                + staminaGain + " stamina (cap=" + effectiveCap + ")");
 
         // Per-dot callback: advance time + fill stamina together so both animate visibly
         restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
@@ -1464,8 +1449,7 @@ public class MainScreen implements Screen {
      * @param nightly  nightly rate in in-game currency
      * @param bonus    extra stamina awarded per full 8-hour sleep while checked in
      */
-    private void handleHotelCheckIn(int nights, int nightly, int bonus) {
-        int total = nights * nightly;
+    private void handleHotelCheckIn(int nights, int total, int bonus) {
         List<String> resultLines = new ArrayList<>();
 
         if (total > 0 && profile.getMoney() < total) {
@@ -1487,7 +1471,7 @@ public class MainScreen implements Screen {
         resultLines.add("You checked in for " + nights
                 + (nights == 1 ? " night." : " nights."));
         if (total > 0) resultLines.add("Total cost: $" + total + ".");
-        resultLines.add("Sleep bonus: +" + bonus + " stamina per full 8h sleep.");
+        resultLines.add("Sleep bonus: full stamina.");
         resultLines.add("Use the Sleep button when it is time for bed.");
         serviceResultPopup.show("Checked In", resultLines);
         Gdx.app.log("MainScreen", "Hotel check-in: " + nights + "n, $" + total
@@ -1896,6 +1880,7 @@ public class MainScreen implements Screen {
             state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
             state.clampMapOffset();
             boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
+            applyHotelArrivalBonus(state.charCellX, state.charCellY);
             showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
@@ -2068,6 +2053,28 @@ public class MainScreen implements Screen {
         }
         Gdx.app.log("MainScreen", "Discovered " + x + "," + y + ": " + building.getName());
         return !wasDiscovered;
+    }
+
+    /**
+     * Applies the hotel tier stamina bonus when the player arrives at a hotel cell.
+     * The bonus (+1/+2/+3 by tier) is granted each time the player walks to the hotel,
+     * provided they are currently checked in (ATTR_HOTEL_NIGHTS > 0).
+     * One night of stay is consumed per arrival bonus.
+     */
+    private void applyHotelArrivalBonus(int x, int y) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        int bonus = BuildingServices.getHotelStaminaBonus(building);
+        if (bonus <= 0) return;
+        int nights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
+        if (nights <= 0) return;
+        profile.addStamina(bonus);
+        int remaining = nights - 1;
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
+        if (remaining == 0) profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
+        Gdx.app.log("MainScreen", "Hotel arrival bonus: +" + bonus
+                + " stamina, " + remaining + " nights remaining");
     }
 
     /**
