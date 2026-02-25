@@ -118,7 +118,9 @@ public class NovelTextEngine {
      */
     static NovelTextEngine fromSingleEntries(Map<String, DescriptionEntry> entries,
                                              Map<String, DescriptionEntry> improvements) {
-        return new NovelTextEngine(wrapInLists(entries), wrapInLists(improvements));
+        Map<String, List<DescriptionEntry>> wrappedEntries      = wrapInLists(entries);
+        Map<String, List<DescriptionEntry>> wrappedImprovements = wrapInLists(improvements);
+        return new NovelTextEngine(wrappedEntries, wrappedImprovements);
     }
 
     /**

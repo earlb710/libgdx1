@@ -164,9 +164,7 @@ public class FontManager implements Disposable {
         parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         parameter.genMipMaps = true;  // Generate mipmaps for better quality at various sizes
-        // Include status-icon glyphs (✓ U+2713, ✗ U+2717) used in email accepted/declined indicators.
-        // FreeTypeFontGenerator only bakes DEFAULT_CHARS (ASCII) unless these are added explicitly.
-        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
+        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
 
         // Title font - large, for headers
         int titleSize = calculateFontSize(TITLE_SIZE_DP);
@@ -211,7 +209,7 @@ public class FontManager implements Disposable {
         boldParameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
         boldParameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
         boldParameter.genMipMaps = true;
-        boldParameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
+        boldParameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
         boldParameter.borderWidth = 1f;
         boldParameter.borderStraight = true;
 
@@ -352,7 +350,7 @@ public class FontManager implements Disposable {
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
-            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
             return generator.generateFont(parameter);
         } else {
             // Fallback to BitmapFont
@@ -384,7 +382,7 @@ public class FontManager implements Disposable {
             parameter.minFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.MipMapLinearNearest;
             parameter.magFilter = com.badlogic.gdx.graphics.Texture.TextureFilter.Linear;
             parameter.genMipMaps = true;
-            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS + "\u2713\u2717";
+            parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
             return generator.generateFont(parameter);
         } else {
             BitmapFont font = new BitmapFont();

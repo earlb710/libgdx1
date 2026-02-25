@@ -71,6 +71,7 @@ class MapViewState {
     boolean unitInteriorOpen  = false;
     String  unitInteriorLabel = "";
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
+    float saveBtnX, saveBtnY, saveBtnW, saveBtnH;  // written by UnitInteriorPopup
 
     // --- Walk animation ---
     boolean isWalking   = false;

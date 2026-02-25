@@ -102,8 +102,8 @@ class EmailPopup {
     private static final Color CHECK_COLOR   = new Color(0.20f, 0.85f, 0.30f, 1f);
     private static final Color CROSS_COLOR   = new Color(0.85f, 0.25f, 0.25f, 1f);
 
-    private static final String CHECK_SYMBOL = "\u2713 ";
-    private static final String CROSS_SYMBOL = "\u2717 ";
+    private static final String CHECK_SYMBOL = "[OK]" + " "; // trailing space is intentional padding
+    private static final String CROSS_SYMBOL = "[X]"  + "  "; // two spaces to match CHECK_SYMBOL length
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -272,10 +272,7 @@ class EmailPopup {
         TextMeasurer.TextBounds prevBounds = TextMeasurer.measure(smallFont, glyph, prevLabel, 14f, 8f);
         TextMeasurer.TextBounds nextBounds = TextMeasurer.measure(smallFont, glyph, nextLabel, 14f, 8f);
 
-        // Status indicator suffix: " ✓" or " ✗" or ""
-        String statusSuffix = st == STATUS_ACCEPTED ? " " + CHECK_SYMBOL.trim()
-                            : st == STATUS_DECLINED ? " " + CROSS_SYMBOL.trim() : "";
-        String titleStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]" + statusSuffix;
+        String titleStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]";
 
         // Measure for dialog width
         TextMeasurer.TextBounds acceptBounds  = TextMeasurer.measure(font, glyph, "Accept",  28f, 12f);
@@ -287,10 +284,7 @@ class EmailPopup {
         float minLineW = glyph.width + prevBounds.width + BTN_GAP * 2 + nextBounds.width;
         glyph.setText(smallFont, "From: " + email.from);
         minLineW = Math.max(minLineW, glyph.width);
-        // For processed emails include the status symbol prefix width in the subject measure
-        String subjectPrefix = (st == STATUS_ACCEPTED) ? CHECK_SYMBOL
-                             : (st == STATUS_DECLINED)  ? CROSS_SYMBOL : "";
-        glyph.setText(smallFont, subjectPrefix + "Subject: " + email.subject);
+        glyph.setText(smallFont, "Subject: " + email.subject);
         minLineW = Math.max(minLineW, glyph.width);
 
         float dialogW = MathUtils.clamp(minLineW + 2 * PAD, MIN_W, MAX_W);
@@ -416,7 +410,7 @@ class EmailPopup {
         batch.begin();
         float ty = dialogY + dialogH - PAD;
 
-        // Title row: [<<]  Inbox [n/m] ✓  [>>]
+        // Title row: [<<]  Inbox [n/m]  [>>]
         smallFont.setColor(current > 0 ? TITLE_COLOR : FROM_COLOR);
         smallFont.draw(batch, prevLabel, prevX + (prevW - prevBounds.width + 14f) / 2f,
                 prevY + (prevH + prevBounds.height) / 2f);
@@ -425,40 +419,19 @@ class EmailPopup {
                 nextY + (nextH + nextBounds.height) / 2f);
 
         font.setColor(TITLE_COLOR);
-        // Title text (without status suffix for colour split)
         String inboxStr = "Inbox  [" + (current + 1) + " / " + emails.size() + "]";
         glyph.setText(font, inboxStr);
         float titleX = dialogX + (dialogW - glyph.width) / 2f;
         font.draw(batch, inboxStr, titleX, ty);
-        if (!statusSuffix.isEmpty()) {
-            glyph.setText(font, inboxStr);
-            float suffixX = titleX + glyph.width;
-            font.setColor(st == STATUS_ACCEPTED ? CHECK_COLOR : CROSS_COLOR);
-            font.draw(batch, statusSuffix, suffixX, ty);
-        }
         ty -= fontLineH;
 
         smallFont.setColor(FROM_COLOR);
         smallFont.draw(batch, "From: " + email.from, dialogX + PAD, ty);
         ty -= smallLineH;
 
-        // Subject line: prefix with coloured ✓ or ✗ when already processed
-        if (st == STATUS_ACCEPTED) {
-            smallFont.setColor(CHECK_COLOR);
-            glyph.setText(smallFont, CHECK_SYMBOL);
-            smallFont.draw(batch, CHECK_SYMBOL, dialogX + PAD, ty);
-            smallFont.setColor(FROM_COLOR);
-            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD + glyph.width, ty);
-        } else if (st == STATUS_DECLINED) {
-            smallFont.setColor(CROSS_COLOR);
-            glyph.setText(smallFont, CROSS_SYMBOL);
-            smallFont.draw(batch, CROSS_SYMBOL, dialogX + PAD, ty);
-            smallFont.setColor(FROM_COLOR);
-            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD + glyph.width, ty);
-        } else {
-            smallFont.setColor(FROM_COLOR);
-            smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD, ty);
-        }
+        // Subject line
+        smallFont.setColor(FROM_COLOR);
+        smallFont.draw(batch, "Subject: " + email.subject, dialogX + PAD, ty);
         ty -= smallLineH + GAP;
 
         smallFont.setColor(BODY_COLOR);
