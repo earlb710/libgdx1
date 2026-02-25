@@ -30,6 +30,7 @@ class UnitInteriorPopup {
     private static final Color SLEEP_DISABLED_COLOR = new Color(0.12f, 0.12f, 0.18f, 1f);
     private static final Color STASH_BTN_COLOR      = new Color(0.35f, 0.15f, 0.50f, 1f);
     private static final Color EMAIL_BTN_COLOR      = new Color(0.10f, 0.30f, 0.50f, 1f);
+    private static final Color PHONE_BTN_COLOR      = new Color(0.10f, 0.40f, 0.20f, 1f);
     private static final Color EXIT_BTN_COLOR       = new Color(0.35f, 0.05f, 0.05f, 1f);
     private static final Color DISABLED_TEXT_COLOR  = new Color(0.40f, 0.40f, 0.40f, 1f);
     private static final Color DISABLED_BORDER_COLOR= new Color(0.25f, 0.25f, 0.35f, 1f);
@@ -67,12 +68,14 @@ class UnitInteriorPopup {
         TextMeasurer.TextBounds sleepBounds  = TextMeasurer.measure(font, glyph, "Sleep",       PAD_X, PAD_Y);
         TextMeasurer.TextBounds stashBounds  = TextMeasurer.measure(font, glyph, "Open Stash",  PAD_X, PAD_Y);
         TextMeasurer.TextBounds emailBounds  = TextMeasurer.measure(font, glyph, "Check Emails",PAD_X, PAD_Y);
+        TextMeasurer.TextBounds phoneBounds  = TextMeasurer.measure(font, glyph, "Phone",       PAD_X, PAD_Y);
         TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit",        PAD_X, PAD_Y);
         final float BTN_H    = restBounds.height;
         final float REST_W   = restBounds.width;
         final float SLEEP_W  = sleepBounds.width;
         final float STASH_W  = stashBounds.width;
         final float EMAIL_W  = emailBounds.width;
+        final float PHONE_W  = phoneBounds.width;
         final float EXIT_W   = exitBounds.width;
         final float fontCapH = restBounds.textHeight;
 
@@ -83,7 +86,7 @@ class UnitInteriorPopup {
         final float SLEEP_GAP  = 16f;  // gap between "1 hr" text and Sleep btn
 
         // Both Rest and Sleep are always visible
-        // Layout: title first, then [Rest] 1 hr [Sleep] until 6:00, then stash/email/exit
+        // Layout: title first, then [Rest] 1 hr [Sleep] until 6:00, then stash/email/phone/exit
         // Sleep is disabled (greyed out) during daytime (05:00–19:59)
         // Stash and email are hidden for hotel rooms (unitIsHotelRoom).
         int curHour = profile.getCurrentHour();
@@ -113,6 +116,11 @@ class UnitInteriorPopup {
         s.checkEmailsBtnW = showStashEmail ? EMAIL_W : 0f;
         s.checkEmailsBtnY = curY;
         if (showStashEmail) curY -= BTN_H + BTN_SPACING;
+
+        // Phone — always visible when inside office
+        s.openPhoneBtnX = btnX; s.openPhoneBtnW = PHONE_W; s.openPhoneBtnH = BTN_H;
+        s.openPhoneBtnY = curY;
+        curY -= BTN_H + BTN_SPACING;
 
         s.unitExitBtnX = btnX; s.unitExitBtnW = EXIT_W; s.unitExitBtnH = BTN_H;
         s.unitExitBtnY = curY;
