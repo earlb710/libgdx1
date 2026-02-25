@@ -84,6 +84,13 @@ class MapViewState {
     int walkDestCellX = -1;
     int walkDestCellY = -1;
 
+    /**
+     * Current junction position while walking (junction coords, e.g. 3.0 = exact junction 3,
+     * or −1 when not walking).  Used by MapRenderer to draw the portrait ON the road.
+     */
+    float charJuncX = -1f;
+    float charJuncY = -1f;
+
     // --- Traveled road path (accumulates every junction visited while walking) ---
     java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
 

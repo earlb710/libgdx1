@@ -203,16 +203,30 @@ class MapRenderer {
         }
 
         // Character portrait
-        if (characterIconTexture != null && s.charCellX >= 0 && s.charCellY >= 0
-                && s.charCellX >= startCellX && s.charCellX < endCellX
-                && s.charCellY >= startCellY && s.charCellY < endCellY) {
-            float drawX = mapStartX + (s.charCellX - startCellX - fracOffsetX) * cellSize;
-            float drawY = mapStartY + (visibleCellsY - 1 - (s.charCellY - startCellY - fracOffsetY)) * cellSize;
+        if (characterIconTexture != null) {
             float portraitSize = cellSize * 0.4f;
             batch.setColor(Color.WHITE);
-            batch.draw(characterIconTexture,
-                    drawX + cellSize - portraitSize - borderSize, drawY + borderSize,
-                    portraitSize, portraitSize);
+            if (s.charJuncX >= 0f) {
+                // Walking: draw portrait centred on the current junction (road position)
+                // Screen X: junction jx lies at the left edge of cell jx
+                float jScreenX = mapStartX + (s.charJuncX - startCellX - fracOffsetX) * cellSize;
+                // Screen Y: junction jy lies at the top of cell jy = bottom of cell (jy-1)
+                float jScreenY = mapStartY + (visibleCellsY - 1 - (s.charJuncY - startCellY - fracOffsetY)) * cellSize
+                        + cellSize;
+                batch.draw(characterIconTexture,
+                        jScreenX - portraitSize / 2f,
+                        jScreenY - portraitSize / 2f,
+                        portraitSize, portraitSize);
+            } else if (s.charCellX >= 0 && s.charCellY >= 0
+                    && s.charCellX >= startCellX && s.charCellX < endCellX
+                    && s.charCellY >= startCellY && s.charCellY < endCellY) {
+                // Idle: draw portrait in the top-right corner of the current cell
+                float drawX = mapStartX + (s.charCellX - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (s.charCellY - startCellY - fracOffsetY)) * cellSize;
+                batch.draw(characterIconTexture,
+                        drawX + cellSize - portraitSize - borderSize, drawY + borderSize,
+                        portraitSize, portraitSize);
+            }
         }
         batch.end();
 

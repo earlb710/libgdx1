@@ -1822,7 +1822,11 @@ public class MainScreen implements Screen {
         if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
         state.traveledPath.add(new int[]{jx, jy});
 
-        // Approximate cell position from junction (clamped to valid cell range)
+        // Place character icon on the road (junction coordinates)
+        state.charJuncX = jx;
+        state.charJuncY = jy;
+
+        // Keep charCellX/Y roughly tracking position for other game logic
         state.charCellX = Math.min(jx, CityMap.MAP_SIZE - 1);
         state.charCellY = Math.min(jy, CityMap.MAP_SIZE - 1);
 
@@ -1834,9 +1838,11 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination – set exact cell, discover, show popup
-            state.isWalking = false;
-            state.walkPath  = null;
+            // Reached destination – move portrait back onto the cell
+            state.isWalking  = false;
+            state.walkPath   = null;
+            state.charJuncX  = -1f;
+            state.charJuncY  = -1f;
             state.traveledPath.clear();
             state.charCellX = state.walkDestCellX;
             state.charCellY = state.walkDestCellY;
