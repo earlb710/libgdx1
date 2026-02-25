@@ -36,6 +36,8 @@ public class Profile {
     private final List<CalendarEntry> calendarEntries;
     // Date (YYYY-MM-DD) when emails were last generated; "" = never
     private String lastEmailCheckDate = "";
+    // Keys of contacts the player has already phoned, formatted as "caseId|contactName"
+    private final java.util.Set<String> phonedContactKeys = new java.util.LinkedHashSet<>();
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -440,6 +442,33 @@ public class Profile {
     /** Records the game-date string (YYYY-MM-DD) when emails were last generated. */
     public void setLastEmailCheckDate(String date) {
         this.lastEmailCheckDate = date != null ? date : "";
+    }
+
+    // -------------------------------------------------------------------------
+    // Phone contacts
+    // -------------------------------------------------------------------------
+
+    /**
+     * Marks the given contact as phoned.
+     *
+     * @param caseId      ID of the case this contact belongs to
+     * @param contactName name of the contact
+     */
+    public void markContactPhoned(String caseId, String contactName) {
+        if (caseId != null && contactName != null) {
+            phonedContactKeys.add(caseId + "|" + contactName);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the player has already phoned the given contact.
+     *
+     * @param caseId      ID of the case this contact belongs to
+     * @param contactName name of the contact
+     */
+    public boolean isContactPhoned(String caseId, String contactName) {
+        if (caseId == null || contactName == null) return false;
+        return phonedContactKeys.contains(caseId + "|" + contactName);
     }
 
     /**
