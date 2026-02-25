@@ -71,6 +71,8 @@ class MapViewState {
     // --- Unit interior popup ---
     boolean unitInteriorOpen  = false;
     String  unitInteriorLabel = "";
+    /** Description text shown below the office title; empty string = no description. */
+    String  unitInteriorDescription = "";
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
     float saveBtnX, saveBtnY, saveBtnW, saveBtnH;  // written by UnitInteriorPopup
 

@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.List;
+
 /**
  * Draws the unit-interior overlay over the info panel when the player has
  * entered a known unit (e.g. their home office).
@@ -86,14 +88,26 @@ class UnitInteriorPopup {
         final float SLEEP_GAP  = 16f;  // gap between "1 hr" text and Sleep btn
 
         // Both Rest and Sleep are always visible
-        // Layout: title first, then [Rest] 1 hr [Sleep] until 6:00, then stash/email/phone/exit
+        // Layout: title first, then description (if any), then [Rest] 1 hr [Sleep] until 6:00, then stash/email/phone/exit
         // Sleep is disabled (greyed out) during daytime (05:00–19:59)
         int curHour = profile.getCurrentHour();
         boolean isNight = curHour >= 20 || curHour < 5;
 
+        // Word-wrap the description to fit the panel width
+        String descText = s.unitInteriorDescription != null ? s.unitInteriorDescription : "";
+        float descAreaW = panelW - 2 * PAD_X;
+        final BitmapFont descFont = smallFont;
+        List<String> descLines = !descText.isEmpty()
+                ? WordWrapper.wrap(descText, descAreaW, t -> { glyph.setText(descFont, t); return glyph.width; })
+                : java.util.Collections.<String>emptyList();
+        glyph.setText(smallFont, "Hg");
+        final float smallH     = glyph.height;
+        final float smallLineH = smallH + 4f;
+        float descBlockH = descLines.isEmpty() ? 0f : descLines.size() * smallLineH + fontCapH;
+
         final float btnX = 20f;
         float titleY = panelH - PAD_Y - fontCapH;
-        float curY   = titleY - fontCapH - fontCapH - BTN_H; // first row: char-size gap after title
+        float curY   = titleY - fontCapH - descBlockH - fontCapH - BTN_H; // first row: gap after title+desc
 
         // Rest and Sleep share the same row
         s.restBtnX  = btnX; s.restBtnW  = REST_W;  s.restBtnH = BTN_H;
@@ -163,6 +177,16 @@ class UnitInteriorPopup {
         // Unit title
         font.setColor(Color.YELLOW);
         font.draw(batch, s.unitInteriorLabel != null ? s.unitInteriorLabel : "", 20f, titleY);
+
+        // Office description (below title)
+        if (!descLines.isEmpty()) {
+            float descY = titleY - fontCapH;
+            smallFont.setColor(new Color(0.75f, 0.85f, 0.95f, 1f));
+            for (String line : descLines) {
+                smallFont.draw(batch, line, PAD_X, descY);
+                descY -= smallLineH;
+            }
+        }
 
         // Rest button
         glyph.setText(font, "Rest");

@@ -1,5 +1,5 @@
 {
-  "version": "1.4",
+  "version": "1.5",
   "language": "en",
   "descriptions": {
     "parking_lot_small": {
@@ -1799,6 +1799,72 @@
         "good": "The shopfront glass is clean and the product display is neatly arranged behind it. The security grille operates smoothly and the entrance step is new and even.",
         "normal": "The shopfront glass carries faint smear marks at eye level and one item in the window display has been shifted out of its intended position. The grille has minor surface rust at one bracket.",
         "bad": "The shopfront glass has a crack running from the lower corner. The window display has gaps where stock has been removed without replacement. The security grille sticks on its track and the entrance step has a long surface crack."
+      }
+    },
+    "your_office": {
+      "default": "Your office. Small, purposeful, and yours. The city's noise stays outside the door — most of the time.",
+      "time": {
+        "morning": "Morning light fills the room at a shallow angle. The case files are where you left them. A quiet hour before the city starts making demands.",
+        "afternoon": "Midday stillness. The light is flat and honest. Whatever needs thinking through gets thought through here.",
+        "evening": "The city outside is draining into the evening. In here, the work continues on its own terms.",
+        "night": "Late. The street is quiet and the desk lamp is the only light. The night is good for thinking. And for being left alone."
+      },
+      "attribute": {
+        "INTELLIGENCE": "The case board reads differently depending on what you already know. Today it's saying something it wasn't saying yesterday.",
+        "PERCEPTION": "A thin layer of dust on the far shelf. The chair has been moved. Small things. Things you notice because this space is yours.",
+        "MEMORY": "The filing system is yours — nobody else understands it, and nobody needs to. Everything is exactly where you left it.",
+        "INTUITION": "Something in the room is slightly off. Not wrong, exactly. Off. It takes a moment to identify what changed."
+      },
+      "gender": {
+        "male": "The room holds the particular silence of a space that belongs to one person. You move through it without looking. You know where everything is.",
+        "female": "The office carries the arrangement of a focused mind. Everything has its place, and the place it occupies is never accidental."
+      },
+      "state": {
+        "good": "The room is clean and well-ordered. The window lets in good light, the lock turns smoothly, and the furniture shows no significant wear. A working space in proper condition.",
+        "normal": "A lived-in office. The desk surface carries the marks of regular use, the window frame has a minor draft, and one of the filing cabinet drawers sticks slightly. Nothing that interferes with the work.",
+        "bad": "The room shows its age. The ceiling plaster has a long crack running toward the window, the radiator produces more noise than heat, and the desk chair has developed a lean that requires compensation. The landlord has been asked about it."
+      }
+    },
+    "hotel_budget_room": {
+      "default": "A budget hotel room. Thin walls, a bed that has been slept in by strangers, and the particular quiet of a place that doesn't ask questions.",
+      "time": {
+        "morning": "The morning light comes through curtains that don't fully close. The room is functional. That's about as much as can be said for it.",
+        "afternoon": "The room is still. The city continues below the window. In here, nothing is required of you.",
+        "evening": "The corridor outside runs busy for an hour. Then it goes quiet. The room closes in on itself for the night.",
+        "night": "Three in the morning and the walls carry every sound from the next room. It's a specific kind of sleeplessness. You've been here before."
+      },
+      "state": {
+        "good": "The room is clean and the fittings are intact. The bed linen is fresh, the lock on the door is solid, and the heating works without complaint. For a budget room, it's doing the job.",
+        "normal": "The room has the worn look of high turnover. The carpet shows a path between the door and the bed, the curtain rail has a missing ring, and the television remote needs its batteries held in with pressure. Everything still works.",
+        "bad": "The room presents a catalogue of deferred maintenance. The bathroom sealant has gone dark with mould, the heating unit cycles on and off without producing reliable warmth, and the window frame has swollen so that it no longer closes flush. You've stayed in worse. The calculation is time and cost, not comfort."
+      }
+    },
+    "hotel_business_room": {
+      "default": "A business hotel room. Designed for people who treat sleep as a transaction and the room as a base of operations. Functional, impersonal, and entirely adequate.",
+      "time": {
+        "morning": "Room service trays in the corridor. The hotel runs early for the people who have eight-hour days in unfamiliar cities.",
+        "afternoon": "The room is empty of personality at this hour. That's the point. It's a workspace with a bed attached.",
+        "evening": "The bar hum carries up through the floor. Down there, deals are being reached. In here, the results are being assessed.",
+        "night": "The business hotel is quiet by midnight. The air conditioning cycle is the loudest thing in the room. You've adjusted to worse."
+      },
+      "state": {
+        "good": "The room presents clean lines and recent refurbishment. The fixtures are consistent, the desk is well-lit, and the bed carries hotel-standard linen without visible wear. A business traveller's room in proper order.",
+        "normal": "The room functions well and shows only cosmetic age. The carpet has the consistent compression of frequent use, the desk surface carries faint ring marks, and the shower pressure is adequate rather than impressive. Everything works as advertised.",
+        "bad": "The room shows the strain of a hotel operating past the point where maintenance has kept pace with occupancy. The bath sealant is lifting at one corner, the desk lamp flickers under load, and the ventilation in the bathroom runs noisily without moving much air. The hotel has been asked about the issues. The hotel has noted them."
+      }
+    },
+    "hotel_luxury_room": {
+      "default": "A luxury hotel room. Everything here has been designed for the comfort of someone who expects it. The silence is a quality you pay for.",
+      "time": {
+        "morning": "The room holds a specific morning quiet. The city is down there somewhere, operating on its own terms. In here, the terms are yours.",
+        "afternoon": "Afternoon in a luxury room is an exercise in suspended time. Nothing intrudes unless you allow it. You don't allow much.",
+        "evening": "The room is lit for the evening — lower, warmer, and very deliberate. Someone on staff made that decision on your behalf. You note the presumption. It isn't wrong.",
+        "night": "The room at night is engineered silence. Triple glazing, heavy curtains, and a city reduced to a distant hum. Someone paid for this. Tonight, it was you."
+      },
+      "state": {
+        "good": "The room is immaculate. Every surface is clean to a standard that leaves nothing to notice or improve. The bedding carries the specific weight and cool of high thread-count linen, and the fixtures show the kind of consistent maintenance that doesn't announce itself.",
+        "normal": "The room retains the quality of its original specification but shows the quiet signs of high occupancy. The carpet pile is slightly compressed on the approach to the bed, one minor fixture has a surface scratch, and the bathroom grout is a shade darker than it would have been at opening. None of it is significant. All of it is noted.",
+        "bad": "The room has not been maintained at the standard its rate implies. The grout in the shower enclosure is stained and beginning to fail at one corner, a section of the bedroom cornice has been repaired with visible compound, and the air conditioning produces an intermittent resonance at low speeds. The hotel has been spoken to."
       }
     }
   },

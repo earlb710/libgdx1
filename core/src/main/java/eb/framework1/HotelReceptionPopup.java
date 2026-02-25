@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.List;
+
 /**
  * Modal popup shown when the player "Talks to Reception" at a hotel.
  *
@@ -48,6 +50,7 @@ class HotelReceptionPopup {
     private boolean visible      = false;
     private String  hotelName    = "";
     private String  roomType     = "";
+    private String  roomDesc     = "";
     private int     nightly      = 0;
     private int     staminaBonus = 0;
 
@@ -90,10 +93,24 @@ class HotelReceptionPopup {
      * @param staminaBonus extra stamina added on a full 8-hour sleep while checked in
      */
     void show(String hotelName, String roomType, int nightly, int staminaBonus) {
+        show(hotelName, roomType, nightly, staminaBonus, "");
+    }
+
+    /**
+     * Opens the popup for the given hotel with an optional room description.
+     *
+     * @param hotelName    display name of the hotel building
+     * @param roomType     e.g. "Budget Room", "Comfortable Room", "Luxury Suite"
+     * @param nightly      nightly rate in in-game currency
+     * @param staminaBonus extra stamina added on a full 8-hour sleep while checked in
+     * @param roomDesc     contextual room description from {@code description_en.json}; may be null
+     */
+    void show(String hotelName, String roomType, int nightly, int staminaBonus, String roomDesc) {
         this.hotelName    = hotelName    != null ? hotelName    : "Hotel";
         this.roomType     = roomType     != null ? roomType     : "Standard Room";
         this.nightly      = nightly;
         this.staminaBonus = staminaBonus;
+        this.roomDesc     = roomDesc     != null ? roomDesc     : "";
         this.visible      = true;
         this.optBtnH      = 0f;
         this.cancelH      = 0f;
@@ -184,10 +201,19 @@ class HotelReceptionPopup {
 
         float dialogW = Math.min(MAX_W, Math.max(MIN_W, maxLineW + 2 * PAD));
 
-        // Height: PAD + title + char-size gap + 3 info lines + spacer + 3 option btns + cancel + PAD
+        // Compute room description lines (word-wrapped to fit dialogW - 2*PAD)
+        float descAreaW = dialogW - 2 * PAD;
+        final BitmapFont descFont = smallFont;
+        List<String> descLines = roomDesc != null && !roomDesc.isEmpty()
+                ? WordWrapper.wrap(roomDesc, descAreaW, t -> { glyph.setText(descFont, t); return glyph.width; })
+                : java.util.Collections.<String>emptyList();
+        float descH = descLines.isEmpty() ? 0f : descLines.size() * smallLineH + GAP;
+
+        // Height: PAD + title + char-size gap + 3 info lines + desc + spacer + 3 option btns + cancel + PAD
         float dialogH = PAD
                 + fontLineH + fontH     // title + character-size gap
                 + 3 * smallLineH        // room / rate / bonus
+                + descH                 // optional room description
                 + GAP                   // spacer before buttons
                 + NUM_OPTIONS * (optH + BTN_SPACING)
                 + cancelBtnH + BTN_SPACING
@@ -253,6 +279,16 @@ class HotelReceptionPopup {
             smallFont.setColor(LABEL_COLOR);
             smallFont.draw(batch, ln, dialogX + PAD, ty);
             ty -= smallLineH;
+        }
+
+        // Room description (italic-style dimmed colour)
+        if (!descLines.isEmpty()) {
+            smallFont.setColor(new Color(0.75f, 0.85f, 0.95f, 1f));
+            for (String line : descLines) {
+                smallFont.draw(batch, line, dialogX + PAD, ty);
+                ty -= smallLineH;
+            }
+            ty -= GAP;
         }
 
         // Option button labels
