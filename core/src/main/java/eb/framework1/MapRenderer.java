@@ -21,9 +21,9 @@ class MapRenderer {
     private static final Color RULER_BG_COLOR        = new Color(0.1f,  0.1f,  0.15f, 1f);
     private static final Color RULER_MARKER_COLOR    = new Color(1f,   0.5f,  0f,    1f);
     private static final Color SELECTION_COLOR       = new Color(1f,   1f,    0f,    1f);
-    private static final Color ROUTE_HIGHLIGHT_COLOR = new Color(0f,   0.8f,  1f,    1f);
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
+    private static final Color TRAVELED_ROAD_COLOR   = new Color(0.3f,  0.75f, 1f,    1f);
 
     static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -154,20 +154,24 @@ class MapRenderer {
         }
         shapeRenderer.end();
 
-        // Route path highlight (uniform cell-border rect)
-        if (s.currentRoute != null && s.currentRoute.isReachable() && s.currentRoute.path != null) {
-            int thickness = Math.max(1, Math.round(borderSize));
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(ROUTE_HIGHLIGHT_COLOR);
-            for (int[] pathCell : s.currentRoute.path) {
-                int cx = pathCell[0], cy = pathCell[1];
-                if (cx >= startCellX && cx < endCellX && cy >= startCellY && cy < endCellY) {
-                    float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
-                    float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
-                    for (int i = 0; i < thickness; i++) {
-                        shapeRenderer.rect(drawX + i, drawY + i, cellSize - 2 * i, cellSize - 2 * i);
-                    }
-                }
+        // Blue road segments: preview for planned route AND accumulated traveled path
+        boolean hasPreview  = s.currentRoute != null && s.currentRoute.isReachable()
+                && s.currentRoute.path != null && s.currentRoute.path.size() >= 2;
+        boolean hasTraveled = s.traveledPath != null && s.traveledPath.size() >= 2;
+        if (hasPreview || hasTraveled) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(TRAVELED_ROAD_COLOR);
+            if (hasPreview) {
+                drawRoadSegments(s.currentRoute.path, shapeRenderer,
+                        mapStartX, mapStartY, cellSize, borderSize,
+                        startCellX, startCellY, endCellX, endCellY,
+                        fracOffsetX, fracOffsetY, visibleCellsY);
+            }
+            if (hasTraveled) {
+                drawRoadSegments(s.traveledPath, shapeRenderer,
+                        mapStartX, mapStartY, cellSize, borderSize,
+                        startCellX, startCellY, endCellX, endCellY,
+                        fracOffsetX, fracOffsetY, visibleCellsY);
             }
             shapeRenderer.end();
         }
@@ -199,16 +203,30 @@ class MapRenderer {
         }
 
         // Character portrait
-        if (characterIconTexture != null && s.charCellX >= 0 && s.charCellY >= 0
-                && s.charCellX >= startCellX && s.charCellX < endCellX
-                && s.charCellY >= startCellY && s.charCellY < endCellY) {
-            float drawX = mapStartX + (s.charCellX - startCellX - fracOffsetX) * cellSize;
-            float drawY = mapStartY + (visibleCellsY - 1 - (s.charCellY - startCellY - fracOffsetY)) * cellSize;
+        if (characterIconTexture != null) {
             float portraitSize = cellSize * 0.4f;
             batch.setColor(Color.WHITE);
-            batch.draw(characterIconTexture,
-                    drawX + cellSize - portraitSize - borderSize, drawY + borderSize,
-                    portraitSize, portraitSize);
+            if (s.charJuncX >= 0f) {
+                // Walking: draw portrait centred on the current junction (road position)
+                // Screen X: junction jx lies at the left edge of cell jx
+                float jScreenX = mapStartX + (s.charJuncX - startCellX - fracOffsetX) * cellSize;
+                // Screen Y: junction jy lies at the top of cell jy = bottom of cell (jy-1)
+                float jScreenY = mapStartY + (visibleCellsY - 1 - (s.charJuncY - startCellY - fracOffsetY)) * cellSize
+                        + cellSize;
+                batch.draw(characterIconTexture,
+                        jScreenX - portraitSize / 2f,
+                        jScreenY - portraitSize / 2f,
+                        portraitSize, portraitSize);
+            } else if (s.charCellX >= 0 && s.charCellY >= 0
+                    && s.charCellX >= startCellX && s.charCellX < endCellX
+                    && s.charCellY >= startCellY && s.charCellY < endCellY) {
+                // Idle: draw portrait in the top-right corner of the current cell
+                float drawX = mapStartX + (s.charCellX - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (s.charCellY - startCellY - fracOffsetY)) * cellSize;
+                batch.draw(characterIconTexture,
+                        drawX + cellSize - portraitSize - borderSize, drawY + borderSize,
+                        portraitSize, portraitSize);
+            }
         }
         batch.end();
 
@@ -348,6 +366,48 @@ class MapRenderer {
             case ROAD:    return borderSize;
             case PATHWAY: return pathwaySize;
             default:      return 0;
+        }
+    }
+
+    /**
+     * Draws blue filled road bars between each consecutive pair of junctions in {@code path}.
+     * Each entry in {@code path} is a junction coordinate [jx, jy] ∈ [0..MAP_SIZE].
+     * The ShapeRenderer must already be in {@link ShapeRenderer.ShapeType#Filled} mode with the
+     * desired colour set by the caller.
+     *
+     * <ul>
+     *   <li>Horizontal segment (jx1,jy)↔(jx1+1,jy): a horizontal bar centred on junction row jy.</li>
+     *   <li>Vertical segment (jx,jy1)↔(jx,jy1+1): a vertical bar centred on junction column jx.</li>
+     * </ul>
+     */
+    private static void drawRoadSegments(java.util.List<int[]> path, ShapeRenderer sr,
+            float mapStartX, float mapStartY, float cellSize, float borderSize,
+            int startCellX, int startCellY, int endCellX, int endCellY,
+            float fracOffsetX, float fracOffsetY, int visibleCellsY) {
+        float roadW = borderSize * 2f;
+        for (int i = 0; i < path.size() - 1; i++) {
+            int[] j1 = path.get(i);
+            int[] j2 = path.get(i + 1);
+            int jx1 = j1[0], jy1 = j1[1];
+            int jx2 = j2[0], jy2 = j2[1];
+            // Skip if both junctions are outside the visible area
+            boolean vis1 = jx1 >= startCellX && jx1 <= endCellX && jy1 >= startCellY && jy1 <= endCellY;
+            boolean vis2 = jx2 >= startCellX && jx2 <= endCellX && jy2 >= startCellY && jy2 <= endCellY;
+            if (!vis1 && !vis2) continue;
+            if (jy1 == jy2) {
+                // Horizontal segment: bar centred on junction row jy1.
+                // Screen Y of junction jy = barY + cellSize (barY is the bottom of cell jy;
+                // the junction itself lies at the top of cell jy = barY + cellSize).
+                float barX = mapStartX + (Math.min(jx1, jx2) - startCellX - fracOffsetX) * cellSize;
+                float barY = mapStartY + (visibleCellsY - 1 - (jy1 - startCellY - fracOffsetY)) * cellSize;
+                sr.rect(barX, barY + cellSize - borderSize, cellSize, roadW);
+            } else if (jx1 == jx2) {
+                // Vertical segment: bar centred on junction column jx1
+                // barY = bottom of cell row min(jy1,jy2); segment spans that cell upward
+                float barX = mapStartX + (jx1 - startCellX - fracOffsetX) * cellSize;
+                float barY = mapStartY + (visibleCellsY - 1 - (Math.min(jy1, jy2) - startCellY - fracOffsetY)) * cellSize;
+                sr.rect(barX - borderSize, barY, roadW, cellSize);
+            }
         }
     }
 

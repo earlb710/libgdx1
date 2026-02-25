@@ -80,6 +80,20 @@ class MapViewState {
     float walkTimer     = 0f;
     static final float WALK_STEP_SECONDS = 0.4f;
 
+    /** Destination cell stored at walk-start; used to set charCellX/Y on arrival. */
+    int walkDestCellX = -1;
+    int walkDestCellY = -1;
+
+    /**
+     * Current junction position while walking (junction coords, e.g. 3.0 = exact junction 3,
+     * or −1 when not walking).  Used by MapRenderer to draw the portrait ON the road.
+     */
+    float charJuncX = -1f;
+    float charJuncY = -1f;
+
+    // --- Traveled road path (accumulates every junction visited while walking) ---
+    java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
+
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
