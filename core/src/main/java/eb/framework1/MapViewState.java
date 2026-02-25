@@ -52,6 +52,7 @@ class MapViewState {
     float goToOfficeBtnX, goToOfficeBtnY, goToOfficeBtnW, goToOfficeBtnH;
     float openStashBtnX, openStashBtnY, openStashBtnW, openStashBtnH;
     float checkEmailsBtnX, checkEmailsBtnY, checkEmailsBtnW, checkEmailsBtnH;
+    float openPhoneBtnX, openPhoneBtnY, openPhoneBtnW, openPhoneBtnH;
     float appointmentBtnX, appointmentBtnY, appointmentBtnW, appointmentBtnH;
 
     // Drop/Stash buttons in character tab (one per carried item; screen-space Y, updated each frame)

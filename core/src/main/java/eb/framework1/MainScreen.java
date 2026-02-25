@@ -66,6 +66,7 @@ public class MainScreen implements Screen {
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private EmailPopup           emailPopup;
+    private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
@@ -236,6 +237,8 @@ public class MainScreen implements Screen {
 
         emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        phonePopup = new PhonePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
@@ -314,6 +317,10 @@ public class MainScreen implements Screen {
 
         if (emailPopup.isVisible()) {
             emailPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (phonePopup.isVisible()) {
+            phonePopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (confirmDropPopup.isVisible()) {
@@ -558,6 +565,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Phone popup blocks all normal interaction until dismissed
+                if (phonePopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -762,6 +778,20 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Phone popup: tap a contact to mark as called, or tap power button to close
+                if (phonePopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = phonePopup.onTap(screenX, flippedY);
+                            if (result >= 0) handleContactPhoned(result);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -814,6 +844,7 @@ public class MainScreen implements Screen {
                             checkSleepButtonClick(screenX, flippedY);
                             checkOpenStashButtonClick(screenX, flippedY);
                             checkCheckEmailsButtonClick(screenX, flippedY);
+                            checkOpenPhoneButtonClick(screenX, flippedY);
                         } else {
                             checkTabClick(screenX, flippedY);
                             checkMoveToButtonClick(screenX, flippedY);
@@ -1097,6 +1128,15 @@ public class MainScreen implements Screen {
         if (screenX >= state.checkEmailsBtnX && screenX <= state.checkEmailsBtnX + state.checkEmailsBtnW
                 && flippedY >= state.checkEmailsBtnY && flippedY <= state.checkEmailsBtnY + state.checkEmailsBtnH) {
             handleCheckEmailsClick();
+        }
+    }
+
+    private void checkOpenPhoneButtonClick(int screenX, int flippedY) {
+        if (state.openPhoneBtnW <= 0) return;
+        if (screenX >= state.openPhoneBtnX && screenX <= state.openPhoneBtnX + state.openPhoneBtnW
+                && flippedY >= state.openPhoneBtnY && flippedY <= state.openPhoneBtnY + state.openPhoneBtnH) {
+            phonePopup.show(buildPhoneContacts());
+            Gdx.app.log("MainScreen", "Phone opened with " + phonePopup.getContactCount() + " contact(s)");
         }
     }
 
@@ -2229,6 +2269,57 @@ public class MainScreen implements Screen {
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
+    }
+
+    /**
+     * Builds the phone contact list from the profile's open case files.
+     *
+     * <p>Each open case contributes its {@link CaseFile#getClientName() client name}
+     * and {@link CaseFile#getSubjectName() subject name} as contacts, provided they
+     * are non-blank.  Contacts from open cases are marked with a star (★).  Duplicate
+     * names within the same case are skipped.
+     *
+     * @return ordered list of {@link PhoneContact}s (never {@code null})
+     */
+    List<PhoneContact> buildPhoneContacts() {
+        List<PhoneContact> result = new ArrayList<>();
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (!cf.isOpen()) continue;  // contacts removed when case ends
+            String caseId = cf.getId();
+            java.util.Set<String> seenNames = new java.util.LinkedHashSet<>();
+            // Client name
+            String clientName = cf.getClientName();
+            if (clientName != null && !clientName.trim().isEmpty()
+                    && seenNames.add(clientName.trim())) {
+                result.add(new PhoneContact(
+                        clientName.trim(), caseId, true,
+                        profile.isContactPhoned(caseId, clientName.trim())));
+            }
+            // Subject name
+            String subjectName = cf.getSubjectName();
+            if (subjectName != null && !subjectName.trim().isEmpty()
+                    && seenNames.add(subjectName.trim())) {
+                result.add(new PhoneContact(
+                        subjectName.trim(), caseId, true,
+                        profile.isContactPhoned(caseId, subjectName.trim())));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Called when the player taps a contact in the phone popup to place a call.
+     * Marks the contact as phoned in the profile and updates the popup.
+     *
+     * @param contactIndex index in the phone popup's contact list
+     */
+    private void handleContactPhoned(int contactIndex) {
+        PhoneContact contact = phonePopup.getContactAt(contactIndex);
+        if (contact == null) return;
+        contact.phoned = true;
+        profile.markContactPhoned(contact.caseId, contact.name);
+        Gdx.app.log("MainScreen", "Phoned contact: " + contact.name
+                + " (case " + contact.caseId + ")");
     }
 
     /**

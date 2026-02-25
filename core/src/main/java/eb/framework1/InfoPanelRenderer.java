@@ -365,6 +365,10 @@ class InfoPanelRenderer {
         s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f;
         s.checkEmailsBtnY = curRowBottom;
 
+        // Phone button – shown inside the office (UnitInteriorPopup), not here
+        s.openPhoneBtnX = btnX; s.openPhoneBtnH = BTN_H; s.openPhoneBtnW = 0f;
+        s.openPhoneBtnY = curRowBottom;
+
         // Appointment button – shown when an upcoming appointment (≤ 3 h) is at the
         // player's current location and the player is viewing their own cell.
         CalendarEntry upcomingAppt = findUpcomingAppointmentAtLocation(s);
@@ -653,6 +657,7 @@ class InfoPanelRenderer {
         s.goToOfficeBtnW     = 0f;
         s.openStashBtnW      = 0f;
         s.checkEmailsBtnW    = 0f;
+        s.openPhoneBtnW      = 0f;
         s.addNoteBtnW        = 0f;
         s.noteTimeCbW        = 0f;
         s.noteLocCbW         = 0f;
@@ -1009,6 +1014,7 @@ class InfoPanelRenderer {
         s.goToOfficeBtnW = 0f;
         s.openStashBtnW = 0f;
         s.checkEmailsBtnW = 0f;
+        s.openPhoneBtnW = 0f;
         s.infoMaxScrollX = 0f;
         s.infoScrollX = 0f;
 
