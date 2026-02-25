@@ -19,6 +19,10 @@ public final class ImprovementEffects {
 
     private static final Map<String, Map<CharacterAttribute, Integer>> KEYWORD_EFFECTS = new HashMap<>();
 
+    // Quality ratings: keyword (lower-case) → cost/luxury score 1-10.
+    // getQuality() returns the maximum score among all matching keywords; default = 3.
+    private static final Map<String, Integer> QUALITY_KEYWORDS = new HashMap<>();
+
     static {
         // --- Security / Surveillance ---
         keyword("Security", CharacterAttribute.PERCEPTION, 2, CharacterAttribute.INTIMIDATION, 1);
@@ -234,6 +238,111 @@ public final class ImprovementEffects {
         keyword("Light Show", CharacterAttribute.STEALTH, -2, CharacterAttribute.PERCEPTION, 1);
         keyword("Sound System", CharacterAttribute.STEALTH, -1, CharacterAttribute.PERCEPTION, -1);
         keyword("Lottery", CharacterAttribute.INTELLIGENCE, -1, CharacterAttribute.INTUITION, 1);
+
+        // ---- Quality ratings (1-10, higher = more expensive/luxurious) ----
+        // 10 — ultra-luxury, one-of-a-kind
+        quality("presidential", 10);
+        quality("helipad",      10);
+        quality("yacht",        10);
+        // 9 — private/bespoke
+        quality("butler",           9);
+        quality("private cinema",   9);
+        quality("infinity pool",    9);
+        quality("private beach",    9);
+        quality("private elevator", 9);
+        quality("sky lounge",       9);
+        // 8 — executive/luxury tier
+        quality("luxury",       8);
+        quality("executive",    8);
+        quality("vip",          8);
+        quality("penthouse",    8);
+        quality("ballroom",     8);
+        quality("golf",         8);
+        quality("fine dining",  8);
+        quality("private dining", 8);
+        quality("wine cellar",  8);
+        quality("doorman",      8);
+        // 7 — premium amenities
+        quality("spa",          7);
+        quality("concierge",    7);
+        quality("valet",        7);
+        quality("rooftop",      7);
+        quality("rooftop bar",  7);
+        quality("rooftop lounge", 7);
+        quality("cigar",        7);
+        quality("sommelier",    7);
+        quality("personal shopping", 7);
+        quality("butler service", 7);
+        // 6 — high-quality standard
+        quality("restaurant",   6);
+        quality("swimming pool", 6);
+        quality("pool",         6);
+        quality("gym",          6);
+        quality("fitness",      6);
+        quality("bar",          6);
+        quality("lounge",       6);
+        quality("theater",      6);
+        quality("data center",  6);
+        quality("conference",   6);
+        quality("surgery",      6);
+        quality("science lab",  6);
+        quality("weight room",  6);
+        quality("auditorium",   6);
+        // 5 — good mid-range amenities
+        quality("library",      5);
+        quality("café",         5);
+        quality("cafe",         5);
+        quality("coffee",       5);
+        quality("office",       5);
+        quality("reception",    5);
+        quality("lab",          5);
+        quality("sauna",        5);
+        quality("tennis",       5);
+        quality("yoga",         5);
+        quality("arcade",       5);
+        quality("dance",        5);
+        quality("chapel",       5);
+        quality("courtroom",    5);
+        quality("pharmacy",     5);
+        // 4 — standard/functional
+        quality("cafeteria",    4);
+        quality("kitchen",      4);
+        quality("break room",   4);
+        quality("meeting",      4);
+        quality("garden",       4);
+        quality("courtyard",    4);
+        quality("playground",   4);
+        quality("wifi",         4);
+        quality("atm",          4);
+        quality("laundry",      4);
+        quality("locker room",  4);
+        quality("music room",   4);
+        quality("computer",     4);
+        // 3 — basic utility
+        quality("parking",      3);
+        quality("storage",      3);
+        quality("stairwell",    3);
+        quality("elevator",     3);
+        quality("mailbox",      3);
+        quality("recycling",    3);
+        quality("bike",         3);
+        quality("bicycle",      3);
+        quality("intercom",     3);
+        quality("vending",      3);
+        quality("restroom",     3);
+        // 2 — infrastructure/safety
+        quality("loading",      2);
+        quality("trash",        2);
+        quality("signage",      2);
+        quality("fire lane",    2);
+        quality("drainage",     2);
+        quality("generator",    2);
+        quality("ventilation",  2);
+        // 1 — absolute basics (markings, bumps, stripes)
+        quality("striping",     1);
+        quality("speed bump",   1);
+        quality("handicap",     1);
+        quality("fire escape",  1);
     }
 
     /**
@@ -303,5 +412,31 @@ public final class ImprovementEffects {
         }
 
         return Collections.unmodifiableMap(result);
+    }
+
+    /**
+     * Returns a quality rating (1–10) for an improvement based on keyword matching.
+     * The rating reflects how expensive or luxurious the improvement is:
+     * 1 = basic infrastructure, 10 = ultra-luxury.
+     * Returns 3 (basic utility) when no quality keyword matches.
+     *
+     * @param improvementName The name of the improvement
+     * @return quality score in the range [1, 10]
+     */
+    public static int getQuality(String improvementName) {
+        if (improvementName == null || improvementName.trim().isEmpty()) return 3;
+        String nameLower = improvementName.toLowerCase();
+        int best = 3; // default: basic utility
+        for (Map.Entry<String, Integer> entry : QUALITY_KEYWORDS.entrySet()) {
+            if (nameLower.contains(entry.getKey())) {
+                if (entry.getValue() > best) best = entry.getValue();
+            }
+        }
+        return best;
+    }
+
+    /** Registers a quality keyword. */
+    private static void quality(String kw, int score) {
+        QUALITY_KEYWORDS.put(kw.toLowerCase(), score);
     }
 }

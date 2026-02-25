@@ -19,6 +19,7 @@ public class Improvement {
     private final String name;
     private final int level;
     private final int hiddenValue;
+    private final int quality;
     private final Map<CharacterAttribute, Integer> attributeModifiers;
     private boolean discovered;
 
@@ -45,6 +46,7 @@ public class Improvement {
         this.level = level;
         this.hiddenValue = hiddenValue;
         this.discovered = false;
+        this.quality = ImprovementEffects.getQuality(this.name);
         this.attributeModifiers = ImprovementEffects.getEffects(this.name);
     }
 
@@ -83,6 +85,15 @@ public class Improvement {
     }
 
     /**
+     * Gets the quality/cost rating of this improvement on a scale of 1 (basic) to 10 (ultra-luxury).
+     *
+     * @return quality rating in the range [1, 10]
+     */
+    public int getQuality() {
+        return quality;
+    }
+
+    /**
      * Gets the attribute modifiers for this improvement.
      * Each entry maps a character attribute to a modifier value from -3 to +3.
      * Only non-zero modifiers are included.
@@ -96,7 +107,8 @@ public class Improvement {
     @Override
     public String toString() {
         return "Improvement{name='" + name + "', level=" + level +
-               ", hiddenValue=" + hiddenValue + ", discovered=" + discovered +
+               ", hiddenValue=" + hiddenValue + ", quality=" + quality +
+               ", discovered=" + discovered +
                ", modifiers=" + attributeModifiers + "}";
     }
 }
