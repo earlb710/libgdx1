@@ -99,8 +99,8 @@ class TirednessPopup {
         float okBtnW = okBounds.width;
         float okBtnH = okBounds.height;
 
-        // Height = PAD + titleLine + linesH + PAD (gap) + okBtn + PAD
-        float dialogH = PAD + titleLineH + linesH + PAD + okBtnH + PAD;
+        // Height = PAD + titleLine + titleH (char-size gap) + linesH + PAD (gap) + okBtn + PAD
+        float dialogH = PAD + titleLineH + titleH + linesH + PAD + okBtnH + PAD;
         // Width = max(title, widest line, OK button text) + 2*PAD, capped at screenW
         float rawW = Math.max(titleBounds.textWidth, Math.max(maxLineW, okBounds.textWidth));
         float dialogW = Math.min(screenW, rawW + 2 * PAD);
@@ -134,7 +134,7 @@ class TirednessPopup {
         font.setColor(TITLE_COLOR);
         glyph.setText(font, "Too Tired!");
         font.draw(batch, "Too Tired!", dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= titleLineH;
+        ty -= titleLineH + titleH;
 
         smallFont.setColor(Color.WHITE);
         for (String line : lines) {

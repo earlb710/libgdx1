@@ -177,9 +177,9 @@ class HelpPopup {
         popupW = Math.min(popupW, screenW * 0.9f);
 
         // Content height
-        float controlsH   = titleLine                          // "Controls" title
+        float controlsH   = titleLine + titleH                 // "Controls" title + char-size gap
                 + CONTROLS.length * smallLine;                  // control lines
-        float legendH     = titleLine                          // "Map Legend" title
+        float legendH     = titleLine + titleH                 // "Map Legend" title + char-size gap
                 + LEGEND.length * (Math.max(SWATCH_SIZE, smallH) + LINE_GAP); // legend rows
         float popupH      = PAD
                 + controlsH + SECTION_GAP
@@ -216,9 +216,9 @@ class HelpPopup {
         Gdx.gl.glScissor((int)(popupX + 1), (int)clipY, (int)(popupW - 2), (int)clipH);
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        float swatchY = popupY + popupH - PAD - titleLine    // below "Controls" title
-                - CONTROLS.length * smallLine - SECTION_GAP  // controls lines + gap
-                - titleLine;                                   // "Map Legend" title
+        float swatchY = popupY + popupH - PAD - titleLine - titleH // below "Controls" title + char gap
+                - CONTROLS.length * smallLine - SECTION_GAP        // controls lines + gap
+                - titleLine - titleH;                               // "Map Legend" title + char gap
         for (Object[] entry : LEGEND) {
             float r = (float) entry[1];
             float g = (float) entry[2];
@@ -232,8 +232,8 @@ class HelpPopup {
 
         // Swatch borders (scissored)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        float sbY = popupY + popupH - PAD - titleLine
-                - CONTROLS.length * smallLine - SECTION_GAP - titleLine;
+        float sbY = popupY + popupH - PAD - titleLine - titleH
+                - CONTROLS.length * smallLine - SECTION_GAP - titleLine - titleH;
         shapeRenderer.setColor(BORDER_COLOR);
         for (int i = 0; i < LEGEND.length; i++) {
             float rowH = Math.max(SWATCH_SIZE, smallH) + LINE_GAP;
@@ -253,7 +253,7 @@ class HelpPopup {
         glyphLayout.setText(font, "Controls");
         font.draw(batch, "Controls",
                 popupX + (popupW - glyphLayout.width) / 2f, ty);
-        ty -= titleLine;
+        ty -= titleLine + titleH;
 
         smallFont.setColor(Color.WHITE);
         for (String line : CONTROLS) {
@@ -268,7 +268,7 @@ class HelpPopup {
         glyphLayout.setText(font, "Map Legend");
         font.draw(batch, "Map Legend",
                 popupX + (popupW - glyphLayout.width) / 2f, ty);
-        ty -= titleLine;
+        ty -= titleLine + titleH;
 
         smallFont.setColor(Color.WHITE);
         for (Object[] entry : LEGEND) {

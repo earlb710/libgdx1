@@ -114,7 +114,7 @@ class ServiceResultPopup {
         maxW = Math.max(maxW, okBounds.textWidth);
 
         float dialogW = Math.min(screenW * 0.9f, maxW + 2 * PAD);
-        float dialogH = PAD + titleLineH
+        float dialogH = PAD + titleLineH + titleH
                 + lines.size() * smallLineH
                 + PAD + okBtnH + PAD;
 
@@ -148,7 +148,7 @@ class ServiceResultPopup {
         font.setColor(TITLE_COLOR);
         glyph.setText(font, title);
         font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= titleLineH;
+        ty -= titleLineH + titleH;
 
         smallFont.setColor(Color.WHITE);
         for (String line : lines) {

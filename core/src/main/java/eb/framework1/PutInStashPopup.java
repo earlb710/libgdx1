@@ -198,7 +198,7 @@ class PutInStashPopup {
                 ? smallLineH                                 // "(nothing carried)" line
                 : (fontLineH + itemCount * smallLineH);      // title + items
         float fixedH           = PAD + closeBtnH + PAD;
-        float titleAndContent  = fontLineH + scrollableContent + GAP;
+        float titleAndContent  = fontLineH + fontH + scrollableContent + GAP;
         float maxScrollableH   = MAX_H - fixedH - PAD;
         boolean needsScroll    = titleAndContent > maxScrollableH;
         float usedScrollH      = needsScroll ? maxScrollableH : titleAndContent;
@@ -257,7 +257,7 @@ class PutInStashPopup {
         glyph.setText(font, "Put in Stash");
         font.draw(batch, "Put in Stash",
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + fontH;
 
         // Reset stash button widths
         for (int i = 0; i < MAX_ITEMS; i++) stashBtnW[i] = 0f;

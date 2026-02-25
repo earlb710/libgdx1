@@ -90,7 +90,7 @@ class UnitInteriorPopup {
 
         final float btnX = 20f;
         float titleY = panelH - PAD_Y - fontCapH;
-        float curY   = titleY - fontCapH - BTN_SPACING - BTN_H; // first row
+        float curY   = titleY - fontCapH - fontCapH - BTN_H; // first row: char-size gap after title
 
         // Rest and Sleep share the same row
         s.restBtnX  = btnX; s.restBtnW  = REST_W;  s.restBtnH = BTN_H;

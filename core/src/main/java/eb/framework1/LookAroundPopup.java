@@ -200,12 +200,13 @@ class LookAroundPopup {
             // Height formula:
             //   PAD (top border)
             //   + headingLineH  (heading text + gap)
+            //   + headingH      (character-size space after heading)
             //   + itemsH        (all item lines + inter-line gaps + trailing gap)
             //   + PAD           (spacing between items and OK button)
             //   + okBtnH        (OK button)
             //   + PAD           (bottom border)
             // The heading+items section is scrollable; the OK button is fixed.
-            float scrollableH   = headingLineH + itemsH;
+            float scrollableH   = headingLineH + headingH + itemsH;
             float fixedBottomH  = PAD + okBtnH;          // always visible
             float maxScrollableH = MAX_H - 2 * PAD - fixedBottomH;
             needsScroll  = scrollableH > maxScrollableH;
@@ -244,8 +245,8 @@ class LookAroundPopup {
             float trackH = dialogH - 2 * PAD - okBtnH - PAD;
             shapeRenderer.setColor(0.3f, 0.3f, 0.35f, 1f);
             shapeRenderer.rect(sbX, trackY, SCROLLBAR_W, trackH);
-            // scrollableH = headingLineH + itemsH; visible area = trackH
-            float scrollableH = headBounds.textHeight + GAP
+            // scrollableH = headingLineH + headingH (char gap) + itemsH; visible area = trackH
+            float scrollableH = headBounds.textHeight + GAP + headBounds.textHeight
                     + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight
                     + novelLines.size() * smallLineH;
             float thumbH  = MathUtils.clamp(trackH * (trackH / scrollableH), 12f, trackH);
@@ -289,7 +290,7 @@ class LookAroundPopup {
             font.setColor(InfoPanelRenderer.LABEL_COLOR);
             glyphLayout.setText(font, "Found:");
             font.draw(batch, "Found:", dialogX + (dialogW - SCROLLBAR_W - glyphLayout.width) / 2f, ty);
-            ty -= fontLineH;
+            ty -= fontLineH + fontH;
             smallFont.setColor(Color.WHITE);
             for (String item : foundItems) {
                 glyphLayout.setText(smallFont, item);

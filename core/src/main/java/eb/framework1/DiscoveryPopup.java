@@ -190,7 +190,7 @@ class DiscoveryPopup {
 
         // Height layout:
         //   PAD + titleLine + TITLE_GAP + scrollableArea + PAD + okBtnH + PAD
-        final float TITLE_GAP = fontLineH * 0.5f;  // extra space between heading and content
+        final float TITLE_GAP = fontH;  // character-size space between heading and content
         float scrollableContent = scrollLines.size() * smallLineH;
         float fixedH = PAD + fontLineH + TITLE_GAP + PAD + okBtnH + PAD;
         float maxScrollable = MAX_H - fixedH;
@@ -255,7 +255,7 @@ class DiscoveryPopup {
         glyph.setText(font, titleText);
         font.draw(batch, titleText,
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + TITLE_GAP;
 
         // Content lines (novel text in light-blue, everything else white)
         for (int i = 0; i < scrollLines.size(); i++) {
