@@ -1756,6 +1756,50 @@
         "normal": "The exterior render shows hairline crazing and the sign has one dim letter. The entrance threshold has a hairline crack and the door furniture is starting to tarnish.",
         "bad": "The exterior render has blistered and peeled in sections. The sign illumination has failed in multiple areas, and the entrance step has cracked and shifted, creating an uneven surface."
       }
+    },
+    "prison": {
+      "default": "High walls topped with razor wire rise above every sight line. Watchtowers anchor each corner, their floodlight brackets angled to leave nothing in shadow after dark.",
+      "time": {
+        "morning": "The outer perimeter catches the early light flat and indifferent. The walls hold the same colour as the sky before it decides what kind of day it will be.",
+        "afternoon": "The perimeter fence casts its shadow inward. The building mass beyond it absorbs the afternoon heat without returning it.",
+        "evening": "Floodlights begin their cycle as the natural light fades. The compound brightens as the city around it dims.",
+        "night": "The facility is its own island of light. Every lamp is doing exactly the job it was installed to do, and every shadow has been designed out of the compound."
+      },
+      "attribute": {
+        "PERCEPTION": "The camera housings track the outer perimeter in overlapping arcs. The blind spots are not accidents — they are where the fence posts break the sight lines.",
+        "STEALTH": "The service entrance sits on the north face, away from the main gate. Two cameras, one facing the road, one facing the service lane. Neither covers the gate itself."
+      },
+      "gender": {
+        "male": "The compound reads as a solid wall from any approach. No windows below the third level. The upper tiers have narrow apertures set deep into the masonry.",
+        "female": "The visitor entrance is a separate structure entirely — lower, lighter, with a different grade of glass in the door panels."
+      },
+      "state": {
+        "good": "The perimeter fence stands perfectly upright, its tensioned wire clean and without gaps. Freshly painted bollards line the service road and every camera housing is intact.",
+        "normal": "The perimeter fence is sound but shows weathering at the post bases. Several bollards have been scuffed by vehicles and the camera housings show surface rust at their brackets.",
+        "bad": "Sections of perimeter fencing lean at shallow angles, corroded at the post bases. Several camera housing brackets have rusted through and the flood light covers are yellowed and cracked."
+      }
+    },
+    "security_shop": {
+      "default": "A narrow shopfront with a dense window display of camera housings, lock cylinders, and equipment cases. The interior is arranged so that every product is visible from the street.",
+      "time": {
+        "morning": "The steel security grille has been rolled up for the day. The window display is unchanged from yesterday, positioned to hold attention during the approach.",
+        "afternoon": "The demonstration wall of camera housings is lit from inside the shop. The light makes the lens apertures visible from across the street.",
+        "evening": "The grille is part-way down on its track. The window display lights are still running, picking out the product labels against the darkening glass.",
+        "night": "The security grille is down and locked. A motion-activated light above the entrance comes on and goes off at irregular intervals."
+      },
+      "attribute": {
+        "PERCEPTION": "The demonstration camera wall in the window shows a range of housing sizes, lens configurations, and mounting options. The coverage radius of each unit is printed on a small card beneath it.",
+        "INTELLIGENCE": "The lock display case carries a range of cylinders from residential pin-tumbler to commercial multi-point systems. The technical specifications are printed on the shelf labels."
+      },
+      "gender": {
+        "male": "The shopfront carries no signage above head height. The product in the window does the advertising — discrete equipment for people who do not want to advertise why they need it.",
+        "female": "The interior has a clear sight line from entrance to the counter at the back. The layout is deliberate — every approach to the cases is visible from the service position."
+      },
+      "state": {
+        "good": "The shopfront glass is clean and the product display is neatly arranged behind it. The security grille operates smoothly and the entrance step is new and even.",
+        "normal": "The shopfront glass carries faint smear marks at eye level and one item in the window display has been shifted out of its intended position. The grille has minor surface rust at one bracket.",
+        "bad": "The shopfront glass has a crack running from the lower corner. The window display has gaps where stock has been removed without replacement. The security grille sticks on its track and the entrance step has a long surface crack."
+      }
     }
   },
   "improvements": {

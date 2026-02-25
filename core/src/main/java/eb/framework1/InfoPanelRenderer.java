@@ -571,21 +571,15 @@ class InfoPanelRenderer {
                         }
                     }
 
-                    // Building description (if available) – no label, smaller font
-                    String desc = buildingDescription(building);
-                    if (desc != null) {
-                        textY -= smallLineH;
-                        smallFont.setColor(Color.WHITE);
-                        smallFont.draw(batch, desc, textX - drawScrollX, textY + drawScrollY);
-                        textY -= smallLineH;
-                    }
-
-                    // Novel-engine contextual description (word-wrapped, smaller font)
+                    // Building description from description_en.json (word-wrapped, novel colour)
                     List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
-                    smallFont.setColor(NOVEL_COLOR);
-                    for (String nLine : novelLines) {
-                        smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                    if (!novelLines.isEmpty()) {
                         textY -= smallLineH;
+                        smallFont.setColor(NOVEL_COLOR);
+                        for (String nLine : novelLines) {
+                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                            textY -= smallLineH;
+                        }
                     }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
@@ -1408,19 +1402,9 @@ class InfoPanelRenderer {
     }
 
     /**
-     * Returns the description text for a building (from its definition),
-     * or {@code null} if the building has no definition or no non-empty description.
-     */
-    private static String buildingDescription(Building b) {
-        if (b.getDefinition() == null) return null;
-        String desc = b.getDefinition().getDescription();
-        return (desc != null && !desc.isEmpty()) ? desc : null;
-    }
-
-    /**
-     * Returns the context-sensitive novel-engine text for a discovered building,
-     * using the current time of day and the character's attributes and gender.
-     * Returns {@code null} if the engine produces no text for this building.
+     * Returns the building description from {@code description_en.json} via the novel text engine,
+     * contextualised to the current time of day, the character's attributes and gender.
+     * Returns {@code null} if no description is available for this building.
      */
     private String buildingNovelText(Building b) {
         if (novelTextEngine == null || b.getDefinition() == null) return null;
@@ -1432,8 +1416,8 @@ class InfoPanelRenderer {
     }
 
     /**
-     * Returns the novel text for a building word-wrapped to {@code wrapWidth} pixels.
-     * Returns an empty list when no novel text is available.
+     * Returns the building description from {@code description_en.json}, word-wrapped to
+     * {@code wrapWidth} pixels. Returns an empty list when no description is available.
      */
     private List<String> buildingNovelLines(Building b, float wrapWidth) {
         String novel = buildingNovelText(b);
@@ -1472,11 +1456,10 @@ class InfoPanelRenderer {
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
         }
-        if (buildingDescription(b) != null) {
-            h += smallLineH * 2; // blank gap + description line
-        }
         int novelLineCount = buildingNovelLines(b, wrapWidth).size();
-        h += novelLineCount * smallLineH;
+        if (novelLineCount > 0) {
+            h += smallLineH * (1 + novelLineCount); // blank gap + description lines
+        }
         return h;
     }
 
@@ -1535,12 +1518,7 @@ class InfoPanelRenderer {
                     }
                     maxW = Math.max(maxW, lineW);
                 }
-                String desc = buildingDescription(b);
-                if (desc != null) {
-                    glyphLayout.setText(font, "Description: " + desc);
-                    maxW = Math.max(maxW, glyphLayout.width);
-                }
-                // Novel text is always word-wrapped to the content area width,
+                // Novel/description text is always word-wrapped to the content area width,
                 // so it never contributes to horizontal scroll.
             } else {
                 glyphLayout.setText(font, "Building: ???");
