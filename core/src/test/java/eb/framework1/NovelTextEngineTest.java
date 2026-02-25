@@ -1108,4 +1108,97 @@ public class NovelTextEngineTest {
         assertEquals("Zero percentage should recommend 1 variant",
                 Integer.valueOf(1), result.get("a"));
     }
+
+    // ===== getStateDescription tests =====
+
+    private static final String STATE_JSON =
+        "{" +
+        "  \"version\": \"1.0\"," +
+        "  \"language\": \"en\"," +
+        "  \"descriptions\": {" +
+        "    \"warehouse\": {" +
+        "      \"default\": \"A large industrial building.\"," +
+        "      \"state\": {" +
+        "        \"good\": \"Clean steel panels and a freshly painted apron.\"," +
+        "        \"normal\": \"Surface rust at the lower wall joints and tyre marks on the apron.\"," +
+        "        \"bad\": \"Corrosion has spread up the lower panels and the apron is cracked.\"" +
+        "      }" +
+        "    }," +
+        "    \"shop\": {" +
+        "      \"default\": \"A small retail shop.\"" +
+        "    }" +
+        "  }" +
+        "}";
+
+    @Test
+    public void testGetStateDescriptionGood() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", "good");
+        assertEquals("Good state should return good description",
+                "Clean steel panels and a freshly painted apron.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionNormal() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", "normal");
+        assertEquals("Normal state should return normal description",
+                "Surface rust at the lower wall joints and tyre marks on the apron.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionBad() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", "bad");
+        assertEquals("Bad state should return bad description",
+                "Corrosion has spread up the lower panels and the apron is cracked.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionFallsBackToDefault() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        // 'shop' has no state variants — should return default
+        String result = stateEngine.getStateDescription("shop", "good");
+        assertEquals("Missing state variants should fall back to default",
+                "A small retail shop.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionUnknownStateFallsBackToDefault() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", "unknown");
+        assertEquals("Unknown state should fall back to default",
+                "A large industrial building.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionNullStateFallsBackToDefault() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", null);
+        assertEquals("Null state should fall back to default",
+                "A large industrial building.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionUnknownKeyReturnsEmpty() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("nonexistent", "good");
+        assertEquals("Unknown key should return empty string", "", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionWithLocationGood() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String result = stateEngine.getStateDescription("warehouse", "G6", "good");
+        assertEquals("Location-based good state should return good description",
+                "Clean steel panels and a freshly painted apron.", result);
+    }
+
+    @Test
+    public void testGetStateDescriptionCaseInsensitive() {
+        NovelTextEngine stateEngine = NovelTextEngine.fromJsonString(STATE_JSON);
+        String upper = stateEngine.getStateDescription("warehouse", "GOOD");
+        String lower = stateEngine.getStateDescription("warehouse", "good");
+        assertEquals("State lookup should be case-insensitive", lower, upper);
+    }
 }
