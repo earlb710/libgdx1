@@ -1693,6 +1693,8 @@ public class MainScreen implements Screen {
                 handleBuyGear(resultLines);
                 if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
                 return;
+            }
+
             // ---- Supply / Retail -----------------------------------------
             case BuildingServices.SVC_BUY_SUPPLIES: {
                 int gain = 2;
