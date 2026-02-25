@@ -147,19 +147,22 @@ public class ProfileSelectionScreen implements Screen {
         TextMeasurer.TextBounds backBounds = TextMeasurer.measure(buttonFont, "Back", 48f, 22f);
         backButton = new Rectangle(50, 50, backBounds.width, backBounds.height);
 
-        // Confirmation dialog buttons
-        TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 48f, 22f);
-        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "No, Cancel",  48f, 22f);
-        confirmYesButton = new Rectangle(
-            centerX - yesBounds.width - 10,
-            Gdx.graphics.getHeight() / 2 - (int)(yesBounds.height / 2),
-            yesBounds.width, yesBounds.height
-        );
-        confirmNoButton = new Rectangle(
-            centerX + 10,
-            Gdx.graphics.getHeight() / 2 - (int)(noBounds.height / 2),
-            noBounds.width, noBounds.height
-        );
+        // Confirmation dialog buttons – sized to text with modest padding and placed
+        // at the bottom of the dialog so they never overlap the message text.
+        int dialogWidth  = 700;
+        int dialogHeight = 250;
+        int dialogX      = (Gdx.graphics.getWidth()  - dialogWidth)  / 2;
+        int dialogY      = (Gdx.graphics.getHeight() - dialogHeight) / 2;
+
+        TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 24f, 10f);
+        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "No, Cancel",  24f, 10f);
+        float btnGap     = 20f;
+        float totalBtnW  = yesBounds.width + btnGap + noBounds.width;
+        float btnStartX  = dialogX + (dialogWidth - totalBtnW) / 2f;
+        float btnY       = dialogY + 20;
+
+        confirmYesButton = new Rectangle(btnStartX,                        btnY, yesBounds.width, yesBounds.height);
+        confirmNoButton  = new Rectangle(btnStartX + yesBounds.width + btnGap, btnY, noBounds.width,  noBounds.height);
     }
     
     @Override
