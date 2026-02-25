@@ -167,7 +167,7 @@
         "Soda Fountain"
       ],
       "attribute_modifiers": {
-        "STAMINA": -2
+        "STAMINA": -1
       }
     },
     {
@@ -349,7 +349,7 @@
         "Pro Shop"
       ],
       "attribute_modifiers": {
-        "STRENGTH": 3
+        "STRENGTH": 2
       }
     },
     {
@@ -573,8 +573,8 @@
         "Captain Office"
       ],
       "attribute_modifiers": {
-        "STRENGTH": 2,
-        "STAMINA": 2
+        "STRENGTH": 1,
+        "STAMINA": 1
       }
     },
     {
@@ -604,7 +604,7 @@
         "Command Center"
       ],
       "attribute_modifiers": {
-        "PERCEPTION": 3,
+        "PERCEPTION": 2,
         "INTIMIDATION": 2
       }
     },
@@ -1023,7 +1023,11 @@
         "Front Desk",
         "Luggage Storage",
         "Guest Lounge"
-      ]
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 1
+      }
     },
     {
       "id": "hotel_business",
@@ -1052,7 +1056,11 @@
         "Spa",
         "Ballroom",
         "Gift Shop"
-      ]
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 2
+      }
     },
     {
       "id": "hotel_luxury",
@@ -1081,7 +1089,11 @@
         "Golf Simulator",
         "Yacht Service",
         "Personal Shopping"
-      ]
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 3
+      }
     },
     {
       "id": "office_building_small",
@@ -1811,7 +1823,7 @@
         "Patient Hotel"
       ],
       "attribute_modifiers": {
-        "EMPATHY": 3,
+        "EMPATHY": 2,
         "INTELLIGENCE": 2
       }
     },
@@ -1935,8 +1947,13 @@
         "Repair Bench",
         "Key Cutting Machine",
         "Safe Display",
-        "Alarm System"
-      ]
+        "Alarm System",
+        "Shooting range*",
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STRENGTH": 1
+      }
     },
     {
       "id": "bus_depot",
@@ -1961,7 +1978,10 @@
         "Locker Room",
         "Tool Storage",
         "Paint Booth"
-      ]
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": -1
+      }
     }
   ]
 }
