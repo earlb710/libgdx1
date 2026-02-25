@@ -381,10 +381,12 @@ class MapRenderer {
             boolean vis2 = jx2 >= startCellX && jx2 <= endCellX && jy2 >= startCellY && jy2 <= endCellY;
             if (!vis1 && !vis2) continue;
             if (jy1 == jy2) {
-                // Horizontal segment: bar centred on junction row jy1
+                // Horizontal segment: bar centred on junction row jy1.
+                // Screen Y of junction jy = barY + cellSize (barY is the bottom of cell jy;
+                // the junction itself lies at the top of cell jy = barY + cellSize).
                 float barX = mapStartX + (Math.min(jx1, jx2) - startCellX - fracOffsetX) * cellSize;
                 float barY = mapStartY + (visibleCellsY - 1 - (jy1 - startCellY - fracOffsetY)) * cellSize;
-                sr.rect(barX, barY - borderSize, cellSize, roadW);
+                sr.rect(barX, barY + cellSize - borderSize, cellSize, roadW);
             } else if (jx1 == jx2) {
                 // Vertical segment: bar centred on junction column jx1
                 // barY = bottom of cell row min(jy1,jy2); segment spans that cell upward
