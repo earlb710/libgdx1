@@ -13,8 +13,14 @@
       "percentage": 3.0,
       "description": "A small surface parking lot for local businesses",
       "improvements": [
-        "Security Camera", "Lighting", "Payment Kiosk", "EV Charger",
-        "Speed Bumps", "Striping", "Handicap Spaces", "Fire Lane"
+        "Security Camera",
+        "Lighting",
+        "Payment Kiosk",
+        "EV Charger",
+        "Speed Bumps",
+        "Striping",
+        "Handicap Spaces",
+        "Fire Lane"
       ]
     },
     {
@@ -28,9 +34,16 @@
       "percentage": 1.5,
       "description": "A large surface parking lot for shopping centers",
       "improvements": [
-        "Security Camera", "Lighting", "Payment Kiosk", "Covered Walkway",
-        "EV Chargers", "Cart Corral", "Security Patrol", "Emergency Call Box",
-        "Landscaping", "Storm Drains"
+        "Security Camera",
+        "Lighting",
+        "Payment Kiosk",
+        "Covered Walkway",
+        "EV Chargers",
+        "Cart Corral",
+        "Security Patrol",
+        "Emergency Call Box",
+        "Landscaping",
+        "Storm Drains"
       ]
     },
     {
@@ -44,9 +57,16 @@
       "percentage": 0.8,
       "description": "A compact multi-level parking structure",
       "improvements": [
-        "Elevator", "Security System", "EV Chargers", "Ventilation",
-        "Stairwell", "Fire Suppression", "Emergency Lighting", "Parking Sensors",
-        "Payment Machines", "Security Office"
+        "Elevator",
+        "Security System",
+        "EV Chargers",
+        "Ventilation",
+        "Stairwell",
+        "Fire Suppression",
+        "Emergency Lighting",
+        "Parking Sensors",
+        "Payment Machines",
+        "Security Office"
       ]
     },
     {
@@ -60,9 +80,18 @@
       "percentage": 0.4,
       "description": "A major parking structure for downtown areas",
       "improvements": [
-        "Multiple Elevators", "Security Office", "Car Wash", "Valet Service",
-        "EV Charging Station", "Motorcycle Parking", "Bicycle Storage", "Ventilation System",
-        "Fire Suppression", "Emergency Exits", "Digital Signage", "Retail Space"
+        "Multiple Elevators",
+        "Security Office",
+        "Car Wash",
+        "Valet Service",
+        "EV Charging Station",
+        "Motorcycle Parking",
+        "Bicycle Storage",
+        "Ventilation System",
+        "Fire Suppression",
+        "Emergency Exits",
+        "Digital Signage",
+        "Retail Space"
       ]
     },
     {
@@ -76,9 +105,16 @@
       "percentage": 2.5,
       "description": "A small neighborhood convenience store",
       "improvements": [
-        "Refrigeration", "Security System", "ATM", "Coffee Station",
-        "Lottery Terminal", "Hot Food Counter", "Ice Machine", "Walk-In Cooler",
-        "Digital Signage", "Self-Checkout"
+        "Refrigeration",
+        "Security System",
+        "ATM",
+        "Coffee Station",
+        "Lottery Terminal",
+        "Hot Food Counter",
+        "Ice Machine",
+        "Walk-In Cooler",
+        "Digital Signage",
+        "Self-Checkout"
       ]
     },
     {
@@ -92,9 +128,18 @@
       "percentage": 1.8,
       "description": "A fuel station with convenience store",
       "improvements": [
-        "Fuel Pumps", "Car Wash", "Air Station", "Convenience Store",
-        "Propane Exchange", "Vacuum Station", "ATM", "EV Charging",
-        "Canopy Lighting", "Underground Tanks", "Payment Terminal", "Security Cameras"
+        "Fuel Pumps",
+        "Car Wash",
+        "Air Station",
+        "Convenience Store",
+        "Propane Exchange",
+        "Vacuum Station",
+        "ATM",
+        "EV Charging",
+        "Canopy Lighting",
+        "Underground Tanks",
+        "Payment Terminal",
+        "Security Cameras"
       ]
     },
     {
@@ -108,10 +153,22 @@
       "percentage": 2.2,
       "description": "A quick service restaurant with drive-through",
       "improvements": [
-        "Drive-Through", "Indoor Seating", "Playground", "WiFi",
-        "Digital Menu Boards", "Self-Order Kiosk", "Mobile Pickup", "Commercial Kitchen",
-        "Walk-In Freezer", "Outdoor Seating", "Party Room", "Soda Fountain"
-      ]
+        "Drive-Through",
+        "Indoor Seating",
+        "Playground",
+        "WiFi",
+        "Digital Menu Boards",
+        "Self-Order Kiosk",
+        "Mobile Pickup",
+        "Commercial Kitchen",
+        "Walk-In Freezer",
+        "Outdoor Seating",
+        "Party Room",
+        "Soda Fountain"
+      ],
+      "attribute_modifiers": {
+        "STAMINA": -1
+      }
     },
     {
       "id": "coffee_shop",
@@ -124,9 +181,18 @@
       "percentage": 2.0,
       "description": "A cozy coffee shop for the neighborhood",
       "improvements": [
-        "Espresso Machine", "WiFi", "Outdoor Seating", "Bakery",
-        "Drive-Through Window", "Lounge Area", "Meeting Space", "Roasting Equipment",
-        "Cold Brew Station", "Merchandise Display", "Mobile Order Pickup", "Fireplace"
+        "Espresso Machine",
+        "WiFi",
+        "Outdoor Seating",
+        "Bakery",
+        "Drive-Through Window",
+        "Lounge Area",
+        "Meeting Space",
+        "Roasting Equipment",
+        "Cold Brew Station",
+        "Merchandise Display",
+        "Mobile Order Pickup",
+        "Fireplace"
       ]
     },
     {
@@ -140,9 +206,18 @@
       "percentage": 4.0,
       "description": "A boutique retail shop",
       "improvements": [
-        "Display Windows", "Security System", "Fitting Rooms", "Storage Room",
-        "Point of Sale", "Inventory System", "Customer Lounge", "Gift Wrapping",
-        "Alterations Area", "Employee Break Room", "Loading Dock", "Climate Control"
+        "Display Windows",
+        "Security System",
+        "Fitting Rooms",
+        "Storage Room",
+        "Point of Sale",
+        "Inventory System",
+        "Customer Lounge",
+        "Gift Wrapping",
+        "Alterations Area",
+        "Employee Break Room",
+        "Loading Dock",
+        "Climate Control"
       ]
     },
     {
@@ -156,9 +231,18 @@
       "percentage": 1.2,
       "description": "A local pharmacy with health services",
       "improvements": [
-        "Prescription Counter", "Drive-Through", "Health Clinic", "Photo Center",
-        "Vaccine Station", "Consultation Room", "Medication Storage", "Cosmetics Section",
-        "Home Medical Equipment", "Blood Pressure Station", "Digital Signage", "Refrigerated Meds"
+        "Prescription Counter",
+        "Drive-Through",
+        "Health Clinic",
+        "Photo Center",
+        "Vaccine Station",
+        "Consultation Room",
+        "Medication Storage",
+        "Cosmetics Section",
+        "Home Medical Equipment",
+        "Blood Pressure Station",
+        "Digital Signage",
+        "Refrigerated Meds"
       ]
     },
     {
@@ -172,9 +256,18 @@
       "percentage": 0.8,
       "description": "A local bank branch with ATMs",
       "improvements": [
-        "Vault", "ATM Lobby", "Drive-Through", "Safe Deposit Boxes",
-        "Teller Stations", "Loan Office", "Conference Room", "Night Deposit",
-        "Security System", "Bullet-Resistant Glass", "Currency Counter", "Break Room"
+        "Vault",
+        "ATM Lobby",
+        "Drive-Through",
+        "Safe Deposit Boxes",
+        "Teller Stations",
+        "Loan Office",
+        "Conference Room",
+        "Night Deposit",
+        "Security System",
+        "Bullet-Resistant Glass",
+        "Currency Counter",
+        "Break Room"
       ]
     },
     {
@@ -188,9 +281,18 @@
       "percentage": 0.6,
       "description": "A self-service laundry facility",
       "improvements": [
-        "Commercial Washers", "Dryers", "Folding Tables", "Vending Machines",
-        "Change Machine", "Detergent Dispenser", "Seating Area", "TV",
-        "WiFi", "Drop-Off Service", "Dry Cleaning", "Lost and Found"
+        "Commercial Washers",
+        "Dryers",
+        "Folding Tables",
+        "Vending Machines",
+        "Change Machine",
+        "Detergent Dispenser",
+        "Seating Area",
+        "TV",
+        "WiFi",
+        "Drop-Off Service",
+        "Dry Cleaning",
+        "Lost and Found"
       ]
     },
     {
@@ -204,9 +306,18 @@
       "percentage": 1.5,
       "description": "A neighborhood hair and beauty salon",
       "improvements": [
-        "Styling Stations", "Shampoo Bowls", "Waiting Area", "Product Display",
-        "Nail Station", "Waxing Room", "Color Bar", "Reception Desk",
-        "Break Room", "Storage Closet", "Retail Section", "Massage Chair"
+        "Styling Stations",
+        "Shampoo Bowls",
+        "Waiting Area",
+        "Product Display",
+        "Nail Station",
+        "Waxing Room",
+        "Color Bar",
+        "Reception Desk",
+        "Break Room",
+        "Storage Closet",
+        "Retail Section",
+        "Massage Chair"
       ]
     },
     {
@@ -220,11 +331,26 @@
       "percentage": 0.5,
       "description": "A full-service gym with equipment",
       "improvements": [
-        "Cardio Equipment", "Weight Room", "Locker Rooms", "Group Fitness Studio",
-        "Swimming Pool", "Sauna", "Personal Training", "Juice Bar",
-        "Child Care", "Basketball Court", "Climbing Wall", "Spin Room",
-        "Yoga Studio", "Physical Therapy", "Towel Service", "Pro Shop"
-      ]
+        "Cardio Equipment",
+        "Weight Room",
+        "Locker Rooms",
+        "Group Fitness Studio",
+        "Swimming Pool",
+        "Sauna",
+        "Personal Training",
+        "Juice Bar",
+        "Child Care",
+        "Basketball Court",
+        "Climbing Wall",
+        "Spin Room",
+        "Yoga Studio",
+        "Physical Therapy",
+        "Towel Service",
+        "Pro Shop"
+      ],
+      "attribute_modifiers": {
+        "STRENGTH": 2
+      }
     },
     {
       "id": "medical_clinic",
@@ -237,10 +363,20 @@
       "percentage": 0.8,
       "description": "An outpatient medical clinic",
       "improvements": [
-        "Exam Rooms", "X-Ray", "Lab Services", "Waiting Room",
-        "Pharmacy", "Physical Therapy", "Nurse Station", "Records Room",
-        "Procedure Room", "Blood Draw Station", "Reception", "Staff Lounge",
-        "Consultation Office", "Medical Storage"
+        "Exam Rooms",
+        "X-Ray",
+        "Lab Services",
+        "Waiting Room",
+        "Pharmacy",
+        "Physical Therapy",
+        "Nurse Station",
+        "Records Room",
+        "Procedure Room",
+        "Blood Draw Station",
+        "Reception",
+        "Staff Lounge",
+        "Consultation Office",
+        "Medical Storage"
       ]
     },
     {
@@ -254,9 +390,18 @@
       "percentage": 0.9,
       "description": "A dental practice with multiple chairs",
       "improvements": [
-        "Dental Chairs", "X-Ray Equipment", "Sterilization Room", "Reception",
-        "Panoramic X-Ray", "Whitening Room", "Consultation Office", "Lab Area",
-        "Patient Education", "Records Storage", "Break Room", "Nitrous System"
+        "Dental Chairs",
+        "X-Ray Equipment",
+        "Sterilization Room",
+        "Reception",
+        "Panoramic X-Ray",
+        "Whitening Room",
+        "Consultation Office",
+        "Lab Area",
+        "Patient Education",
+        "Records Storage",
+        "Break Room",
+        "Nitrous System"
       ]
     },
     {
@@ -270,10 +415,20 @@
       "percentage": 0.4,
       "description": "An animal hospital and clinic",
       "improvements": [
-        "Exam Rooms", "Surgery Suite", "Kennels", "Grooming Station",
-        "X-Ray Room", "Lab Area", "Pharmacy", "Isolation Ward",
-        "Cat Ward", "Dog Ward", "Reception", "Pet Retail",
-        "Recovery Room", "Dental Suite"
+        "Exam Rooms",
+        "Surgery Suite",
+        "Kennels",
+        "Grooming Station",
+        "X-Ray Room",
+        "Lab Area",
+        "Pharmacy",
+        "Isolation Ward",
+        "Cat Ward",
+        "Dog Ward",
+        "Reception",
+        "Pet Retail",
+        "Recovery Room",
+        "Dental Suite"
       ]
     },
     {
@@ -287,10 +442,20 @@
       "percentage": 0.7,
       "description": "A childcare and early learning center",
       "improvements": [
-        "Playrooms", "Nap Area", "Kitchen", "Outdoor Playground",
-        "Art Room", "Music Room", "Infant Care", "Toddler Room",
-        "Preschool Classroom", "Security System", "Check-In Kiosk", "Parent Lounge",
-        "Office", "Staff Room"
+        "Playrooms",
+        "Nap Area",
+        "Kitchen",
+        "Outdoor Playground",
+        "Art Room",
+        "Music Room",
+        "Infant Care",
+        "Toddler Room",
+        "Preschool Classroom",
+        "Security System",
+        "Check-In Kiosk",
+        "Parent Lounge",
+        "Office",
+        "Staff Room"
       ]
     },
     {
@@ -304,10 +469,22 @@
       "percentage": 0.4,
       "description": "A public elementary school",
       "improvements": [
-        "Classrooms", "Gymnasium", "Library", "Cafeteria",
-        "Computer Lab", "Art Room", "Music Room", "Playground",
-        "Nurse Office", "Principal Office", "Teacher Lounge", "Auditorium",
-        "Science Lab", "Special Ed Room", "Counselor Office", "Storage"
+        "Classrooms",
+        "Gymnasium",
+        "Library",
+        "Cafeteria",
+        "Computer Lab",
+        "Art Room",
+        "Music Room",
+        "Playground",
+        "Nurse Office",
+        "Principal Office",
+        "Teacher Lounge",
+        "Auditorium",
+        "Science Lab",
+        "Special Ed Room",
+        "Counselor Office",
+        "Storage"
       ]
     },
     {
@@ -321,10 +498,22 @@
       "percentage": 0.15,
       "description": "A public high school",
       "improvements": [
-        "Science Labs", "Auditorium", "Athletic Fields", "Computer Labs",
-        "Library", "Gymnasium", "Swimming Pool", "Track",
-        "Cafeteria", "Band Room", "Art Studio", "Woodshop",
-        "Auto Shop", "Drama Theater", "Weight Room", "Student Center"
+        "Science Labs",
+        "Auditorium",
+        "Athletic Fields",
+        "Computer Labs",
+        "Library",
+        "Gymnasium",
+        "Swimming Pool",
+        "Track",
+        "Cafeteria",
+        "Band Room",
+        "Art Studio",
+        "Woodshop",
+        "Auto Shop",
+        "Drama Theater",
+        "Weight Room",
+        "Student Center"
       ]
     },
     {
@@ -338,11 +527,26 @@
       "percentage": 0.05,
       "description": "A two-year community college",
       "improvements": [
-        "Lecture Halls", "Library", "Student Center", "Parking Structure",
-        "Science Building", "Arts Center", "Gymnasium", "Cafeteria",
-        "Computer Labs", "Nursing Lab", "Welding Shop", "Automotive Bay",
-        "Bookstore", "Counseling Center", "Testing Center", "Financial Aid"
-      ]
+        "Lecture Halls",
+        "Library",
+        "Student Center",
+        "Parking Structure",
+        "Science Building",
+        "Arts Center",
+        "Gymnasium",
+        "Cafeteria",
+        "Computer Labs",
+        "Nursing Lab",
+        "Welding Shop",
+        "Automotive Bay",
+        "Bookstore",
+        "Counseling Center",
+        "Testing Center",
+        "Financial Aid"
+      ],
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2
+      }
     },
     {
       "id": "fire_station",
@@ -355,10 +559,23 @@
       "percentage": 0.3,
       "description": "A local fire department station",
       "improvements": [
-        "Truck Bays", "Living Quarters", "Training Room", "Equipment Storage",
-        "Kitchen", "Fitness Room", "Dispatch Office", "Hose Tower",
-        "Decontamination Room", "Laundry", "Meeting Room", "Captain Office"
-      ]
+        "Truck Bays",
+        "Living Quarters",
+        "Training Room",
+        "Equipment Storage",
+        "Kitchen",
+        "Fitness Room",
+        "Dispatch Office",
+        "Hose Tower",
+        "Decontamination Room",
+        "Laundry",
+        "Meeting Room",
+        "Captain Office"
+      ],
+      "attribute_modifiers": {
+        "STRENGTH": 1,
+        "STAMINA": 1
+      }
     },
     {
       "id": "police_station",
@@ -371,11 +588,25 @@
       "percentage": 0.2,
       "description": "A local police precinct",
       "improvements": [
-        "Holding Cells", "Evidence Room", "Dispatch Center", "Training Facility",
-        "Interrogation Room", "Armory", "Locker Room", "Fitness Center",
-        "Roll Call Room", "Detective Office", "Records Room", "Booking Area",
-        "Break Room", "Command Center"
-      ]
+        "Holding Cells",
+        "Evidence Room",
+        "Dispatch Center",
+        "Training Facility",
+        "Interrogation Room",
+        "Armory",
+        "Locker Room",
+        "Fitness Center",
+        "Roll Call Room",
+        "Detective Office",
+        "Records Room",
+        "Booking Area",
+        "Break Room",
+        "Command Center"
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "INTIMIDATION": 2
+      }
     },
     {
       "id": "prison",
@@ -388,10 +619,20 @@
       "percentage": 0.1,
       "description": "A correctional facility for housing inmates",
       "improvements": [
-        "Cell Block A", "Cell Block B", "Guard Tower", "Solitary Confinement",
-        "Warden Office", "Visitation Room", "Cafeteria", "Infirmary",
-        "Rehabilitation Center", "Exercise Yard", "Control Room", "Chapel",
-        "Library Wing", "Workshop"
+        "Cell Block A",
+        "Cell Block B",
+        "Guard Tower",
+        "Solitary Confinement",
+        "Warden Office",
+        "Visitation Room",
+        "Cafeteria",
+        "Infirmary",
+        "Rehabilitation Center",
+        "Exercise Yard",
+        "Control Room",
+        "Chapel",
+        "Library Wing",
+        "Workshop"
       ]
     },
     {
@@ -405,9 +646,18 @@
       "percentage": 0.3,
       "description": "A United States Post Office branch",
       "improvements": [
-        "PO Boxes", "Package Sorting", "Retail Counter", "Loading Dock",
-        "Self-Service Kiosk", "Passport Services", "Scale Station", "Stamp Vending",
-        "Package Lockers", "Carrier Route", "Break Room", "Supervisor Office"
+        "PO Boxes",
+        "Package Sorting",
+        "Retail Counter",
+        "Loading Dock",
+        "Self-Service Kiosk",
+        "Passport Services",
+        "Scale Station",
+        "Stamp Vending",
+        "Package Lockers",
+        "Carrier Route",
+        "Break Room",
+        "Supervisor Office"
       ]
     },
     {
@@ -421,11 +671,25 @@
       "percentage": 0.2,
       "description": "A public library with community programs",
       "improvements": [
-        "Book Stacks", "Computer Lab", "Meeting Rooms", "Children's Area",
-        "Study Rooms", "Periodicals Section", "Reference Desk", "Quiet Reading Room",
-        "Maker Space", "Teen Zone", "Genealogy Room", "Local History Archive",
-        "Audiobook Section", "DVD Collection"
-      ]
+        "Book Stacks",
+        "Computer Lab",
+        "Meeting Rooms",
+        "Children's Area",
+        "Study Rooms",
+        "Periodicals Section",
+        "Reference Desk",
+        "Quiet Reading Room",
+        "Maker Space",
+        "Teen Zone",
+        "Genealogy Room",
+        "Local History Archive",
+        "Audiobook Section",
+        "DVD Collection"
+      ],
+      "attribute_modifiers": {
+        "INTELLIGENCE": 3,
+        "MEMORY": 2
+      }
     },
     {
       "id": "community_center",
@@ -438,10 +702,20 @@
       "percentage": 0.2,
       "description": "A multi-purpose community facility",
       "improvements": [
-        "Gymnasium", "Meeting Rooms", "Kitchen", "Senior Center",
-        "Youth Room", "Dance Studio", "Art Room", "Computer Lab",
-        "Game Room", "Banquet Hall", "Outdoor Patio", "Stage",
-        "Reception Area", "Office Space"
+        "Gymnasium",
+        "Meeting Rooms",
+        "Kitchen",
+        "Senior Center",
+        "Youth Room",
+        "Dance Studio",
+        "Art Room",
+        "Computer Lab",
+        "Game Room",
+        "Banquet Hall",
+        "Outdoor Patio",
+        "Stage",
+        "Reception Area",
+        "Office Space"
       ]
     },
     {
@@ -455,10 +729,22 @@
       "percentage": 0.05,
       "description": "The municipal government building",
       "improvements": [
-        "Council Chambers", "Clerk's Office", "Permit Center", "Archives",
-        "Mayor Office", "City Manager", "Finance Department", "Planning Department",
-        "Human Resources", "IT Department", "Public Works", "Parks Department",
-        "Press Room", "Security Office", "Conference Rooms", "Break Room"
+        "Council Chambers",
+        "Clerk's Office",
+        "Permit Center",
+        "Archives",
+        "Mayor Office",
+        "City Manager",
+        "Finance Department",
+        "Planning Department",
+        "Human Resources",
+        "IT Department",
+        "Public Works",
+        "Parks Department",
+        "Press Room",
+        "Security Office",
+        "Conference Rooms",
+        "Break Room"
       ]
     },
     {
@@ -472,11 +758,25 @@
       "percentage": 0.05,
       "description": "The county courthouse",
       "improvements": [
-        "Courtrooms", "Judge's Chambers", "Law Library", "Security Checkpoint",
-        "Clerk's Office", "Jury Assembly", "Holding Cells", "Attorney Meeting Rooms",
-        "Records Vault", "Probation Office", "District Attorney", "Public Defender",
-        "Witness Waiting Area", "Mediation Rooms"
-      ]
+        "Courtrooms",
+        "Judge's Chambers",
+        "Law Library",
+        "Security Checkpoint",
+        "Clerk's Office",
+        "Jury Assembly",
+        "Holding Cells",
+        "Attorney Meeting Rooms",
+        "Records Vault",
+        "Probation Office",
+        "District Attorney",
+        "Public Defender",
+        "Witness Waiting Area",
+        "Mediation Rooms"
+      ],
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "INTIMIDATION": 2
+      }
     },
     {
       "id": "small_apartment_building",
@@ -489,9 +789,18 @@
       "percentage": 8.0,
       "description": "A small apartment building with 12 units",
       "improvements": [
-        "Laundry Room", "Mailboxes", "Bike Storage", "Parking Lot",
-        "Cellar Storage", "Intercom System", "Fire Escape", "Common Patio",
-        "Package Room", "Security Cameras", "Recycling Area", "Pet Washing Station"
+        "Laundry Room",
+        "Mailboxes",
+        "Bike Storage",
+        "Parking Lot",
+        "Cellar Storage",
+        "Intercom System",
+        "Fire Escape",
+        "Common Patio",
+        "Package Room",
+        "Security Cameras",
+        "Recycling Area",
+        "Pet Washing Station"
       ]
     },
     {
@@ -505,10 +814,20 @@
       "percentage": 6.0,
       "description": "A mid-rise apartment building",
       "improvements": [
-        "Elevator", "Fitness Room", "Rooftop Deck", "Package Lockers",
-        "Laundry Room", "Storage Units", "Bike Room", "Community Room",
-        "Dog Run", "Courtyard", "Security System", "Lobby",
-        "Management Office", "Trash Chute"
+        "Elevator",
+        "Fitness Room",
+        "Rooftop Deck",
+        "Package Lockers",
+        "Laundry Room",
+        "Storage Units",
+        "Bike Room",
+        "Community Room",
+        "Dog Run",
+        "Courtyard",
+        "Security System",
+        "Lobby",
+        "Management Office",
+        "Trash Chute"
       ]
     },
     {
@@ -522,10 +841,22 @@
       "percentage": 4.0,
       "description": "A large apartment complex",
       "improvements": [
-        "Pool", "Clubhouse", "Parking Garage", "Concierge",
-        "Fitness Center", "Business Center", "Rooftop Lounge", "Dog Park",
-        "Children's Playroom", "Game Room", "Theater Room", "Package Room",
-        "Bike Storage", "Guest Suites", "Wine Storage", "Grilling Area"
+        "Pool",
+        "Clubhouse",
+        "Parking Garage",
+        "Concierge",
+        "Fitness Center",
+        "Business Center",
+        "Rooftop Lounge",
+        "Dog Park",
+        "Children's Playroom",
+        "Game Room",
+        "Theater Room",
+        "Package Room",
+        "Bike Storage",
+        "Guest Suites",
+        "Wine Storage",
+        "Grilling Area"
       ]
     },
     {
@@ -539,10 +870,22 @@
       "percentage": 1.0,
       "description": "A luxury high-rise apartment building",
       "improvements": [
-        "Doorman", "Spa", "Sky Lounge", "Valet Parking",
-        "Infinity Pool", "Golf Simulator", "Private Dining Room", "Wine Cellar",
-        "Pet Spa", "Children's Room", "Co-Working Space", "Yoga Studio",
-        "Terrace Gardens", "Concierge Service", "Electric Car Charging", "Residents Only Elevator"
+        "Doorman",
+        "Spa",
+        "Sky Lounge",
+        "Valet Parking",
+        "Infinity Pool",
+        "Golf Simulator",
+        "Private Dining Room",
+        "Wine Cellar",
+        "Pet Spa",
+        "Children's Room",
+        "Co-Working Space",
+        "Yoga Studio",
+        "Terrace Gardens",
+        "Concierge Service",
+        "Electric Car Charging",
+        "Residents Only Elevator"
       ]
     },
     {
@@ -556,10 +899,22 @@
       "percentage": 0.5,
       "description": "A 20+ story residential tower",
       "improvements": [
-        "24hr Security", "Rooftop Pool", "Business Center", "Pet Spa",
-        "Sky Lounge", "Concierge", "Valet Parking", "Private Elevator",
-        "Residents Gym", "Yoga Studio", "Kids Play Area", "Entertainment Suite",
-        "Guest Apartments", "Wine Storage", "Private Dining", "Electric Vehicle Charging"
+        "24hr Security",
+        "Rooftop Pool",
+        "Business Center",
+        "Pet Spa",
+        "Sky Lounge",
+        "Concierge",
+        "Valet Parking",
+        "Private Elevator",
+        "Residents Gym",
+        "Yoga Studio",
+        "Kids Play Area",
+        "Entertainment Suite",
+        "Guest Apartments",
+        "Wine Storage",
+        "Private Dining",
+        "Electric Vehicle Charging"
       ]
     },
     {
@@ -573,9 +928,18 @@
       "percentage": 5.0,
       "description": "A row of connected townhouses",
       "improvements": [
-        "Private Garages", "Patios", "HOA Common Area", "Guest Parking",
-        "Rooftop Deck", "Basement", "Backyard", "Front Porch",
-        "Attic Storage", "Laundry Room", "Home Office Nook", "Walk-In Closet"
+        "Private Garages",
+        "Patios",
+        "HOA Common Area",
+        "Guest Parking",
+        "Rooftop Deck",
+        "Basement",
+        "Backyard",
+        "Front Porch",
+        "Attic Storage",
+        "Laundry Room",
+        "Home Office Nook",
+        "Walk-In Closet"
       ]
     },
     {
@@ -589,10 +953,20 @@
       "percentage": 2.5,
       "description": "An owner-occupied condo building",
       "improvements": [
-        "HOA Office", "Meeting Room", "Pool", "Underground Parking",
-        "Fitness Center", "Sauna", "Party Room", "Rooftop Deck",
-        "Storage Units", "Bike Storage", "Dog Wash", "Package Lockers",
-        "Guest Suite", "Library Lounge"
+        "HOA Office",
+        "Meeting Room",
+        "Pool",
+        "Underground Parking",
+        "Fitness Center",
+        "Sauna",
+        "Party Room",
+        "Rooftop Deck",
+        "Storage Units",
+        "Bike Storage",
+        "Dog Wash",
+        "Package Lockers",
+        "Guest Suite",
+        "Library Lounge"
       ]
     },
     {
@@ -606,10 +980,22 @@
       "percentage": 0.5,
       "description": "An assisted living community",
       "improvements": [
-        "Dining Hall", "Medical Office", "Activity Room", "Garden",
-        "Physical Therapy", "Chapel", "Library", "Hair Salon",
-        "Memory Care Unit", "Outdoor Courtyard", "Movie Theater", "Craft Room",
-        "Nurse Station", "Family Visiting Room", "Emergency Call System", "Transportation Service"
+        "Dining Hall",
+        "Medical Office",
+        "Activity Room",
+        "Garden",
+        "Physical Therapy",
+        "Chapel",
+        "Library",
+        "Hair Salon",
+        "Memory Care Unit",
+        "Outdoor Courtyard",
+        "Movie Theater",
+        "Craft Room",
+        "Nurse Station",
+        "Family Visiting Room",
+        "Emergency Call System",
+        "Transportation Service"
       ]
     },
     {
@@ -623,11 +1009,25 @@
       "percentage": 0.6,
       "description": "An economy hotel chain",
       "improvements": [
-        "Free Breakfast", "WiFi", "Parking", "Laundry",
-        "Ice Machine", "Vending", "Pool", "Fitness Room",
-        "Business Center", "Pet Friendly Rooms", "Microwave Rooms", "Front Desk",
-        "Luggage Storage", "Guest Lounge"
-      ]
+        "Free Breakfast",
+        "WiFi",
+        "Parking",
+        "Laundry",
+        "Ice Machine",
+        "Vending",
+        "Pool",
+        "Fitness Room",
+        "Business Center",
+        "Pet Friendly Rooms",
+        "Microwave Rooms",
+        "Front Desk",
+        "Luggage Storage",
+        "Guest Lounge"
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 1
+      }
     },
     {
       "id": "hotel_business",
@@ -640,11 +1040,27 @@
       "percentage": 0.3,
       "description": "A business-class hotel",
       "improvements": [
-        "Conference Rooms", "Business Center", "Restaurant", "Fitness Center",
-        "Pool", "Room Service", "Concierge", "Valet Parking",
-        "Executive Lounge", "Bar", "Meeting Suites", "Shuttle Service",
-        "Dry Cleaning", "Spa", "Ballroom", "Gift Shop"
-      ]
+        "Conference Rooms",
+        "Business Center",
+        "Restaurant",
+        "Fitness Center",
+        "Pool",
+        "Room Service",
+        "Concierge",
+        "Valet Parking",
+        "Executive Lounge",
+        "Bar",
+        "Meeting Suites",
+        "Shuttle Service",
+        "Dry Cleaning",
+        "Spa",
+        "Ballroom",
+        "Gift Shop"
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 2
+      }
     },
     {
       "id": "hotel_luxury",
@@ -657,11 +1073,27 @@
       "percentage": 0.1,
       "description": "A five-star luxury hotel",
       "improvements": [
-        "Spa", "Fine Dining", "Rooftop Bar", "Valet Service",
-        "Butler Service", "Infinity Pool", "Private Beach", "Helipad",
-        "Presidential Suite", "Wine Cellar", "Art Gallery", "Private Cinema",
-        "Tennis Court", "Golf Simulator", "Yacht Service", "Personal Shopping"
-      ]
+        "Spa",
+        "Fine Dining",
+        "Rooftop Bar",
+        "Valet Service",
+        "Butler Service",
+        "Infinity Pool",
+        "Private Beach",
+        "Helipad",
+        "Presidential Suite",
+        "Wine Cellar",
+        "Art Gallery",
+        "Private Cinema",
+        "Tennis Court",
+        "Golf Simulator",
+        "Yacht Service",
+        "Personal Shopping"
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STAMINA": 3
+      }
     },
     {
       "id": "office_building_small",
@@ -674,9 +1106,18 @@
       "percentage": 3.0,
       "description": "A small professional office building",
       "improvements": [
-        "Conference Room", "Break Room", "Parking Lot", "Security",
-        "Reception Area", "Mail Room", "Server Room", "Storage Room",
-        "Elevator", "Fire Safety System", "Bike Rack", "Outdoor Seating"
+        "Conference Room",
+        "Break Room",
+        "Parking Lot",
+        "Security",
+        "Reception Area",
+        "Mail Room",
+        "Server Room",
+        "Storage Room",
+        "Elevator",
+        "Fire Safety System",
+        "Bike Rack",
+        "Outdoor Seating"
       ]
     },
     {
@@ -690,10 +1131,20 @@
       "percentage": 1.5,
       "description": "A mid-rise office tower",
       "improvements": [
-        "Multiple Elevators", "Lobby", "Parking Garage", "Cafeteria",
-        "Conference Center", "Fitness Center", "Loading Dock", "Security Desk",
-        "Rooftop Terrace", "Bike Storage", "Shower Facilities", "Mail Center",
-        "Data Center", "Building Management Office"
+        "Multiple Elevators",
+        "Lobby",
+        "Parking Garage",
+        "Cafeteria",
+        "Conference Center",
+        "Fitness Center",
+        "Loading Dock",
+        "Security Desk",
+        "Rooftop Terrace",
+        "Bike Storage",
+        "Shower Facilities",
+        "Mail Center",
+        "Data Center",
+        "Building Management Office"
       ]
     },
     {
@@ -707,10 +1158,22 @@
       "percentage": 0.5,
       "description": "A major office tower",
       "improvements": [
-        "Executive Floors", "Fitness Center", "Sky Lobby", "Helipad",
-        "Multiple Restaurants", "Banking Services", "Medical Office", "Retail Shops",
-        "Conference Center", "Auditorium", "Parking Structure", "Concierge",
-        "Day Care", "Dry Cleaning", "Car Service", "Roof Garden"
+        "Executive Floors",
+        "Fitness Center",
+        "Sky Lobby",
+        "Helipad",
+        "Multiple Restaurants",
+        "Banking Services",
+        "Medical Office",
+        "Retail Shops",
+        "Conference Center",
+        "Auditorium",
+        "Parking Structure",
+        "Concierge",
+        "Day Care",
+        "Dry Cleaning",
+        "Car Service",
+        "Roof Garden"
       ]
     },
     {
@@ -724,10 +1187,22 @@
       "percentage": 0.1,
       "description": "A corporate campus main building",
       "improvements": [
-        "Executive Suite", "Auditorium", "Employee Cafeteria", "Daycare",
-        "Fitness Center", "Medical Clinic", "Research Labs", "Training Center",
-        "Visitor Center", "Innovation Lab", "Board Room", "Press Room",
-        "Employee Store", "Campus Security", "Shuttle Service", "Green Roof"
+        "Executive Suite",
+        "Auditorium",
+        "Employee Cafeteria",
+        "Daycare",
+        "Fitness Center",
+        "Medical Clinic",
+        "Research Labs",
+        "Training Center",
+        "Visitor Center",
+        "Innovation Lab",
+        "Board Room",
+        "Press Room",
+        "Employee Store",
+        "Campus Security",
+        "Shuttle Service",
+        "Green Roof"
       ]
     },
     {
@@ -741,10 +1216,20 @@
       "percentage": 0.8,
       "description": "A shared workspace facility",
       "improvements": [
-        "Hot Desks", "Private Offices", "Meeting Rooms", "Coffee Bar",
-        "Phone Booths", "Event Space", "Kitchen", "Lounge Area",
-        "Podcast Studio", "Wellness Room", "Mail Service", "Print Center",
-        "Outdoor Terrace", "Bike Storage"
+        "Hot Desks",
+        "Private Offices",
+        "Meeting Rooms",
+        "Coffee Bar",
+        "Phone Booths",
+        "Event Space",
+        "Kitchen",
+        "Lounge Area",
+        "Podcast Studio",
+        "Wellness Room",
+        "Mail Service",
+        "Print Center",
+        "Outdoor Terrace",
+        "Bike Storage"
       ]
     },
     {
@@ -758,9 +1243,18 @@
       "percentage": 2.0,
       "description": "A small shopping center with multiple stores",
       "improvements": [
-        "Shared Parking", "Anchor Store", "Restaurant Space", "Loading Area",
-        "Signage Pylon", "Landscaping", "Shopping Cart Corral", "Trash Enclosure",
-        "Drive-Through Lane", "Outdoor Seating", "ATM", "Bus Stop"
+        "Shared Parking",
+        "Anchor Store",
+        "Restaurant Space",
+        "Loading Area",
+        "Signage Pylon",
+        "Landscaping",
+        "Shopping Cart Corral",
+        "Trash Enclosure",
+        "Drive-Through Lane",
+        "Outdoor Seating",
+        "ATM",
+        "Bus Stop"
       ]
     },
     {
@@ -774,10 +1268,20 @@
       "percentage": 0.4,
       "description": "A medium-sized shopping complex",
       "improvements": [
-        "Food Court", "Movie Theater", "Department Store", "Parking Structure",
-        "Customer Service", "Family Restrooms", "Play Area", "Event Space",
-        "Escalators", "Directory Kiosk", "Security Office", "Management Office",
-        "Loading Docks", "Maintenance Room"
+        "Food Court",
+        "Movie Theater",
+        "Department Store",
+        "Parking Structure",
+        "Customer Service",
+        "Family Restrooms",
+        "Play Area",
+        "Event Space",
+        "Escalators",
+        "Directory Kiosk",
+        "Security Office",
+        "Management Office",
+        "Loading Docks",
+        "Maintenance Room"
       ]
     },
     {
@@ -791,10 +1295,22 @@
       "percentage": 0.1,
       "description": "A large regional shopping mall",
       "improvements": [
-        "Multiple Anchors", "Entertainment Zone", "Luxury Wing", "Valet Parking",
-        "Food Hall", "Movie Complex", "Bowling Alley", "Ice Skating Rink",
-        "Carousel", "Fountain Court", "Concierge Service", "Personal Shopping",
-        "VIP Lounge", "Kids Zone", "Charging Stations", "Transit Hub"
+        "Multiple Anchors",
+        "Entertainment Zone",
+        "Luxury Wing",
+        "Valet Parking",
+        "Food Hall",
+        "Movie Complex",
+        "Bowling Alley",
+        "Ice Skating Rink",
+        "Carousel",
+        "Fountain Court",
+        "Concierge Service",
+        "Personal Shopping",
+        "VIP Lounge",
+        "Kids Zone",
+        "Charging Stations",
+        "Transit Hub"
       ]
     },
     {
@@ -808,10 +1324,20 @@
       "percentage": 1.5,
       "description": "A full-service grocery store",
       "improvements": [
-        "Deli Counter", "Bakery", "Pharmacy", "Online Pickup",
-        "Butcher", "Seafood Counter", "Floral Department", "Hot Food Bar",
-        "Self-Checkout", "Customer Service", "Bank Branch", "Fuel Station",
-        "Recycling Center", "Community Board"
+        "Deli Counter",
+        "Bakery",
+        "Pharmacy",
+        "Online Pickup",
+        "Butcher",
+        "Seafood Counter",
+        "Floral Department",
+        "Hot Food Bar",
+        "Self-Checkout",
+        "Customer Service",
+        "Bank Branch",
+        "Fuel Station",
+        "Recycling Center",
+        "Community Board"
       ]
     },
     {
@@ -825,10 +1351,20 @@
       "percentage": 0.3,
       "description": "A bulk goods retail warehouse",
       "improvements": [
-        "Loading Docks", "Food Court", "Tire Center", "Optical Center",
-        "Pharmacy", "Photo Center", "Hearing Aid Center", "Meat Department",
-        "Bakery", "Gas Station", "Business Center", "Travel Services",
-        "Auto Buying Program", "Insurance Services"
+        "Loading Docks",
+        "Food Court",
+        "Tire Center",
+        "Optical Center",
+        "Pharmacy",
+        "Photo Center",
+        "Hearing Aid Center",
+        "Meat Department",
+        "Bakery",
+        "Gas Station",
+        "Business Center",
+        "Travel Services",
+        "Auto Buying Program",
+        "Insurance Services"
       ]
     },
     {
@@ -842,9 +1378,18 @@
       "percentage": 2.5,
       "description": "A casual dining restaurant",
       "improvements": [
-        "Full Kitchen", "Bar Area", "Patio Seating", "Private Dining Room",
-        "Game Room", "Event Space", "Take-Out Counter", "Delivery Station",
-        "Host Stand", "Wait Station", "Beer Garden", "Fire Pit"
+        "Full Kitchen",
+        "Bar Area",
+        "Patio Seating",
+        "Private Dining Room",
+        "Game Room",
+        "Event Space",
+        "Take-Out Counter",
+        "Delivery Station",
+        "Host Stand",
+        "Wait Station",
+        "Beer Garden",
+        "Fire Pit"
       ]
     },
     {
@@ -858,10 +1403,22 @@
       "percentage": 0.3,
       "description": "An upscale fine dining establishment",
       "improvements": [
-        "Wine Cellar", "Chef's Table", "Valet Parking", "Private Events Space",
-        "Lounge Bar", "Open Kitchen", "Tasting Room", "Sommelier Station",
-        "Coat Check", "Cigar Lounge", "Rooftop Terrace", "Chef's Garden"
-      ]
+        "Wine Cellar",
+        "Chef's Table",
+        "Valet Parking",
+        "Private Events Space",
+        "Lounge Bar",
+        "Open Kitchen",
+        "Tasting Room",
+        "Sommelier Station",
+        "Coat Check",
+        "Cigar Lounge",
+        "Rooftop Terrace",
+        "Chef's Garden"
+      ],
+      "attribute_modifiers": {
+        "CHARISMA": 3
+      }
     },
     {
       "id": "movie_theater",
@@ -874,10 +1431,20 @@
       "percentage": 0.2,
       "description": "A multiplex cinema",
       "improvements": [
-        "IMAX Screen", "Recliner Seats", "Arcade", "Dine-In Options",
-        "Dolby Atmos", "3D Theaters", "Premium Large Format", "VIP Seating",
-        "Bar Lounge", "Party Rooms", "Concession Stand", "Box Office",
-        "Projection Booth", "Hearing Assistance"
+        "IMAX Screen",
+        "Recliner Seats",
+        "Arcade",
+        "Dine-In Options",
+        "Dolby Atmos",
+        "3D Theaters",
+        "Premium Large Format",
+        "VIP Seating",
+        "Bar Lounge",
+        "Party Rooms",
+        "Concession Stand",
+        "Box Office",
+        "Projection Booth",
+        "Hearing Assistance"
       ]
     },
     {
@@ -891,9 +1458,18 @@
       "percentage": 0.1,
       "description": "A bowling and entertainment center",
       "improvements": [
-        "Bowling Lanes", "Arcade", "Sports Bar", "Party Rooms",
-        "Billiards Area", "Laser Tag", "Escape Room", "Pro Shop",
-        "Snack Bar", "VIP Lanes", "Kids Area", "League Office"
+        "Bowling Lanes",
+        "Arcade",
+        "Sports Bar",
+        "Party Rooms",
+        "Billiards Area",
+        "Laser Tag",
+        "Escape Room",
+        "Pro Shop",
+        "Snack Bar",
+        "VIP Lanes",
+        "Kids Area",
+        "League Office"
       ]
     },
     {
@@ -907,11 +1483,25 @@
       "percentage": 0.15,
       "description": "A dance club and nightlife venue",
       "improvements": [
-        "Dance Floor", "VIP Lounge", "Sound System", "Light Show",
-        "Multiple Bars", "DJ Booth", "Green Room", "Bottle Service",
-        "Coat Check", "Outdoor Patio", "VIP Entrance", "Security Office",
-        "Photography Studio", "Private Karaoke"
-      ]
+        "Dance Floor",
+        "VIP Lounge",
+        "Sound System",
+        "Light Show",
+        "Multiple Bars",
+        "DJ Booth",
+        "Green Room",
+        "Bottle Service",
+        "Coat Check",
+        "Outdoor Patio",
+        "VIP Entrance",
+        "Security Office",
+        "Photography Studio",
+        "Private Karaoke"
+      ],
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "STEALTH": -2
+      }
     },
     {
       "id": "sports_arena",
@@ -924,11 +1514,27 @@
       "percentage": 0.05,
       "description": "A multi-purpose sports and concert venue",
       "improvements": [
-        "Luxury Suites", "Jumbotron", "Concession Stands", "Team Facilities",
-        "Press Box", "Club Level", "Party Decks", "Retail Shops",
-        "Restaurant", "Loading Docks", "Locker Rooms", "Medical Room",
-        "Interview Room", "VIP Parking", "Event Control Center", "Ice Rink Equipment"
-      ]
+        "Luxury Suites",
+        "Jumbotron",
+        "Concession Stands",
+        "Team Facilities",
+        "Press Box",
+        "Club Level",
+        "Party Decks",
+        "Retail Shops",
+        "Restaurant",
+        "Loading Docks",
+        "Locker Rooms",
+        "Medical Room",
+        "Interview Room",
+        "VIP Parking",
+        "Event Control Center",
+        "Ice Rink Equipment"
+      ],
+      "attribute_modifiers": {
+        "STRENGTH": 2,
+        "AGILITY": 1
+      }
     },
     {
       "id": "warehouse_small",
@@ -941,9 +1547,18 @@
       "percentage": 2.0,
       "description": "A small storage warehouse",
       "improvements": [
-        "Loading Dock", "Racking", "Office Space", "Security",
-        "Forklift Area", "Shipping Station", "Break Room", "Restrooms",
-        "Climate Control", "Fire Suppression", "Roll-Up Doors", "Mezzanine"
+        "Loading Dock",
+        "Racking",
+        "Office Space",
+        "Security",
+        "Forklift Area",
+        "Shipping Station",
+        "Break Room",
+        "Restrooms",
+        "Climate Control",
+        "Fire Suppression",
+        "Roll-Up Doors",
+        "Mezzanine"
       ]
     },
     {
@@ -957,10 +1572,20 @@
       "percentage": 1.0,
       "description": "A large distribution warehouse",
       "improvements": [
-        "Multiple Docks", "Cold Storage", "Conveyor System", "Fleet Parking",
-        "Cross-Dock Area", "Pick and Pack", "QC Station", "Office Block",
-        "Employee Break Area", "Training Room", "Returns Processing", "Hazmat Storage",
-        "Battery Charging", "Maintenance Shop"
+        "Multiple Docks",
+        "Cold Storage",
+        "Conveyor System",
+        "Fleet Parking",
+        "Cross-Dock Area",
+        "Pick and Pack",
+        "QC Station",
+        "Office Block",
+        "Employee Break Area",
+        "Training Room",
+        "Returns Processing",
+        "Hazmat Storage",
+        "Battery Charging",
+        "Maintenance Shop"
       ]
     },
     {
@@ -974,10 +1599,20 @@
       "percentage": 0.5,
       "description": "A light manufacturing plant",
       "improvements": [
-        "Assembly Line", "Quality Control Lab", "Shipping Bay", "Employee Break Room",
-        "Raw Material Storage", "Finished Goods Area", "Tool Crib", "Maintenance Shop",
-        "Engineering Office", "Conference Room", "Locker Room", "First Aid Station",
-        "Cafeteria", "Training Center"
+        "Assembly Line",
+        "Quality Control Lab",
+        "Shipping Bay",
+        "Employee Break Room",
+        "Raw Material Storage",
+        "Finished Goods Area",
+        "Tool Crib",
+        "Maintenance Shop",
+        "Engineering Office",
+        "Conference Room",
+        "Locker Room",
+        "First Aid Station",
+        "Cafeteria",
+        "Training Center"
       ]
     },
     {
@@ -991,11 +1626,25 @@
       "percentage": 0.2,
       "description": "A technology data center",
       "improvements": [
-        "Server Rooms", "Cooling System", "Backup Generators", "Security Operations",
-        "UPS Room", "Fire Suppression", "Meet-Me Room", "Network Operations Center",
-        "Cable Management", "Raised Floor", "Loading Dock", "Battery Room",
-        "Administrative Office", "Visitor Center"
-      ]
+        "Server Rooms",
+        "Cooling System",
+        "Backup Generators",
+        "Security Operations",
+        "UPS Room",
+        "Fire Suppression",
+        "Meet-Me Room",
+        "Network Operations Center",
+        "Cable Management",
+        "Raised Floor",
+        "Loading Dock",
+        "Battery Room",
+        "Administrative Office",
+        "Visitor Center"
+      ],
+      "attribute_modifiers": {
+        "INTELLIGENCE": 3,
+        "MEMORY": 2
+      }
     },
     {
       "id": "self_storage",
@@ -1008,10 +1657,20 @@
       "percentage": 0.8,
       "description": "A climate-controlled storage facility",
       "improvements": [
-        "Climate Control", "24hr Access", "Security Cameras", "Loading Area",
-        "Elevator", "Rolling Carts", "Packing Supplies", "Office",
-        "Vehicle Storage", "RV Parking", "Wine Storage", "Document Storage",
-        "Moving Truck Rental", "Insurance Services"
+        "Climate Control",
+        "24hr Access",
+        "Security Cameras",
+        "Loading Area",
+        "Elevator",
+        "Rolling Carts",
+        "Packing Supplies",
+        "Office",
+        "Vehicle Storage",
+        "RV Parking",
+        "Wine Storage",
+        "Document Storage",
+        "Moving Truck Rental",
+        "Insurance Services"
       ]
     },
     {
@@ -1025,11 +1684,24 @@
       "percentage": 0.8,
       "description": "A community church",
       "improvements": [
-        "Sanctuary", "Fellowship Hall", "Sunday School Rooms", "Parking Lot",
-        "Nursery", "Youth Room", "Kitchen", "Pastor's Office",
-        "Choir Room", "Prayer Room", "Library", "Outdoor Garden",
-        "Gymnasium", "Media Booth"
-      ]
+        "Sanctuary",
+        "Fellowship Hall",
+        "Sunday School Rooms",
+        "Parking Lot",
+        "Nursery",
+        "Youth Room",
+        "Kitchen",
+        "Pastor's Office",
+        "Choir Room",
+        "Prayer Room",
+        "Library",
+        "Outdoor Garden",
+        "Gymnasium",
+        "Media Booth"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": 2
+      }
     },
     {
       "id": "mosque",
@@ -1042,11 +1714,24 @@
       "percentage": 0.15,
       "description": "An Islamic community center",
       "improvements": [
-        "Prayer Hall", "Ablution Area", "Library", "Community Room",
-        "Minaret", "Imam's Office", "Classroom", "Women's Section",
-        "Kitchen", "Funeral Services", "Youth Center", "Bookstore",
-        "Courtyard", "Parking Structure"
-      ]
+        "Prayer Hall",
+        "Ablution Area",
+        "Library",
+        "Community Room",
+        "Minaret",
+        "Imam's Office",
+        "Classroom",
+        "Women's Section",
+        "Kitchen",
+        "Funeral Services",
+        "Youth Center",
+        "Bookstore",
+        "Courtyard",
+        "Parking Structure"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": 2
+      }
     },
     {
       "id": "synagogue",
@@ -1059,11 +1744,24 @@
       "percentage": 0.1,
       "description": "A Jewish synagogue",
       "improvements": [
-        "Sanctuary", "Social Hall", "Religious School", "Kitchen",
-        "Rabbi's Office", "Chapel", "Library", "Youth Lounge",
-        "Gift Shop", "Memorial Garden", "Mikvah", "Archive Room",
-        "Caretaker Suite", "Meeting Rooms"
-      ]
+        "Sanctuary",
+        "Social Hall",
+        "Religious School",
+        "Kitchen",
+        "Rabbi's Office",
+        "Chapel",
+        "Library",
+        "Youth Lounge",
+        "Gift Shop",
+        "Memorial Garden",
+        "Mikvah",
+        "Archive Room",
+        "Caretaker Suite",
+        "Meeting Rooms"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": 2
+      }
     },
     {
       "id": "hospital_small",
@@ -1076,11 +1774,25 @@
       "percentage": 0.15,
       "description": "A community hospital",
       "improvements": [
-        "Emergency Room", "Surgery Center", "Imaging", "Pharmacy",
-        "Laboratory", "ICU", "Patient Rooms", "Cafeteria",
-        "Chapel", "Gift Shop", "Helipad", "Ambulance Bay",
-        "Medical Records", "Administration"
-      ]
+        "Emergency Room",
+        "Surgery Center",
+        "Imaging",
+        "Pharmacy",
+        "Laboratory",
+        "ICU",
+        "Patient Rooms",
+        "Cafeteria",
+        "Chapel",
+        "Gift Shop",
+        "Helipad",
+        "Ambulance Bay",
+        "Medical Records",
+        "Administration"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": 3,
+        "INTELLIGENCE": 2
+      }
     },
     {
       "id": "hospital_large",
@@ -1093,11 +1805,27 @@
       "percentage": 0.05,
       "description": "A major medical center",
       "improvements": [
-        "Trauma Center", "ICU", "Cancer Center", "Helipad",
-        "Cardiac Care", "Maternity Ward", "Pediatric Unit", "Burn Center",
-        "Research Labs", "Teaching Facility", "Parking Structure", "Pharmacy",
-        "Cafeteria", "Chapel", "Gift Shop", "Patient Hotel"
-      ]
+        "Trauma Center",
+        "ICU",
+        "Cancer Center",
+        "Helipad",
+        "Cardiac Care",
+        "Maternity Ward",
+        "Pediatric Unit",
+        "Burn Center",
+        "Research Labs",
+        "Teaching Facility",
+        "Parking Structure",
+        "Pharmacy",
+        "Cafeteria",
+        "Chapel",
+        "Gift Shop",
+        "Patient Hotel"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTELLIGENCE": 2
+      }
     },
     {
       "id": "urgent_care",
@@ -1110,9 +1838,18 @@
       "percentage": 0.5,
       "description": "A walk-in medical clinic",
       "improvements": [
-        "Exam Rooms", "X-Ray", "Lab", "Pharmacy",
-        "Waiting Room", "Triage Area", "Procedure Room", "Cast Room",
-        "IV Therapy", "Nebulizer Station", "Records Office", "Staff Lounge"
+        "Exam Rooms",
+        "X-Ray",
+        "Lab",
+        "Pharmacy",
+        "Waiting Room",
+        "Triage Area",
+        "Procedure Room",
+        "Cast Room",
+        "IV Therapy",
+        "Nebulizer Station",
+        "Records Office",
+        "Staff Lounge"
       ]
     },
     {
@@ -1126,9 +1863,18 @@
       "percentage": 0.4,
       "description": "An automobile dealership",
       "improvements": [
-        "Showroom", "Service Center", "Parts Department", "Test Drive Lot",
-        "Finance Office", "Detailing Bay", "Customer Lounge", "Body Shop",
-        "Used Car Lot", "Wash Bay", "Storage Lot", "Delivery Area"
+        "Showroom",
+        "Service Center",
+        "Parts Department",
+        "Test Drive Lot",
+        "Finance Office",
+        "Detailing Bay",
+        "Customer Lounge",
+        "Body Shop",
+        "Used Car Lot",
+        "Wash Bay",
+        "Storage Lot",
+        "Delivery Area"
       ]
     },
     {
@@ -1142,9 +1888,18 @@
       "percentage": 1.5,
       "description": "An automotive service center",
       "improvements": [
-        "Service Bays", "Tire Storage", "Waiting Room", "Parts Storage",
-        "Alignment Rack", "Lift Equipment", "Oil Change Bay", "Diagnostic Station",
-        "Break Room", "Office", "Car Wash", "Customer Parking"
+        "Service Bays",
+        "Tire Storage",
+        "Waiting Room",
+        "Parts Storage",
+        "Alignment Rack",
+        "Lift Equipment",
+        "Oil Change Bay",
+        "Diagnostic Station",
+        "Break Room",
+        "Office",
+        "Car Wash",
+        "Customer Parking"
       ]
     },
     {
@@ -1158,10 +1913,20 @@
       "percentage": 0.2,
       "description": "A public transit hub",
       "improvements": [
-        "Platforms", "Ticket Office", "Waiting Area", "Retail Kiosks",
-        "Escalators", "Elevators", "Information Booth", "Restrooms",
-        "Security Office", "Lost and Found", "Newsstand", "Coffee Shop",
-        "Bike Storage", "Kiss and Ride"
+        "Platforms",
+        "Ticket Office",
+        "Waiting Area",
+        "Retail Kiosks",
+        "Escalators",
+        "Elevators",
+        "Information Booth",
+        "Restrooms",
+        "Security Office",
+        "Lost and Found",
+        "Newsstand",
+        "Coffee Shop",
+        "Bike Storage",
+        "Kiss and Ride"
       ]
     },
     {
@@ -1175,9 +1940,20 @@
       "percentage": 0.5,
       "description": "A specialist shop selling surveillance gear, protective equipment, and tools for private investigators",
       "improvements": [
-        "Display Cases", "Security Camera Demo Wall", "Fitting Room", "Storage Room",
-        "Repair Bench", "Key Cutting Machine", "Safe Display", "Alarm System"
-      ]
+        "Display Cases",
+        "Security Camera Demo Wall",
+        "Fitting Room",
+        "Storage Room",
+        "Repair Bench",
+        "Key Cutting Machine",
+        "Safe Display",
+        "Alarm System",
+        "Shooting range*",
+      ],
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STRENGTH": 1
+      }
     },
     {
       "id": "bus_depot",
@@ -1190,10 +1966,22 @@
       "percentage": 0.1,
       "description": "A city bus maintenance and dispatch facility",
       "improvements": [
-        "Maintenance Bays", "Fueling Station", "Driver Facilities", "Dispatch Center",
-        "Parts Storage", "Wash Bay", "Training Room", "Admin Office",
-        "Break Room", "Locker Room", "Tool Storage", "Paint Booth"
-      ]
+        "Maintenance Bays",
+        "Fueling Station",
+        "Driver Facilities",
+        "Dispatch Center",
+        "Parts Storage",
+        "Wash Bay",
+        "Training Room",
+        "Admin Office",
+        "Break Room",
+        "Locker Room",
+        "Tool Storage",
+        "Paint Booth"
+      ],
+      "attribute_modifiers": {
+        "EMPATHY": -1
+      }
     }
   ]
 }

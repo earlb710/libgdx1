@@ -114,9 +114,10 @@ class ServiceResultPopup {
         maxW = Math.max(maxW, okBounds.textWidth);
 
         float dialogW = Math.min(screenW * 0.9f, maxW + 2 * PAD);
+        float btnGap  = Math.max(PAD, titleLineH);
         float dialogH = PAD + titleLineH + titleH
                 + lines.size() * smallLineH
-                + PAD + okBtnH + PAD;
+                + btnGap + okBtnH + PAD;
 
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;

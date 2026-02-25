@@ -89,6 +89,10 @@ public class MainScreen implements Screen {
     private int  lastMapTapCellX   = -1;
     private int  lastMapTapCellY   = -1;
 
+    /** Services offered by the building at the player's current cell; refreshed each frame by InfoPanelRenderer
+     *  via svcBtnCount.  Kept here so tap-handling can look up the correct BuildingService by index. */
+    private List<BuildingService> currentCellServices = new ArrayList<>();
+
     // Quit confirmation (ESC key)
     private boolean quitConfirming   = false;
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
@@ -223,7 +227,7 @@ public class MainScreen implements Screen {
 
         helpPopup = new HelpPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
-        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+        discoveryPopup = new DiscoveryPopup(batch, shapeRenderer, font, smallFont, boldSmallFont, glyphLayout);
 
         serviceResultPopup = new ServiceResultPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
@@ -272,6 +276,20 @@ public class MainScreen implements Screen {
         mapRenderer.drawRulers(state);
         infoPanelRenderer.drawInfoBar(state);
         infoPanelRenderer.drawInfoBlock(state, !lookAroundPopup.isVisible());
+
+        // Keep currentCellServices in sync with the service buttons just rendered.
+        if (state.charCellX >= 0 && state.charCellY >= 0
+                && state.selectedCellX == state.charCellX
+                && state.selectedCellY == state.charCellY) {
+            Cell svcCell = cityMap.getCell(state.charCellX, state.charCellY);
+            if (svcCell.hasBuilding() && svcCell.getBuilding().isDiscovered()) {
+                currentCellServices = BuildingServices.getServices(svcCell.getBuilding());
+            } else {
+                currentCellServices = java.util.Collections.emptyList();
+            }
+        } else {
+            currentCellServices = java.util.Collections.emptyList();
+        }
 
         if (lookAroundPopup.isVisible()) {
             lookAroundPopup.update(delta);
@@ -738,7 +756,7 @@ public class MainScreen implements Screen {
                             int nights = hotelReceptionPopup.onTap(screenX, flippedY);
                             if (nights >= 1) {
                                 handleHotelCheckIn(nights,
-                                        hotelReceptionPopup.getNightlyCost(),
+                                        hotelReceptionPopup.getDiscountedTotal(nights),
                                         hotelReceptionPopup.getStaminaBonus());
                             }
                         }
@@ -850,10 +868,12 @@ public class MainScreen implements Screen {
                             checkMoveToButtonClick(screenX, flippedY);
                             checkLookAroundButtonClick(screenX, flippedY);
                             checkGoToOfficeButtonClick(screenX, flippedY);
+                            checkGoToHotelRoomButtonClick(screenX, flippedY);
                             checkEquipDropButtonClick(screenX, flippedY);
                             checkHelpButtonClick(screenX, flippedY);
                             checkNoteCheckboxClick(screenX, flippedY);
                             checkAddNoteButtonClick(screenX, flippedY);
+                            checkServiceButtonClick(screenX, flippedY);
                         }
                         checkTabClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
@@ -1111,8 +1131,23 @@ public class MainScreen implements Screen {
             state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                     + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
             state.unitInteriorDescription = buildOfficeDescription();
+            state.unitIsHotelRoom = false;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
+        }
+    }
+
+    private void checkGoToHotelRoomButtonClick(int screenX, int flippedY) {
+        if (state.goToHotelRoomBtnW <= 0) return;
+        if (screenX >= state.goToHotelRoomBtnX && screenX <= state.goToHotelRoomBtnX + state.goToHotelRoomBtnW
+                && flippedY >= state.goToHotelRoomBtnY && flippedY <= state.goToHotelRoomBtnY + state.goToHotelRoomBtnH) {
+            int roomNum = profile.getAttribute(BuildingServices.ATTR_HOTEL_ROOM);
+            Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+            String hotelName = cell.hasBuilding() ? cell.getBuilding().getDisplayName() : "Hotel";
+            state.unitInteriorLabel = hotelName + " \u2014 Room " + roomNum;
+            state.unitIsHotelRoom = true;
+            state.unitInteriorOpen = true;
+            Gdx.app.log("MainScreen", "Entered hotel room: " + state.unitInteriorLabel);
         }
     }
 
@@ -1151,6 +1186,18 @@ public class MainScreen implements Screen {
             state.infoScrollY   = 0f;
             state.infoScrollX   = 0f;
             Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+        }
+    }
+
+    private void checkServiceButtonClick(int screenX, int flippedY) {
+        if (state.svcBtnCount <= 0) return;
+        for (int i = 0; i < state.svcBtnCount && i < currentCellServices.size(); i++) {
+            if (state.svcBtnW[i] <= 0) continue;
+            if (screenX >= state.svcBtnX[i] && screenX <= state.svcBtnX[i] + state.svcBtnW[i]
+                    && flippedY >= state.svcBtnY[i] && flippedY <= state.svcBtnY[i] + state.svcBtnH) {
+                handleServiceClick(currentCellServices.get(i));
+                return;
+            }
         }
     }
 
@@ -1193,6 +1240,7 @@ public class MainScreen implements Screen {
                 && screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
                 && flippedY >= state.unitExitBtnY && flippedY <= state.unitExitBtnY + state.unitExitBtnH) {
             state.unitInteriorOpen = false;
+            state.unitIsHotelRoom  = false;
             Gdx.app.log("MainScreen", "Exited unit");
         }
     }
@@ -1323,20 +1371,6 @@ public class MainScreen implements Screen {
         int effectiveCap = calculateEffectiveStaminaCap();
         int   staminaGain = Math.round(effectiveCap * fraction);
 
-        // Hotel stamina bonus: applies on a full 8-hour sleep when checked in
-        int hotelBonus  = profile.getAttribute(BuildingServices.ATTR_HOTEL_BONUS);
-        int hotelNights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
-        int hotelBonusActual = 0;
-        if (hotelBonus > 0 && hotelNights > 0 && minutesSleep >= 8 * 60) {
-            profile.addStaminaUpTo(hotelBonus, effectiveCap);
-            hotelBonusActual = hotelBonus;
-            int remaining = hotelNights - 1;
-            profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
-            if (remaining == 0) {
-                profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
-            }
-        }
-
         // 1 dot per hour slept; each dot advances time + fills stamina incrementally
         int animDots        = Math.max(1, Math.round(hoursSlept));
         final int minutesPerDot = minutesSleep / animDots;
@@ -1354,9 +1388,8 @@ public class MainScreen implements Screen {
             resultMsg = "It became night.";
         }
 
-        String bonusNote = hotelBonusActual > 0 ? " (+" + hotelBonusActual + " hotel bonus)" : "";
         Gdx.app.log("MainScreen", "Slept " + minutesSleep + " min (to 6:00), +"
-                + staminaGain + " stamina (cap=" + effectiveCap + ")" + bonusNote);
+                + staminaGain + " stamina (cap=" + effectiveCap + ")");
 
         // Per-dot callback: advance time + fill stamina together so both animate visibly
         restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
@@ -1396,6 +1429,7 @@ public class MainScreen implements Screen {
         state.isWalking    = true;
         state.currentRoute = null;
         state.unitInteriorOpen = false;
+        state.unitIsHotelRoom  = false;
         contextMenu.dismiss();
         Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
     }
@@ -1475,8 +1509,7 @@ public class MainScreen implements Screen {
      * @param nightly  nightly rate in in-game currency
      * @param bonus    extra stamina awarded per full 8-hour sleep while checked in
      */
-    private void handleHotelCheckIn(int nights, int nightly, int bonus) {
-        int total = nights * nightly;
+    private void handleHotelCheckIn(int nights, int total, int bonus) {
         List<String> resultLines = new ArrayList<>();
 
         if (total > 0 && profile.getMoney() < total) {
@@ -1494,11 +1527,13 @@ public class MainScreen implements Screen {
 
         profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS,  bonus);
         profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, nights);
+        int roomNum = (state.charCellX * 7 + state.charCellY * 13) % 99 + 1;
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_ROOM, roomNum);
 
         resultLines.add("You checked in for " + nights
                 + (nights == 1 ? " night." : " nights."));
         if (total > 0) resultLines.add("Total cost: $" + total + ".");
-        resultLines.add("Sleep bonus: +" + bonus + " stamina per full 8h sleep.");
+        resultLines.add("Sleep bonus: full stamina.");
         resultLines.add("Use the Sleep button when it is time for bed.");
         serviceResultPopup.show("Checked In", resultLines);
         Gdx.app.log("MainScreen", "Hotel check-in: " + nights + "n, $" + total
@@ -1647,7 +1682,7 @@ public class MainScreen implements Screen {
 
             // ---- Food: restore stamina -----------------------------------
             case BuildingServices.SVC_BUY_MEAL: {
-                int gain = 4;
+                int gain = 2;
                 profile.addStamina(gain);
                 resultLines.add("You enjoyed a satisfying meal.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
@@ -1655,7 +1690,7 @@ public class MainScreen implements Screen {
                 break;
             }
             case BuildingServices.SVC_BUY_COFFEE: {
-                int gain = 2;
+                int gain = 1;
                 profile.addStamina(gain);
                 resultLines.add("You sipped a hot coffee.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
@@ -1743,13 +1778,18 @@ public class MainScreen implements Screen {
             }
 
             // ---- Supply / Retail -----------------------------------------
-            case BuildingServices.SVC_BUY_SUPPLIES: {
-                int gain = 2;
+            case BuildingServices.SVC_BUY_SNACKS: {
+                int gain = 1;
                 profile.addStamina(gain);
-                resultLines.add("You picked up what you needed.");
+                resultLines.add("You grabbed a quick snack and a drink.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
                 resultLines.add("+" + gain + " stamina.");
                 break;
+            }
+            case BuildingServices.SVC_BUY_SUPPLIES: {
+                handleBuySupplies(svc, resultLines);
+                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                return;
             }
 
             // ---- Laundromat -----------------------------------------------
@@ -1846,6 +1886,16 @@ public class MainScreen implements Screen {
         resultLines.add("You have: $" + profile.getMoney() + ".");
     }
 
+    /**
+     * Handles a "Buy Supplies" service at retail/convenience stores.
+     * Currently shows a list of purchasable supply items, or
+     * "Nothing of interest at the moment" when none are available.
+     */
+    private void handleBuySupplies(BuildingService svc, List<String> resultLines) {
+        // No supply catalogue items defined yet — show placeholder
+        resultLines.add("Nothing of interest at the moment.");
+    }
+
     /** Called every frame while {@code state.isWalking} is true. */
     private void updateWalk(float delta) {
         state.walkTimer -= delta;
@@ -1893,6 +1943,7 @@ public class MainScreen implements Screen {
             state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
             state.clampMapOffset();
             boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
+            applyHotelArrivalBonus(state.charCellX, state.charCellY);
             showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
@@ -1958,6 +2009,7 @@ public class MainScreen implements Screen {
         state.selectedCellX = state.homeCellX;
         state.selectedCellY = state.homeCellY;
         state.unitInteriorOpen = false;
+        state.unitIsHotelRoom  = false;
         state.currentRoute  = null;
         discoverCell(state.charCellX, state.charCellY);
 
@@ -2068,6 +2120,28 @@ public class MainScreen implements Screen {
     }
 
     /**
+     * Applies the hotel tier stamina bonus when the player arrives at a hotel cell.
+     * The bonus (+1/+2/+3 by tier) is granted each time the player walks to the hotel,
+     * provided they are currently checked in (ATTR_HOTEL_NIGHTS > 0).
+     * One night of stay is consumed per arrival bonus.
+     */
+    private void applyHotelArrivalBonus(int x, int y) {
+        Cell cell = cityMap.getCell(x, y);
+        if (!cell.hasBuilding()) return;
+        Building building = cell.getBuilding();
+        int bonus = BuildingServices.getHotelStaminaBonus(building);
+        if (bonus <= 0) return;
+        int nights = profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS);
+        if (nights <= 0) return;
+        profile.addStamina(bonus);
+        int remaining = nights - 1;
+        profile.setAttribute(BuildingServices.ATTR_HOTEL_NIGHTS, remaining);
+        if (remaining == 0) profile.setAttribute(BuildingServices.ATTR_HOTEL_BONUS, 0);
+        Gdx.app.log("MainScreen", "Hotel arrival bonus: +" + bonus
+                + " stamina, " + remaining + " nights remaining");
+    }
+
+    /**
      * Builds and shows the discovery popup for a building arrival.
      * Collects all improvements that were auto-discovered (hiddenValue == 0),
      * along with their novel improvement descriptions.
@@ -2104,7 +2178,7 @@ public class MainScreen implements Screen {
             description = def.getDescription();
         }
 
-        discoveryPopup.show(building.getDisplayName(), description, null,
+        discoveryPopup.show(building.getDisplayName(), building.getName(), description, null,
                 java.util.Collections.emptyList(), newDiscovery);
     }
 

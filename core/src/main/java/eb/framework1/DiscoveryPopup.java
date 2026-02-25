@@ -35,12 +35,14 @@ class DiscoveryPopup {
     private final ShapeRenderer sr;
     private final BitmapFont    font;
     private final BitmapFont    smallFont;
+    private final BitmapFont    boldSmallFont;
     private final GlyphLayout   glyph;
 
     // --- State ---
     private boolean      visible = false;
     private boolean      newDiscovery;
     private String       buildingName;
+    private String       buildingType;
     private String       description;
     private String       novelText;
     private final List<String> improvementLines = new ArrayList<>();
@@ -55,12 +57,13 @@ class DiscoveryPopup {
     // -------------------------------------------------------------------------
 
     DiscoveryPopup(SpriteBatch batch, ShapeRenderer sr,
-                   BitmapFont font, BitmapFont smallFont, GlyphLayout glyph) {
-        this.batch     = batch;
-        this.sr        = sr;
-        this.font      = font;
-        this.smallFont = smallFont;
-        this.glyph     = glyph;
+                   BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont, GlyphLayout glyph) {
+        this.batch         = batch;
+        this.sr            = sr;
+        this.font          = font;
+        this.smallFont     = smallFont;
+        this.boldSmallFont = boldSmallFont;
+        this.glyph         = glyph;
     }
 
     // -------------------------------------------------------------------------
@@ -76,16 +79,18 @@ class DiscoveryPopup {
     /**
      * Shows the popup for a building arrival.
      *
-     * @param buildingName     Name of the building
+     * @param buildingName     Name of the building (display name, may be a tenant/company name)
+     * @param buildingType     Type of the building (e.g., "Hotel", "Police Station")
      * @param description      Building description from the definition (may be null/empty)
      * @param novelText        Context-sensitive novel-engine text (may be null/empty)
      * @param improvementLines Formatted names of auto-discovered improvements
      * @param newDiscovery     {@code true} if this is the first visit (title reads "Discovered:");
      *                         {@code false} for revisits (title reads "Visiting:")
      */
-    void show(String buildingName, String description, String novelText,
+    void show(String buildingName, String buildingType, String description, String novelText,
               List<String> improvementLines, boolean newDiscovery) {
         this.buildingName  = buildingName;
+        this.buildingType  = (buildingType != null && !buildingType.isEmpty()) ? buildingType : null;
         this.newDiscovery  = newDiscovery;
         this.description   = (description != null && !description.isEmpty()) ? description : null;
         this.novelText     = (novelText   != null && !novelText.isEmpty())   ? novelText   : null;
@@ -157,7 +162,7 @@ class DiscoveryPopup {
             return glyph.width;
         };
 
-        // --- Collect scrollable lines: description + novel text + improvements ---
+        // --- Collect scrollable lines: building type + description + novel text + improvements ---
         List<String> descLines  = description != null
                 ? WordWrapper.wrap(description, textAreaMaxW, measurer)
                 : new ArrayList<>();
@@ -166,6 +171,9 @@ class DiscoveryPopup {
                 : new ArrayList<>();
 
         List<String> scrollLines = new ArrayList<>();
+        if (buildingType != null) {
+            scrollLines.add(buildingType);
+        }
         scrollLines.addAll(descLines);
         scrollLines.addAll(novelLines);
         if (!improvementLines.isEmpty()) {
@@ -176,7 +184,7 @@ class DiscoveryPopup {
         }
 
         // Track which line-index range is novel (for NOVEL_COLOR rendering)
-        final int novelStartIdx = descLines.size();
+        final int novelStartIdx = (buildingType != null ? 1 : 0) + descLines.size();
         final int novelEndIdx   = novelStartIdx + novelLines.size();
 
         // Measure scrollable content
@@ -191,7 +199,8 @@ class DiscoveryPopup {
         // Height layout:
         //   PAD + titleLine + TITLE_GAP + scrollableArea + PAD + okBtnH + PAD
         final float TITLE_GAP = fontH;  // character-size space between heading and content
-        float scrollableContent = scrollLines.size() * smallLineH;
+        float scrollableContent = scrollLines.size() * smallLineH
+                + (buildingType != null ? smallLineH * 0.5f : 0f);
         float fixedH = PAD + fontLineH + TITLE_GAP + PAD + okBtnH + PAD;
         float maxScrollable = MAX_H - fixedH;
         boolean needsScroll = scrollableContent > maxScrollable;
@@ -257,14 +266,20 @@ class DiscoveryPopup {
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
         ty -= fontLineH + TITLE_GAP;
 
-        // Content lines (novel text in light-blue, everything else white)
+        // Content lines (building type in bold bright white; novel text in light-blue; everything else white)
         for (int i = 0; i < scrollLines.size(); i++) {
+            boolean isType  = buildingType != null && i == 0;
             boolean isNovel = i >= novelStartIdx && i < novelEndIdx;
-            smallFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
+            BitmapFont lineFont = isType ? boldSmallFont : smallFont;
+            lineFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
             String line = scrollLines.get(i);
-            glyph.setText(smallFont, line);
-            smallFont.draw(batch, line, dialogX + PAD, ty);
+            glyph.setText(lineFont, line);
+            lineFont.draw(batch, line, dialogX + PAD, ty);
             ty -= smallLineH;
+            // Half-line gap after building type (before description)
+            if (isType) {
+                ty -= smallLineH * 0.5f;
+            }
         }
         batch.end();
 

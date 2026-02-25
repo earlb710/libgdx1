@@ -2,6 +2,7 @@ package eb.framework1;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,22 @@ public class Building {
         this.improvements = new ArrayList<>(improvements);
         this.definition = definition;
         this.floors = floors;
-        this.attributeModifiers = BuildingEffects.getEffects(this.name);
+        // Prefer attribute_modifiers defined in buildings.json (via definition);
+        // fall back to keyword-based BuildingEffects for buildings without a JSON definition.
+        if (definition != null && !definition.getAttributeModifiers().isEmpty()) {
+            Map<CharacterAttribute, Integer> mods = new HashMap<>();
+            for (Map.Entry<String, Integer> e : definition.getAttributeModifiers().entrySet()) {
+                try {
+                    CharacterAttribute attr = CharacterAttribute.valueOf(e.getKey());
+                    if (e.getValue() != 0) mods.put(attr, e.getValue());
+                } catch (IllegalArgumentException ignored) {
+                    // skip unrecognised attribute keys
+                }
+            }
+            this.attributeModifiers = Collections.unmodifiableMap(mods);
+        } else {
+            this.attributeModifiers = BuildingEffects.getEffects(this.name);
+        }
         this.discovered = false;
         this.tenants = new ArrayList<>();
     }
