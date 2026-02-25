@@ -173,40 +173,24 @@ class MapRenderer {
             shapeRenderer.end();
         }
 
-        // Traveled road segments – blue filled rectangles in the road-gap between consecutive cells
-        if (s.traveledPath != null && s.traveledPath.size() >= 2) {
+        // Blue road segments: preview for planned route AND accumulated traveled path
+        boolean hasPreview  = s.currentRoute != null && s.currentRoute.isReachable()
+                && s.currentRoute.path != null && s.currentRoute.path.size() >= 2;
+        boolean hasTraveled = s.traveledPath != null && s.traveledPath.size() >= 2;
+        if (hasPreview || hasTraveled) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(TRAVELED_ROAD_COLOR);
-            for (int i = 0; i < s.traveledPath.size() - 1; i++) {
-                int[] c1 = s.traveledPath.get(i);
-                int[] c2 = s.traveledPath.get(i + 1);
-                int cx1 = c1[0], cy1 = c1[1];
-                int cx2 = c2[0], cy2 = c2[1];
-                // Only draw segments where at least one endpoint is within the visible range
-                boolean c1Vis = cx1 >= startCellX && cx1 < endCellX && cy1 >= startCellY && cy1 < endCellY;
-                boolean c2Vis = cx2 >= startCellX && cx2 < endCellX && cy2 >= startCellY && cy2 < endCellY;
-                if (!c1Vis && !c2Vis) continue;
-                float drawX1 = mapStartX + (cx1 - startCellX - fracOffsetX) * cellSize;
-                float drawY1 = mapStartY + (visibleCellsY - 1 - (cy1 - startCellY - fracOffsetY)) * cellSize;
-                float roadBorderWidth = borderSize * 2f;
-                float innerLen = cellSize - roadBorderWidth;
-                if (cx2 == cx1 + 1) {
-                    // East: gap at the right edge of c1
-                    shapeRenderer.rect(drawX1 + cellSize - borderSize, drawY1 + borderSize,
-                            roadBorderWidth, innerLen);
-                } else if (cx2 == cx1 - 1) {
-                    // West: gap at the left edge of c1
-                    shapeRenderer.rect(drawX1 - borderSize, drawY1 + borderSize,
-                            roadBorderWidth, innerLen);
-                } else if (cy2 == cy1 + 1) {
-                    // North (cy+1 rendered below c1 in screen space): gap below c1's rect
-                    shapeRenderer.rect(drawX1 + borderSize, drawY1 - borderSize,
-                            innerLen, roadBorderWidth);
-                } else if (cy2 == cy1 - 1) {
-                    // South (cy-1 rendered above c1 in screen space): gap above c1's rect
-                    shapeRenderer.rect(drawX1 + borderSize, drawY1 + cellSize - borderSize,
-                            innerLen, roadBorderWidth);
-                }
+            if (hasPreview) {
+                drawRoadSegments(s.currentRoute.path, shapeRenderer,
+                        mapStartX, mapStartY, cellSize, borderSize,
+                        startCellX, startCellY, endCellX, endCellY,
+                        fracOffsetX, fracOffsetY, visibleCellsY);
+            }
+            if (hasTraveled) {
+                drawRoadSegments(s.traveledPath, shapeRenderer,
+                        mapStartX, mapStartY, cellSize, borderSize,
+                        startCellX, startCellY, endCellX, endCellY,
+                        fracOffsetX, fracOffsetY, visibleCellsY);
             }
             shapeRenderer.end();
         }
@@ -387,6 +371,39 @@ class MapRenderer {
             case ROAD:    return borderSize;
             case PATHWAY: return pathwaySize;
             default:      return 0;
+        }
+    }
+
+    /**
+     * Draws blue filled road-gap rectangles between each consecutive pair of cells in {@code path}.
+     * The ShapeRenderer must already be in {@link ShapeRenderer.ShapeType#Filled} mode with the
+     * desired colour set by the caller.
+     */
+    private static void drawRoadSegments(java.util.List<int[]> path, ShapeRenderer sr,
+            float mapStartX, float mapStartY, float cellSize, float borderSize,
+            int startCellX, int startCellY, int endCellX, int endCellY,
+            float fracOffsetX, float fracOffsetY, int visibleCellsY) {
+        float roadBorderWidth = borderSize * 2f;
+        float innerLen = cellSize - roadBorderWidth;
+        for (int i = 0; i < path.size() - 1; i++) {
+            int[] c1 = path.get(i);
+            int[] c2 = path.get(i + 1);
+            int cx1 = c1[0], cy1 = c1[1];
+            int cx2 = c2[0], cy2 = c2[1];
+            boolean c1Vis = cx1 >= startCellX && cx1 < endCellX && cy1 >= startCellY && cy1 < endCellY;
+            boolean c2Vis = cx2 >= startCellX && cx2 < endCellX && cy2 >= startCellY && cy2 < endCellY;
+            if (!c1Vis && !c2Vis) continue;
+            float drawX1 = mapStartX + (cx1 - startCellX - fracOffsetX) * cellSize;
+            float drawY1 = mapStartY + (visibleCellsY - 1 - (cy1 - startCellY - fracOffsetY)) * cellSize;
+            if (cx2 == cx1 + 1) {
+                sr.rect(drawX1 + cellSize - borderSize, drawY1 + borderSize, roadBorderWidth, innerLen);
+            } else if (cx2 == cx1 - 1) {
+                sr.rect(drawX1 - borderSize, drawY1 + borderSize, roadBorderWidth, innerLen);
+            } else if (cy2 == cy1 + 1) {
+                sr.rect(drawX1 + borderSize, drawY1 - borderSize, innerLen, roadBorderWidth);
+            } else if (cy2 == cy1 - 1) {
+                sr.rect(drawX1 + borderSize, drawY1 + cellSize - borderSize, innerLen, roadBorderWidth);
+            }
         }
     }
 

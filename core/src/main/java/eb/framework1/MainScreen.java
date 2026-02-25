@@ -1833,6 +1833,7 @@ public class MainScreen implements Screen {
             // Reached destination – always discover and always show popup
             state.isWalking = false;
             state.walkPath  = null;
+            state.traveledPath.clear();
             boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
             showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
