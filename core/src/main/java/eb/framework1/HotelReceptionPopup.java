@@ -184,9 +184,9 @@ class HotelReceptionPopup {
 
         float dialogW = Math.min(MAX_W, Math.max(MIN_W, maxLineW + 2 * PAD));
 
-        // Height: PAD + title + 3 info lines + spacer + 3 option btns + cancel + PAD
+        // Height: PAD + title + char-size gap + 3 info lines + spacer + 3 option btns + cancel + PAD
         float dialogH = PAD
-                + fontLineH             // title
+                + fontLineH + fontH     // title + character-size gap
                 + 3 * smallLineH        // room / rate / bonus
                 + GAP                   // spacer before buttons
                 + NUM_OPTIONS * (optH + BTN_SPACING)
@@ -245,7 +245,7 @@ class HotelReceptionPopup {
         font.setColor(TITLE_COLOR);
         glyph.setText(font, titleLine);
         font.draw(batch, titleLine, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + fontH;
 
         // Info lines
         for (String ln : new String[]{ roomLine, rateLine, bonusLine }) {

@@ -203,7 +203,7 @@ class GymInstructorPopup {
 
         // Height
         float dialogH = PAD
-                + fontLineH                                  // title
+                + fontLineH + fontH                          // title + character-size gap
                 + smallLineH                                 // subtitle
                 + GAP                                        // spacer
                 + NUM_OPTIONS * (singleOptH + BTN_SPACING)  // 4 option rows
@@ -265,7 +265,7 @@ class GymInstructorPopup {
         font.setColor(TITLE_COLOR);
         glyph.setText(font, title);
         font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + fontH;
 
         // Subtitle
         smallFont.setColor(LABEL_COLOR);

@@ -198,7 +198,7 @@ class StashPopup {
                 : (fontLineH + stashCount * smallLineH);  // title + items
         // title line is part of scrollable area so it scrolls with items when overflowing
         float fixedH = PAD + closeBtnH + PAD;
-        float titleAndContent = fontLineH + scrollableContent + GAP;
+        float titleAndContent = fontLineH + fontH + scrollableContent + GAP;
         float maxScrollable = MAX_H - fixedH - PAD;   // PAD for top border
         boolean needsScroll = titleAndContent > maxScrollable;
         float usedScrollH = needsScroll ? maxScrollable : titleAndContent;
@@ -263,7 +263,7 @@ class StashPopup {
         glyph.setText(font, "Your Stash");
         font.draw(batch, "Your Stash",
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + fontH;
 
         // Reset all take button widths
         for (int i = 0; i < MAX_ITEMS; i++) takeBtnW[i] = 0f;

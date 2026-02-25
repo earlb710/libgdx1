@@ -320,7 +320,7 @@ class EmailPopup {
 
         // Compute dialog height
         float dialogH = PAD
-                + fontLineH                          // title row (inc nav buttons)
+                + fontLineH + fontH                  // title row (inc nav buttons) + char-size gap
                 + smallLineH                         // From
                 + smallLineH                         // Subject
                 + GAP                                // spacer
@@ -423,7 +423,7 @@ class EmailPopup {
         glyph.setText(font, inboxStr);
         float titleX = dialogX + (dialogW - glyph.width) / 2f;
         font.draw(batch, inboxStr, titleX, ty);
-        ty -= fontLineH;
+        ty -= fontLineH + fontH;
 
         smallFont.setColor(FROM_COLOR);
         smallFont.draw(batch, "From: " + email.from, dialogX + PAD, ty);

@@ -114,7 +114,7 @@ class ConfirmPopup {
 
         // BTN_GAP must be at least titleLineH so the wrapped message never overlaps the buttons
         float btnGap = Math.max(BTN_GAP, titleLineH);
-        float dialogH = PAD + titleLineH + msgH + btnGap + btnH + PAD;
+        float dialogH = PAD + titleLineH + titleH + msgH + btnGap + btnH + PAD;
 
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;
@@ -152,7 +152,7 @@ class ConfirmPopup {
         font.setColor(TITLE_COLOR);
         glyph.setText(font, title);
         font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= titleLineH;
+        ty -= titleLineH + titleH;
 
         // Draw the pre-wrapped message (GlyphLayout already set for contentW + center align)
         glyph.setText(smallFont, message, Color.WHITE, contentW, Align.center, true);
