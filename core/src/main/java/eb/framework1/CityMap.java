@@ -669,16 +669,28 @@ public class CityMap {
     }
 
     /**
-     * Finds the fastest route between two cells using Dijkstra's algorithm.
-     * Road connections cost {@link RouteResult#ROAD_MINUTES_PER_CELL} minutes per cell.
-     * Pathway connections cost {@link RouteResult#PATH_MINUTES_PER_CELL} minutes per cell
-     * (4× slower than roads).
+     * Finds the fastest route between two cells by routing along physically connected road
+     * segments on the junction graph.
+     *
+     * <p>The city grid has junction nodes at every cell corner: (jx, jy) ∈ [0..MAP_SIZE].
+     * Road segments connect adjacent junctions:</p>
+     * <ul>
+     *   <li><b>Horizontal</b> (jx,jy)↔(jx+1,jy): travels east-west along the boundary
+     *       between cell rows jy-1 and jy.  Exists when {@code access[jx][jy-1].hasNorth()}.</li>
+     *   <li><b>Vertical</b> (jx,jy)↔(jx,jy+1): travels north-south along the boundary
+     *       between cell columns jx-1 and jx.  Exists when {@code access[jx-1][jy].hasEast()}.</li>
+     * </ul>
+     * <p>Two road segments are connected only when they share a junction.  This prevents the
+     * character from "jumping" directly from one cell border to a non-adjacent parallel border.</p>
+     *
+     * <p>The returned {@link RouteResult#path} contains junction coordinates [jx, jy],
+     * not cell coordinates.</p>
      *
      * @param fromX Start cell X coordinate
      * @param fromY Start cell Y coordinate
      * @param toX   Destination X coordinate
      * @param toY   Destination Y coordinate
-     * @return A {@link RouteResult} with the path and total travel time
+     * @return A {@link RouteResult} with the junction path and total travel time
      */
     public RouteResult findFastestRoute(int fromX, int fromY, int toX, int toY) {
         if (fromX == toX && fromY == toY) {
@@ -687,63 +699,107 @@ public class CityMap {
             return new RouteResult(p, 0);
         }
 
-        int[][] dist = new int[MAP_SIZE][MAP_SIZE];
-        int[][] prevX = new int[MAP_SIZE][MAP_SIZE];
-        int[][] prevY = new int[MAP_SIZE][MAP_SIZE];
-        for (int[] row : dist) Arrays.fill(row, Integer.MAX_VALUE);
-        for (int[] row : prevX) Arrays.fill(row, -1);
-        for (int[] row : prevY) Arrays.fill(row, -1);
-        dist[fromX][fromY] = 0;
+        int N = MAP_SIZE + 1; // junction indices: 0..MAP_SIZE (17 values per axis)
+        int[][] dist   = new int[N][N];
+        int[][] prevJX = new int[N][N];
+        int[][] prevJY = new int[N][N];
+        for (int[] row : dist)   Arrays.fill(row, Integer.MAX_VALUE);
+        for (int[] row : prevJX) Arrays.fill(row, -1);
+        for (int[] row : prevJY) Arrays.fill(row, -1);
 
-        // Priority queue entries: {cost, x, y}
+        // Multi-source: start at all 4 corners of the source cell with cost 0
         PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
-        pq.offer(new int[]{0, fromX, fromY});
-
-        while (!pq.isEmpty()) {
-            int[] curr = pq.poll();
-            int cost = curr[0], cx = curr[1], cy = curr[2];
-            if (cost > dist[cx][cy]) continue;
-            if (cx == toX && cy == toY) break;
-
-            RoadAccess ra = roadAccessMap.getAccess(cx, cy);
-            if (ra.hasNorth() && cy + 1 < MAP_SIZE)
-                tryRelax(cx, cy, cx, cy + 1, cost, ra.getNorthType(), dist, prevX, prevY, pq);
-            if (ra.hasSouth() && cy - 1 >= 0)
-                tryRelax(cx, cy, cx, cy - 1, cost, ra.getSouthType(), dist, prevX, prevY, pq);
-            if (ra.hasEast() && cx + 1 < MAP_SIZE)
-                tryRelax(cx, cy, cx + 1, cy, cost, ra.getEastType(), dist, prevX, prevY, pq);
-            if (ra.hasWest() && cx - 1 >= 0)
-                tryRelax(cx, cy, cx - 1, cy, cost, ra.getWestType(), dist, prevX, prevY, pq);
+        for (int djx = 0; djx <= 1; djx++) {
+            for (int djy = 0; djy <= 1; djy++) {
+                int jx = fromX + djx, jy = fromY + djy;
+                if (dist[jx][jy] > 0) {
+                    dist[jx][jy] = 0;
+                    pq.offer(new int[]{0, jx, jy});
+                }
+            }
         }
 
-        if (dist[toX][toY] == Integer.MAX_VALUE) {
+        // Mark destination corners
+        boolean[][] isDest = new boolean[N][N];
+        for (int djx = 0; djx <= 1; djx++)
+            for (int djy = 0; djy <= 1; djy++)
+                isDest[toX + djx][toY + djy] = true;
+
+        int bestJX = -1, bestJY = -1;
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int cost = curr[0], jx = curr[1], jy = curr[2];
+            if (cost > dist[jx][jy]) continue;
+
+            // Accept destination only if at least one road segment was travelled (cost > 0).
+            // This prevents zero-cost "arrival" when adjacent cells share a corner junction.
+            if (isDest[jx][jy] && cost > 0) {
+                bestJX = jx;
+                bestJY = jy;
+                break;
+            }
+
+            // Horizontal neighbours (east-west along boundary between rows jy-1 and jy)
+            if (jy >= 1 && jy <= MAP_SIZE - 1) {
+                // East: (jx,jy) → (jx+1,jy); road = north border of cell (jx, jy-1)
+                if (jx < MAP_SIZE) {
+                    RoadAccess ra = roadAccessMap.getAccess(jx, jy - 1);
+                    if (ra.hasNorth())
+                        tryRelaxJunc(jx, jy, jx + 1, jy, cost, ra.getNorthType(), dist, prevJX, prevJY, pq);
+                }
+                // West: (jx,jy) → (jx-1,jy); road = north border of cell (jx-1, jy-1)
+                if (jx > 0) {
+                    RoadAccess ra = roadAccessMap.getAccess(jx - 1, jy - 1);
+                    if (ra.hasNorth())
+                        tryRelaxJunc(jx, jy, jx - 1, jy, cost, ra.getNorthType(), dist, prevJX, prevJY, pq);
+                }
+            }
+
+            // Vertical neighbours (north-south along boundary between cols jx-1 and jx)
+            if (jx >= 1 && jx <= MAP_SIZE - 1) {
+                // North: (jx,jy) → (jx,jy+1); road = east border of cell (jx-1, jy)
+                if (jy < MAP_SIZE) {
+                    RoadAccess ra = roadAccessMap.getAccess(jx - 1, jy);
+                    if (ra.hasEast())
+                        tryRelaxJunc(jx, jy, jx, jy + 1, cost, ra.getEastType(), dist, prevJX, prevJY, pq);
+                }
+                // South: (jx,jy) → (jx,jy-1); road = east border of cell (jx-1, jy-1)
+                if (jy > 0) {
+                    RoadAccess ra = roadAccessMap.getAccess(jx - 1, jy - 1);
+                    if (ra.hasEast())
+                        tryRelaxJunc(jx, jy, jx, jy - 1, cost, ra.getEastType(), dist, prevJX, prevJY, pq);
+                }
+            }
+        }
+
+        if (bestJX < 0) {
             return new RouteResult(null, -1);
         }
 
-        // Reconstruct path by tracing back from destination to source
+        // Reconstruct junction path by tracing back from destination to source corner
         List<int[]> path = new ArrayList<>();
-        int cx = toX, cy = toY;
-        while (!(cx == fromX && cy == fromY)) {
-            path.add(0, new int[]{cx, cy});
-            int px = prevX[cx][cy], py = prevY[cx][cy];
-            cx = px;
-            cy = py;
+        int jx = bestJX, jy = bestJY;
+        while (prevJX[jx][jy] != -1) {
+            path.add(0, new int[]{jx, jy});
+            int pjx = prevJX[jx][jy], pjy = prevJY[jx][jy];
+            jx = pjx;
+            jy = pjy;
         }
-        path.add(0, new int[]{fromX, fromY});
-        return new RouteResult(path, dist[toX][toY]);
+        path.add(0, new int[]{jx, jy}); // add source corner
+        return new RouteResult(path, dist[bestJX][bestJY]);
     }
 
-    private void tryRelax(int cx, int cy, int nx, int ny, int cost, RoadType type,
-                          int[][] dist, int[][] prevX, int[][] prevY, PriorityQueue<int[]> pq) {
+    private void tryRelaxJunc(int jx, int jy, int njx, int njy, int cost, RoadType type,
+                               int[][] dist, int[][] prevJX, int[][] prevJY, PriorityQueue<int[]> pq) {
         int edgeCost = (type == RoadType.ROAD)
                 ? RouteResult.ROAD_MINUTES_PER_CELL
                 : RouteResult.PATH_MINUTES_PER_CELL;
         int newCost = cost + edgeCost;
-        if (newCost < dist[nx][ny]) {
-            dist[nx][ny] = newCost;
-            prevX[nx][ny] = cx;
-            prevY[nx][ny] = cy;
-            pq.offer(new int[]{newCost, nx, ny});
+        if (newCost < dist[njx][njy]) {
+            dist[njx][njy] = newCost;
+            prevJX[njx][njy] = jx;
+            prevJY[njx][njy] = jy;
+            pq.offer(new int[]{newCost, njx, njy});
         }
     }
 

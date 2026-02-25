@@ -80,7 +80,11 @@ class MapViewState {
     float walkTimer     = 0f;
     static final float WALK_STEP_SECONDS = 0.4f;
 
-    // --- Traveled road path (accumulates every cell visited while walking) ---
+    /** Destination cell stored at walk-start; used to set charCellX/Y on arrival. */
+    int walkDestCellX = -1;
+    int walkDestCellY = -1;
+
+    // --- Traveled road path (accumulates every junction visited while walking) ---
     java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
 
     // --- Help toggle (info panel "?" button) ---

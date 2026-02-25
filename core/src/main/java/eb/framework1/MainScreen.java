@@ -1332,20 +1332,24 @@ public class MainScreen implements Screen {
         profile.advanceGameTime(state.currentRoute.totalMinutes);
         profile.useStamina(2);
 
-        // Seed the traveled path with the starting cell (if not already there)
+        // Seed the traveled path with the starting junction (if not already there)
         if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
         if (!state.currentRoute.path.isEmpty()) {
-            int[] startCell = state.currentRoute.path.get(0);
+            int[] startJunc = state.currentRoute.path.get(0);
             if (state.traveledPath.isEmpty()
-                    || state.traveledPath.get(state.traveledPath.size() - 1)[0] != startCell[0]
-                    || state.traveledPath.get(state.traveledPath.size() - 1)[1] != startCell[1]) {
-                state.traveledPath.add(new int[]{startCell[0], startCell[1]});
+                    || state.traveledPath.get(state.traveledPath.size() - 1)[0] != startJunc[0]
+                    || state.traveledPath.get(state.traveledPath.size() - 1)[1] != startJunc[1]) {
+                state.traveledPath.add(new int[]{startJunc[0], startJunc[1]});
             }
         }
 
-        // Start walk animation along the route path
+        // Record destination cell so updateWalk can set charCellX/Y on arrival
+        state.walkDestCellX = state.selectedCellX;
+        state.walkDestCellY = state.selectedCellY;
+
+        // Start walk animation along the route path (junction coordinates)
         state.walkPath     = state.currentRoute.path;
-        state.walkStepIdx  = 1;  // index 0 is the current (start) cell – skip it
+        state.walkStepIdx  = 1;  // index 0 is the start junction – skip it
         state.walkTimer    = MapViewState.WALK_STEP_SECONDS;
         state.isWalking    = true;
         state.currentRoute = null;
@@ -1804,57 +1808,72 @@ public class MainScreen implements Screen {
         state.walkTimer -= delta;
         if (state.walkTimer > 0f) return;
 
-        // Advance to next cell in path
+        // Advance to next junction in path
         if (state.walkStepIdx >= state.walkPath.size()) {
             // Shouldn't normally reach here, but guard anyway
             state.isWalking = false;
             return;
         }
 
-        int prevX = state.charCellX;
-        int prevY = state.charCellY;
+        int[] junc = state.walkPath.get(state.walkStepIdx);
+        int jx = junc[0], jy = junc[1];
 
-        int[] cell = state.walkPath.get(state.walkStepIdx);
-        state.charCellX = cell[0];
-        state.charCellY = cell[1];
-
-        // Accumulate this cell into the persistent traveled path
+        // Accumulate this junction into the persistent traveled path
         if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
-        state.traveledPath.add(new int[]{state.charCellX, state.charCellY});
+        state.traveledPath.add(new int[]{jx, jy});
 
-        // Centre the map on the current walk cell
-        state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
-        state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
+        // Approximate cell position from junction (clamped to valid cell range)
+        state.charCellX = Math.min(jx, CityMap.MAP_SIZE - 1);
+        state.charCellY = Math.min(jy, CityMap.MAP_SIZE - 1);
+
+        // Centre the map on the current junction position
+        state.mapOffsetX = jx - state.getVisibleCellsX() / 2.0f;
+        state.mapOffsetY = jy - state.getVisibleCellsY() / 2.0f;
         state.clampMapOffset();
 
         state.walkStepIdx++;
 
         if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination – always discover and always show popup
+            // Reached destination – set exact cell, discover, show popup
             state.isWalking = false;
             state.walkPath  = null;
             state.traveledPath.clear();
+            state.charCellX = state.walkDestCellX;
+            state.charCellY = state.walkDestCellY;
+            state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
+            state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
+            state.clampMapOffset();
             boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
             showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
             Gdx.app.log("MainScreen", "Walk complete, arrived at "
                     + state.charCellX + "," + state.charCellY);
         } else {
-            // Discover the two cells perpendicular to the direction of movement,
-            // each with a 10% chance of discovery.
-            int dx = state.charCellX - prevX;
-            int dy = state.charCellY - prevY;
-            // Perpendicular vectors: rotate (dx,dy) by +90° and -90°
-            int side1X = state.charCellX + dy;
-            int side1Y = state.charCellY - dx;
-            int side2X = state.charCellX - dy;
-            int side2Y = state.charCellY + dx;
-            if (side1X >= 0 && side1X < CityMap.MAP_SIZE
-                    && side1Y >= 0 && side1Y < CityMap.MAP_SIZE) {
-                if (MathUtils.random() < 0.10f) discoverCell(side1X, side1Y);
+            // Discover the two cells on either side of the current road segment (10% each).
+            // Determine direction from the previous junction to the current one.
+            int[] prevJunc = state.walkPath.get(state.walkStepIdx - 2);
+            int djx = jx - prevJunc[0];
+            int djy = jy - prevJunc[1];
+            int side1CX, side1CY, side2CX, side2CY;
+            if (djy == 0) {
+                // Horizontal movement: side cells are above and below junction row jy
+                side1CX = Math.min(jx, CityMap.MAP_SIZE - 1);
+                side1CY = Math.min(jy, CityMap.MAP_SIZE - 1);      // cell above road
+                side2CX = Math.min(jx, CityMap.MAP_SIZE - 1);
+                side2CY = Math.max(jy - 1, 0);                     // cell below road
+            } else {
+                // Vertical movement: side cells are left and right of junction column jx
+                side1CX = Math.min(jx, CityMap.MAP_SIZE - 1);      // cell to the right
+                side1CY = Math.min(jy, CityMap.MAP_SIZE - 1);
+                side2CX = Math.max(jx - 1, 0);                     // cell to the left
+                side2CY = Math.min(jy, CityMap.MAP_SIZE - 1);
             }
-            if (side2X >= 0 && side2X < CityMap.MAP_SIZE
-                    && side2Y >= 0 && side2Y < CityMap.MAP_SIZE) {
-                if (MathUtils.random() < 0.10f) discoverCell(side2X, side2Y);
+            if (side1CX >= 0 && side1CX < CityMap.MAP_SIZE
+                    && side1CY >= 0 && side1CY < CityMap.MAP_SIZE) {
+                if (MathUtils.random() < 0.10f) discoverCell(side1CX, side1CY);
+            }
+            if (side2CX >= 0 && side2CX < CityMap.MAP_SIZE
+                    && side2CY >= 0 && side2CY < CityMap.MAP_SIZE) {
+                if (MathUtils.random() < 0.10f) discoverCell(side2CX, side2CY);
             }
             state.walkTimer = MapViewState.WALK_STEP_SECONDS;
         }

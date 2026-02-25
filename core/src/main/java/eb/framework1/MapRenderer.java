@@ -356,34 +356,41 @@ class MapRenderer {
     }
 
     /**
-     * Draws blue filled road-gap rectangles between each consecutive pair of cells in {@code path}.
+     * Draws blue filled road bars between each consecutive pair of junctions in {@code path}.
+     * Each entry in {@code path} is a junction coordinate [jx, jy] ∈ [0..MAP_SIZE].
      * The ShapeRenderer must already be in {@link ShapeRenderer.ShapeType#Filled} mode with the
      * desired colour set by the caller.
+     *
+     * <ul>
+     *   <li>Horizontal segment (jx1,jy)↔(jx1+1,jy): a horizontal bar centred on junction row jy.</li>
+     *   <li>Vertical segment (jx,jy1)↔(jx,jy1+1): a vertical bar centred on junction column jx.</li>
+     * </ul>
      */
     private static void drawRoadSegments(java.util.List<int[]> path, ShapeRenderer sr,
             float mapStartX, float mapStartY, float cellSize, float borderSize,
             int startCellX, int startCellY, int endCellX, int endCellY,
             float fracOffsetX, float fracOffsetY, int visibleCellsY) {
-        float roadBorderWidth = borderSize * 2f;
-        float innerLen = cellSize - roadBorderWidth;
+        float roadW = borderSize * 2f;
         for (int i = 0; i < path.size() - 1; i++) {
-            int[] c1 = path.get(i);
-            int[] c2 = path.get(i + 1);
-            int cx1 = c1[0], cy1 = c1[1];
-            int cx2 = c2[0], cy2 = c2[1];
-            boolean c1Vis = cx1 >= startCellX && cx1 < endCellX && cy1 >= startCellY && cy1 < endCellY;
-            boolean c2Vis = cx2 >= startCellX && cx2 < endCellX && cy2 >= startCellY && cy2 < endCellY;
-            if (!c1Vis && !c2Vis) continue;
-            float drawX1 = mapStartX + (cx1 - startCellX - fracOffsetX) * cellSize;
-            float drawY1 = mapStartY + (visibleCellsY - 1 - (cy1 - startCellY - fracOffsetY)) * cellSize;
-            if (cx2 == cx1 + 1) {
-                sr.rect(drawX1 + cellSize - borderSize, drawY1 + borderSize, roadBorderWidth, innerLen);
-            } else if (cx2 == cx1 - 1) {
-                sr.rect(drawX1 - borderSize, drawY1 + borderSize, roadBorderWidth, innerLen);
-            } else if (cy2 == cy1 + 1) {
-                sr.rect(drawX1 + borderSize, drawY1 - borderSize, innerLen, roadBorderWidth);
-            } else if (cy2 == cy1 - 1) {
-                sr.rect(drawX1 + borderSize, drawY1 + cellSize - borderSize, innerLen, roadBorderWidth);
+            int[] j1 = path.get(i);
+            int[] j2 = path.get(i + 1);
+            int jx1 = j1[0], jy1 = j1[1];
+            int jx2 = j2[0], jy2 = j2[1];
+            // Skip if both junctions are outside the visible area
+            boolean vis1 = jx1 >= startCellX && jx1 <= endCellX && jy1 >= startCellY && jy1 <= endCellY;
+            boolean vis2 = jx2 >= startCellX && jx2 <= endCellX && jy2 >= startCellY && jy2 <= endCellY;
+            if (!vis1 && !vis2) continue;
+            if (jy1 == jy2) {
+                // Horizontal segment: bar centred on junction row jy1
+                float barX = mapStartX + (Math.min(jx1, jx2) - startCellX - fracOffsetX) * cellSize;
+                float barY = mapStartY + (visibleCellsY - 1 - (jy1 - startCellY - fracOffsetY)) * cellSize;
+                sr.rect(barX, barY - borderSize, cellSize, roadW);
+            } else if (jx1 == jx2) {
+                // Vertical segment: bar centred on junction column jx1
+                // Higher jy = lower screen Y (map renders jy=0 at top, jy=MAP_SIZE at bottom)
+                float barX = mapStartX + (jx1 - startCellX - fracOffsetX) * cellSize;
+                float barY = mapStartY + (visibleCellsY - 1 - (Math.min(jy1, jy2) - startCellY - fracOffsetY)) * cellSize;
+                sr.rect(barX - borderSize, barY - cellSize, roadW, cellSize);
             }
         }
     }
