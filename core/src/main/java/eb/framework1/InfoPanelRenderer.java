@@ -522,8 +522,8 @@ class InfoPanelRenderer {
                     textY -= fontLineH;
 
                     if (building.getDefinition() != null) {
-                        textY = drawLabelValue(font, "Category: ",
-                                building.getCategory(), textX, textY);
+                        textY = drawLabelValue(font, "Type: ",
+                                building.getName(), textX, textY);
                         textY -= fontLineH;
                         textY = drawLabelValue(font, "Floors: ",
                                 String.valueOf(building.getFloors()), textX, textY);
@@ -1457,7 +1457,7 @@ class InfoPanelRenderer {
         Building b = cell.getBuilding();
         if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
         h += fontLineH; // Building (advance)
-        if (b.getDefinition() != null) h += fontLineH * 2; // Category + Floors
+        if (b.getDefinition() != null) h += fontLineH * 2; // Type + Floors
         // Multi-tenant: Tenants header + one line per extra tenant
         List<String> tenants = b.getTenants();
         if (tenants.size() > 1) {
@@ -1502,7 +1502,7 @@ class InfoPanelRenderer {
                 }
                 maxW = Math.max(maxW, labW + nameW);
                 if (b.getDefinition() != null) {
-                    glyphLayout.setText(font, "Category: " + b.getCategory());
+                    glyphLayout.setText(font, "Type: " + b.getName());
                     maxW = Math.max(maxW, glyphLayout.width);
                     glyphLayout.setText(font, "Floors: " + b.getFloors());
                     maxW = Math.max(maxW, glyphLayout.width);

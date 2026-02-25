@@ -2061,7 +2061,7 @@ public class MainScreen implements Screen {
             description = def.getDescription();
         }
 
-        discoveryPopup.show(building.getDisplayName(), description, null,
+        discoveryPopup.show(building.getDisplayName(), building.getName(), description, null,
                 java.util.Collections.emptyList(), newDiscovery);
     }
 

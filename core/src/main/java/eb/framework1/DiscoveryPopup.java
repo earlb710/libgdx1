@@ -41,6 +41,7 @@ class DiscoveryPopup {
     private boolean      visible = false;
     private boolean      newDiscovery;
     private String       buildingName;
+    private String       buildingType;
     private String       description;
     private String       novelText;
     private final List<String> improvementLines = new ArrayList<>();
@@ -76,16 +77,18 @@ class DiscoveryPopup {
     /**
      * Shows the popup for a building arrival.
      *
-     * @param buildingName     Name of the building
+     * @param buildingName     Name of the building (display name, may be a tenant/company name)
+     * @param buildingType     Type of the building (e.g., "Hotel", "Police Station")
      * @param description      Building description from the definition (may be null/empty)
      * @param novelText        Context-sensitive novel-engine text (may be null/empty)
      * @param improvementLines Formatted names of auto-discovered improvements
      * @param newDiscovery     {@code true} if this is the first visit (title reads "Discovered:");
      *                         {@code false} for revisits (title reads "Visiting:")
      */
-    void show(String buildingName, String description, String novelText,
+    void show(String buildingName, String buildingType, String description, String novelText,
               List<String> improvementLines, boolean newDiscovery) {
         this.buildingName  = buildingName;
+        this.buildingType  = (buildingType != null && !buildingType.isEmpty()) ? buildingType : null;
         this.newDiscovery  = newDiscovery;
         this.description   = (description != null && !description.isEmpty()) ? description : null;
         this.novelText     = (novelText   != null && !novelText.isEmpty())   ? novelText   : null;
@@ -157,7 +160,7 @@ class DiscoveryPopup {
             return glyph.width;
         };
 
-        // --- Collect scrollable lines: description + novel text + improvements ---
+        // --- Collect scrollable lines: building type + description + novel text + improvements ---
         List<String> descLines  = description != null
                 ? WordWrapper.wrap(description, textAreaMaxW, measurer)
                 : new ArrayList<>();
@@ -166,6 +169,9 @@ class DiscoveryPopup {
                 : new ArrayList<>();
 
         List<String> scrollLines = new ArrayList<>();
+        if (buildingType != null) {
+            scrollLines.add("Type: " + buildingType);
+        }
         scrollLines.addAll(descLines);
         scrollLines.addAll(novelLines);
         if (!improvementLines.isEmpty()) {
@@ -176,7 +182,7 @@ class DiscoveryPopup {
         }
 
         // Track which line-index range is novel (for NOVEL_COLOR rendering)
-        final int novelStartIdx = descLines.size();
+        final int novelStartIdx = (buildingType != null ? 1 : 0) + descLines.size();
         final int novelEndIdx   = novelStartIdx + novelLines.size();
 
         // Measure scrollable content
