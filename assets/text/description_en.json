@@ -17,6 +17,11 @@
       "gender": {
         "male": "A man who moves through here like he owns it doesn't get a second look. The lot decides that in about four steps.",
         "female": "The exits in a place like this sit at the edges of sight — there, and findable, for anyone who thinks to look."
+      },
+      "state": {
+        "good": "Fresh asphalt lines the lot in crisp white paint. The surface is even and uncracked, recently sealed against the weather.",
+        "normal": "Weathered asphalt shows the marks of regular use. Most lines are still readable, though several have faded to grey.",
+        "bad": "Buckled asphalt heaves through broken lane markings. Weeds push up through wide fissures in the tarmac, and puddles pool in the sunken patches."
       }
     },
     "parking_lot_large": {
@@ -35,6 +40,11 @@
       "gender": {
         "male": "A man who strolls a lot like he's headed nowhere reads as harmless. The better the tail, the more unremarkable the walk.",
         "female": "A woman in a lot this size draws a different kind of attention. A few faces clock the entrance. What they see is up for interpretation."
+      },
+      "state": {
+        "good": "Wide lanes stretch across freshly sealed asphalt. The painted directional arrows are crisp, and the perimeter curbs are freshly edged.",
+        "normal": "A few surface cracks run through the asphalt and the lane markings have started to thin. The lot is functional but shows its years.",
+        "bad": "The asphalt has fractured into rough sections separated by deep cracks. Only fragments of the original lane markings remain, and rusted signage leans at odd angles."
       }
     },
     "parking_garage_small": {
@@ -53,6 +63,11 @@
       "gender": {
         "male": "A man who stays in the shadows of a place like this becomes part of its architecture. The dark absorbs him. Nobody accounts for shadows.",
         "female": "The stairwell lights are noted by anyone who uses them. A woman who moves through a garage without hesitation changes the calculation — working with the space, not against it."
+      },
+      "state": {
+        "good": "Clean concrete walls reflect bright overhead lighting. The painted floor markings are sharp, the stairwell handrails freshly coated, and the drainage channels clear.",
+        "normal": "The concrete shows the typical grey staining of a working garage. Overhead lights flicker in one section; most floor markings are still legible.",
+        "bad": "Concrete spalls from the ceiling in sections, exposing rusted rebar beneath. Water stains stripe the walls in dark vertical lines, and half the overhead fixtures are dark."
       }
     },
     "parking_garage_large": {
@@ -71,6 +86,11 @@
       "gender": {
         "male": "A man who moves through a structure like he built it draws no attention. Sure, deliberate, clearly with a destination — nobody's problem.",
         "female": "A woman moving through a multi-storey alone gets assessed at every level. She reads that assessment. Uses it."
+      },
+      "state": {
+        "good": "Six levels of clean, well-lit concrete. Each ramp is clearly marked and the structural columns show no sign of deterioration.",
+        "normal": "Grease and tyre rubber have given the concrete floor a permanent grey sheen. The overhead lighting is adequate but uneven, and a few column bases show surface cracking.",
+        "bad": "Exposed aggregate and scaling concrete mark every wall. Long streaks of rust bleed from ceiling joints, and the drainage trenches are clogged with decades of debris."
       }
     },
     "transit_station": {
@@ -89,6 +109,11 @@
       "gender": {
         "male": "A man with his collar up and a purpose in his step moves through a transit station like a piece of it. Nobody gives him a second look. The station is full of him.",
         "female": "A woman with her back to a pillar and her eyes on the exits is reading the room. In a crowded station, that kind of attention goes unremarked. Everyone's managing the same space differently."
+      },
+      "state": {
+        "good": "Polished floor tiles carry the reflection of bright overhead panels. The timetable boards are sharp and unscratched, and the seating rows are freshly bolted.",
+        "normal": "Scuff marks cover the floor tiles and one timetable board blinks intermittently. The seating rows are intact but worn smooth at the edges.",
+        "bad": "Cracked tiles and missing grout sections pattern the floor. Several timetable boards are dark, and the metal seating frames are pocked with rust along every weld."
       }
     },
     "bus_depot": {
@@ -107,6 +132,11 @@
       "gender": {
         "male": "A man who moves through the yard with the right nod reads as crew. In a depot this size, nobody's counting faces. The work uniform is posture.",
         "female": "A woman in the yard draws eyes away from everything else for about thirty seconds. The depot crew's attention is a fixed resource — whatever it lands on, it leaves somewhere else uncovered."
+      },
+      "state": {
+        "good": "The depot building presents clean rendered walls and freshly painted bay numbers. Fuel lines and drainage channels show no sign of leaks.",
+        "normal": "Diesel staining marks the concrete apron around the bays. The wall render is intact but grey, and a few bay number signs have faded past easy reading.",
+        "bad": "Oil has permanently darkened the cracked concrete of the apron. The rendered walls are mottled with damp stains and flaking paint, and several bay covers hang from single hinges."
       }
     },
     "convenience_store": {
@@ -124,6 +154,11 @@
       "gender": {
         "male": "A man who buys a coffee with cash and leaves is nothing to the cashier. Unmemorable by design. The transaction doesn't stick.",
         "female": "A woman who browses slowly and says little creates a silence the cashier will fill. People always do. The information comes out on its own."
+      },
+      "state": {
+        "good": "The shopfront glass is spotless and the signage backlit and even. The exterior paint is fresh and the entrance canopy sits level without rust.",
+        "normal": "The signage has one dead bulb and the exterior paint shows small chips near the door frame. The glass is clean but carries the thin haze of old streaks.",
+        "bad": "The exterior paint is blistered and peeling from the corners outward. Several letters in the sign are dark, and the entrance canopy sags on a bent bracket."
       }
     },
     "gas_station": {
@@ -142,6 +177,11 @@
       "gender": {
         "male": "Cash at the pump, nothing from the shop. No record past the nozzle sensor. A stop that leaves almost no trace.",
         "female": "The attendant clocks the stop — standard procedure. What they log is the transaction. What was noted on the way in doesn't make it into the record."
+      },
+      "state": {
+        "good": "The canopy overhead is clean white with crisp brand colours. The pump islands are freshly painted and the forecourt surface shows no staining.",
+        "normal": "Fuel stains mark the forecourt around the pump islands. The canopy paint is intact but dull, and the price display boards show wear on their edges.",
+        "bad": "The canopy has rusted along its fascia panels, and sheets of its surface finish have peeled away. The forecourt concrete is cracked and deeply stained, and the pump housing covers are yellowed and split."
       }
     },
     "fast_food_restaurant": {
@@ -160,6 +200,11 @@
       "gender": {
         "male": "The corner booth, back to the wall, gives a clear view of the room and the door. A man who takes it looks like he belongs here. The booth doesn't announce itself — it just works.",
         "female": "A woman who sits where she can see the door draws a neighbour who wants to make conversation. She lets him think he succeeded. The information flows in one direction."
+      },
+      "state": {
+        "good": "Bold signage stands crisp above a clean facade. The drive-through lane markings are fresh and the window glazing is clear and unscratched.",
+        "normal": "The facade is intact but the bright colour panels have mellowed with exposure. Drive-through lane markings are still visible but worn at the corners.",
+        "bad": "Cracked cladding panels have pulled away from the facade in sections. The signage is partially dark, and the drive-through lane markings are barely traceable on the faded asphalt."
       }
     },
     "coffee_shop": {
@@ -178,6 +223,11 @@
       "gender": {
         "male": "A man with a newspaper at a coffee shop table doesn't register. The newspaper doesn't even have to be current. The posture is enough.",
         "female": "Two men near the window have been watching the same woman since she sat down. Their faces are patient. So is hers."
+      },
+      "state": {
+        "good": "A clean rendered exterior with matching window trim and an unscratched sandwich board stand. The painted shopfront frames are uniform and crisp.",
+        "normal": "The exterior render shows hairline cracks near the window joints. The window trim paint has begun to chalk at its leading edges.",
+        "bad": "Damp has lifted sections of exterior render from the wall beneath. The window frames are raw in places where the paint has fully peeled, and the entrance step has chipped away at both corners."
       }
     },
     "small_retail_store": {
@@ -196,6 +246,11 @@
       "gender": {
         "male": "A man who asks a dumb question about a product he doesn't need will get five minutes of the owner's time. One answer in those five minutes will be worth having.",
         "female": "The shopkeeper relaxes the moment a woman walks in. Threat assessment: none. The ease is visible in the posture, the tone, the detail freely given."
+      },
+      "state": {
+        "good": "A freshly painted shopfront with clean glazing and an intact awning. The entrance threshold is uncracked and the door hardware polished.",
+        "normal": "The exterior paint has begun to chalk and one awning panel is slightly faded compared to the others. The glazing carries faint wiper marks.",
+        "bad": "The awning frame has bent in one section, pulling the fabric out of alignment. Paint has flaked from the door frame down to bare wood, and the glass carries a permanent film."
       }
     },
     "pharmacy": {
@@ -214,6 +269,11 @@
       "gender": {
         "male": "A man who lingers by the vitamins long enough catches the counter conversation without being part of it. People say more than they intend to in places like this.",
         "female": "The pharmacist knows every customer by prescription history and by name. The relationship between a pharmacist and a regular customer is built on trust and repetition."
+      },
+      "state": {
+        "good": "A clean clinical exterior with even signage lighting and unscratched window glazing. The entrance is wide, level, and recently resurfaced.",
+        "normal": "The signage lighting is slightly uneven and one entrance mat sits raised at a corner. The exterior cladding is clean but shows minor surface crazing.",
+        "bad": "Delaminated cladding panels have come away at the corners of the building. The sign box has darkened in sections, and the entrance canopy has developed a pronounced lean."
       }
     },
     "bank_branch": {
@@ -232,6 +292,11 @@
       "gender": {
         "male": "A man who carries himself like he has an appointment gets treated as though he does. The assumption is automatic. The branch extends the courtesy before the question is asked.",
         "female": "The branch manager approaches before a number is taken. A woman who walks in like she owns the room gets seen first. The branch manager makes that calculation without being asked."
+      },
+      "state": {
+        "good": "Polished granite cladding and clean brass trim give the building a solid, well-maintained face. The entrance door handles are free of tarnish.",
+        "normal": "The granite cladding has surface scratches at shoulder height and the brass trim has dulled. The entry canopy is structurally sound but shows weathering along its seams.",
+        "bad": "Sections of granite cladding have been repaired with mismatched mortar. The brass trim is green with oxidation, and one ground-floor window has been boarded in plywood."
       }
     },
     "laundromat": {
@@ -250,6 +315,11 @@
       "gender": {
         "male": "A man with a magazine he isn't reading blends into the wait. The laundromat absorbs him alongside the other slow hours and the spinning drums.",
         "female": "A woman chatting with the one next to her is unremarkable in a laundromat. The neighbour, the landlord, the troubles — the information moves freely in a space where time is being killed."
+      },
+      "state": {
+        "good": "Clean white render and clear shopfront windows reveal the row of machines inside. The exterior signage is fully illuminated and the drainage gutter is clear.",
+        "normal": "Soap residue has left pale streaks below the ventilation grille. The render is sound but carries scattered patches of old gum near the entrance.",
+        "bad": "Moisture has swollen the door frame out of true. The render has bubbled and cracked near the drainage pipe, and the ventilation grille is choked with lint."
       }
     },
     "hair_salon": {
@@ -268,6 +338,11 @@
       "gender": {
         "male": "The only man in the room is known to be there by everyone in it. The attention it generates is brief and bright. Useful while it holds.",
         "female": "The mirror in a salon shows every face in the room at once. A woman who reads it properly is watching an audience that doesn't know it's on stage."
+      },
+      "state": {
+        "good": "A neat shopfront with a freshly painted door and clear, clean glass. The awning is taut and its colour is even across the full width.",
+        "normal": "The awning has faded slightly on the sun-facing side. The exterior paintwork is intact but shows minor crazing near the window reveal.",
+        "bad": "The awning frame has corroded and one end hangs free of its mounting. The window frame paint has blistered and the door threshold is cracked across its width."
       }
     },
     "gym_fitness_center": [
@@ -287,6 +362,11 @@
         "gender": {
           "male": "Two regulars nod at newcomers and hold equipment for people they've never met. Some spaces run on old, unwritten codes of conduct.",
           "female": "A woman works the free weights in the far corner. The stares come and go. The weights don't care, and neither does she."
+        },
+        "state": {
+          "good": "A robust brick or render facade with clean glazed panels and fresh signage. The entrance mat is new and the door hardware is tight.",
+          "normal": "The facade is intact but the lower panels show scuff marks from equipment deliveries. The signage is readable but the illumination is uneven.",
+          "bad": "The facade panels have been patched in places with sealant that has since yellowed. Several sign letters have fallen, and the entrance canopy is rust-stained along its underside."
         }
       },
       {
@@ -305,6 +385,11 @@
         "gender": {
           "male": "The regulars clock the newcomer and move on. Not interesting enough to bother. The floor returns to its own business.",
           "female": "The far corner holds a woman working heavy iron. The stares don't land when the weights get high enough."
+        },
+        "state": {
+          "good": "A robust brick or render facade with clean glazed panels and fresh signage. The entrance mat is new and the door hardware is tight.",
+          "normal": "The facade is intact but the lower panels show scuff marks from equipment deliveries. The signage is readable but the illumination is uneven.",
+          "bad": "The facade panels have been patched in places with sealant that has since yellowed. Several sign letters have fallen, and the entrance canopy is rust-stained along its underside."
         }
       }
     ],
@@ -324,6 +409,11 @@
       "gender": {
         "male": "Men move through the strip with a list in hand or the look of one. Errands are the oldest cover story.",
         "female": "A woman pausing at a display window reads as background noise. The oldest cover in the book, and it has never been retired."
+      },
+      "state": {
+        "good": "A consistent line of clean shopfronts under a level canopy. The shared walkway is freshly swept and the fascia boards are uniformly painted.",
+        "normal": "Several tenant signs have been replaced individually, breaking the uniformity of the fascia. The walkway surface is intact but stained near the drain outlets.",
+        "bad": "Empty unit spaces behind boarded fronts break the run of the shopfronts. The canopy has buckled in sections and the fascia boards carry peeling paint in large strips."
       }
     },
     "shopping_center": {
@@ -342,6 +432,11 @@
       "gender": {
         "male": "A stationary man in a shopping centre draws attention. A moving one becomes part of the scenery.",
         "female": "A woman moving through the centre reads as background noise. Just another shopper. Everybody's blind spot."
+      },
+      "state": {
+        "good": "A broad facade of clean cladding panels and clear entrance glazing. The landscaped approaches are tidy and the entrance canopy is level.",
+        "normal": "The cladding panels are intact but some have faded unevenly. The entrance glazing carries minor scratches at knee height, and several exterior light fittings are dark.",
+        "bad": "Loose cladding panels rattle at the upper levels, and some have been removed entirely. The entrance canopy has developed a visible sag, and the car park approaches are rutted and cracked."
       }
     },
     "regional_mall": {
@@ -360,6 +455,11 @@
       "gender": {
         "male": "A man moving with purpose through the browsing mass reads as someone who knows where he's going. The crowd makes way.",
         "female": "In a place this size, a woman moving without urgency becomes functionally invisible. The mall doesn't differentiate."
+      },
+      "state": {
+        "good": "An expansive facade of clean stone aggregate and glass curtain wall. The entrance towers are fully lit and the exterior signage is uniform.",
+        "normal": "The exterior stone shows weathering at the seams and the glass curtain wall has isolated pane replacements visible by their cleaner colour. Several entrance fixtures are dark.",
+        "bad": "Sections of the stone aggregate cladding have detached, leaving exposed substrate visible. The glass curtain wall has boarded panes at multiple levels and the entrance towers carry large rust stains from corroding fixings."
       }
     },
     "supermarket": {
@@ -378,6 +478,11 @@
       "gender": {
         "male": "A man with a cart in a supermarket reads as furniture. Nobody questions it. The cart is practically camouflage.",
         "female": "The floor manager offers a friendly nod to a woman near the back aisle. Women ask questions in supermarkets all the time. Nobody reads anything into it."
+      },
+      "state": {
+        "good": "A wide, clean retail facade with evenly lit signage and clear glazed frontage. The loading dock approach is freshly marked and drained.",
+        "normal": "The facade cladding is intact but some panels have faded unevenly in the sun. The loading dock is stained and the exterior trolley bays are dented.",
+        "bad": "The facade panels have warped at the upper fascia, and the signage illumination is patchy. The loading dock area is heavily cracked and oil-stained, and the external drainage gutter has separated from the wall."
       }
     },
     "warehouse_store": {
@@ -396,6 +501,11 @@
       "gender": {
         "male": "A man in the trade section reads as routine. The posture carries credentials that nobody stops to check.",
         "female": "The floor rep crosses the aisle to assist. Three questions get answered freely. The fourth answer is somewhere in the first three."
+      },
+      "state": {
+        "good": "A large-format steel panel building with clean soffits and fresh exterior paint. Signage is fully lit and the apron is flat and unmarked.",
+        "normal": "The steel panels have surface rust at the lower joints. The signage is legible but the illumination flickers in one section. Tyre marks score the apron.",
+        "bad": "Corrosion has spread from the lower panels upward, and several sections have been patched with mismatched steel. The apron is heavily cracked and potholed, and the overhead signage is partially dark."
       }
     },
     "restaurant_casual": {
@@ -414,6 +524,11 @@
       "gender": {
         "male": "A man nursing a coffee in a corner booth is invisible. That's the point, and the room treats him accordingly.",
         "female": "The waiter is attentive in ways that overstep the job description. The attention gets redirected. A useful conversation emerges from the wreckage."
+      },
+      "state": {
+        "good": "A clean rendered exterior with an intact awning and spotless windows. The entrance planters are freshly maintained and the door hardware is bright.",
+        "normal": "The exterior paint is intact but shows crazing near the window reveals. The awning has begun to fade on its leading edge and one entrance planter has cracked.",
+        "bad": "The render has delaminated in patches above the windows. The awning fabric has split along one seam, and the entrance step has sunk and cracked away from the threshold."
       }
     },
     "restaurant_fine_dining": {
@@ -432,6 +547,11 @@
       "gender": {
         "male": "A man who orders expensive and doesn't eat is either nervous or important. Either reads well in a room like this.",
         "female": "A woman dining alone in a place like this reads as either very confident or very dangerous. The room can't decide which and doesn't stop watching."
+      },
+      "state": {
+        "good": "A polished stone facade with clean brass fixtures and unscratched sidelight glazing. The canopy is taut, its lettering crisp and fully illuminated.",
+        "normal": "The stone facade has dulled with weathering and the brass fixtures show the beginnings of tarnish. The canopy is structurally sound but one illuminated letter flickers.",
+        "bad": "Stone facing panels have separated at the mortar joints. The brass fixtures are heavily tarnished and one is missing entirely. The canopy frame has sagged, pulling the fabric covering into folds."
       }
     },
     "car_dealership": {
@@ -450,6 +570,11 @@
       "gender": {
         "male": "They open with the high end. The conversation redirects in thirty seconds. The floor reads it as a man who knows what he wants.",
         "female": "The salesperson underestimates the woman across the desk in the first ten seconds. By thirty, the hole is dug. The gap between assumption and reality is large enough to drive a case through."
+      },
+      "state": {
+        "good": "Expanses of clear glazing reflect an even sky. The forecourt is clean and level, and the signage pylons are freshly painted with no visible rust.",
+        "normal": "The glazing is intact but carries wiper arcs and minor crazing at the lower corners. A few forecourt light housings are cracked but functional.",
+        "bad": "Several large panes in the glazed showroom wall have been replaced with opaque panels. The forecourt is cracked and uneven, and the signage pylon is rust-streaked from the fixing bolts down."
       }
     },
     "auto_repair_shop": {
@@ -468,6 +593,11 @@
       "gender": {
         "male": "A man who speaks shop floor dialect gets treated like a regular. They relax. That's when the real answers come out.",
         "female": "The mechanic starts over-explaining. It runs long and has a hole in it. The hole is big enough to drive a case through."
+      },
+      "state": {
+        "good": "Smooth rendered walls and a wide clean workshop apron. The roller shutter doors are straight and fully operative, and the signage is clearly painted.",
+        "normal": "Oil staining marks the apron at each bay opening. The roller shutter doors are functional but one has a dent. The exterior render shows crazing at the base.",
+        "bad": "The render has peeled away in sections revealing bare block beneath. Workshop apron concrete has cracked into displaced sections, and one roller shutter door has jammed open."
       }
     },
     "medical_clinic": {
@@ -486,6 +616,11 @@
       "gender": {
         "male": "The reception desk is the first checkpoint and the last line of courtesy. The staff are trained to manage the gap between what people say is wrong and what is actually wrong.",
         "female": "Through the door and past the reception line — a woman moving with purpose in a clinic reads as staff. The question never gets asked."
+      },
+      "state": {
+        "good": "A clean rendered building with even paintwork and unscratched entrance glazing. The accessible ramp is freshly marked and the handrails are solid.",
+        "normal": "The exterior paintwork shows hairline cracking near the window reveals. The accessible ramp is intact but the tactile paving at the base has two missing sections.",
+        "bad": "The render has bubbled and separated from the wall in patches. The entrance canopy bracket has corroded and the glazed entrance screen carries a spider crack across one pane."
       }
     },
     "dental_office": {
@@ -504,6 +639,11 @@
       "gender": {
         "male": "A man in the waiting room chair nearest the corridor, turning the pages of a magazine no one has opened since last year. The picture of ordinary.",
         "female": "The receptionist engages with the kind of courtesy that doesn't come with a clipboard. The conversation moves. Some environments still run that way."
+      },
+      "state": {
+        "good": "A neat shopfront or suite-level facade with clean glass and precise signage. The entrance threshold is level and the intercom panel is new.",
+        "normal": "The exterior paint has begun to chalk at the top edge of the facade panel. The signage is legible but one illuminated letter is slightly dimmer than the rest.",
+        "bad": "Paint has peeled from the facade panel down to bare primer in one section. The signage illumination has failed entirely, and the intercom panel casing is cracked and discoloured."
       }
     },
     "veterinary_clinic": {
@@ -522,6 +662,11 @@
       "gender": {
         "male": "A man holds the door. A client takes it as an opening and gives a full account of their last three visits in return. Politeness is a currency that pays.",
         "female": "The vet tech speaks across the counter without the usual professional distance. Four minutes of conversation, the kind that takes others an hour."
+      },
+      "state": {
+        "good": "A clean-rendered single-storey building with intact signage and unscratched glazing. The entrance path is clear and the exterior lighting is fully functional.",
+        "normal": "The rendered exterior shows minor crazing and one external light fitting has a cracked housing. The signage lettering is intact but slightly faded.",
+        "bad": "The render has spalled away near the base of the building. The exterior lighting is reduced to one functioning fixture, and the signage box is stained with a long rust streak from a failing fixing."
       }
     },
     "hospital_small": {
@@ -540,6 +685,11 @@
       "gender": {
         "male": "A man moving the ward with purpose and pace reads as someone who belongs there. Nobody stops him.",
         "female": "A nurse stops to check on a woman in the corridor — genuine concern, no suspicion. One question asked and answered. Three others follow."
+      },
+      "state": {
+        "good": "A clean institutional facade with even render and unscratched entrance glazing. The accessible drop-off area is clearly marked and the signage is fully illuminated.",
+        "normal": "The render shows surface crazing at expansion joints. Several facade-mounted lights are dark and the accessible drop-off lane markings have begun to fade.",
+        "bad": "Large sections of render have been patched with sealant that has since cracked. The glazed entrance screen has a cracked pane, and the facade-mounted signage is only partially illuminated."
       }
     },
     "hospital_large": {
@@ -558,6 +708,11 @@
       "gender": {
         "male": "A man walking fast in a hospital reads as a consultant late for rounds. Nobody questions the pace.",
         "female": "A woman walking fast in a hospital reads as a consultant late for rounds. It takes an extra thirty seconds to read that way, but it reads."
+      },
+      "state": {
+        "good": "A substantial multi-wing facade of clean concrete and glass curtain wall. Every entrance is clearly signed and the approach roads are freshly painted.",
+        "normal": "The concrete facade panels show weathering stains at the drainage points. Several sections of the glass curtain wall have isolated pane replacements, and approach road markings are worn.",
+        "bad": "Exposed concrete has developed surface carbonation with rust blooms above several window lintels. Multiple panes in the curtain wall have been replaced with opaque infill panels, and the approach road surface is cracked and settled."
       }
     },
     "urgent_care": {
@@ -576,6 +731,11 @@
       "gender": {
         "male": "A man in the seat nearest the triage desk, holding his side. A pulled muscle. Nobody questions a pulled muscle.",
         "female": "A woman moves through intake fast — the staff here move quickly on presenting patients. The access window is brief before anyone second-guesses it."
+      },
+      "state": {
+        "good": "A clean modern facade with a large unscratched sign and clear entrance glazing. The accessible ramp and drop-off bay are freshly marked.",
+        "normal": "The facade cladding is intact but shows minor surface scratches at trolley height. The entrance sign has one dark letter.",
+        "bad": "The facade cladding has been patched in a mismatched colour where a section was replaced. The entrance sign is largely dark, and the accessible ramp has cracked along one edge."
       }
     },
     "daycare_center": {
@@ -594,6 +754,11 @@
       "gender": {
         "male": "An unaccompanied adult male in a daycare centre attracts the full protocol. The sign-in sheet, the escort, the visible watchfulness — it's by design.",
         "female": "A woman is waved through the entrance with a smile. The assumption holds long enough to matter. The window is narrow."
+      },
+      "state": {
+        "good": "Bright painted render and clearly glazed windows behind a well-maintained perimeter fence. The entrance gate and intercom post are clean and fully upright.",
+        "normal": "The exterior paint shows crazing and minor chips near the fence line. The intercom post has a shallow dent and the perimeter fence is straight but weathered.",
+        "bad": "The exterior paint has peeled extensively from the fence-side wall. The perimeter fence has bent sections, and the intercom post has been knocked out of plumb."
       }
     },
     "elementary_school": {
@@ -612,6 +777,11 @@
       "gender": {
         "male": "An adult male visitor follows the full protocol — sign-in, lanyard, escort. The procedure is deliberate. It slows things down. That is the point.",
         "female": "A woman moves through the office with the easy manner of a visiting professional. Two teachers assume she's the new reading coordinator. The assumption goes uncorrected."
+      },
+      "state": {
+        "good": "A clean brick or render building with intact windows and freshly painted trim. The main entrance canopy is level and the surrounding grounds are neat.",
+        "normal": "The building exterior shows general weathering. Window frames need repainting in sections, and the entrance canopy has a minor stain from a blocked gutter joint.",
+        "bad": "Several window frames have rotted at the corners and been repaired with sealant. The entrance canopy has a visible sag on one side, and the exterior brickwork is stained with persistent damp below two windows."
       }
     },
     "high_school": {
@@ -630,6 +800,11 @@
       "gender": {
         "male": "An adult male gets assessed immediately — visitor, authority, or threat. The calculation happens in seconds. Authority reads cleanest.",
         "female": "A woman at the front office moves through easily. A student's name mentioned in the right tone opens doors that formal channels wouldn't."
+      },
+      "state": {
+        "good": "A substantial school building with clean masonry and intact window glazing. The main entrance steps are even and the railings are freshly painted.",
+        "normal": "The masonry shows the expected weathering of a working school. Paint has worn from the entrance railings in patches, and one set of steps has a hairline crack across the riser.",
+        "bad": "Sections of the masonry have been tuck-pointed with mismatched mortar. The entrance railings are rust-pitted and loose at their base fixings, and several upper-floor windows have cracked panes filled with tape."
       }
     },
     "community_college": {
@@ -648,6 +823,11 @@
       "gender": {
         "male": "A male presence of a certain bearing gets taken for faculty without question. The assumption extends access.",
         "female": "Students approach a woman with questions, assuming she's enrolled. The conversation opens both ways."
+      },
+      "state": {
+        "good": "A campus of clean rendered or brick buildings with clear signage and intact window glazing. The paved plazas between buildings are level and well-drained.",
+        "normal": "The building facades show surface weathering and some window frames need attention at their sills. Plaza paving has settled in sections, creating shallow ridges.",
+        "bad": "Render has delaminated from the facade of the main block in large sections. Several windows have been replaced with mismatched glazing, and the plaza paving is cracked and weedy."
       }
     },
     "fire_station": {
@@ -666,6 +846,11 @@
       "gender": {
         "male": "The crew reads a man by his hands and his posture. The decision comes fast. It usually lands correctly.",
         "female": "The station goes quiet when a woman walks in — not hostile, just recalibrating. The pause is brief. Work follows."
+      },
+      "state": {
+        "good": "A solid brick or rendered building with clean apparatus bay doors and freshly painted bay aprons. The exterior brickwork is pointed and the windows intact.",
+        "normal": "The apparatus bay doors show minor denting on the lower panels. The exterior brickwork is sound but shows surface weathering, and the bay apron has tyre staining.",
+        "bad": "The apparatus bay doors have been replaced with mismatched replacements of different heights. Brickwork mortar is deteriorating above the lintel line, and the bay apron has fractured and settled badly."
       }
     },
     "police_station": {
@@ -685,6 +870,11 @@
       "gender": {
         "male": "Old badges don't expire in places like this. A certain kind of man walks in and the room assumes he still carries one.",
         "female": "Some of them still don't know how to read a woman in that role. That confusion is a gap. It stays open long enough to matter."
+      },
+      "state": {
+        "good": "A substantial civic building with clean masonry and intact entrance glazing. The bollard line at the entrance is straight, newly painted, and securely set.",
+        "normal": "The masonry shows surface weathering and some of the entrance bollards are scuffed. The glazed entrance panels are intact but carry minor scratches.",
+        "bad": "Sections of the masonry have been repointed with mismatched mortar. Several entrance bollards have been removed and the ground sockets filled with concrete. One entrance panel carries a large crack through its glass."
       }
     },
     "post_office": {
@@ -703,6 +893,11 @@
       "gender": {
         "male": "A man filling in a form, waiting in line. The post office queue renders him invisible. That is its function and its gift.",
         "female": "The clerk chats while they process. Postal workers hear things the internet never will. A patient listener gets all of it."
+      },
+      "state": {
+        "good": "A clean rendered building with even signage and intact entrance glazing. The entrance step is level and the door furniture polished.",
+        "normal": "The exterior render shows minor crazing and the entrance step has a hairline crack. Signage is intact but the illumination is uneven.",
+        "bad": "The render has delaminated above the entrance and been patched with a mismatched filler. The signage illumination has failed in sections, and the entrance step has a significant crack running to the edge."
       }
     },
     "library": {
@@ -722,6 +917,11 @@
       "gender": {
         "male": "A reference book with no business being relevant to anything current has been pulled and replaced recently. The librarian noticed. They didn't ask.",
         "female": "The librarian offers cross-references. Every one taken. Two of them open doors that weren't visible from the entrance."
+      },
+      "state": {
+        "good": "A clean stone or brick facade with intact windows and well-maintained entrance steps. The signage is clear and the entrance doors are freshly finished.",
+        "normal": "The facade shows surface weathering and the entrance steps have hairline cracks across several risers. The entrance doors have minor dents on the kick panels.",
+        "bad": "Stone or brickwork has been patched in sections with mismatched material. The entrance steps have significant cracks and one riser has settled noticeably. Several windows have failed seals, showing internal condensation."
       }
     },
     "community_center": {
@@ -740,6 +940,11 @@
       "gender": {
         "male": "Show up, lend a hand, earn a conversation. Community spaces reward the patient presence. The one who asks for nothing gets offered everything.",
         "female": "A woman is welcomed and handed a mug before any introduction. People here share things freely. The room doesn't guard itself."
+      },
+      "state": {
+        "good": "A clean rendered or brick building with intact glazing and freshly painted trim. The car park approach is even and clearly marked.",
+        "normal": "The exterior trim paint has begun to chalk and the car park approach surface is starting to crack at the edges. Window frames are intact but showing weathering.",
+        "bad": "Large sections of exterior render have been patched in mismatched tones. The car park approach surface is deeply cracked and potholed, and several window frames have split sills."
       }
     },
     "city_hall": {
@@ -758,6 +963,11 @@
       "gender": {
         "male": "A man who carries himself like an auditor unsettles people. Nobody wants to talk to an auditor. They tell him everything to make him leave.",
         "female": "A clerk offers to walk a woman through the filing system. The detour passes the office that actually needed visiting."
+      },
+      "state": {
+        "good": "An imposing civic facade of clean stone or render with intact ornamental details. The entrance steps are even and the flagpole fittings are polished.",
+        "normal": "The stone facade shows surface weathering and some ornamental detail has been repointed. The entrance steps are sound but carry scuff marks across the treads.",
+        "bad": "Sections of the ornamental facade have been repaired with plain sealant. Stone treads on the entrance steps have cracked and several have been replaced with concrete substitutes. The flagpole fittings are heavily tarnished."
       }
     },
     "courthouse": {
@@ -776,6 +986,11 @@
       "gender": {
         "male": "A man in the courthouse reads as counsel or professional — either way, he belongs here. Nobody questions it.",
         "female": "A female presence in the gallery reads as invisible to people who've been staring at the same faces day after day. Perfect."
+      },
+      "state": {
+        "good": "A solid classical facade with clean stonework and intact glazing in every window. The entrance columns and pediment show no cracks and the paintwork is even.",
+        "normal": "The stonework has surface weathering and some joints have been repointed. The columns are intact but show crazing in the painted finish, and the entrance glazing carries minor scratches.",
+        "bad": "Several stone blocks in the facade have been replaced with mismatched material. Columns show cracking at their bases, and a section of the pediment has been temporarily shored with timber supports."
       }
     },
     "small_apartment_building": {
@@ -794,6 +1009,11 @@
       "gender": {
         "male": "A man moves through the building with the unremarkable confidence of someone who's supposed to be here. Nobody confirms it. Nobody denies it.",
         "female": "A neighbour in the hall holds the door and starts a sentence about the management. The conversation runs six minutes. It contains four leads."
+      },
+      "state": {
+        "good": "A neat brick or rendered residential block with intact windows and freshly painted common entrance. The entrance door is solid and the intercom panel is new.",
+        "normal": "The exterior shows general weathering. The common entrance paint is worn around the door handle and the intercom panel has a cracked lens.",
+        "bad": "The exterior render has failed in patches, exposing the substrate beneath. The common entrance door frame is warped and the intercom panel is missing its cover, leaving the wiring exposed."
       }
     },
     "medium_apartment_building": {
@@ -812,6 +1032,11 @@
       "gender": {
         "male": "A man rides the elevator without eye contact. The universal signal for leave me alone. It works.",
         "female": "The super is helpful in that particular way that means they want to be useful. A woman in a building corridor tends to draw that particular helpfulness."
+      },
+      "state": {
+        "good": "A clean multi-storey residential block with intact brick or render cladding and clear window glazing. The entrance canopy is level and the common area lighting is fully functional.",
+        "normal": "The cladding shows general weathering and several window sill details are cracked. The entrance canopy has minor staining from a blocked gutter joint.",
+        "bad": "Cladding panels have delaminated at two corners of the building. Several windows have failed seals with visible internal condensation, and the entrance canopy has a pronounced sag on its leading edge."
       }
     },
     "large_apartment_building": {
@@ -830,6 +1055,11 @@
       "gender": {
         "male": "A man nods at the concierge like someone who does this every night. The concierge nods back. Transaction complete.",
         "female": "The concierge desk in a large building is the building's nervous system. It tracks everything and everyone that passes through the lobby."
+      },
+      "state": {
+        "good": "A tall residential block with clean cladding and intact window glazing across all floors. The entrance lobby glazing is clear and the podium level landscaping is maintained.",
+        "normal": "The cladding shows weathering and differential staining above drainage points. Several upper-floor windows carry tape repairs to hairline cracks in the glazing.",
+        "bad": "Cladding panels have separated at multiple joints across the upper floors, with sealant replacement visible at many seams. Numerous windows have failed seals or cracked panes, and the podium landscaping has been cleared and left as bare concrete."
       }
     },
     "luxury_apartment_tower": {
@@ -848,6 +1078,11 @@
       "gender": {
         "male": "Nobody questions a man who walks in like he owns the lobby. The building's assumptions fit him like a coat.",
         "female": "The concierge's assessment takes two seconds longer than it should. Two seconds is enough time for certain kinds of eyes."
+      },
+      "state": {
+        "good": "A tall glass and stone residential tower with flawless curtain wall glazing and polished stone podium cladding. Every entrance fixture is clean and the ground-level landscaping is precisely maintained.",
+        "normal": "The curtain wall glazing has isolated pane replacements visible by their slightly different tint. Some of the stone podium cladding has surface scratches, and the landscaping has uneven growth.",
+        "bad": "Multiple curtain wall panels have been replaced with opaque infill units. The stone podium cladding has cracked at several joints, and the ground-floor glazing carries a broken pane boarded with plywood."
       }
     },
     "highrise_apartment_complex": {
@@ -866,6 +1101,11 @@
       "gender": {
         "male": "A name that matches someone in the directory. A walk that says this has been done a thousand times. Nobody checks.",
         "female": "What the front desk sees is a resident. That's exactly all they get."
+      },
+      "state": {
+        "good": "A campus of tall residential blocks with clean external cladding and intact glazing. The podium-level amenity buildings are well-maintained and the landscaped paths are clear.",
+        "normal": "The blocks show differential weathering, with some facades more stained than others. Sections of the podium paving have cracked and some external light fittings are dark.",
+        "bad": "Several towers show advanced cladding failure, with panels missing or temporary sheeting fixed over failed sections. The podium paving is cracked and heaved, and multiple ground-floor windows are boarded."
       }
     },
     "townhouse_row": {
@@ -884,6 +1124,11 @@
       "gender": {
         "male": "A man walks it once like he's cutting through. The second pass is something else.",
         "female": "A resident watering their garden says hello. Neighbourhoods like this remember women they haven't seen before. The encounter, for those who know how to use it, is already useful."
+      },
+      "state": {
+        "good": "A terrace of well-maintained brick or render houses with matching door colours and intact roof lines. The shared boundary walls are even and the front paths are clear.",
+        "normal": "The terrace shows individual variation in condition. Some houses have fresh paint while others are weathered. The shared boundary walls are intact but some coping stones are cracked.",
+        "bad": "Several houses in the terrace have visibly deteriorating facades. Peeling paint and open joints in the brickwork are common, and the shared boundary walls have sections that have settled and cracked badly."
       }
     },
     "condominium_building": {
@@ -902,6 +1147,11 @@
       "gender": {
         "male": "A newspaper folded under one arm. A measured walk to the elevator. Man heading up — nobody's problem.",
         "female": "The concierge is chattier than their job requires. Small talk, in the right hands, trades for building access."
+      },
+      "state": {
+        "good": "A clean residential block with uniform cladding and intact balcony railings across all levels. The entrance canopy is level and the building signage is freshly illuminated.",
+        "normal": "The exterior cladding shows general weathering and the balcony railings have surface rust on their fixing points. The entrance canopy is structurally sound but stained.",
+        "bad": "The cladding has failed at several joints, and sections have been replaced with mismatched panels. Balcony railings at multiple levels are heavily corroded, and some have been removed and replaced with temporary boarding."
       }
     },
     "senior_living_facility": {
@@ -920,6 +1170,11 @@
       "gender": {
         "male": "A chair pulled to the edge of the common room, a patient posture, and an open ear. The room comes to those who wait for it in a place like this.",
         "female": "The warmth extended here is the particular kind reserved for people who feel safe. Whatever comes after, they feel right about it."
+      },
+      "state": {
+        "good": "A clean, low-rise building with accessible paths, even paving, and well-maintained rendered walls. The accessible ramp surfaces are non-slip and clearly marked.",
+        "normal": "The exterior render shows crazing and the accessible path paving has minor cracks. The accessible ramp edge markings have faded but are still visible.",
+        "bad": "The exterior render has failed in patches and several accessible path sections have heaved, creating uneven transitions. The accessible ramp surface has cracked and one edge marking strip has detached."
       }
     },
     "hotel_budget": {
@@ -938,6 +1193,11 @@
       "gender": {
         "male": "Cash at a budget hotel is unremarkable. The clerk processes a hundred transactions a day and applies the same level of scrutiny to each one.",
         "female": "The night clerk is more attentive than the job requires. A smile, deployed precisely, is currency here."
+      },
+      "state": {
+        "good": "A clean rendered or cladded building with intact signage and clear entrance glazing. The car park surface is even and the entrance canopy is level.",
+        "normal": "The exterior cladding shows surface weathering and the entrance canopy has minor staining. The signage is legible but the illumination is uneven.",
+        "bad": "Cladding panels have delaminated at the corners and been patched with visible sealant. The entrance canopy has a pronounced lean, and the signage has multiple dark sections."
       }
     },
     "hotel_business": {
@@ -956,6 +1216,11 @@
       "gender": {
         "male": "The efficiency of a man who has checked in a hundred times. The name on the register isn't always the same name.",
         "female": "Check-in handled in forty-five seconds flat. The clerk adds an unrequested amenity regardless. The amenity comes with floor access that wasn't on the original booking."
+      },
+      "state": {
+        "good": "A smart facade of clean stone or cladding with polished entrance fixtures and clear curtain wall glazing. The entrance forecourt is even and freshly marked.",
+        "normal": "The facade cladding shows surface weathering and the curtain wall has isolated pane replacements. The entrance forecourt has minor cracking at the drainage channels.",
+        "bad": "The facade cladding has cracked and delaminated at several joints. The curtain wall has multiple replaced panes of differing tints, and the entrance forecourt surface is uneven and heavily stained."
       }
     },
     "hotel_luxury": {
@@ -974,6 +1239,11 @@
       "gender": {
         "male": "The hotel's assumptions fit like a second suit. Nobody questions the man at the corner table who hasn't ordered yet.",
         "female": "A woman dining alone in the bar at this hour is either very confident or very dangerous. The distinction isn't always visible from the outside."
+      },
+      "state": {
+        "good": "An immaculate facade of dressed stone and polished metal fixtures. Every surface reflects careful maintenance, from the clean curtain wall glazing to the even stone forecourt paving.",
+        "normal": "The stone facade shows surface weathering at the joints and some metal fixtures have dulled. The forecourt paving is sound but carries minor staining at the drain points.",
+        "bad": "Stone facing panels have cracked at several joints and mortar repairs are visible from the street. Polished metal fixtures have tarnished significantly, and a section of the forecourt paving has been replaced with mismatched stone."
       }
     },
     "office_building_small": {
@@ -992,6 +1262,11 @@
       "gender": {
         "male": "A man walking the floor like he owns the contract. Assumptions run in his favour.",
         "female": "Past the reception desk before anyone thinks to ask. Purpose is its own credential."
+      },
+      "state": {
+        "good": "A clean rendered or brick building with intact window glazing and freshly painted entrance. The accessible path and car park approach are clearly marked.",
+        "normal": "The exterior shows general weathering and the entrance paint is worn around the door furniture. Window sills are intact but showing surface crazing.",
+        "bad": "The render has failed above several windows and been patched with sealant. The entrance door frame is swollen out of true, and the car park approach has cracked and settled badly."
       }
     },
     "office_building_medium": {
@@ -1010,6 +1285,11 @@
       "gender": {
         "male": "The floor carried like it's been briefed. Nobody wants to be the one who asks questions.",
         "female": "The authority of the last person who was right. Nobody argues with it."
+      },
+      "state": {
+        "good": "A clean mid-rise commercial building with even cladding and intact curtain wall glazing. The entrance forecourt is level and the building signage is clearly illuminated.",
+        "normal": "The cladding shows differential weathering and the curtain wall has isolated pane replacements. The entrance forecourt paving has minor cracks at the expansion joints.",
+        "bad": "The cladding has delaminated at several upper-floor corners and temporary fixing bolts are visible. Multiple curtain wall panes have been replaced with opaque infill, and the entrance forecourt surface is badly cracked."
       }
     },
     "office_building_large": {
@@ -1028,6 +1308,11 @@
       "gender": {
         "male": "The walk of a person with clearance. The assumption does the rest.",
         "female": "The walk tailored to match the floor. The floor opens accordingly."
+      },
+      "state": {
+        "good": "A substantial commercial tower with clean curtain wall glazing and even stone or concrete base cladding. The entrance plaza is level and the building identification signage is fully illuminated.",
+        "normal": "The curtain wall has isolated pane replacements visible by their different tint. The base cladding shows surface scratches and the entrance plaza paving has cracked at the perimeter.",
+        "bad": "Multiple curtain wall panels have failed and been replaced with temporary opaque infill. The base cladding has cracked joints and one section has been shored with a temporary steel prop. The entrance plaza paving is badly heaved and cracked."
       }
     },
     "corporate_headquarters": {
@@ -1046,6 +1331,11 @@
       "gender": {
         "male": "A boardroom full of men in suits assumes any arriving man is one of them. The assumption holds for roughly twelve minutes.",
         "female": "The room underestimates and overestimates itself in equal measure. The equation has been corrected before."
+      },
+      "state": {
+        "good": "A prestige commercial building with immaculate curtain wall glazing and precisely detailed stone or metal base cladding. The entrance plaza is uniform and all signage is fully illuminated.",
+        "normal": "The curtain wall has a few isolated pane replacements and the stone base cladding shows surface weathering. The entrance plaza has minor cracking at the expansion joints.",
+        "bad": "Significant curtain wall pane failures have resulted in multiple opaque infill replacements across several floors. The stone base cladding has cracked in sections and one corner has been shored with temporary steelwork. The entrance plaza is partly closed for repairs."
       }
     },
     "coworking_space": {
@@ -1064,6 +1354,11 @@
       "gender": {
         "male": "A hot desk near the back. A laptop opened without ceremony. Nobody here knows anyone well enough to notice a new face.",
         "female": "A woman settling in at a hot desk gets an introduction offer inside thirty seconds. Social capital accrues fast in places like this."
+      },
+      "state": {
+        "good": "A clean, bright shopfront or commercial suite facade with clear glazing and crisp signage. The entrance is accessible and the window displays are tidy.",
+        "normal": "The exterior shows minor weathering and the signage has started to fade. The entrance threshold is intact but has minor chips at the edge.",
+        "bad": "The facade cladding has blistered and peeled in sections. The signage is partially dark and the entrance glazing has a cracked pane held together with tape."
       }
     },
     "movie_theater": {
@@ -1082,6 +1377,11 @@
       "gender": {
         "male": "A ticket purchased for one screen. A seat taken in another. Nobody connects the dots.",
         "female": "The aisle seat. Old habit. The kind that keeps certain people alive."
+      },
+      "state": {
+        "good": "A bold facade with clean render or cladding and fully illuminated marquee and signage. The entrance forecourt is clear and the external poster frames are intact.",
+        "normal": "The facade shows surface weathering and several marquee letters are slightly dimmer than the rest. The entrance forecourt has minor cracking and one poster frame has a broken hinge.",
+        "bad": "The marquee lighting has failed in large sections and the facade render has cracked and stained. Several poster frames are missing panels and the entrance forecourt is deeply cracked and patched with cold-lay asphalt."
       }
     },
     "bowling_alley": {
@@ -1100,6 +1400,11 @@
       "gender": {
         "male": "The lane invite accepted. Two games. By the end of the second, the conversation has delivered what was needed.",
         "female": "Underestimated at lane four. The score by the ninth frame corrects the record."
+      },
+      "state": {
+        "good": "A large commercial building with clean render or cladding and fully illuminated signage. The entrance canopy is level and the car park approach is clearly marked.",
+        "normal": "The exterior cladding shows general weathering and the signage has one dark letter. The entrance canopy is structurally sound but stained, and the car park markings are faded.",
+        "bad": "The facade cladding has delaminated in sections and been patched with mismatched material. The signage illumination has failed in large portions, and the car park approach is cracked and potholed."
       }
     },
     "nightclub": {
@@ -1118,6 +1423,11 @@
       "gender": {
         "male": "The door staff step aside. The right kind of confidence reads in any lighting.",
         "female": "Access is quick, which is its own kind of problem. Back to something solid, eyes moving — that's the calculus of a woman in a room like this."
+      },
+      "state": {
+        "good": "A clean facade with intact neon or LED signage and clear entrance glazing. The queue barriers are new and the entrance canopy is level.",
+        "normal": "The exterior shows general weathering and some signage elements are dimmer than others. Queue barrier posts are scuffed and the entrance canopy has minor staining.",
+        "bad": "Large sections of the signage are dark and the facade has been tagged with graffiti that has been partly removed, leaving ghost marks. The entrance canopy has a visible sag and queue barrier posts are bent."
       }
     },
     "sports_arena": {
@@ -1136,6 +1446,11 @@
       "gender": {
         "male": "Unremarkable in a crowd like this — which is the only thing worth being.",
         "female": "The sight lines the crowd creates run one way. Sixty thousand people looking one direction means nobody's watching the other."
+      },
+      "state": {
+        "good": "A massive clean-clad venue with intact glazed atria and fully illuminated external signage. The external concourse paving is even and freshly marked.",
+        "normal": "The cladding shows weathering at the lower levels where it is within reach. Some external signage elements are dimmer than others and the concourse paving has hairline cracks.",
+        "bad": "Cladding panels at the lower levels have been damaged and removed or replaced with mismatched sections. Multiple signage elements are dark and the concourse paving is badly cracked and patched."
       }
     },
     "warehouse_small": {
@@ -1154,6 +1469,11 @@
       "gender": {
         "male": "A clipboard lifted from the dispatch desk, someone checking something. The look of it is enough to go unchallenged.",
         "female": "The shift supervisor does a double take and then gets helpful fast. The answers are in before the helpfulness runs out."
+      },
+      "state": {
+        "good": "A clean steel-framed building with straight walls and intact roof sheeting. The roller shutter doors close true and the apron is clear and unmarked.",
+        "normal": "Surface rust is visible at the lower wall joints. The roller shutter doors close with minor binding and the apron has tyre staining and a few shallow cracks.",
+        "bad": "Rust has spread across the lower wall panels and some sheeting has pulled away from the roof line. The roller shutter doors stick open or closed, and the apron concrete has fractured and heaved."
       }
     },
     "warehouse_large": {
@@ -1172,6 +1492,11 @@
       "gender": {
         "male": "The high-vis hanging by the door gets taken. Someone walks the aisles like they're doing a stock count.",
         "female": "The floor manager appears fast. Questions are ready on both sides. One set is better."
+      },
+      "state": {
+        "good": "A large steel-clad industrial building with clean roof sheeting and straight walls. The roller shutter bays are all operative and the loading apron is freshly marked.",
+        "normal": "Surface rust is visible at the wall base and some roof sheets have minor repairs with sealant tape. The loading apron shows tyre scoring and some minor cracking.",
+        "bad": "The lower wall sheeting is heavily corroded and several panels have been replaced with mismatched material. Roof sheeting has lifted at the ridge on one side and the loading apron is cracked and broken in several areas."
       }
     },
     "manufacturing_facility": {
@@ -1190,6 +1515,11 @@
       "gender": {
         "male": "The floor extends a flat nod to the presence — the acknowledgment of people who assume reason to be here. The reason exists.",
         "female": "The supervisor comes over to manage the situation. The managing ends with answers given."
+      },
+      "state": {
+        "good": "A clean industrial complex with straight external walls, intact roof sheeting, and clearly marked vehicle routes. Exhaust and utility penetrations are cleanly flashed.",
+        "normal": "The exterior walls show general weathering and surface rust at exposed metalwork. Vehicle route markings are faded and some external utility penetrations have been resealed with visible patches.",
+        "bad": "External wall cladding has corroded significantly at the lower sections. Roof sheeting has lifted at several points and temporary repairs are visible. Vehicle routes are barely traceable on the cracked and stained yard surface."
       }
     },
     "data_center": {
@@ -1208,6 +1538,11 @@
       "gender": {
         "male": "A badge presented with the posture of an engineer who's been here a hundred times. The desk accepts the performance.",
         "female": "The on-duty engineer is thorough. Each question answered accurately enough to pass, vaguely enough to stay mobile."
+      },
+      "state": {
+        "good": "A clean, secure-looking building with unscratched external cladding and intact perimeter security fencing. All external mechanical plant housings are intact and level.",
+        "normal": "The external cladding shows minor weathering and some fixings have surface rust. The perimeter security fencing is intact but shows wear at the gates. External plant housings are sound.",
+        "bad": "External cladding has cracked and lifted at two corners of the building. The perimeter security fencing has been repaired in sections with mismatched material, and several external plant housings are dented and misaligned."
       }
     },
     "self_storage": {
@@ -1226,6 +1561,11 @@
       "gender": {
         "male": "The desk clerk hands over a unit key without questions. Men carrying boxes in a self-storage facility are the least suspicious thing in the world.",
         "female": "The attendant is chatty. Three long-term renters' names and the rough contents of their units — all before the sign-in sheet is finished."
+      },
+      "state": {
+        "good": "A clean single-storey or multi-storey building with straight roller shutter doors in uniform condition. The external perimeter fence and gate are intact and freshly painted.",
+        "normal": "Several roller shutter doors show minor denting at the lower panels. The perimeter fence paint is fading and the gate hardware has surface rust.",
+        "bad": "Multiple roller shutter doors are dented or misaligned, failing to close fully. The perimeter fence has bent sections and the gate drags against the ground surface, which has settled."
       }
     },
     "church": {
@@ -1244,6 +1584,11 @@
       "gender": {
         "male": "The priest greets an unfamiliar man with careful warmth. The response in kind earns the second conversation.",
         "female": "The congregation makes room immediately. A woman entering a church alone is assumed to have every reason in the world to be there."
+      },
+      "state": {
+        "good": "A well-maintained stone or brick building with clean masonry and intact stained or plain window glazing. The entrance doors are solid and the roof line is even.",
+        "normal": "The masonry shows surface weathering and some pointing has been replaced. The roof line is intact but several ridge tiles are slightly displaced, and the entrance door paint has begun to crack.",
+        "bad": "Sections of the masonry have lost mortar and show open joints. The roof has patches of replacement slates in a different colour, and several window panes have cracked and been repaired with sealant. The entrance doors are warped and sit out of their frames."
       }
     },
     "mosque": {
@@ -1262,6 +1607,11 @@
       "gender": {
         "male": "Shoes removed at the threshold. Silence kept. The space speaks first.",
         "female": "Direction to the women's section, offered with courtesy. The conversation there is entirely different and significantly more useful."
+      },
+      "state": {
+        "good": "A clean rendered or stone building with intact dome or minaret details and clear window glazing. The entrance courtyard is level and the exterior surfaces are freshly maintained.",
+        "normal": "The exterior render shows minor crazing and the dome or minaret detail has surface weathering. The entrance courtyard has isolated cracks in its paving.",
+        "bad": "The exterior render has delaminated in sections revealing bare masonry. Ornamental details on the dome or minaret show cracking and loss of material. The entrance courtyard paving is cracked and uneven in multiple areas."
       }
     },
     "synagogue": {
@@ -1280,6 +1630,11 @@
       "gender": {
         "male": "A kippah and a siddur placed in the hands of the visitor. Welcome extended, rhythm absorbed. The conversation comes after the service.",
         "female": "The rebbetzin finds the visitor before orientation is complete. She's been watching the door. She always has been."
+      },
+      "state": {
+        "good": "A clean stone or brick building with intact ornamental stonework and clear window glazing. The entrance doors and perimeter ironwork are freshly painted.",
+        "normal": "The stonework shows surface weathering and some ornamental detail has minor losses. The entrance door paint is worn around the handle, and the perimeter ironwork has patches of surface rust.",
+        "bad": "Stone facing has cracked and a section of ornamental detail has been lost. The entrance doors are swollen and difficult to operate, and the perimeter ironwork has significant corrosion with some sections replaced by plain flat bar."
       }
     },
     "office": {
@@ -1299,6 +1654,11 @@
       "gender": {
         "male": "The authority of a man who belongs here carries itself. Nobody checks the credentials of someone who looks certain.",
         "female": "Movement through the space with the focus of someone who came here for a specific reason. The reason is real."
+      },
+      "state": {
+        "good": "A clean commercial building with intact window glazing and freshly maintained exterior cladding. The entrance is clearly defined and the signage is fully functional.",
+        "normal": "The exterior cladding shows general weathering and the window frames have minor cracking in their paintwork. The signage is legible but the illumination is uneven.",
+        "bad": "The exterior cladding has delaminated in sections and been patched with sealant. Several windows have cracked panes and the signage is largely non-functional."
       }
     },
     "gym": {
@@ -1318,6 +1678,11 @@
       "gender": {
         "male": "Two regulars offer a spot. The gym's social codes are blunt and readable.",
         "female": "The weights nobody's moved today get taken. Three people stop what they're doing. The work doesn't wait for an audience."
+      },
+      "state": {
+        "good": "A clean robust facade with intact cladding and fully functional signage. The entrance is accessible and the exterior lighting is all operative.",
+        "normal": "The facade cladding shows general weathering and the signage illumination is uneven. The entrance path has minor cracking at the joints.",
+        "bad": "The facade cladding has failed at the lower sections and been patched. Several exterior light fittings are dark and the entrance path is cracked and uneven."
       }
     },
     "hospital": {
@@ -1337,6 +1702,11 @@
       "gender": {
         "male": "A man walking the ward with the authority of someone running late for rounds. Nobody stops late authority.",
         "female": "A nurse offers to help. The offer is accepted and redirected into the corridor that actually matters."
+      },
+      "state": {
+        "good": "A clean institutional facade with intact window glazing and clearly marked entrances. The approach roads and accessible paths are freshly resurfaced.",
+        "normal": "The facade shows general weathering and several window sills have surface cracks. Approach road markings are worn and accessible path edges have minor chips.",
+        "bad": "The facade has been patched in several sections where render has failed. Multiple windows carry failed seals with internal condensation visible, and the approach road surface is badly cracked."
       }
     },
     "park": {
@@ -1356,6 +1726,11 @@
       "gender": {
         "male": "A man walks the main path. The park's usual population decides he's not their problem.",
         "female": "Daylight, main path, aware of every entrance. Not paranoia — procedure."
+      },
+      "state": {
+        "good": "Neat boundary railings and even paved paths run through a well-kept open space. Every surface shows recent care, from the freshly painted ironwork to the clear drain grates.",
+        "normal": "The boundary railings have surface rust at their bases. Paved paths show hairline cracks and a few drain grates are partly obscured by settlement.",
+        "bad": "The boundary railings have corroded through in sections and been replaced with temporary wooden boarding. Paved paths are cracked and heaved by root growth, and several drain grates have dropped below the path level."
       }
     },
     "restaurant": {
@@ -1375,6 +1750,55 @@
       "gender": {
         "male": "Solo table, back to the wall, eyes on the room. The oldest habit in the book. Still the most useful.",
         "female": "The server is attentive in ways not asked for. The attention gets redirected into the conversation that matters."
+      },
+      "state": {
+        "good": "A clean rendered or cladded exterior with spotless windows and a fully illuminated sign. The entrance threshold is level and the door furniture is bright.",
+        "normal": "The exterior render shows hairline crazing and the sign has one dim letter. The entrance threshold has a hairline crack and the door furniture is starting to tarnish.",
+        "bad": "The exterior render has blistered and peeled in sections. The sign illumination has failed in multiple areas, and the entrance step has cracked and shifted, creating an uneven surface."
+      }
+    },
+    "prison": {
+      "default": "High walls topped with razor wire rise above every sight line. Watchtowers anchor each corner, their floodlight brackets angled to leave nothing in shadow after dark.",
+      "time": {
+        "morning": "The outer perimeter catches the early light flat and indifferent. The walls hold the same colour as the sky before it decides what kind of day it will be.",
+        "afternoon": "The perimeter fence casts its shadow inward. The building mass beyond it absorbs the afternoon heat without returning it.",
+        "evening": "Floodlights begin their cycle as the natural light fades. The compound brightens as the city around it dims.",
+        "night": "The facility is its own island of light. Every lamp is doing exactly the job it was installed to do, and every shadow has been designed out of the compound."
+      },
+      "attribute": {
+        "PERCEPTION": "The camera housings track the outer perimeter in overlapping arcs. The blind spots are not accidents — they are where the fence posts break the sight lines.",
+        "STEALTH": "The service entrance sits on the north face, away from the main gate. Two cameras, one facing the road, one facing the service lane. Neither covers the gate itself."
+      },
+      "gender": {
+        "male": "The compound reads as a solid wall from any approach. No windows below the third level. The upper tiers have narrow apertures set deep into the masonry.",
+        "female": "The visitor entrance is a separate structure entirely — lower, lighter, with a different grade of glass in the door panels."
+      },
+      "state": {
+        "good": "The perimeter fence stands perfectly upright, its tensioned wire clean and without gaps. Freshly painted bollards line the service road and every camera housing is intact.",
+        "normal": "The perimeter fence is sound but shows weathering at the post bases. Several bollards have been scuffed by vehicles and the camera housings show surface rust at their brackets.",
+        "bad": "Sections of perimeter fencing lean at shallow angles, corroded at the post bases. Several camera housing brackets have rusted through and the flood light covers are yellowed and cracked."
+      }
+    },
+    "security_shop": {
+      "default": "A narrow shopfront with a dense window display of camera housings, lock cylinders, and equipment cases. The interior is arranged so that every product is visible from the street.",
+      "time": {
+        "morning": "The steel security grille has been rolled up for the day. The window display is unchanged from yesterday, positioned to hold attention during the approach.",
+        "afternoon": "The demonstration wall of camera housings is lit from inside the shop. The light makes the lens apertures visible from across the street.",
+        "evening": "The grille is part-way down on its track. The window display lights are still running, picking out the product labels against the darkening glass.",
+        "night": "The security grille is down and locked. A motion-activated light above the entrance comes on and goes off at irregular intervals."
+      },
+      "attribute": {
+        "PERCEPTION": "The demonstration camera wall in the window shows a range of housing sizes, lens configurations, and mounting options. The coverage radius of each unit is printed on a small card beneath it.",
+        "INTELLIGENCE": "The lock display case carries a range of cylinders from residential pin-tumbler to commercial multi-point systems. The technical specifications are printed on the shelf labels."
+      },
+      "gender": {
+        "male": "The shopfront carries no signage above head height. The product in the window does the advertising — discrete equipment for people who do not want to advertise why they need it.",
+        "female": "The interior has a clear sight line from entrance to the counter at the back. The layout is deliberate — every approach to the cases is visible from the service position."
+      },
+      "state": {
+        "good": "The shopfront glass is clean and the product display is neatly arranged behind it. The security grille operates smoothly and the entrance step is new and even.",
+        "normal": "The shopfront glass carries faint smear marks at eye level and one item in the window display has been shifted out of its intended position. The grille has minor surface rust at one bracket.",
+        "bad": "The shopfront glass has a crack running from the lower corner. The window display has gaps where stock has been removed without replacement. The security grille sticks on its track and the entrance step has a long surface crack."
       }
     }
   },

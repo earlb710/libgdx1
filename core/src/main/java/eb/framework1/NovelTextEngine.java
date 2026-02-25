@@ -86,11 +86,20 @@ public class NovelTextEngine {
         final Map<TimeOfDay, String> timeVariants;
         final Map<String, String> attributeVariants;
         final Map<String, String> genderVariants;
+        final Map<String, String> stateVariants;
 
         DescriptionEntry(String defaultText,
                          Map<TimeOfDay, String> timeVariants,
                          Map<String, String> attributeVariants,
                          Map<String, String> genderVariants) {
+            this(defaultText, timeVariants, attributeVariants, genderVariants, null);
+        }
+
+        DescriptionEntry(String defaultText,
+                         Map<TimeOfDay, String> timeVariants,
+                         Map<String, String> attributeVariants,
+                         Map<String, String> genderVariants,
+                         Map<String, String> stateVariants) {
             this.defaultText = defaultText != null ? defaultText : "";
             this.timeVariants = timeVariants != null
                     ? Collections.unmodifiableMap(new EnumMap<>(timeVariants))
@@ -100,6 +109,9 @@ public class NovelTextEngine {
                     : Collections.<String, String>emptyMap();
             this.genderVariants = genderVariants != null
                     ? Collections.unmodifiableMap(new HashMap<>(genderVariants))
+                    : Collections.<String, String>emptyMap();
+            this.stateVariants = stateVariants != null
+                    ? Collections.unmodifiableMap(new HashMap<>(stateVariants))
                     : Collections.<String, String>emptyMap();
         }
     }
@@ -230,7 +242,16 @@ public class NovelTextEngine {
             }
         }
 
-        return new DescriptionEntry(defaultText, timeVariants, attributeVariants, genderVariants);
+        // Parse state variants
+        Map<String, String> stateVariants = new HashMap<>();
+        JsonValue stateNode = entryNode.get("state");
+        if (stateNode != null) {
+            for (JsonValue s = stateNode.child; s != null; s = s.next) {
+                stateVariants.put(s.name.toLowerCase(), s.asString());
+            }
+        }
+
+        return new DescriptionEntry(defaultText, timeVariants, attributeVariants, genderVariants, stateVariants);
     }
 
     // -------------------------------------------------------------------------
@@ -399,6 +420,48 @@ public class NovelTextEngine {
      */
     public String getImprovementDescription(String name) {
         return getImprovementDescription(name, null, null);
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API — getStateDescription
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the state-based description for the given key, choosing among available
+     * variants using the supplied map-location code.
+     *
+     * <p>The {@code state} parameter describes the maintenance/condition level of the
+     * building (e.g. {@code "good"}, {@code "normal"}, {@code "bad"}).  If no state
+     * variant is defined for the key, the default text of the chosen variant is returned.</p>
+     *
+     * @param key      Description key (e.g. {@code "gym_fitness_center"})
+     * @param location Map location code (e.g. {@code "G6"}); may be null (uses first variant)
+     * @param state    Building condition state ("good", "normal", or "bad"); may be null
+     * @return Selected description text, never {@code null}
+     */
+    public String getStateDescription(String key, String location, String state) {
+        if (key == null) return "";
+        List<DescriptionEntry> variants = entries.get(key);
+        if (variants == null || variants.isEmpty()) return "";
+        DescriptionEntry entry = variants.get(selectVariantIndex(location, variants.size()));
+        if (state != null && !entry.stateVariants.isEmpty()) {
+            String stateText = entry.stateVariants.get(state.toLowerCase());
+            if (stateText != null) return stateText;
+        }
+        return entry.defaultText;
+    }
+
+    /**
+     * Returns the state-based description for the given key.
+     * When the entry has multiple variants the first variant (index 0) is used.
+     * Use {@link #getStateDescription(String, String, String)} to select by location.
+     *
+     * @param key   Description key (e.g. {@code "gym_fitness_center"})
+     * @param state Building condition state ("good", "normal", or "bad"); may be null
+     * @return Selected description text, never {@code null}
+     */
+    public String getStateDescription(String key, String state) {
+        return getStateDescription(key, null, state);
     }
 
     // -------------------------------------------------------------------------
