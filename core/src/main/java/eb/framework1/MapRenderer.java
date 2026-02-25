@@ -23,7 +23,7 @@ class MapRenderer {
     private static final Color SELECTION_COLOR       = new Color(1f,   1f,    0f,    1f);
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
-    private static final Color TRAVELED_ROAD_COLOR   = new Color(0f,   0.2f,  1f,    1f);
+    private static final Color TRAVELED_ROAD_COLOR   = new Color(0.3f,  0.75f, 1f,    1f);
 
     static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -387,10 +387,10 @@ class MapRenderer {
                 sr.rect(barX, barY - borderSize, cellSize, roadW);
             } else if (jx1 == jx2) {
                 // Vertical segment: bar centred on junction column jx1
-                // Higher jy = lower screen Y (map renders jy=0 at top, jy=MAP_SIZE at bottom)
+                // barY = bottom of cell row min(jy1,jy2); segment spans that cell upward
                 float barX = mapStartX + (jx1 - startCellX - fracOffsetX) * cellSize;
                 float barY = mapStartY + (visibleCellsY - 1 - (Math.min(jy1, jy2) - startCellY - fracOffsetY)) * cellSize;
-                sr.rect(barX - borderSize, barY - cellSize, roadW, cellSize);
+                sr.rect(barX - borderSize, barY, roadW, cellSize);
             }
         }
     }
