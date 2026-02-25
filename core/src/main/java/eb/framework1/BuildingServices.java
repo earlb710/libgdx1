@@ -41,6 +41,7 @@ final class BuildingServices {
     static final String SVC_HAIRCUT        = "haircut";
     static final String SVC_BUY_GEAR       = "buy_gear";
     static final String SVC_BUY_SUPPLIES   = "buy_supplies";
+    static final String SVC_BUY_SNACKS     = "buy_snacks";
     static final String SVC_LAUNDRY        = "laundry";
 
     // -------------------------------------------------------------------------
@@ -93,14 +94,17 @@ final class BuildingServices {
     /** Remaining prepaid nights (decremented by 1 after each qualifying sleep). */
     static final String ATTR_HOTEL_NIGHTS = "HOTEL_NIGHTS";
 
+    /** Deterministic room number (1-99) assigned at check-in, derived from hotel cell coords. */
+    static final String ATTR_HOTEL_ROOM   = "HOTEL_ROOM";
+
     // -------------------------------------------------------------------------
     // Hotel tier data
     // -------------------------------------------------------------------------
 
     /** Stamina bonus awarded on a full 8-hour sleep at each hotel tier. */
-    static final int HOTEL_BONUS_BUDGET   =  5;
-    static final int HOTEL_BONUS_BUSINESS = 10;
-    static final int HOTEL_BONUS_LUXURY   = 20;
+    static final int HOTEL_BONUS_BUDGET   =  1;
+    static final int HOTEL_BONUS_BUSINESS =  2;
+    static final int HOTEL_BONUS_LUXURY   =  3;
 
     /** Nightly rate for each hotel tier. */
     static final int HOTEL_COST_BUDGET   =  50;
@@ -231,7 +235,7 @@ final class BuildingServices {
                         "Buy Supplies", "Pick up everyday essentials.",
                         5, 10));
             case "gas_station":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                return list(new BuildingService(SVC_BUY_SNACKS,
                         "Buy Snacks", "Grab a quick bite and a drink.",
                         4, 5));
             case "supermarket":

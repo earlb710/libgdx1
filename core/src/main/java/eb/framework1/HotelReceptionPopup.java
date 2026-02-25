@@ -77,6 +77,17 @@ class HotelReceptionPopup {
     int     getNightlyCost() { return nightly; }
     int     getStaminaBonus(){ return staminaBonus; }
 
+    /**
+     * Returns the discounted total for the given number of nights:
+     * 1 night = full price, 2 nights = 10% off, 3 nights = 15% off.
+     */
+    int getDiscountedTotal(int nights) {
+        int raw = nights * nightly;
+        if (nights == 2) return Math.round(raw * 0.90f);
+        if (nights >= 3) return Math.round(raw * 0.85f);
+        return raw;
+    }
+
     // -------------------------------------------------------------------------
     // Commands
     // -------------------------------------------------------------------------
@@ -172,7 +183,7 @@ class HotelReceptionPopup {
         String titleLine   = hotelName + " — Reception";
         String roomLine    = "Room:       " + roomType;
         String rateLine    = "Nightly:    $" + nightly;
-        String bonusLine   = "Sleep bonus: +" + staminaBonus + " stamina (full 8h)";
+        String bonusLine   = "Sleep bonus: full stamina";
 
         // Width from widest line
         float maxLineW = 0f;
@@ -188,7 +199,7 @@ class HotelReceptionPopup {
         float dialogH = PAD
                 + fontLineH + fontH     // title + character-size gap
                 + 3 * smallLineH        // room / rate / bonus
-                + GAP                   // spacer before buttons
+                + GAP + fontLineH       // spacer before buttons (full character line height)
                 + NUM_OPTIONS * (optH + BTN_SPACING)
                 + cancelBtnH + BTN_SPACING
                 + PAD;
@@ -280,7 +291,10 @@ class HotelReceptionPopup {
     // -------------------------------------------------------------------------
 
     private String optionLabel(int nights) {
-        int total = nights * nightly;
-        return nights + (nights == 1 ? " Night" : " Nights") + "  ($" + total + ")";
+        int total = getDiscountedTotal(nights);
+        String label = nights + (nights == 1 ? " Night" : " Nights") + "  ($" + total + ")";
+        if (nights == 2) label += "  -10%";
+        if (nights == 3) label += "  -15%";
+        return label;
     }
 }

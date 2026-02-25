@@ -2,7 +2,9 @@ package eb.framework1;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a building definition loaded from buildings.json.
@@ -19,9 +21,12 @@ public class BuildingDefinition {
     private double percentage;
     private String description;
     private List<String> improvements;
+    /** Attribute modifiers from buildings.json (attribute name → modifier value). */
+    private Map<String, Integer> attributeModifiers;
 
     public BuildingDefinition() {
         this.improvements = new ArrayList<>();
+        this.attributeModifiers = new HashMap<>();
     }
 
     public BuildingDefinition(String id, String name, String category, int minFloors, int maxFloors,
@@ -117,6 +122,19 @@ public class BuildingDefinition {
 
     public void setImprovements(List<String> improvements) {
         this.improvements = improvements != null ? new ArrayList<>(improvements) : new ArrayList<>();
+    }
+
+    /**
+     * Returns the raw attribute modifiers defined in buildings.json for this building type.
+     * Keys are {@link CharacterAttribute} enum names; values are modifier amounts.
+     * Returns an empty map when no modifiers are defined for this building type.
+     */
+    public Map<String, Integer> getAttributeModifiers() {
+        return Collections.unmodifiableMap(attributeModifiers);
+    }
+
+    public void setAttributeModifiers(Map<String, Integer> mods) {
+        this.attributeModifiers = mods != null ? new HashMap<>(mods) : new HashMap<>();
     }
 
     /**
