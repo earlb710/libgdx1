@@ -41,6 +41,7 @@ final class BuildingServices {
     static final String SVC_HAIRCUT        = "haircut";
     static final String SVC_BUY_GEAR       = "buy_gear";
     static final String SVC_BUY_SUPPLIES   = "buy_supplies";
+    static final String SVC_BUY_SNACKS     = "buy_snacks";
     static final String SVC_LAUNDRY        = "laundry";
 
     // -------------------------------------------------------------------------
@@ -231,7 +232,7 @@ final class BuildingServices {
                         "Buy Supplies", "Pick up everyday essentials.",
                         5, 10));
             case "gas_station":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                return list(new BuildingService(SVC_BUY_SNACKS,
                         "Buy Snacks", "Grab a quick bite and a drink.",
                         4, 5));
             case "supermarket":

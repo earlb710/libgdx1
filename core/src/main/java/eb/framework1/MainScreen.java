@@ -1635,7 +1635,7 @@ public class MainScreen implements Screen {
 
             // ---- Food: restore stamina -----------------------------------
             case BuildingServices.SVC_BUY_MEAL: {
-                int gain = 4;
+                int gain = 2;
                 profile.addStamina(gain);
                 resultLines.add("You enjoyed a satisfying meal.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
@@ -1643,7 +1643,7 @@ public class MainScreen implements Screen {
                 break;
             }
             case BuildingServices.SVC_BUY_COFFEE: {
-                int gain = 2;
+                int gain = 1;
                 profile.addStamina(gain);
                 resultLines.add("You sipped a hot coffee.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
@@ -1731,13 +1731,18 @@ public class MainScreen implements Screen {
             }
 
             // ---- Supply / Retail -----------------------------------------
-            case BuildingServices.SVC_BUY_SUPPLIES: {
-                int gain = 2;
+            case BuildingServices.SVC_BUY_SNACKS: {
+                int gain = 1;
                 profile.addStamina(gain);
-                resultLines.add("You picked up what you needed.");
+                resultLines.add("You grabbed a quick snack and a drink.");
                 if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
                 resultLines.add("+" + gain + " stamina.");
                 break;
+            }
+            case BuildingServices.SVC_BUY_SUPPLIES: {
+                handleBuySupplies(svc, resultLines);
+                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                return;
             }
 
             // ---- Laundromat -----------------------------------------------
@@ -1832,6 +1837,16 @@ public class MainScreen implements Screen {
         // Can't afford anything
         resultLines.add("You can't afford any items right now.");
         resultLines.add("You have: $" + profile.getMoney() + ".");
+    }
+
+    /**
+     * Handles a "Buy Supplies" service at retail/convenience stores.
+     * Currently shows a list of purchasable supply items, or
+     * "Nothing of interest at the moment" when none are available.
+     */
+    private void handleBuySupplies(BuildingService svc, List<String> resultLines) {
+        // No supply catalogue items defined yet — show placeholder
+        resultLines.add("Nothing of interest at the moment.");
     }
 
     /** Called every frame while {@code state.isWalking} is true. */
