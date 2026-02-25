@@ -61,6 +61,14 @@ class MapViewState {
     float[] equipDropBtnW = new float[MAX_EQUIP_BTNS];
     float   equipDropBtnH = 0f;
     int     equipDropBtnCount = 0;
+
+    // Service buttons in info tab (one per service the current building offers)
+    static final int MAX_SVC_BTNS = 4;
+    float[] svcBtnX = new float[MAX_SVC_BTNS];
+    float[] svcBtnY = new float[MAX_SVC_BTNS];
+    float[] svcBtnW = new float[MAX_SVC_BTNS];
+    float   svcBtnH = 0f;
+    int     svcBtnCount = 0;
     float addNoteBtnX, addNoteBtnY, addNoteBtnW, addNoteBtnH;
     boolean noteIncludeTime     = true;
     boolean noteIncludeLocation = true;

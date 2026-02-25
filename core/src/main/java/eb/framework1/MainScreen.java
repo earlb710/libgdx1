@@ -88,6 +88,10 @@ public class MainScreen implements Screen {
     private int  lastMapTapCellX   = -1;
     private int  lastMapTapCellY   = -1;
 
+    /** Services offered by the building at the player's current cell; refreshed each frame by InfoPanelRenderer
+     *  via svcBtnCount.  Kept here so tap-handling can look up the correct BuildingService by index. */
+    private List<BuildingService> currentCellServices = new ArrayList<>();
+
     // Quit confirmation (ESC key)
     private boolean quitConfirming   = false;
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
@@ -269,6 +273,20 @@ public class MainScreen implements Screen {
         mapRenderer.drawRulers(state);
         infoPanelRenderer.drawInfoBar(state);
         infoPanelRenderer.drawInfoBlock(state, !lookAroundPopup.isVisible());
+
+        // Keep currentCellServices in sync with the service buttons just rendered.
+        if (state.charCellX >= 0 && state.charCellY >= 0
+                && state.selectedCellX == state.charCellX
+                && state.selectedCellY == state.charCellY) {
+            Cell svcCell = cityMap.getCell(state.charCellX, state.charCellY);
+            if (svcCell.hasBuilding() && svcCell.getBuilding().isDiscovered()) {
+                currentCellServices = BuildingServices.getServices(svcCell.getBuilding());
+            } else {
+                currentCellServices = java.util.Collections.emptyList();
+            }
+        } else {
+            currentCellServices = java.util.Collections.emptyList();
+        }
 
         if (lookAroundPopup.isVisible()) {
             lookAroundPopup.update(delta);
@@ -823,6 +841,7 @@ public class MainScreen implements Screen {
                             checkHelpButtonClick(screenX, flippedY);
                             checkNoteCheckboxClick(screenX, flippedY);
                             checkAddNoteButtonClick(screenX, flippedY);
+                            checkServiceButtonClick(screenX, flippedY);
                         }
                         checkTabClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
@@ -1109,6 +1128,18 @@ public class MainScreen implements Screen {
             state.infoScrollY   = 0f;
             state.infoScrollX   = 0f;
             Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+        }
+    }
+
+    private void checkServiceButtonClick(int screenX, int flippedY) {
+        if (state.svcBtnCount <= 0) return;
+        for (int i = 0; i < state.svcBtnCount && i < currentCellServices.size(); i++) {
+            if (state.svcBtnW[i] <= 0) continue;
+            if (screenX >= state.svcBtnX[i] && screenX <= state.svcBtnX[i] + state.svcBtnW[i]
+                    && flippedY >= state.svcBtnY[i] && flippedY <= state.svcBtnY[i] + state.svcBtnH) {
+                handleServiceClick(currentCellServices.get(i));
+                return;
+            }
         }
     }
 

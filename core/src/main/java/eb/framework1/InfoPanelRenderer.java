@@ -52,6 +52,7 @@ class InfoPanelRenderer {
     private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
+    private static final Color SERVICE_BTN_COLOR       = new Color(0.15f, 0.45f, 0.45f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -379,7 +380,26 @@ class InfoPanelRenderer {
         s.appointmentBtnY = curRowBottom;
         if (showAppointmentButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton || showAppointmentButton;
+        // Service buttons – shown when the player is standing at a discovered building that
+        // has services (and is not heading elsewhere).
+        java.util.List<BuildingService> svcList =
+                (atCurrentBuilding && selBuilding != null)
+                        ? BuildingServices.getServices(selBuilding)
+                        : java.util.Collections.<BuildingService>emptyList();
+        s.svcBtnCount = 0;
+        s.svcBtnH = BTN_H;
+        for (int si = 0; si < svcList.size() && si < MapViewState.MAX_SVC_BTNS; si++) {
+            String svcLabel = svcList.get(si).menuLabel();
+            float svcW = TextMeasurer.measure(font, glyphLayout, svcLabel, PAD_X, PAD_Y).width;
+            s.svcBtnX[si] = btnX;
+            s.svcBtnY[si] = curRowBottom;
+            s.svcBtnW[si] = svcW;
+            lowestBtnBottom = curRowBottom;
+            curRowBottom -= BTN_H + BTN_SPACING;
+            s.svcBtnCount++;
+        }
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showStashButton || showCheckEmailsButton || showAppointmentButton || s.svcBtnCount > 0;
 
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
@@ -418,6 +438,10 @@ class InfoPanelRenderer {
             shapeRenderer.setColor(APPOINTMENT_BTN_COLOR);
             shapeRenderer.rect(s.appointmentBtnX, s.appointmentBtnY, APPT_W, BTN_H);
         }
+        for (int si = 0; si < s.svcBtnCount; si++) {
+            shapeRenderer.setColor(SERVICE_BTN_COLOR);
+            shapeRenderer.rect(s.svcBtnX[si], s.svcBtnY[si], s.svcBtnW[si], BTN_H);
+        }
 
         shapeRenderer.end();
 
@@ -438,6 +462,10 @@ class InfoPanelRenderer {
         if (showAppointmentButton) {
             shapeRenderer.rect(s.appointmentBtnX,     s.appointmentBtnY,     APPT_W,     BTN_H);
             shapeRenderer.rect(s.appointmentBtnX + 1, s.appointmentBtnY + 1, APPT_W - 2, BTN_H - 2);
+        }
+        for (int si = 0; si < s.svcBtnCount; si++) {
+            shapeRenderer.rect(s.svcBtnX[si],     s.svcBtnY[si],     s.svcBtnW[si],     BTN_H);
+            shapeRenderer.rect(s.svcBtnX[si] + 1, s.svcBtnY[si] + 1, s.svcBtnW[si] - 2, BTN_H - 2);
         }
 
         shapeRenderer.end();
@@ -480,6 +508,14 @@ class InfoPanelRenderer {
             font.draw(batch, apptBtnLabel,
                     s.appointmentBtnX + (APPT_W - glyphLayout.width) / 2,
                     s.appointmentBtnY + (BTN_H + glyphLayout.height) / 2);
+        }
+        for (int si = 0; si < s.svcBtnCount && si < svcList.size(); si++) {
+            String svcLabel = svcList.get(si).menuLabel();
+            glyphLayout.setText(font, svcLabel);
+            font.setColor(Color.WHITE);
+            font.draw(batch, svcLabel,
+                    s.svcBtnX[si] + (s.svcBtnW[si] - glyphLayout.width) / 2,
+                    s.svcBtnY[si] + (BTN_H + glyphLayout.height) / 2);
         }
 
 
