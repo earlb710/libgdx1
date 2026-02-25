@@ -39,17 +39,20 @@ class PhonePopup {
     static final int RESULT_MISS   = -2;
 
     // ---- Colours ----
-    private static final Color BG_COLOR      = new Color(0.05f, 0.05f, 0.12f, 1f);
-    private static final Color BORDER_COLOR  = new Color(0.35f, 0.35f, 0.55f, 1f);
-    private static final Color TITLE_COLOR   = new Color(0.75f, 0.85f, 1.00f, 1f);
-    private static final Color ROW_EVEN      = new Color(0.10f, 0.10f, 0.20f, 1f);
-    private static final Color ROW_ODD       = new Color(0.07f, 0.07f, 0.15f, 1f);
-    private static final Color CONTACT_COLOR = new Color(0.90f, 0.90f, 0.90f, 1f);
-    private static final Color STAR_COLOR    = new Color(1.00f, 0.85f, 0.20f, 1f);
-    private static final Color CALLED_COLOR  = new Color(0.40f, 0.90f, 0.50f, 1f);
-    private static final Color EMPTY_COLOR   = new Color(0.55f, 0.55f, 0.55f, 1f);
-    private static final Color POWER_FILL    = new Color(0.55f, 0.10f, 0.10f, 1f);
-    private static final Color POWER_BORDER  = new Color(0.80f, 0.30f, 0.30f, 1f);
+    private static final Color BG_COLOR        = new Color(0.05f, 0.05f, 0.12f, 1f);
+    private static final Color BORDER_COLOR    = new Color(0.35f, 0.35f, 0.55f, 1f);
+    private static final Color TITLE_COLOR     = new Color(0.75f, 0.85f, 1.00f, 1f);
+    private static final Color ROW_EVEN        = new Color(0.10f, 0.10f, 0.20f, 1f);
+    private static final Color ROW_ODD         = new Color(0.07f, 0.07f, 0.15f, 1f);
+    private static final Color CONTACT_COLOR   = new Color(0.90f, 0.90f, 0.90f, 1f);
+    private static final Color STAR_COLOR      = new Color(1.00f, 0.85f, 0.20f, 1f);
+    private static final Color CALLED_COLOR    = new Color(0.40f, 0.90f, 0.50f, 1f);
+    private static final Color EMPTY_COLOR     = new Color(0.55f, 0.55f, 0.55f, 1f);
+    private static final Color POWER_FILL      = new Color(0.55f, 0.10f, 0.10f, 1f);
+    private static final Color POWER_BORDER    = new Color(0.80f, 0.30f, 0.30f, 1f);
+    private static final Color FRIENDLY_COLOR  = new Color(0.30f, 0.85f, 0.40f, 1f);
+    private static final Color NEUTRAL_COLOR   = new Color(0.70f, 0.70f, 0.70f, 1f);
+    private static final Color UNFRIENDLY_COLOR = new Color(0.90f, 0.30f, 0.30f, 1f);
 
     // ---- Rendering resources ----
     private final SpriteBatch   batch;
@@ -279,11 +282,12 @@ class PhonePopup {
                 smallFont.setColor(CONTACT_COLOR);
                 smallFont.draw(batch, c.name, dialogX + PAD + starW, textY);
 
-                // "CALLED" badge on the right if already phoned
+                // "CALLED [RATING]" badge on the right if already phoned
                 if (c.phoned) {
-                    glyph.setText(smallFont, "CALLED");
-                    smallFont.setColor(CALLED_COLOR);
-                    smallFont.draw(batch, "CALLED",
+                    String ratingLabel = ratingLabel(c.rating);
+                    glyph.setText(smallFont, ratingLabel);
+                    smallFont.setColor(ratingColor(c.rating));
+                    smallFont.draw(batch, ratingLabel,
                             dialogX + dW - PAD - glyph.width, textY);
                 }
             }
@@ -298,5 +302,29 @@ class PhonePopup {
                 powerBtnCY + glyph.height / 2f);
 
         batch.end();
+    }
+
+    // -------------------------------------------------------------------------
+    // Rating helpers
+    // -------------------------------------------------------------------------
+
+    /** Returns the display label for a rating (or "CALLED" when rating is null). */
+    private static String ratingLabel(PhoneMessageRating rating) {
+        if (rating == null) return "CALLED";
+        switch (rating) {
+            case FRIENDLY:   return "FRIENDLY";
+            case UNFRIENDLY: return "UNFRIENDLY";
+            default:         return "NEUTRAL";
+        }
+    }
+
+    /** Returns the display colour for a rating. */
+    private static Color ratingColor(PhoneMessageRating rating) {
+        if (rating == null) return CALLED_COLOR;
+        switch (rating) {
+            case FRIENDLY:   return FRIENDLY_COLOR;
+            case UNFRIENDLY: return UNFRIENDLY_COLOR;
+            default:         return NEUTRAL_COLOR;
+        }
     }
 }

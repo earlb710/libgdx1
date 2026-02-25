@@ -76,12 +76,14 @@ public class PhoneContactTest {
             String client = cf.getClientName();
             if (client != null && !client.trim().isEmpty() && seen.add(client.trim())) {
                 result.add(new PhoneContact(client.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, client.trim())));
+                        profile.isContactPhoned(caseId, client.trim()),
+                        profile.getContactMessageRating(caseId, client.trim())));
             }
             String subject = cf.getSubjectName();
             if (subject != null && !subject.trim().isEmpty() && seen.add(subject.trim())) {
                 result.add(new PhoneContact(subject.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, subject.trim())));
+                        profile.isContactPhoned(caseId, subject.trim()),
+                        profile.getContactMessageRating(caseId, subject.trim())));
             }
         }
         return result;
@@ -166,4 +168,88 @@ public class PhoneContactTest {
         List<PhoneContact> contacts = buildContactsFromProfile(p);
         assertEquals(4, contacts.size());
     }
-}
+
+    // -------------------------------------------------------------------------
+    // Phone message rating
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void newContactHasNullRating() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        CaseFile cf = new CaseFile("Case1", "desc", "2050-01-02 10:00");
+        cf.setClientName("Bob");
+        p.addCaseFile(cf);
+
+        List<PhoneContact> contacts = buildContactsFromProfile(p);
+        assertNull("Unphoned contact should have null rating", contacts.get(0).rating);
+    }
+
+    @Test
+    public void setContactMessageRatingPersists() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        p.setContactMessageRating("case-1", "Bob", PhoneMessageRating.FRIENDLY);
+        assertEquals(PhoneMessageRating.FRIENDLY,
+                p.getContactMessageRating("case-1", "Bob"));
+    }
+
+    @Test
+    public void setContactMessageRatingAlsoMarksPhoned() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        p.setContactMessageRating("case-1", "Bob", PhoneMessageRating.NEUTRAL);
+        assertTrue("setContactMessageRating should also mark contact as phoned",
+                p.isContactPhoned("case-1", "Bob"));
+    }
+
+    @Test
+    public void ratingIsContactSpecific() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        p.setContactMessageRating("case-1", "Bob", PhoneMessageRating.FRIENDLY);
+        assertNull(p.getContactMessageRating("case-1", "Carol"));
+        assertNull(p.getContactMessageRating("case-2", "Bob"));
+    }
+
+    @Test
+    public void setContactMessageRatingIgnoresNulls() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        // None of these should throw
+        p.setContactMessageRating(null, "Bob", PhoneMessageRating.FRIENDLY);
+        p.setContactMessageRating("case-1", null, PhoneMessageRating.NEUTRAL);
+        assertNull(p.getContactMessageRating(null, "Bob"));
+        assertNull(p.getContactMessageRating("case-1", null));
+    }
+
+    @Test
+    public void ratingCanBeUpdated() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        p.setContactMessageRating("case-1", "Bob", PhoneMessageRating.NEUTRAL);
+        p.setContactMessageRating("case-1", "Bob", PhoneMessageRating.UNFRIENDLY);
+        assertEquals(PhoneMessageRating.UNFRIENDLY,
+                p.getContactMessageRating("case-1", "Bob"));
+    }
+
+    @Test
+    public void ratingCyclesCorrectly() {
+        assertEquals(PhoneMessageRating.NEUTRAL,   PhoneMessageRating.FRIENDLY.next());
+        assertEquals(PhoneMessageRating.UNFRIENDLY, PhoneMessageRating.NEUTRAL.next());
+        assertEquals(PhoneMessageRating.FRIENDLY,   PhoneMessageRating.UNFRIENDLY.next());
+    }
+
+    @Test
+    public void phonedContactsIncludeRatingWhenBuilt() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        CaseFile cf = new CaseFile("Case1", "desc", "2050-01-02 10:00");
+        cf.setClientName("Bob");
+        p.addCaseFile(cf);
+        p.setContactMessageRating(cf.getId(), "Bob", PhoneMessageRating.FRIENDLY);
+
+        List<PhoneContact> contacts = buildContactsFromProfile(p);
+        assertEquals(PhoneMessageRating.FRIENDLY, contacts.get(0).rating);
+    }
+
+    @Test
+    public void phoneContactConstructorWithRating() {
+        PhoneContact c = new PhoneContact("Bob", "case-1", true, true,
+                PhoneMessageRating.UNFRIENDLY);
+        assertEquals(PhoneMessageRating.UNFRIENDLY, c.rating);
+        assertTrue(c.phoned);
+    }

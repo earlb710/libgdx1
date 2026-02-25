@@ -2293,7 +2293,8 @@ public class MainScreen implements Screen {
                     && seenNames.add(clientName.trim())) {
                 result.add(new PhoneContact(
                         clientName.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, clientName.trim())));
+                        profile.isContactPhoned(caseId, clientName.trim()),
+                        profile.getContactMessageRating(caseId, clientName.trim())));
             }
             // Subject name
             String subjectName = cf.getSubjectName();
@@ -2301,25 +2302,40 @@ public class MainScreen implements Screen {
                     && seenNames.add(subjectName.trim())) {
                 result.add(new PhoneContact(
                         subjectName.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, subjectName.trim())));
+                        profile.isContactPhoned(caseId, subjectName.trim()),
+                        profile.getContactMessageRating(caseId, subjectName.trim())));
             }
         }
         return result;
     }
 
     /**
-     * Called when the player taps a contact in the phone popup to place a call.
-     * Marks the contact as phoned in the profile and updates the popup.
+     * Called when the player taps a contact in the phone popup.
+     * <ul>
+     *   <li>First tap: marks the contact as called with a default
+     *       {@link PhoneMessageRating#NEUTRAL} rating.</li>
+     *   <li>Subsequent taps: cycles the rating (NEUTRAL → FRIENDLY →
+     *       UNFRIENDLY → NEUTRAL).</li>
+     * </ul>
      *
      * @param contactIndex index in the phone popup's contact list
      */
     private void handleContactPhoned(int contactIndex) {
         PhoneContact contact = phonePopup.getContactAt(contactIndex);
         if (contact == null) return;
-        contact.phoned = true;
-        profile.markContactPhoned(contact.caseId, contact.name);
+        if (!contact.phoned) {
+            // First call – default to NEUTRAL
+            contact.phoned  = true;
+            contact.rating  = PhoneMessageRating.NEUTRAL;
+        } else {
+            // Re-tap: cycle through ratings
+            contact.rating = (contact.rating != null)
+                    ? contact.rating.next()
+                    : PhoneMessageRating.NEUTRAL;
+        }
+        profile.setContactMessageRating(contact.caseId, contact.name, contact.rating);
         Gdx.app.log("MainScreen", "Phoned contact: " + contact.name
-                + " (case " + contact.caseId + ")");
+                + " (case " + contact.caseId + ") rating=" + contact.rating);
     }
 
     /**
