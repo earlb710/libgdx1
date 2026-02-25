@@ -22,9 +22,16 @@ public class PhoneContact {
     public final boolean caseOpen;
     /** {@code true} once the player has tapped this contact to place a call. */
     public boolean phoned;
+    /**
+     * Rating of the phone message placed to this contact.
+     * {@code null} when the contact has not yet been called.
+     * Set to {@link PhoneMessageRating#NEUTRAL} on the first call, then
+     * the player can cycle through the values by tapping again.
+     */
+    public PhoneMessageRating rating;
 
     /**
-     * Creates a new phone contact.
+     * Creates a new phone contact with no call rating.
      *
      * @param name     display name (non-null; treated as empty string if {@code null})
      * @param caseId   ID of the source case (non-null; treated as empty string if {@code null})
@@ -32,9 +39,24 @@ public class PhoneContact {
      * @param phoned   {@code true} if this contact has already been called
      */
     public PhoneContact(String name, String caseId, boolean caseOpen, boolean phoned) {
+        this(name, caseId, caseOpen, phoned, null);
+    }
+
+    /**
+     * Creates a new phone contact with a call rating.
+     *
+     * @param name     display name (non-null; treated as empty string if {@code null})
+     * @param caseId   ID of the source case (non-null; treated as empty string if {@code null})
+     * @param caseOpen {@code true} if the source case is still open
+     * @param phoned   {@code true} if this contact has already been called
+     * @param rating   rating of the call, or {@code null} if not yet called
+     */
+    public PhoneContact(String name, String caseId, boolean caseOpen, boolean phoned,
+                        PhoneMessageRating rating) {
         this.name     = name   != null ? name   : "";
         this.caseId   = caseId != null ? caseId : "";
         this.caseOpen = caseOpen;
         this.phoned   = phoned;
+        this.rating   = rating;
     }
 }

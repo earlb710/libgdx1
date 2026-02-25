@@ -1201,4 +1201,128 @@ public class NovelTextEngineTest {
         String lower = stateEngine.getStateDescription("warehouse", "good");
         assertEquals("State lookup should be case-insensitive", lower, upper);
     }
+
+    // ===== your_office and hotel room description entry tests =====
+
+    private static final String OFFICE_HOTEL_JSON =
+        "{" +
+        "  \"version\": \"1.0\"," +
+        "  \"language\": \"en\"," +
+        "  \"descriptions\": {" +
+        "    \"your_office\": {" +
+        "      \"default\": \"Your office. Small, purposeful, and yours.\"," +
+        "      \"time\": {" +
+        "        \"morning\": \"Morning light fills the room.\"," +
+        "        \"night\": \"Late. The desk lamp is the only light.\"" +
+        "      }," +
+        "      \"state\": {" +
+        "        \"good\": \"The room is clean and well-ordered.\"," +
+        "        \"normal\": \"A lived-in office.\"," +
+        "        \"bad\": \"The room shows its age.\"" +
+        "      }" +
+        "    }," +
+        "    \"hotel_budget_room\": {" +
+        "      \"default\": \"A budget hotel room.\"," +
+        "      \"state\": {" +
+        "        \"good\": \"The room is clean and fittings are intact.\"," +
+        "        \"normal\": \"The room has the worn look of high turnover.\"," +
+        "        \"bad\": \"The room presents a catalogue of deferred maintenance.\"" +
+        "      }" +
+        "    }," +
+        "    \"hotel_business_room\": {" +
+        "      \"default\": \"A business hotel room.\"," +
+        "      \"state\": {" +
+        "        \"good\": \"The room presents clean lines and recent refurbishment.\"," +
+        "        \"normal\": \"The room functions well.\"," +
+        "        \"bad\": \"The room shows the strain.\"" +
+        "      }" +
+        "    }," +
+        "    \"hotel_luxury_room\": {" +
+        "      \"default\": \"A luxury hotel room.\"," +
+        "      \"state\": {" +
+        "        \"good\": \"The room is immaculate.\"," +
+        "        \"normal\": \"The room retains the quality.\"," +
+        "        \"bad\": \"The room has not been maintained.\"" +
+        "      }" +
+        "    }" +
+        "  }" +
+        "}";
+
+    @Test
+    public void yourOfficeDefaultDescriptionIsLoaded() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        String result = e.getDescription("your_office", TimeOfDay.AFTERNOON,
+                java.util.Collections.<String, Integer>emptyMap(), null);
+        assertEquals("Your office. Small, purposeful, and yours.", result);
+    }
+
+    @Test
+    public void yourOfficeStateGoodReturnsGoodText() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("The room is clean and well-ordered.",
+                e.getStateDescription("your_office", "good"));
+    }
+
+    @Test
+    public void yourOfficeStateNormalReturnsNormalText() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("A lived-in office.",
+                e.getStateDescription("your_office", "normal"));
+    }
+
+    @Test
+    public void yourOfficeStateBadReturnsBadText() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("The room shows its age.",
+                e.getStateDescription("your_office", "bad"));
+    }
+
+    @Test
+    public void yourOfficeStateNullFallsBackToDefault() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("Your office. Small, purposeful, and yours.",
+                e.getStateDescription("your_office", null));
+    }
+
+    @Test
+    public void hotelBudgetRoomStateDescriptionsLoaded() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("The room is clean and fittings are intact.",
+                e.getStateDescription("hotel_budget_room", "good"));
+        assertEquals("The room has the worn look of high turnover.",
+                e.getStateDescription("hotel_budget_room", "normal"));
+        assertEquals("The room presents a catalogue of deferred maintenance.",
+                e.getStateDescription("hotel_budget_room", "bad"));
+    }
+
+    @Test
+    public void hotelBusinessRoomStateDescriptionsLoaded() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("The room presents clean lines and recent refurbishment.",
+                e.getStateDescription("hotel_business_room", "good"));
+        assertEquals("The room functions well.",
+                e.getStateDescription("hotel_business_room", "normal"));
+        assertEquals("The room shows the strain.",
+                e.getStateDescription("hotel_business_room", "bad"));
+    }
+
+    @Test
+    public void hotelLuxuryRoomStateDescriptionsLoaded() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("The room is immaculate.",
+                e.getStateDescription("hotel_luxury_room", "good"));
+        assertEquals("The room retains the quality.",
+                e.getStateDescription("hotel_luxury_room", "normal"));
+        assertEquals("The room has not been maintained.",
+                e.getStateDescription("hotel_luxury_room", "bad"));
+    }
+
+    @Test
+    public void hotelRoomDefaultFallsBackWhenNoStateMatch() {
+        NovelTextEngine e = NovelTextEngine.fromJsonString(OFFICE_HOTEL_JSON);
+        assertEquals("A budget hotel room.",
+                e.getStateDescription("hotel_budget_room", null));
+        assertEquals("A budget hotel room.",
+                e.getStateDescription("hotel_budget_room", "unknown"));
+    }
 }

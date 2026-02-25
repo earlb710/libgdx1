@@ -38,6 +38,8 @@ public class Profile {
     private String lastEmailCheckDate = "";
     // Keys of contacts the player has already phoned, formatted as "caseId|contactName"
     private final java.util.Set<String> phonedContactKeys = new java.util.LinkedHashSet<>();
+    // Ratings for phoned contacts, keyed by "caseId|contactName"
+    private final Map<String, PhoneMessageRating> contactMessageRatings = new HashMap<>();
     
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
@@ -469,6 +471,38 @@ public class Profile {
     public boolean isContactPhoned(String caseId, String contactName) {
         if (caseId == null || contactName == null) return false;
         return phonedContactKeys.contains(caseId + "|" + contactName);
+    }
+
+    /**
+     * Sets the {@link PhoneMessageRating} for a contact's call.
+     * The contact is also automatically marked as phoned.
+     *
+     * @param caseId      ID of the case this contact belongs to
+     * @param contactName name of the contact
+     * @param rating      the rating to assign; {@code null} clears any existing rating
+     */
+    public void setContactMessageRating(String caseId, String contactName,
+                                        PhoneMessageRating rating) {
+        if (caseId == null || contactName == null) return;
+        String key = caseId + "|" + contactName;
+        phonedContactKeys.add(key);
+        if (rating != null) {
+            contactMessageRatings.put(key, rating);
+        } else {
+            contactMessageRatings.remove(key);
+        }
+    }
+
+    /**
+     * Returns the {@link PhoneMessageRating} for a contact's call, or
+     * {@code null} if the contact has not been rated (or not called at all).
+     *
+     * @param caseId      ID of the case this contact belongs to
+     * @param contactName name of the contact
+     */
+    public PhoneMessageRating getContactMessageRating(String caseId, String contactName) {
+        if (caseId == null || contactName == null) return null;
+        return contactMessageRatings.get(caseId + "|" + contactName);
     }
 
     /**

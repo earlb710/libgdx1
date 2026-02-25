@@ -1051,6 +1051,7 @@ public class MainScreen implements Screen {
                     contextMenuActions.add(() -> {
                         state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                                 + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
+                        state.unitInteriorDescription = buildOfficeDescription();
                         state.unitInteriorOpen = true;
                     });
                 }
@@ -1129,6 +1130,7 @@ public class MainScreen implements Screen {
                 && flippedY >= state.goToOfficeBtnY && flippedY <= state.goToOfficeBtnY + state.goToOfficeBtnH) {
             state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                     + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
+            state.unitInteriorDescription = buildOfficeDescription();
             state.unitIsHotelRoom = false;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
@@ -1667,7 +1669,8 @@ public class MainScreen implements Screen {
                         hotel.getDisplayName(),
                         BuildingServices.getHotelRoomType(hotel),
                         BuildingServices.getHotelNightlyCost(hotel),
-                        BuildingServices.getHotelStaminaBonus(hotel));
+                        BuildingServices.getHotelStaminaBonus(hotel),
+                        buildHotelRoomDescription(hotel));
                 return;  // popup drives the rest; don't show serviceResultPopup now
             }
 
@@ -2367,7 +2370,8 @@ public class MainScreen implements Screen {
                     && seenNames.add(clientName.trim())) {
                 result.add(new PhoneContact(
                         clientName.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, clientName.trim())));
+                        profile.isContactPhoned(caseId, clientName.trim()),
+                        profile.getContactMessageRating(caseId, clientName.trim())));
             }
             // Subject name
             String subjectName = cf.getSubjectName();
@@ -2375,25 +2379,88 @@ public class MainScreen implements Screen {
                     && seenNames.add(subjectName.trim())) {
                 result.add(new PhoneContact(
                         subjectName.trim(), caseId, true,
-                        profile.isContactPhoned(caseId, subjectName.trim())));
+                        profile.isContactPhoned(caseId, subjectName.trim()),
+                        profile.getContactMessageRating(caseId, subjectName.trim())));
             }
         }
         return result;
     }
 
     /**
-     * Called when the player taps a contact in the phone popup to place a call.
-     * Marks the contact as phoned in the profile and updates the popup.
+     * Called when the player taps a contact in the phone popup.
+     * <ul>
+     *   <li>First tap: marks the contact as called with a default
+     *       {@link PhoneMessageRating#NEUTRAL} rating.</li>
+     *   <li>Subsequent taps: cycles the rating (NEUTRAL → FRIENDLY →
+     *       UNFRIENDLY → NEUTRAL).</li>
+     * </ul>
      *
      * @param contactIndex index in the phone popup's contact list
      */
     private void handleContactPhoned(int contactIndex) {
         PhoneContact contact = phonePopup.getContactAt(contactIndex);
         if (contact == null) return;
-        contact.phoned = true;
-        profile.markContactPhoned(contact.caseId, contact.name);
+        if (!contact.phoned) {
+            // First call – default to NEUTRAL
+            contact.phoned  = true;
+            contact.rating  = PhoneMessageRating.NEUTRAL;
+        } else {
+            // Re-tap: cycle through ratings
+            contact.rating = (contact.rating != null)
+                    ? contact.rating.next()
+                    : PhoneMessageRating.NEUTRAL;
+        }
+        profile.setContactMessageRating(contact.caseId, contact.name, contact.rating);
         Gdx.app.log("MainScreen", "Phoned contact: " + contact.name
-                + " (case " + contact.caseId + ")");
+                + " (case " + contact.caseId + ") rating=" + contact.rating);
+    }
+
+    /**
+     * Returns a contextual description of the player's home office, selected from
+     * {@code description_en.json} using the office building's current state
+     * (good/normal/bad).  Falls back to the time-of-day description when no state
+     * variant is defined, and to an empty string when no JSON entry is found.
+     */
+    String buildOfficeDescription() {
+        if (novelTextEngine == null) return "";
+        Cell homeCell = cityMap.getCell(state.homeCellX, state.homeCellY);
+        String buildingState = (homeCell != null && homeCell.hasBuilding())
+                ? homeCell.getBuilding().getState() : null;
+        String desc = "";
+        if (buildingState != null) {
+            desc = novelTextEngine.getStateDescription("your_office", buildingState);
+        }
+        if (desc == null || desc.isEmpty()) {
+            desc = novelTextEngine.getDescription(
+                    "your_office", profile.getCurrentHour(),
+                    profile.getAttributes(), profile.getGender());
+        }
+        return desc != null ? desc : "";
+    }
+
+    /**
+     * Returns a contextual room description for the given hotel building, selected
+     * from {@code description_en.json} using the room-specific key derived from the
+     * building definition ID ({@code <id>_room}) and the building's state
+     * (good/normal/bad).  Falls back to time-of-day then default text.
+     *
+     * @param hotel the hotel {@link Building} (may be {@code null})
+     * @return description text, never {@code null}
+     */
+    String buildHotelRoomDescription(Building hotel) {
+        if (novelTextEngine == null || hotel == null || hotel.getDefinition() == null) return "";
+        String roomKey = hotel.getDefinition().getId() + "_room";
+        String buildingState = hotel.getState();
+        String desc = "";
+        if (buildingState != null) {
+            desc = novelTextEngine.getStateDescription(roomKey, buildingState);
+        }
+        if (desc == null || desc.isEmpty()) {
+            desc = novelTextEngine.getDescription(
+                    roomKey, profile.getCurrentHour(),
+                    profile.getAttributes(), profile.getGender());
+        }
+        return desc != null ? desc : "";
     }
 
     /**
