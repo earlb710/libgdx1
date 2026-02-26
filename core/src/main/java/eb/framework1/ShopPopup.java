@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Modal popup shown when the player browses a shop.
@@ -39,7 +41,9 @@ class ShopPopup {
     private static final Color BORDER_COLOR    = new Color(0.70f, 0.85f, 1.00f, 1f);
     private static final Color TITLE_COLOR     = new Color(1.00f, 0.90f, 0.50f, 1f);
     private static final Color PRICE_COLOR     = new Color(1.00f, 0.90f, 0.10f, 1f);
-    private static final Color BUY_COLOR       = new Color(0.10f, 0.45f, 0.12f, 1f);
+    private static final Color BUY_COLOR         = new Color(0.10f, 0.45f, 0.12f, 1f);
+    private static final Color BUY_DISABLED_COLOR = new Color(0.22f, 0.22f, 0.26f, 1f);
+    private static final Color OWNED_TEXT_COLOR   = new Color(0.55f, 0.55f, 0.60f, 1f);
     private static final Color QTY_BTN_COLOR   = new Color(0.20f, 0.30f, 0.50f, 1f);
     private static final Color CLOSE_COLOR     = new Color(0.40f, 0.10f, 0.10f, 1f);
     private static final Color ROW_ALT_COLOR   = new Color(0.08f, 0.14f, 0.26f, 1f);
@@ -63,6 +67,7 @@ class ShopPopup {
     private boolean      visible   = false;
     private String       title     = "";
     private List<ShopItem> items;
+    private Set<String> ownedNames = Collections.emptySet();
     private final int[]  quantities = new int[MAX_ITEMS];
     private int          lastQty    = 1;
     private float        scrollY    = 0f;
@@ -112,12 +117,26 @@ class ShopPopup {
      * @param items  items to display; must not be null
      */
     void show(String title, List<ShopItem> items) {
-        this.title   = title != null ? title : "Shop";
-        this.items   = items;
-        this.visible = true;
-        this.scrollY = 0f;
-        this.buyBtnW = 0f;
-        this.closeW  = 0f;
+        show(title, items, Collections.emptySet());
+    }
+
+    /**
+     * Opens the shop popup, marking non-consumable items already owned by
+     * the player so their {@code [Buy]} button is grayed out and disabled.
+     *
+     * @param title      heading shown at the top (e.g. "Security Shop")
+     * @param items      items to display; must not be null
+     * @param ownedNames names of items the player already carries; used to
+     *                   disable the Buy button for non-consumables already owned
+     */
+    void show(String title, List<ShopItem> items, Set<String> ownedNames) {
+        this.title      = title != null ? title : "Shop";
+        this.items      = items;
+        this.ownedNames = ownedNames != null ? ownedNames : Collections.emptySet();
+        this.visible    = true;
+        this.scrollY    = 0f;
+        this.buyBtnW    = 0f;
+        this.closeW     = 0f;
         int count = Math.min(items.size(), MAX_ITEMS);
         for (int i = 0; i < count; i++) quantities[i] = 1;
         Gdx.app.log("ShopPopup", "Showing '" + this.title + "' with " + items.size() + " items");
@@ -152,6 +171,7 @@ class ShopPopup {
         // Buy buttons
         if (buyBtnW > 0) {
             for (int i = 0; i < count; i++) {
+                if (isOwned(i)) continue; // grayed-out; ignore taps
                 if (screenX >= buyBtnX[i] && screenX <= buyBtnX[i] + buyBtnW
                         && flippedY >= buyBtnY[i] && flippedY <= buyBtnY[i] + buyBtnH) {
                     lastQty = quantities[i];
@@ -213,7 +233,10 @@ class ShopPopup {
 
         // --- Button sizing ---
         glyph.setText(font, "Buy");
-        buyBtnW = glyph.width + 2 * BTN_PAD_X;
+        float buyLabelW = glyph.width;
+        glyph.setText(font, "Owned");
+        float ownedLabelW = glyph.width;
+        buyBtnW = Math.max(buyLabelW, ownedLabelW) + 2 * BTN_PAD_X;
         buyBtnH = fontH + 2 * BTN_PAD_Y;
 
         glyph.setText(font, "-");
@@ -347,7 +370,7 @@ class ShopPopup {
 
             buyBtnX[i] = rightX - buyBtnW;
             buyBtnY[i] = btnY;
-            sr.setColor(BUY_COLOR);
+            sr.setColor(isOwned(i) ? BUY_DISABLED_COLOR : BUY_COLOR);
             sr.rect(buyBtnX[i], btnY, buyBtnW, buyBtnH);
 
             if (items.get(i).consumable) {
@@ -430,12 +453,20 @@ class ShopPopup {
                 }
             }
 
-            // Buy label
-            glyph.setText(font, "Buy");
-            font.setColor(Color.WHITE);
-            font.draw(batch, "Buy",
-                    buyBtnX[i] + (buyBtnW - glyph.width) / 2f,
-                    buyBtnY[i] + (buyBtnH + glyph.height) / 2f);
+            // Buy / Owned label
+            if (isOwned(i)) {
+                glyph.setText(font, "Owned");
+                font.setColor(OWNED_TEXT_COLOR);
+                font.draw(batch, "Owned",
+                        buyBtnX[i] + (buyBtnW - glyph.width) / 2f,
+                        buyBtnY[i] + (buyBtnH + glyph.height) / 2f);
+            } else {
+                glyph.setText(font, "Buy");
+                font.setColor(Color.WHITE);
+                font.draw(batch, "Buy",
+                        buyBtnX[i] + (buyBtnW - glyph.width) / 2f,
+                        buyBtnY[i] + (buyBtnH + glyph.height) / 2f);
+            }
 
             // Qty controls (consumables only)
             if (item.consumable) {
@@ -515,6 +546,17 @@ class ShopPopup {
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns {@code true} if item {@code i} is non-consumable and its name
+     * appears in the {@link #ownedNames} set (i.e. the player already carries it).
+     * Consumable items are never considered "owned" — the player can always buy more.
+     */
+    private boolean isOwned(int i) {
+        if (items == null || i < 0 || i >= items.size()) return false;
+        ShopItem item = items.get(i);
+        return !item.consumable && ownedNames.contains(item.name);
+    }
 
     private static boolean isRowVisible(float rowY, float rowH,
                                         float areaY, float areaH) {

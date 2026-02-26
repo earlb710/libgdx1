@@ -16,8 +16,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Main game screen.  Orchestrates map rendering, info panel, look-around popup,
@@ -1814,7 +1817,8 @@ public class MainScreen implements Screen {
                 Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
                 Building b = cell.hasBuilding() ? cell.getBuilding() : null;
                 shopItems = new ArrayList<>(BuildingServices.getShopItems(b));
-                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems);
+                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems,
+                        carriedItemNames());
                 return;
             }
 
@@ -1942,6 +1946,25 @@ public class MainScreen implements Screen {
     private void handleBuySupplies(BuildingService svc, List<String> resultLines) {
         // No supply catalogue items defined yet — show placeholder
         resultLines.add("Nothing of interest at the moment.");
+    }
+
+    /**
+     * Returns the set of item names currently carried by the player
+     * (equipped main-slot items plus utility items).  Used to gray out
+     * already-owned items in the shop popup.
+     */
+    private Set<String> carriedItemNames() {
+        Set<String> names = new HashSet<>();
+        EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                      EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+        for (EquipmentSlot slot : mainSlots) {
+            EquipItem equipped = profile.getEquipped(slot);
+            if (equipped != null) names.add(equipped.getName());
+        }
+        for (EquipItem item : profile.getUtilityItems()) {
+            if (item != null) names.add(item.getName());
+        }
+        return names;
     }
 
     /**
