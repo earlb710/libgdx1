@@ -149,7 +149,7 @@ public class ProfileSelectionScreen implements Screen {
 
         // Confirmation dialog buttons – stacked vertically so they never spill
         // outside the dialog, with enough dialog height to avoid text overlap.
-        int dialogWidth  = 500;
+        int dialogWidth  = 650;
         int dialogHeight = 320;
         int dialogX      = (Gdx.graphics.getWidth()  - dialogWidth)  / 2;
         int dialogY      = (Gdx.graphics.getHeight() - dialogHeight) / 2;
@@ -214,7 +214,7 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.end();
         
         // Draw dialog box
-        int dialogWidth = 500;
+        int dialogWidth = 650;
         int dialogHeight = 320;
         int dialogX = (Gdx.graphics.getWidth() - dialogWidth) / 2;
         int dialogY = (Gdx.graphics.getHeight() - dialogHeight) / 2;
@@ -227,6 +227,14 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(dialogX, dialogY, dialogWidth, dialogHeight);
+        // Separator below heading
+        float separatorPadding = 20f;
+        shapeRenderer.setColor(Color.GRAY);
+        shapeRenderer.line(dialogX + separatorPadding, dialogY + dialogHeight - 80,
+                           dialogX + dialogWidth - separatorPadding, dialogY + dialogHeight - 80);
+        // Separator above buttons
+        shapeRenderer.line(dialogX + separatorPadding, confirmYesButton.y + confirmYesButton.height + 15,
+                           dialogX + dialogWidth - separatorPadding, confirmYesButton.y + confirmYesButton.height + 15);
         shapeRenderer.end();
         
         // Draw text
