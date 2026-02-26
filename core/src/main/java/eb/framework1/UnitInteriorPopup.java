@@ -105,7 +105,7 @@ class UnitInteriorPopup {
         glyph.setText(smallFont, "Hg");
         final float smallH     = glyph.height;
         final float smallLineH = smallH + 4f;
-        float descBlockH = descLines.isEmpty() ? 0f : descLines.size() * smallLineH + fontCapH;
+        float descBlockH = descLines.isEmpty() ? 0f : smallH + descLines.size() * smallLineH + fontCapH;
 
         final float btnX = 20f;
         float titleY = panelH - PAD_Y - fontCapH;
@@ -184,7 +184,7 @@ class UnitInteriorPopup {
 
         // Office description (below title)
         if (!descLines.isEmpty()) {
-            float descY = titleY - fontCapH;
+            float descY = titleY - fontCapH - smallH;
             smallFont.setColor(new Color(0.75f, 0.85f, 0.95f, 1f));
             for (String line : descLines) {
                 smallFont.draw(batch, line, PAD_X, descY);

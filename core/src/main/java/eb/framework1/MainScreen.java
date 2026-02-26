@@ -1145,6 +1145,7 @@ public class MainScreen implements Screen {
             Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
             String hotelName = cell.hasBuilding() ? cell.getBuilding().getDisplayName() : "Hotel";
             state.unitInteriorLabel = hotelName + " \u2014 Room " + roomNum;
+            state.unitInteriorDescription = buildHotelRoomDescription(cell.hasBuilding() ? cell.getBuilding() : null);
             state.unitIsHotelRoom = true;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered hotel room: " + state.unitInteriorLabel);
