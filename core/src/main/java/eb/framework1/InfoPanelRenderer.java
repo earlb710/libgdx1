@@ -1148,7 +1148,7 @@ class InfoPanelRenderer {
                             entry.locationCellX, entry.locationCellY);
                     String travelStr = route.formatTime(); // returns "Unreachable" when not reachable
                     locLine += "  (" + MapRenderer.cellLabel(entry.locationCellX, entry.locationCellY)
-                             + " \u00b7 " + travelStr + ")";
+                             + " - " + travelStr + " travel time)";
                 }
                 smallFont.draw(batch, locLine, PAD + 8f, ty + drawScrollY);
                 ty -= smallLineH;

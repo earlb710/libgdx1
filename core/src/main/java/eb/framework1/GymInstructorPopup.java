@@ -151,89 +151,94 @@ class GymInstructorPopup {
     void draw(int screenW, int screenH) {
         if (!visible) return;
 
-        final float PAD         = 24f;
-        final float GAP         = 10f;
-        final float BTN_SPACING = 12f;
-        final float MIN_W       = 340f;
-        final float MAX_W       = screenW * 0.90f;
+        final float PAD         = 16f;
+        final float GAP         = 8f;
+        final float BTN_PAD_X   = 20f;
+        final float BTN_PAD_Y   = 10f;
+        final float SECTION_GAP = 12f;
 
         // --- Font metrics ---
         glyph.setText(font, "Hg");
-        float fontH     = glyph.height;
-        float fontLineH = fontH + GAP;
+        float fontH  = glyph.height;
         glyph.setText(smallFont, "Hg");
-        float smallH     = glyph.height;
-        float smallLineH = smallH + GAP;
+        float smallH = glyph.height;
 
-        // --- Button and label sizing ---
-        TextMeasurer.TextBounds cancelBounds = TextMeasurer.measure(font, glyph, "Cancel", 28f, 12f);
-        float cancelBtnW = cancelBounds.width;
-        float cancelBtnH = cancelBounds.height;
+        // --- Measure all content widths ---
+        final String title    = "Fitness Instructor";
+        final String subTitle = "Choose your training session:";
+        glyph.setText(font,      title);    float titleW = glyph.width;
+        glyph.setText(smallFont, subTitle); float subW   = glyph.width;
 
-        // Widest option label (name + cost + time suffix)
-        float maxOptLabelW = cancelBtnW;
+        float maxOptLabelW = 0f;
         for (int i = 0; i < NUM_OPTIONS; i++) {
-            String label = optionButtonLabel(i);
-            glyph.setText(font, label);
+            glyph.setText(font, optionButtonLabel(i));
             if (glyph.width > maxOptLabelW) maxOptLabelW = glyph.width;
         }
-        // Widest chance line
         float maxChanceW = 0f;
         for (int i = 0; i < NUM_OPTIONS; i++) {
             glyph.setText(smallFont, chanceLine(i));
             if (glyph.width > maxChanceW) maxChanceW = glyph.width;
         }
+        glyph.setText(font, "Cancel");
+        float cancelTextW = glyph.width;
 
-        // Each option occupies one main-font button row + one smallFont chance line
-        float singleOptH = cancelBtnH + smallLineH;
+        // --- Button dimensions ---
+        float optBtnW_val    = Math.max(maxOptLabelW + 2 * BTN_PAD_X,
+                                        maxChanceW   + 2 * BTN_PAD_X);
+        float optBtnH_val    = fontH  + 2 * BTN_PAD_Y;
+        float cancelBtnW_val = cancelTextW + 2 * BTN_PAD_X;
+        float cancelBtnH_val = fontH  + 2 * BTN_PAD_Y;
 
-        float optW = Math.max(maxOptLabelW + 2 * PAD, maxChanceW + 2 * PAD);
-        optBtnH = cancelBtnH;
+        // --- Dialog dimensions ---
+        float contentW = Math.max(titleW, Math.max(subW,
+                         Math.max(optBtnW_val, cancelBtnW_val)));
+        float dialogW  = Math.min(screenW * 0.92f, contentW + 2 * PAD);
 
-        // Header lines
-        String title     = "Fitness Instructor";
-        String subTitle  = "Choose your training session:";
-        glyph.setText(font, title);
-        float titleW = glyph.width;
-        glyph.setText(smallFont, subTitle);
-        float subW   = glyph.width;
+        // Clamp buttons so they always fit within the dialog
+        optBtnW_val    = Math.min(optBtnW_val,    dialogW - 2 * PAD);
+        cancelBtnW_val = Math.min(cancelBtnW_val, dialogW - 2 * PAD);
 
-        float contentW = Math.max(optW, Math.max(titleW, subW));
-        float dialogW  = Math.min(MAX_W, Math.max(MIN_W, contentW + 2 * PAD));
-
-        // Height
+        float chanceLineH = smallH + GAP;
         float dialogH = PAD
-                + fontLineH + fontH                          // title + character-size gap
-                + smallLineH                                 // subtitle
-                + GAP                                        // spacer
-                + NUM_OPTIONS * (singleOptH + BTN_SPACING)  // 4 option rows
-                + cancelBtnH + BTN_SPACING                   // cancel
+                + fontH       + GAP                                          // title
+                + smallH      + GAP + SECTION_GAP                           // subtitle
+                + NUM_OPTIONS * (optBtnH_val + chanceLineH + SECTION_GAP)   // 4 option blocks
+                + cancelBtnH_val                                             // cancel
                 + PAD;
+        dialogH = Math.min(dialogH, screenH * 0.95f);
 
-        float dialogX = (screenW - dialogW) / 2f;
-        float dialogY = (screenH - dialogH) / 2f;
+        float dialogX    = (screenW - dialogW) / 2f;
+        float dialogY    = (screenH - dialogH) / 2f;
+        float btnCenterX = dialogX + dialogW / 2f;
 
-        // Layout buttons bottom-up, storing positions for hit-testing
-        float cy = dialogY + PAD;
+        // --- Single top-down layout pass ---
+        // curY is the Y of the TOP edge of the next element (Y increases upward in libgdx).
+        float curY = dialogY + dialogH - PAD;
 
-        cancelX = dialogX + (dialogW - cancelBtnW) / 2f;
-        cancelY = cy;
-        cancelW = cancelBtnW;
-        cancelH = cancelBtnH;
-        cy += cancelBtnH + BTN_SPACING;
+        // Title
+        float titleY = curY;
+        curY -= fontH + GAP;
 
-        // Option rows are stored in reverse (bottom up) but we draw them top-down later
-        // Store in reverse order of visual top-to-bottom display:
-        for (int i = NUM_OPTIONS - 1; i >= 0; i--) {
-            // chance-line occupies the space below the button during layout pass
-            cy += smallLineH;  // skip chance-line height (drawn below button)
-            optBtnX[i] = dialogX + (dialogW - optW) / 2f;
-            optBtnY[i] = cy;
-            optBtnW[i] = optW;
-            cy += cancelBtnH + BTN_SPACING;
+        // Subtitle
+        float subY = curY;
+        curY -= smallH + GAP + SECTION_GAP;
+
+        // Option buttons + chance lines
+        for (int i = 0; i < NUM_OPTIONS; i++) {
+            optBtnX[i] = btnCenterX - optBtnW_val / 2f;
+            optBtnY[i] = curY - optBtnH_val;          // bottom-left Y of button rect
+            optBtnW[i] = optBtnW_val;
+            curY -= optBtnH_val + chanceLineH + SECTION_GAP;
         }
+        optBtnH = optBtnH_val;
 
-        // --- Shapes ---
+        // Cancel
+        cancelX = btnCenterX - cancelBtnW_val / 2f;
+        cancelY = curY - cancelBtnH_val;
+        cancelW = cancelBtnW_val;
+        cancelH = cancelBtnH_val;
+
+        // --- Draw shapes ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dialogW, dialogH);
@@ -257,41 +262,38 @@ class GymInstructorPopup {
         sr.rect(cancelX + 1, cancelY + 1, cancelW - 2, cancelH - 2);
         sr.end();
 
-        // --- Text ---
+        // --- Draw text ---
         batch.begin();
-        float ty = dialogY + dialogH - PAD - fontH;
 
-        // Title
-        font.setColor(TITLE_COLOR);
+        // Title (centered)
         glyph.setText(font, title);
-        font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= fontLineH + fontH;
+        font.setColor(TITLE_COLOR);
+        font.draw(batch, title, dialogX + (dialogW - glyph.width) / 2f, titleY);
 
-        // Subtitle
-        smallFont.setColor(LABEL_COLOR);
+        // Subtitle (centered)
         glyph.setText(smallFont, subTitle);
-        smallFont.draw(batch, subTitle, dialogX + (dialogW - glyph.width) / 2f, ty);
-        ty -= smallLineH + GAP;
+        smallFont.setColor(LABEL_COLOR);
+        smallFont.draw(batch, subTitle, dialogX + (dialogW - glyph.width) / 2f, subY);
 
-        // Option button labels and chance lines
+        // Option labels + chance lines
         for (int i = 0; i < NUM_OPTIONS; i++) {
-            // Button label
             String label = optionButtonLabel(i);
             glyph.setText(font, label);
             font.setColor(Color.WHITE);
             font.draw(batch, label,
                     optBtnX[i] + (optBtnW[i] - glyph.width) / 2f,
                     optBtnY[i] + (optBtnH + glyph.height) / 2f);
-            // Chance line below button
+
+            // Chance line sits just below the button (within reserved chanceLineH space)
             String cLine = chanceLine(i);
             glyph.setText(smallFont, cLine);
             smallFont.setColor(LABEL_COLOR);
             smallFont.draw(batch, cLine,
                     optBtnX[i] + (optBtnW[i] - glyph.width) / 2f,
-                    optBtnY[i] - smallH);
+                    optBtnY[i] - GAP);
         }
 
-        // Cancel
+        // Cancel label
         glyph.setText(font, "Cancel");
         font.setColor(Color.WHITE);
         font.draw(batch, "Cancel",

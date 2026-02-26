@@ -81,6 +81,7 @@ class MapViewState {
     boolean unitInteriorOpen    = false;
     boolean unitIsHotelRoom     = false;   // true when interior is a rented hotel room (no stash/email)
     String  unitInteriorLabel   = "";
+    String  unitInteriorDescription = null;
     float unitExitBtnX, unitExitBtnY, unitExitBtnW, unitExitBtnH;
     float saveBtnX, saveBtnY, saveBtnW, saveBtnH;  // written by UnitInteriorPopup
 

@@ -342,16 +342,6 @@ public class CharacterAttributeScreen implements Screen {
         batch.end();
         y -= height;
 
-        // Computed muscle/fat breakdown (read-only, light-blue)
-        int muscle = attributeValues.getOrDefault(CharacterAttribute.MUSCLE_KG, 0);
-        int fat    = attributeValues.getOrDefault(CharacterAttribute.FAT_KG,    0);
-        batch.begin();
-        smallFont.setColor(new Color(0.5f, 0.8f, 1f, 1f));
-        smallFont.draw(batch, "  -> Muscle: " + muscle + " kg  Fat: " + fat + " kg", leftMargin, y);
-        smallFont.setColor(Color.WHITE);
-        batch.end();
-        y -= 70;
-
         return y;
     }
 
