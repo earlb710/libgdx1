@@ -450,6 +450,17 @@ public class CaseGeneratorTest {
     }
 
     @Test
+    public void generate_complexityIsInRange() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 500);
+            CaseFile cf = gen.generate(type, "2050-05-18 09:00");
+            int c = cf.getComplexity();
+            assertTrue("complexity must be >= 1 for " + type, c >= 1);
+            assertTrue("complexity must be <= 3 for " + type, c <= 3);
+        }
+    }
+
+    @Test
     public void generate_existingCaseFileFieldsIntact() {
         // Verify that generating a case does not break the existing CaseFile API
         CaseGenerator gen = makeGenerator(14L);

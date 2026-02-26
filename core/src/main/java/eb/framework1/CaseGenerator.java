@@ -102,6 +102,7 @@ public class CaseGenerator {
         cf.setClientName(clientName);
         cf.setSubjectName(subjectName);
         cf.setObjective(objective);
+        cf.setComplexity(1 + random.nextInt(3));  // 1, 2, or 3
 
         for (CaseLead lead : buildLeads(type, subjectName)) {
             cf.addLead(lead);

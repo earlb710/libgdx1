@@ -226,4 +226,36 @@ public class CaseFileTest {
         CaseFile cf = new CaseFile("NotAdded", "d", "2050-01-02 10:00");
         p.setActiveCaseFile(cf);
     }
-}
+
+    // -------------------------------------------------------------------------
+    // Complexity
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void complexityDefaultsToOne() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        assertEquals(1, cf.getComplexity());
+    }
+
+    @Test
+    public void complexityCanBeSetToValidValues() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.setComplexity(1);
+        assertEquals(1, cf.getComplexity());
+        cf.setComplexity(2);
+        assertEquals(2, cf.getComplexity());
+        cf.setComplexity(3);
+        assertEquals(3, cf.getComplexity());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void complexityBelowOneThrows() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.setComplexity(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void complexityAboveThreeThrows() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.setComplexity(4);
+    }
