@@ -155,57 +155,82 @@ public class MainScreen implements Screen {
         cityMap = new CityMap(profile, gameData);
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
 
-        // Pick a random building as the starting cell
-        List<Cell> buildingCells = new ArrayList<>();
-        List<Cell> officeCells   = new ArrayList<>();
-        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
-            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
-                Cell c = cityMap.getCell(x, y);
-                if (c.getTerrainType() == TerrainType.BUILDING) {
-                    buildingCells.add(c);
-                    if (c.hasBuilding() && c.getBuilding().getDefinition() != null
-                            && "office_building_small".equals(c.getBuilding().getDefinition().getId())) {
-                        officeCells.add(c);
+        // Resume from the last save if one exists, otherwise start fresh
+        GameSave save = saveGameManager.loadGame(profile.getCharacterName());
+        if (save != null) {
+            save.applyToProfile(profile);
+            save.applyToMap(cityMap);
+            state.charCellX     = save.getCharCellX();
+            state.charCellY     = save.getCharCellY();
+            state.homeCellX     = save.getHomeCellX();
+            state.homeCellY     = save.getHomeCellY();
+            state.selectedCellX = state.charCellX;
+            state.selectedCellY = state.charCellY;
+            // Restore in-memory home-building flags and compute floor/unit from seed
+            Cell homeCell = cityMap.getCell(state.homeCellX, state.homeCellY);
+            if (homeCell.hasBuilding()) {
+                Building homeBuilding = homeCell.getBuilding();
+                homeBuilding.setHome(true);
+                Random officeRng = new Random(profile.getRandSeed() + 17);
+                int floors = homeBuilding.getFloors();
+                state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
+                state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+            }
+            Gdx.app.log("MainScreen", "Resumed from save: char=" + state.charCellX + "," + state.charCellY
+                    + " home=" + state.homeCellX + "," + state.homeCellY);
+        } else {
+            // Pick a random building as the starting cell
+            List<Cell> buildingCells = new ArrayList<>();
+            List<Cell> officeCells   = new ArrayList<>();
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    Cell c = cityMap.getCell(x, y);
+                    if (c.getTerrainType() == TerrainType.BUILDING) {
+                        buildingCells.add(c);
+                        if (c.hasBuilding() && c.getBuilding().getDefinition() != null
+                                && "office_building_small".equals(c.getBuilding().getDefinition().getId())) {
+                            officeCells.add(c);
+                        }
                     }
                 }
             }
-        }
 
-        // Mark a random small office building as home + owned, and use it as the start position
-        List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
-        if (!homeSrc.isEmpty()) {
-            Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
-                    .nextInt(homeSrc.size()));
-            state.homeCellX = homeCell.getX();
-            state.homeCellY = homeCell.getY();
-            Building homeBuilding = homeCell.getBuilding();
-            homeBuilding.setHome(true);
-            homeBuilding.setOwned(true);
-            discoverCell(state.homeCellX, state.homeCellY);
-            // Assign a random floor and unit letter for the player's office
-            Random officeRng = new Random(profile.getRandSeed() + 17);
-            int floors = homeBuilding.getFloors();
-            state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
-            state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
-            state.charCellX     = state.homeCellX;
-            state.charCellY     = state.homeCellY;
-            state.selectedCellX = state.homeCellX;
-            state.selectedCellY = state.homeCellY;
-            Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY
-                    + " Floor " + state.homeFloor + " Unit " + state.homeFloor + state.homeUnitLetter);
-        } else if (!buildingCells.isEmpty()) {
-            // Fallback: no home found, use any building cell
-            Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
-                    .nextInt(buildingCells.size()));
-            state.selectedCellX = start.getX();
-            state.selectedCellY = start.getY();
-            state.charCellX = state.selectedCellX;
-            state.charCellY = state.selectedCellY;
-            discoverCell(state.charCellX, state.charCellY);
-            Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
-        }
+            // Mark a random small office building as home + owned, and use it as the start position
+            List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
+            if (!homeSrc.isEmpty()) {
+                Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
+                        .nextInt(homeSrc.size()));
+                state.homeCellX = homeCell.getX();
+                state.homeCellY = homeCell.getY();
+                Building homeBuilding = homeCell.getBuilding();
+                homeBuilding.setHome(true);
+                homeBuilding.setOwned(true);
+                discoverCell(state.homeCellX, state.homeCellY);
+                // Assign a random floor and unit letter for the player's office
+                Random officeRng = new Random(profile.getRandSeed() + 17);
+                int floors = homeBuilding.getFloors();
+                state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
+                state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                state.charCellX     = state.homeCellX;
+                state.charCellY     = state.homeCellY;
+                state.selectedCellX = state.homeCellX;
+                state.selectedCellY = state.homeCellY;
+                Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY
+                        + " Floor " + state.homeFloor + " Unit " + state.homeFloor + state.homeUnitLetter);
+            } else if (!buildingCells.isEmpty()) {
+                // Fallback: no home found, use any building cell
+                Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
+                        .nextInt(buildingCells.size()));
+                state.selectedCellX = start.getX();
+                state.selectedCellY = start.getY();
+                state.charCellX = state.selectedCellX;
+                state.charCellY = state.selectedCellY;
+                discoverCell(state.charCellX, state.charCellY);
+                Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
+            }
 
-        discoverStartingBuildings();
+            discoverStartingBuildings();
+        }
 
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
