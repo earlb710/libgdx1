@@ -156,15 +156,15 @@ public class ProfileSelectionScreen implements Screen {
 
         TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 24f, 10f);
         TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "Cancel",      24f, 10f);
-        float btnW       = Math.max(yesBounds.width, noBounds.width);
-        float btnH       = Math.max(yesBounds.height, noBounds.height);
-        float btnX       = dialogX + (dialogWidth - btnW) / 2f;
-        float btnGap     = 20f;
-        float cancelBtnY = dialogY + 30f;
-        float yesBtnY    = cancelBtnY + btnH + btnGap;
+        float confirmBtnW = Math.max(yesBounds.width, noBounds.width);
+        float confirmBtnH = Math.max(yesBounds.height, noBounds.height);
+        float btnX        = dialogX + (dialogWidth - confirmBtnW) / 2f;
+        float btnGap      = 20f;
+        float cancelBtnY  = dialogY + 30f;
+        float yesBtnY     = cancelBtnY + confirmBtnH + btnGap;
 
-        confirmYesButton = new Rectangle(btnX, yesBtnY,    btnW, btnH);
-        confirmNoButton  = new Rectangle(btnX, cancelBtnY, btnW, btnH);
+        confirmYesButton = new Rectangle(btnX, yesBtnY,    confirmBtnW, confirmBtnH);
+        confirmNoButton  = new Rectangle(btnX, cancelBtnY, confirmBtnW, confirmBtnH);
     }
     
     @Override
