@@ -271,6 +271,82 @@ public class CaseStoryNodeTest {
     }
 
     // -------------------------------------------------------------------------
+    // getNextAvailableAction
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void nextAvailableActionOnIncompleteLeaf() {
+        CaseStoryNode leaf = action("a");
+        assertSame("Incomplete leaf should return itself", leaf, leaf.getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionOnCompletedLeaf() {
+        CaseStoryNode leaf = action("a");
+        leaf.complete();
+        assertNull("Completed leaf should return null", leaf.getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionTraversesOneLevelDown() {
+        CaseStoryNode branch = branch("b");
+        CaseStoryNode a1 = action("a1");
+        CaseStoryNode a2 = action("a2");
+        branch.addChild(a1);
+        branch.addChild(a2);
+        assertSame("a1 is first available", a1, branch.getNextAvailableAction());
+        a1.complete();
+        assertSame("a2 becomes next after a1 done", a2, branch.getNextAvailableAction());
+        a2.complete();
+        assertNull("null when all done", branch.getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionTraversesDeepTree() {
+        CaseStoryNode root  = new CaseStoryNode("r",  "Root",  "", CaseStoryNode.NodeType.ROOT);
+        CaseStoryNode twist = new CaseStoryNode("t",  "Twist", "", CaseStoryNode.NodeType.PLOT_TWIST);
+        CaseStoryNode major = new CaseStoryNode("m",  "Major", "", CaseStoryNode.NodeType.MAJOR_PROGRESS);
+        CaseStoryNode minor = new CaseStoryNode("mn", "Minor", "", CaseStoryNode.NodeType.MINOR_PROGRESS);
+        CaseStoryNode a1    = action("a1");
+        CaseStoryNode a2    = action("a2");
+        minor.addChild(a1);
+        minor.addChild(a2);
+        major.addChild(minor);
+        twist.addChild(major);
+        root.addChild(twist);
+
+        assertSame("first action before any completions", a1, root.getNextAvailableAction());
+        a1.complete();
+        assertSame("second action after first done", a2, root.getNextAvailableAction());
+        a2.complete();
+        assertNull("null when all done", root.getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionRespectsSequentialUnlock() {
+        CaseStoryNode branch = branch("b");
+        CaseStoryNode a1 = action("a1");
+        CaseStoryNode a2 = action("a2");
+        branch.addChild(a1);
+        branch.addChild(a2);
+        assertSame("a1 is the only available action initially", a1, branch.getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionOnBranchWithNoChildren() {
+        assertNull("Empty branch returns null", branch("b").getNextAvailableAction());
+    }
+
+    @Test
+    public void nextAvailableActionOnFullyCompleteBranch() {
+        CaseStoryNode branch = branch("b");
+        CaseStoryNode a1 = action("a1");
+        branch.addChild(a1);
+        a1.complete();
+        assertNull("Fully complete branch returns null", branch.getNextAvailableAction());
+    }
+
+    // -------------------------------------------------------------------------
     // toString
     // -------------------------------------------------------------------------
 

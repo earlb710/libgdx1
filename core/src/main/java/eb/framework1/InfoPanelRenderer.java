@@ -1220,25 +1220,26 @@ class InfoPanelRenderer {
         s.noteTimeCbW        = 0f;
         s.noteLocCbW         = 0f;
 
-        final float PAD = 12f;
+        final float PAD           = 12f;
+        final float SB            = MapViewState.SCROLLBAR_THICKNESS;
+        final float CB_LABEL_GAP  = 6f;
+        final float CB_ROW_PAD    = 4f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
         float fontLineH = fontCapH * 1.4f;
+        glyphLayout.setText(smallFont, "Hg");
+        float smallLineH = glyphLayout.height * 1.4f;
 
-        // --- Poplist header: open cases ---
+        // ── Fixed top: case-selector poplist ─────────────────────────────────
         List<CaseFile> openCases = profile.getOpenCases();
-        String selectedCase;
-        if (openCases.isEmpty()) {
-            selectedCase = "None";
-        } else {
-            CaseFile active = profile.getActiveCaseFile();
-            selectedCase = active != null ? active.getName() : openCases.get(0).getName();
-        }
+        CaseFile active = openCases.isEmpty() ? null
+                : (profile.getActiveCaseFile() != null ? profile.getActiveCaseFile()
+                                                       : openCases.get(0));
+        String selectedCase = active != null ? active.getName() : "None";
 
-        // Draw poplist-style selector at the top
-        float poplistY = panelH - PAD;
         float poplistH = fontCapH + 10f;
+        float poplistY = panelH - PAD;
         float poplistW = s.screenWidth - PAD * 2f;
         float poplistX = PAD;
 
@@ -1256,200 +1257,280 @@ class InfoPanelRenderer {
         font.setColor(LABEL_COLOR);
         font.draw(batch, "Case: ", poplistX + 6f, poplistY - 4f);
         glyphLayout.setText(font, "Case: ");
-        float labelW = glyphLayout.width;
         font.setColor(Color.WHITE);
-        font.draw(batch, selectedCase, poplistX + 6f + labelW, poplistY - 4f);
+        font.draw(batch, selectedCase, poplistX + 6f + glyphLayout.width, poplistY - 4f);
         batch.end();
 
-        // --- Case details below the poplist ---
-        float contentY = poplistY - poplistH - PAD;
+        // Top of the area below the poplist
+        float contentTop = poplistY - poplistH - PAD;
 
-        if (!openCases.isEmpty()) {
-            CaseFile active = profile.getActiveCaseFile();
-            if (active == null) active = openCases.get(0);
-
-            batch.begin();
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Status: ", PAD, contentY);
-            glyphLayout.setText(font, "Status: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, active.getStatus().name(), PAD + glyphLayout.width, contentY);
-            contentY -= fontLineH;
-
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Opened: ", PAD, contentY);
-            glyphLayout.setText(font, "Opened: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, contentY);
-            contentY -= fontLineH;
-
-            if (!active.getDescription().isEmpty()) {
-                font.setColor(LABEL_COLOR);
-                font.draw(batch, "Description:", PAD, contentY);
-                contentY -= fontLineH;
-                smallFont.setColor(NOVEL_COLOR);
-                smallFont.draw(batch, active.getDescription(), PAD + 8f, contentY);
-                smallFont.setColor(Color.WHITE);
-                contentY -= fontLineH;
-            }
-
-            // Clue count
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Clues: ", PAD, contentY);
-            glyphLayout.setText(font, "Clues: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(active.getClues().size()), PAD + glyphLayout.width, contentY);
-            contentY -= fontLineH;
-
-            // List clues
-            List<String> clues = active.getClues();
-            for (int i = 0; i < clues.size(); i++) {
-                smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, "\u2022 " + clues.get(i), PAD + 8f, contentY);
-                contentY -= fontLineH * 0.9f;
-            }
-
-            // Evidence count
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Evidence: ", PAD, contentY);
-            glyphLayout.setText(font, "Evidence: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(active.getEvidence().size()), PAD + glyphLayout.width, contentY);
-            contentY -= fontLineH;
-
-            // List evidence
-            List<String> evidenceList = active.getEvidence();
-            for (int i = 0; i < evidenceList.size(); i++) {
-                smallFont.setColor(Color.WHITE);
-                smallFont.draw(batch, "\u2022 " + evidenceList.get(i), PAD + 8f, contentY);
-                contentY -= fontLineH * 0.9f;
-            }
-
-            // Notes count
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Notes: ", PAD, contentY);
-            glyphLayout.setText(font, "Notes: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(active.getNotes().size()), PAD + glyphLayout.width, contentY);
-            contentY -= fontLineH;
-
-            // List notes
-            List<String> notesList = active.getNotes();
-            for (int i = 0; i < notesList.size(); i++) {
-                noteFont.setColor(NOTE_COLOR);
-                noteFont.draw(batch, "\u2022 " + notesList.get(i), PAD + 8f, contentY);
-                contentY -= fontLineH * 0.9f;
-            }
-            noteFont.setColor(Color.WHITE);
-
-            batch.end();
-
-            // --- Checkboxes: Include current time / Include current location ---
-            final float CB_LABEL_GAP   = 6f;   // gap between checkbox square and label text
-            final float CB_ROW_PADDING = 4f;   // vertical padding around each checkbox row
-            float cbSize = fontCapH;
-            float cbRowH = cbSize + CB_ROW_PADDING;
-
-            // "Include current time" checkbox
-            float timeCbX = PAD;
-            float timeCbY = contentY - cbSize - 2f;
-
-            s.noteTimeCbX = timeCbX;
-            s.noteTimeCbY = timeCbY;
-            s.noteTimeCbW = cbSize;
-            s.noteTimeCbH = cbSize;
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(INFO_BORDER_COLOR);
-            shapeRenderer.rect(timeCbX, timeCbY, cbSize, cbSize);
-            shapeRenderer.end();
-
-            if (s.noteIncludeTime) {
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                shapeRenderer.setColor(LABEL_COLOR);
-                float inset = 3f;
-                shapeRenderer.rect(timeCbX + inset, timeCbY + inset,
-                        cbSize - inset * 2, cbSize - inset * 2);
-                shapeRenderer.end();
-            }
-
-            batch.begin();
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "Include current time",
-                    timeCbX + cbSize + CB_LABEL_GAP, timeCbY + cbSize - 2f);
-            batch.end();
-
-            contentY -= cbRowH;
-
-            // "Include current location" checkbox
-            float locCbX = PAD;
-            float locCbY = contentY - cbSize - 2f;
-
-            s.noteLocCbX = locCbX;
-            s.noteLocCbY = locCbY;
-            s.noteLocCbW = cbSize;
-            s.noteLocCbH = cbSize;
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(INFO_BORDER_COLOR);
-            shapeRenderer.rect(locCbX, locCbY, cbSize, cbSize);
-            shapeRenderer.end();
-
-            if (s.noteIncludeLocation) {
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                shapeRenderer.setColor(LABEL_COLOR);
-                float inset = 3f;
-                shapeRenderer.rect(locCbX + inset, locCbY + inset,
-                        cbSize - inset * 2, cbSize - inset * 2);
-                shapeRenderer.end();
-            }
-
-            batch.begin();
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "Include current location",
-                    locCbX + cbSize + CB_LABEL_GAP, locCbY + cbSize - 2f);
-            batch.end();
-
-            contentY -= cbRowH;
-
-            // --- "Add Note" button ---
-            float btnW = 120f;
-            float btnH = fontCapH + 12f;
-            float btnX = PAD;
-            float btnY = contentY - btnH - 4f;
-
-            s.addNoteBtnX = btnX;
-            s.addNoteBtnY = btnY;
-            s.addNoteBtnW = btnW;
-            s.addNoteBtnH = btnH;
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(ADD_NOTE_BTN_COLOR);
-            shapeRenderer.rect(btnX, btnY, btnW, btnH);
-            shapeRenderer.end();
-
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(INFO_BORDER_COLOR);
-            shapeRenderer.rect(btnX, btnY, btnW, btnH);
-            shapeRenderer.end();
-
-            batch.begin();
-            font.setColor(Color.WHITE);
-            glyphLayout.setText(font, "Add Note");
-            font.draw(batch, "Add Note",
-                    btnX + (btnW - glyphLayout.width) / 2f,
-                    btnY + (btnH + glyphLayout.height) / 2f);
-            batch.end();
-        } else {
+        if (active == null) {
             batch.begin();
             smallFont.setColor(new Color(0.5f, 0.5f, 0.6f, 1f));
-            smallFont.draw(batch, "No open cases.", PAD, contentY);
+            smallFont.draw(batch, "No open cases.", PAD, contentTop);
             smallFont.setColor(Color.WHITE);
             batch.end();
+            s.infoMaxScrollY = 0f;
+            return;
         }
 
-        // Scroll — set max scroll to 0 for now (content fits without scroll initially)
-        s.infoMaxScrollY = 0f;
+        // ── Fixed bottom: checkboxes + "Add Note" button ──────────────────────
+        float cbSize = fontCapH;
+        float cbRowH = cbSize + CB_ROW_PAD;
+        float btnH   = fontCapH + 12f;
+
+        // Lay out controls from the bottom up (above the scrollbar)
+        float btnY    = SB + PAD;
+        float locCbY  = btnY + btnH + 4f;
+        float timeCbY = locCbY + cbRowH + 4f;
+        // The fixed area ends here; content area sits above it
+        float fixedAreaTop = timeCbY + cbRowH + 4f;
+
+        // Register click areas (actual screen positions — controls don't scroll)
+        s.addNoteBtnX = PAD;   s.addNoteBtnY = btnY;    s.addNoteBtnW = 120f; s.addNoteBtnH = btnH;
+        s.noteLocCbX  = PAD;   s.noteLocCbY  = locCbY;  s.noteLocCbW  = cbSize; s.noteLocCbH = cbSize;
+        s.noteTimeCbX = PAD;   s.noteTimeCbY = timeCbY; s.noteTimeCbW = cbSize; s.noteTimeCbH = cbSize;
+
+        // Draw "Add Note" button
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(ADD_NOTE_BTN_COLOR);
+        shapeRenderer.rect(s.addNoteBtnX, s.addNoteBtnY, s.addNoteBtnW, s.addNoteBtnH);
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(s.addNoteBtnX, s.addNoteBtnY, s.addNoteBtnW, s.addNoteBtnH);
+        shapeRenderer.end();
+        batch.begin();
+        font.setColor(Color.WHITE);
+        glyphLayout.setText(font, "Add Note");
+        font.draw(batch, "Add Note",
+                s.addNoteBtnX + (s.addNoteBtnW - glyphLayout.width) / 2f,
+                s.addNoteBtnY + (s.addNoteBtnH + glyphLayout.height) / 2f);
+        batch.end();
+
+        // Draw "Include current location" checkbox
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(s.noteLocCbX, s.noteLocCbY, s.noteLocCbW, s.noteLocCbH);
+        shapeRenderer.end();
+        if (s.noteIncludeLocation) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(LABEL_COLOR);
+            float inset = 3f;
+            shapeRenderer.rect(s.noteLocCbX + inset, s.noteLocCbY + inset,
+                    s.noteLocCbW - inset * 2, s.noteLocCbH - inset * 2);
+            shapeRenderer.end();
+        }
+        batch.begin();
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, "Include current location",
+                s.noteLocCbX + s.noteLocCbW + CB_LABEL_GAP,
+                s.noteLocCbY + s.noteLocCbH - 2f);
+        batch.end();
+
+        // Draw "Include current time" checkbox
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(INFO_BORDER_COLOR);
+        shapeRenderer.rect(s.noteTimeCbX, s.noteTimeCbY, s.noteTimeCbW, s.noteTimeCbH);
+        shapeRenderer.end();
+        if (s.noteIncludeTime) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(LABEL_COLOR);
+            float inset = 3f;
+            shapeRenderer.rect(s.noteTimeCbX + inset, s.noteTimeCbY + inset,
+                    s.noteTimeCbW - inset * 2, s.noteTimeCbH - inset * 2);
+            shapeRenderer.end();
+        }
+        batch.begin();
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, "Include current time",
+                s.noteTimeCbX + s.noteTimeCbW + CB_LABEL_GAP,
+                s.noteTimeCbY + s.noteTimeCbH - 2f);
+        batch.end();
+
+        // ── Scrollable content area ───────────────────────────────────────────
+        float contentAreaH = contentTop - fixedAreaTop;
+
+        // Compute total virtual height so we can set the scroll limit
+        CaseStoryNode storyRoot = active.getStoryRoot();
+        float totalH = 0;
+        totalH += fontLineH;   // Status
+        totalH += fontLineH;   // Opened
+        if (!active.getDescription().isEmpty()) totalH += fontLineH * 2f;
+        // Progress section
+        if (storyRoot != null) {
+            totalH += fontLineH; // "Progress" header
+            if (storyRoot.isFullyComplete()) {
+                totalH += fontLineH;
+            } else {
+                CaseStoryNode phase = storyRoot.getNextActiveChild();
+                if (phase != null) {
+                    totalH += fontLineH; // Phase line
+                    CaseStoryNode milestone = phase.getNextActiveChild();
+                    if (milestone != null) {
+                        totalH += fontLineH; // Milestone line
+                        if (milestone.getNextAvailableAction() != null) totalH += fontLineH; // Next action
+                    }
+                }
+            }
+        }
+        totalH += fontLineH;                                   // Clues header
+        totalH += fontLineH * 0.9f * active.getClues().size();
+        totalH += fontLineH;                                   // Evidence header
+        totalH += fontLineH * 0.9f * active.getEvidence().size();
+        totalH += fontLineH;                                   // Notes header
+        totalH += fontLineH * 0.9f * active.getNotes().size();
+        totalH += PAD;                                         // bottom padding
+
+        s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
+        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+
+        // Clip to the scrollable content area
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        int scissorBottom = Math.max(0, (int)fixedAreaTop);
+        int scissorH      = Math.max(0, (int)contentAreaH);
+        Gdx.gl.glScissor(0, scissorBottom, (int)(s.screenWidth - SB), scissorH);
+
+        batch.begin();
+        drawScrollY = s.infoScrollY;
+        float ty = contentTop - PAD;  // virtual Y cursor (offset by drawScrollY when drawing)
+
+        // Status
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Status: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(font, "Status: ");
+        font.setColor(Color.WHITE);
+        font.draw(batch, active.getStatus().name(), PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= fontLineH;
+
+        // Opened date
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Opened: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(font, "Opened: ");
+        font.setColor(Color.WHITE);
+        font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= fontLineH;
+
+        // Description
+        if (!active.getDescription().isEmpty()) {
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Description:", PAD, ty + drawScrollY);
+            ty -= fontLineH;
+            smallFont.setColor(NOVEL_COLOR);
+            smallFont.draw(batch, active.getDescription(), PAD + 8f, ty + drawScrollY);
+            smallFont.setColor(Color.WHITE);
+            ty -= fontLineH;
+        }
+
+        // ── Story-tree progress panel (new) ───────────────────────────────────
+        if (storyRoot != null) {
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Progress", PAD, ty + drawScrollY);
+            ty -= fontLineH;
+
+            if (storyRoot.isFullyComplete()) {
+                smallFont.setColor(new Color(0.5f, 1.0f, 0.5f, 1f));
+                smallFont.draw(batch, "All objectives complete!", PAD + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH;
+            } else {
+                CaseStoryNode phase = storyRoot.getNextActiveChild();
+                if (phase != null) {
+                    int phaseIdx   = storyRoot.getChildren().indexOf(phase);
+                    int phaseTotal = storyRoot.getChildren().size();
+                    String phaseLabel = "Phase " + (phaseIdx + 1) + " of " + phaseTotal + ": ";
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, phaseLabel, PAD, ty + drawScrollY);
+                    glyphLayout.setText(font, phaseLabel);
+                    font.setColor(Color.WHITE);
+                    font.draw(batch, phase.getTitle(), PAD + glyphLayout.width, ty + drawScrollY);
+                    ty -= fontLineH;
+
+                    CaseStoryNode milestone = phase.getNextActiveChild();
+                    if (milestone != null) {
+                        font.setColor(LABEL_COLOR);
+                        font.draw(batch, "Milestone: ", PAD, ty + drawScrollY);
+                        glyphLayout.setText(font, "Milestone: ");
+                        font.setColor(NOVEL_COLOR);
+                        font.draw(batch, milestone.getTitle(),
+                                PAD + glyphLayout.width, ty + drawScrollY);
+                        ty -= fontLineH;
+
+                        CaseStoryNode nextAction = milestone.getNextAvailableAction();
+                        if (nextAction != null) {
+                            font.setColor(LABEL_COLOR);
+                            font.draw(batch, "Next: ", PAD, ty + drawScrollY);
+                            glyphLayout.setText(font, "Next: ");
+                            font.setColor(Color.WHITE);
+                            font.draw(batch, "\u25a1 " + nextAction.getTitle(),
+                                    PAD + glyphLayout.width, ty + drawScrollY);
+                            ty -= fontLineH;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Clues
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Clues: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(font, "Clues: ");
+        font.setColor(Color.WHITE);
+        font.draw(batch, String.valueOf(active.getClues().size()),
+                PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= fontLineH;
+        for (String clue : active.getClues()) {
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "\u2022 " + clue, PAD + 8f, ty + drawScrollY);
+            ty -= fontLineH * 0.9f;
+        }
+
+        // Evidence
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Evidence: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(font, "Evidence: ");
+        font.setColor(Color.WHITE);
+        font.draw(batch, String.valueOf(active.getEvidence().size()),
+                PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= fontLineH;
+        for (String ev : active.getEvidence()) {
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "\u2022 " + ev, PAD + 8f, ty + drawScrollY);
+            ty -= fontLineH * 0.9f;
+        }
+
+        // Notes
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Notes: ", PAD, ty + drawScrollY);
+        glyphLayout.setText(font, "Notes: ");
+        font.setColor(Color.WHITE);
+        font.draw(batch, String.valueOf(active.getNotes().size()),
+                PAD + glyphLayout.width, ty + drawScrollY);
+        ty -= fontLineH;
+        for (String note : active.getNotes()) {
+            noteFont.setColor(NOTE_COLOR);
+            noteFont.draw(batch, "\u2022 " + note, PAD + 8f, ty + drawScrollY);
+            ty -= fontLineH * 0.9f;
+        }
+        noteFont.setColor(Color.WHITE);
+
+        batch.end();
+        drawScrollY = 0f;
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+
+        // Vertical scrollbar
+        float sbX = s.screenWidth - SB;
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
+        shapeRenderer.rect(sbX, fixedAreaTop, SB, contentAreaH);
+        if (s.infoMaxScrollY > 0f) {
+            float thumbH      = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
+            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
+            float thumbY      = fixedAreaTop + (1f - scrollRatio) * (contentAreaH - thumbH);
+            shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
+            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
+        }
+        shapeRenderer.end();
     }
 
     // -------------------------------------------------------------------------

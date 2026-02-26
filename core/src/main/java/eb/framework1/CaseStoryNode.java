@@ -188,6 +188,28 @@ public class CaseStoryNode {
     }
 
     /**
+     * Recursively finds the first available, non-completed
+     * {@link NodeType#ACTION} leaf reachable from this node via the
+     * sequential-unlock rule.
+     *
+     * <p>For an {@link NodeType#ACTION} leaf, returns itself if not yet
+     * completed, or {@code null} if already completed.  For branch nodes,
+     * delegates to {@link #getNextActiveChild()} and recurses, so the
+     * sequential-unlock constraint is honoured at every level.
+     *
+     * @return the next action the player should perform, or {@code null} if
+     *         all actions in this sub-tree are already complete
+     */
+    public CaseStoryNode getNextAvailableAction() {
+        if (nodeType == NodeType.ACTION) {
+            return completed ? null : this;
+        }
+        CaseStoryNode next = getNextActiveChild();
+        if (next == null) return null;
+        return next.getNextAvailableAction();
+    }
+
+    /**
      * Returns {@code true} if the child at zero-based {@code index} is
      * currently accessible — every child before it must be fully complete.
      *
