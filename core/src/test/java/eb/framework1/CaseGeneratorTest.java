@@ -46,6 +46,27 @@ public class CaseGeneratorTest {
         assertEquals(8, CaseType.values().length);
     }
 
+    @Test
+    public void caseType_allValuesHaveDifficultyInRange() {
+        for (CaseType t : CaseType.values()) {
+            int d = t.getDifficultyLevel();
+            assertTrue("Difficulty must be >= 1 for " + t, d >= 1);
+            assertTrue("Difficulty must be <= 10 for " + t, d <= 10);
+        }
+    }
+
+    @Test
+    public void caseType_specificDifficultyLevels() {
+        assertEquals(5, CaseType.MISSING_PERSON.getDifficultyLevel());
+        assertEquals(3, CaseType.INFIDELITY.getDifficultyLevel());
+        assertEquals(3, CaseType.THEFT.getDifficultyLevel());
+        assertEquals(7, CaseType.FRAUD.getDifficultyLevel());
+        assertEquals(6, CaseType.BLACKMAIL.getDifficultyLevel());
+        assertEquals(9, CaseType.MURDER.getDifficultyLevel());
+        assertEquals(5, CaseType.STALKING.getDifficultyLevel());
+        assertEquals(8, CaseType.CORPORATE_ESPIONAGE.getDifficultyLevel());
+    }
+
     // -------------------------------------------------------------------------
     // DiscoveryMethod enum
     // -------------------------------------------------------------------------
