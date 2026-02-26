@@ -65,6 +65,8 @@ public class MainScreen implements Screen {
     private PutInStashPopup    putInStashPopup;
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
+    private ShopPopup            shopPopup;
+    private List<ShopItem>       shopItems = new ArrayList<>();
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
@@ -239,6 +241,8 @@ public class MainScreen implements Screen {
 
         gymInstructorPopup = new GymInstructorPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        shopPopup = new ShopPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         phonePopup = new PhonePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -331,6 +335,10 @@ public class MainScreen implements Screen {
 
         if (gymInstructorPopup.isVisible()) {
             gymInstructorPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (shopPopup.isVisible()) {
+            shopPopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (emailPopup.isVisible()) {
@@ -574,6 +582,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Shop popup blocks all normal interaction until dismissed
+                if (shopPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Email popup blocks all normal interaction until dismissed
                 if (emailPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -780,6 +797,22 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Shop popup: buy an item or close
+                if (shopPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int idx = shopPopup.onTap(screenX, flippedY);
+                            if (idx >= 0 && idx < shopItems.size()) {
+                                handleShopPurchase(shopItems.get(idx), shopPopup.getLastQuantity());
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Email popup: Accept, Decline, or Close
                 if (emailPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -921,6 +954,10 @@ public class MainScreen implements Screen {
                 contextMenu.dismiss();
                 if (discoveryPopup.isVisible()) {
                     discoveryPopup.scroll(amountY * 20f);
+                    return true;
+                }
+                if (shopPopup.isVisible()) {
+                    shopPopup.scroll(amountY * 20f);
                     return true;
                 }
                 float old = state.zoomLevel;
@@ -1707,14 +1744,16 @@ public class MainScreen implements Screen {
                 break;
             }
 
-            // ---- Medicine / healthcare: stamina restore -------------------
+            // ---- Medicine / healthcare: show shop popup --------------------
             case BuildingServices.SVC_BUY_MEDICINE: {
-                int gain = 4;
-                profile.addStamina(gain);
-                resultLines.add("You picked up the supplies and took them right away.");
-                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
-                resultLines.add("+" + gain + " stamina.");
-                break;
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                Building b = cell.hasBuilding() ? cell.getBuilding() : null;
+                shopItems = new ArrayList<>(BuildingServices.getShopItems(b));
+                if (shopItems.isEmpty()) {
+                    shopItems.add(new ShopItem("Medicine", "Over-the-counter supplies.", svc.cost > 0 ? svc.cost : 20, true, 4));
+                }
+                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems);
+                return;
             }
             case BuildingServices.SVC_DOCTOR: {
                 int before = profile.getCurrentStamina();
@@ -1770,26 +1809,34 @@ public class MainScreen implements Screen {
                 break;
             }
 
-            // ---- Security shop: gear purchase ------------------------------
+            // ---- Security shop: show shop popup ----------------------------
             case BuildingServices.SVC_BUY_GEAR: {
-                // Time already advanced; cost=0 on the service — individual items are paid per purchase
-                handleBuyGear(resultLines);
-                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                Building b = cell.hasBuilding() ? cell.getBuilding() : null;
+                shopItems = new ArrayList<>(BuildingServices.getShopItems(b));
+                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems);
                 return;
             }
 
-            // ---- Supply / Retail -----------------------------------------
+            // ---- Supply / Retail: show shop popup --------------------------
             case BuildingServices.SVC_BUY_SNACKS: {
-                int gain = 1;
-                profile.addStamina(gain);
-                resultLines.add("You grabbed a quick snack and a drink.");
-                if (svc.cost > 0) resultLines.add("Cost: $" + svc.cost + ".");
-                resultLines.add("+" + gain + " stamina.");
-                break;
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                Building b = cell.hasBuilding() ? cell.getBuilding() : null;
+                shopItems = new ArrayList<>(BuildingServices.getShopItems(b));
+                if (shopItems.isEmpty()) {
+                    shopItems.add(new ShopItem("Snack", "Quick bite to eat.", svc.cost > 0 ? svc.cost : 4, true, 1));
+                }
+                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems);
+                return;
             }
             case BuildingServices.SVC_BUY_SUPPLIES: {
-                handleBuySupplies(svc, resultLines);
-                if (!resultLines.isEmpty()) serviceResultPopup.show(svc.name, resultLines);
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                Building b = cell.hasBuilding() ? cell.getBuilding() : null;
+                shopItems = new ArrayList<>(BuildingServices.getShopItems(b));
+                if (shopItems.isEmpty()) {
+                    shopItems.add(new ShopItem("Supplies", "Everyday essentials.", svc.cost > 0 ? svc.cost : 10, true, 1));
+                }
+                shopPopup.show(BuildingServices.getShopTitle(b, svc.id), shopItems);
                 return;
             }
 
@@ -1895,6 +1942,72 @@ public class MainScreen implements Screen {
     private void handleBuySupplies(BuildingService svc, List<String> resultLines) {
         // No supply catalogue items defined yet — show placeholder
         resultLines.add("Nothing of interest at the moment.");
+    }
+
+    /**
+     * Processes a purchase made through the shop popup.
+     *
+     * <p>For gear items the player does not yet carry, the item is equipped and
+     * money is deducted.  For consumable items the selected quantity is purchased
+     * all at once, stamina is added, and money is deducted.  If the player cannot
+     * afford the purchase a result popup is shown instead.
+     *
+     * @param item     the {@link ShopItem} the player chose to buy
+     * @param quantity number of units (always 1 for non-consumables)
+     */
+    private void handleShopPurchase(ShopItem item, int quantity) {
+        int qty        = item.consumable ? Math.max(1, quantity) : 1;
+        int totalCost  = item.price * qty;
+
+        if (profile.getMoney() < totalCost) {
+            List<String> lines = new ArrayList<>();
+            lines.add("You can't afford " + item.name + ".");
+            lines.add("Cost: $" + totalCost + "  |  You have: $" + profile.getMoney());
+            serviceResultPopup.show("Not Enough Money", lines);
+            return;
+        }
+
+        profile.setMoney(profile.getMoney() - totalCost);
+
+        if (item.consumable) {
+            int totalStamina = item.staminaGain * qty;
+            if (totalStamina > 0) profile.addStamina(totalStamina);
+            List<String> lines = new ArrayList<>();
+            lines.add("You bought " + qty + "× " + item.name + " for $" + totalCost + ".");
+            if (totalStamina > 0) lines.add("+" + totalStamina + " stamina.");
+            lines.add("Remaining balance: $" + profile.getMoney() + ".");
+            serviceResultPopup.show("Purchase Complete", lines);
+        } else {
+            // Non-consumable: treat as gear / equipment
+            EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
+                                          EquipmentSlot.LEGS,   EquipmentSlot.FEET };
+            EquipItem bought = null;
+            for (EquipmentSlot slot : mainSlots) {
+                EquipItem candidate = EquipItem.findByName(item.name, slot);
+                if (candidate != null) { bought = candidate; break; }
+            }
+            if (bought == null) bought = EquipItem.findByName(item.name, EquipmentSlot.UTILITY);
+
+            List<String> lines = new ArrayList<>();
+            if (bought != null) {
+                if (bought.getSlot() == EquipmentSlot.UTILITY) {
+                    profile.addUtilityItem(bought);
+                } else {
+                    profile.equip(bought);
+                }
+                lines.add("Purchased: " + item.name + " for $" + totalCost + ".");
+            } else {
+                // Unknown gear item — still deduct money but don't add to inventory
+                lines.add("Purchased: " + item.name + " for $" + totalCost + ".");
+                Gdx.app.log("MainScreen", "WARN: shop item '" + item.name
+                        + "' not found in EquipItem catalogue");
+            }
+            lines.add("Remaining balance: $" + profile.getMoney() + ".");
+            serviceResultPopup.show("Purchase Complete", lines);
+        }
+
+        Gdx.app.log("MainScreen", "Shop purchase: " + item.name
+                + " x" + qty + " for $" + totalCost);
     }
 
     /** Called every frame while {@code state.isWalking} is true. */

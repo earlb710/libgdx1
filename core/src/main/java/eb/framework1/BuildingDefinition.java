@@ -42,6 +42,7 @@ public class BuildingDefinition {
         this.percentage = percentage;
         this.description = description;
         this.improvements = improvements != null ? new ArrayList<>(improvements) : new ArrayList<>();
+        this.attributeModifiers = new HashMap<>();
     }
 
     public String getId() {

@@ -253,3 +253,4 @@ public class PhoneContactTest {
         assertEquals(PhoneMessageRating.UNFRIENDLY, c.rating);
         assertTrue(c.phoned);
     }
+}
