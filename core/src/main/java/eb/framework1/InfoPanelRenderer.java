@@ -782,9 +782,10 @@ class InfoPanelRenderer {
 
         float ty = panelH - PAD; // virtual top
 
-        // Character name
+        // Character name with detective level
         font.setColor(Color.YELLOW);
-        font.draw(batch, profile.getCharacterName(), PAD, ty + drawScrollY);
+        font.draw(batch, profile.getCharacterName() + "  Lv." + profile.getDetectiveLevel(),
+                PAD, ty + drawScrollY);
         ty -= fontLineH;
 
         // Attributes — centred-[total] layout:

@@ -186,7 +186,8 @@ public class CharacterAttributeScreen implements Screen {
         titleFont.draw(batch, titleText, titleX, titleY);
         
         // Character info
-        String infoText = characterName + " (" + gender + ") - " + difficulty;
+        String infoText = characterName + " Lv." + computeCurrentDetectiveLevel()
+                + " (" + gender + ") - " + difficulty;
         glyphLayout.setText(bodyFont, infoText);
         float infoX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
         float infoY = titleY - 100;  // Increased from 60 to 100 to prevent overlap with title
@@ -474,9 +475,9 @@ public class CharacterAttributeScreen implements Screen {
                 updateMuscleFatFromWeight();
             }
 
-            // Check +/- buttons for each point-allocated attribute (skip body measurements)
+            // Check +/- buttons for each point-allocated attribute (skip body measurements and derived)
             for (CharacterAttribute attr : CharacterAttribute.values()) {
-                if (attr.isBodyMeasurement()) continue;
+                if (attr.isBodyMeasurement() || attr.isDerivedAttribute()) continue;
                 Rectangle plusBtn = plusButtons.get(attr);
                 Rectangle minusBtn = minusButtons.get(attr);
                 int currentValue = attributeValues.get(attr);
@@ -505,6 +506,21 @@ public class CharacterAttributeScreen implements Screen {
     
     private int getMoneyRemaining() {
         return moneyBudget;
+    }
+
+    /**
+     * Computes the detective level (1–10) from the current local {@code attributeValues}
+     * map, mirroring the formula used by {@link Profile#getDetectiveLevel()}.
+     */
+    private int computeCurrentDetectiveLevel() {
+        int sum = 0;
+        for (CharacterAttribute attr : CharacterAttribute.values()) {
+            if (attr.isBodyMeasurement() || attr.isDerivedAttribute()) continue;
+            sum += attributeValues.getOrDefault(attr, MIN_ATTRIBUTE_VALUE);
+        }
+        // 11 investigative attributes, each 1–10; min sum = 11, max sum = 110
+        int level = 1 + (sum - 11) / 11;
+        return Math.min(10, Math.max(1, level));
     }
 
     private void createCharacter() {

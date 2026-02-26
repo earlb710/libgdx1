@@ -8,7 +8,7 @@ This document describes the character attribute generation system implemented fo
 
 ### Attributes
 
-The system includes **11 attributes** organized into **3 categories**:
+The system includes **11 investigative attributes** organized into **3 categories**, plus one derived attribute (**Detective Level**):
 
 #### Mental Attributes (4)
 - **Intelligence** - Ability to solve puzzles, connect clues, and draw logical conclusions
@@ -26,6 +26,12 @@ The system includes **11 attributes** organized into **3 categories**:
 - **Intimidation** - Pressuring suspects during interrogation
 - **Empathy** - Understanding motives, connecting with victims/witnesses
 - **Stealth** - Going undercover, bluffing during interrogations
+
+#### Derived Attribute (1)
+- **Detective Level (1–10)** — Overall capability rating automatically computed
+  from the sum of all 11 investigative attributes (see §Detective Level below).
+  Shown prominently **next to the character name** in the info panel and character
+  attribute screen.
 
 ### Point Allocation
 
@@ -405,3 +411,55 @@ if (perception >= 7) {
 The character attribute generation system provides a meaningful way for players to customize their detective characters. The 30-point allocation across 11 attributes creates strategic choices while maintaining balance. The system is integrated seamlessly into the profile creation flow and persists data properly.
 
 **Status:** ✅ Complete and Production Ready
+
+---
+
+## Detective Level
+
+### What Is It?
+
+Detective Level is a **derived, read-only summary attribute** (1–10) that represents the
+detective's overall investigative capability.  It is computed automatically from the sum
+of all 11 investigative attributes and requires no player input.
+
+### Formula
+
+```
+sum   = INTELLIGENCE + PERCEPTION + MEMORY + INTUITION
+      + AGILITY + STAMINA + STRENGTH
+      + CHARISMA + INTIMIDATION + EMPATHY + STEALTH
+
+level = 1 + (sum - 11) / 11          (integer division, clamped to 1–10)
+```
+
+| All attributes at | Attribute sum | Detective Level |
+|---|---|---|
+| 1 (minimum) | 11 | **1** |
+| 2 | 22 | **2** |
+| 5 (average) | 55 | **5** |
+| 9 | 99 | **9** |
+| 10 (maximum) | 110 | **10** |
+
+### Where It Is Displayed
+
+| Location | Format |
+|---|---|
+| Info panel (in-game sidebar) | `<name>  Lv.<N>` — yellow, headline font |
+| Character Attribute screen | `<name> Lv.<N> (<gender>) - <difficulty>` — below the title |
+
+### Implementation
+
+| Class | Change |
+|---|---|
+| `CharacterAttribute` | New `DETECTIVE_LEVEL` enum value; new `isDerivedAttribute()` helper |
+| `Profile` | New `getDetectiveLevel()` method |
+| `InfoPanelRenderer` | Name render updated to append `  Lv.N` |
+| `CharacterAttributeScreen` | Info line updated; `computeCurrentDetectiveLevel()` helper added |
+
+### Rules
+
+- Detective Level is **not part of the point-allocation system** — it cannot be
+  raised directly.
+- Body measurements (height, weight, muscle, fat) do **not** influence the level.
+- Level updates instantly as the player allocates or removes attribute points on the
+  Character Attribute screen.

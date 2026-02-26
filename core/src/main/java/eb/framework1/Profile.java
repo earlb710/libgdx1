@@ -304,6 +304,58 @@ public class Profile {
         return getTotalCarriedWeight() > getWeightCapacity();
     }
 
+    // -------------------------------------------------------------------------
+    // Detective level
+    // -------------------------------------------------------------------------
+
+    /**
+     * The 11 investigative attributes used to compute the detective level.
+     * Body measurements and the derived DETECTIVE_LEVEL itself are excluded.
+     */
+    private static final CharacterAttribute[] INVESTIGATIVE_ATTRS = {
+        CharacterAttribute.INTELLIGENCE,
+        CharacterAttribute.PERCEPTION,
+        CharacterAttribute.MEMORY,
+        CharacterAttribute.INTUITION,
+        CharacterAttribute.AGILITY,
+        CharacterAttribute.STAMINA,
+        CharacterAttribute.STRENGTH,
+        CharacterAttribute.CHARISMA,
+        CharacterAttribute.INTIMIDATION,
+        CharacterAttribute.EMPATHY,
+        CharacterAttribute.STEALTH
+    };
+
+    /** Number of investigative attributes (always 11). */
+    private static final int INVESTIGATIVE_ATTR_COUNT = INVESTIGATIVE_ATTRS.length;
+    /** Minimum possible sum (all attributes at 1). */
+    private static final int MIN_ATTR_SUM = INVESTIGATIVE_ATTR_COUNT;   // 11
+    /** Maximum possible sum (all attributes at 10). */
+    private static final int MAX_ATTR_SUM = INVESTIGATIVE_ATTR_COUNT * 10; // 110
+
+    /**
+     * Returns the detective's overall capability level (1–10), derived from the
+     * sum of the eleven investigative attributes.
+     *
+     * <p>Formula:
+     * <pre>
+     *   level = 1 + (sum - MIN_ATTR_SUM) / (INVESTIGATIVE_ATTR_COUNT)
+     * </pre>
+     * At minimum (all attributes = 1, sum = 11) the level is 1; at maximum
+     * (all attributes = 10, sum = 110) the level is 10.
+     *
+     * <p>This value is shown next to the character name in the UI and serves as
+     * the {@link CharacterAttribute#DETECTIVE_LEVEL} derived attribute.
+     */
+    public int getDetectiveLevel() {
+        int sum = 0;
+        for (CharacterAttribute attr : INVESTIGATIVE_ATTRS) {
+            sum += getAttribute(attr.name());
+        }
+        int level = 1 + (sum - MIN_ATTR_SUM) / INVESTIGATIVE_ATTR_COUNT;
+        return Math.min(10, Math.max(1, level));
+    }
+
     /** Returns the current in-game hour (0–23), or 0 if parsing fails. */
     public int getCurrentHour() {
         try {
