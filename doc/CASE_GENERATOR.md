@@ -90,6 +90,7 @@ For complexity 3: **24 leaf actions** total
 |---|---|
 | `isFullyComplete()` | True when the whole sub-tree is done |
 | `getNextActiveChild()` | The first unlocked-but-incomplete child |
+| `getNextAvailableAction()` | Recursively finds the first non-completed `ACTION` leaf (skipping fully-done branches) |
 | `isChildAvailable(index)` | True when all prior siblings are complete |
 | `complete()` | Mark a leaf `ACTION` node as done |
 
@@ -115,16 +116,51 @@ Constructs a complete `CaseFile` from a `CaseType` and an in-game date.
 The `{s}` placeholder in any string is replaced with the subject's name at
 generation time.
 
+### 7. Save/load persistence for the story tree
+
+`SaveGameManager` serialises and deserialises the complete story tree so that
+player progress survives a save/load cycle.  Four nested DTO classes carry the
+data:
+
+| DTO class | What it captures |
+|---|---|
+| `CaseFileData` | All `CaseFile` fields including the `storyRoot` reference and `activeCaseId` |
+| `StoryNodeData` | `id`, `title`, `description`, `nodeType`, `completed` flag, and recursive `children` list |
+| `CaseLeadData` | `id`, `description`, `hint`, `discoveryMethod`, `discovered` flag |
+| `EvidenceItemData` | `name`, `description`, `evidenceType`, and all `EvidenceModifier` values |
+
+`GameSave` now stores `List<CaseFile> caseFiles` and the `activeCaseId`.
+`GameSave.from()` snapshots them; `GameSave.applyToProfile()` restores them and
+re-selects the active case.  Old saves without the `caseFiles` field load cleanly
+(backward-compatible).
+
+### 8. Case-file tab: story-tree progress panel
+
+`InfoPanelRenderer.drawCaseFileTab()` was rewritten to add a scrollable content
+area and a **Progress** section displayed above Clues / Evidence / Notes:
+
+```
+Progress
+Phase 2 of 3: Initial Investigation
+Milestone: Gather Primary Evidence
+Next: □ Interview the bartender
+```
+
+- `Phase X of Y` counts completed and total `PLOT_TWIST` children of the root.
+- `Milestone` shows the title of the current `MAJOR_PROGRESS` node (novel/blue).
+- `Next` uses `getNextAvailableAction()` to find the first concrete action
+  (white, prefixed with `□`).
+- Displays "All objectives complete!" (green) when the tree is fully done.
+- Hidden for legacy cases where `storyRoot` is `null`.
+
+The checkboxes and "Add Note" button are now pinned at fixed screen positions at
+the bottom of the panel, independent of scroll position.
+
 ---
 
 ## What Is Outstanding
 
 ### High priority
-
-- **Save/load support for the story tree.**  
-  `CaseFile` serialisation (used by `SaveGameManager`) currently ignores
-  `storyRoot`.  The tree must be serialised and deserialised so that player
-  progress persists across sessions.
 
 - **Story tree advancement in game logic.**  
   Nothing in the game currently calls `CaseStoryNode.complete()` or queries
@@ -139,11 +175,6 @@ generation time.
   explains the twist.
 
 ### Medium priority
-
-- **UI exposure of story-tree progress.**  
-  The case-file screen currently has no view of the story tree.  A progress
-  panel showing the current phase, next milestone, and available actions would
-  significantly improve player guidance.
 
 - **Per-case-type difficulty scaling.**  
   `CaseType` exposes `getMinDifficulty()` / `getMaxDifficulty()`, but
