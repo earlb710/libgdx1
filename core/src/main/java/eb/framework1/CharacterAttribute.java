@@ -12,6 +12,7 @@ public enum CharacterAttribute {
     STAMINA("Stamina", "Physical", "Long stakeouts, extended investigations, chasing, running"),
     STRENGTH("Strength", "Physical", "Physical confrontations, moving obstacles, carrying stuff"),
     HEIGHT_CM("Height (cm)", "Physical", "Character's height in centimetres"),
+    WEIGHT_KG("Weight (kg)", "Physical", "Total body weight in kg"),
     MUSCLE_KG("Muscle (kg)", "Physical", "Muscle mass in kg; each 10 kg adds +1 Strength"),
     FAT_KG("Fat (kg)",    "Physical", "Body fat in kg; each 10 kg subtracts 1 Strength"),
     
@@ -54,7 +55,7 @@ public enum CharacterAttribute {
     /** Returns {@code true} for attributes that represent physical body measurements
      *  (entered directly, not via the point-allocation system). */
     public boolean isBodyMeasurement() {
-        return this == HEIGHT_CM || this == MUSCLE_KG || this == FAT_KG;
+        return this == HEIGHT_CM || this == WEIGHT_KG || this == MUSCLE_KG || this == FAT_KG;
     }
     
     public static CharacterAttribute[] getSocialAttributes() {

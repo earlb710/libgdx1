@@ -288,13 +288,14 @@ public class CharacterAttributeScreen implements Screen {
     }
 
     /** Auto-computes MUSCLE_KG and FAT_KG from {@code totalBodyWeightKg} using
-     *  gender-appropriate average ratios, and stores all three body measurements
+     *  gender-appropriate average ratios, and stores all body measurements
      *  in {@code attributeValues}. */
     private void updateMuscleFatFromWeight() {
         boolean isFemale = "Female".equalsIgnoreCase(gender);
         float muscleRatio = isFemale ? FEMALE_MUSCLE_RATIO : MALE_MUSCLE_RATIO;
         float fatRatio    = isFemale ? FEMALE_FAT_RATIO    : MALE_FAT_RATIO;
         attributeValues.put(CharacterAttribute.HEIGHT_CM, bodyHeightCm);
+        attributeValues.put(CharacterAttribute.WEIGHT_KG, totalBodyWeightKg);
         attributeValues.put(CharacterAttribute.MUSCLE_KG, Math.round(totalBodyWeightKg * muscleRatio));
         attributeValues.put(CharacterAttribute.FAT_KG,    Math.round(totalBodyWeightKg * fatRatio));
     }

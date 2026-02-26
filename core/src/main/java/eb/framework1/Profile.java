@@ -218,14 +218,41 @@ public class Profile {
     /** Kg of muscle or fat needed to shift STRENGTH by ±1 point. */
     private static final int MUSCLE_FAT_STRENGTH_DIVISOR = 10;
 
-    /**
-     * Fallback body weights used when an old profile has no muscle/fat data.
-     * Values match the gender defaults in {@code CharacterAttributeScreen}.
-     */
-    private static final int DEFAULT_BODY_WEIGHT_MALE   = 80;
-    private static final int DEFAULT_BODY_WEIGHT_FEMALE = 65;
+    /** Offset (cm) subtracted from height to derive lean base body weight for males. */
+    private static final int BASE_WEIGHT_OFFSET_MALE   = 135;
+    /** Offset (cm) subtracted from height to derive lean base body weight for females. */
+    private static final int BASE_WEIGHT_OFFSET_FEMALE = 120;
+
+    /** Default heights (cm) used as fallback when the HEIGHT_CM attribute is not stored. */
+    private static final int DEFAULT_HEIGHT_MALE   = 175;
+    private static final int DEFAULT_HEIGHT_FEMALE = 163;
 
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns the character's lean base body weight (kg) derived from height and gender.
+     * <p>Formula: {@code HEIGHT_CM - 135} for males, {@code HEIGHT_CM - 120} for females.
+     * A 175 cm male therefore has a base of 40 kg; a 163 cm female has a base of 43 kg.
+     */
+    public int getBaseBodyWeight() {
+        boolean isFemale = "female".equalsIgnoreCase(gender);
+        int heightCm = getAttribute(CharacterAttribute.HEIGHT_CM.name());
+        if (heightCm == 0) {
+            heightCm = isFemale ? DEFAULT_HEIGHT_FEMALE : DEFAULT_HEIGHT_MALE;
+        }
+        int offset = isFemale ? BASE_WEIGHT_OFFSET_FEMALE : BASE_WEIGHT_OFFSET_MALE;
+        return Math.max(1, heightCm - offset);
+    }
+
+    /**
+     * Returns the character's total body weight in kg:
+     * {@code base(height, gender) + MUSCLE_KG + FAT_KG}.
+     */
+    public int getTotalBodyWeightKg() {
+        int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
+        int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
+        return getBaseBodyWeight() + muscleKg + fatKg;
+    }
 
     /**
      * Returns a STRENGTH modifier based on the character's body composition:
@@ -256,27 +283,15 @@ public class Profile {
     /**
      * Returns the maximum weight (kg) this character can carry.
      * <p>Formula: {@code bodyWeight / 4 + STRENGTH * 2}, minimum 1.0, where
-     * {@code bodyWeight = muscleKg + fatKg}.
+     * {@code bodyWeight = base(height, gender) + muscleKg + fatKg}.
      * <ul>
      *   <li>Base carry = total body weight / 4 (20 kg for an 80 kg person)</li>
      *   <li>+ 2 kg per point of STRENGTH attribute</li>
      * </ul>
-     *
-     * <p>Old profiles that were saved before body-composition tracking was added
-     * may have {@code MUSCLE_KG} and {@code FAT_KG} both at zero.  In that case
-     * a gender-average body weight is used as a fallback so the carry capacity is
-     * not unrealistically low.
      */
     public float getWeightCapacity() {
-        int muscleKg = getAttribute(CharacterAttribute.MUSCLE_KG.name());
-        int fatKg    = getAttribute(CharacterAttribute.FAT_KG.name());
-        int strength = getAttribute(CharacterAttribute.STRENGTH.name());
-        int bodyWeight = muscleKg + fatKg;
-        if (bodyWeight == 0) {
-            // Old profile with no body-composition data — fall back to gender average
-            boolean isFemale = "female".equalsIgnoreCase(gender);
-            bodyWeight = isFemale ? DEFAULT_BODY_WEIGHT_FEMALE : DEFAULT_BODY_WEIGHT_MALE;
-        }
+        int strength   = getAttribute(CharacterAttribute.STRENGTH.name());
+        int bodyWeight = getTotalBodyWeightKg();
         return Math.max(1f, bodyWeight / BODY_WEIGHT_CAPACITY_DIVISOR
                 + strength * STRENGTH_CARRY_KG_PER_POINT);
     }
