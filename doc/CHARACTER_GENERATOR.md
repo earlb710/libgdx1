@@ -82,6 +82,30 @@ map cells.
 | `honesty` | `int` (1–10) | Whether they volunteer truthful details or withhold them; low honesty means extra actions needed to verify claims |
 | `nervousness` | `int` (1–10) | How visibly anxious the NPC is; a useful in-game signal of involvement |
 
+### Character Attributes
+
+Each NPC carries the **same eleven investigative attributes** as the player character,
+stored as `Map<CharacterAttribute, Integer>` with each value in the range 1–10.
+Unlike the player character (which allocates 30 points through the point-buy screen),
+NPC attribute values are **generated randomly** by `CharacterGenerator`.
+
+| Attribute | Category | Gameplay relevance for NPCs |
+|-----------|----------|-----------------------------|
+| `INTELLIGENCE` | Mental | How quickly the NPC processes information and adapts when questioned |
+| `PERCEPTION` | Mental | How likely the NPC is to notice if they are being surveilled |
+| `MEMORY` | Mental | Consistency of the NPC's account across multiple interviews |
+| `INTUITION` | Mental | Whether the NPC senses that the detective is getting close |
+| `AGILITY` | Physical | Ability to evade surveillance or flee if `fleeRisk` triggers |
+| `STAMINA` | Physical | How long the NPC can sustain an alibi under prolonged questioning |
+| `STRENGTH` | Physical | Relevant for suspects in cases involving physical confrontation |
+| `CHARISMA` | Social | How convincing the NPC is when giving a false statement |
+| `INTIMIDATION` | Social | Whether the NPC tries to intimidate witnesses or the detective |
+| `EMPATHY` | Social | How effective the NPC is at reading and responding to the detective's approach |
+| `STEALTH` | Social | Whether the NPC is good at covering their tracks |
+
+Body-measurement attributes (`HEIGHT_CM`, `WEIGHT_KG`, `MUSCLE_KG`, `FAT_KG`) and the
+derived `DETECTIVE_LEVEL` are **not** stored on NPCs; querying them returns 0.
+
 ---
 
 ## Client-Specific Extra Fields
@@ -170,28 +194,39 @@ The suspect is the person being investigated.  This maps to the existing
 
 ---
 
-## Proposed `CharacterGenerator` Class
+## `CharacterGenerator` and `NpcCharacter` — What Is Implemented
 
-A new `CharacterGenerator` class would wrap `PersonNameGenerator` and
-`CompanyNameGenerator`, and add the logic to fill the extra fields above.
+`NpcCharacter.java` and `CharacterGenerator.java` are implemented in the
+`eb.framework1` package.
+
+### `NpcCharacter`
+A builder-based immutable data class carrying all base NPC fields (identity,
+appearance, location, contact, personality) plus the eleven investigative
+`CharacterAttribute` values (`Map<CharacterAttribute, Integer>`).
+
+### `CharacterGenerator`
+Wraps `PersonNameGenerator` and a `Random` instance.  Exposes three methods:
 
 ```java
-public class CharacterGenerator {
-
-    private final PersonNameGenerator  nameGen;
-    private final CompanyNameGenerator companyGen;
-    private final List<String>         buildingNames;  // drawn from CityMap
-    private final Random               random;
-
-    public NpcCharacter generateClient(CaseType caseType) { … }
-    public NpcCharacter generateVictim(CaseType caseType) { … }
-    public NpcCharacter generateSuspect(CaseType caseType, NpcCharacter victim) { … }
-}
+public NpcCharacter generateClient(CaseType caseType)
+public NpcCharacter generateVictim(CaseType caseType)
+public NpcCharacter generateSuspect(CaseType caseType)
 ```
 
-`CaseGenerator` would call this class instead of calling `nameGen.generateFull()`
-directly, and store `NpcCharacter` objects on `CaseFile` in place of the current
-plain-string `clientName` / `subjectName` fields.
+Each method:
+- Picks a random gender and generates a full name via `PersonNameGenerator`.
+- Generates an age within the role-appropriate range (client 25–70, victim 18–80,
+  suspect 20–65).
+- Assigns a sprite key consistent with gender (`man1`/`man2` or `woman1`/`woman2`).
+- Randomly assigns values 1–10 to all eleven investigative attributes.
+- Randomly assigns values 1–10 to the three personality traits
+  (cooperativeness, honesty, nervousness).
+- Selects an occupation from a small inline pool appropriate to the case type
+  and role.
+
+Integration of `CharacterGenerator` into `CaseGenerator` — replacing the current
+plain-string `clientName` / `subjectName` fields with `NpcCharacter` objects —
+is outstanding (see table below).
 
 ### Data sources needed
 
@@ -226,16 +261,15 @@ plain-string `clientName` / `subjectName` fields.
 
 | Priority | Item |
 |----------|------|
-| High | Define `NpcCharacter` data class with all base fields |
-| High | Implement `CharacterGenerator` producing client, victim, and suspect objects |
 | High | Migrate `CaseFile` from `String clientName` / `String subjectName` to `NpcCharacter` objects |
+| High | Update `CaseGenerator.generate()` to call `CharacterGenerator` instead of `nameGen.generateFull()` |
 | High | Update `SaveGameManager` with `NpcCharacterData` DTO for save/load |
-| Medium | Create `occupations_en.json` data file per case type |
+| Medium | Create `occupations_en.json` data file and load occupations from it (replacing inline pools) |
 | Medium | Wire `cooperativeness`, `honesty`, and `nervousness` into `INTERVIEW` lead-discovery checks |
 | Medium | Wire `frequentLocations` into `SURVEILLANCE` action targets |
 | Medium | Wire `alibi` / `alibiIsSound` into `DOCUMENTS` / `INTERVIEW` lead outcomes |
 | Medium | Show NPC card (sprite + name + occupation) in case-file info panel |
 | Low | Create `physical_descriptions_en.json` for flavour text |
-| Low | Wire `fleeRisk` and `counterSurveillanceAware` into difficulty scaling |
-| Low | Wire `willConfessUnderPressure` + player `INTIMIDATION` into interview outcomes |
+| Low | Wire NPC attributes (e.g. `STEALTH`) into difficulty of `SURVEILLANCE` checks |
+| Low | Wire `willConfessUnderPressure` + player `INTIMIDATION` vs NPC `CHARISMA` into interview outcomes |
 | Low | Support multiple suspects per case (list instead of single `suspect` field) |
