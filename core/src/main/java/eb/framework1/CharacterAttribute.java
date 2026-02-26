@@ -11,16 +11,18 @@ public enum CharacterAttribute {
     AGILITY("Agility", "Physical", "Chasing suspects, sneaking, breaking and entering"),
     STAMINA("Stamina", "Physical", "Long stakeouts, extended investigations, chasing, running"),
     STRENGTH("Strength", "Physical", "Physical confrontations, moving obstacles, carrying stuff"),
-    HEIGHT_CM("Height (cm)", "Physical", "Character's height in centimetres"),
-    WEIGHT_KG("Weight (kg)", "Physical", "Total body weight in kg"),
-    MUSCLE_KG("Muscle (kg)", "Physical", "Muscle mass in kg; each 10 kg adds +1 Strength"),
-    FAT_KG("Fat (kg)",    "Physical", "Body fat in kg; each 10 kg subtracts 1 Strength"),
     
     // Social Attributes
     CHARISMA("Charisma", "Social", "Getting people to talk, gaining trust"),
     INTIMIDATION("Intimidation", "Social", "Pressuring suspects during interrogation"),
     EMPATHY("Empathy", "Social", "Understanding motives, connecting with victims/witnesses"),
-    STEALTH("Stealth", "Social", "Going undercover, bluffing during interrogations");
+    STEALTH("Stealth", "Social", "Going undercover, bluffing during interrogations"),
+
+    // Body Measurements (shown at the bottom of the character attributes)
+    HEIGHT_CM("Height (cm)", "Physical", "Character's height in centimetres"),
+    WEIGHT_KG("Weight (kg)", "Physical", "Total body weight in kg"),
+    MUSCLE_KG("Muscle (kg)", "Physical", "Muscle mass in kg; each 10 kg adds +1 Strength"),
+    FAT_KG("Fat (kg)",    "Physical", "Body fat in kg; each 10 kg subtracts 1 Strength");
     
     private final String displayName;
     private final String category;

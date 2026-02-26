@@ -220,14 +220,15 @@ public class CharacterAttributeScreen implements Screen {
         
         // Draw Physical Attributes (AGILITY, STAMINA, STRENGTH only)
         currentY = drawAttributeCategory("Physical", CharacterAttribute.getPhysicalAttributes(), currentY, leftMargin, attributeHeight);
+        currentY -= 70;
+
+        // Draw Social Attributes
+        currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
         currentY -= 30;
 
         // Draw Body Measurements (height + total weight, with auto muscle/fat split)
         currentY = drawBodyMeasurements(currentY, leftMargin, attributeHeight);
         currentY -= 40;
-
-        // Draw Social Attributes
-        currentY = drawAttributeCategory("Social", CharacterAttribute.getSocialAttributes(), currentY, leftMargin, attributeHeight);
 
         // Draw Money row (styled like an attribute, value counted in $1000s)
         drawMoneyLine(currentY, leftMargin, attributeHeight);
