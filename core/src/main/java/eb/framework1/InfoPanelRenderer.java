@@ -423,7 +423,7 @@ class InfoPanelRenderer {
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
         float contentStartY = hasButton
-                ? lowestBtnBottom - fontLineH - fontLineH
+                ? lowestBtnBottom - fontLineH
                 : panelH - fontLineH;
         float contentAreaBottom = SB;
         float contentAreaH      = contentStartY - contentAreaBottom;
@@ -872,8 +872,8 @@ class InfoPanelRenderer {
             }
 
             if (bodyMod != 0) {
-                // " ±body" — yellow
-                String bdStr = " " + (bodyMod > 0 ? "+" : "-") + Math.abs(bodyMod);
+                // " ±body (body)" — yellow; label clarifies this modifier comes from muscle/fat composition
+                String bdStr = " " + (bodyMod > 0 ? "+" : "-") + Math.abs(bodyMod) + " (body)";
                 smallFont.setColor(Color.YELLOW);
                 smallFont.draw(batch, bdStr, cx, ay);
             }
