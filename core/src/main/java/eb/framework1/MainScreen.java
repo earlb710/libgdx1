@@ -98,9 +98,9 @@ public class MainScreen implements Screen {
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
     private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
-    // Save-done notification overlay (auto-dismisses after SAVE_DONE_DURATION seconds)
-    private static final float SAVE_DONE_DURATION = 2.0f;
-    private float saveDoneTimer = 0f;
+    // Save-done notification overlay (dismissed by the OK button)
+    private boolean saveDoneVisible = false;
+    private float   saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH;
 
     private final SaveGameManager saveGameManager = new SaveGameManager();
 
@@ -363,8 +363,7 @@ public class MainScreen implements Screen {
             drawQuitConfirmation();
         }
 
-        if (saveDoneTimer > 0f) {
-            saveDoneTimer -= delta;
+        if (saveDoneVisible) {
             drawSaveDonePopup();
         }
     }
@@ -481,33 +480,51 @@ public class MainScreen implements Screen {
 
     private void drawSaveDonePopup() {
         final float PAD    = 28f;
+        final float BTN_GAP = 16f;
         final Color BG     = new Color(0.06f, 0.18f, 0.06f, 0.95f);
         final Color BORDER = new Color(0.3f,  0.8f,  0.3f,  1f);
+
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyphLayout, "OK", 32f, 14f);
 
         glyphLayout.setText(font, "Game Saved!");
         float msgW = glyphLayout.width;
         float msgH = glyphLayout.height;
-        float boxW = msgW + 2 * PAD;
-        float boxH = msgH + 2 * PAD;
+
+        float boxW = Math.max(msgW, okBounds.width) + 2 * PAD;
+        float boxH = PAD + msgH + BTN_GAP + okBounds.height + PAD;
         float boxX = (state.screenWidth  - boxW) / 2f;
         float boxY = (state.screenHeight - boxH) / 2f;
+
+        // Store OK button bounds for hit-testing
+        saveDoneOkBtnX = boxX + (boxW - okBounds.width) / 2f;
+        saveDoneOkBtnY = boxY + PAD;
+        saveDoneOkBtnW = okBounds.width;
+        saveDoneOkBtnH = okBounds.height;
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(BG);
         shapeRenderer.rect(boxX, boxY, boxW, boxH);
+        shapeRenderer.setColor(0.15f, 0.50f, 0.15f, 1f);
+        shapeRenderer.rect(saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH);
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(BORDER);
         shapeRenderer.rect(boxX,     boxY,     boxW,     boxH);
         shapeRenderer.rect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(saveDoneOkBtnX,     saveDoneOkBtnY,     saveDoneOkBtnW,     saveDoneOkBtnH);
+        shapeRenderer.rect(saveDoneOkBtnX + 1, saveDoneOkBtnY + 1, saveDoneOkBtnW - 2, saveDoneOkBtnH - 2);
         shapeRenderer.end();
 
         batch.begin();
         font.setColor(Color.WHITE);
         font.draw(batch, "Game Saved!",
                 boxX + (boxW - msgW) / 2f,
-                boxY + (boxH + msgH) / 2f);
+                boxY + boxH - PAD);
+        font.draw(batch, "OK",
+                saveDoneOkBtnX + (saveDoneOkBtnW - okBounds.textWidth) / 2f,
+                saveDoneOkBtnY + (saveDoneOkBtnH + okBounds.textHeight) / 2f);
         batch.end();
     }
 
@@ -526,6 +543,15 @@ public class MainScreen implements Screen {
 
                 // Quit confirmation overlay blocks all interaction
                 if (quitConfirming) { return true; }
+
+                // Save-done popup blocks all interaction until OK is tapped
+                if (saveDoneVisible) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
 
                 // Any look-around popup blocks normal interaction
                 if (lookAroundPopup.isVisible()) {
@@ -682,6 +708,21 @@ public class MainScreen implements Screen {
                         quitConfirming = false;
                     }
                     infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
+
+                // Save-done popup – only the OK button dismisses it
+                if (saveDoneVisible) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS
+                                && screenX >= saveDoneOkBtnX && screenX <= saveDoneOkBtnX + saveDoneOkBtnW
+                                && flippedY >= saveDoneOkBtnY && flippedY <= saveDoneOkBtnY + saveDoneOkBtnH) {
+                            saveDoneVisible = false;
+                        }
+                        infoAreaPressed = false;
+                    }
                     isDragging = false;
                     return true;
                 }
@@ -1306,7 +1347,7 @@ public class MainScreen implements Screen {
             saveGameManager.saveGame(profile, cityMap,
                     state.charCellX, state.charCellY,
                     state.homeCellX, state.homeCellY);
-            saveDoneTimer = SAVE_DONE_DURATION;
+            saveDoneVisible = true;
             Gdx.app.log("MainScreen", "Game saved from office");
         }
     }
