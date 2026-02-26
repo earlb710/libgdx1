@@ -98,6 +98,8 @@ public class MainScreen implements Screen {
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
     private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
+    private final SaveGameManager saveGameManager = new SaveGameManager();
+
     // Tuning constants
     private static final float MIN_ZOOM             = 1.0f;
     private static final float MAX_ZOOM             = 5.33f;
@@ -863,6 +865,7 @@ public class MainScreen implements Screen {
                             checkOpenStashButtonClick(screenX, flippedY);
                             checkCheckEmailsButtonClick(screenX, flippedY);
                             checkOpenPhoneButtonClick(screenX, flippedY);
+                            checkSaveButtonClick(screenX, flippedY);
                         } else {
                             checkTabClick(screenX, flippedY);
                             checkMoveToButtonClick(screenX, flippedY);
@@ -1243,6 +1246,18 @@ public class MainScreen implements Screen {
             state.unitInteriorOpen = false;
             state.unitIsHotelRoom  = false;
             Gdx.app.log("MainScreen", "Exited unit");
+        }
+    }
+
+    private void checkSaveButtonClick(int screenX, int flippedY) {
+        if (!state.unitInteriorOpen) return;
+        if (state.saveBtnW > 0
+                && screenX >= state.saveBtnX && screenX <= state.saveBtnX + state.saveBtnW
+                && flippedY >= state.saveBtnY && flippedY <= state.saveBtnY + state.saveBtnH) {
+            saveGameManager.saveGame(profile, cityMap,
+                    state.charCellX, state.charCellY,
+                    state.homeCellX, state.homeCellY);
+            Gdx.app.log("MainScreen", "Game saved from office");
         }
     }
 
