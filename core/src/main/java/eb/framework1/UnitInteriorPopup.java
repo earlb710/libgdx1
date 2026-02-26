@@ -25,6 +25,7 @@ import java.util.List;
  *
  * Button bounds are written to {@link MapViewState} so that {@code MainScreen}
  * can perform hit-testing without knowing layout details.
+ * <p>A thin divider line separates the Exit Office button from the Save button below it.
  */
 class UnitInteriorPopup {
 
@@ -42,6 +43,7 @@ class UnitInteriorPopup {
     private static final Color DISABLED_BORDER_COLOR = new Color(0.25f, 0.25f, 0.35f, 1f);
     private static final Color SCROLLBAR_TRACK_COLOR = new Color(0.2f,  0.2f,  0.3f,  1f);
     private static final Color SCROLLBAR_THUMB_COLOR = new Color(0.5f,  0.5f,  0.7f,  1f);
+    private static final Color DIVIDER_COLOR         = new Color(0.45f, 0.45f, 0.60f, 1f);
 
     private final SpriteBatch   batch;
     private final ShapeRenderer sr;
@@ -68,6 +70,7 @@ class UnitInteriorPopup {
         if (!s.unitInteriorOpen) return;
 
         final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 20f;
+        final float DIVIDER_SPACING = 14f; // extra gap used between Exit Office and Save for the divider
         final float panelH = s.infoAreaHeight;
         final float panelW = s.screenWidth;
 
@@ -77,8 +80,8 @@ class UnitInteriorPopup {
         TextMeasurer.TextBounds stashBounds  = TextMeasurer.measure(font, glyph, "Open Stash",  PAD_X, PAD_Y);
         TextMeasurer.TextBounds emailBounds  = TextMeasurer.measure(font, glyph, "Check Emails",PAD_X, PAD_Y);
         TextMeasurer.TextBounds phoneBounds  = TextMeasurer.measure(font, glyph, "Phone",       PAD_X, PAD_Y);
-        TextMeasurer.TextBounds saveBounds   = TextMeasurer.measure(font, glyph, "Save",        PAD_X, PAD_Y);
-        TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit",        PAD_X, PAD_Y);
+        TextMeasurer.TextBounds saveBounds   = TextMeasurer.measure(font, glyph, "Save",           PAD_X, PAD_Y);
+        TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit Office",    PAD_X, PAD_Y);
         final float BTN_H    = restBounds.height;
         final float REST_W   = restBounds.width;
         final float SLEEP_W  = sleepBounds.width;
@@ -146,9 +149,9 @@ class UnitInteriorPopup {
 
         s.unitExitBtnX = btnX; s.unitExitBtnW = EXIT_W; s.unitExitBtnH = BTN_H;
         s.unitExitBtnY = curY;
-        curY -= BTN_H + BTN_SPACING;
+        curY -= BTN_H + BTN_SPACING + DIVIDER_SPACING;
 
-        // Save — below Exit, only in office (not hotel room)
+        // Save — below divider + Exit Office, only in office (not hotel room)
         s.saveBtnX = btnX; s.saveBtnW = showStashEmail ? SAVE_W : 0f; s.saveBtnH = BTN_H;
         s.saveBtnY = curY;
         if (showStashEmail) curY -= BTN_H + BTN_SPACING;
@@ -170,6 +173,10 @@ class UnitInteriorPopup {
         s.unitExitBtnY    += scroll;
         s.saveBtnY        += scroll;
         float scrolledTitleY = titleY + scroll;
+        // Divider Y: midpoint of the gap between Exit Office bottom and Save top
+        float dividerScrolledY = showStashEmail
+                ? s.unitExitBtnY - BTN_SPACING - DIVIDER_SPACING / 2f
+                : -1f; // not drawn for hotel rooms
 
         // --- Scissor-clip content to panel area ---
         batch.flush();
@@ -277,9 +284,9 @@ class UnitInteriorPopup {
         font.draw(batch, "Phone",
                 s.openPhoneBtnX + (PHONE_W - glyph.width) / 2,
                 s.openPhoneBtnY + (BTN_H + glyph.height) / 2);
-        glyph.setText(font, "Exit");
+        glyph.setText(font, "Exit Office");
         font.setColor(Color.WHITE);
-        font.draw(batch, "Exit",
+        font.draw(batch, "Exit Office",
                 s.unitExitBtnX + (EXIT_W - glyph.width) / 2,
                 s.unitExitBtnY + (BTN_H + glyph.height) / 2);
         if (showStashEmail) {
@@ -291,6 +298,14 @@ class UnitInteriorPopup {
         }
         smallFont.setColor(Color.WHITE);
         batch.end();
+
+        // --- Divider between Exit Office and Save ---
+        if (dividerScrolledY > 0f && showStashEmail) {
+            sr.begin(ShapeRenderer.ShapeType.Filled);
+            sr.setColor(DIVIDER_COLOR);
+            sr.rect(btnX, dividerScrolledY, panelW - btnX - SB - 4f, 1f);
+            sr.end();
+        }
 
         // --- Scrollbar ---
         if (s.infoMaxScrollY > 0f) {

@@ -98,6 +98,10 @@ public class MainScreen implements Screen {
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
     private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
+    // Save-done notification overlay (auto-dismisses after SAVE_DONE_DURATION seconds)
+    private static final float SAVE_DONE_DURATION = 2.0f;
+    private float saveDoneTimer = 0f;
+
     private final SaveGameManager saveGameManager = new SaveGameManager();
 
     // Tuning constants
@@ -358,6 +362,11 @@ public class MainScreen implements Screen {
         if (quitConfirming) {
             drawQuitConfirmation();
         }
+
+        if (saveDoneTimer > 0f) {
+            saveDoneTimer -= delta;
+            drawSaveDonePopup();
+        }
     }
 
     @Override
@@ -467,6 +476,38 @@ public class MainScreen implements Screen {
         font.draw(batch, "NO",
                 quitNoBtnX + (quitNoBtnW - noBounds.textWidth) / 2f,
                 quitNoBtnY + (quitNoBtnH + noBounds.textHeight) / 2f);
+        batch.end();
+    }
+
+    private void drawSaveDonePopup() {
+        final float PAD    = 28f;
+        final Color BG     = new Color(0.06f, 0.18f, 0.06f, 0.95f);
+        final Color BORDER = new Color(0.3f,  0.8f,  0.3f,  1f);
+
+        glyphLayout.setText(font, "Game Saved!");
+        float msgW = glyphLayout.width;
+        float msgH = glyphLayout.height;
+        float boxW = msgW + 2 * PAD;
+        float boxH = msgH + 2 * PAD;
+        float boxX = (state.screenWidth  - boxW) / 2f;
+        float boxY = (state.screenHeight - boxH) / 2f;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(BG);
+        shapeRenderer.rect(boxX, boxY, boxW, boxH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(BORDER);
+        shapeRenderer.rect(boxX,     boxY,     boxW,     boxH);
+        shapeRenderer.rect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Game Saved!",
+                boxX + (boxW - msgW) / 2f,
+                boxY + (boxH + msgH) / 2f);
         batch.end();
     }
 
@@ -1265,6 +1306,7 @@ public class MainScreen implements Screen {
             saveGameManager.saveGame(profile, cityMap,
                     state.charCellX, state.charCellY,
                     state.homeCellX, state.homeCellY);
+            saveDoneTimer = SAVE_DONE_DURATION;
             Gdx.app.log("MainScreen", "Game saved from office");
         }
     }
