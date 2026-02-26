@@ -306,19 +306,21 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_weightCapacity_equalsBodyWeightPlusStrength() {
         Profile p = new Profile("Dave", "Male", "Normal");
-        // muscle=40, fat=40 → body weight=80 kg; strength=5
-        // capacity = 80/4 + 5*2 = 20 + 10 = 30.0
+        // height=175 → base=40; muscle=40, fat=40 → body weight=120 kg; strength=5
+        // capacity = 120/4 + 5*2 = 30 + 10 = 40.0
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
-        assertEquals(30f, p.getWeightCapacity(), 0.01f);
+        assertEquals(40f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
     public void profile_weightCapacity_minimumOne() {
         Profile p = new Profile("Eve", "Female", "Normal");
-        // muscle=1, fat=0 → body weight=1 kg (non-zero, so no fallback); strength=0
-        // capacity = 1/4 + 0*2 = 0.25 → clamped to 1.0
+        // height=120 → base=max(1,0)=1; muscle=1, fat=0 → body weight=2 kg; strength=0
+        // capacity = 2/4 + 0*2 = 0.5 → clamped to 1.0
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 120);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 1);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
@@ -328,8 +330,9 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_whenUnderCapacity() {
         Profile p = new Profile("Frank", "Male", "Normal");
-        // muscle=40, fat=40 → body weight=80 kg; strength=5
-        // capacity = 80/4 + 5*2 = 20 + 10 = 30; carried=0.9 (pistol)
+        // height=175 → base=40; muscle=40, fat=40 → body weight=120 kg; strength=5
+        // capacity = 120/4 + 5*2 = 30 + 10 = 40; carried=0.9 (pistol)
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 40);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 40);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 5);
@@ -339,8 +342,9 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_overEncumbered_whenExceedsCapacity() {
         Profile p = new Profile("Grace", "Female", "Normal");
-        // muscle=1, fat=0 → body weight=1 kg; strength=0 → capacity = max(1, 0.25) = 1.0
-        // Pistol(0.9) + Binoculars(0.5) = 1.4 > 1.0
+        // height=120 → base=max(1,0)=1; muscle=1, fat=0 → body weight=2 kg; strength=0
+        // capacity = max(1, 2/4) = 1.0; Pistol(0.9) + Binoculars(0.5) = 1.4 > 1.0
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 120);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 1);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
@@ -351,7 +355,9 @@ public class ProfileEquipmentTest {
     @Test
     public void profile_notOverEncumbered_afterRemovingUtility() {
         Profile p = new Profile("Heidi", "Female", "Normal");
-        // muscle=1, fat=0 → capacity = 1.0; Pistol(0.9)+Binoculars(0.5)=1.4 → over
+        // height=120 → base=1; muscle=1, fat=0 → capacity=max(1,2/4)=1.0
+        // Pistol(0.9)+Binoculars(0.5)=1.4 → over
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 120);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 1);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 0);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 0);
@@ -433,43 +439,80 @@ public class ProfileEquipmentTest {
         assertTrue("Female total body weight should be less", (femaleMuscle + femaleFat) < (maleMuscle + maleFat));
     }
 
+    // -------------------------------------------------------------------------
+    // Base body weight and total body weight
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void getBaseBodyWeight_male175_returns40() {
+        Profile p = new Profile("Max", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
+        assertEquals(40, p.getBaseBodyWeight());
+    }
+
+    @Test
+    public void getBaseBodyWeight_female163_returns43() {
+        Profile p = new Profile("Nora", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 163);
+        assertEquals(43, p.getBaseBodyWeight());
+    }
+
+    @Test
+    public void getBaseBodyWeight_noHeightSet_usesDefaultFallback() {
+        Profile male = new Profile("Otto", "Male", "Normal");
+        assertEquals(40, male.getBaseBodyWeight()); // default 175cm male → 175-135=40
+        Profile female = new Profile("Petra", "Female", "Normal");
+        assertEquals(43, female.getBaseBodyWeight()); // default 163cm female → 163-120=43
+    }
+
+    @Test
+    public void getTotalBodyWeightKg_example_baseMuscleFat() {
+        // Problem-statement example: 175cm male, base=40, muscle=20, fat=25 → total=85
+        Profile p = new Profile("Quinn", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 175);
+        p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 20);
+        p.setAttribute(CharacterAttribute.FAT_KG.name(), 25);
+        assertEquals(85, p.getTotalBodyWeightKg());
+    }
+
     @Test
     public void weightCapacity_formula_bodyWeightDividedByFourPlusStrengthTimesTwo() {
         Profile p = new Profile("Olivia", "Female", "Normal");
-        // muscle=30, fat=30 → body weight=60 kg; strength=3
-        // capacity = 60/4 + 3*2 = 15 + 6 = 21.0
+        // height=160 → base=40; muscle=30, fat=30 → body weight=100 kg; strength=3
+        // capacity = 100/4 + 3*2 = 25 + 6 = 31.0
+        p.setAttribute(CharacterAttribute.HEIGHT_CM.name(), 160);
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 30);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 30);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 3);
-        assertEquals(21f, p.getWeightCapacity(), 0.01f);
+        assertEquals(31f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
-    public void weightCapacity_oldMaleProfile_usesAverageBodyWeight() {
+    public void weightCapacity_oldMaleProfile_usesHeightBasedWeight() {
         // Old profile: MUSCLE_KG and FAT_KG not set (both default to 0)
-        // Male average = 80 kg → 80/4 = 20 kg base; STRENGTH=2 → +4 kg → 24 kg total
+        // Male default height=175 → base=40; total=40 kg; STRENGTH=2 → 40/4 + 2*2 = 10 + 4 = 14 kg
         Profile p = new Profile("Pete", "Male", "Normal");
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 2);
-        assertEquals(24f, p.getWeightCapacity(), 0.01f);
+        assertEquals(14f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
-    public void weightCapacity_oldFemaleProfile_usesAverageBodyWeight() {
+    public void weightCapacity_oldFemaleProfile_usesHeightBasedWeight() {
         // Old profile: MUSCLE_KG and FAT_KG not set (both default to 0)
-        // Female average = 65 kg → 65/4 = 16.25 kg base; STRENGTH=2 → +4 kg → 20.25 kg
+        // Female default height=163 → base=43; total=43 kg; STRENGTH=2 → 43/4 + 2*2 = 10.75 + 4 = 14.75 kg
         Profile p = new Profile("Quinn", "Female", "Normal");
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 2);
-        assertEquals(20.25f, p.getWeightCapacity(), 0.01f);
+        assertEquals(14.75f, p.getWeightCapacity(), 0.01f);
     }
 
     @Test
-    public void weightCapacity_profileWithBodyWeight_doesNotUseFallback() {
-        // Any non-zero body weight means the fallback is NOT used
+    public void weightCapacity_profileWithBodyWeight_addsToBase() {
+        // height not set → default male 175 cm → base=40; muscle=32, fat=16 → total=88 kg; STRENGTH=2
+        // capacity = 88/4 + 2*2 = 22 + 4 = 26.0
         Profile p = new Profile("Ryan", "Male", "Normal");
         p.setAttribute(CharacterAttribute.MUSCLE_KG.name(), 32);
         p.setAttribute(CharacterAttribute.FAT_KG.name(), 16);
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 2);
-        // bodyWeight=48 kg → 48/4 + 2*2 = 12 + 4 = 16, not the 80 kg fallback
-        assertEquals(16f, p.getWeightCapacity(), 0.01f);
+        assertEquals(26f, p.getWeightCapacity(), 0.01f);
     }
 }
