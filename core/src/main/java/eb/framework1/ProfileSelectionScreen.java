@@ -34,6 +34,9 @@ public class ProfileSelectionScreen implements Screen {
     private Profile profileToDelete = null;
     private Rectangle confirmYesButton;
     private Rectangle confirmNoButton;
+    // Confirmation dialog geometry – recalculated for each profile name
+    private float dialogX, dialogY, dialogWidth, dialogHeight;
+    private float dialogHeadingY, dialogProfileNameY, dialogSep1Y, dialogSep2Y;
     
     private static final int DELETE_BUTTON_SIZE = 80; // Square delete button (unchanged)
     private static final int BUTTON_SPACING = 40;
@@ -147,26 +150,80 @@ public class ProfileSelectionScreen implements Screen {
         TextMeasurer.TextBounds backBounds = TextMeasurer.measure(buttonFont, "Back", 48f, 22f);
         backButton = new Rectangle(50, 50, backBounds.width, backBounds.height);
 
-        // Confirmation dialog buttons – stacked vertically so they never spill
-        // outside the dialog, with enough dialog height to avoid text overlap.
-        int dialogWidth  = 650;
-        int dialogHeight = 320;
-        int dialogX      = (Gdx.graphics.getWidth()  - dialogWidth)  / 2;
-        int dialogY      = (Gdx.graphics.getHeight() - dialogHeight) / 2;
-
-        TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 24f, 10f);
-        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "Cancel",      24f, 10f);
-        float confirmBtnW = Math.max(yesBounds.width, noBounds.width);
-        float confirmBtnH = Math.max(yesBounds.height, noBounds.height);
-        float btnX        = dialogX + (dialogWidth - confirmBtnW) / 2f;
-        float btnGap      = 20f;
-        float cancelBtnY  = dialogY + 30f;
-        float yesBtnY     = cancelBtnY + confirmBtnH + btnGap;
-
-        confirmYesButton = new Rectangle(btnX, yesBtnY,    confirmBtnW, confirmBtnH);
-        confirmNoButton  = new Rectangle(btnX, cancelBtnY, confirmBtnW, confirmBtnH);
+        // Confirmation dialog layout – placeholder profile name; recalculated per profile in handleInput.
+        setupConfirmDialogLayout("");
     }
-    
+
+    /**
+     * Calculates and stores all confirmation-dialog geometry from actual text measurements.
+     * Must be called before the dialog is shown (and again on resize) so that every
+     * element – width, height, separator positions, text baselines – is derived from
+     * the real glyph sizes rather than guessed constants.
+     *
+     * @param profileName name of the profile being deleted (empty string for the
+     *                    placeholder layout computed at startup / resize)
+     */
+    private void setupConfirmDialogLayout(String profileName) {
+        final float hPad   = 20f;  // horizontal padding from dialog edge to content
+        final float vPad   = 20f;  // vertical padding at top and bottom
+        final float sepGap = 12f;  // gap on each side of each separator line
+        final float btnGap = 15f;  // gap between the two action buttons
+        // 'M' is traditionally the widest character and is used as the 1-char width reference
+        final String CHAR_REF = "M";
+
+        // Measure each text element
+        TextMeasurer.TextBounds headingB = TextMeasurer.measure(titleFont,  "Delete Profile?", 0, 0);
+        // Use CHAR_REF as minimum-width placeholder when no profile name is available
+        String displayName = profileName.isEmpty() ? CHAR_REF : profileName;
+        TextMeasurer.TextBounds nameB    = TextMeasurer.measure(buttonFont, displayName,       0, 0);
+        TextMeasurer.TextBounds yesB     = TextMeasurer.measure(buttonFont, "Yes, Delete",     24f, 10f);
+        TextMeasurer.TextBounds noB      = TextMeasurer.measure(buttonFont, "Cancel",          24f, 10f);
+        float btnW = Math.max(yesB.width,  noB.width);
+        float btnH = Math.max(yesB.height, noB.height);
+
+        // Dialog width: widest content plus one 'M' character of padding on each side
+        float charW    = TextMeasurer.measure(titleFont, CHAR_REF, 0, 0).textWidth;
+        float contentW = Math.max(headingB.textWidth, Math.max(nameB.textWidth, btnW));
+        dialogWidth  = contentW + 2f * (hPad + charW);
+
+        // Dialog height: top-to-bottom layout
+        // vPad | heading | sepGap | sep | sepGap | name | sepGap | sep | sepGap | yes | btnGap | no | vPad
+        dialogHeight = vPad
+                     + headingB.textHeight
+                     + sepGap + sepGap          // gap below heading + gap above profile-name
+                     + nameB.textHeight
+                     + sepGap + sepGap          // gap below name + gap above buttons
+                     + btnH + btnGap + btnH
+                     + vPad;
+
+        dialogX = (Gdx.graphics.getWidth()  - dialogWidth)  / 2f;
+        dialogY = (Gdx.graphics.getHeight() - dialogHeight) / 2f;
+
+        // Compute text-baseline Y positions (LibGDX: y increases upward, draw baseline = top of ascenders)
+        float cursorY = dialogY + dialogHeight;
+
+        cursorY -= vPad;
+        dialogHeadingY = cursorY;          // heading baseline
+        cursorY -= headingB.textHeight;
+
+        cursorY -= sepGap;
+        dialogSep1Y = cursorY;             // first separator line
+        cursorY -= sepGap;
+
+        dialogProfileNameY = cursorY;      // profile-name baseline
+        cursorY -= nameB.textHeight;
+
+        cursorY -= sepGap;
+        dialogSep2Y = cursorY;             // second separator line
+
+        // Buttons anchored from the bottom
+        float cancelBtnY = dialogY + vPad;
+        float yesBtnY    = cancelBtnY + btnH + btnGap;
+        float btnX       = dialogX + (dialogWidth - btnW) / 2f;
+        confirmNoButton  = new Rectangle(btnX, cancelBtnY, btnW, btnH);
+        confirmYesButton = new Rectangle(btnX, yesBtnY,    btnW, btnH);
+    }
+
     @Override
     public void render(float delta) {
         // Skip rendering if not initialized yet
@@ -213,42 +270,38 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.end();
         
-        // Draw dialog box
-        int dialogWidth = 650;
-        int dialogHeight = 320;
-        int dialogX = (Gdx.graphics.getWidth() - dialogWidth) / 2;
-        int dialogY = (Gdx.graphics.getHeight() - dialogHeight) / 2;
-        
+        // Draw dialog box background using pre-computed geometry (dialogX/Y/Width/Height)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
         shapeRenderer.rect(dialogX, dialogY, dialogWidth, dialogHeight);
         shapeRenderer.end();
         
+        // Dialog border and separator lines
+        float separatorPadding = 20f;
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(dialogX, dialogY, dialogWidth, dialogHeight);
-        // Separator below heading
-        float separatorPadding = 20f;
         shapeRenderer.setColor(Color.GRAY);
-        shapeRenderer.line(dialogX + separatorPadding, dialogY + dialogHeight - 80,
-                           dialogX + dialogWidth - separatorPadding, dialogY + dialogHeight - 80);
-        // Separator above buttons
-        shapeRenderer.line(dialogX + separatorPadding, confirmYesButton.y + confirmYesButton.height + 15,
-                           dialogX + dialogWidth - separatorPadding, confirmYesButton.y + confirmYesButton.height + 15);
+        // Separator below heading (pre-computed)
+        shapeRenderer.line(dialogX + separatorPadding, dialogSep1Y,
+                           dialogX + dialogWidth - separatorPadding, dialogSep1Y);
+        // Separator above buttons (pre-computed)
+        shapeRenderer.line(dialogX + separatorPadding, dialogSep2Y,
+                           dialogX + dialogWidth - separatorPadding, dialogSep2Y);
         shapeRenderer.end();
         
-        // Draw text
+        // Draw text at pre-computed baseline Y positions
         batch.begin();
         String message = "Delete Profile?";
         glyphLayout.setText(titleFont, message);
         float messageX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-        titleFont.draw(batch, message, messageX, dialogY + dialogHeight - 40);
+        titleFont.draw(batch, message, messageX, dialogHeadingY);
         
         if (profileToDelete != null) {
             String profileName = profileToDelete.getName();
             glyphLayout.setText(buttonFont, profileName);
             float nameX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2;
-            buttonFont.draw(batch, profileName, nameX, dialogY + dialogHeight - 100);
+            buttonFont.draw(batch, profileName, nameX, dialogProfileNameY);
         }
         batch.end();
         
@@ -476,6 +529,7 @@ public class ProfileSelectionScreen implements Screen {
                 if (deleteButtons.get(i).contains(mouseX, mouseY)) {
                     // Show confirmation dialog
                     profileToDelete = profiles.get(i);
+                    setupConfirmDialogLayout(profileToDelete.getName());
                     showingConfirmDialog = true;
                     return;
                 }
