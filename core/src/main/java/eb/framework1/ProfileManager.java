@@ -63,7 +63,7 @@ public class ProfileManager {
                     Profile profile = new Profile(pd.characterName, pd.gender, pd.difficulty, 
                         icon, pd.attributes, gameDate, randSeed);
                     profile.setMoney(pd.money == 0 ? 1000 : pd.money);
-                    profile.setGameDateTime(pd.gameDateTime != null ? pd.gameDateTime : "2050-01-02 13:20");
+                    profile.setGameDateTime(pd.gameDateTime != null ? pd.gameDateTime : "2050-01-02 16:00");
                     profile.setCurrentStamina(pd.currentStamina == 0 ? profile.getMaxStamina() : pd.currentStamina);
                     profiles.add(profile);
                 }

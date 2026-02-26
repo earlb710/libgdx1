@@ -82,7 +82,7 @@ public class Profile {
         this.gameDate = gameDate;
         this.randSeed = randSeed;
         this.money = 1000;
-        this.gameDateTime = "2050-01-02 13:20";
+        this.gameDateTime = "2050-01-02 16:00";
         this.characterId = UUID.randomUUID().toString();
         this.equipment   = new EnumMap<>(EquipmentSlot.class);
         this.utilityItems = new ArrayList<>();

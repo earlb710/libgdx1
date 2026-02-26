@@ -181,7 +181,7 @@ public class SaveGameManager {
                 d.gameDate,
                 d.randSeed,
                 d.money,
-                d.gameDateTime != null ? d.gameDateTime : "2050-01-02 13:20",
+                d.gameDateTime != null ? d.gameDateTime : "2050-01-02 16:00",
                 d.currentStamina,
                 d.charCellX, d.charCellY,
                 d.homeCellX, d.homeCellY,
