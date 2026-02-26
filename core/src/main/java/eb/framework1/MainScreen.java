@@ -922,6 +922,11 @@ public class MainScreen implements Screen {
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 contextMenu.dismiss();
+                if (state.unitInteriorOpen) {
+                    state.infoScrollY = MathUtils.clamp(
+                            state.infoScrollY + amountY * 20f, 0f, state.infoMaxScrollY);
+                    return true;
+                }
                 if (discoveryPopup.isVisible()) {
                     discoveryPopup.scroll(amountY * 20f);
                     return true;
@@ -1055,6 +1060,7 @@ public class MainScreen implements Screen {
                         state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                                 + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
                         state.unitInteriorDescription = buildOfficeDescription();
+                        state.infoScrollY    = 0f;
                         state.unitInteriorOpen = true;
                     });
                 }
@@ -1135,6 +1141,7 @@ public class MainScreen implements Screen {
                     + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
             state.unitInteriorDescription = buildOfficeDescription();
             state.unitIsHotelRoom = false;
+            state.infoScrollY    = 0f;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
         }
@@ -1150,6 +1157,7 @@ public class MainScreen implements Screen {
             state.unitInteriorLabel = hotelName + " \u2014 Room " + roomNum;
             state.unitInteriorDescription = buildHotelRoomDescription(cell.hasBuilding() ? cell.getBuilding() : null);
             state.unitIsHotelRoom = true;
+            state.infoScrollY    = 0f;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered hotel room: " + state.unitInteriorLabel);
         }
