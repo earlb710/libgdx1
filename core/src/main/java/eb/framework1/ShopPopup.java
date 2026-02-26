@@ -217,8 +217,6 @@ class ShopPopup {
         final float SEPARATOR_H = 1f;    // thin line between rows
         final float BTN_PAD_X   = 14f;
         final float BTN_PAD_Y   = 6f;
-        final float MIN_W       = 340f;
-        final float MAX_W       = screenW * 0.92f;
         final float MAX_H       = screenH * 0.85f;
 
         // --- Font metrics ---
@@ -261,12 +259,9 @@ class ShopPopup {
         closeW = closeBtnW;
         closeH = closeBtnH;
 
-        // --- Dialog width ---
-        glyph.setText(font, title);
-        float titleW     = glyph.width;
+        // --- Dialog width (always full screen width) ---
         float rightCols  = maxPriceW + qtyTotalW + 8f + buyBtnW;
-        float minContent = Math.max(titleW, Math.max(closeBtnW, rightCols + 80f));
-        float dialogW    = MathUtils.clamp(minContent + 2 * PAD + SCROLLBAR_W, MIN_W, MAX_W);
+        float dialogW    = (float) screenW;
         float scrollAreaW = dialogW - 2 * PAD - SCROLLBAR_W - 4f;
         float nameColW    = Math.max(scrollAreaW - rightCols - 8f, 60f);
 
