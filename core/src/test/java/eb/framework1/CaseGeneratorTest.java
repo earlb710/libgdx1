@@ -47,24 +47,41 @@ public class CaseGeneratorTest {
     }
 
     @Test
-    public void caseType_allValuesHaveDifficultyInRange() {
+    public void caseType_allValuesHaveDifficultyRangeInBounds() {
         for (CaseType t : CaseType.values()) {
-            int d = t.getDifficultyLevel();
-            assertTrue("Difficulty must be >= 1 for " + t, d >= 1);
-            assertTrue("Difficulty must be <= 10 for " + t, d <= 10);
+            int min = t.getMinDifficulty();
+            int max = t.getMaxDifficulty();
+            assertTrue("minDifficulty must be >= 1 for " + t, min >= 1);
+            assertTrue("maxDifficulty must be <= 10 for " + t, max <= 10);
+            assertTrue("minDifficulty must be <= maxDifficulty for " + t, min <= max);
         }
     }
 
     @Test
-    public void caseType_specificDifficultyLevels() {
-        assertEquals(5, CaseType.MISSING_PERSON.getDifficultyLevel());
-        assertEquals(3, CaseType.INFIDELITY.getDifficultyLevel());
-        assertEquals(3, CaseType.THEFT.getDifficultyLevel());
-        assertEquals(7, CaseType.FRAUD.getDifficultyLevel());
-        assertEquals(6, CaseType.BLACKMAIL.getDifficultyLevel());
-        assertEquals(9, CaseType.MURDER.getDifficultyLevel());
-        assertEquals(5, CaseType.STALKING.getDifficultyLevel());
-        assertEquals(8, CaseType.CORPORATE_ESPIONAGE.getDifficultyLevel());
+    public void caseType_specificDifficultyRanges() {
+        assertEquals(1, CaseType.MISSING_PERSON.getMinDifficulty());
+        assertEquals(5, CaseType.MISSING_PERSON.getMaxDifficulty());
+
+        assertEquals(1, CaseType.INFIDELITY.getMinDifficulty());
+        assertEquals(4, CaseType.INFIDELITY.getMaxDifficulty());
+
+        assertEquals(1, CaseType.THEFT.getMinDifficulty());
+        assertEquals(5, CaseType.THEFT.getMaxDifficulty());
+
+        assertEquals(4, CaseType.FRAUD.getMinDifficulty());
+        assertEquals(9, CaseType.FRAUD.getMaxDifficulty());
+
+        assertEquals(3, CaseType.BLACKMAIL.getMinDifficulty());
+        assertEquals(7, CaseType.BLACKMAIL.getMaxDifficulty());
+
+        assertEquals(5, CaseType.MURDER.getMinDifficulty());
+        assertEquals(10, CaseType.MURDER.getMaxDifficulty());
+
+        assertEquals(2, CaseType.STALKING.getMinDifficulty());
+        assertEquals(6, CaseType.STALKING.getMaxDifficulty());
+
+        assertEquals(5, CaseType.CORPORATE_ESPIONAGE.getMinDifficulty());
+        assertEquals(10, CaseType.CORPORATE_ESPIONAGE.getMaxDifficulty());
     }
 
     // -------------------------------------------------------------------------
