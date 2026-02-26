@@ -1671,7 +1671,8 @@ public class MainScreen implements Screen {
                         BuildingServices.getHotelRoomType(hotel),
                         BuildingServices.getHotelNightlyCost(hotel),
                         BuildingServices.getHotelStaminaBonus(hotel),
-                        buildHotelRoomDescription(hotel));
+                        buildHotelRoomDescription(hotel),
+                        profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS));
                 return;  // popup drives the rest; don't show serviceResultPopup now
             }
 
