@@ -1,10 +1,13 @@
 package eb.framework1;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 
 import java.util.List;
 
@@ -22,6 +25,7 @@ import java.util.List;
  *
  * Button bounds are written to {@link MapViewState} so that {@code MainScreen}
  * can perform hit-testing without knowing layout details.
+ * <p>A thin divider line separates the Exit Office button from the Save button below it.
  */
 class UnitInteriorPopup {
 
@@ -33,9 +37,13 @@ class UnitInteriorPopup {
     private static final Color STASH_BTN_COLOR      = new Color(0.35f, 0.15f, 0.50f, 1f);
     private static final Color EMAIL_BTN_COLOR      = new Color(0.10f, 0.30f, 0.50f, 1f);
     private static final Color PHONE_BTN_COLOR      = new Color(0.10f, 0.40f, 0.20f, 1f);
-    private static final Color EXIT_BTN_COLOR       = new Color(0.35f, 0.05f, 0.05f, 1f);
-    private static final Color DISABLED_TEXT_COLOR  = new Color(0.40f, 0.40f, 0.40f, 1f);
-    private static final Color DISABLED_BORDER_COLOR= new Color(0.25f, 0.25f, 0.35f, 1f);
+    private static final Color SAVE_BTN_COLOR        = new Color(0.10f, 0.35f, 0.10f, 1f);
+    private static final Color EXIT_BTN_COLOR        = new Color(0.35f, 0.05f, 0.05f, 1f);
+    private static final Color DISABLED_TEXT_COLOR   = new Color(0.40f, 0.40f, 0.40f, 1f);
+    private static final Color DISABLED_BORDER_COLOR = new Color(0.25f, 0.25f, 0.35f, 1f);
+    private static final Color SCROLLBAR_TRACK_COLOR = new Color(0.2f,  0.2f,  0.3f,  1f);
+    private static final Color SCROLLBAR_THUMB_COLOR = new Color(0.5f,  0.5f,  0.7f,  1f);
+    private static final Color DIVIDER_COLOR         = new Color(0.45f, 0.45f, 0.60f, 1f);
 
     private final SpriteBatch   batch;
     private final ShapeRenderer sr;
@@ -62,6 +70,7 @@ class UnitInteriorPopup {
         if (!s.unitInteriorOpen) return;
 
         final float PAD_X = 24f, PAD_Y = 10f, BTN_SPACING = 20f;
+        final float DIVIDER_SPACING = 14f; // extra gap used between Exit Office and Save for the divider
         final float panelH = s.infoAreaHeight;
         final float panelW = s.screenWidth;
 
@@ -71,13 +80,15 @@ class UnitInteriorPopup {
         TextMeasurer.TextBounds stashBounds  = TextMeasurer.measure(font, glyph, "Open Stash",  PAD_X, PAD_Y);
         TextMeasurer.TextBounds emailBounds  = TextMeasurer.measure(font, glyph, "Check Emails",PAD_X, PAD_Y);
         TextMeasurer.TextBounds phoneBounds  = TextMeasurer.measure(font, glyph, "Phone",       PAD_X, PAD_Y);
-        TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit",        PAD_X, PAD_Y);
+        TextMeasurer.TextBounds saveBounds   = TextMeasurer.measure(font, glyph, "Save",           PAD_X, PAD_Y);
+        TextMeasurer.TextBounds exitBounds   = TextMeasurer.measure(font, glyph, "Exit Office",    PAD_X, PAD_Y);
         final float BTN_H    = restBounds.height;
         final float REST_W   = restBounds.width;
         final float SLEEP_W  = sleepBounds.width;
         final float STASH_W  = stashBounds.width;
         final float EMAIL_W  = emailBounds.width;
         final float PHONE_W  = phoneBounds.width;
+        final float SAVE_W   = saveBounds.width;
         final float EXIT_W   = exitBounds.width;
         final float fontCapH = restBounds.textHeight;
 
@@ -138,6 +149,39 @@ class UnitInteriorPopup {
 
         s.unitExitBtnX = btnX; s.unitExitBtnW = EXIT_W; s.unitExitBtnH = BTN_H;
         s.unitExitBtnY = curY;
+        curY -= BTN_H + BTN_SPACING + DIVIDER_SPACING;
+
+        // Save — below divider + Exit Office, only in office (not hotel room)
+        s.saveBtnX = btnX; s.saveBtnW = showStashEmail ? SAVE_W : 0f; s.saveBtnH = BTN_H;
+        s.saveBtnY = curY;
+        if (showStashEmail) curY -= BTN_H + BTN_SPACING;
+
+        // --- Scroll support ---
+        final float SB = MapViewState.SCROLLBAR_THICKNESS;
+        // Content bottom = bottom of last button (curY already advanced past it, so add one spacing back)
+        float contentBottom = curY + BTN_SPACING;
+        s.infoMaxScrollY = Math.max(0f, -contentBottom + PAD_Y);
+        s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+        float scroll     = s.infoScrollY;
+
+        // Apply scroll to all button Y positions so hit-testing works correctly
+        s.restBtnY        += scroll;
+        s.sleepBtnY       += scroll;
+        s.openStashBtnY   += scroll;
+        s.checkEmailsBtnY += scroll;
+        s.openPhoneBtnY   += scroll;
+        s.unitExitBtnY    += scroll;
+        s.saveBtnY        += scroll;
+        float scrolledTitleY = titleY + scroll;
+        // Divider Y: midpoint of the gap between Exit Office bottom and Save top
+        float dividerScrolledY = showStashEmail
+                ? s.unitExitBtnY - BTN_SPACING - DIVIDER_SPACING / 2f
+                : -1f; // not drawn for hotel rooms
+
+        // --- Scissor-clip content to panel area ---
+        batch.flush();
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(0, 0, (int) panelW, (int) panelH);
 
         // --- Draw background ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
@@ -153,8 +197,14 @@ class UnitInteriorPopup {
             sr.setColor(EMAIL_BTN_COLOR);
             sr.rect(s.checkEmailsBtnX, s.checkEmailsBtnY, EMAIL_W, BTN_H);
         }
+        sr.setColor(PHONE_BTN_COLOR);
+        sr.rect(s.openPhoneBtnX, s.openPhoneBtnY, PHONE_W, BTN_H);
         sr.setColor(EXIT_BTN_COLOR);
         sr.rect(s.unitExitBtnX, s.unitExitBtnY, EXIT_W, BTN_H);
+        if (showStashEmail) {
+            sr.setColor(SAVE_BTN_COLOR);
+            sr.rect(s.saveBtnX, s.saveBtnY, SAVE_W, BTN_H);
+        }
         sr.end();
 
         sr.begin(ShapeRenderer.ShapeType.Line);
@@ -172,19 +222,25 @@ class UnitInteriorPopup {
             sr.rect(s.checkEmailsBtnX,     s.checkEmailsBtnY,     EMAIL_W,     BTN_H);
             sr.rect(s.checkEmailsBtnX + 1, s.checkEmailsBtnY + 1, EMAIL_W - 2, BTN_H - 2);
         }
+        sr.rect(s.openPhoneBtnX,     s.openPhoneBtnY,     PHONE_W,     BTN_H);
+        sr.rect(s.openPhoneBtnX + 1, s.openPhoneBtnY + 1, PHONE_W - 2, BTN_H - 2);
         sr.rect(s.unitExitBtnX,     s.unitExitBtnY,     EXIT_W,     BTN_H);
         sr.rect(s.unitExitBtnX + 1, s.unitExitBtnY + 1, EXIT_W - 2, BTN_H - 2);
+        if (showStashEmail) {
+            sr.rect(s.saveBtnX,     s.saveBtnY,     SAVE_W,     BTN_H);
+            sr.rect(s.saveBtnX + 1, s.saveBtnY + 1, SAVE_W - 2, BTN_H - 2);
+        }
         sr.end();
 
         // --- Draw text ---
         batch.begin();
         // Unit title
         font.setColor(Color.YELLOW);
-        font.draw(batch, s.unitInteriorLabel != null ? s.unitInteriorLabel : "", 20f, titleY);
+        font.draw(batch, s.unitInteriorLabel != null ? s.unitInteriorLabel : "", 20f, scrolledTitleY);
 
         // Office description (below title)
         if (!descLines.isEmpty()) {
-            float descY = titleY - fontCapH - smallH;
+            float descY = scrolledTitleY - fontCapH - smallH;
             smallFont.setColor(new Color(0.75f, 0.85f, 0.95f, 1f));
             for (String line : descLines) {
                 smallFont.draw(batch, line, PAD_X, descY);
@@ -223,12 +279,49 @@ class UnitInteriorPopup {
                     s.checkEmailsBtnX + (EMAIL_W - glyph.width) / 2,
                     s.checkEmailsBtnY + (BTN_H + glyph.height) / 2);
         }
-        glyph.setText(font, "Exit");
+        glyph.setText(font, "Phone");
         font.setColor(Color.WHITE);
-        font.draw(batch, "Exit",
+        font.draw(batch, "Phone",
+                s.openPhoneBtnX + (PHONE_W - glyph.width) / 2,
+                s.openPhoneBtnY + (BTN_H + glyph.height) / 2);
+        glyph.setText(font, "Exit Office");
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Exit Office",
                 s.unitExitBtnX + (EXIT_W - glyph.width) / 2,
                 s.unitExitBtnY + (BTN_H + glyph.height) / 2);
+        if (showStashEmail) {
+            glyph.setText(font, "Save");
+            font.setColor(Color.WHITE);
+            font.draw(batch, "Save",
+                    s.saveBtnX + (SAVE_W - glyph.width) / 2,
+                    s.saveBtnY + (BTN_H + glyph.height) / 2);
+        }
         smallFont.setColor(Color.WHITE);
         batch.end();
+
+        // --- Divider between Exit Office and Save ---
+        if (dividerScrolledY > 0f && showStashEmail) {
+            sr.begin(ShapeRenderer.ShapeType.Filled);
+            sr.setColor(DIVIDER_COLOR);
+            sr.rect(btnX, dividerScrolledY, panelW - btnX - SB - 4f, 1f);
+            sr.end();
+        }
+
+        // --- Scrollbar ---
+        if (s.infoMaxScrollY > 0f) {
+            float trackH = panelH;
+            float totalH = trackH + s.infoMaxScrollY;
+            float thumbH = Math.max(SB * 2f, trackH * trackH / totalH);
+            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
+            float thumbY = (1f - scrollRatio) * (trackH - thumbH);
+            sr.begin(ShapeRenderer.ShapeType.Filled);
+            sr.setColor(SCROLLBAR_TRACK_COLOR);
+            sr.rect(panelW - SB, 0, SB, trackH);
+            sr.setColor(SCROLLBAR_THUMB_COLOR);
+            sr.rect(panelW - SB, thumbY, SB, thumbH);
+            sr.end();
+        }
+
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
     }
 }

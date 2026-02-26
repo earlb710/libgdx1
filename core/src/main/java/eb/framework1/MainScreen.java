@@ -104,6 +104,12 @@ public class MainScreen implements Screen {
     private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
     private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
+    // Save-done notification overlay (dismissed by the OK button)
+    private boolean saveDoneVisible = false;
+    private float   saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH;
+
+    private final SaveGameManager saveGameManager = new SaveGameManager();
+
     // Tuning constants
     private static final float MIN_ZOOM             = 1.0f;
     private static final float MAX_ZOOM             = 5.33f;
@@ -155,57 +161,82 @@ public class MainScreen implements Screen {
         cityMap = new CityMap(profile, gameData);
         Gdx.app.log("MainScreen", "CityMap generated: " + cityMap);
 
-        // Pick a random building as the starting cell
-        List<Cell> buildingCells = new ArrayList<>();
-        List<Cell> officeCells   = new ArrayList<>();
-        for (int x = 0; x < CityMap.MAP_SIZE; x++) {
-            for (int y = 0; y < CityMap.MAP_SIZE; y++) {
-                Cell c = cityMap.getCell(x, y);
-                if (c.getTerrainType() == TerrainType.BUILDING) {
-                    buildingCells.add(c);
-                    if (c.hasBuilding() && c.getBuilding().getDefinition() != null
-                            && "office_building_small".equals(c.getBuilding().getDefinition().getId())) {
-                        officeCells.add(c);
+        // Resume from the last save if one exists, otherwise start fresh
+        GameSave save = saveGameManager.loadGame(profile.getCharacterName());
+        if (save != null) {
+            save.applyToProfile(profile);
+            save.applyToMap(cityMap);
+            state.charCellX     = save.getCharCellX();
+            state.charCellY     = save.getCharCellY();
+            state.homeCellX     = save.getHomeCellX();
+            state.homeCellY     = save.getHomeCellY();
+            state.selectedCellX = state.charCellX;
+            state.selectedCellY = state.charCellY;
+            // Restore in-memory home-building flags and compute floor/unit from seed
+            Cell homeCell = cityMap.getCell(state.homeCellX, state.homeCellY);
+            if (homeCell.hasBuilding()) {
+                Building homeBuilding = homeCell.getBuilding();
+                homeBuilding.setHome(true);
+                Random officeRng = new Random(profile.getRandSeed() + 17);
+                int floors = homeBuilding.getFloors();
+                state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
+                state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+            }
+            Gdx.app.log("MainScreen", "Resumed from save: char=" + state.charCellX + "," + state.charCellY
+                    + " home=" + state.homeCellX + "," + state.homeCellY);
+        } else {
+            // Pick a random building as the starting cell
+            List<Cell> buildingCells = new ArrayList<>();
+            List<Cell> officeCells   = new ArrayList<>();
+            for (int x = 0; x < CityMap.MAP_SIZE; x++) {
+                for (int y = 0; y < CityMap.MAP_SIZE; y++) {
+                    Cell c = cityMap.getCell(x, y);
+                    if (c.getTerrainType() == TerrainType.BUILDING) {
+                        buildingCells.add(c);
+                        if (c.hasBuilding() && c.getBuilding().getDefinition() != null
+                                && "office_building_small".equals(c.getBuilding().getDefinition().getId())) {
+                            officeCells.add(c);
+                        }
                     }
                 }
             }
-        }
 
-        // Mark a random small office building as home + owned, and use it as the start position
-        List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
-        if (!homeSrc.isEmpty()) {
-            Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
-                    .nextInt(homeSrc.size()));
-            state.homeCellX = homeCell.getX();
-            state.homeCellY = homeCell.getY();
-            Building homeBuilding = homeCell.getBuilding();
-            homeBuilding.setHome(true);
-            homeBuilding.setOwned(true);
-            discoverCell(state.homeCellX, state.homeCellY);
-            // Assign a random floor and unit letter for the player's office
-            Random officeRng = new Random(profile.getRandSeed() + 17);
-            int floors = homeBuilding.getFloors();
-            state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
-            state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
-            state.charCellX     = state.homeCellX;
-            state.charCellY     = state.homeCellY;
-            state.selectedCellX = state.homeCellX;
-            state.selectedCellY = state.homeCellY;
-            Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY
-                    + " Floor " + state.homeFloor + " Unit " + state.homeFloor + state.homeUnitLetter);
-        } else if (!buildingCells.isEmpty()) {
-            // Fallback: no home found, use any building cell
-            Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
-                    .nextInt(buildingCells.size()));
-            state.selectedCellX = start.getX();
-            state.selectedCellY = start.getY();
-            state.charCellX = state.selectedCellX;
-            state.charCellY = state.selectedCellY;
-            discoverCell(state.charCellX, state.charCellY);
-            Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
-        }
+            // Mark a random small office building as home + owned, and use it as the start position
+            List<Cell> homeSrc = officeCells.isEmpty() ? buildingCells : officeCells;
+            if (!homeSrc.isEmpty()) {
+                Cell homeCell = homeSrc.get(new Random(profile.getRandSeed() + 13)
+                        .nextInt(homeSrc.size()));
+                state.homeCellX = homeCell.getX();
+                state.homeCellY = homeCell.getY();
+                Building homeBuilding = homeCell.getBuilding();
+                homeBuilding.setHome(true);
+                homeBuilding.setOwned(true);
+                discoverCell(state.homeCellX, state.homeCellY);
+                // Assign a random floor and unit letter for the player's office
+                Random officeRng = new Random(profile.getRandSeed() + 17);
+                int floors = homeBuilding.getFloors();
+                state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
+                state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                state.charCellX     = state.homeCellX;
+                state.charCellY     = state.homeCellY;
+                state.selectedCellX = state.homeCellX;
+                state.selectedCellY = state.homeCellY;
+                Gdx.app.log("MainScreen", "Home/Start: " + state.homeCellX + "," + state.homeCellY
+                        + " Floor " + state.homeFloor + " Unit " + state.homeFloor + state.homeUnitLetter);
+            } else if (!buildingCells.isEmpty()) {
+                // Fallback: no home found, use any building cell
+                Cell start = buildingCells.get(new Random(profile.getRandSeed() + 7)
+                        .nextInt(buildingCells.size()));
+                state.selectedCellX = start.getX();
+                state.selectedCellY = start.getY();
+                state.charCellX = state.selectedCellX;
+                state.charCellY = state.selectedCellY;
+                discoverCell(state.charCellX, state.charCellY);
+                Gdx.app.log("MainScreen", "Start: " + state.charCellX + "," + state.charCellY);
+            }
 
-        discoverStartingBuildings();
+            discoverStartingBuildings();
+        }
 
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
@@ -372,6 +403,10 @@ public class MainScreen implements Screen {
         if (quitConfirming) {
             drawQuitConfirmation();
         }
+
+        if (saveDoneVisible) {
+            drawSaveDonePopup();
+        }
     }
 
     @Override
@@ -520,6 +555,56 @@ public class MainScreen implements Screen {
         batch.end();
     }
 
+    private void drawSaveDonePopup() {
+        final float PAD    = 28f;
+        final float BTN_GAP = 16f;
+        final Color BG     = new Color(0.06f, 0.18f, 0.06f, 0.95f);
+        final Color BORDER = new Color(0.3f,  0.8f,  0.3f,  1f);
+
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyphLayout, "OK", 32f, 14f);
+
+        glyphLayout.setText(font, "Game Saved!");
+        float msgW = glyphLayout.width;
+        float msgH = glyphLayout.height;
+
+        float boxW = Math.max(msgW, okBounds.width) + 2 * PAD;
+        float boxH = PAD + msgH + BTN_GAP + okBounds.height + PAD;
+        float boxX = (state.screenWidth  - boxW) / 2f;
+        float boxY = (state.screenHeight - boxH) / 2f;
+
+        // Store OK button bounds for hit-testing
+        saveDoneOkBtnX = boxX + (boxW - okBounds.width) / 2f;
+        saveDoneOkBtnY = boxY + PAD;
+        saveDoneOkBtnW = okBounds.width;
+        saveDoneOkBtnH = okBounds.height;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(BG);
+        shapeRenderer.rect(boxX, boxY, boxW, boxH);
+        shapeRenderer.setColor(0.15f, 0.50f, 0.15f, 1f);
+        shapeRenderer.rect(saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(BORDER);
+        shapeRenderer.rect(boxX,     boxY,     boxW,     boxH);
+        shapeRenderer.rect(boxX + 1, boxY + 1, boxW - 2, boxH - 2);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(saveDoneOkBtnX,     saveDoneOkBtnY,     saveDoneOkBtnW,     saveDoneOkBtnH);
+        shapeRenderer.rect(saveDoneOkBtnX + 1, saveDoneOkBtnY + 1, saveDoneOkBtnW - 2, saveDoneOkBtnH - 2);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Game Saved!",
+                boxX + (boxW - msgW) / 2f,
+                boxY + boxH - PAD);
+        font.draw(batch, "OK",
+                saveDoneOkBtnX + (saveDoneOkBtnW - okBounds.textWidth) / 2f,
+                saveDoneOkBtnY + (saveDoneOkBtnH + okBounds.textHeight) / 2f);
+        batch.end();
+    }
+
     // -------------------------------------------------------------------------
     // Input
     // -------------------------------------------------------------------------
@@ -535,6 +620,15 @@ public class MainScreen implements Screen {
 
                 // Quit confirmation overlay blocks all interaction
                 if (quitConfirming) { return true; }
+
+                // Save-done popup blocks all interaction until OK is tapped
+                if (saveDoneVisible) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
 
                 // Any look-around popup blocks normal interaction
                 if (lookAroundPopup.isVisible()) {
@@ -700,6 +794,21 @@ public class MainScreen implements Screen {
                         quitConfirming = false;
                     }
                     infoAreaPressed = false;
+                    isDragging = false;
+                    return true;
+                }
+
+                // Save-done popup – only the OK button dismisses it
+                if (saveDoneVisible) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS
+                                && screenX >= saveDoneOkBtnX && screenX <= saveDoneOkBtnX + saveDoneOkBtnW
+                                && flippedY >= saveDoneOkBtnY && flippedY <= saveDoneOkBtnY + saveDoneOkBtnH) {
+                            saveDoneVisible = false;
+                        }
+                        infoAreaPressed = false;
+                    }
                     isDragging = false;
                     return true;
                 }
@@ -940,6 +1049,7 @@ public class MainScreen implements Screen {
                             checkOpenStashButtonClick(screenX, flippedY);
                             checkCheckEmailsButtonClick(screenX, flippedY);
                             checkOpenPhoneButtonClick(screenX, flippedY);
+                            checkSaveButtonClick(screenX, flippedY);
                         } else {
                             checkTabClick(screenX, flippedY);
                             checkMoveToButtonClick(screenX, flippedY);
@@ -996,6 +1106,11 @@ public class MainScreen implements Screen {
             @Override
             public boolean scrolled(float amountX, float amountY) {
                 contextMenu.dismiss();
+                if (state.unitInteriorOpen) {
+                    state.infoScrollY = MathUtils.clamp(
+                            state.infoScrollY + amountY * 20f, 0f, state.infoMaxScrollY);
+                    return true;
+                }
                 if (discoveryPopup.isVisible()) {
                     discoveryPopup.scroll(amountY * 20f);
                     return true;
@@ -1133,6 +1248,7 @@ public class MainScreen implements Screen {
                         state.unitInteriorLabel = "Your Office \u2014 " + floorOrdinal(state.homeFloor)
                                 + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
                         state.unitInteriorDescription = buildOfficeDescription();
+                        state.infoScrollY    = 0f;
                         state.unitInteriorOpen = true;
                     });
                 }
@@ -1213,6 +1329,7 @@ public class MainScreen implements Screen {
                     + " Floor  Unit " + state.homeFloor + state.homeUnitLetter;
             state.unitInteriorDescription = buildOfficeDescription();
             state.unitIsHotelRoom = false;
+            state.infoScrollY    = 0f;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered office: " + state.unitInteriorLabel);
         }
@@ -1228,6 +1345,7 @@ public class MainScreen implements Screen {
             state.unitInteriorLabel = hotelName + " \u2014 Room " + roomNum;
             state.unitInteriorDescription = buildHotelRoomDescription(cell.hasBuilding() ? cell.getBuilding() : null);
             state.unitIsHotelRoom = true;
+            state.infoScrollY    = 0f;
             state.unitInteriorOpen = true;
             Gdx.app.log("MainScreen", "Entered hotel room: " + state.unitInteriorLabel);
         }
@@ -1324,6 +1442,19 @@ public class MainScreen implements Screen {
             state.unitInteriorOpen = false;
             state.unitIsHotelRoom  = false;
             Gdx.app.log("MainScreen", "Exited unit");
+        }
+    }
+
+    private void checkSaveButtonClick(int screenX, int flippedY) {
+        if (!state.unitInteriorOpen) return;
+        if (state.saveBtnW > 0
+                && screenX >= state.saveBtnX && screenX <= state.saveBtnX + state.saveBtnW
+                && flippedY >= state.saveBtnY && flippedY <= state.saveBtnY + state.saveBtnH) {
+            saveGameManager.saveGame(profile, cityMap,
+                    state.charCellX, state.charCellY,
+                    state.homeCellX, state.homeCellY);
+            saveDoneVisible = true;
+            Gdx.app.log("MainScreen", "Game saved from office");
         }
     }
 
