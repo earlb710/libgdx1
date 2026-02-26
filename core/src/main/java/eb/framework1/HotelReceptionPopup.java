@@ -47,12 +47,13 @@ class HotelReceptionPopup {
     private final GlyphLayout   glyph;
 
     // --- State ---
-    private boolean visible      = false;
-    private String  hotelName    = "";
-    private String  roomType     = "";
-    private String  roomDesc     = "";
-    private int     nightly      = 0;
-    private int     staminaBonus = 0;
+    private boolean visible        = false;
+    private String  hotelName      = "";
+    private String  roomType       = "";
+    private String  roomDesc       = "";
+    private int     nightly        = 0;
+    private int     staminaBonus   = 0;
+    private int     currentNights  = 0;
 
     // Button bounds (written during draw, read by onTap)
     private final float[] optBtnX = new float[NUM_OPTIONS];
@@ -104,7 +105,7 @@ class HotelReceptionPopup {
      * @param staminaBonus extra stamina added on a full 8-hour sleep while checked in
      */
     void show(String hotelName, String roomType, int nightly, int staminaBonus) {
-        show(hotelName, roomType, nightly, staminaBonus, "");
+        show(hotelName, roomType, nightly, staminaBonus, "", 0);
     }
 
     /**
@@ -117,14 +118,31 @@ class HotelReceptionPopup {
      * @param roomDesc     contextual room description from {@code description_en.json}; may be null
      */
     void show(String hotelName, String roomType, int nightly, int staminaBonus, String roomDesc) {
-        this.hotelName    = hotelName    != null ? hotelName    : "Hotel";
-        this.roomType     = roomType     != null ? roomType     : "Standard Room";
-        this.nightly      = nightly;
-        this.staminaBonus = staminaBonus;
-        this.roomDesc     = roomDesc     != null ? roomDesc     : "";
-        this.visible      = true;
-        this.optBtnH      = 0f;
-        this.cancelH      = 0f;
+        show(hotelName, roomType, nightly, staminaBonus, roomDesc, 0);
+    }
+
+    /**
+     * Opens the popup for the given hotel with an optional room description and
+     * the player's currently remaining prepaid nights.
+     *
+     * @param hotelName     display name of the hotel building
+     * @param roomType      e.g. "Budget Room", "Comfortable Room", "Luxury Suite"
+     * @param nightly       nightly rate in in-game currency
+     * @param staminaBonus  extra stamina added on a full 8-hour sleep while checked in
+     * @param roomDesc      contextual room description from {@code description_en.json}; may be null
+     * @param currentNights number of prepaid nights the player already has (0 = not checked in)
+     */
+    void show(String hotelName, String roomType, int nightly, int staminaBonus,
+              String roomDesc, int currentNights) {
+        this.hotelName     = hotelName    != null ? hotelName    : "Hotel";
+        this.roomType      = roomType     != null ? roomType     : "Standard Room";
+        this.nightly       = nightly;
+        this.staminaBonus  = staminaBonus;
+        this.roomDesc      = roomDesc     != null ? roomDesc     : "";
+        this.currentNights = Math.max(0, currentNights);
+        this.visible       = true;
+        this.optBtnH       = 0f;
+        this.cancelH       = 0f;
         Gdx.app.log("HotelReceptionPopup", "Showing " + hotelName
                 + " nightly=$" + nightly + " bonus=+" + staminaBonus);
     }
@@ -218,7 +236,7 @@ class HotelReceptionPopup {
         List<String> descLines = roomDesc != null && !roomDesc.isEmpty()
                 ? WordWrapper.wrap(roomDesc, descAreaW, t -> { glyph.setText(descFont, t); return glyph.width; })
                 : java.util.Collections.<String>emptyList();
-        float descH = descLines.isEmpty() ? 0f : descLines.size() * smallLineH + GAP;
+        float descH = descLines.isEmpty() ? 0f : GAP + descLines.size() * smallLineH + GAP;
 
         // Height: PAD + title + char-size gap + 3 info lines + desc + spacer + 3 option btns + cancel + PAD
         float dialogH = PAD
@@ -294,12 +312,13 @@ class HotelReceptionPopup {
 
         // Room description (italic-style dimmed colour)
         if (!descLines.isEmpty()) {
+            ty -= GAP;  // space above description
             smallFont.setColor(new Color(0.75f, 0.85f, 0.95f, 1f));
             for (String line : descLines) {
                 smallFont.draw(batch, line, dialogX + PAD, ty);
                 ty -= smallLineH;
             }
-            ty -= GAP;
+            ty -= GAP;  // space below description
         }
 
         // Option button labels
@@ -328,7 +347,8 @@ class HotelReceptionPopup {
 
     private String optionLabel(int nights) {
         int total = getDiscountedTotal(nights);
-        String label = nights + (nights == 1 ? " Night" : " Nights") + "  ($" + total + ")";
+        String prefix = currentNights > 0 ? "extra " : "";
+        String label = prefix + nights + (nights == 1 ? " Night" : " Nights") + "  ($" + total + ")";
         if (nights == 2) label += "  -10%";
         if (nights == 3) label += "  -15%";
         return label;
