@@ -236,7 +236,7 @@ class HotelReceptionPopup {
         List<String> descLines = roomDesc != null && !roomDesc.isEmpty()
                 ? WordWrapper.wrap(roomDesc, descAreaW, t -> { glyph.setText(descFont, t); return glyph.width; })
                 : java.util.Collections.<String>emptyList();
-        float descH = descLines.isEmpty() ? 0f : GAP + descLines.size() * smallLineH + GAP;
+        float descH = descLines.isEmpty() ? 0f : GAP + descLines.size() * smallLineH + smallLineH;
 
         // Height: PAD + title + char-size gap + 3 info lines + desc + spacer + 3 option btns + cancel + PAD
         float dialogH = PAD
@@ -318,7 +318,7 @@ class HotelReceptionPopup {
                 smallFont.draw(batch, line, dialogX + PAD, ty);
                 ty -= smallLineH;
             }
-            ty -= GAP;  // space below description
+            ty -= smallLineH;  // space below description (one character height)
         }
 
         // Option button labels
