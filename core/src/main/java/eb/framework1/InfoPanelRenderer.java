@@ -423,7 +423,7 @@ class InfoPanelRenderer {
         // --- Content area ---
         final float SB = MapViewState.SCROLLBAR_THICKNESS;
         float contentStartY = hasButton
-                ? lowestBtnBottom - fontLineH - fontLineH
+                ? lowestBtnBottom - fontLineH
                 : panelH - fontLineH;
         float contentAreaBottom = SB;
         float contentAreaH      = contentStartY - contentAreaBottom;
