@@ -753,14 +753,22 @@ class InfoPanelRenderer {
         equippedItemCount += profile.getUtilityItems().size();
         int equipRows = Math.max(1, equippedItemCount); // at least 1 for "(none)" row
 
+        // Count attributes that are actually displayed (MUSCLE_KG and FAT_KG are hidden)
+        int displayedAttrCount = 0;
+        for (CharacterAttribute attr : attrs) {
+            if (attr != CharacterAttribute.MUSCLE_KG && attr != CharacterAttribute.FAT_KG) {
+                displayedAttrCount++;
+            }
+        }
+
         // Total virtual content height (dynamic, based on actual item count)
         float equipHeaderH = fontLineH;
-        float totalH = fontLineH                            // character name
-                + attrs.length * smallLineH                 // attributes
-                + smallLineH                                // blank separator
-                + equipHeaderH                              // "Equipment" header
-                + equipRows * smallLineH                    // one row per carried item
-                + smallLineH;                               // weight row
+        float totalH = fontLineH                                // character name
+                + displayedAttrCount * smallLineH               // attributes (MUSCLE_KG and FAT_KG hidden)
+                + smallLineH                                    // blank separator
+                + equipHeaderH                                  // "Equipment" header
+                + equipRows * smallLineH                        // one row per carried item
+                + smallLineH;                                   // weight row
         float contentAreaH = panelH - SB;
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
         s.infoScrollY    = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
@@ -787,6 +795,8 @@ class InfoPanelRenderer {
         float spaceW = glyphLayout.width;               // measured once; reused per attribute row
 
         for (CharacterAttribute attr : attrs) {
+            // MUSCLE_KG and FAT_KG are not shown separately; total body weight is shown as WEIGHT_KG
+            if (attr == CharacterAttribute.MUSCLE_KG || attr == CharacterAttribute.FAT_KG) continue;
             int base     = profile.getAttribute(attr.name());
             int locMod   = locationModFor(s.charCellX, s.charCellY, attr);
             int equipMod = profile.getEquipmentModifier(attr);
