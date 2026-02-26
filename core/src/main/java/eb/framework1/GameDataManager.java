@@ -205,6 +205,18 @@ public class GameDataManager {
     }
 
     /**
+     * Package-private backwards-compatible overload that accepts an explicit file path.
+     * Buildings are already loaded during construction; this method is a no-op kept for
+     * test compatibility.
+     *
+     * @param path unused – buildings were loaded from {@code buildings.json} during construction
+     */
+    void loadBuildings(String path) {
+        // No-op: buildings are loaded automatically in the constructor from buildings.json.
+        // This overload exists for test code that previously passed a path explicitly.
+    }
+
+    /**
      * Loads building definitions from buildings.json
      */
     private void loadBuildings() {

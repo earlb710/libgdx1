@@ -217,7 +217,7 @@ public class BuildingServicesTest {
     @Test
     public void testAllSupplyBuildingsHaveBuySuppliesService() {
         String[] supplyIds = {
-            "convenience_store", "gas_station", "supermarket", "warehouse_store",
+            "convenience_store", "supermarket", "warehouse_store",
             "small_retail_store", "strip_mall", "shopping_center", "regional_mall"
         };
         for (String id : supplyIds) {

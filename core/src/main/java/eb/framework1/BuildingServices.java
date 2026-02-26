@@ -353,6 +353,124 @@ final class BuildingServices {
     }
 
     // -------------------------------------------------------------------------
+    // Shop item catalogues
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the list of {@link ShopItem}s available at the given building, or
+     * an empty list if the building has no shop.
+     *
+     * <p>These items are displayed in the {@code ShopPopup} when a shopping
+     * service is selected.  Gear items (equipment) are non-consumable; food,
+     * medicine, and supply items are consumable and support quantity selection.
+     */
+    static List<ShopItem> getShopItems(Building building) {
+        if (building == null || building.getDefinition() == null) {
+            return Collections.emptyList();
+        }
+        String id  = building.getDefinition().getId();
+        String cat = building.getDefinition().getCategory();
+
+        switch (id) {
+            // ---- Security & Surveillance shop -------------------------------
+            case "security_shop":
+                return gearItems();
+
+            // ---- Pharmacy ---------------------------------------------------
+            case "pharmacy":
+                return medicineItems();
+
+            // ---- Gas station / convenience snacks ---------------------------
+            case "gas_station":
+                return snackItems();
+
+            // ---- Grocery / retail supplies ----------------------------------
+            case "convenience_store":
+            case "supermarket":
+            case "warehouse_store":
+            case "small_retail_store":
+            case "strip_mall":
+            case "shopping_center":
+            case "regional_mall":
+                return supplyItems();
+
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    /** Returns the shop title to display in the popup for the given service ID. */
+    static String getShopTitle(Building building, String serviceId) {
+        if (building == null || building.getDefinition() == null) return "Shop";
+        String name = building.getDefinition().getName();
+        return name != null && !name.isEmpty() ? name : "Shop";
+    }
+
+    // ---- Catalogue helpers --------------------------------------------------
+
+    private static List<ShopItem> gearItems() {
+        List<ShopItem> items = new ArrayList<>();
+        items.add(new ShopItem("Pistol",
+                "Semi-automatic handgun. +1 Intimidation.",
+                350, false));
+        items.add(new ShopItem("Binoculars",
+                "High-powered binoculars. +1 Perception.",
+                120, false));
+        items.add(new ShopItem("Camera",
+                "Professional-grade evidence camera.",
+                200, false));
+        items.add(new ShopItem("Pepper Spray",
+                "Defensive aerosol canister. +1 Strength.",
+                50, false));
+        return items;
+    }
+
+    private static List<ShopItem> medicineItems() {
+        List<ShopItem> items = new ArrayList<>();
+        items.add(new ShopItem("Pain Killers",
+                "Relieve pain and restore stamina.",
+                10, true, 2));
+        items.add(new ShopItem("Vitamins",
+                "Daily vitamins to boost recovery.",
+                15, true, 1));
+        items.add(new ShopItem("First Aid Kit",
+                "Treat minor injuries. Restores stamina.",
+                30, true, 3));
+        return items;
+    }
+
+    private static List<ShopItem> snackItems() {
+        List<ShopItem> items = new ArrayList<>();
+        items.add(new ShopItem("Chips",
+                "Quick salty snack.",
+                2, true, 1));
+        items.add(new ShopItem("Energy Drink",
+                "Caffeinated pick-me-up.",
+                3, true, 1));
+        items.add(new ShopItem("Sandwich",
+                "Pre-packed filling sandwich.",
+                5, true, 2));
+        return items;
+    }
+
+    private static List<ShopItem> supplyItems() {
+        List<ShopItem> items = new ArrayList<>();
+        items.add(new ShopItem("Energy Bar",
+                "Compact high-calorie snack.",
+                5, true, 1));
+        items.add(new ShopItem("Water Bottle",
+                "Stay hydrated on the go.",
+                3, true, 1));
+        items.add(new ShopItem("First Aid Kit",
+                "Basic medical supplies.",
+                30, true, 3));
+        items.add(new ShopItem("Notebook & Pen",
+                "For taking notes in the field.",
+                8, false));
+        return items;
+    }
+
+    // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
 
