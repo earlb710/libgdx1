@@ -35,16 +35,17 @@ import java.util.List;
  */
 class ShopPopup {
 
-    private static final Color BG_COLOR      = new Color(0.06f, 0.10f, 0.20f, 1f);
-    private static final Color BORDER_COLOR  = new Color(0.70f, 0.85f, 1.00f, 1f);
-    private static final Color TITLE_COLOR   = new Color(1.00f, 0.90f, 0.50f, 1f);
-    private static final Color PRICE_COLOR   = new Color(1.00f, 0.90f, 0.10f, 1f);
-    private static final Color BUY_COLOR     = new Color(0.10f, 0.45f, 0.12f, 1f);
-    private static final Color QTY_BTN_COLOR = new Color(0.20f, 0.30f, 0.50f, 1f);
-    private static final Color CLOSE_COLOR   = new Color(0.40f, 0.10f, 0.10f, 1f);
-    private static final Color ROW_ALT_COLOR = new Color(0.08f, 0.14f, 0.26f, 1f);
-    private static final Color DESC_COLOR    = new Color(0.65f, 0.80f, 0.95f, 1f);
-    private static final Color EMPTY_COLOR   = new Color(0.60f, 0.65f, 0.75f, 1f);
+    private static final Color BG_COLOR        = new Color(0.06f, 0.10f, 0.20f, 1f);
+    private static final Color BORDER_COLOR    = new Color(0.70f, 0.85f, 1.00f, 1f);
+    private static final Color TITLE_COLOR     = new Color(1.00f, 0.90f, 0.50f, 1f);
+    private static final Color PRICE_COLOR     = new Color(1.00f, 0.90f, 0.10f, 1f);
+    private static final Color BUY_COLOR       = new Color(0.10f, 0.45f, 0.12f, 1f);
+    private static final Color QTY_BTN_COLOR   = new Color(0.20f, 0.30f, 0.50f, 1f);
+    private static final Color CLOSE_COLOR     = new Color(0.40f, 0.10f, 0.10f, 1f);
+    private static final Color ROW_ALT_COLOR   = new Color(0.08f, 0.14f, 0.26f, 1f);
+    private static final Color DESC_COLOR      = new Color(0.65f, 0.80f, 0.95f, 1f);
+    private static final Color EMPTY_COLOR     = new Color(0.60f, 0.65f, 0.75f, 1f);
+    private static final Color SEPARATOR_COLOR = new Color(0.25f, 0.35f, 0.55f, 1f);
 
     private static final int MAX_ITEMS   = 20;
     private static final int MIN_QTY     = 1;
@@ -189,73 +190,104 @@ class ShopPopup {
     void draw(int screenW, int screenH) {
         if (!visible) return;
 
-        final float PAD       = 20f;
-        final float GAP       = 8f;
-        final float ROW_PAD_V = 6f;
-        final float BTN_PAD_X = 14f;
-        final float BTN_PAD_Y = 6f;
-        final float MIN_W     = 340f;
-        final float MAX_W     = screenW * 0.92f;
-        final float MAX_H     = screenH * 0.85f;
+        final float PAD         = 20f;
+        final float GAP         = 8f;
+        final float ROW_PAD_V   = 6f;    // vertical padding inside each row
+        final float INNER_GAP   = 4f;    // gap between name/price line and description
+        final float SEPARATOR_H = 1f;    // thin line between rows
+        final float BTN_PAD_X   = 14f;
+        final float BTN_PAD_Y   = 6f;
+        final float MIN_W       = 340f;
+        final float MAX_W       = screenW * 0.92f;
+        final float MAX_H       = screenH * 0.85f;
 
         // --- Font metrics ---
         glyph.setText(font, "Hg");
         float fontH      = glyph.height;
-        float fontLineH  = fontH + GAP;
+        float fontLineH  = fontH + GAP;  // used for title area
         glyph.setText(smallFont, "Hg");
         float smallH     = glyph.height;
         float smallLineH = smallH + GAP;
 
         int count = items == null ? 0 : Math.min(items.size(), MAX_ITEMS);
 
-        // --- Fixed-width columns ---
-        // BUY button
+        // --- Button sizing ---
         glyph.setText(font, "Buy");
         buyBtnW = glyph.width + 2 * BTN_PAD_X;
         buyBtnH = fontH + 2 * BTN_PAD_Y;
 
-        // Quantity control: [-] [nn] [+]
         glyph.setText(font, "-");
         qtyBtnW = glyph.width + 2 * BTN_PAD_X;
         qtyBtnH = buyBtnH;
         glyph.setText(font, "99");
-        float qtyNumW = glyph.width + 8f;
-        float qtyTotalW = 2 * qtyBtnW + qtyNumW + 4f; // [-] + gap + [nn] + gap + [+]
+        float qtyNumW   = glyph.width + 8f;
+        float qtyTotalW = 2 * qtyBtnW + qtyNumW + 4f;
 
-        // Price column (widest price label)
+        // --- Price column width (widest price label) ---
         float maxPriceW = 0f;
         for (int i = 0; i < count; i++) {
             glyph.setText(smallFont, "$" + items.get(i).price);
             if (glyph.width > maxPriceW) maxPriceW = glyph.width;
         }
-        maxPriceW += 8f; // padding
+        maxPriceW += 8f;
 
-        // Close button
+        // --- Close button ---
         glyph.setText(font, "Close");
         float closeBtnW = glyph.width + 2 * BTN_PAD_X;
         float closeBtnH = fontH + 2 * BTN_PAD_Y;
         closeW = closeBtnW;
         closeH = closeBtnH;
 
-        // --- Item name column (takes remaining width) ---
-        // Title row
+        // --- Dialog width ---
         glyph.setText(font, title);
-        float titleW = glyph.width;
-
-        // Dialog width: PAD + nameCol + priceCol + [qtyTotal for consumables] + buyBtnW + PAD + scrollbarW
-        // We must fit at least one consumable row with qty controls.
+        float titleW     = glyph.width;
         float rightCols  = maxPriceW + qtyTotalW + 8f + buyBtnW;
         float minContent = Math.max(titleW, Math.max(closeBtnW, rightCols + 80f));
         float dialogW    = MathUtils.clamp(minContent + 2 * PAD + SCROLLBAR_W, MIN_W, MAX_W);
-        float nameColW   = dialogW - 2 * PAD - SCROLLBAR_W - rightCols - 8f;
-        nameColW         = Math.max(nameColW, 60f);
+        float scrollAreaW = dialogW - 2 * PAD - SCROLLBAR_W - 4f;
+        float nameColW    = Math.max(scrollAreaW - rightCols - 8f, 60f);
 
-        // --- Row heights ---
-        // Each row: item name line + description line (smaller) + vertical padding
-        float rowH       = fontH + smallLineH + 2 * ROW_PAD_V;
+        // --- Pre-compute word-wrapped description lines for each item ---
+        // Descriptions span the name + price column width.
+        final float descWrapW = Math.max(nameColW + maxPriceW, 80f);
+        String[][] descLines = new String[count][];
+        for (int i = 0; i < count; i++) {
+            ShopItem item = items.get(i);
+            if (!item.description.isEmpty()) {
+                java.util.List<String> wrapped = WordWrapper.wrap(
+                        item.description, descWrapW,
+                        t -> { glyph.setText(smallFont, t); return glyph.width; });
+                descLines[i] = wrapped.toArray(new String[0]);
+            } else {
+                descLines[i] = new String[0];
+            }
+        }
 
-        // --- Scrollable area height ---
-        float scrollContentH = count > 0 ? count * rowH : smallLineH;
+        // --- Per-row heights (variable: depends on wrapped description line count) ---
+        // Each row: top-padding + max(fontH,btnH) [name/price/buttons] + optional desc + bottom-padding
+        float topAreaH = Math.max(fontH, buyBtnH);
+        float[] rowHeights = new float[count];
+        for (int i = 0; i < count; i++) {
+            int nDesc = descLines[i].length;
+            rowHeights[i] = 2 * ROW_PAD_V + topAreaH
+                    + (nDesc > 0 ? INNER_GAP + nDesc * smallLineH : 0);
+        }
+
+        // --- Cumulative row offsets from the top of scrollable content ---
+        float[] rowOffsets = new float[count];  // distance from content-top to top of row i
+        if (count > 0) {
+            rowOffsets[0] = 0;
+            for (int i = 1; i < count; i++) {
+                rowOffsets[i] = rowOffsets[i - 1] + rowHeights[i - 1] + SEPARATOR_H;
+            }
+        }
+
+        // --- Scroll content height ---
+        float scrollContentH = (count > 0)
+                ? rowOffsets[count - 1] + rowHeights[count - 1]
+                : smallLineH;
+
+        // --- Dialog height ---
         float fixedH = PAD + fontLineH + GAP   // title
                      + closeBtnH + GAP          // close button at bottom
                      + PAD;
@@ -267,154 +299,160 @@ class ShopPopup {
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;
 
-        // --- Close button (bottom) ---
+        // --- Close button position ---
         closeX = dialogX + (dialogW - closeBtnW) / 2f;
         closeY = dialogY + PAD;
 
         // --- Scrollable content area ---
         float scrollAreaX = dialogX + PAD;
         float scrollAreaY = dialogY + PAD + closeBtnH + GAP;
-        float scrollAreaW = dialogW - 2 * PAD - SCROLLBAR_W - 4f;
         float scrollAreaH = visibleScrollH;
+
+        // contentTop: virtual Y of the top of row 0 (rows flow downward from here)
+        float contentTop = scrollAreaY + scrollAreaH + scrollY;
 
         // --- Background ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dialogW, dialogH);
 
-        // Row backgrounds (alternating) — drawn in scroll space
-        float rowTop = scrollAreaY + scrollAreaH + scrollY; // Y of top of first row content
+        // Alternating row backgrounds
         for (int i = 0; i < count; i++) {
-            float rowY = rowTop - (i + 1) * rowH;
-            if (rowY + rowH < scrollAreaY || rowY > scrollAreaY + scrollAreaH) continue;
-            if (i % 2 == 1) {
-                sr.setColor(ROW_ALT_COLOR);
-                sr.rect(scrollAreaX, Math.max(rowY, scrollAreaY),
-                        scrollAreaW, Math.min(rowH, rowY + rowH - scrollAreaY));
+            if (i % 2 == 0) continue;
+            float rTopY = contentTop - rowOffsets[i];
+            float rBotY = rTopY - rowHeights[i];
+            if (!isRowVisible(rBotY, rowHeights[i], scrollAreaY, scrollAreaH)) continue;
+            float clampedTop = Math.min(rTopY, scrollAreaY + scrollAreaH);
+            float clampedBot = Math.max(rBotY, scrollAreaY);
+            sr.setColor(ROW_ALT_COLOR);
+            sr.rect(scrollAreaX, clampedBot, scrollAreaW, clampedTop - clampedBot);
+        }
+        sr.end();
+
+        // --- Clip to scroll area ---
+        boolean scissorActive = applyScissor(screenH, scrollAreaX, scrollAreaY,
+                scrollAreaW, scrollAreaH);
+
+        // --- Compute button positions and draw button backgrounds ---
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < count; i++) {
+            float rTopY = contentTop - rowOffsets[i];
+            float rBotY = rTopY - rowHeights[i];
+            if (!isRowVisible(rBotY, rowHeights[i], scrollAreaY, scrollAreaH)) continue;
+
+            // Buttons are vertically centered in the top-line area
+            float topAreaCenterY = rTopY - ROW_PAD_V - topAreaH / 2f;
+            float btnY = topAreaCenterY - buyBtnH / 2f;
+            float rightX = scrollAreaX + scrollAreaW;
+
+            buyBtnX[i] = rightX - buyBtnW;
+            buyBtnY[i] = btnY;
+            sr.setColor(BUY_COLOR);
+            sr.rect(buyBtnX[i], btnY, buyBtnW, buyBtnH);
+
+            if (items.get(i).consumable) {
+                float qtyRight = buyBtnX[i] - 8f;
+                plusBtnX[i]  = qtyRight - qtyBtnW;
+                minusBtnX[i] = plusBtnX[i] - qtyNumW - 4f - qtyBtnW;
+                qtyBtnY[i]   = btnY;
+                sr.setColor(QTY_BTN_COLOR);
+                sr.rect(minusBtnX[i], btnY, qtyBtnW, qtyBtnH);
+                sr.rect(plusBtnX[i],  btnY, qtyBtnW, qtyBtnH);
             }
         }
         sr.end();
 
-        // --- Clip to scroll area using scissor ---
-        boolean scissorActive = applyScissor(screenH, scrollAreaX, scrollAreaY,
-                scrollAreaW, scrollAreaH);
-
-        // --- Compute buy/qty button positions and draw shapes ---
-        sr.begin(ShapeRenderer.ShapeType.Filled);
+        // --- Button borders and separator lines (both use ShapeType.Line) ---
+        sr.begin(ShapeRenderer.ShapeType.Line);
         for (int i = 0; i < count; i++) {
-            float rowY   = rowTop - (i + 1) * rowH;
-            float btnY   = rowY + ROW_PAD_V + (rowH - 2 * ROW_PAD_V - buyBtnH) / 2f;
-            float rightX = scrollAreaX + scrollAreaW; // right edge of content
+            float rTopY = contentTop - rowOffsets[i];
+            float rBotY = rTopY - rowHeights[i];
 
-            // BUY button
-            buyBtnX[i] = rightX - buyBtnW;
-            buyBtnY[i] = btnY;
-            if (isRowVisible(rowY, rowH, scrollAreaY, scrollAreaH)) {
-                sr.setColor(BUY_COLOR);
-                sr.rect(buyBtnX[i], btnY, buyBtnW, buyBtnH);
+            if (isRowVisible(rBotY, rowHeights[i], scrollAreaY, scrollAreaH)) {
+                sr.setColor(BORDER_COLOR);
+                sr.rect(buyBtnX[i],     buyBtnY[i],     buyBtnW,     buyBtnH);
+                sr.rect(buyBtnX[i] + 1, buyBtnY[i] + 1, buyBtnW - 2, buyBtnH - 2);
+                if (items.get(i).consumable) {
+                    sr.rect(minusBtnX[i],     qtyBtnY[i],     qtyBtnW,     qtyBtnH);
+                    sr.rect(minusBtnX[i] + 1, qtyBtnY[i] + 1, qtyBtnW - 2, qtyBtnH - 2);
+                    sr.rect(plusBtnX[i],      qtyBtnY[i],      qtyBtnW,     qtyBtnH);
+                    sr.rect(plusBtnX[i] + 1,  qtyBtnY[i] + 1,  qtyBtnW - 2, qtyBtnH - 2);
+                }
             }
 
-            // Qty controls (consumables only)
-            if (items.get(i).consumable) {
-                float qtyRight  = buyBtnX[i] - 8f;
-                plusBtnX[i]     = qtyRight - qtyBtnW;
-                minusBtnX[i]    = plusBtnX[i] - qtyNumW - 4f - qtyBtnW;
-                qtyBtnY[i]     = btnY;
-                if (isRowVisible(rowY, rowH, scrollAreaY, scrollAreaH)) {
-                    sr.setColor(QTY_BTN_COLOR);
-                    sr.rect(minusBtnX[i], btnY, qtyBtnW, qtyBtnH);
-                    sr.rect(plusBtnX[i],  btnY, qtyBtnW, qtyBtnH);
+            // Separator line below each row (except the last)
+            if (i < count - 1) {
+                float sepY = rBotY - SEPARATOR_H / 2f;
+                if (sepY >= scrollAreaY && sepY <= scrollAreaY + scrollAreaH) {
+                    sr.setColor(SEPARATOR_COLOR);
+                    sr.line(scrollAreaX, sepY, scrollAreaX + scrollAreaW, sepY);
                 }
             }
         }
         sr.end();
 
-        // Borders
-        sr.begin(ShapeRenderer.ShapeType.Line);
-        sr.setColor(BORDER_COLOR);
-        for (int i = 0; i < count; i++) {
-            if (!isRowVisible(rowTop - (i + 1) * rowH, rowH, scrollAreaY, scrollAreaH)) continue;
-            sr.rect(buyBtnX[i],     buyBtnY[i],     buyBtnW,     buyBtnH);
-            sr.rect(buyBtnX[i] + 1, buyBtnY[i] + 1, buyBtnW - 2, buyBtnH - 2);
-            if (items.get(i).consumable) {
-                sr.rect(minusBtnX[i],     qtyBtnY[i],     qtyBtnW,     qtyBtnH);
-                sr.rect(minusBtnX[i] + 1, qtyBtnY[i] + 1, qtyBtnW - 2, qtyBtnH - 2);
-                sr.rect(plusBtnX[i],      qtyBtnY[i],      qtyBtnW,     qtyBtnH);
-                sr.rect(plusBtnX[i] + 1,  qtyBtnY[i] + 1,  qtyBtnW - 2, qtyBtnH - 2);
-            }
-        }
-        sr.end();
-
-        // --- Text in scroll area ---
+        // --- Item text ---
         batch.begin();
         for (int i = 0; i < count; i++) {
-            float rowY  = rowTop - (i + 1) * rowH;
-            if (!isRowVisible(rowY, rowH, scrollAreaY, scrollAreaH)) continue;
+            float rTopY = contentTop - rowOffsets[i];
+            float rBotY = rTopY - rowHeights[i];
+            if (!isRowVisible(rBotY, rowHeights[i], scrollAreaY, scrollAreaH)) continue;
 
-            ShopItem item    = items.get(i);
-            float    textTop = rowY + rowH - ROW_PAD_V;
+            ShopItem item = items.get(i);
 
-            // Item name (left, main font)
+            // Name and price are on the SAME line, vertically centered in topAreaH
+            float textY  = rTopY - ROW_PAD_V - (topAreaH - fontH)  / 2f;
+            float smallY = rTopY - ROW_PAD_V - (topAreaH - smallH) / 2f;
+
+            // Item name (left, main font, white)
             font.setColor(Color.WHITE);
-            glyph.setText(font, item.name);
             String nameStr = item.name;
-            // Truncate name if too long for column
+            glyph.setText(font, nameStr);
             while (glyph.width > nameColW && nameStr.length() > 1) {
                 nameStr = nameStr.substring(0, nameStr.length() - 1);
                 glyph.setText(font, nameStr + "…");
             }
             if (!nameStr.equals(item.name)) nameStr = nameStr + "…";
-            font.draw(batch, nameStr, scrollAreaX, textTop);
+            font.draw(batch, nameStr, scrollAreaX, textY);
 
-            // Description (second line, small font)
-            if (!item.description.isEmpty()) {
-                String desc = item.description;
-                glyph.setText(smallFont, desc);
-                float maxDescW = nameColW + maxPriceW;
-                while (glyph.width > maxDescW && desc.length() > 1) {
-                    desc = desc.substring(0, desc.length() - 1);
-                    glyph.setText(smallFont, desc + "…");
-                }
-                if (!desc.equals(item.description)) desc = desc + "…";
+            // Price (same line as name, in yellow, right of name column)
+            String priceStr = "$" + item.price;
+            smallFont.setColor(PRICE_COLOR);
+            smallFont.draw(batch, priceStr, scrollAreaX + nameColW + 4f, smallY);
+
+            // Description lines (multi-line, below the name/price line)
+            if (descLines[i].length > 0) {
+                float descY = rTopY - ROW_PAD_V - topAreaH - INNER_GAP;
                 smallFont.setColor(DESC_COLOR);
-                smallFont.draw(batch, desc, scrollAreaX, textTop - fontH - 2f);
+                for (String line : descLines[i]) {
+                    smallFont.draw(batch, line, scrollAreaX, descY);
+                    descY -= smallLineH;
+                }
             }
 
-            // Price in yellow (right of name column)
-            String priceStr = "$" + item.price;
-            glyph.setText(smallFont, priceStr);
-            float priceX = scrollAreaX + nameColW + 4f;
-            smallFont.setColor(PRICE_COLOR);
-            smallFont.draw(batch, priceStr, priceX,
-                    buyBtnY[i] + (buyBtnH + glyph.height) / 2f);
-
-            // BUY label
+            // Buy label
             glyph.setText(font, "Buy");
             font.setColor(Color.WHITE);
             font.draw(batch, "Buy",
                     buyBtnX[i] + (buyBtnW - glyph.width) / 2f,
                     buyBtnY[i] + (buyBtnH + glyph.height) / 2f);
 
-            // Qty controls for consumables
+            // Qty controls (consumables only)
             if (item.consumable) {
-                // [-]
                 glyph.setText(font, "-");
                 font.setColor(Color.WHITE);
                 font.draw(batch, "-",
                         minusBtnX[i] + (qtyBtnW - glyph.width) / 2f,
-                        qtyBtnY[i] + (qtyBtnH + glyph.height) / 2f);
-                // [+]
+                        qtyBtnY[i]   + (qtyBtnH + glyph.height) / 2f);
                 glyph.setText(font, "+");
                 font.draw(batch, "+",
                         plusBtnX[i] + (qtyBtnW - glyph.width) / 2f,
-                        qtyBtnY[i] + (qtyBtnH + glyph.height) / 2f);
-                // quantity number (between - and +)
+                        qtyBtnY[i]  + (qtyBtnH + glyph.height) / 2f);
                 String qtyStr = String.valueOf(quantities[i]);
                 glyph.setText(font, qtyStr);
                 float qtyNumX = minusBtnX[i] + qtyBtnW + (qtyNumW - glyph.width) / 2f + 2f;
                 font.setColor(Color.WHITE);
-                font.draw(batch, qtyStr,
-                        qtyNumX,
+                font.draw(batch, qtyStr, qtyNumX,
                         qtyBtnY[i] + (qtyBtnH + glyph.height) / 2f);
             }
         }
@@ -433,23 +471,20 @@ class ShopPopup {
             com.badlogic.gdx.Gdx.gl.glDisable(com.badlogic.gdx.graphics.GL20.GL_SCISSOR_TEST);
         }
 
-        // --- Elements outside scroll area ---
-        // Scrollbar
+        // --- Scrollbar ---
         if (maxScrollY > 0f) {
-            float sbX   = dialogX + dialogW - PAD / 2f - SCROLLBAR_W;
-            float sbH   = scrollAreaH;
-            float sbY   = scrollAreaY;
-            float thumbH = Math.max(20f, sbH * (visibleScrollH / (visibleScrollH + maxScrollY)));
-            float thumbY = sbY + (sbH - thumbH) * (1f - scrollY / maxScrollY);
+            float sbX    = dialogX + dialogW - PAD / 2f - SCROLLBAR_W;
+            float thumbH = Math.max(20f, scrollAreaH * (visibleScrollH / (visibleScrollH + maxScrollY)));
+            float thumbY = scrollAreaY + (scrollAreaH - thumbH) * (1f - scrollY / maxScrollY);
             sr.begin(ShapeRenderer.ShapeType.Filled);
             sr.setColor(new Color(0.30f, 0.35f, 0.50f, 1f));
-            sr.rect(sbX, sbY, SCROLLBAR_W, sbH);
+            sr.rect(sbX, scrollAreaY, SCROLLBAR_W, scrollAreaH);
             sr.setColor(new Color(0.55f, 0.65f, 0.85f, 1f));
             sr.rect(sbX, thumbY, SCROLLBAR_W, thumbH);
             sr.end();
         }
 
-        // Dialog border + title (outside scissor)
+        // --- Dialog border, close button, and title (outside scissor) ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(CLOSE_COLOR);
         sr.rect(closeX, closeY, closeW, closeH);
@@ -464,13 +499,11 @@ class ShopPopup {
         sr.end();
 
         batch.begin();
-        // Title
         glyph.setText(font, title);
         font.setColor(TITLE_COLOR);
         font.draw(batch, title,
                 dialogX + (dialogW - glyph.width) / 2f,
                 dialogY + dialogH - PAD);
-        // Close label
         glyph.setText(font, "Close");
         font.setColor(Color.WHITE);
         font.draw(batch, "Close",
