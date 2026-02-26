@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -298,6 +299,10 @@ public class MainScreen implements Screen {
             currentCellServices = java.util.Collections.emptyList();
         }
 
+        if (isAnyPopupVisible()) {
+            drawDimOverlay(state.screenWidth, state.screenHeight);
+        }
+
         if (lookAroundPopup.isVisible()) {
             lookAroundPopup.update(delta);
             lookAroundPopup.draw(state.screenWidth, state.screenHeight, state.infoAreaHeight);
@@ -411,6 +416,42 @@ public class MainScreen implements Screen {
 
     public float getInfoPanelRatio() {
         return state.infoPanelRatio;
+    }
+
+    // -------------------------------------------------------------------------
+    // Popup dim overlay
+    // -------------------------------------------------------------------------
+
+    /** Returns true if any popup or overlay that should dim the background is visible. */
+    private boolean isAnyPopupVisible() {
+        return lookAroundPopup.isVisible()
+            || state.unitInteriorOpen
+            || tirednessPopup.isVisible()
+            || restingPopup.isVisible()
+            || discoveryPopup.isVisible()
+            || serviceResultPopup.isVisible()
+            || stashPopup.isVisible()
+            || putInStashPopup.isVisible()
+            || hotelReceptionPopup.isVisible()
+            || gymInstructorPopup.isVisible()
+            || shopPopup.isVisible()
+            || emailPopup.isVisible()
+            || phonePopup.isVisible()
+            || confirmDropPopup.isVisible()
+            || contextMenu.isVisible()
+            || state.helpVisible
+            || quitConfirming;
+    }
+
+    /** Draws a 50% transparent black overlay over the full screen to dim background content. */
+    private void drawDimOverlay(int screenW, int screenH) {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0f, 0f, 0f, 0.5f);
+        shapeRenderer.rect(0, 0, screenW, screenH);
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
     // -------------------------------------------------------------------------
