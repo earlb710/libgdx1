@@ -147,22 +147,24 @@ public class ProfileSelectionScreen implements Screen {
         TextMeasurer.TextBounds backBounds = TextMeasurer.measure(buttonFont, "Back", 48f, 22f);
         backButton = new Rectangle(50, 50, backBounds.width, backBounds.height);
 
-        // Confirmation dialog buttons – sized to text with modest padding and placed
-        // at the bottom of the dialog so they never overlap the message text.
-        int dialogWidth  = 700;
-        int dialogHeight = 250;
+        // Confirmation dialog buttons – stacked vertically so they never spill
+        // outside the dialog, with enough dialog height to avoid text overlap.
+        int dialogWidth  = 500;
+        int dialogHeight = 320;
         int dialogX      = (Gdx.graphics.getWidth()  - dialogWidth)  / 2;
         int dialogY      = (Gdx.graphics.getHeight() - dialogHeight) / 2;
 
         TextMeasurer.TextBounds yesBounds = TextMeasurer.measure(buttonFont, "Yes, Delete", 24f, 10f);
-        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "No, Cancel",  24f, 10f);
+        TextMeasurer.TextBounds noBounds  = TextMeasurer.measure(buttonFont, "Cancel",      24f, 10f);
+        float btnW       = Math.max(yesBounds.width, noBounds.width);
+        float btnH       = Math.max(yesBounds.height, noBounds.height);
+        float btnX       = dialogX + (dialogWidth - btnW) / 2f;
         float btnGap     = 20f;
-        float totalBtnW  = yesBounds.width + btnGap + noBounds.width;
-        float btnStartX  = dialogX + (dialogWidth - totalBtnW) / 2f;
-        float btnY       = dialogY + 20;
+        float cancelBtnY = dialogY + 30f;
+        float yesBtnY    = cancelBtnY + btnH + btnGap;
 
-        confirmYesButton = new Rectangle(btnStartX,                        btnY, yesBounds.width, yesBounds.height);
-        confirmNoButton  = new Rectangle(btnStartX + yesBounds.width + btnGap, btnY, noBounds.width,  noBounds.height);
+        confirmYesButton = new Rectangle(btnX, yesBtnY,    btnW, btnH);
+        confirmNoButton  = new Rectangle(btnX, cancelBtnY, btnW, btnH);
     }
     
     @Override
@@ -212,8 +214,8 @@ public class ProfileSelectionScreen implements Screen {
         shapeRenderer.end();
         
         // Draw dialog box
-        int dialogWidth = 700;
-        int dialogHeight = 250;
+        int dialogWidth = 500;
+        int dialogHeight = 320;
         int dialogX = (Gdx.graphics.getWidth() - dialogWidth) / 2;
         int dialogY = (Gdx.graphics.getHeight() - dialogHeight) / 2;
         
