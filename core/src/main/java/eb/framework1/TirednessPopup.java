@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * Popup explaining that the character was too tired to act.
  *
- * <p>Shown (full-width at the bottom of the screen, non-blocking of the map) whenever
- * the player attempts a stamina-costing action while stamina is at 2 or below.
+ * <p>Shown (centred on screen, non-blocking of the map) whenever the player attempts
+ * a stamina-costing action while stamina is at 2 or below.
  * The popup describes what automatically happened: the player was sent home and
  * either rested (daytime) or slept until 06:00 (nighttime).
  *
@@ -87,16 +87,17 @@ class TirednessPopup {
 
         // --- Font metrics ---
         glyph.setText(font, "Hg");
-        float fontH  = glyph.height;
+        float fontH      = glyph.height;
+        float titleLineH = fontH + GAP;
+
         glyph.setText(smallFont, "Hg");
-        float smallH = glyph.height;
+        float smallH     = glyph.height;
+        float smallLineH = smallH + GAP;
 
         // --- Button dimensions ---
-        final float BTN_PAD_X = 24f;
-        final float BTN_PAD_Y = 10f;
-        glyph.setText(font, "OK");
-        float okBtnW = glyph.width + 2 * BTN_PAD_X;
-        float okBtnH = fontH + 2 * BTN_PAD_Y;
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyph, "OK", 24f, 10f);
+        float okBtnW = okBounds.width;
+        float okBtnH = okBounds.height;
 
         // --- Content widths ---
         glyph.setText(font, "Too Tired!");
@@ -108,37 +109,21 @@ class TirednessPopup {
         }
 
         // --- Dialog dimensions ---
-        float contentW = Math.max(titleW, Math.max(maxLineW, okBtnW));
+        float contentW = Math.max(titleW, Math.max(maxLineW, okBounds.textWidth));
         float dialogW  = Math.min(screenW * 0.92f, contentW + 2 * PAD);
         okBtnW = Math.min(okBtnW, dialogW - 2 * PAD);
 
-        float linesH = lines.size() * (smallH + GAP);
-        float dialogH = PAD
-                + fontH  + GAP          // title
-                + linesH               // message lines
-                + GAP                  // spacer before button
-                + okBtnH               // OK button
-                + PAD;
+        float btnGap  = Math.max(PAD, titleLineH);
+        float dialogH = PAD + titleLineH + fontH
+                + lines.size() * smallLineH
+                + btnGap + okBtnH + PAD;
         dialogH = Math.min(dialogH, screenH * 0.90f);
 
         float dialogX = (screenW - dialogW) / 2f;
         float dialogY = (screenH - dialogH) / 2f;
 
-        // --- Single top-down layout pass ---
-        float curY = dialogY + dialogH - PAD;
-
-        float titleY = curY;
-        curY -= fontH + GAP;
-
-        float[] lineYs = new float[lines.size()];
-        for (int i = 0; i < lines.size(); i++) {
-            lineYs[i] = curY;
-            curY -= smallH + GAP;
-        }
-        curY -= GAP; // spacer before button
-
         okX = dialogX + (dialogW - okBtnW) / 2f;
-        okY = curY - okBtnH;
+        okY = dialogY + PAD;
         okW = okBtnW;
         okH = okBtnH;
 
@@ -160,14 +145,18 @@ class TirednessPopup {
 
         // --- Text ---
         batch.begin();
-        glyph.setText(font, "Too Tired!");
+        float ty = dialogY + dialogH - PAD - fontH;
+
         font.setColor(TITLE_COLOR);
-        font.draw(batch, "Too Tired!", dialogX + (dialogW - glyph.width) / 2f, titleY);
+        glyph.setText(font, "Too Tired!");
+        font.draw(batch, "Too Tired!", dialogX + (dialogW - glyph.width) / 2f, ty);
+        ty -= titleLineH + fontH;
 
         smallFont.setColor(Color.WHITE);
-        for (int i = 0; i < lines.size(); i++) {
-            glyph.setText(smallFont, lines.get(i));
-            smallFont.draw(batch, lines.get(i), dialogX + (dialogW - glyph.width) / 2f, lineYs[i]);
+        for (String line : lines) {
+            glyph.setText(smallFont, line);
+            smallFont.draw(batch, line, dialogX + (dialogW - glyph.width) / 2f, ty);
+            ty -= smallLineH;
         }
 
         glyph.setText(font, "OK");
