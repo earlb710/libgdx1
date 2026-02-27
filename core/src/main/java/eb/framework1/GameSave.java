@@ -81,7 +81,9 @@ public class GameSave {
              boolean[] buildingDiscovered, boolean[] buildingOwned,
              boolean[] improvementDiscovered,
              Map<EquipmentSlot, String> equipmentNames,
-             List<String> utilityItemNames) {
+             List<String> utilityItemNames,
+             List<CaseFile> caseFiles,
+             String activeCaseId) {
         this.characterName       = characterName;
         this.gender              = gender;
         this.difficulty          = difficulty;
@@ -103,6 +105,9 @@ public class GameSave {
                 equipmentNames != null ? new java.util.EnumMap<>(equipmentNames) : new java.util.EnumMap<>(EquipmentSlot.class));
         this.utilityItemNames = Collections.unmodifiableList(
                 utilityItemNames != null ? new java.util.ArrayList<>(utilityItemNames) : new java.util.ArrayList<>());
+        this.caseFiles = Collections.unmodifiableList(
+                caseFiles != null ? new java.util.ArrayList<>(caseFiles) : new java.util.ArrayList<>());
+        this.activeCaseId = activeCaseId;
     }
 
     // -------------------------------------------------------------------------
@@ -159,7 +164,9 @@ public class GameSave {
                 homeX, homeY,
                 bDisc, bOwned, iDisc,
                 snapshotEquipment(profile),
-                snapshotUtility(profile));
+                snapshotUtility(profile),
+                new java.util.ArrayList<>(profile.getCaseFiles()),
+                profile.getActiveCaseFile() != null ? profile.getActiveCaseFile().getId() : null);
     }
 
     /** Snapshot non-utility slots as slot→name map. */
@@ -215,6 +222,22 @@ public class GameSave {
         for (String name : utilityItemNames) {
             EquipItem item = EquipItem.findByName(name, EquipmentSlot.UTILITY);
             if (item != null) profile.addUtilityItem(item);
+        }
+        // Restore case files and active case
+        CaseFile activeToSet = null;
+        for (CaseFile cf : caseFiles) {
+            profile.addCaseFile(cf);
+            if (activeCaseId != null && activeCaseId.equals(cf.getId())) {
+                activeToSet = cf;
+            }
+        }
+        if (activeCaseId != null && activeToSet != null) {
+            profile.setActiveCaseFile(activeToSet);
+        } else if (activeCaseId == null && !caseFiles.isEmpty()) {
+            // addCaseFile() always sets the last-added case as active.
+            // If the save had no active case (activeCaseId == null) we must
+            // explicitly clear active so the restored profile matches the saved state.
+            profile.setActiveCaseFile(null);
         }
     }
 
@@ -282,4 +305,19 @@ public class GameSave {
     public List<String> getUtilityItemNames() {
         return utilityItemNames; // already unmodifiable
     }
+
+    // -------------------------------------------------------------------------
+    // Case files
+    // -------------------------------------------------------------------------
+
+    /** Snapshot of all case files on the profile at save time (unmodifiable list). */
+    private final List<CaseFile> caseFiles;
+    /** ID of the active case file at save time, or {@code null} if none. */
+    private final String activeCaseId;
+
+    /** Returns an unmodifiable view of the snapshotted case files. */
+    public List<CaseFile> getCaseFiles() { return caseFiles; }
+
+    /** Returns the ID of the case file that was active at save time, or {@code null}. */
+    public String getActiveCaseId() { return activeCaseId; }
 }

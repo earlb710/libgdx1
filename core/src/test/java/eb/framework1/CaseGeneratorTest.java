@@ -46,6 +46,44 @@ public class CaseGeneratorTest {
         assertEquals(8, CaseType.values().length);
     }
 
+    @Test
+    public void caseType_allValuesHaveDifficultyRangeInBounds() {
+        for (CaseType t : CaseType.values()) {
+            int min = t.getMinDifficulty();
+            int max = t.getMaxDifficulty();
+            assertTrue("minDifficulty must be >= 1 for " + t, min >= 1);
+            assertTrue("maxDifficulty must be <= 10 for " + t, max <= 10);
+            assertTrue("minDifficulty must be <= maxDifficulty for " + t, min <= max);
+        }
+    }
+
+    @Test
+    public void caseType_specificDifficultyRanges() {
+        assertEquals(1, CaseType.MISSING_PERSON.getMinDifficulty());
+        assertEquals(5, CaseType.MISSING_PERSON.getMaxDifficulty());
+
+        assertEquals(1, CaseType.INFIDELITY.getMinDifficulty());
+        assertEquals(4, CaseType.INFIDELITY.getMaxDifficulty());
+
+        assertEquals(1, CaseType.THEFT.getMinDifficulty());
+        assertEquals(5, CaseType.THEFT.getMaxDifficulty());
+
+        assertEquals(4, CaseType.FRAUD.getMinDifficulty());
+        assertEquals(9, CaseType.FRAUD.getMaxDifficulty());
+
+        assertEquals(3, CaseType.BLACKMAIL.getMinDifficulty());
+        assertEquals(7, CaseType.BLACKMAIL.getMaxDifficulty());
+
+        assertEquals(5, CaseType.MURDER.getMinDifficulty());
+        assertEquals(10, CaseType.MURDER.getMaxDifficulty());
+
+        assertEquals(2, CaseType.STALKING.getMinDifficulty());
+        assertEquals(6, CaseType.STALKING.getMaxDifficulty());
+
+        assertEquals(5, CaseType.CORPORATE_ESPIONAGE.getMinDifficulty());
+        assertEquals(10, CaseType.CORPORATE_ESPIONAGE.getMaxDifficulty());
+    }
+
     // -------------------------------------------------------------------------
     // DiscoveryMethod enum
     // -------------------------------------------------------------------------
@@ -158,6 +196,7 @@ public class CaseGeneratorTest {
         assertEquals("", cf.getSubjectName());
         assertEquals("", cf.getObjective());
         assertTrue(cf.getLeads().isEmpty());
+        assertNull("storyRoot should be null for manually created cases", cf.getStoryRoot());
     }
 
     @Test
@@ -412,6 +451,17 @@ public class CaseGeneratorTest {
     }
 
     @Test
+    public void generate_complexityIsInRange() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 500);
+            CaseFile cf = gen.generate(type, "2050-05-18 09:00");
+            int c = cf.getComplexity();
+            assertTrue("complexity must be >= 1 for " + type, c >= 1);
+            assertTrue("complexity must be <= 3 for " + type, c <= 3);
+        }
+    }
+
+    @Test
     public void generate_existingCaseFileFieldsIntact() {
         // Verify that generating a case does not break the existing CaseFile API
         CaseGenerator gen = makeGenerator(14L);
@@ -423,8 +473,131 @@ public class CaseGeneratorTest {
     }
 
     // -------------------------------------------------------------------------
+    // CaseGenerator — story tree generation
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void generate_storyRootIsNotNull() {
+        CaseGenerator gen = makeGenerator(15L);
+        CaseFile cf = gen.generate("2050-06-01 09:00");
+        assertNotNull("Generated case must have a story root", cf.getStoryRoot());
+    }
+
+    @Test
+    public void generate_storyRootTypeIsRoot() {
+        CaseGenerator gen = makeGenerator(16L);
+        CaseFile cf = gen.generate("2050-06-01 09:00");
+        assertEquals(CaseStoryNode.NodeType.ROOT, cf.getStoryRoot().getNodeType());
+    }
+
+    @Test
+    public void generate_storyPhaseCountMatchesComplexity() {
+        // Test many seeds to cover all three complexity values across all types.
+        for (CaseType type : CaseType.values()) {
+            for (int seed = 0; seed < 30; seed++) {
+                CaseGenerator gen = makeGenerator(seed + 600L);
+                CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+                int phases = cf.getStoryRoot().getChildren().size();
+                assertEquals("Phase count must equal complexity for type "
+                        + type + " seed " + seed, cf.getComplexity(), phases);
+            }
+        }
+    }
+
+    @Test
+    public void generate_storyPhaseNodesAreAllPlotTwist() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 700L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            for (CaseStoryNode phase : cf.getStoryRoot().getChildren()) {
+                assertEquals("Phase child must be PLOT_TWIST for type " + type,
+                        CaseStoryNode.NodeType.PLOT_TWIST, phase.getNodeType());
+            }
+        }
+    }
+
+    @Test
+    public void generate_storyMajorProgressNodesUnderEachPhase() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 800L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            for (CaseStoryNode phase : cf.getStoryRoot().getChildren()) {
+                assertFalse("Each phase must have major-progress children", phase.getChildren().isEmpty());
+                for (CaseStoryNode major : phase.getChildren()) {
+                    assertEquals("Children of a phase must be MAJOR_PROGRESS for type " + type,
+                            CaseStoryNode.NodeType.MAJOR_PROGRESS, major.getNodeType());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void generate_storyLeafNodesAreAllActions() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 900L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            assertAllLeavesAreActions(cf.getStoryRoot(), type.name());
+        }
+    }
+
+    @Test
+    public void generate_storyNoneCompleteInitially() {
+        CaseGenerator gen = makeGenerator(19L);
+        CaseFile cf = gen.generate("2050-06-01 09:00");
+        assertFalse("Newly generated story tree must not be fully complete",
+                cf.getStoryRoot().isFullyComplete());
+    }
+
+    @Test
+    public void generate_storySecondPhaseLockedInitially() {
+        // If complexity >= 2 the second phase must not be available until first is complete.
+        for (int seed = 0; seed < 50; seed++) {
+            CaseGenerator gen = makeGenerator(seed + 1000L);
+            CaseFile cf = gen.generate("2050-06-01 09:00");
+            CaseStoryNode root = cf.getStoryRoot();
+            if (root.getChildren().size() >= 2) {
+                assertFalse("Second phase must be locked until first phase is complete (seed " + seed + ")",
+                        root.isChildAvailable(1));
+                return; // found a multi-phase case — test passed
+            }
+        }
+        // If all 50 seeds produced complexity-1 cases the assertion is vacuously true;
+        // generate_storyPhaseCountMatchesComplexity covers the multi-phase path.
+    }
+
+    @Test
+    public void generate_storySubjectNameAppearedInNodeText() {
+        CaseGenerator gen = makeGenerator(20L);
+        CaseFile cf = gen.generate(CaseType.MISSING_PERSON, "2050-06-01 09:00");
+        String subject = cf.getSubjectName();
+        assertTrue("Subject name should appear somewhere in the story tree text",
+                anyNodeContains(cf.getStoryRoot(), subject));
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /** Recursively asserts that every leaf in the tree has type ACTION. */
+    private static void assertAllLeavesAreActions(CaseStoryNode node, String context) {
+        if (node.getChildren().isEmpty()) {
+            assertEquals("Leaf node must be ACTION for " + context
+                    + ", got " + node.getNodeType(), CaseStoryNode.NodeType.ACTION, node.getNodeType());
+        } else {
+            for (CaseStoryNode child : node.getChildren()) {
+                assertAllLeavesAreActions(child, context);
+            }
+        }
+    }
+
+    /** Returns true if any node's title or description contains the given text. */
+    private static boolean anyNodeContains(CaseStoryNode node, String text) {
+        if (node.getTitle().contains(text) || node.getDescription().contains(text)) return true;
+        for (CaseStoryNode child : node.getChildren()) {
+            if (anyNodeContains(child, text)) return true;
+        }
+        return false;
+    }
 
     /** Builds a CaseGenerator backed by seeded name lists and a seeded Random. */
     private static CaseGenerator makeGenerator(long seed) {

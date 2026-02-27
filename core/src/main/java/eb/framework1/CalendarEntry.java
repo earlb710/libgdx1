@@ -10,26 +10,41 @@ class CalendarEntry {
     /** Map cell of the appointment location; -1 if unknown. */
     final int    locationCellX;
     final int    locationCellY;
+    /**
+     * Full name of the person the player is meeting (e.g. "Alice Smith").
+     * Empty string when the appointment has no specific named contact (e.g. NYPD crime scene).
+     * When non-empty, the info-panel shows a "Meet [contactName]" button within 2 hours of the
+     * appointment time.
+     */
+    final String contactName;
 
-    /** Convenience constructor with no reward (backward-compat). */
+    /** Convenience constructor with no reward and no contact name (backward-compat). */
     CalendarEntry(String dateTime, String title, String location) {
-        this(dateTime, title, location, 0, null, -1, -1);
+        this(dateTime, title, location, 0, null, -1, -1, "");
     }
 
     CalendarEntry(String dateTime, String title, String location,
                   int rewardMoney, String rewardItemName) {
-        this(dateTime, title, location, rewardMoney, rewardItemName, -1, -1);
+        this(dateTime, title, location, rewardMoney, rewardItemName, -1, -1, "");
     }
 
     CalendarEntry(String dateTime, String title, String location,
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY) {
-        this.dateTime       = dateTime != null ? dateTime : "";
-        this.title          = title    != null ? title    : "";
-        this.location       = location != null ? location : "";
+        this(dateTime, title, location, rewardMoney, rewardItemName, locationCellX, locationCellY, "");
+    }
+
+    CalendarEntry(String dateTime, String title, String location,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY,
+                  String contactName) {
+        this.dateTime       = dateTime     != null ? dateTime     : "";
+        this.title          = title        != null ? title        : "";
+        this.location       = location     != null ? location     : "";
         this.rewardMoney    = Math.max(0, rewardMoney);
         this.rewardItemName = rewardItemName;
         this.locationCellX  = locationCellX;
         this.locationCellY  = locationCellY;
+        this.contactName    = contactName  != null ? contactName  : "";
     }
 }

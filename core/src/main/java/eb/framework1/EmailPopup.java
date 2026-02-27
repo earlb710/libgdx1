@@ -44,33 +44,49 @@ class EmailPopup {
         /** Map cell of the appointment location; -1 if unknown. */
         final int    locationCellX;
         final int    locationCellY;
+        /**
+         * Full name of the person to meet (e.g. "Alice Smith").
+         * Empty string when there is no named contact (e.g. NYPD crime scene).
+         * Forwarded to {@link CalendarEntry#contactName} when the email is accepted.
+         */
+        final String calendarContactName;
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation) {
-            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1);
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1, "");
         }
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation,
                   int rewardMoney, String rewardItemName) {
             this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
-                    rewardMoney, rewardItemName, -1, -1);
+                    rewardMoney, rewardItemName, -1, -1, "");
         }
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation,
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY) {
-            this.from             = from             != null ? from             : "";
-            this.subject          = subject          != null ? subject          : "";
-            this.body             = body             != null ? body             : "";
-            this.calendarTitle    = calendarTitle    != null ? calendarTitle    : "";
-            this.calendarDateTime = calendarDateTime != null ? calendarDateTime : "";
-            this.calendarLocation = calendarLocation != null ? calendarLocation : "";
-            this.rewardMoney      = Math.max(0, rewardMoney);
-            this.rewardItemName   = rewardItemName;
-            this.locationCellX    = locationCellX;
-            this.locationCellY    = locationCellY;
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
+                    rewardMoney, rewardItemName, locationCellX, locationCellY, "");
+        }
+
+        EmailData(String from, String subject, String body,
+                  String calendarTitle, String calendarDateTime, String calendarLocation,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY,
+                  String calendarContactName) {
+            this.from                 = from             != null ? from             : "";
+            this.subject              = subject          != null ? subject          : "";
+            this.body                 = body             != null ? body             : "";
+            this.calendarTitle        = calendarTitle    != null ? calendarTitle    : "";
+            this.calendarDateTime     = calendarDateTime != null ? calendarDateTime : "";
+            this.calendarLocation     = calendarLocation != null ? calendarLocation : "";
+            this.rewardMoney          = Math.max(0, rewardMoney);
+            this.rewardItemName       = rewardItemName;
+            this.locationCellX        = locationCellX;
+            this.locationCellY        = locationCellY;
+            this.calendarContactName  = calendarContactName != null ? calendarContactName : "";
         }
     }
 
