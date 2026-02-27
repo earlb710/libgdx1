@@ -188,8 +188,26 @@ class MeetPopup {
     // -------------------------------------------------------------------------
 
     /**
-     * Draws the meet popup.
+     * Draws the meet popup spanning the full screen width.
      * Does nothing when {@link #isVisible()} is {@code false}.
+     *
+     * <p>Layout (top → bottom, each element placed with a single top-down
+     * {@code curY} tracker so spacing is consistent and easy to audit):
+     * <pre>
+     *   PAD
+     *   title (font)
+     *   SECTION_GAP + title-divider + SECTION_GAP
+     *   "Client:" label (smallFont, coloured)
+     *   introLines × lineH
+     *   SECTION_GAP + divider + SECTION_GAP
+     *   "You:" label (smallFont, coloured)
+     *   replyLines × lineH
+     *   SECTION_GAP + divider + SECTION_GAP
+     *   nQ × (BTN_H + BTN_GAP)   question buttons
+     *   SECTION_GAP
+     *   CLOSE_H                   close button
+     *   PAD
+     * </pre>
      *
      * @param screenW screen width in pixels
      * @param screenH screen height in pixels
@@ -197,166 +215,211 @@ class MeetPopup {
     void draw(int screenW, int screenH) {
         if (!visible) return;
 
-        final float PAD      = 20f;
-        final float GAP      = 8f;
-        final float BTN_H_PX = 30f;
-        final float CLOSE_H  = 28f;
+        // ---- Layout constants ----
+        final float PAD         = 16f;  // inner horizontal padding and top/bottom pad
+        final float LINE_GAP    = 4f;   // vertical gap between consecutive text lines
+        final float SECTION_GAP = 12f;  // vertical gap between major content sections
+        final float DIVIDER_H   = 1f;   // height of section-divider line
+        final float BTN_H       = 32f;  // question button height
+        final float BTN_GAP     = 6f;   // gap between consecutive question buttons
+        final float CLOSE_H     = 32f;  // close button height
 
-        // Font metrics
+        // ---- Font metrics ----
         glyph.setText(font, "Hg");
-        float fontH = glyph.height;
+        float fontH  = glyph.height;
         glyph.setText(smallFont, "Hg");
         float smallH = glyph.height;
+        float lineH  = smallH + LINE_GAP;
 
-        // Dialog width
-        float dW = Math.min(440f, screenW * 0.90f);
+        // ---- Full-width dialog ----
+        float dW    = screenW;
         float innerW = dW - PAD * 2f;
         dialogW = dW;
+        dialogX = 0f;
 
-        // Measure wrapped text heights
-        WordWrapper.WidthMeasurer measurer = t -> {
+        // ---- Word-wrap both text blocks to the inner width ----
+        WordWrapper.WidthMeasurer msr = t -> {
             glyph.setText(smallFont, t);
             return glyph.width;
         };
-        List<String> introLines = WordWrapper.wrap(introText, innerW, measurer);
-        List<String> replyLines = WordWrapper.wrap(replyText, innerW, measurer);
-
-        float introH = introLines.size() * (smallH + GAP / 2f);
-        float replyH = replyLines.size() * (smallH + GAP / 2f);
+        List<String> introLines = WordWrapper.wrap(introText, innerW, msr);
+        List<String> replyLines = WordWrapper.wrap(replyText, innerW, msr);
 
         int nQ = questions.size();
-        qBtnH = BTN_H_PX;
+        qBtnH = BTN_H;
 
-        float questionsH = nQ > 0 ? nQ * (BTN_H_PX + GAP) : 0f;
+        // ---- Compute required dialog height from the layout formula ----
+        // Each term corresponds to exactly one visual element in order.
+        float dH = PAD                                          // top pad
+                + fontH + SECTION_GAP                          // title text + gap below
+                + DIVIDER_H + SECTION_GAP                      // title divider + gap below
+                + lineH                                        // "Client:" label
+                + introLines.size() * lineH                    // intro text lines
+                + SECTION_GAP                                  // gap before intro divider
+                + DIVIDER_H + SECTION_GAP                      // intro/reply divider + gap below
+                + lineH                                        // "You:" label
+                + replyLines.size() * lineH                    // reply text lines
+                + SECTION_GAP                                  // gap before reply divider
+                + DIVIDER_H + SECTION_GAP                      // reply/questions divider + gap below
+                + nQ * (BTN_H + BTN_GAP)                       // question buttons (incl. gap after last)
+                + SECTION_GAP                                  // gap between questions and close
+                + CLOSE_H                                      // close button
+                + PAD;                                         // bottom pad
 
-        float dH = PAD
-                + fontH + GAP          // title
-                + GAP                  // spacer
-                + smallH + GAP / 2f    // "Client:" label
-                + introH + GAP         // intro text
-                + 2f                   // divider
-                + GAP
-                + smallH + GAP / 2f    // "You:" label
-                + replyH + GAP         // reply text
-                + 2f                   // divider
-                + GAP
-                + questionsH           // question buttons
-                + GAP
-                + CLOSE_H              // close button
-                + PAD;
-
-        dH = MathUtils.clamp(dH, 240f, screenH * 0.92f);
+        // Never taller than the screen; never shorter than 240px or half the screen height.
+        dH = MathUtils.clamp(dH, Math.max(240f, screenH * 0.50f), (float) screenH);
         dialogH = dH;
-
-        dialogX = (screenW - dW) / 2f;
         dialogY = (screenH - dH) / 2f;
 
-        // ---- Background ----
+        // ---- Top-down position tracking ----
+        // 'curY' is the Y of the TOP of the next element to be placed.
+        // In libGDX Y=0 is at the screen bottom, so curY decreases as we move
+        // visually downward.  For text: font.draw(batch, text, x, curY) places
+        // the text top at curY; the glyph extends downward to curY-smallH.
+        // For button rects: qBtnY[i] = curY - BTN_H (the rect's bottom edge).
+        float curY = dialogY + dH - PAD;
+
+        // Title
+        float titleY = curY;
+        curY -= fontH + SECTION_GAP;
+
+        // Title divider
+        float titleDivY = curY;
+        curY -= DIVIDER_H + SECTION_GAP;
+
+        // "Client:" label
+        float introLabelY = curY;
+        curY -= lineH;
+
+        // Intro text lines
+        float[] introLineY = new float[introLines.size()];
+        for (int i = 0; i < introLines.size(); i++) {
+            introLineY[i] = curY;
+            curY -= lineH;
+        }
+        curY -= SECTION_GAP;
+
+        // Intro / reply divider
+        float introDivY = curY;
+        curY -= DIVIDER_H + SECTION_GAP;
+
+        // "You:" label
+        float replyLabelY = curY;
+        curY -= lineH;
+
+        // Reply text lines
+        float[] replyLineY = new float[replyLines.size()];
+        for (int i = 0; i < replyLines.size(); i++) {
+            replyLineY[i] = curY;
+            curY -= lineH;
+        }
+        curY -= SECTION_GAP;
+
+        // Reply / questions divider
+        float replyDivY = curY;
+        curY -= DIVIDER_H + SECTION_GAP;
+
+        // Question buttons (rect bottom = curY - BTN_H)
+        for (int i = 0; i < nQ; i++) {
+            qBtnY[i] = curY - BTN_H;
+            qBtnX[i] = dialogX + PAD;
+            qBtnW[i] = innerW;
+            curY -= BTN_H + BTN_GAP;
+        }
+        curY -= SECTION_GAP;
+
+        // Close button (rect bottom = curY - CLOSE_H)
+        closeBtnY = curY - CLOSE_H;
+        closeBtnX = dialogX + PAD;
+        closeBtnW = innerW;
+        closeBtnH = CLOSE_H;
+
+        // ---- Shapes: filled ----
         sr.begin(ShapeRenderer.ShapeType.Filled);
+
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dW, dH);
 
-        // Question button fills
-        float curY = dialogY + PAD + CLOSE_H + GAP;
-        for (int i = nQ - 1; i >= 0; i--) {
-            curY += GAP;
+        for (int i = 0; i < nQ; i++) {
             sr.setColor(questionAsked[i] ? BTN_FILL_ASKED : BTN_FILL);
-            sr.rect(dialogX + PAD, curY, innerW, BTN_H_PX);
-            qBtnX[i] = dialogX + PAD;
-            qBtnY[i] = curY;
-            qBtnW[i] = innerW;
-            curY += BTN_H_PX;
+            sr.rect(qBtnX[i], qBtnY[i], innerW, BTN_H);
         }
 
-        // Close button fill
-        closeBtnX = dialogX + PAD;
-        closeBtnY = dialogY + PAD;
-        closeBtnW = innerW;
-        closeBtnH = CLOSE_H;
         sr.setColor(CLOSE_FILL);
         sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
         sr.end();
 
-        // ---- Borders / dividers ----
+        // ---- Shapes: borders and dividers ----
         sr.begin(ShapeRenderer.ShapeType.Line);
+
         sr.setColor(BORDER_COLOR);
         sr.rect(dialogX,     dialogY,     dW,     dH);
         sr.rect(dialogX + 1, dialogY + 1, dW - 2, dH - 2);
 
-        // Close button border
+        sr.setColor(DIVIDER_COLOR);
+        sr.line(dialogX + PAD, titleDivY, dialogX + dW - PAD, titleDivY);
+        sr.line(dialogX + PAD, introDivY, dialogX + dW - PAD, introDivY);
+        sr.line(dialogX + PAD, replyDivY, dialogX + dW - PAD, replyDivY);
+
         sr.setColor(CLOSE_BORDER);
         sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
-        // Question button borders
         for (int i = 0; i < nQ; i++) {
             if (qBtnW[i] > 0) {
                 sr.setColor(BTN_BORDER);
-                sr.rect(qBtnX[i], qBtnY[i], qBtnW[i], BTN_H_PX);
+                sr.rect(qBtnX[i], qBtnY[i], qBtnW[i], BTN_H);
             }
         }
-
-        // Divider line below reply block
-        float divY1 = dialogY + PAD + CLOSE_H + GAP + questionsH + GAP;
-        sr.setColor(DIVIDER_COLOR);
-        sr.line(dialogX + PAD, divY1, dialogX + dW - PAD, divY1);
-
-        // Divider line below intro block
-        float divY2 = divY1 + GAP + smallH + GAP / 2f + replyH + GAP;
-        sr.setColor(DIVIDER_COLOR);
-        sr.line(dialogX + PAD, divY2, dialogX + dW - PAD, divY2);
 
         sr.end();
 
         // ---- Text ----
         batch.begin();
 
-        // Title
-        float titleY = dialogY + dH - PAD;
-        String title = "Meeting: " + contactName;
-        glyph.setText(font, title);
+        // Title — centred horizontally
+        String titleStr = "Meeting: " + contactName;
+        glyph.setText(font, titleStr);
         font.setColor(TITLE_COLOR);
-        font.draw(batch, title, dialogX + dW / 2f - glyph.width / 2f, titleY);
+        font.draw(batch, titleStr, dialogX + dW / 2f - glyph.width / 2f, titleY);
 
-        // Close button label
+        // "Client:" label
+        smallFont.setColor(INTRO_LABEL_CLR);
+        smallFont.draw(batch, contactName + ":", dialogX + PAD, introLabelY);
+
+        // Intro text lines
+        smallFont.setColor(INTRO_TEXT_CLR);
+        for (int i = 0; i < introLines.size(); i++) {
+            smallFont.draw(batch, introLines.get(i), dialogX + PAD, introLineY[i]);
+        }
+
+        // "You:" label
+        smallFont.setColor(REPLY_LABEL_CLR);
+        smallFont.draw(batch, "You:", dialogX + PAD, replyLabelY);
+
+        // Reply text lines
+        smallFont.setColor(REPLY_TEXT_CLR);
+        for (int i = 0; i < replyLines.size(); i++) {
+            smallFont.draw(batch, replyLines.get(i), dialogX + PAD, replyLineY[i]);
+        }
+
+        // Question button labels — vertically centred inside each button
+        for (int i = 0; i < nQ; i++) {
+            if (qBtnW[i] <= 0) continue;
+            String label   = questions.get(i);
+            String display = questionAsked[i] ? "\u2713 " + label : label;
+            glyph.setText(smallFont, display);
+            smallFont.setColor(questionAsked[i] ? BTN_ASKED_TEXT : BTN_TEXT);
+            float ty = qBtnY[i] + (BTN_H + glyph.height) / 2f;
+            smallFont.draw(batch, display, qBtnX[i] + 8f, ty);
+        }
+
+        // Close button label — centred
         glyph.setText(smallFont, "Close");
         smallFont.setColor(CLOSE_TEXT);
         smallFont.draw(batch, "Close",
                 closeBtnX + closeBtnW / 2f - glyph.width / 2f,
                 closeBtnY + (closeBtnH + glyph.height) / 2f);
-
-        // Question button labels
-        for (int i = 0; i < nQ; i++) {
-            if (qBtnW[i] <= 0) continue;
-            String label = questions.get(i);
-            String display = questionAsked[i] ? "✓ " + label : label;
-            glyph.setText(smallFont, display);
-            smallFont.setColor(questionAsked[i] ? BTN_ASKED_TEXT : BTN_TEXT);
-            float tx = qBtnX[i] + 8f;
-            float ty = qBtnY[i] + (BTN_H_PX + glyph.height) / 2f;
-            smallFont.draw(batch, display, tx, ty);
-        }
-
-        // "Client:" label + intro text (drawn top-down from divY2 downward)
-        float lineY = divY2 + GAP + smallH + GAP / 2f;
-        smallFont.setColor(INTRO_LABEL_CLR);
-        smallFont.draw(batch, contactName + ":", dialogX + PAD, lineY);
-        for (String line : introLines) {
-            lineY -= smallH + GAP / 2f;
-            smallFont.setColor(INTRO_TEXT_CLR);
-            smallFont.draw(batch, line, dialogX + PAD, lineY);
-        }
-
-        // "You:" label + reply text
-        float replyStartY = divY1 + GAP + smallH + GAP / 2f;
-        smallFont.setColor(REPLY_LABEL_CLR);
-        smallFont.draw(batch, "You:", dialogX + PAD, replyStartY);
-        float rLineY = replyStartY;
-        for (String line : replyLines) {
-            rLineY -= smallH + GAP / 2f;
-            smallFont.setColor(REPLY_TEXT_CLR);
-            smallFont.draw(batch, line, dialogX + PAD, rLineY);
-        }
 
         batch.end();
     }
