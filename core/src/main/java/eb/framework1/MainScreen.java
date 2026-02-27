@@ -1438,7 +1438,6 @@ public class MainScreen implements Screen {
         String buildingName = (cell != null && cell.hasBuilding() && cell.getBuilding().isDiscovered())
                 ? cell.getBuilding().getName() : null;
         boolean atHome = state.charCellX == state.homeCellX && state.charCellY == state.homeCellY;
-        if (buildingName == null && !atHome) return null;
 
         long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
@@ -1446,6 +1445,8 @@ public class MainScreen implements Screen {
             if ("Your Office".equalsIgnoreCase(entry.location)) {
                 locationMatches = atHome;
             } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                // Match by exact cell coordinates. Works even when the building at
+                // those coordinates is undiscovered (e.g. coffee shop not yet visited).
                 locationMatches = state.charCellX == entry.locationCellX
                         && state.charCellY == entry.locationCellY;
             } else {

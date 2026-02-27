@@ -1040,15 +1040,16 @@ class InfoPanelRenderer {
                 ? cell.getBuilding().getName() : null;
         boolean atHome = s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
 
-        if (buildingName == null && !atHome) return null;
-
         long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
                 locationMatches = atHome;
             } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
-                // Match by exact cell coordinates when they are stored on the entry
+                // Match by exact cell coordinates when they are stored on the entry.
+                // This works even if the building at those coordinates is not yet
+                // discovered, so appointments at undiscovered venues (e.g. a coffee
+                // shop the player hasn't visited yet) still show the Meet button.
                 locationMatches = s.charCellX == entry.locationCellX
                         && s.charCellY == entry.locationCellY;
             } else {
