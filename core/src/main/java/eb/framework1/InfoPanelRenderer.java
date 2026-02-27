@@ -1047,6 +1047,10 @@ class InfoPanelRenderer {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
                 locationMatches = atHome;
+            } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                // Match by exact cell coordinates when they are stored on the entry
+                locationMatches = s.charCellX == entry.locationCellX
+                        && s.charCellY == entry.locationCellY;
             } else {
                 locationMatches = buildingName != null
                         && buildingName.equalsIgnoreCase(entry.location);

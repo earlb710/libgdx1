@@ -195,4 +195,62 @@ public class CalendarEntryTest {
     public void within3Hours_malformedAppt_isFalse() {
         assertFalse(isWithinThreeHours("2050-01-02 10:00", "bad-input"));
     }
+
+    // =========================================================================
+    // Cell-coordinate location matching (mirrors findUpcomingAppointmentAtLocation)
+    // =========================================================================
+
+    /**
+     * Mirrors the location-match branch added to
+     * {@code InfoPanelRenderer.findUpcomingAppointmentAtLocation}: when
+     * {@code locationCellX >= 0} the entry is matched by cell coordinates, not
+     * by the {@code location} string.
+     *
+     * @param charX          character's current map cell X
+     * @param charY          character's current map cell Y
+     * @param homeCellX      player home/office cell X
+     * @param homeCellY      player home/office cell Y
+     * @param entryLocation  {@link CalendarEntry#location} string (e.g. "Your Office")
+     * @param entryLocCellX  {@link CalendarEntry#locationCellX} (-1 if unknown)
+     * @param entryLocCellY  {@link CalendarEntry#locationCellY} (-1 if unknown)
+     */
+    private static boolean locationMatchesByCell(
+            int charX, int charY,
+            int homeCellX, int homeCellY,
+            String entryLocation, int entryLocCellX, int entryLocCellY) {
+        if ("Your Office".equalsIgnoreCase(entryLocation)) {
+            return charX == homeCellX && charY == homeCellY;
+        } else if (entryLocCellX >= 0 && entryLocCellY >= 0) {
+            return charX == entryLocCellX && charY == entryLocCellY;
+        } else {
+            // name-based fallback — not tested here
+            return false;
+        }
+    }
+
+    @Test
+    public void cellMatch_charAtExactCell_isTrue() {
+        assertTrue(locationMatchesByCell(3, 5, 0, 0, "Downtown Cafe", 3, 5));
+    }
+
+    @Test
+    public void cellMatch_charAtDifferentCell_isFalse() {
+        assertFalse(locationMatchesByCell(4, 5, 0, 0, "Downtown Cafe", 3, 5));
+    }
+
+    @Test
+    public void cellMatch_noCoordsFallsThrough_isFalse() {
+        // locationCellX/Y == -1 → falls to name branch, which returns false in this helper
+        assertFalse(locationMatchesByCell(3, 5, 0, 0, "Some Building", -1, -1));
+    }
+
+    @Test
+    public void cellMatch_yourOfficeAtHome_isTrue() {
+        assertTrue(locationMatchesByCell(2, 2, 2, 2, "Your Office", -1, -1));
+    }
+
+    @Test
+    public void cellMatch_yourOfficeNotAtHome_isFalse() {
+        assertFalse(locationMatchesByCell(3, 3, 2, 2, "Your Office", -1, -1));
+    }
 }
