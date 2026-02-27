@@ -66,6 +66,7 @@ public final class NpcCharacter {
     private final int cooperativeness;
     private final int honesty;
     private final int nervousness;
+    private final PersonalityProfile personalityProfile;
 
     /**
      * The eleven investigative attributes, keyed by {@link CharacterAttribute}.
@@ -96,6 +97,7 @@ public final class NpcCharacter {
         this.cooperativeness      = b.cooperativeness;
         this.honesty              = b.honesty;
         this.nervousness          = b.nervousness;
+        this.personalityProfile   = b.personalityProfile;
         this.attributes           = Collections.unmodifiableMap(
                 new EnumMap<>(b.attributes));
     }
@@ -185,6 +187,13 @@ public final class NpcCharacter {
      */
     public int getNervousness() { return nervousness; }
 
+    /**
+     * The personality archetype of this NPC.
+     * Determines the ranges from which honesty, nervousness, and cooperativeness
+     * were drawn.  Never {@code null}; defaults to {@link PersonalityProfile#DEFAULT}.
+     */
+    public PersonalityProfile getPersonalityProfile() { return personalityProfile; }
+
     // -------------------------------------------------------------------------
     // Accessors — character attributes
     // -------------------------------------------------------------------------
@@ -264,6 +273,7 @@ public final class NpcCharacter {
         private int    cooperativeness   = 5;
         private int    honesty           = 5;
         private int    nervousness       = 5;
+        private PersonalityProfile personalityProfile = PersonalityProfile.DEFAULT;
         private final Map<CharacterAttribute, Integer> attributes =
                 new EnumMap<>(CharacterAttribute.class);
 
@@ -386,6 +396,20 @@ public final class NpcCharacter {
          */
         public Builder nervousness(int value) {
             this.nervousness = checkRange("nervousness", value);
+            return this;
+        }
+
+        /**
+         * Sets the personality profile for this NPC.
+         * The profile records which archetype was used to generate trait values
+         * so that game systems can query it without re-examining individual
+         * trait numbers.
+         *
+         * @param profile the profile to associate; {@code null} is replaced by
+         *                {@link PersonalityProfile#DEFAULT}
+         */
+        public Builder personalityProfile(PersonalityProfile profile) {
+            this.personalityProfile = profile != null ? profile : PersonalityProfile.DEFAULT;
             return this;
         }
 

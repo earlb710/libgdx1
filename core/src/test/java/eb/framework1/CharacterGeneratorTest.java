@@ -467,6 +467,8 @@ public class CharacterGeneratorTest {
         assertEquals(5, npc.getCooperativeness());
         assertEquals(5, npc.getHonesty());
         assertEquals(5, npc.getNervousness());
+        // default profile
+        assertEquals(PersonalityProfile.DEFAULT, npc.getPersonalityProfile());
         // no attributes set
         assertEquals(0, npc.getAttribute(CharacterAttribute.INTELLIGENCE));
         assertTrue(npc.getAttributes().isEmpty());
@@ -535,5 +537,156 @@ public class CharacterGeneratorTest {
         String s = npc.toString();
         assertTrue(s.contains("str-1"));
         assertTrue(s.contains("Alice Jones"));
+    }
+
+    // =========================================================================
+    // PersonalityProfile enum
+    // =========================================================================
+
+    @Test
+    public void personalityProfile_defaultHasFullRange() {
+        PersonalityProfile p = PersonalityProfile.DEFAULT;
+        assertEquals(1,  p.getMinCooperativeness());
+        assertEquals(10, p.getMaxCooperativeness());
+        assertEquals(1,  p.getMinHonesty());
+        assertEquals(10, p.getMaxHonesty());
+        assertEquals(1,  p.getMinNervousness());
+        assertEquals(10, p.getMaxNervousness());
+    }
+
+    @Test
+    public void personalityProfile_psychopathHasCorrectRanges() {
+        PersonalityProfile p = PersonalityProfile.PSYCHOPATH;
+        // honesty: very low (dishonest)
+        assertTrue("PSYCHOPATH maxHonesty must be <= 2", p.getMaxHonesty() <= 2);
+        assertEquals(1, p.getMinHonesty());
+        // nervousness: very low (confident)
+        assertTrue("PSYCHOPATH maxNervousness must be <= 2", p.getMaxNervousness() <= 2);
+        assertEquals(1, p.getMinNervousness());
+        // cooperativeness: superficially charming (5–9)
+        assertTrue("PSYCHOPATH minCooperativeness must be >= 5", p.getMinCooperativeness() >= 5);
+        assertTrue("PSYCHOPATH maxCooperativeness must be <= 9", p.getMaxCooperativeness() <= 9);
+    }
+
+    @Test
+    public void personalityProfile_allValuesHaveDisplayName() {
+        for (PersonalityProfile p : PersonalityProfile.values()) {
+            assertNotNull(p.getDisplayName());
+            assertFalse(p.getDisplayName().isEmpty());
+        }
+    }
+
+    @Test
+    public void personalityProfile_allValuesHaveDescription() {
+        for (PersonalityProfile p : PersonalityProfile.values()) {
+            assertNotNull(p.getDescription());
+            assertFalse(p.getDescription().isEmpty());
+        }
+    }
+
+    // =========================================================================
+    // CharacterGenerator — PSYCHOPATH profile
+    // =========================================================================
+
+    @Test
+    public void generateSuspect_psychopath_honestyIsVeryLow() {
+        for (int seed = 0; seed < 50; seed++) {
+            NpcCharacter suspect = makeGenerator(seed)
+                    .generateSuspect(CaseType.MURDER, PersonalityProfile.PSYCHOPATH);
+            int h = suspect.getHonesty();
+            assertTrue("PSYCHOPATH honesty must be 1–2 but was " + h, h >= 1 && h <= 2);
+        }
+    }
+
+    @Test
+    public void generateSuspect_psychopath_nervousnessIsVeryLow() {
+        for (int seed = 0; seed < 50; seed++) {
+            NpcCharacter suspect = makeGenerator(seed)
+                    .generateSuspect(CaseType.FRAUD, PersonalityProfile.PSYCHOPATH);
+            int n = suspect.getNervousness();
+            assertTrue("PSYCHOPATH nervousness must be 1–2 but was " + n, n >= 1 && n <= 2);
+        }
+    }
+
+    @Test
+    public void generateSuspect_psychopath_cooperativenessIsHigherRange() {
+        for (int seed = 0; seed < 50; seed++) {
+            NpcCharacter suspect = makeGenerator(seed)
+                    .generateSuspect(CaseType.BLACKMAIL, PersonalityProfile.PSYCHOPATH);
+            int c = suspect.getCooperativeness();
+            assertTrue("PSYCHOPATH cooperativeness must be 5–9 but was " + c,
+                    c >= 5 && c <= 9);
+        }
+    }
+
+    @Test
+    public void generateSuspect_psychopath_profileStoredOnNpc() {
+        NpcCharacter suspect = makeGenerator(42)
+                .generateSuspect(CaseType.MURDER, PersonalityProfile.PSYCHOPATH);
+        assertEquals(PersonalityProfile.PSYCHOPATH, suspect.getPersonalityProfile());
+    }
+
+    @Test
+    public void generateSuspect_defaultProfile_profileStoredOnNpc() {
+        NpcCharacter suspect = makeGenerator(42)
+                .generateSuspect(CaseType.THEFT);
+        assertEquals(PersonalityProfile.DEFAULT, suspect.getPersonalityProfile());
+    }
+
+    @Test
+    public void generateSuspect_nullProfile_treatedAsDefault() {
+        NpcCharacter suspect = makeGenerator(42)
+                .generateSuspect(CaseType.THEFT, null);
+        assertEquals(PersonalityProfile.DEFAULT, suspect.getPersonalityProfile());
+    }
+
+    @Test
+    public void generateSuspect_psychopath_hasAllRequiredAttributes() {
+        NpcCharacter suspect = makeGenerator(99)
+                .generateSuspect(CaseType.STALKING, PersonalityProfile.PSYCHOPATH);
+        assertEquals(CharacterGenerator.INVESTIGATIVE_ATTRIBUTES.length,
+                suspect.getAttributes().size());
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            int v = suspect.getAttribute(attr);
+            assertTrue("Attribute " + attr + " must be 1–10 but was " + v, v >= 1 && v <= 10);
+        }
+    }
+
+    @Test
+    public void generateSuspect_psychopath_allCaseTypes() {
+        for (CaseType type : CaseType.values()) {
+            NpcCharacter suspect = makeGenerator(type.ordinal() + 1000L)
+                    .generateSuspect(type, PersonalityProfile.PSYCHOPATH);
+            assertEquals("Profile must be PSYCHOPATH for type " + type,
+                    PersonalityProfile.PSYCHOPATH, suspect.getPersonalityProfile());
+            assertTrue("honesty out of range for type " + type,
+                    suspect.getHonesty() >= 1 && suspect.getHonesty() <= 2);
+            assertTrue("nervousness out of range for type " + type,
+                    suspect.getNervousness() >= 1 && suspect.getNervousness() <= 2);
+        }
+    }
+
+    @Test
+    public void builder_personalityProfile_nullTreatedAsDefault() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("pp-1").fullName("Test User").gender("M")
+                .personalityProfile(null)
+                .build();
+        assertEquals(PersonalityProfile.DEFAULT, npc.getPersonalityProfile());
+    }
+
+    @Test
+    public void builder_personalityProfile_psychopathSetAndReadBack() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("pp-2").fullName("Test User").gender("M")
+                .personalityProfile(PersonalityProfile.PSYCHOPATH)
+                .honesty(1)
+                .nervousness(2)
+                .cooperativeness(7)
+                .build();
+        assertEquals(PersonalityProfile.PSYCHOPATH, npc.getPersonalityProfile());
+        assertEquals(1, npc.getHonesty());
+        assertEquals(2, npc.getNervousness());
+        assertEquals(7, npc.getCooperativeness());
     }
 }

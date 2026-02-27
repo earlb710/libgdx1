@@ -165,10 +165,33 @@ public class CharacterGenerator {
      * @throws IllegalArgumentException if {@code caseType} is {@code null}
      */
     public NpcCharacter generateSuspect(CaseType caseType) {
+        return generateSuspect(caseType, PersonalityProfile.DEFAULT);
+    }
+
+    /**
+     * Generates an NPC to act as the <em>suspect</em> in the case with an
+     * explicit {@link PersonalityProfile}.
+     *
+     * <p>The profile constrains the randomly generated cooperativeness, honesty,
+     * and nervousness trait values.  For example, {@link PersonalityProfile#PSYCHOPATH}
+     * produces a suspect who is very dishonest (honesty 1–2) and very confident
+     * (nervousness 1–2) while appearing superficially cooperative (5–9).
+     *
+     * <p>Age range: 20–65.
+     *
+     * @param caseType the type of case being investigated; must not be
+     *                 {@code null}
+     * @param profile  the personality archetype to apply; {@code null} is treated
+     *                 as {@link PersonalityProfile#DEFAULT}
+     * @return a fully populated {@link NpcCharacter} with the SUSPECT role
+     * @throws IllegalArgumentException if {@code caseType} is {@code null}
+     */
+    public NpcCharacter generateSuspect(CaseType caseType, PersonalityProfile profile) {
         if (caseType == null) throw new IllegalArgumentException("caseType must not be null");
+        PersonalityProfile effectiveProfile = profile != null ? profile : PersonalityProfile.DEFAULT;
         String gender = randomGender();
         String id     = "char-suspect-" + (++npcCounter);
-        return buildBase(id, gender, 20, 65)
+        return buildBase(id, gender, 20, 65, effectiveProfile)
                 .occupation(suspectOccupation(caseType))
                 .build();
     }
@@ -181,9 +204,13 @@ public class CharacterGenerator {
      * Builds a {@link NpcCharacter.Builder} pre-filled with fields common to
      * all roles: id, name, gender, age, sprite key, personality traits, and
      * the full set of investigative attributes.
+     *
+     * <p>The {@code profile}'s trait ranges constrain cooperativeness, honesty,
+     * and nervousness values.
      */
     private NpcCharacter.Builder buildBase(String id, String gender,
-                                           int minAge, int maxAge) {
+                                           int minAge, int maxAge,
+                                           PersonalityProfile profile) {
         String name      = nameGen.generateFull(gender);
         int    age       = minAge + random.nextInt(maxAge - minAge + 1);
         String spriteKey = pickSprite(gender);
@@ -194,9 +221,13 @@ public class CharacterGenerator {
                 .gender(gender)
                 .age(age)
                 .spriteKey(spriteKey)
-                .cooperativeness(randomAttr())
-                .honesty(randomAttr())
-                .nervousness(randomAttr());
+                .personalityProfile(profile)
+                .cooperativeness(randomInRange(profile.getMinCooperativeness(),
+                                               profile.getMaxCooperativeness()))
+                .honesty(randomInRange(profile.getMinHonesty(),
+                                       profile.getMaxHonesty()))
+                .nervousness(randomInRange(profile.getMinNervousness(),
+                                           profile.getMaxNervousness()));
 
         // Add all eleven investigative attributes, each randomly 1–10.
         for (CharacterAttribute attr : INVESTIGATIVE_ATTRIBUTES) {
@@ -204,6 +235,12 @@ public class CharacterGenerator {
         }
 
         return b;
+    }
+
+    /** Convenience overload using {@link PersonalityProfile#DEFAULT}. */
+    private NpcCharacter.Builder buildBase(String id, String gender,
+                                           int minAge, int maxAge) {
+        return buildBase(id, gender, minAge, maxAge, PersonalityProfile.DEFAULT);
     }
 
     /** Returns {@code "M"} or {@code "F"} at random. */
@@ -214,6 +251,12 @@ public class CharacterGenerator {
     /** Returns a random integer in the range 1–10 (inclusive). */
     private int randomAttr() {
         return ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1);
+    }
+
+    /** Returns a random integer in the range {@code min}–{@code max} (inclusive). */
+    private int randomInRange(int min, int max) {
+        if (min == max) return min;
+        return min + random.nextInt(max - min + 1);
     }
 
     /** Picks a sprite key consistent with the given gender. */
