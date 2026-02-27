@@ -2491,7 +2491,8 @@ public class MainScreen implements Screen {
                         dt,
                         loc,
                         reward, null,
-                        locCellX, locCellY
+                        locCellX, locCellY,
+                        clientName
                 ));
             }
         }
@@ -2521,7 +2522,8 @@ public class MainScreen implements Screen {
         profile.addCalendarEntry(
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
                         email.rewardMoney, email.rewardItemName,
-                        email.locationCellX, email.locationCellY));
+                        email.locationCellX, email.locationCellY,
+                        email.calendarContactName));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));
