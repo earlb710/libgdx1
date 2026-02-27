@@ -755,6 +755,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Meet popup blocks all normal interaction until dismissed
+                if (meetPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;

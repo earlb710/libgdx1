@@ -220,9 +220,7 @@ class MeetPopup {
         final float LINE_GAP    = 4f;   // vertical gap between consecutive text lines
         final float SECTION_GAP = 12f;  // vertical gap between major content sections
         final float DIVIDER_H   = 1f;   // height of section-divider line
-        final float BTN_H       = 32f;  // question button height
         final float BTN_GAP     = 6f;   // gap between consecutive question buttons
-        final float CLOSE_H     = 32f;  // close button height
 
         // ---- Font metrics ----
         glyph.setText(font, "Hg");
@@ -230,6 +228,12 @@ class MeetPopup {
         glyph.setText(smallFont, "Hg");
         float smallH = glyph.height;
         float lineH  = smallH + LINE_GAP;
+
+        // Button heights are derived from the actual measured font height so
+        // text is always contained inside the button on every screen density.
+        final float BTN_V_PAD = 10f;  // vertical padding above/below text inside button
+        final float BTN_H     = smallH + BTN_V_PAD * 2f;  // question button height
+        final float CLOSE_H   = smallH + BTN_V_PAD * 2f;  // close button height
 
         // ---- Full-width dialog ----
         float dW    = screenW;
