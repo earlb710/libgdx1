@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 /**
  * Tests for {@link CalendarEntry}, focused on the {@code contactName} field and
- * the meet-button logic tied to the 2-hour appointment window.
+ * the meet-button logic tied to the 3-hour appointment window.
  */
 public class CalendarEntryTest {
 
@@ -116,12 +116,13 @@ public class CalendarEntryTest {
     }
 
     // =========================================================================
-    // 2-hour window — dateTimeToMinutes mirror (package-access helper)
+    // =========================================================================
+    // 3-hour window — dateTimeToMinutes mirror (package-access helper)
     // =========================================================================
 
     /**
      * Mirrors {@code InfoPanelRenderer.dateTimeToMinutes} exactly, so that the
-     * 2-hour threshold can be tested without a LibGDX runtime.
+     * 3-hour threshold can be tested without a LibGDX runtime.
      */
     static long dateTimeToMinutes(String dt) {
         final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -143,57 +144,55 @@ public class CalendarEntryTest {
         }
     }
 
-    /** Returns true when {@code apptDT} is within 2 hours (120 minutes) of {@code nowDT}. */
-    private static boolean isWithinTwoHours(String nowDT, String apptDT) {
+    /** Returns true when {@code apptDT} is within 3 hours (180 minutes) of {@code nowDT}. */
+    private static boolean isWithinThreeHours(String nowDT, String apptDT) {
         long diff = dateTimeToMinutes(apptDT) - dateTimeToMinutes(nowDT);
-        return diff >= 0 && diff <= 120;
+        return diff >= 0 && diff <= 180;
     }
 
     @Test
-    public void within2Hours_exactly0MinutesAhead_isTrue() {
-        assertTrue(isWithinTwoHours("2050-01-02 10:00", "2050-01-02 10:00"));
+    public void within3Hours_exactly0MinutesAhead_isTrue() {
+        assertTrue(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 10:00"));
     }
 
     @Test
-    public void within2Hours_exactly120MinutesAhead_isTrue() {
-        assertTrue(isWithinTwoHours("2050-01-02 10:00", "2050-01-02 12:00"));
+    public void within3Hours_exactly180MinutesAhead_isTrue() {
+        assertTrue(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 13:00"));
     }
 
     @Test
-    public void within2Hours_121MinutesAhead_isFalse() {
-        assertFalse(isWithinTwoHours("2050-01-02 10:00", "2050-01-02 12:01"));
+    public void within3Hours_181MinutesAhead_isFalse() {
+        assertFalse(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 13:01"));
     }
 
     @Test
-    public void within2Hours_60MinutesAhead_isTrue() {
-        assertTrue(isWithinTwoHours("2050-01-02 10:00", "2050-01-02 11:00"));
+    public void within3Hours_60MinutesAhead_isTrue() {
+        assertTrue(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 11:00"));
     }
 
     @Test
-    public void within2Hours_pastAppointment_isFalse() {
-        assertFalse(isWithinTwoHours("2050-01-02 10:00", "2050-01-02 09:59"));
+    public void within3Hours_120MinutesAhead_isTrue() {
+        assertTrue(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 12:00"));
     }
 
     @Test
-    public void within2Hours_180MinutesAhead_nowOutsideWindow_isFalse() {
-        // Previously the button showed at 3 h (180 min); now it must NOT show.
-        assertFalse("3-hour window should no longer trigger the button",
-                isWithinTwoHours("2050-01-02 10:00", "2050-01-02 13:00"));
+    public void within3Hours_pastAppointment_isFalse() {
+        assertFalse(isWithinThreeHours("2050-01-02 10:00", "2050-01-02 09:59"));
     }
 
     @Test
-    public void within2Hours_crossingMidnight_handledCorrectly() {
-        // 2050-01-02 23:00 + 120 min = 2050-01-03 01:00
-        assertTrue(isWithinTwoHours("2050-01-02 23:00", "2050-01-03 01:00"));
+    public void within3Hours_crossingMidnight_handledCorrectly() {
+        // 2050-01-02 23:00 + 180 min = 2050-01-03 02:00
+        assertTrue(isWithinThreeHours("2050-01-02 23:00", "2050-01-03 02:00"));
     }
 
     @Test
-    public void within2Hours_malformedNow_isFalse() {
-        assertFalse(isWithinTwoHours("bad-input", "2050-01-02 10:00"));
+    public void within3Hours_malformedNow_isFalse() {
+        assertFalse(isWithinThreeHours("bad-input", "2050-01-02 10:00"));
     }
 
     @Test
-    public void within2Hours_malformedAppt_isFalse() {
-        assertFalse(isWithinTwoHours("2050-01-02 10:00", "bad-input"));
+    public void within3Hours_malformedAppt_isFalse() {
+        assertFalse(isWithinThreeHours("2050-01-02 10:00", "bad-input"));
     }
 }

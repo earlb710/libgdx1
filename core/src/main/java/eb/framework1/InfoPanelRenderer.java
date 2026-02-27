@@ -385,7 +385,7 @@ class InfoPanelRenderer {
         s.openPhoneBtnX = btnX; s.openPhoneBtnH = BTN_H; s.openPhoneBtnW = 0f;
         s.openPhoneBtnY = curRowBottom;
 
-        // Appointment button – shown when an upcoming appointment (≤ 2 h) is at the
+        // Appointment button – shown when an upcoming appointment (≤ 3 h) is at the
         // player's current location and the player is viewing their own cell.
         CalendarEntry upcomingAppt = findUpcomingAppointmentAtLocation(s);
         boolean showAppointmentButton = upcomingAppt != null
@@ -1024,7 +1024,7 @@ class InfoPanelRenderer {
     /**
      * Returns the first calendar entry whose {@code location} matches the
      * building the character is currently standing in, AND whose date/time is
-     * between now and 2 hours (120 minutes) in the future.
+     * between now and 3 hours (180 minutes) in the future.
      *
      * <p>Special case: a calendar location of {@code "Your Office"} matches
      * whenever the character is at {@code homeCellX / homeCellY}.
@@ -1053,9 +1053,9 @@ class InfoPanelRenderer {
             }
             if (!locationMatches) continue;
 
-            // Show when the appointment is between now and 2 hours in the future
+            // Show when the appointment is between now and 3 hours in the future
             long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
-            if (diff >= 0 && diff <= 120) return entry;
+            if (diff >= 0 && diff <= 180) return entry;
         }
         return null;
     }
@@ -1064,7 +1064,7 @@ class InfoPanelRenderer {
      * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time to total minutes
      * using the standard 365-day year with per-month day counts.
      * Returns {@link Long#MAX_VALUE} / 2 on malformed input so that a bad
-     * date can never accidentally appear within the 2-hour appointment window.
+     * date can never accidentally appear within the 3-hour appointment window.
      */
     private static long dateTimeToMinutes(String dt) {
         final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
