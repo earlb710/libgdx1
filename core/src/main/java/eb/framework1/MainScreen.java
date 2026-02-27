@@ -74,6 +74,7 @@ public class MainScreen implements Screen {
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
+    private MeetPopup            meetPopup;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
     /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
@@ -284,6 +285,8 @@ public class MainScreen implements Screen {
 
         confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -392,6 +395,10 @@ public class MainScreen implements Screen {
             confirmDropPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (meetPopup.isVisible()) {
+            meetPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -473,6 +480,7 @@ public class MainScreen implements Screen {
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
+            || meetPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -996,6 +1004,19 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Meet popup: tap a question button or close button
+                if (meetPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            meetPopup.onTap(screenX, flippedY);
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -1381,12 +1402,91 @@ public class MainScreen implements Screen {
         if (state.appointmentBtnW <= 0) return;
         if (screenX >= state.appointmentBtnX && screenX <= state.appointmentBtnX + state.appointmentBtnW
                 && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
-            // Switch to the Calendar tab so the player can see the appointment details
-            state.activeInfoTab = "CALENDAR";
-            state.infoScrollY   = 0f;
-            state.infoScrollX   = 0f;
-            Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+            CalendarEntry appt = findUpcomingAppointment();
+            if (appt != null && !appt.contactName.isEmpty()) {
+                // Find a matching case objective to give context to the introduction
+                String caseContext = findCaseContextForContact(appt.contactName);
+                meetPopup.show(appt, caseContext);
+                Gdx.app.log("MainScreen", "Meet popup opened for: " + appt.contactName);
+            } else {
+                // No named contact — fall back to showing the Calendar tab
+                state.activeInfoTab = "CALENDAR";
+                state.infoScrollY   = 0f;
+                state.infoScrollX   = 0f;
+                Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+            }
         }
+    }
+
+    /**
+     * Finds the upcoming appointment at the player's current location within
+     * the 3-hour window, mirroring the logic in
+     * {@link InfoPanelRenderer#findUpcomingAppointmentAtLocation}.
+     */
+    private CalendarEntry findUpcomingAppointment() {
+        if (state.charCellX < 0 || state.charCellY < 0) return null;
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        String buildingName = (cell != null && cell.hasBuilding() && cell.getBuilding().isDiscovered())
+                ? cell.getBuilding().getName() : null;
+        boolean atHome = state.charCellX == state.homeCellX && state.charCellY == state.homeCellY;
+        if (buildingName == null && !atHome) return null;
+
+        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        for (CalendarEntry entry : profile.getCalendarEntries()) {
+            boolean locationMatches;
+            if ("Your Office".equalsIgnoreCase(entry.location)) {
+                locationMatches = atHome;
+            } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                locationMatches = state.charCellX == entry.locationCellX
+                        && state.charCellY == entry.locationCellY;
+            } else {
+                locationMatches = buildingName != null
+                        && buildingName.equalsIgnoreCase(entry.location);
+            }
+            if (!locationMatches) continue;
+            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            if (diff >= 0 && diff <= 180) return entry;
+        }
+        return null;
+    }
+
+    /**
+     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time string to total
+     * minutes, mirroring the helper in {@link InfoPanelRenderer}.
+     */
+    private static long dateTimeToMinutes(String dt) {
+        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        try {
+            String[] halves = dt.split(" ");
+            String[] d = halves[0].split("-");
+            String[] t = halves[1].split(":");
+            int year  = Integer.parseInt(d[0]);
+            int month = Integer.parseInt(d[1]);
+            int day   = Integer.parseInt(d[2]);
+            int hour  = Integer.parseInt(t[0]);
+            int min   = Integer.parseInt(t[1]);
+            long totalDays = (long)(year - 2050) * 365L;
+            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
+            totalDays += day;
+            return totalDays * 24L * 60L + hour * 60L + min;
+        } catch (Exception e) {
+            return Long.MAX_VALUE / 2;
+        }
+    }
+
+    /**
+     * Returns the objective of the first open {@link CaseFile} whose client
+     * name matches {@code contactName}, or an empty string if none is found.
+     */
+    private String findCaseContextForContact(String contactName) {
+        if (contactName == null || contactName.isEmpty()) return "";
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                String obj = cf.getObjective();
+                return (obj != null) ? obj : "";
+            }
+        }
+        return "";
     }
 
     private void checkServiceButtonClick(int screenX, int flippedY) {
@@ -2623,7 +2723,7 @@ public class MainScreen implements Screen {
                         loc,
                         reward, null,
                         locCellX, locCellY,
-                        clientName
+                        clientName, gender
                 ));
             }
         }
@@ -2654,7 +2754,7 @@ public class MainScreen implements Screen {
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
                         email.rewardMoney, email.rewardItemName,
                         email.locationCellX, email.locationCellY,
-                        email.calendarContactName));
+                        email.calendarContactName, email.contactGender));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));

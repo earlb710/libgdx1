@@ -50,17 +50,23 @@ class EmailPopup {
          * Forwarded to {@link CalendarEntry#contactName} when the email is accepted.
          */
         final String calendarContactName;
+        /**
+         * Gender of the contact ({@code "M"} or {@code "F"}).
+         * Forwarded to {@link CalendarEntry#contactGender} when the email is accepted.
+         * Used by {@link ClientIntroductionGenerator} to tailor the Meet introduction.
+         */
+        final String contactGender;
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation) {
-            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1, "");
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation, 0, null, -1, -1, "", "M");
         }
 
         EmailData(String from, String subject, String body,
                   String calendarTitle, String calendarDateTime, String calendarLocation,
                   int rewardMoney, String rewardItemName) {
             this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
-                    rewardMoney, rewardItemName, -1, -1, "");
+                    rewardMoney, rewardItemName, -1, -1, "", "M");
         }
 
         EmailData(String from, String subject, String body,
@@ -68,7 +74,7 @@ class EmailPopup {
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY) {
             this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
-                    rewardMoney, rewardItemName, locationCellX, locationCellY, "");
+                    rewardMoney, rewardItemName, locationCellX, locationCellY, "", "M");
         }
 
         EmailData(String from, String subject, String body,
@@ -76,6 +82,15 @@ class EmailPopup {
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY,
                   String calendarContactName) {
+            this(from, subject, body, calendarTitle, calendarDateTime, calendarLocation,
+                    rewardMoney, rewardItemName, locationCellX, locationCellY, calendarContactName, "M");
+        }
+
+        EmailData(String from, String subject, String body,
+                  String calendarTitle, String calendarDateTime, String calendarLocation,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY,
+                  String calendarContactName, String contactGender) {
             this.from                 = from             != null ? from             : "";
             this.subject              = subject          != null ? subject          : "";
             this.body                 = body             != null ? body             : "";
@@ -87,6 +102,8 @@ class EmailPopup {
             this.locationCellX        = locationCellX;
             this.locationCellY        = locationCellY;
             this.calendarContactName  = calendarContactName != null ? calendarContactName : "";
+            this.contactGender        = (contactGender != null && !contactGender.trim().isEmpty())
+                                        ? contactGender.trim().toUpperCase() : "M";
         }
     }
 

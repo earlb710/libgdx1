@@ -49,6 +49,51 @@ public class CalendarEntryTest {
     }
 
     // =========================================================================
+    // contactGender field
+    // =========================================================================
+
+    @Test
+    public void shortConstructors_contactGenderDefaultsToM() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "Some Event", "Your Office");
+        assertEquals("M", e.contactGender);
+    }
+
+    @Test
+    public void genderConstructor_femaleGenderStoredCorrectly() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "Meeting: Alice Smith",
+                "Downtown Cafe", 200, null, 5, 7, "Alice Smith", "F");
+        assertEquals("F", e.contactGender);
+    }
+
+    @Test
+    public void genderConstructor_maleGenderStoredCorrectly() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "Meeting: Bob Jones",
+                "Your Office", 300, null, 2, 4, "Bob Jones", "M");
+        assertEquals("M", e.contactGender);
+    }
+
+    @Test
+    public void genderConstructor_lowercaseGenderUppercased() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "Meeting: Carol",
+                "Your Office", 100, null, 1, 1, "Carol", "f");
+        assertEquals("F", e.contactGender);
+    }
+
+    @Test
+    public void genderConstructor_nullGenderDefaultsToM() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "NYPD: Crime Scene",
+                "Crime Scene", 500, null, -1, -1, null, null);
+        assertEquals("M", e.contactGender);
+    }
+
+    @Test
+    public void genderConstructor_blankGenderDefaultsToM() {
+        CalendarEntry e = new CalendarEntry("2050-01-02 10:00", "Meeting: Dave",
+                "Your Office", 200, null, 3, 3, "Dave", "  ");
+        assertEquals("M", e.contactGender);
+    }
+
+    // =========================================================================
     // contactName field — other fields still correct
     // =========================================================================
 
