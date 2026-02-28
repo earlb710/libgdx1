@@ -22,7 +22,10 @@ import java.util.List;
  *   <li><strong>Detective reply</strong> — a standard acknowledgement.</li>
  *   <li><strong>Question buttons</strong> — the player taps one to ask a
  *       follow-up question; the button is then marked "ASKED".</li>
- *   <li><strong>Close button</strong> — dismisses the popup.</li>
+ *   <li><strong>Accept / Reject buttons</strong> — appear (above the Close
+ *       button, separated by a divider) once all questions have been asked.</li>
+ *   <li><strong>Close button</strong> — always visible; dismisses the popup
+ *       without accepting or rejecting.</li>
  * </ol>
  *
  * <h3>Usage (MainScreen)</h3>
@@ -32,9 +35,11 @@ import java.util.List;
  *   meetPopup.draw(screenW, screenH);
  *   // on tap:
  *   int result = meetPopup.onTap(screenX, flippedY);
- *   // result >= 0  → question index tapped
- *   // RESULT_CLOSED → close button tapped
- *   // RESULT_MISS   → no interactive area hit
+ *   // result >= 0       → question index tapped
+ *   // RESULT_ACCEPTED   → "Accept Case" button tapped (all questions answered)
+ *   // RESULT_REJECTED   → "Reject Case" button tapped (all questions answered)
+ *   // RESULT_CLOSED     → close button tapped (or confirmed)
+ *   // RESULT_MISS       → no interactive area hit
  * </pre>
  */
 class MeetPopup {
@@ -68,6 +73,19 @@ class MeetPopup {
     private static final Color REJECT_FILL     = new Color(0.40f, 0.10f, 0.10f, 1f);
     private static final Color REJECT_BORDER   = new Color(0.75f, 0.28f, 0.28f, 1f);
     private static final Color REJECT_TEXT     = new Color(0.95f, 0.90f, 0.90f, 1f);
+    private static final Color CLOSE_FILL      = new Color(0.40f, 0.10f, 0.10f, 1f);
+    private static final Color CLOSE_BORDER    = new Color(0.75f, 0.28f, 0.28f, 1f);
+    private static final Color CLOSE_TEXT      = new Color(0.95f, 0.90f, 0.90f, 1f);
+
+    // Confirmation overlay colours
+    private static final Color CONFIRM_BG_COLOR   = new Color(0.05f, 0.08f, 0.14f, 1f);
+    private static final Color CONFIRM_BORDER_CLR = new Color(0.80f, 0.70f, 0.20f, 1f);
+    private static final Color CONFIRM_TEXT_CLR   = new Color(0.95f, 0.90f, 0.70f, 1f);
+    private static final Color CONFIRM_YES_FILL   = new Color(0.50f, 0.10f, 0.10f, 1f);
+    private static final Color CONFIRM_YES_BORDER = new Color(0.85f, 0.25f, 0.25f, 1f);
+    private static final Color CONFIRM_NO_FILL    = new Color(0.10f, 0.25f, 0.42f, 1f);
+    private static final Color CONFIRM_NO_BORDER  = new Color(0.35f, 0.55f, 0.80f, 1f);
+    private static final Color CONFIRM_BTN_TEXT   = new Color(0.95f, 0.90f, 0.90f, 1f);
 
     // ---- Rendering resources ----
     private final SpriteBatch   batch;
@@ -88,8 +106,14 @@ class MeetPopup {
     private float dialogX, dialogY, dialogW, dialogH;
     private float acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH;
     private float rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH;
+    private float closeBtnX, closeBtnY, closeBtnW, closeBtnH;
     private float[] qBtnX, qBtnY, qBtnW;
     private float   qBtnH;
+
+    // ---- Confirmation-close overlay state ----
+    private boolean confirmingClose = false;
+    private float confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH;
+    private float confirmNoBtnX,  confirmNoBtnY,  confirmNoBtnW,  confirmNoBtnH;
 
     // (no instance state needed for word-wrap — WordWrapper is static)
 
@@ -147,11 +171,12 @@ class MeetPopup {
         qBtnY = new float[questions.size()];
         qBtnW = new float[questions.size()];
 
+        confirmingClose = false;
         visible = true;
     }
 
     /** Hides the popup. */
-    void hide() { visible = false; }
+    void hide() { visible = false; confirmingClose = false; }
 
     /**
      * Returns an unmodifiable list of the question texts that were tapped
@@ -179,25 +204,55 @@ class MeetPopup {
      * @param screenX  x coordinate (screen space, 0 = left)
      * @param flippedY y coordinate (OpenGL flipped: 0 = bottom)
      * @return index (≥ 0) of the tapped question, {@link #RESULT_ACCEPTED},
-     *         {@link #RESULT_REJECTED}, or {@link #RESULT_MISS}
+     *         {@link #RESULT_REJECTED}, {@link #RESULT_CLOSED}, or
+     *         {@link #RESULT_MISS}
      */
     int onTap(int screenX, int flippedY) {
         if (!visible) return RESULT_MISS;
 
-        // Accept Case button
-        if (acceptBtnW > 0
+        // When the confirmation overlay is visible only its buttons are active.
+        if (confirmingClose) {
+            if (confirmYesBtnW > 0
+                    && screenX >= confirmYesBtnX && screenX <= confirmYesBtnX + confirmYesBtnW
+                    && flippedY >= confirmYesBtnY && flippedY <= confirmYesBtnY + confirmYesBtnH) {
+                visible = false;
+                confirmingClose = false;
+                return RESULT_CLOSED;
+            }
+            if (confirmNoBtnW > 0
+                    && screenX >= confirmNoBtnX && screenX <= confirmNoBtnX + confirmNoBtnW
+                    && flippedY >= confirmNoBtnY && flippedY <= confirmNoBtnY + confirmNoBtnH) {
+                confirmingClose = false;
+            }
+            return RESULT_MISS;
+        }
+
+        // Accept Case button — only active once all questions answered
+        if (allQuestionsAnswered() && acceptBtnW > 0
                 && screenX >= acceptBtnX && screenX <= acceptBtnX + acceptBtnW
                 && flippedY >= acceptBtnY && flippedY <= acceptBtnY + acceptBtnH) {
             visible = false;
             return RESULT_ACCEPTED;
         }
 
-        // Reject Case button
-        if (rejectBtnW > 0
+        // Reject Case button — only active once all questions answered
+        if (allQuestionsAnswered() && rejectBtnW > 0
                 && screenX >= rejectBtnX && screenX <= rejectBtnX + rejectBtnW
                 && flippedY >= rejectBtnY && flippedY <= rejectBtnY + rejectBtnH) {
             visible = false;
             return RESULT_REJECTED;
+        }
+
+        // Close button — always active
+        if (closeBtnW > 0
+                && screenX >= closeBtnX && screenX <= closeBtnX + closeBtnW
+                && flippedY >= closeBtnY && flippedY <= closeBtnY + closeBtnH) {
+            if (allQuestionsAnswered()) {
+                visible = false;
+                return RESULT_CLOSED;
+            }
+            confirmingClose = true;
+            return RESULT_MISS;
         }
 
         // Question buttons
@@ -215,6 +270,15 @@ class MeetPopup {
         return RESULT_MISS;
     }
 
+    /** Returns {@code true} only when every question button has been tapped. */
+    private boolean allQuestionsAnswered() {
+        if (questionAsked == null) return true;
+        for (boolean asked : questionAsked) {
+            if (!asked) return false;
+        }
+        return true;
+    }
+
     // -------------------------------------------------------------------------
     // Drawing
     // -------------------------------------------------------------------------
@@ -223,21 +287,20 @@ class MeetPopup {
      * Draws the meet popup spanning the full screen width.
      * Does nothing when {@link #isVisible()} is {@code false}.
      *
-     * <p>Layout (top → bottom, each element placed with a single top-down
-     * {@code curY} tracker so spacing is consistent and easy to audit):
+     * <p>Layout (top → bottom):
      * <pre>
      *   PAD
      *   title (font)
      *   SECTION_GAP + title-divider + SECTION_GAP
-     *   "Client:" label (smallFont, coloured)
-     *   introLines × lineH
+     *   "Client:" label   intro text lines
      *   SECTION_GAP + divider + SECTION_GAP
-     *   "You:" label (smallFont, coloured)
-     *   replyLines × lineH
+     *   "You:" label   reply text lines
      *   SECTION_GAP + divider + SECTION_GAP
-     *   nQ × (BTN_H + BTN_GAP)   question buttons
-     *   SECTION_GAP + divider + SECTION_GAP   accept/reject divider
-     *   ACCEPT_H / REJECT_H     accept &amp; reject buttons (side by side)
+     *   nQ × (BTN_H + BTN_GAP)          question buttons
+     *   [SECTION_GAP + divider + SECTION_GAP   (only when all questions answered)
+     *    ACCEPT_H                               accept &amp; reject side by side]
+     *   SECTION_GAP
+     *   CLOSE_H                          close button (always present)
      *   PAD
      * </pre>
      *
@@ -265,8 +328,10 @@ class MeetPopup {
         // text is always contained inside the button on every screen density.
         final float BTN_V_PAD  = 10f;  // vertical padding above/below text inside button
         final float BTN_H      = smallH + BTN_V_PAD * 2f;  // question button height
-        final float ACCEPT_H   = smallH + BTN_V_PAD * 2f;  // accept button height
-        final float REJECT_H   = ACCEPT_H;                  // reject button height (same row)
+        final float ACCEPT_H   = smallH + BTN_V_PAD * 2f;  // accept/reject row height
+        final float CLOSE_H    = smallH + BTN_V_PAD * 2f;  // close button height
+
+        boolean allAnswered = allQuestionsAnswered();
 
         // ---- Full-width dialog ----
         float dW    = screenW;
@@ -286,7 +351,6 @@ class MeetPopup {
         qBtnH = BTN_H;
 
         // ---- Compute required dialog height from the layout formula ----
-        // Each term corresponds to exactly one visual element in order.
         float dH = PAD                                          // top pad
                 + fontH + SECTION_GAP                          // title text + gap below
                 + DIVIDER_H + SECTION_GAP                      // title divider + gap below
@@ -298,11 +362,14 @@ class MeetPopup {
                 + replyLines.size() * lineH                    // reply text lines
                 + SECTION_GAP                                  // gap before reply divider
                 + DIVIDER_H + SECTION_GAP                      // reply/questions divider + gap below
-                + nQ * (BTN_H + BTN_GAP)                       // question buttons (incl. gap after last)
-                + SECTION_GAP                                  // gap before accept/reject divider
-                + DIVIDER_H + SECTION_GAP                      // accept/reject divider + gap below
-                + ACCEPT_H                                     // accept & reject buttons (same row)
+                + nQ * (BTN_H + BTN_GAP)                       // question buttons
+                + SECTION_GAP                                  // gap before accept/reject or close
+                + CLOSE_H                                      // close button (always)
                 + PAD;                                         // bottom pad
+        if (allAnswered) {
+            // Insert accept/reject row above the gap-before-close
+            dH += DIVIDER_H + SECTION_GAP + ACCEPT_H + SECTION_GAP;
+        }
 
         // Never taller than the screen; never shorter than 240px or half the screen height.
         dH = MathUtils.clamp(dH, Math.max(240f, screenH * 0.50f), (float) screenH);
@@ -366,22 +433,34 @@ class MeetPopup {
         }
         curY -= SECTION_GAP;
 
-        // Accept / reject divider
-        float acceptRejectDivY = curY;
-        curY -= DIVIDER_H + SECTION_GAP;
+        // Accept / Reject buttons — only when all questions answered
+        float acceptRejectDivY = 0f;
+        if (allAnswered) {
+            acceptRejectDivY = curY;
+            curY -= DIVIDER_H + SECTION_GAP;
 
-        // Accept and Reject buttons side by side (each half the inner width minus a gap)
-        final float ACTION_BTN_GAP = 8f;
-        float halfW = (innerW - ACTION_BTN_GAP) / 2f;
-        acceptBtnY = curY - ACCEPT_H;
-        acceptBtnX = dialogX + PAD;
-        acceptBtnW = halfW;
-        acceptBtnH = ACCEPT_H;
+            final float ACTION_BTN_GAP = 8f;
+            float halfW = (innerW - ACTION_BTN_GAP) / 2f;
+            acceptBtnY = curY - ACCEPT_H;
+            acceptBtnX = dialogX + PAD;
+            acceptBtnW = halfW;
+            acceptBtnH = ACCEPT_H;
 
-        rejectBtnY = curY - REJECT_H;
-        rejectBtnX = dialogX + PAD + halfW + ACTION_BTN_GAP;
-        rejectBtnW = halfW;
-        rejectBtnH = REJECT_H;
+            rejectBtnY = curY - ACCEPT_H;
+            rejectBtnX = dialogX + PAD + halfW + ACTION_BTN_GAP;
+            rejectBtnW = halfW;
+            rejectBtnH = ACCEPT_H;
+            curY -= ACCEPT_H + SECTION_GAP;
+        } else {
+            acceptBtnW = 0f;
+            rejectBtnW = 0f;
+        }
+
+        // Close button — always at bottom
+        closeBtnY = curY - CLOSE_H;
+        closeBtnX = dialogX + PAD;
+        closeBtnW = innerW;
+        closeBtnH = CLOSE_H;
 
         // ---- Shapes: filled ----
         sr.begin(ShapeRenderer.ShapeType.Filled);
@@ -394,10 +473,15 @@ class MeetPopup {
             sr.rect(qBtnX[i], qBtnY[i], innerW, BTN_H);
         }
 
-        sr.setColor(ACCEPT_FILL);
-        sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
-        sr.setColor(REJECT_FILL);
-        sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        if (allAnswered) {
+            sr.setColor(ACCEPT_FILL);
+            sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
+            sr.setColor(REJECT_FILL);
+            sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        }
+
+        sr.setColor(CLOSE_FILL);
+        sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
         sr.end();
 
@@ -412,12 +496,16 @@ class MeetPopup {
         sr.line(dialogX + PAD, titleDivY, dialogX + dW - PAD, titleDivY);
         sr.line(dialogX + PAD, introDivY, dialogX + dW - PAD, introDivY);
         sr.line(dialogX + PAD, replyDivY, dialogX + dW - PAD, replyDivY);
-        sr.line(dialogX + PAD, acceptRejectDivY, dialogX + dW - PAD, acceptRejectDivY);
+        if (allAnswered) {
+            sr.line(dialogX + PAD, acceptRejectDivY, dialogX + dW - PAD, acceptRejectDivY);
+            sr.setColor(ACCEPT_BORDER);
+            sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
+            sr.setColor(REJECT_BORDER);
+            sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        }
 
-        sr.setColor(ACCEPT_BORDER);
-        sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
-        sr.setColor(REJECT_BORDER);
-        sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        sr.setColor(CLOSE_BORDER);
+        sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
         for (int i = 0; i < nQ; i++) {
             if (qBtnW[i] > 0) {
@@ -468,20 +556,114 @@ class MeetPopup {
             smallFont.draw(batch, display, qBtnX[i] + 8f, ty);
         }
 
-        // Accept Case button label — centred
-        glyph.setText(smallFont, "Accept Case");
-        smallFont.setColor(ACCEPT_TEXT);
-        smallFont.draw(batch, "Accept Case",
-                acceptBtnX + (acceptBtnW - glyph.width) / 2f,
-                acceptBtnY + (acceptBtnH + glyph.height) / 2f);
+        // Accept / Reject button labels — only when all questions answered
+        if (allAnswered) {
+            glyph.setText(smallFont, "Accept Case");
+            smallFont.setColor(ACCEPT_TEXT);
+            smallFont.draw(batch, "Accept Case",
+                    acceptBtnX + (acceptBtnW - glyph.width) / 2f,
+                    acceptBtnY + (acceptBtnH + glyph.height) / 2f);
 
-        // Reject Case button label — centred
-        glyph.setText(smallFont, "Reject Case");
-        smallFont.setColor(REJECT_TEXT);
-        smallFont.draw(batch, "Reject Case",
-                rejectBtnX + (rejectBtnW - glyph.width) / 2f,
-                rejectBtnY + (rejectBtnH + glyph.height) / 2f);
+            glyph.setText(smallFont, "Reject Case");
+            smallFont.setColor(REJECT_TEXT);
+            smallFont.draw(batch, "Reject Case",
+                    rejectBtnX + (rejectBtnW - glyph.width) / 2f,
+                    rejectBtnY + (rejectBtnH + glyph.height) / 2f);
+        }
 
+        // Close button label — always present
+        glyph.setText(smallFont, "Close");
+        smallFont.setColor(CLOSE_TEXT);
+        smallFont.draw(batch, "Close",
+                closeBtnX + closeBtnW / 2f - glyph.width / 2f,
+                closeBtnY + (closeBtnH + glyph.height) / 2f);
+
+        batch.end();
+
+        // ---- Confirmation overlay (drawn on top when confirmingClose is true) ----
+        if (confirmingClose) {
+            drawConfirmationOverlay(screenW, screenH, fontH, smallH);
+        }
+    }
+
+    /**
+     * Draws the "Close without finishing?" confirmation overlay centred on screen.
+     * Also writes the hit-test bounds for the Yes/No buttons so {@link #onTap}
+     * can read them on the next input event.
+     */
+    private void drawConfirmationOverlay(int screenW, int screenH,
+                                         float fontH, float smallH) {
+        final String CONFIRM_MSG = "Close without finishing?";
+        final String YES_LABEL   = "Yes, Close";
+        final String NO_LABEL    = "Keep Going";
+
+        final float CP_PAD     = 20f;
+        final float CP_BTN_VP  = 10f;
+        final float CP_BTN_H   = smallH + CP_BTN_VP * 2f;
+        final float CP_BTN_GAP = 12f;
+
+        glyph.setText(font, CONFIRM_MSG);
+        float msgW  = glyph.width;
+        glyph.setText(smallFont, YES_LABEL);
+        float yesTW = glyph.width;
+        glyph.setText(smallFont, NO_LABEL);
+        float noTW  = glyph.width;
+
+        float yesBW    = Math.max(yesTW + CP_PAD * 2f, 120f);
+        float noBW     = Math.max(noTW  + CP_PAD * 2f, 120f);
+        float btnsRowW = yesBW + CP_BTN_GAP + noBW;
+        float panelW   = Math.max(msgW, btnsRowW) + CP_PAD * 2f;
+        float panelH   = CP_PAD + fontH + CP_PAD + CP_BTN_H + CP_PAD;
+        float panelX   = (screenW - panelW) / 2f;
+        float panelY   = (screenH - panelH) / 2f;
+
+        float btnsStartX = panelX + (panelW - btnsRowW) / 2f;
+        float btnsY      = panelY + CP_PAD;
+
+        confirmYesBtnX = btnsStartX;
+        confirmYesBtnY = btnsY;
+        confirmYesBtnW = yesBW;
+        confirmYesBtnH = CP_BTN_H;
+
+        confirmNoBtnX = btnsStartX + yesBW + CP_BTN_GAP;
+        confirmNoBtnY = btnsY;
+        confirmNoBtnW = noBW;
+        confirmNoBtnH = CP_BTN_H;
+
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(CONFIRM_BG_COLOR);
+        sr.rect(panelX, panelY, panelW, panelH);
+        sr.setColor(CONFIRM_YES_FILL);
+        sr.rect(confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH);
+        sr.setColor(CONFIRM_NO_FILL);
+        sr.rect(confirmNoBtnX, confirmNoBtnY, confirmNoBtnW, confirmNoBtnH);
+        sr.end();
+
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        sr.setColor(CONFIRM_BORDER_CLR);
+        sr.rect(panelX,     panelY,     panelW,     panelH);
+        sr.rect(panelX + 1, panelY + 1, panelW - 2, panelH - 2);
+        sr.setColor(CONFIRM_YES_BORDER);
+        sr.rect(confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH);
+        sr.setColor(CONFIRM_NO_BORDER);
+        sr.rect(confirmNoBtnX, confirmNoBtnY, confirmNoBtnW, confirmNoBtnH);
+        sr.end();
+
+        batch.begin();
+        font.setColor(CONFIRM_TEXT_CLR);
+        font.draw(batch, CONFIRM_MSG,
+                panelX + panelW / 2f - msgW / 2f,
+                panelY + panelH - CP_PAD);
+        glyph.setText(smallFont, YES_LABEL);
+        smallFont.setColor(CONFIRM_BTN_TEXT);
+        smallFont.draw(batch, YES_LABEL,
+                confirmYesBtnX + (confirmYesBtnW - glyph.width) / 2f,
+                confirmYesBtnY + (confirmYesBtnH + glyph.height) / 2f);
+        glyph.setText(smallFont, NO_LABEL);
+        smallFont.setColor(CONFIRM_BTN_TEXT);
+        smallFont.draw(batch, NO_LABEL,
+                confirmNoBtnX + (confirmNoBtnW - glyph.width) / 2f,
+                confirmNoBtnY + (confirmNoBtnH + glyph.height) / 2f);
         batch.end();
     }
 }

@@ -1021,13 +1021,16 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                // Meet popup: tap a question button or close button
+                // Meet popup: tap a question button, accept/reject, or close button
                 if (meetPopup.isVisible()) {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) {
                             int result = meetPopup.onTap(screenX, flippedY);
-                            if (result == MeetPopup.RESULT_CLOSED) {
+                            if (result == MeetPopup.RESULT_ACCEPTED) {
+                                handleMeetingAccepted();
+                            } else if (result == MeetPopup.RESULT_REJECTED
+                                    || result == MeetPopup.RESULT_CLOSED) {
                                 handleMeetingClosed();
                             }
                         }
@@ -1510,6 +1513,30 @@ public class MainScreen implements Screen {
             }
         }
         return "";
+    }
+
+    /**
+     * Called when the player taps "Accept Case".  Generates a new
+     * {@link CaseFile} using {@link CaseGenerator}, adds it to the profile,
+     * then delegates to {@link #handleMeetingClosed()} to record the meeting
+     * note and any asked questions.
+     */
+    private void handleMeetingAccepted() {
+        GameDataManager gdm = game.getGameDataManager();
+        PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
+        if (png != null) {
+            CaseGenerator caseGen = new CaseGenerator(png);
+            CaseFile newCase = caseGen.generate(profile.getGameDateTime());
+            // Use the appointment contact as the client so the case is linked
+            if (currentMeetAppt != null && !currentMeetAppt.contactName.isEmpty()) {
+                newCase.setClientName(currentMeetAppt.contactName);
+            }
+            profile.addCaseFile(newCase);
+            Gdx.app.log("MainScreen", "Case accepted and generated: " + newCase.getName());
+        } else {
+            Gdx.app.log("MainScreen", "Cannot generate case: PersonNameGenerator unavailable");
+        }
+        handleMeetingClosed();
     }
 
     /**
