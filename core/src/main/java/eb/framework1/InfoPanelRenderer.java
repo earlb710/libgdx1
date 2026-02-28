@@ -59,6 +59,9 @@ class InfoPanelRenderer {
     private static final Color DEV_BTN_OFF_BORDER      = new Color(0.45f, 0.45f, 0.45f, 1f);
     private static final Color DEV_BTN_TEXT_ON         = new Color(0.30f, 1.00f, 0.40f, 1f);
     private static final Color DEV_BTN_TEXT_OFF        = new Color(0.55f, 0.55f, 0.55f, 1f);
+    private static final Color DEV_INFO_LABEL_COLOR    = new Color(0.30f, 1.00f, 0.40f, 1f);
+    private static final Color DEV_INFO_HIDDEN_COLOR   = new Color(1.00f, 0.55f, 0.10f, 1f);
+    private static final Color DEV_INFO_HINT_COLOR     = new Color(0.65f, 0.65f, 0.65f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -1400,6 +1403,15 @@ class InfoPanelRenderer {
         // Compute total virtual height so we can set the scroll limit
         CaseStoryNode storyRoot = active.getStoryRoot();
         float totalH = 0;
+        // Dev info block (shown only in developer mode)
+        if (s.developerMode) {
+            totalH += fontLineH; // "[DEV]" header
+            totalH += fontLineH; // Type
+            totalH += fontLineH; // Client
+            totalH += fontLineH; // Subject
+            if (!active.getObjective().isEmpty()) totalH += fontLineH; // Objective
+            totalH += fontLineH; // Complexity
+        }
         totalH += fontLineH;   // Status
         totalH += fontLineH;   // Opened
         if (!active.getDescription().isEmpty()) totalH += fontLineH * 2f;
@@ -1426,6 +1438,19 @@ class InfoPanelRenderer {
         totalH += fontLineH * 0.9f * active.getEvidence().size();
         totalH += fontLineH;                                   // Notes header
         totalH += fontLineH * 0.9f * active.getNotes().size();
+        // Leads section
+        if (s.developerMode) {
+            // Show all leads (discovered + undiscovered)
+            List<CaseLead> allLeads = active.getLeads();
+            totalH += fontLineH;                                           // Leads header
+            totalH += fontLineH * 0.9f * allLeads.size() * 2f;            // 2 lines per lead
+        } else {
+            List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
+            if (!discoveredLeads.isEmpty()) {
+                totalH += fontLineH;                                       // Leads header
+                totalH += fontLineH * 0.9f * discoveredLeads.size();      // 1 line per discovered lead
+            }
+        }
         totalH += PAD;                                         // bottom padding
 
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
@@ -1440,6 +1465,54 @@ class InfoPanelRenderer {
         batch.begin();
         drawScrollY = s.infoScrollY;
         float ty = contentTop - PAD;  // virtual Y cursor (offset by drawScrollY when drawing)
+
+        // ── Developer-mode info block ─────────────────────────────────────────
+        if (s.developerMode) {
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "[DEV INFO]", PAD, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Type: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getCaseType() != null ? active.getCaseType().name() : "—",
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Client: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Client: ");
+            font.setColor(Color.WHITE);
+            String clientVal = active.getClientName().isEmpty() ? "—" : active.getClientName();
+            font.draw(batch, clientVal, PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Subject: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Subject: ");
+            font.setColor(Color.WHITE);
+            String subjectVal = active.getSubjectName().isEmpty() ? "—" : active.getSubjectName();
+            font.draw(batch, subjectVal, PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            if (!active.getObjective().isEmpty()) {
+                font.setColor(DEV_INFO_LABEL_COLOR);
+                font.draw(batch, "Objective: ", PAD, ty + drawScrollY);
+                glyphLayout.setText(font, "Objective: ");
+                font.setColor(Color.WHITE);
+                font.draw(batch, active.getObjective(), PAD + glyphLayout.width, ty + drawScrollY);
+                ty -= fontLineH;
+            }
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Complexity: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Complexity: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(active.getComplexity()),
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+        }
 
         // Status
         font.setColor(LABEL_COLOR);
@@ -1559,6 +1632,53 @@ class InfoPanelRenderer {
             ty -= fontLineH * 0.9f;
         }
         noteFont.setColor(Color.WHITE);
+
+        // Leads
+        List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
+        if (s.developerMode) {
+            // Dev mode: show ALL leads; tag undiscovered ones with [HIDDEN]
+            List<CaseLead> allLeads = active.getLeads();
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Leads: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(allLeads.size()), PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            for (CaseLead lead : allLeads) {
+                if (lead.isDiscovered()) {
+                    smallFont.setColor(Color.WHITE);
+                    smallFont.draw(batch, "\u2022 " + lead.getDescription()
+                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
+                            PAD + 8f, ty + drawScrollY);
+                } else {
+                    smallFont.setColor(DEV_INFO_HIDDEN_COLOR);
+                    smallFont.draw(batch, "\u2022 [HIDDEN] " + lead.getDescription()
+                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
+                            PAD + 8f, ty + drawScrollY);
+                }
+                ty -= fontLineH * 0.9f;
+                smallFont.setColor(DEV_INFO_HINT_COLOR);
+                smallFont.draw(batch, "    Hint: " + lead.getHint(), PAD + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        } else if (!discoveredLeads.isEmpty()) {
+            // Normal mode: only show leads the player has uncovered
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Leads: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(discoveredLeads.size()),
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            for (CaseLead lead : discoveredLeads) {
+                smallFont.setColor(NOVEL_COLOR);
+                smallFont.draw(batch, "\u2022 " + lead.getDescription(),
+                        PAD + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        }
 
         batch.end();
         drawScrollY = 0f;
