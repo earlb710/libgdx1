@@ -1029,10 +1029,11 @@ public class MainScreen implements Screen {
                             int result = meetPopup.onTap(screenX, flippedY);
                             if (result == MeetPopup.RESULT_ACCEPTED) {
                                 handleMeetingAccepted();
-                            } else if (result == MeetPopup.RESULT_REJECTED
-                                    || result == MeetPopup.RESULT_CLOSED) {
+                            } else if (result == MeetPopup.RESULT_REJECTED) {
                                 handleMeetingClosed();
                             }
+                            // RESULT_CLOSED: popup is hidden but question state is
+                            // preserved; no meeting notes recorded until accept/reject.
                         }
                         infoAreaPressed = false;
                     }

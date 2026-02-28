@@ -22,10 +22,11 @@ import java.util.List;
  *   <li><strong>Detective reply</strong> — a standard acknowledgement.</li>
  *   <li><strong>Question buttons</strong> — the player taps one to ask a
  *       follow-up question; the button is then marked "ASKED".</li>
- *   <li><strong>Accept / Reject buttons</strong> — appear (above the Close
- *       button, separated by a divider) once all questions have been asked.</li>
- *   <li><strong>Close button</strong> — always visible; dismisses the popup
- *       without accepting or rejecting.</li>
+ *   <li>While questions remain unanswered: <strong>Close button</strong> —
+ *       dismisses the popup (with confirmation); question progress is preserved
+ *       so re-opening the popup continues where the player left off.</li>
+ *   <li>Once all questions are answered: <strong>Accept / Reject buttons</strong>
+ *       (separated by a divider) replace the Close button.</li>
  * </ol>
  *
  * <h3>Usage (MainScreen)</h3>
@@ -38,7 +39,8 @@ import java.util.List;
  *   // result >= 0       → question index tapped
  *   // RESULT_ACCEPTED   → "Accept Case" button tapped (all questions answered)
  *   // RESULT_REJECTED   → "Reject Case" button tapped (all questions answered)
- *   // RESULT_CLOSED     → close button tapped (or confirmed)
+ *   // RESULT_CLOSED     → close button confirmed (questions not all answered);
+ *   //                     question state is preserved for re-open
  *   // RESULT_MISS       → no interactive area hit
  * </pre>
  */
@@ -152,24 +154,31 @@ class MeetPopup {
     void show(CalendarEntry entry, String caseContext) {
         if (entry == null) return;
 
-        contactName = entry.contactName.isEmpty() ? entry.title : entry.contactName;
+        String newContactName = entry.contactName.isEmpty() ? entry.title : entry.contactName;
         String gender = entry.contactGender;
 
         // Derive personality attributes from a stable hash of the contact name.
-        int nameHash = Math.abs(contactName.hashCode());
+        int nameHash = Math.abs(newContactName.hashCode());
         int charisma    = 1 + (nameHash % 10);
         int empathy     = 1 + ((nameHash / 10) % 10);
         int nervousness = 1 + ((nameHash / 100) % 10);
 
         introText  = ClientIntroductionGenerator.buildIntroduction(
-                contactName, gender, charisma, empathy, nervousness, caseContext);
-        replyText  = ClientIntroductionGenerator.buildDetectiveReply(contactName);
-        questions  = new ArrayList<>(ClientIntroductionGenerator.buildQuestions());
-        questionAsked = new boolean[questions.size()];
+                newContactName, gender, charisma, empathy, nervousness, caseContext);
+        replyText  = ClientIntroductionGenerator.buildDetectiveReply(newContactName);
 
-        qBtnX = new float[questions.size()];
-        qBtnY = new float[questions.size()];
-        qBtnW = new float[questions.size()];
+        // Preserve question state when re-opening for the same contact so the
+        // player doesn't lose their progress after using Close to step away.
+        boolean sameContact = questionAsked != null
+                && newContactName.equals(contactName);
+        contactName = newContactName;
+        if (!sameContact) {
+            questions     = new ArrayList<>(ClientIntroductionGenerator.buildQuestions());
+            questionAsked = new boolean[questions.size()];
+            qBtnX = new float[questions.size()];
+            qBtnY = new float[questions.size()];
+            qBtnW = new float[questions.size()];
+        }
 
         confirmingClose = false;
         visible = true;
@@ -297,10 +306,10 @@ class MeetPopup {
      *   "You:" label   reply text lines
      *   SECTION_GAP + divider + SECTION_GAP
      *   nQ × (BTN_H + BTN_GAP)          question buttons
-     *   [SECTION_GAP + divider + SECTION_GAP   (only when all questions answered)
-     *    ACCEPT_H                               accept &amp; reject side by side]
      *   SECTION_GAP
-     *   CLOSE_H                          close button (always present)
+     *   [when questions remain]          CLOSE_H   close button
+     *   [when all answered]              DIVIDER_H + SECTION_GAP + ACCEPT_H
+     *                                    accept &amp; reject side by side
      *   PAD
      * </pre>
      *
@@ -363,12 +372,13 @@ class MeetPopup {
                 + SECTION_GAP                                  // gap before reply divider
                 + DIVIDER_H + SECTION_GAP                      // reply/questions divider + gap below
                 + nQ * (BTN_H + BTN_GAP)                       // question buttons
-                + SECTION_GAP                                  // gap before accept/reject or close
-                + CLOSE_H                                      // close button (always)
+                + SECTION_GAP                                  // gap before bottom row
                 + PAD;                                         // bottom pad
         if (allAnswered) {
-            // Insert accept/reject row above the gap-before-close
-            dH += DIVIDER_H + SECTION_GAP + ACCEPT_H + SECTION_GAP;
+            // Accept/Reject row replaces the Close button
+            dH += DIVIDER_H + SECTION_GAP + ACCEPT_H;
+        } else {
+            dH += CLOSE_H;
         }
 
         // Never taller than the screen; never shorter than 240px or half the screen height.
@@ -450,17 +460,21 @@ class MeetPopup {
             rejectBtnX = dialogX + PAD + halfW + ACTION_BTN_GAP;
             rejectBtnW = halfW;
             rejectBtnH = ACCEPT_H;
-            curY -= ACCEPT_H + SECTION_GAP;
+            // no curY advance needed — PAD below covers the bottom gap
         } else {
             acceptBtnW = 0f;
             rejectBtnW = 0f;
         }
 
-        // Close button — always at bottom
-        closeBtnY = curY - CLOSE_H;
-        closeBtnX = dialogX + PAD;
-        closeBtnW = innerW;
-        closeBtnH = CLOSE_H;
+        // Close button — only shown when Accept/Reject are NOT yet available
+        if (!allAnswered) {
+            closeBtnY = curY - CLOSE_H;
+            closeBtnX = dialogX + PAD;
+            closeBtnW = innerW;
+            closeBtnH = CLOSE_H;
+        } else {
+            closeBtnW = 0f;
+        }
 
         // ---- Shapes: filled ----
         sr.begin(ShapeRenderer.ShapeType.Filled);
@@ -478,10 +492,10 @@ class MeetPopup {
             sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
             sr.setColor(REJECT_FILL);
             sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        } else {
+            sr.setColor(CLOSE_FILL);
+            sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
         }
-
-        sr.setColor(CLOSE_FILL);
-        sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
         sr.end();
 
@@ -502,10 +516,10 @@ class MeetPopup {
             sr.rect(acceptBtnX, acceptBtnY, acceptBtnW, acceptBtnH);
             sr.setColor(REJECT_BORDER);
             sr.rect(rejectBtnX, rejectBtnY, rejectBtnW, rejectBtnH);
+        } else {
+            sr.setColor(CLOSE_BORDER);
+            sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
         }
-
-        sr.setColor(CLOSE_BORDER);
-        sr.rect(closeBtnX, closeBtnY, closeBtnW, closeBtnH);
 
         for (int i = 0; i < nQ; i++) {
             if (qBtnW[i] > 0) {
@@ -556,7 +570,8 @@ class MeetPopup {
             smallFont.draw(batch, display, qBtnX[i] + 8f, ty);
         }
 
-        // Accept / Reject button labels — only when all questions answered
+        // Accept / Reject button labels — only when all questions answered;
+        // Close button label — only when Accept/Reject not yet available
         if (allAnswered) {
             glyph.setText(smallFont, "Accept Case");
             smallFont.setColor(ACCEPT_TEXT);
@@ -569,14 +584,13 @@ class MeetPopup {
             smallFont.draw(batch, "Reject Case",
                     rejectBtnX + (rejectBtnW - glyph.width) / 2f,
                     rejectBtnY + (rejectBtnH + glyph.height) / 2f);
+        } else {
+            glyph.setText(smallFont, "Close");
+            smallFont.setColor(CLOSE_TEXT);
+            smallFont.draw(batch, "Close",
+                    closeBtnX + closeBtnW / 2f - glyph.width / 2f,
+                    closeBtnY + (closeBtnH + glyph.height) / 2f);
         }
-
-        // Close button label — always present
-        glyph.setText(smallFont, "Close");
-        smallFont.setColor(CLOSE_TEXT);
-        smallFont.draw(batch, "Close",
-                closeBtnX + closeBtnW / 2f - glyph.width / 2f,
-                closeBtnY + (closeBtnH + glyph.height) / 2f);
 
         batch.end();
 
