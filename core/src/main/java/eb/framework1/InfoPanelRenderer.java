@@ -260,8 +260,8 @@ class InfoPanelRenderer {
             }
             tx += tabWidths[i];
         }
-        // Expand/collapse button fill (immediately after last tab)
-        s.expandBtnX = tx;
+        // Expand/collapse button fill — pinned to the far right of the tab bar
+        s.expandBtnX = s.screenWidth - arrowBtnW;
         s.expandBtnY = tabBarY;
         s.expandBtnW = arrowBtnW;
         s.expandBtnH = arrowBtnH;
@@ -297,6 +297,7 @@ class InfoPanelRenderer {
         }
         // Expand/collapse button border
         shapeRenderer.setColor(EXPAND_BTN_BORDER);
+        shapeRenderer.rect(s.expandBtnX, s.expandBtnY, arrowBtnW, arrowBtnH);
         // Separator line across the full width except under the active tab
         shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
         shapeRenderer.line(0,                         tabBarY, activeTabX,              tabBarY);
@@ -1299,7 +1300,6 @@ class InfoPanelRenderer {
         final float PAD           = 12f;
         final float SB            = MapViewState.SCROLLBAR_THICKNESS;
         final float CB_LABEL_GAP  = 6f;
-        final float CB_ROW_PAD    = 4f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -1350,22 +1350,31 @@ class InfoPanelRenderer {
             return;
         }
 
-        // ── Fixed bottom: checkboxes + "Add Note" button ──────────────────────
-        float cbSize = fontCapH;
-        float cbRowH = cbSize + CB_ROW_PAD;
-        float btnH   = fontCapH + 12f;
+        // ── Fixed bottom row: "Add Note" button + checkboxes (horizontal) ───────
+        // Size the button from font metrics
+        glyphLayout.setText(font, "Add Note");
+        float addNoteLabelW = glyphLayout.width;
+        float btnH      = fontCapH + 12f;
+        float addNoteBtnW = addNoteLabelW + PAD * 2f;
 
-        // Lay out controls from the bottom up (above the scrollbar)
-        float btnY    = SB + PAD;
-        float locCbY  = btnY + btnH + 4f;
-        float timeCbY = locCbY + cbRowH + 4f;
-        // The fixed area ends here; content area sits above it
-        float fixedAreaTop = timeCbY + cbRowH + 4f;
+        float rowY  = SB + PAD;                         // bottom of the row
+        float cbSize = fontCapH;
+        float cbY    = rowY + (btnH - cbSize) / 2f;     // vertically centred within button row
+
+        // Measure labels to compute second checkbox x
+        glyphLayout.setText(smallFont, "Include current time");
+        float timeLabelW = glyphLayout.width;
+
+        float cb1X = PAD + addNoteBtnW + PAD;           // time checkbox x
+        float cb2X = cb1X + cbSize + CB_LABEL_GAP + timeLabelW + PAD; // location checkbox x
+
+        // The fixed area ends here; scrollable content area sits above it
+        float fixedAreaTop = rowY + btnH + PAD;
 
         // Register click areas (actual screen positions — controls don't scroll)
-        s.addNoteBtnX = PAD;   s.addNoteBtnY = btnY;    s.addNoteBtnW = 120f; s.addNoteBtnH = btnH;
-        s.noteLocCbX  = PAD;   s.noteLocCbY  = locCbY;  s.noteLocCbW  = cbSize; s.noteLocCbH = cbSize;
-        s.noteTimeCbX = PAD;   s.noteTimeCbY = timeCbY; s.noteTimeCbW = cbSize; s.noteTimeCbH = cbSize;
+        s.addNoteBtnX = PAD;    s.addNoteBtnY = rowY;  s.addNoteBtnW = addNoteBtnW; s.addNoteBtnH = btnH;
+        s.noteTimeCbX = cb1X;   s.noteTimeCbY = cbY;   s.noteTimeCbW = cbSize;      s.noteTimeCbH = cbSize;
+        s.noteLocCbX  = cb2X;   s.noteLocCbY  = cbY;   s.noteLocCbW  = cbSize;      s.noteLocCbH  = cbSize;
 
         // Draw "Add Note" button
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
