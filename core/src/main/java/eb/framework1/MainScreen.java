@@ -74,6 +74,7 @@ public class MainScreen implements Screen {
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
+    private NotePopup            notePopup;
     private MeetPopup            meetPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
@@ -287,6 +288,8 @@ public class MainScreen implements Screen {
 
         confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        notePopup = new NotePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
@@ -395,6 +398,10 @@ public class MainScreen implements Screen {
 
         if (confirmDropPopup.isVisible()) {
             confirmDropPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (notePopup.isVisible()) {
+            notePopup.draw(state.screenWidth, state.screenHeight);
         }
 
         if (meetPopup.isVisible()) {
@@ -948,6 +955,24 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Note popup: checkbox toggles or Write Note / Cancel
+                if (notePopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = notePopup.onTap(screenX, flippedY);
+                            if (result == NotePopup.RESULT_CONFIRM) {
+                                state.noteIncludeTime     = notePopup.isIncludeTime();
+                                state.noteIncludeLocation = notePopup.isIncludeLocation();
+                                openNoteTextInput();
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Hotel reception popup: night selection or cancel
                 if (hotelReceptionPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -1108,7 +1133,6 @@ public class MainScreen implements Screen {
                             checkGoToHotelRoomButtonClick(screenX, flippedY);
                             checkEquipDropButtonClick(screenX, flippedY);
                             checkHelpButtonClick(screenX, flippedY);
-                            checkNoteCheckboxClick(screenX, flippedY);
                             checkAddNoteButtonClick(screenX, flippedY);
                             checkServiceButtonClick(screenX, flippedY);
                         }
@@ -1689,53 +1713,47 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkNoteCheckboxClick(int screenX, int flippedY) {
-        if (state.noteTimeCbW > 0
-                && screenX >= state.noteTimeCbX && screenX <= state.noteTimeCbX + state.noteTimeCbW
-                && flippedY >= state.noteTimeCbY && flippedY <= state.noteTimeCbY + state.noteTimeCbH) {
-            state.noteIncludeTime = !state.noteIncludeTime;
-        }
-        if (state.noteLocCbW > 0
-                && screenX >= state.noteLocCbX && screenX <= state.noteLocCbX + state.noteLocCbW
-                && flippedY >= state.noteLocCbY && flippedY <= state.noteLocCbY + state.noteLocCbH) {
-            state.noteIncludeLocation = !state.noteIncludeLocation;
-        }
-    }
-
     private void checkAddNoteButtonClick(int screenX, int flippedY) {
         if (state.addNoteBtnW <= 0) return;
         if (screenX >= state.addNoteBtnX && screenX <= state.addNoteBtnX + state.addNoteBtnW
                 && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
             CaseFile active = profile.getActiveCaseFile();
             if (active != null) {
-                final boolean includeTime     = state.noteIncludeTime;
-                final boolean includeLocation = state.noteIncludeLocation;
-                Gdx.input.getTextInput(new Input.TextInputListener() {
-                    @Override
-                    public void input(String text) {
-                        if (text != null && !text.trim().isEmpty()) {
-                            StringBuilder sb = new StringBuilder();
-                            if (includeTime) {
-                                sb.append("[").append(profile.getGameDateTime()).append("] ");
-                            }
-                            if (includeLocation) {
-                                String loc = getCurrentLocationName();
-                                if (loc != null && !loc.isEmpty()) {
-                                    sb.append("@ ").append(loc).append(" ");
-                                }
-                            }
-                            sb.append(text.trim());
-                            active.addNote(sb.toString());
-                            Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
-                        }
-                    }
-                    @Override
-                    public void canceled() {
-                        // User cancelled — do nothing
-                    }
-                }, "Add Note", "", "Enter your note...");
+                notePopup.show(state.noteIncludeTime, state.noteIncludeLocation);
             }
         }
+    }
+
+    /** Opens the OS text-input dialog using the checkbox state persisted in MapViewState. */
+    private void openNoteTextInput() {
+        CaseFile active = profile.getActiveCaseFile();
+        if (active == null) return;
+        final boolean includeTime     = state.noteIncludeTime;
+        final boolean includeLocation = state.noteIncludeLocation;
+        Gdx.input.getTextInput(new Input.TextInputListener() {
+            @Override
+            public void input(String text) {
+                if (text != null && !text.trim().isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    if (includeTime) {
+                        sb.append("[").append(profile.getGameDateTime()).append("] ");
+                    }
+                    if (includeLocation) {
+                        String loc = getCurrentLocationName();
+                        if (loc != null && !loc.isEmpty()) {
+                            sb.append("@ ").append(loc).append(" ");
+                        }
+                    }
+                    sb.append(text.trim());
+                    active.addNote(sb.toString());
+                    Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
+                }
+            }
+            @Override
+            public void canceled() {
+                // User cancelled — do nothing
+            }
+        }, "Add Note", "", "Enter your note...");
     }
 
     /** Returns the building name at the character's current location, or the cell coordinates. */

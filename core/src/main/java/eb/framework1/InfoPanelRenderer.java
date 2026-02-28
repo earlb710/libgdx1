@@ -1299,7 +1299,6 @@ class InfoPanelRenderer {
 
         final float PAD           = 12f;
         final float SB            = MapViewState.SCROLLBAR_THICKNESS;
-        final float CB_LABEL_GAP  = 6f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -1350,7 +1349,7 @@ class InfoPanelRenderer {
             return;
         }
 
-        // ── Fixed bottom row: "Add Note" button + checkboxes (horizontal) ───────
+        // ── Fixed bottom row: "Add Note" button ───────────────────────────────
         // Size the button from font metrics
         glyphLayout.setText(font, "Add Note");
         float addNoteLabelW = glyphLayout.width;
@@ -1358,23 +1357,12 @@ class InfoPanelRenderer {
         float addNoteBtnW = addNoteLabelW + PAD * 2f;
 
         float rowY  = SB + PAD;                         // bottom of the row
-        float cbSize = fontCapH;
-        float cbY    = rowY + (btnH - cbSize) / 2f;     // vertically centred within button row
-
-        // Measure labels to compute second checkbox x
-        glyphLayout.setText(smallFont, "Include current time");
-        float timeLabelW = glyphLayout.width;
-
-        float cb1X = PAD + addNoteBtnW + PAD;           // time checkbox x
-        float cb2X = cb1X + cbSize + CB_LABEL_GAP + timeLabelW + PAD; // location checkbox x
 
         // The fixed area ends here; scrollable content area sits above it
         float fixedAreaTop = rowY + btnH + PAD;
 
-        // Register click areas (actual screen positions — controls don't scroll)
+        // Register click area (checkboxes now live in NotePopup — only button here)
         s.addNoteBtnX = PAD;    s.addNoteBtnY = rowY;  s.addNoteBtnW = addNoteBtnW; s.addNoteBtnH = btnH;
-        s.noteTimeCbX = cb1X;   s.noteTimeCbY = cbY;   s.noteTimeCbW = cbSize;      s.noteTimeCbH = cbSize;
-        s.noteLocCbX  = cb2X;   s.noteLocCbY  = cbY;   s.noteLocCbW  = cbSize;      s.noteLocCbH  = cbSize;
 
         // Draw "Add Note" button
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -1391,46 +1379,6 @@ class InfoPanelRenderer {
         font.draw(batch, "Add Note",
                 s.addNoteBtnX + (s.addNoteBtnW - glyphLayout.width) / 2f,
                 s.addNoteBtnY + (s.addNoteBtnH + glyphLayout.height) / 2f);
-        batch.end();
-
-        // Draw "Include current location" checkbox
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.rect(s.noteLocCbX, s.noteLocCbY, s.noteLocCbW, s.noteLocCbH);
-        shapeRenderer.end();
-        if (s.noteIncludeLocation) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(LABEL_COLOR);
-            float inset = 3f;
-            shapeRenderer.rect(s.noteLocCbX + inset, s.noteLocCbY + inset,
-                    s.noteLocCbW - inset * 2, s.noteLocCbH - inset * 2);
-            shapeRenderer.end();
-        }
-        batch.begin();
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, "Include current location",
-                s.noteLocCbX + s.noteLocCbW + CB_LABEL_GAP,
-                s.noteLocCbY + s.noteLocCbH - 2f);
-        batch.end();
-
-        // Draw "Include current time" checkbox
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.rect(s.noteTimeCbX, s.noteTimeCbY, s.noteTimeCbW, s.noteTimeCbH);
-        shapeRenderer.end();
-        if (s.noteIncludeTime) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(LABEL_COLOR);
-            float inset = 3f;
-            shapeRenderer.rect(s.noteTimeCbX + inset, s.noteTimeCbY + inset,
-                    s.noteTimeCbW - inset * 2, s.noteTimeCbH - inset * 2);
-            shapeRenderer.end();
-        }
-        batch.begin();
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, "Include current time",
-                s.noteTimeCbX + s.noteTimeCbW + CB_LABEL_GAP,
-                s.noteTimeCbY + s.noteTimeCbH - 2f);
         batch.end();
 
         // ── Scrollable content area ───────────────────────────────────────────
