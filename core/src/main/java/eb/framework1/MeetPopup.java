@@ -62,6 +62,16 @@ class MeetPopup {
     private static final Color CLOSE_BORDER    = new Color(0.75f, 0.28f, 0.28f, 1f);
     private static final Color CLOSE_TEXT      = new Color(0.95f, 0.90f, 0.90f, 1f);
 
+    // Confirmation overlay colours
+    private static final Color CONFIRM_BG_COLOR  = new Color(0.05f, 0.08f, 0.14f, 1f);
+    private static final Color CONFIRM_BORDER_CLR = new Color(0.80f, 0.70f, 0.20f, 1f);
+    private static final Color CONFIRM_TEXT_CLR  = new Color(0.95f, 0.90f, 0.70f, 1f);
+    private static final Color CONFIRM_YES_FILL  = new Color(0.50f, 0.10f, 0.10f, 1f);
+    private static final Color CONFIRM_YES_BORDER = new Color(0.85f, 0.25f, 0.25f, 1f);
+    private static final Color CONFIRM_NO_FILL   = new Color(0.10f, 0.25f, 0.42f, 1f);
+    private static final Color CONFIRM_NO_BORDER = new Color(0.35f, 0.55f, 0.80f, 1f);
+    private static final Color CONFIRM_BTN_TEXT  = new Color(0.95f, 0.90f, 0.90f, 1f);
+
     // ---- Rendering resources ----
     private final SpriteBatch   batch;
     private final ShapeRenderer sr;
@@ -82,6 +92,11 @@ class MeetPopup {
     private float closeBtnX, closeBtnY, closeBtnW, closeBtnH;
     private float[] qBtnX, qBtnY, qBtnW;
     private float   qBtnH;
+
+    // ---- Confirmation-close overlay state ----
+    private boolean confirmingClose = false;
+    private float confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH;
+    private float confirmNoBtnX,  confirmNoBtnY,  confirmNoBtnW,  confirmNoBtnH;
 
     // (no instance state needed for word-wrap — WordWrapper is static)
 
@@ -139,11 +154,12 @@ class MeetPopup {
         qBtnY = new float[questions.size()];
         qBtnW = new float[questions.size()];
 
+        confirmingClose = false;
         visible = true;
     }
 
     /** Hides the popup. */
-    void hide() { visible = false; }
+    void hide() { visible = false; confirmingClose = false; }
 
     // -------------------------------------------------------------------------
     // Input handling
@@ -160,12 +176,33 @@ class MeetPopup {
     int onTap(int screenX, int flippedY) {
         if (!visible) return RESULT_MISS;
 
+        // When the confirmation overlay is visible only its buttons are active.
+        if (confirmingClose) {
+            if (confirmYesBtnW > 0
+                    && screenX >= confirmYesBtnX && screenX <= confirmYesBtnX + confirmYesBtnW
+                    && flippedY >= confirmYesBtnY && flippedY <= confirmYesBtnY + confirmYesBtnH) {
+                visible = false;
+                confirmingClose = false;
+                return RESULT_CLOSED;
+            }
+            if (confirmNoBtnW > 0
+                    && screenX >= confirmNoBtnX && screenX <= confirmNoBtnX + confirmNoBtnW
+                    && flippedY >= confirmNoBtnY && flippedY <= confirmNoBtnY + confirmNoBtnH) {
+                confirmingClose = false;
+            }
+            return RESULT_MISS;
+        }
+
         // Close button
         if (closeBtnW > 0
                 && screenX >= closeBtnX && screenX <= closeBtnX + closeBtnW
                 && flippedY >= closeBtnY && flippedY <= closeBtnY + closeBtnH) {
-            visible = false;
-            return RESULT_CLOSED;
+            if (allQuestionsAnswered()) {
+                visible = false;
+                return RESULT_CLOSED;
+            }
+            confirmingClose = true;
+            return RESULT_MISS;
         }
 
         // Question buttons
@@ -181,6 +218,15 @@ class MeetPopup {
         }
 
         return RESULT_MISS;
+    }
+
+    /** Returns {@code true} only when every question button has been tapped. */
+    private boolean allQuestionsAnswered() {
+        if (questionAsked == null) return true;
+        for (boolean asked : questionAsked) {
+            if (!asked) return false;
+        }
+        return true;
     }
 
     // -------------------------------------------------------------------------
@@ -425,6 +471,92 @@ class MeetPopup {
                 closeBtnX + closeBtnW / 2f - glyph.width / 2f,
                 closeBtnY + (closeBtnH + glyph.height) / 2f);
 
+        batch.end();
+
+        // ---- Confirmation overlay (drawn on top when confirmingClose is true) ----
+        if (confirmingClose) {
+            drawConfirmationOverlay(screenW, screenH, fontH, smallH);
+        }
+    }
+
+    /**
+     * Draws the "Close without finishing?" confirmation overlay centred on screen.
+     * Also writes the hit-test bounds for the Yes/No buttons so {@link #onTap}
+     * can read them on the next input event.
+     */
+    private void drawConfirmationOverlay(int screenW, int screenH,
+                                         float fontH, float smallH) {
+        final String CONFIRM_MSG = "Close without finishing?";
+        final String YES_LABEL   = "Yes, Close";
+        final String NO_LABEL    = "Keep Going";
+
+        final float CP_PAD     = 20f;  // inner padding of confirmation panel
+        final float CP_BTN_VP  = 10f;  // vertical padding inside confirmation buttons
+        final float CP_BTN_H   = smallH + CP_BTN_VP * 2f;
+        final float CP_BTN_GAP = 12f;
+
+        glyph.setText(font, CONFIRM_MSG);
+        float msgW  = glyph.width;
+        glyph.setText(smallFont, YES_LABEL);
+        float yesTW = glyph.width;
+        glyph.setText(smallFont, NO_LABEL);
+        float noTW  = glyph.width;
+
+        float yesBW    = Math.max(yesTW + CP_PAD * 2f, 120f);
+        float noBW     = Math.max(noTW  + CP_PAD * 2f, 120f);
+        float btnsRowW = yesBW + CP_BTN_GAP + noBW;
+        float panelW   = Math.max(msgW, btnsRowW) + CP_PAD * 2f;
+        float panelH   = CP_PAD + fontH + CP_PAD + CP_BTN_H + CP_PAD;
+        float panelX   = (screenW - panelW) / 2f;
+        float panelY   = (screenH - panelH) / 2f;
+
+        float btnsStartX = panelX + (panelW - btnsRowW) / 2f;
+        float btnsY      = panelY + CP_PAD;
+
+        confirmYesBtnX = btnsStartX;
+        confirmYesBtnY = btnsY;
+        confirmYesBtnW = yesBW;
+        confirmYesBtnH = CP_BTN_H;
+
+        confirmNoBtnX = btnsStartX + yesBW + CP_BTN_GAP;
+        confirmNoBtnY = btnsY;
+        confirmNoBtnW = noBW;
+        confirmNoBtnH = CP_BTN_H;
+
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(CONFIRM_BG_COLOR);
+        sr.rect(panelX, panelY, panelW, panelH);
+        sr.setColor(CONFIRM_YES_FILL);
+        sr.rect(confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH);
+        sr.setColor(CONFIRM_NO_FILL);
+        sr.rect(confirmNoBtnX, confirmNoBtnY, confirmNoBtnW, confirmNoBtnH);
+        sr.end();
+
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        sr.setColor(CONFIRM_BORDER_CLR);
+        sr.rect(panelX,     panelY,     panelW,     panelH);
+        sr.rect(panelX + 1, panelY + 1, panelW - 2, panelH - 2);
+        sr.setColor(CONFIRM_YES_BORDER);
+        sr.rect(confirmYesBtnX, confirmYesBtnY, confirmYesBtnW, confirmYesBtnH);
+        sr.setColor(CONFIRM_NO_BORDER);
+        sr.rect(confirmNoBtnX, confirmNoBtnY, confirmNoBtnW, confirmNoBtnH);
+        sr.end();
+
+        batch.begin();
+        font.setColor(CONFIRM_TEXT_CLR);
+        font.draw(batch, CONFIRM_MSG,
+                panelX + panelW / 2f - msgW / 2f,
+                panelY + panelH - CP_PAD);
+        glyph.setText(smallFont, YES_LABEL);
+        smallFont.setColor(CONFIRM_BTN_TEXT);
+        smallFont.draw(batch, YES_LABEL,
+                confirmYesBtnX + (confirmYesBtnW - glyph.width) / 2f,
+                confirmYesBtnY + (confirmYesBtnH + glyph.height) / 2f);
+        glyph.setText(smallFont, NO_LABEL);
+        smallFont.setColor(CONFIRM_BTN_TEXT);
+        smallFont.draw(batch, NO_LABEL,
+                confirmNoBtnX + (confirmNoBtnW - glyph.width) / 2f,
+                confirmNoBtnY + (confirmNoBtnH + glyph.height) / 2f);
         batch.end();
     }
 }
