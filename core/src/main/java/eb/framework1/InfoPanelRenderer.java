@@ -62,6 +62,9 @@ class InfoPanelRenderer {
     private static final Color DEV_INFO_LABEL_COLOR    = new Color(0.30f, 1.00f, 0.40f, 1f);
     private static final Color DEV_INFO_HIDDEN_COLOR   = new Color(1.00f, 0.55f, 0.10f, 1f);
     private static final Color DEV_INFO_HINT_COLOR     = new Color(0.65f, 0.65f, 0.65f, 1f);
+    private static final Color EXPAND_BTN_FILL         = new Color(0.14f, 0.14f, 0.20f, 1f);
+    private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
+    private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -220,6 +223,15 @@ class InfoPanelRenderer {
             tabWidths[i] = glyphLayout.width + tabPadX * 2f;
         }
 
+        // Pre-compute expand/collapse button geometry so we can include it in the
+        // existing begin/end blocks below (avoids extra flush operations).
+        final String arrowLabel = s.panelExpanded ? "\u25BC" : "\u25B2";   // ▼ = collapse, ▲ = expand
+        glyphLayout.setText(smallFont, arrowLabel);
+        float arrowBtnW = glyphLayout.width + tabPadX * 2f;
+        float arrowBtnH = tabH;
+        // x position is computed after the tab widths loop below; placeholder for now
+        // (set once 'tx' reaches the end of all tabs in the fill block)
+
         // The active tab is 3px taller at the top to appear "raised".
         // Inactive tabs are shifted up by that same amount so the bottom of all tabs
         // aligns with the separator, but the active tab sits 3px higher.
@@ -248,6 +260,13 @@ class InfoPanelRenderer {
             }
             tx += tabWidths[i];
         }
+        // Expand/collapse button fill (immediately after last tab)
+        s.expandBtnX = tx;
+        s.expandBtnY = tabBarY;
+        s.expandBtnW = arrowBtnW;
+        s.expandBtnH = arrowBtnH;
+        shapeRenderer.setColor(EXPAND_BTN_FILL);
+        shapeRenderer.rect(s.expandBtnX, s.expandBtnY, arrowBtnW, arrowBtnH);
         shapeRenderer.end();
 
         // Borders and separator
@@ -276,6 +295,8 @@ class InfoPanelRenderer {
             }
             tx += tabWidths[i];
         }
+        // Expand/collapse button border
+        shapeRenderer.setColor(EXPAND_BTN_BORDER);
         // Separator line across the full width except under the active tab
         shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
         shapeRenderer.line(0,                         tabBarY, activeTabX,              tabBarY);
@@ -285,7 +306,7 @@ class InfoPanelRenderer {
         shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
         shapeRenderer.end();
 
-        // Tab labels — active tab: bold white; inactive: dimmed regular
+        // Tab labels and expand button label — active tab: bold white; inactive: dimmed regular
         batch.begin();
         tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
@@ -301,6 +322,12 @@ class InfoPanelRenderer {
                     labelY);
             tx += tabWidths[i];
         }
+        // Arrow label centred in the expand button
+        glyphLayout.setText(smallFont, arrowLabel);
+        smallFont.setColor(EXPAND_BTN_TEXT);
+        smallFont.draw(batch, arrowLabel,
+                s.expandBtnX + (arrowBtnW - glyphLayout.width) / 2f,
+                tabBarY + tabPadY + tabFontH);
         batch.end();
 
         // The panel area available for tab content is below the tab bar

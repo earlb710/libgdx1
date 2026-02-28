@@ -127,6 +127,12 @@ class MapViewState {
     float[] tabW = new float[4];
     float   tabH = 0f;
 
+    // --- Expand/collapse button (▲/▼ after the last tab) ---
+    /** When {@code true} the info panel covers the full screen (minus the top info bar). */
+    boolean panelExpanded = false;
+    /** Bounds of the expand/collapse button (written by InfoPanelRenderer, read by MainScreen). */
+    float expandBtnX, expandBtnY, expandBtnW, expandBtnH;
+
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;
     float infoScrollY    = 0f;   // pixels content has scrolled up   (0 = top)

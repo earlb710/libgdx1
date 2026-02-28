@@ -422,9 +422,14 @@ public class MainScreen implements Screen {
     public void resize(int width, int height) {
         state.screenWidth    = width;
         state.screenHeight   = height;
-        state.infoAreaHeight = (int)(height * state.infoPanelRatio)
-                + (int)(MapViewState.SCROLLBAR_THICKNESS);
-        state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
+        if (state.panelExpanded) {
+            state.infoAreaHeight = height - MapViewState.INFO_BAR_HEIGHT;
+            state.mapAreaHeight  = 0;
+        } else {
+            state.infoAreaHeight = (int)(height * state.infoPanelRatio)
+                    + (int)(MapViewState.SCROLLBAR_THICKNESS);
+            state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
+        }
         Gdx.app.log("MainScreen", "Resized to " + width + "x" + height
                 + " (info=" + state.infoAreaHeight + " map=" + state.mapAreaHeight + ")");
     }
@@ -1108,6 +1113,7 @@ public class MainScreen implements Screen {
                             checkServiceButtonClick(screenX, flippedY);
                         }
                         checkTabClick(screenX, flippedY);
+                        checkExpandButtonClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
                         checkDevModeButtonClick(screenX, flippedY);
                     }
@@ -1331,6 +1337,16 @@ public class MainScreen implements Screen {
                 }
                 return;
             }
+        }
+    }
+
+    private void checkExpandButtonClick(int screenX, int flippedY) {
+        if (state.expandBtnW <= 0) return;
+        if (screenX >= state.expandBtnX && screenX <= state.expandBtnX + state.expandBtnW
+                && flippedY >= state.expandBtnY && flippedY <= state.expandBtnY + state.expandBtnH) {
+            state.panelExpanded = !state.panelExpanded;
+            resize(state.screenWidth, state.screenHeight);
+            Gdx.app.log("MainScreen", "Panel expanded: " + state.panelExpanded);
         }
     }
 
