@@ -75,6 +75,8 @@ public class MainScreen implements Screen {
     private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
     private MeetPopup            meetPopup;
+    /** The appointment currently shown in meetPopup; null when no meeting is open. */
+    private CalendarEntry        currentMeetAppt;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
     /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
@@ -1024,7 +1026,10 @@ public class MainScreen implements Screen {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) {
-                            meetPopup.onTap(screenX, flippedY);
+                            int result = meetPopup.onTap(screenX, flippedY);
+                            if (result == MeetPopup.RESULT_CLOSED) {
+                                handleMeetingClosed();
+                            }
                         }
                         infoAreaPressed = false;
                     }
@@ -1422,6 +1427,7 @@ public class MainScreen implements Screen {
             if (appt != null && !appt.contactName.isEmpty()) {
                 // Find a matching case objective to give context to the introduction
                 String caseContext = findCaseContextForContact(appt.contactName);
+                currentMeetAppt = appt;
                 meetPopup.show(appt, caseContext);
                 Gdx.app.log("MainScreen", "Meet popup opened for: " + appt.contactName);
             } else {
@@ -1504,6 +1510,48 @@ public class MainScreen implements Screen {
             }
         }
         return "";
+    }
+
+    /**
+     * Called when the meet popup is closed.  Finds the first open
+     * {@link CaseFile} that matches the current appointment's contact name
+     * and records a meeting note plus a clue entry for every question the
+     * player asked during the meeting.
+     */
+    private void handleMeetingClosed() {
+        if (currentMeetAppt == null) return;
+        String contactName = currentMeetAppt.contactName;
+        if (contactName.isEmpty()) {
+            currentMeetAppt = null;
+            return;
+        }
+
+        // Locate the matching open case file (same logic as findCaseContextForContact)
+        CaseFile matchingCase = null;
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                matchingCase = cf;
+                break;
+            }
+        }
+        if (matchingCase == null) {
+            Gdx.app.log("MainScreen", "No open case found for contact: " + contactName);
+            currentMeetAppt = null;
+            return;
+        }
+
+        // Add a note recording who was met, when and where
+        String gameDateTime = profile.getGameDateTime();
+        String location     = currentMeetAppt.location.isEmpty() ? "unknown location" : currentMeetAppt.location;
+        matchingCase.addNote("Met " + contactName + " at " + location + " (" + gameDateTime + ")");
+
+        // Add a clue entry for each question the player asked
+        for (String question : meetPopup.getAskedQuestions()) {
+            matchingCase.addClue("Asked " + contactName + ": \"" + question + "\"");
+        }
+
+        Gdx.app.log("MainScreen", "Case file updated after meeting: " + matchingCase.getName());
+        currentMeetAppt = null;
     }
 
     private void checkServiceButtonClick(int screenX, int flippedY) {

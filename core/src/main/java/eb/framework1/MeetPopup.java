@@ -161,6 +161,22 @@ class MeetPopup {
     /** Hides the popup. */
     void hide() { visible = false; confirmingClose = false; }
 
+    /**
+     * Returns an unmodifiable list of the question texts that were tapped
+     * (asked) by the player during this meeting.  An empty list is returned
+     * when the popup has never been shown or no questions were asked.
+     */
+    List<String> getAskedQuestions() {
+        List<String> result = new ArrayList<>();
+        if (questionAsked == null) return java.util.Collections.unmodifiableList(result);
+        for (int i = 0; i < questionAsked.length; i++) {
+            if (questionAsked[i] && i < questions.size()) {
+                result.add(questions.get(i));
+            }
+        }
+        return java.util.Collections.unmodifiableList(result);
+    }
+
     // -------------------------------------------------------------------------
     // Input handling
     // -------------------------------------------------------------------------
