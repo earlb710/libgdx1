@@ -771,7 +771,13 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                if (flippedY > state.infoAreaHeight) {
+                if (flippedY > state.screenHeight - MapViewState.INFO_BAR_HEIGHT) {
+                    // Top info bar — treat as tap target (not map drag)
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                } else if (flippedY > state.infoAreaHeight) {
                     isDragging       = true;
                     dragStartX       = screenX;
                     dragStartY       = screenY;
@@ -1094,6 +1100,7 @@ public class MainScreen implements Screen {
                         }
                         checkTabClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
+                        checkDevModeButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -1578,6 +1585,15 @@ public class MainScreen implements Screen {
         if (screenX >= state.helpBtnX && screenX <= state.helpBtnX + state.helpBtnW
                 && flippedY >= state.helpBtnY && flippedY <= state.helpBtnY + state.helpBtnH) {
             state.helpVisible = !state.helpVisible;
+        }
+    }
+
+    private void checkDevModeButtonClick(int screenX, int flippedY) {
+        if (state.devModeBtnW <= 0) return;
+        if (screenX >= state.devModeBtnX && screenX <= state.devModeBtnX + state.devModeBtnW
+                && flippedY >= state.devModeBtnY && flippedY <= state.devModeBtnY + state.devModeBtnH) {
+            state.developerMode = !state.developerMode;
+            Gdx.app.log("MainScreen", "Developer mode " + (state.developerMode ? "ON" : "OFF"));
         }
     }
 

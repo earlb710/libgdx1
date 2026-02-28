@@ -106,6 +106,12 @@ class MapViewState {
     // --- Traveled road path (accumulates every junction visited while walking) ---
     java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
 
+    // --- Developer mode toggle ---
+    /** When {@code true} developer-mode features are active. Default ON. */
+    boolean developerMode = true;
+    /** Bounds of the "D" toggle button in the top info bar (written by InfoPanelRenderer). */
+    float devModeBtnX, devModeBtnY, devModeBtnW, devModeBtnH;
+
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;

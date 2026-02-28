@@ -53,6 +53,12 @@ class InfoPanelRenderer {
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
     private static final Color SERVICE_BTN_COLOR       = new Color(0.15f, 0.45f, 0.45f, 1f);
+    private static final Color DEV_BTN_ON_FILL         = new Color(0.10f, 0.40f, 0.15f, 1f);
+    private static final Color DEV_BTN_ON_BORDER       = new Color(0.20f, 0.80f, 0.30f, 1f);
+    private static final Color DEV_BTN_OFF_FILL        = new Color(0.20f, 0.20f, 0.20f, 1f);
+    private static final Color DEV_BTN_OFF_BORDER      = new Color(0.45f, 0.45f, 0.45f, 1f);
+    private static final Color DEV_BTN_TEXT_ON         = new Color(0.30f, 1.00f, 0.40f, 1f);
+    private static final Color DEV_BTN_TEXT_OFF        = new Color(0.55f, 0.55f, 0.55f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -109,17 +115,48 @@ class InfoPanelRenderer {
         glyphLayout.setText(smallFont, "Hg");
         float textY = barY + (MapViewState.INFO_BAR_HEIGHT + glyphLayout.height) / 2;
 
-        // Date / time (left) — smallFont
+        // Developer-mode toggle button "D" — top-left, before date
+        final float DEV_BTN_PAD_H = 6f;  // horizontal padding inside button
+        final float DEV_BTN_PAD_V = 6f;  // vertical padding inside button
+        glyphLayout.setText(smallFont, "D");
+        float devBtnW = glyphLayout.width + DEV_BTN_PAD_H * 2f;
+        float devBtnH = glyphLayout.height + DEV_BTN_PAD_V * 2f;
+        float devBtnX = 10f;
+        float devBtnY = barY + (MapViewState.INFO_BAR_HEIGHT - devBtnH) / 2f;
+        s.devModeBtnX = devBtnX;
+        s.devModeBtnY = devBtnY;
+        s.devModeBtnW = devBtnW;
+        s.devModeBtnH = devBtnH;
+        batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(s.developerMode ? DEV_BTN_ON_FILL : DEV_BTN_OFF_FILL);
+        shapeRenderer.rect(devBtnX, devBtnY, devBtnW, devBtnH);
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(s.developerMode ? DEV_BTN_ON_BORDER : DEV_BTN_OFF_BORDER);
+        shapeRenderer.rect(devBtnX, devBtnY, devBtnW, devBtnH);
+        shapeRenderer.end();
+
+        batch.begin();
+        glyphLayout.setText(smallFont, "D");
+        smallFont.setColor(s.developerMode ? DEV_BTN_TEXT_ON : DEV_BTN_TEXT_OFF);
+        smallFont.draw(batch, "D",
+                devBtnX + DEV_BTN_PAD_H,
+                devBtnY + devBtnH - DEV_BTN_PAD_V);
+
+        // Date / time (left) — smallFont, shifted right of the "D" button
+        float dateX = devBtnX + devBtnW + 8f;
         String dateTime = profile.getGameDateTime();
         int spaceIdx = dateTime.indexOf(' ');
         String datePart = spaceIdx >= 0 ? dateTime.substring(0, spaceIdx) : dateTime;
         String timePart = spaceIdx >= 0 ? dateTime.substring(spaceIdx) : "";
 
         smallFont.setColor(Color.GREEN);
-        smallFont.draw(batch, datePart, 10, textY);
+        smallFont.draw(batch, datePart, dateX, textY);
         glyphLayout.setText(smallFont, datePart);
         smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, timePart, 10 + glyphLayout.width, textY);
+        smallFont.draw(batch, timePart, dateX + glyphLayout.width, textY);
 
         // Money (right) — smallFont
         String moneyText = "$" + profile.getMoney();
