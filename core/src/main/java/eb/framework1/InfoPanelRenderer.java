@@ -1401,6 +1401,12 @@ class InfoPanelRenderer {
                     glyphLayout.setText(font, t);
                     return glyphLayout.width;
                   });
+        List<String> typeDescLines = (active.getCaseType() != null && !active.getCaseType().getDescription().isEmpty())
+                ? WordWrapper.wrap(active.getCaseType().getDescription(), wrapW, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                  })
+                : Collections.emptyList();
 
         // Compute total virtual height so we can set the scroll limit
         CaseStoryNode storyRoot = active.getStoryRoot();
@@ -1419,6 +1425,11 @@ class InfoPanelRenderer {
         }
         totalH += fontLineH;   // Status
         totalH += fontLineH;   // Opened
+        if (!typeDescLines.isEmpty()) {
+            totalH += fontLineH;                         // "Type: <displayName>" line
+            totalH += smallLineH * typeDescLines.size(); // wrapped type description lines
+            totalH += PAD / 2f;                          // small gap after
+        }
         if (!descLines.isEmpty()) {
             totalH += fontLineH;                        // "Description:" header
             totalH += smallLineH * descLines.size();    // wrapped description lines
@@ -1485,7 +1496,7 @@ class InfoPanelRenderer {
             font.draw(batch, "Type: ", PAD, ty + drawScrollY);
             glyphLayout.setText(font, "Type: ");
             font.setColor(Color.WHITE);
-            font.draw(batch, active.getCaseType() != null ? active.getCaseType().name() : "—",
+            font.draw(batch, active.getCaseType() != null ? active.getCaseType().getDisplayName() : "—",
                     PAD + glyphLayout.width, ty + drawScrollY);
             ty -= fontLineH;
 
@@ -1540,6 +1551,23 @@ class InfoPanelRenderer {
         font.setColor(Color.WHITE);
         font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, ty + drawScrollY);
         ty -= fontLineH;
+
+        // Case type + description
+        if (active.getCaseType() != null && !typeDescLines.isEmpty()) {
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Type: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getCaseType().getDisplayName(), PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            smallFont.setColor(NOVEL_COLOR);
+            for (String line : typeDescLines) {
+                smallFont.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH;
+            }
+            smallFont.setColor(Color.WHITE);
+            ty -= PAD / 2f;
+        }
 
         // Description (word-wrapped)
         if (!descLines.isEmpty()) {
