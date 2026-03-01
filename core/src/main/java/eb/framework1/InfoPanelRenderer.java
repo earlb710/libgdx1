@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1384,6 +1385,22 @@ class InfoPanelRenderer {
         // ── Scrollable content area ───────────────────────────────────────────
         float contentAreaH = contentTop - fixedAreaTop;
 
+        // Pre-compute word-wrapped lines for description and objective so that
+        // totalH below and the drawing pass both use the same line counts.
+        final float wrapW = s.screenWidth - SB - PAD - 8f;
+        List<String> descLines = active.getDescription().isEmpty()
+                ? Collections.emptyList()
+                : WordWrapper.wrap(active.getDescription(), wrapW, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                  });
+        List<String> objLines = active.getObjective().isEmpty()
+                ? Collections.emptyList()
+                : WordWrapper.wrap(active.getObjective(), wrapW, t -> {
+                    glyphLayout.setText(font, t);
+                    return glyphLayout.width;
+                  });
+
         // Compute total virtual height so we can set the scroll limit
         CaseStoryNode storyRoot = active.getStoryRoot();
         float totalH = 0;
@@ -1393,12 +1410,19 @@ class InfoPanelRenderer {
             totalH += fontLineH; // Type
             totalH += fontLineH; // Client
             totalH += fontLineH; // Subject
-            if (!active.getObjective().isEmpty()) totalH += fontLineH; // Objective
+            if (!objLines.isEmpty()) {
+                totalH += fontLineH;                        // "Objective:" header line
+                totalH += fontLineH * objLines.size();      // wrapped objective lines
+            }
             totalH += fontLineH; // Complexity
         }
         totalH += fontLineH;   // Status
         totalH += fontLineH;   // Opened
-        if (!active.getDescription().isEmpty()) totalH += fontLineH * 2f;
+        if (!descLines.isEmpty()) {
+            totalH += fontLineH;                        // "Description:" header
+            totalH += smallLineH * descLines.size();    // wrapped description lines
+            totalH += PAD / 2f;                         // small gap after
+        }
         // Progress section
         if (storyRoot != null) {
             totalH += fontLineH; // "Progress" header
@@ -1480,13 +1504,15 @@ class InfoPanelRenderer {
             font.draw(batch, subjectVal, PAD + glyphLayout.width, ty + drawScrollY);
             ty -= fontLineH;
 
-            if (!active.getObjective().isEmpty()) {
+            if (!objLines.isEmpty()) {
                 font.setColor(DEV_INFO_LABEL_COLOR);
-                font.draw(batch, "Objective: ", PAD, ty + drawScrollY);
-                glyphLayout.setText(font, "Objective: ");
-                font.setColor(Color.WHITE);
-                font.draw(batch, active.getObjective(), PAD + glyphLayout.width, ty + drawScrollY);
+                font.draw(batch, "Objective:", PAD, ty + drawScrollY);
                 ty -= fontLineH;
+                font.setColor(Color.WHITE);
+                for (String line : objLines) {
+                    font.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                    ty -= fontLineH;
+                }
             }
 
             font.setColor(DEV_INFO_LABEL_COLOR);
@@ -1514,15 +1540,18 @@ class InfoPanelRenderer {
         font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Description
-        if (!active.getDescription().isEmpty()) {
+        // Description (word-wrapped)
+        if (!descLines.isEmpty()) {
             font.setColor(LABEL_COLOR);
             font.draw(batch, "Description:", PAD, ty + drawScrollY);
             ty -= fontLineH;
             smallFont.setColor(NOVEL_COLOR);
-            smallFont.draw(batch, active.getDescription(), PAD + 8f, ty + drawScrollY);
+            for (String line : descLines) {
+                smallFont.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH;
+            }
             smallFont.setColor(Color.WHITE);
-            ty -= fontLineH;
+            ty -= PAD / 2f;
         }
 
         // ── Story-tree progress panel (new) ───────────────────────────────────
