@@ -505,6 +505,17 @@ public class Profile {
         if (entry != null) calendarEntries.add(entry);
     }
 
+    /** Removes a calendar entry (no-op if null or not found). */
+    public void removeCalendarEntry(CalendarEntry entry) {
+        if (entry != null) calendarEntries.remove(entry);
+    }
+
+    /** Removes all calendar entries whose dateTime is strictly before the current game dateTime. */
+    public void removeExpiredCalendarEntries() {
+        String now = getGameDateTime();
+        calendarEntries.removeIf(e -> e.dateTime != null && e.dateTime.compareTo(now) < 0);
+    }
+
     /** Returns the game-date string (YYYY-MM-DD) when emails were last generated, or "" if never. */
     public String getLastEmailCheckDate() { return lastEmailCheckDate; }
 

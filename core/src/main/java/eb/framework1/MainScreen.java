@@ -770,6 +770,15 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Note popup blocks all normal interaction until dismissed
+                if (notePopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Meet popup blocks all normal interaction until dismissed
                 if (meetPopup.isVisible()) {
                     infoAreaPressed = true;
@@ -1606,6 +1615,7 @@ public class MainScreen implements Screen {
         if (currentMeetAppt == null) return;
         String contactName = currentMeetAppt.contactName;
         if (contactName.isEmpty()) {
+            profile.removeCalendarEntry(currentMeetAppt);
             currentMeetAppt = null;
             return;
         }
@@ -1620,6 +1630,7 @@ public class MainScreen implements Screen {
         }
         if (matchingCase == null) {
             Gdx.app.log("MainScreen", "No open case found for contact: " + contactName);
+            profile.removeCalendarEntry(currentMeetAppt);
             currentMeetAppt = null;
             return;
         }
@@ -1635,6 +1646,8 @@ public class MainScreen implements Screen {
         }
 
         Gdx.app.log("MainScreen", "Case file updated after meeting: " + matchingCase.getName());
+        // Remove the completed appointment from the calendar
+        profile.removeCalendarEntry(currentMeetAppt);
         currentMeetAppt = null;
     }
 
@@ -1850,6 +1863,7 @@ public class MainScreen implements Screen {
         restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
             profile.advanceGameTime(minutesPerDot);
             profile.addStaminaUpTo(staminaPerDot, cap);
+            profile.removeExpiredCalendarEntries();
         });
     }
 
@@ -2593,6 +2607,7 @@ public class MainScreen implements Screen {
             int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
             profile.addStamina(staminaGain);
             profile.advanceGameTime(minutesSleep);
+            profile.removeExpiredCalendarEntries();
             msgLines.add("You slept until 06:00.");
             msgLines.add("+" + staminaGain + " stamina restored.");
         } else {
