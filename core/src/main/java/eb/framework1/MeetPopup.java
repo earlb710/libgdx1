@@ -69,6 +69,7 @@ class MeetPopup {
     private static final Color BTN_BORDER      = new Color(0.35f, 0.55f, 0.80f, 1f);
     private static final Color BTN_TEXT        = new Color(0.90f, 0.90f, 0.90f, 1f);
     private static final Color BTN_ASKED_TEXT  = new Color(0.50f, 0.90f, 0.55f, 1f);
+    private static final Color ANSWER_TEXT_CLR = new Color(0.85f, 0.82f, 0.65f, 1f);
     private static final Color ACCEPT_FILL     = new Color(0.10f, 0.40f, 0.15f, 1f);
     private static final Color ACCEPT_BORDER   = new Color(0.25f, 0.80f, 0.35f, 1f);
     private static final Color ACCEPT_TEXT     = new Color(0.80f, 1.00f, 0.82f, 1f);
@@ -103,6 +104,8 @@ class MeetPopup {
     private String       replyText    = "";
     private List<String> questions    = new ArrayList<>();
     private boolean[]    questionAsked;
+    /** Parallel list of answer texts; empty string means no answer for that question. */
+    private List<String> answers      = new ArrayList<>();
 
     // ---- Hit-test bounds (written each frame during draw, read by onTap) ----
     private float dialogX, dialogY, dialogW, dialogH;
@@ -173,11 +176,61 @@ class MeetPopup {
                 && newContactName.equals(contactName);
         contactName = newContactName;
         if (!sameContact) {
-            questions     = new ArrayList<>(ClientIntroductionGenerator.buildQuestions());
-            questionAsked = new boolean[questions.size()];
-            qBtnX = new float[questions.size()];
-            qBtnY = new float[questions.size()];
-            qBtnW = new float[questions.size()];
+            List<String> qs = new ArrayList<>(ClientIntroductionGenerator.buildQuestions());
+            List<String> as = new ArrayList<>();
+            for (int i = 0; i < qs.size(); i++) as.add("");
+            initQuestionState(qs, as);
+        }
+
+        confirmingClose = false;
+        visible = true;
+    }
+
+    /**
+     * Opens the meet popup using a pre-generated {@link MeetingQA} dialogue list
+     * from the matching {@link CaseFile}.  Each entry's question is shown as a
+     * tappable button; the client's answer text is revealed below the button
+     * once the player taps it.
+     *
+     * <p>Falls back to the generic question list when {@code dialogue} is
+     * {@code null} or empty.
+     *
+     * @param entry    the upcoming appointment; must not be {@code null}
+     * @param caseContext short objective string used for the introduction
+     * @param dialogue pre-generated Q&amp;A pairs from the {@link CaseFile}
+     */
+    void show(CalendarEntry entry, String caseContext, java.util.List<MeetingQA> dialogue) {
+        if (entry == null) return;
+
+        String newContactName = entry.contactName.isEmpty() ? entry.title : entry.contactName;
+        String gender = entry.contactGender;
+
+        int nameHash = Math.abs(newContactName.hashCode());
+        int charisma    = 1 + (nameHash % 10);
+        int empathy     = 1 + ((nameHash / 10) % 10);
+        int nervousness = 1 + ((nameHash / 100) % 10);
+
+        introText = ClientIntroductionGenerator.buildIntroduction(
+                newContactName, gender, charisma, empathy, nervousness, caseContext);
+        replyText = ClientIntroductionGenerator.buildDetectiveReply(newContactName);
+
+        boolean sameContact = questionAsked != null && newContactName.equals(contactName);
+        contactName = newContactName;
+        if (!sameContact) {
+            if (dialogue != null && !dialogue.isEmpty()) {
+                List<String> qs = new ArrayList<>();
+                List<String> as = new ArrayList<>();
+                for (MeetingQA qa : dialogue) {
+                    qs.add(qa.getQuestion());
+                    as.add(qa.getAnswer());
+                }
+                initQuestionState(qs, as);
+            } else {
+                List<String> qs = new ArrayList<>(ClientIntroductionGenerator.buildQuestions());
+                List<String> as = new ArrayList<>();
+                for (int i = 0; i < qs.size(); i++) as.add("");
+                initQuestionState(qs, as);
+            }
         }
 
         confirmingClose = false;
@@ -186,6 +239,19 @@ class MeetPopup {
 
     /** Hides the popup. */
     void hide() { visible = false; confirmingClose = false; }
+
+    /**
+     * Initialises the question/answer/hit-test arrays from the provided lists.
+     * Both lists must be the same size.
+     */
+    private void initQuestionState(List<String> qs, List<String> as) {
+        questions     = new ArrayList<>(qs);
+        answers       = new ArrayList<>(as);
+        questionAsked = new boolean[questions.size()];
+        qBtnX = new float[questions.size()];
+        qBtnY = new float[questions.size()];
+        qBtnW = new float[questions.size()];
+    }
 
     /**
      * Returns an unmodifiable list of the question texts that were tapped
@@ -358,6 +424,28 @@ class MeetPopup {
 
         int nQ = questions.size();
         qBtnH = BTN_H;
+        final float ANSWER_PAD = 4f;  // gap between button bottom and first answer line
+
+        // ---- Pre-compute wrapped answer lines (needed for height and drawing) ----
+        List<List<String>> answerLinesList = new ArrayList<>();
+        for (int i = 0; i < nQ; i++) {
+            String ans = (answers != null && i < answers.size()) ? answers.get(i) : "";
+            if (questionAsked != null && questionAsked[i] && !ans.isEmpty()) {
+                answerLinesList.add(WordWrapper.wrap(ans, innerW - 16f, msr));
+            } else {
+                answerLinesList.add(java.util.Collections.emptyList());
+            }
+        }
+
+        // ---- Question block height (variable: answered questions include answer lines) ----
+        float questionBlockH = 0f;
+        for (int i = 0; i < nQ; i++) {
+            questionBlockH += BTN_H + BTN_GAP;
+            int aLines = answerLinesList.get(i).size();
+            if (aLines > 0) {
+                questionBlockH += ANSWER_PAD + aLines * lineH;
+            }
+        }
 
         // ---- Compute required dialog height from the layout formula ----
         float dH = PAD                                          // top pad
@@ -371,7 +459,7 @@ class MeetPopup {
                 + replyLines.size() * lineH                    // reply text lines
                 + SECTION_GAP                                  // gap before reply divider
                 + DIVIDER_H + SECTION_GAP                      // reply/questions divider + gap below
-                + nQ * (BTN_H + BTN_GAP)                       // question buttons
+                + questionBlockH                               // question buttons + answer lines
                 + SECTION_GAP                                  // gap before bottom row
                 + PAD;                                         // bottom pad
         if (allAnswered) {
@@ -434,12 +522,20 @@ class MeetPopup {
         float replyDivY = curY;
         curY -= DIVIDER_H + SECTION_GAP;
 
-        // Question buttons (rect bottom = curY - BTN_H)
+        // Question buttons (rect bottom = curY - BTN_H) + answer lines below each answered button
+        float[] answerStartY = new float[nQ];
         for (int i = 0; i < nQ; i++) {
             qBtnY[i] = curY - BTN_H;
             qBtnX[i] = dialogX + PAD;
             qBtnW[i] = innerW;
             curY -= BTN_H + BTN_GAP;
+            int aLines = answerLinesList.get(i).size();
+            if (aLines > 0) {
+                answerStartY[i] = curY - ANSWER_PAD;
+                curY -= ANSWER_PAD + aLines * lineH;
+            } else {
+                answerStartY[i] = 0f;
+            }
         }
         curY -= SECTION_GAP;
 
@@ -559,7 +655,8 @@ class MeetPopup {
             smallFont.draw(batch, replyLines.get(i), dialogX + PAD, replyLineY[i]);
         }
 
-        // Question button labels — vertically centred inside each button
+        // Question button labels — vertically centred inside each button;
+        // answer text shown below each button once it has been tapped
         for (int i = 0; i < nQ; i++) {
             if (qBtnW[i] <= 0) continue;
             String label   = questions.get(i);
@@ -568,6 +665,17 @@ class MeetPopup {
             smallFont.setColor(questionAsked[i] ? BTN_ASKED_TEXT : BTN_TEXT);
             float ty = qBtnY[i] + (BTN_H + glyph.height) / 2f;
             smallFont.draw(batch, display, qBtnX[i] + 8f, ty);
+
+            // Draw the client's answer below the button once the question is asked
+            List<String> aLines = answerLinesList.get(i);
+            if (!aLines.isEmpty()) {
+                float ay = answerStartY[i];
+                smallFont.setColor(ANSWER_TEXT_CLR);
+                for (String line : aLines) {
+                    smallFont.draw(batch, line, qBtnX[i] + 16f, ay);
+                    ay -= lineH;
+                }
+            }
         }
 
         // Accept / Reject button labels — only when all questions answered;

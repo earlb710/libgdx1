@@ -575,6 +575,95 @@ public class CaseGeneratorTest {
     }
 
     // -------------------------------------------------------------------------
+    // Meeting dialogue generation
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void generate_meetingDialogueIsNotEmpty() {
+        CaseGenerator gen = makeGenerator(42L);
+        CaseFile cf = gen.generate("2050-06-01 09:00");
+        assertNotNull("meetingDialogue must not be null", cf.getMeetingDialogue());
+        assertFalse("meetingDialogue must not be empty", cf.getMeetingDialogue().isEmpty());
+    }
+
+    @Test
+    public void generate_meetingDialogueContainsFourBaseQuestions() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 200L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            List<MeetingQA> dialogue = cf.getMeetingDialogue();
+            // At minimum there are 4 base questions
+            assertTrue("At least 4 Q&As expected for " + type, dialogue.size() >= 4);
+            assertEquals("First question must be about the task",
+                    "What exactly do you need me to do?", dialogue.get(0).getQuestion());
+            assertEquals("Second question must be about the subject",
+                    "Tell me more about the subject.", dialogue.get(1).getQuestion());
+        }
+    }
+
+    @Test
+    public void generate_meetingDialogueAnswersAreNonEmpty() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 300L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            for (MeetingQA qa : cf.getMeetingDialogue()) {
+                assertNotNull("Answer must not be null for type " + type, qa.getAnswer());
+                assertFalse("Answer must not be empty for type " + type + " Q: " + qa.getQuestion(),
+                        qa.getAnswer().trim().isEmpty());
+            }
+        }
+    }
+
+    @Test
+    public void generate_meetingDialogueHasPhaseEntriesForComplexCase() {
+        // With complexity >= 2 the dialogue should contain more than 4 entries
+        // (base 4 + one per PLOT_TWIST phase). Run enough seeds to find at least one.
+        for (int seed = 0; seed < 100; seed++) {
+            CaseGenerator gen = makeGenerator(seed + 400L);
+            CaseFile cf = gen.generate("2050-06-01 09:00");
+            if (cf.getComplexity() >= 2) {
+                assertTrue("Complex case (complexity " + cf.getComplexity()
+                        + ") should have more than 4 Q&A entries (got " + cf.getMeetingDialogue().size() + ")",
+                        cf.getMeetingDialogue().size() > 4);
+                return; // Test passed
+            }
+        }
+        // If no complexity>=2 case found in 100 seeds the count test is vacuously satisfied;
+        // generate_storyPhaseCountMatchesComplexity already covers multi-phase trees.
+    }
+
+    @Test
+    public void generate_meetingDialoguePhaseQuestionsReferencePhaseTitle() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 500L);
+            CaseFile cf = gen.generate(type, "2050-06-01 09:00");
+            List<MeetingQA> dialogue = cf.getMeetingDialogue();
+            // Each Q&A beyond the first 4 corresponds to a PLOT_TWIST phase
+            int phaseCount = cf.getStoryRoot().getChildren().size();
+            assertEquals("Dialogue size must be 4 + phaseCount for " + type,
+                    4 + phaseCount, dialogue.size());
+            // Check that phase questions reference the phase title
+            for (int i = 0; i < phaseCount; i++) {
+                String phaseTitle = cf.getStoryRoot().getChildren().get(i).getTitle();
+                String question = dialogue.get(4 + i).getQuestion();
+                assertTrue("Phase question for " + type + " phase " + i
+                        + " should reference the phase title '" + phaseTitle + "'",
+                        question.contains(phaseTitle));
+            }
+        }
+    }
+
+    @Test
+    public void generate_meetingDialogueObjectiveAppearsInFirstAnswer() {
+        CaseGenerator gen = makeGenerator(123L);
+        CaseFile cf = gen.generate(CaseType.THEFT, "2050-06-01 09:00");
+        String firstAnswer = cf.getMeetingDialogue().get(0).getAnswer();
+        // The first answer should be (or contain) the case objective
+        String objective = cf.getObjective();
+        assertEquals("First Q&A answer must equal the case objective", objective, firstAnswer);
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
 

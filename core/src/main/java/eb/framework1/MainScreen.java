@@ -1494,10 +1494,14 @@ public class MainScreen implements Screen {
                 && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
             CalendarEntry appt = findUpcomingAppointment();
             if (appt != null && !appt.contactName.isEmpty()) {
-                // Find a matching case objective to give context to the introduction
-                String caseContext = findCaseContextForContact(appt.contactName);
+                // Find a matching case file to get the objective context and meeting dialogue
+                CaseFile matchCase = findCaseForContact(appt.contactName);
+                String caseContext = (matchCase != null && !matchCase.getObjective().isEmpty())
+                        ? matchCase.getObjective() : findCaseContextForContact(appt.contactName);
+                java.util.List<MeetingQA> dialogue = matchCase != null
+                        ? matchCase.getMeetingDialogue() : java.util.Collections.emptyList();
                 currentMeetAppt = appt;
-                meetPopup.show(appt, caseContext);
+                meetPopup.show(appt, caseContext, dialogue);
                 Gdx.app.log("MainScreen", "Meet popup opened for: " + appt.contactName);
             } else {
                 // No named contact — fall back to showing the Calendar tab
@@ -1564,6 +1568,20 @@ public class MainScreen implements Screen {
         } catch (Exception e) {
             return Long.MAX_VALUE / 2;
         }
+    }
+
+    /**
+     * Returns the first open {@link CaseFile} whose client name matches
+     * {@code contactName}, or {@code null} if none is found.
+     */
+    private CaseFile findCaseForContact(String contactName) {
+        if (contactName == null || contactName.isEmpty()) return null;
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                return cf;
+            }
+        }
+        return null;
     }
 
     /**
