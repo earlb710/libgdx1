@@ -189,7 +189,7 @@ class NotePopup {
         final float PAD         = 16f;
         final float GAP         = 10f;
         final float BTN_TOP_GAP = 20f; // extra space above Save/Cancel buttons
-        final float CB_SIZE     = 16f;
+        final float CB_SIZE     = 28f;
         final float CB_GAP      = 8f;
         final float ROW_GAP     = 8f;
         final float BTN_PAD_H   = 22f;
@@ -361,10 +361,10 @@ class NotePopup {
         smallFont.setColor(Color.WHITE);
         smallFont.draw(batch, TIME_LABEL,
                 timeCbX + CB_SIZE + CB_GAP,
-                timeCbY + CB_SIZE - 2f);
+                timeCbY + (CB_SIZE + smallH) / 2f);
         smallFont.draw(batch, LOC_LABEL,
                 locCbX + CB_SIZE + CB_GAP,
-                locCbY + CB_SIZE - 2f);
+                locCbY + (CB_SIZE + smallH) / 2f);
 
         // Button labels
         font.setColor(Color.WHITE);

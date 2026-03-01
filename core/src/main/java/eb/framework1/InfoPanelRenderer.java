@@ -52,6 +52,7 @@ class InfoPanelRenderer {
     static final Color         NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
     private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
+    private static final Color NOTE_DIVIDER_COLOR     = new Color(0.30f, 0.30f, 0.40f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
     private static final Color SERVICE_BTN_COLOR       = new Color(0.15f, 0.45f, 0.45f, 1f);
     private static final Color DEV_BTN_ON_FILL         = new Color(0.10f, 0.40f, 0.15f, 1f);
@@ -1639,12 +1640,28 @@ class InfoPanelRenderer {
         font.draw(batch, String.valueOf(active.getNotes().size()),
                 PAD + glyphLayout.width, ty + drawScrollY);
         ty -= fontLineH;
-        for (String note : active.getNotes()) {
+        List<String> notesList = active.getNotes();
+        float[] noteDividerYs = new float[Math.max(0, notesList.size() - 1)];
+        int noteDividerCount = 0;
+        for (int ni = 0; ni < notesList.size(); ni++) {
             noteFont.setColor(NOTE_COLOR);
-            noteFont.draw(batch, "\u2022 " + note, PAD + 8f, ty + drawScrollY);
+            noteFont.draw(batch, "\u2022 " + notesList.get(ni), PAD + 8f, ty + drawScrollY);
             ty -= fontLineH * 0.9f;
+            if (ni < notesList.size() - 1) {
+                noteDividerYs[noteDividerCount++] = ty + drawScrollY + fontLineH * 0.9f * 0.25f; // 25% up in the gap
+            }
         }
         noteFont.setColor(Color.WHITE);
+        if (noteDividerCount > 0) {
+            batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(NOTE_DIVIDER_COLOR);
+            for (int di = 0; di < noteDividerCount; di++) {
+                shapeRenderer.line(PAD + 4f, noteDividerYs[di], s.screenWidth - SB - PAD, noteDividerYs[di]);
+            }
+            shapeRenderer.end();
+            batch.begin();
+        }
 
         // Leads
         List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
