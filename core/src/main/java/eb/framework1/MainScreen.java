@@ -1081,10 +1081,11 @@ public class MainScreen implements Screen {
                             if (result == MeetPopup.RESULT_ACCEPTED) {
                                 handleMeetingAccepted();
                             } else if (result == MeetPopup.RESULT_REJECTED) {
-                                handleMeetingClosed();
+                                handleMeetingRejected();
                             }
-                            // RESULT_CLOSED: popup is hidden but question state is
-                            // preserved; no meeting notes recorded until accept/reject.
+                            // RESULT_CLOSED: popup hides but the appointment and
+                            // pendingCase are preserved so the player can reopen
+                            // the meeting by tapping the Meet button again.
                         }
                         infoAreaPressed = false;
                     }
@@ -1653,17 +1654,33 @@ public class MainScreen implements Screen {
     }
 
     /**
-     * Called when the meet popup is closed.  Finds the first open
-     * {@link CaseFile} that matches the current appointment's contact name
+     * Called when the player taps "Reject Case".  Discards the pre-generated
+     * {@link #pendingCase}, removes the appointment from the calendar (so the
+     * Meet button disappears), and clears tracking state.  No meeting notes or
+     * clues are recorded.
+     */
+    private void handleMeetingRejected() {
+        pendingCase = null;
+        if (currentMeetAppt != null) {
+            profile.removeCalendarEntry(currentMeetAppt);
+            Gdx.app.log("MainScreen", "Meeting rejected; appointment removed for: "
+                    + currentMeetAppt.contactName);
+            currentMeetAppt = null;
+        }
+    }
+
+    /**
+     * Called after the player taps "Accept Case" (via {@link #handleMeetingAccepted()}).
+     * Finds the newly-added {@link CaseFile} that matches the appointment's contact name
      * and records a meeting note plus a clue entry for every question the
-     * player asked during the meeting.
+     * player asked during the meeting.  Also removes the completed appointment.
      */
     private void handleMeetingClosed() {
         if (currentMeetAppt == null) return;
         String contactName = currentMeetAppt.contactName;
 
-        // Discard the pending case on Reject/Close paths; on Accept it is
-        // already null (transferred to the profile in handleMeetingAccepted).
+        // pendingCase is already null here (transferred to the profile in
+        // handleMeetingAccepted before this method is called).
         pendingCase = null;
 
         if (contactName.isEmpty()) {
