@@ -188,6 +188,7 @@ class NotePopup {
 
         final float PAD         = 16f;
         final float GAP         = 10f;
+        final float BTN_TOP_GAP = 20f; // extra space above Save/Cancel buttons
         final float CB_SIZE     = 16f;
         final float CB_GAP      = 8f;
         final float ROW_GAP     = 8f;
@@ -229,11 +230,11 @@ class NotePopup {
         // Checkbox row height
         float cbRowH = Math.max(CB_SIZE, smallH);
 
-        // Total dialog height
+        // Total dialog height (BTN_TOP_GAP gives breathing room above Save/Cancel)
         float dialogH = PAD + fontH + GAP
                 + textAreaH_ + GAP
                 + cbRowH + ROW_GAP
-                + cbRowH + GAP
+                + cbRowH + BTN_TOP_GAP
                 + btnH_ + PAD;
 
         float dialogX = (screenW - dialogW) / 2f;
@@ -241,7 +242,7 @@ class NotePopup {
 
         // ── Layout (y increases upward in libGDX) ────────────────────────────
         float btnRowY   = dialogY + PAD;
-        float locRowY   = btnRowY  + btnH_    + GAP;
+        float locRowY   = btnRowY  + btnH_    + BTN_TOP_GAP;
         float timeRowY  = locRowY  + cbRowH   + ROW_GAP;
         float taY       = timeRowY + cbRowH   + GAP;
 
@@ -265,7 +266,33 @@ class NotePopup {
         locCbX  = dialogX + PAD; locCbY  = locRowY  + (cbRowH - CB_SIZE) / 2f;
         locCbW  = CB_SIZE;       locCbH  = CB_SIZE;
 
-        // ── Draw filled rects ────────────────────────────────────────────────
+        // ── Pre-compute text-area content (needed for cursor position) ────────
+        float taWrapW = textAreaW - TEXT_PAD * 2f;
+        String typed  = noteText.toString();
+        // Wrapped lines computed once; reused for both drawing and cursor coords
+        List<String> wrappedLines = typed.isEmpty()
+                ? Collections.singletonList("")
+                : WordWrapper.wrap(typed, taWrapW, t -> {
+                    glyph.setText(smallFont, t);
+                    return glyph.width;
+                  });
+
+        // Cursor position (computed before any render calls to avoid sr/batch mixing)
+        boolean drawCursor = cursorVisible;
+        float cursorRectX = 0f, cursorRectY = 0f;
+        if (drawCursor) {
+            int lastIdx = Math.min(wrappedLines.size() - 1, TEXT_AREA_LINES - 1);
+            if (lastIdx == wrappedLines.size() - 1) {
+                String lastLine = wrappedLines.get(lastIdx);
+                glyph.setText(smallFont, lastLine);
+                cursorRectX = textAreaX + TEXT_PAD + (typed.isEmpty() ? 0f : glyph.width) + 1f;
+                cursorRectY = textAreaY + textAreaH - TEXT_PAD - lastIdx * smallLineH - smallH;
+            } else {
+                drawCursor = false; // text overflows visible area; suppress cursor
+            }
+        }
+
+        // ── Draw filled rects (ShapeRenderer only — batch not active) ────────
         sr.begin(ShapeRenderer.ShapeType.Filled);
         sr.setColor(BG_COLOR);
         sr.rect(dialogX, dialogY, dialogW, dialogH);
@@ -285,9 +312,14 @@ class NotePopup {
             float inset = 3f;
             sr.rect(locCbX + inset, locCbY + inset, CB_SIZE - inset * 2f, CB_SIZE - inset * 2f);
         }
+        // Blinking cursor drawn here with sr, BEFORE batch.begin(), to avoid gl state corruption
+        if (drawCursor) {
+            sr.setColor(CURSOR_COLOR);
+            sr.rect(cursorRectX, cursorRectY, 2f, smallH);
+        }
         sr.end();
 
-        // ── Draw borders ────────────────────────────────────────────────────
+        // ── Draw borders (ShapeRenderer only — batch not active) ─────────────
         sr.begin(ShapeRenderer.ShapeType.Line);
         sr.setColor(BORDER_COLOR);
         sr.rect(dialogX,     dialogY,     dialogW,     dialogH);
@@ -300,7 +332,7 @@ class NotePopup {
         sr.rect(locCbX,  locCbY,  CB_SIZE, CB_SIZE);
         sr.end();
 
-        // ── Draw text ────────────────────────────────────────────────────────
+        // ── Draw all text (SpriteBatch only — ShapeRenderer not active) ───────
         batch.begin();
 
         // Title
@@ -310,20 +342,10 @@ class NotePopup {
                 dialogX + (dialogW - glyph.width) / 2f,
                 dialogY + dialogH - PAD);
 
-        // Text area content: word-wrap the typed text and draw inside
-        float taWrapW = textAreaW - TEXT_PAD * 2f;
-        String typed  = noteText.toString();
-        // Compute wrapped lines once; reused for cursor positioning below
-        List<String> wrappedLines = typed.isEmpty()
-                ? Collections.singletonList("")
-                : WordWrapper.wrap(typed, taWrapW, t -> {
-                    glyph.setText(smallFont, t);
-                    return glyph.width;
-                  });
+        // Text area content
         if (typed.isEmpty()) {
-            // Placeholder hint
             smallFont.setColor(PLACEHOLDER_COLOR);
-            smallFont.draw(batch, "Type your note here…",
+            smallFont.draw(batch, "Type your note here\u2026",
                     textAreaX + TEXT_PAD,
                     textAreaY + textAreaH - TEXT_PAD);
         } else {
@@ -332,22 +354,6 @@ class NotePopup {
             for (int i = 0; i < wrappedLines.size() && i < TEXT_AREA_LINES; i++) {
                 smallFont.draw(batch, wrappedLines.get(i), textAreaX + TEXT_PAD, ty);
                 ty -= smallLineH;
-            }
-        }
-
-        // Blinking cursor at end of last visible line
-        if (cursorVisible) {
-            int lastIdx = Math.min(wrappedLines.size() - 1, TEXT_AREA_LINES - 1);
-            // Only draw if we're on the last wrapped line (text hasn't overflowed)
-            if (lastIdx == wrappedLines.size() - 1) {
-                String lastLine = wrappedLines.get(lastIdx);
-                glyph.setText(smallFont, lastLine);
-                float cursorX = textAreaX + TEXT_PAD + (typed.isEmpty() ? 0f : glyph.width) + 1f;
-                float cursorY = textAreaY + textAreaH - TEXT_PAD - lastIdx * smallLineH;
-                sr.begin(ShapeRenderer.ShapeType.Filled);
-                sr.setColor(CURSOR_COLOR);
-                sr.rect(cursorX, cursorY - smallH, 2f, smallH);
-                sr.end();
             }
         }
 
