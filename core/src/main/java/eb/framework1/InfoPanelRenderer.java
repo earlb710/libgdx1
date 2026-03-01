@@ -1520,7 +1520,7 @@ class InfoPanelRenderer {
             font.draw(batch, "Complexity: ", PAD, ty + drawScrollY);
             glyphLayout.setText(font, "Complexity: ");
             font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(active.getComplexity()),
+            font.draw(batch, active.getComplexity() + " (hidden)",
                     PAD + glyphLayout.width, ty + drawScrollY);
             ty -= fontLineH;
         }

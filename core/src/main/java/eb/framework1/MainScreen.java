@@ -78,6 +78,14 @@ public class MainScreen implements Screen {
     private MeetPopup            meetPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
+    /**
+     * Case pre-generated when the meeting popup is opened, before the player
+     * has tapped Accept or Reject.  Stored here so its meeting dialogue can be
+     * shown during the appointment and so it can be added to the profile on
+     * Accept without generating a second, different case.  Cleared on
+     * Accept (transferred to profile) or Reject/Close (discarded).
+     */
+    private CaseFile             pendingCase;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
     /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
@@ -1494,12 +1502,25 @@ public class MainScreen implements Screen {
                 && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
             CalendarEntry appt = findUpcomingAppointment();
             if (appt != null && !appt.contactName.isEmpty()) {
-                // Find a matching case file to get the objective context and meeting dialogue
-                CaseFile matchCase = findCaseForContact(appt.contactName);
-                String caseContext = (matchCase != null && !matchCase.getObjective().isEmpty())
-                        ? matchCase.getObjective() : findCaseContextForContact(appt.contactName);
-                java.util.List<MeetingQA> dialogue = matchCase != null
-                        ? matchCase.getMeetingDialogue() : java.util.Collections.emptyList();
+                // Pre-generate the case now (before Accept/Reject) so the meeting dialogue
+                // can be shown during the appointment.  The pending case is transferred to
+                // the profile on Accept and discarded on Reject/Close.
+                if (pendingCase == null
+                        || pendingCase.getClientName() == null
+                        || !appt.contactName.equalsIgnoreCase(pendingCase.getClientName())) {
+                    GameDataManager gdm = game.getGameDataManager();
+                    PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
+                    if (png != null) {
+                        CaseGenerator caseGen = new CaseGenerator(png);
+                        pendingCase = caseGen.generate(profile.getGameDateTime());
+                        pendingCase.setClientName(appt.contactName);
+                        Gdx.app.log("MainScreen", "Pending case pre-generated for: " + appt.contactName);
+                    }
+                }
+                String caseContext = (pendingCase != null && !pendingCase.getObjective().isEmpty())
+                        ? pendingCase.getObjective() : "";
+                java.util.List<MeetingQA> dialogue = pendingCase != null
+                        ? pendingCase.getMeetingDialogue() : java.util.Collections.emptyList();
                 currentMeetAppt = appt;
                 meetPopup.show(appt, caseContext, dialogue);
                 Gdx.app.log("MainScreen", "Meet popup opened for: " + appt.contactName);
@@ -1600,25 +1621,33 @@ public class MainScreen implements Screen {
     }
 
     /**
-     * Called when the player taps "Accept Case".  Generates a new
-     * {@link CaseFile} using {@link CaseGenerator}, adds it to the profile,
-     * then delegates to {@link #handleMeetingClosed()} to record the meeting
-     * note and any asked questions.
+     * Called when the player taps "Accept Case".  Uses the pre-generated
+     * {@link #pendingCase} (created when the meeting popup was opened) so the
+     * accepted case exactly matches the dialogue the player just read.
+     * Falls back to generating a fresh case if the pending case is unavailable.
+     * Delegates to {@link #handleMeetingClosed()} to record the meeting note
+     * and any asked questions.
      */
     private void handleMeetingAccepted() {
-        GameDataManager gdm = game.getGameDataManager();
-        PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
-        if (png != null) {
-            CaseGenerator caseGen = new CaseGenerator(png);
-            CaseFile newCase = caseGen.generate(profile.getGameDateTime());
-            // Use the appointment contact as the client so the case is linked
-            if (currentMeetAppt != null && !currentMeetAppt.contactName.isEmpty()) {
-                newCase.setClientName(currentMeetAppt.contactName);
-            }
-            profile.addCaseFile(newCase);
-            Gdx.app.log("MainScreen", "Case accepted and generated: " + newCase.getName());
+        if (pendingCase != null) {
+            profile.addCaseFile(pendingCase);
+            Gdx.app.log("MainScreen", "Case accepted (pre-generated): " + pendingCase.getName());
+            pendingCase = null;
         } else {
-            Gdx.app.log("MainScreen", "Cannot generate case: PersonNameGenerator unavailable");
+            // Fallback: generate a case on-the-spot if no pending case exists
+            GameDataManager gdm = game.getGameDataManager();
+            PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
+            if (png != null) {
+                CaseGenerator caseGen = new CaseGenerator(png);
+                CaseFile newCase = caseGen.generate(profile.getGameDateTime());
+                if (currentMeetAppt != null && !currentMeetAppt.contactName.isEmpty()) {
+                    newCase.setClientName(currentMeetAppt.contactName);
+                }
+                profile.addCaseFile(newCase);
+                Gdx.app.log("MainScreen", "Case accepted (fallback-generated): " + newCase.getName());
+            } else {
+                Gdx.app.log("MainScreen", "Cannot generate case: PersonNameGenerator unavailable");
+            }
         }
         handleMeetingClosed();
     }
@@ -1632,6 +1661,11 @@ public class MainScreen implements Screen {
     private void handleMeetingClosed() {
         if (currentMeetAppt == null) return;
         String contactName = currentMeetAppt.contactName;
+
+        // Discard the pending case on Reject/Close paths; on Accept it is
+        // already null (transferred to the profile in handleMeetingAccepted).
+        pendingCase = null;
+
         if (contactName.isEmpty()) {
             profile.removeCalendarEntry(currentMeetAppt);
             currentMeetAppt = null;
