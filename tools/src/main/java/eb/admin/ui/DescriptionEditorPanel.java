@@ -546,10 +546,15 @@ public class DescriptionEditorPanel extends JPanel {
             String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
             for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
                 JsonObject entry = el.getAsJsonObject();
-                if (filePath.equals(entry.get("file").getAsString())
-                        && key.equals(entry.get("key").getAsString())
-                        && column.equals(entry.get("column").getAsString())) {
-                    lastRating = entry.get("rating").getAsString();
+                JsonElement fileEl = entry.get("file");
+                JsonElement keyEl  = entry.get("key");
+                JsonElement colEl  = entry.get("column");
+                if (fileEl == null || keyEl == null || colEl == null) continue;
+                if (filePath.equals(fileEl.getAsString())
+                        && key.equals(keyEl.getAsString())
+                        && column.equals(colEl.getAsString())) {
+                    JsonElement ratingEl = entry.get("rating");
+                    lastRating = ratingEl != null ? ratingEl.getAsString() : null;
                 }
             }
             return lastRating;
@@ -559,16 +564,59 @@ public class DescriptionEditorPanel extends JPanel {
         }
     }
 
-    /** Asks for an optional comment using a multiline editor then persists the annotation. */
+    /**
+     * Returns the comment of the most recent annotation for the given key and column,
+     * or an empty string if no annotation exists.
+     */
+    private String findExistingComment(String key, String column) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (!annotationFile.exists()) {
+            return "";
+        }
+        try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            JsonObject existing = gson.fromJson(r, JsonObject.class);
+            if (existing == null || !existing.has("annotations")) {
+                return "";
+            }
+            String lastComment = "";
+            String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+            for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                JsonObject entry = el.getAsJsonObject();
+                JsonElement fileEl = entry.get("file");
+                JsonElement keyEl  = entry.get("key");
+                JsonElement colEl  = entry.get("column");
+                if (fileEl == null || keyEl == null || colEl == null) continue;
+                if (filePath.equals(fileEl.getAsString())
+                        && key.equals(keyEl.getAsString())
+                        && column.equals(colEl.getAsString())) {
+                    JsonElement commentEl = entry.get("comment");
+                    lastComment = commentEl != null ? commentEl.getAsString() : "";
+                }
+            }
+            return lastComment;
+        } catch (IOException | RuntimeException ex) {
+            System.err.println("Could not read annotation.json for comment lookup: " + ex.getMessage());
+            return "";
+        }
+    }
+
+    /**
+     * Opens a comment dialog pre-filled with the existing annotation comment.
+     * Saves the annotation when OK is clicked; removes it when the comment is cleared.
+     */
     private void promptAndSaveAnnotation(int row, int col, String rating) {
-        JTextArea textArea = new JTextArea(6, 50);
+        String existingComment = findExistingComment(cellStr(row, 0), tableModel.getColumnName(col));
+        JTextArea textArea = new JTextArea(existingComment, 6, 50);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(520, 160));
 
         int result = JOptionPane.showConfirmDialog(
-                this, scroll, "Add Annotation – " + rating + " (comment optional)",
+                this, scroll, "Annotation – " + rating + " (clear comment to remove)",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result != JOptionPane.OK_OPTION) {
             return; // cancelled
@@ -577,9 +625,9 @@ public class DescriptionEditorPanel extends JPanel {
     }
 
     /**
-     * Appends an annotation entry to annotation.json located next to the currently
-     * open file (or in the working directory when no file is loaded).
-     * Each entry records: file, key, column, rating, comment.
+     * Updates annotation.json for the given key/column: removes any existing entry
+     * for this file+key+column, then adds a new entry only if {@code comment} is
+     * non-empty.  This means clearing the comment removes the annotation link.
      */
     private void saveAnnotation(String key, String column, String rating, String comment) {
         File annotationFile = currentFile != null
@@ -588,25 +636,45 @@ public class DescriptionEditorPanel extends JPanel {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonArray annotations = new JsonArray();
+        String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
 
         if (annotationFile.exists()) {
             try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
                 JsonObject existing = gson.fromJson(r, JsonObject.class);
                 if (existing != null && existing.has("annotations")) {
-                    annotations = existing.get("annotations").getAsJsonArray();
+                    // Copy all entries except the existing one for this file+key+column
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject e = el.getAsJsonObject();
+                        JsonElement fileEl = e.get("file");
+                        JsonElement keyEl  = e.get("key");
+                        JsonElement colEl  = e.get("column");
+                        if (fileEl == null || keyEl == null || colEl == null) {
+                            annotations.add(e); // preserve entries with missing fields
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString())
+                                && key.equals(keyEl.getAsString())
+                                && column.equals(colEl.getAsString())) {
+                            continue; // drop the old entry for this cell
+                        }
+                        annotations.add(e);
+                    }
                 }
             } catch (IOException | RuntimeException ex) {
                 System.err.println("Could not read annotation.json, starting fresh: " + ex.getMessage());
             }
         }
 
-        JsonObject entry = new JsonObject();
-        entry.addProperty("file",    currentFile != null ? currentFile.getAbsolutePath() : "");
-        entry.addProperty("key",     key);
-        entry.addProperty("column",  column);
-        entry.addProperty("rating",  rating);
-        entry.addProperty("comment", comment);
-        annotations.add(entry);
+        // Only write a new entry when the comment is non-empty
+        if (!comment.isEmpty()) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("file",    filePath);
+            entry.addProperty("key",     key);
+            entry.addProperty("column",  column);
+            entry.addProperty("rating",  rating);
+            entry.addProperty("comment", comment);
+            annotations.add(entry);
+        }
 
         JsonObject root = new JsonObject();
         root.add("annotations", annotations);
