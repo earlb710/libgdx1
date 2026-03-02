@@ -1,0 +1,362 @@
+package eb.admin.ui;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import eb.admin.model.CategoryData;
+import eb.admin.model.CategoryEntry;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Main AWT/Swing screen for the Game Admin tool.
+ * Allows viewing and editing of all category sections inside category_en.json.
+ *
+ * Tabs:
+ *   1. Building Categories  – code, description, color
+ *   2. Item Categories      – code, description
+ *   3. Evidence Categories  – code, description
+ *   4. Case Types           – code, description
+ */
+public class CategoryEditorScreen extends JFrame {
+
+    private static final String WINDOW_TITLE = "Game Admin – Category Editor";
+    private static final String DEFAULT_JSON_PATH = "assets/text/category_en.json";
+
+    // Metadata fields
+    private final JTextField versionField = new JTextField(8);
+    private final JTextField languageField = new JTextField(8);
+
+    // Tab pane and table models
+    private final JTabbedPane tabbedPane = new JTabbedPane();
+    private final DefaultTableModel buildingModel = createModel(new String[]{"Code", "Description", "Color"});
+    private final DefaultTableModel itemModel     = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel evidenceModel = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel caseModel     = createModel(new String[]{"Code", "Description"});
+
+    // Status bar
+    private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
+
+    private File currentFile;
+
+    public CategoryEditorScreen() {
+        super(WINDOW_TITLE);
+        buildUI();
+        tryLoadDefaultFile();
+    }
+
+    // -------------------------------------------------------------------------
+    // UI construction
+    // -------------------------------------------------------------------------
+
+    private void buildUI() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(980, 640);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(0, 4));
+
+        setJMenuBar(buildMenuBar());
+
+        add(buildMetaPanel(), BorderLayout.NORTH);
+
+        tabbedPane.addTab("Building Categories", buildTabPanel(buildingModel, true));
+        tabbedPane.addTab("Item Categories",     buildTabPanel(itemModel,     false));
+        tabbedPane.addTab("Evidence Categories", buildTabPanel(evidenceModel, false));
+        tabbedPane.addTab("Case Types",          buildTabPanel(caseModel,     false));
+        add(tabbedPane, BorderLayout.CENTER);
+
+        statusLabel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+        add(statusLabel, BorderLayout.SOUTH);
+    }
+
+    private JMenuBar buildMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem openItem   = new JMenuItem("Open…");
+        JMenuItem saveItem   = new JMenuItem("Save");
+        JMenuItem saveAsItem = new JMenuItem("Save As…");
+        JMenuItem exitItem   = new JMenuItem("Exit");
+
+        openItem.addActionListener((ActionEvent e) -> openFile());
+        saveItem.addActionListener((ActionEvent e) -> saveFile(false));
+        saveAsItem.addActionListener((ActionEvent e) -> saveFile(true));
+        exitItem.addActionListener((ActionEvent e) -> System.exit(0));
+
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.add(saveAsItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+
+        menuBar.add(fileMenu);
+        return menuBar;
+    }
+
+    private JPanel buildMetaPanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        panel.setBorder(BorderFactory.createTitledBorder("File Metadata"));
+        panel.add(new JLabel("Version:"));
+        panel.add(versionField);
+        panel.add(Box.createHorizontalStrut(12));
+        panel.add(new JLabel("Language:"));
+        panel.add(languageField);
+        return panel;
+    }
+
+    /**
+     * Builds a panel containing an editable JTable and a button toolbar.
+     *
+     * @param model    the table model to use
+     * @param hasColor whether the table has a Color column (building categories only)
+     */
+    private JPanel buildTabPanel(DefaultTableModel model, boolean hasColor) {
+        JTable table = new JTable(model);
+        table.setRowHeight(26);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getTableHeader().setReorderingAllowed(false);
+
+        if (hasColor) {
+            // Set preferred widths
+            table.getColumnModel().getColumn(0).setPreferredWidth(140);
+            table.getColumnModel().getColumn(1).setPreferredWidth(520);
+            table.getColumnModel().getColumn(2).setPreferredWidth(100);
+            // Color swatch renderer
+            table.getColumnModel().getColumn(2).setCellRenderer(new ColorCellRenderer());
+        } else {
+            table.getColumnModel().getColumn(0).setPreferredWidth(180);
+            table.getColumnModel().getColumn(1).setPreferredWidth(680);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        // Button toolbar
+        JButton addBtn    = new JButton("Add Row");
+        JButton deleteBtn = new JButton("Delete Row");
+        JButton saveBtn   = new JButton("Save");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            if (hasColor) {
+                model.addRow(new Object[]{"", "", ""});
+            } else {
+                model.addRow(new Object[]{"", ""});
+            }
+            int last = model.getRowCount() - 1;
+            table.scrollRectToVisible(table.getCellRect(last, 0, true));
+            table.setRowSelectionInterval(last, last);
+        });
+
+        deleteBtn.addActionListener((ActionEvent e) -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                model.removeRow(row);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Please select a row to delete.",
+                        "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        saveBtn.addActionListener((ActionEvent e) -> saveFile(false));
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(addBtn);
+        buttons.add(deleteBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(saveBtn);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttons,    BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // -------------------------------------------------------------------------
+    // File operations
+    // -------------------------------------------------------------------------
+
+    private void tryLoadDefaultFile() {
+        File defaultFile = new File(DEFAULT_JSON_PATH);
+        if (defaultFile.exists()) {
+            loadFromFile(defaultFile);
+        }
+    }
+
+    private void openFile() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
+        chooser.setCurrentDirectory(currentFile != null ? currentFile.getParentFile() : new File("."));
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            loadFromFile(chooser.getSelectedFile());
+        }
+    }
+
+    private void loadFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            Gson gson = new Gson();
+            CategoryData data = gson.fromJson(reader, CategoryData.class);
+
+            versionField.setText(data.getVersion() != null ? data.getVersion() : "");
+            languageField.setText(data.getLanguage() != null ? data.getLanguage() : "");
+
+            populateModel(buildingModel, data.getBuilding_categories(), true);
+            populateModel(itemModel,     data.getItem_categories(),     false);
+            populateModel(evidenceModel, data.getEvidence_categories(), false);
+            populateModel(caseModel,     data.getCase_types(),          false);
+
+            currentFile = file;
+            setTitle(WINDOW_TITLE + " – " + file.getName());
+            statusLabel.setText("Loaded: " + file.getAbsolutePath());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading file:\n" + ex.getMessage(),
+                    "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveFile(boolean saveAs) {
+        if (currentFile == null || saveAs) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
+            if (currentFile != null) {
+                chooser.setSelectedFile(currentFile);
+            }
+            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            File chosen = chooser.getSelectedFile();
+            currentFile = chosen.getName().endsWith(".json") ? chosen
+                    : new File(chosen.getAbsolutePath() + ".json");
+        }
+
+        try {
+            CategoryData data = buildCategoryData();
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            try (Writer writer = new FileWriter(currentFile)) {
+                gson.toJson(data, writer);
+            }
+            setTitle(WINDOW_TITLE + " – " + currentFile.getName());
+            statusLabel.setText("Saved: " + currentFile.getAbsolutePath());
+            JOptionPane.showMessageDialog(this,
+                    "File saved successfully.",
+                    "Saved", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Model helpers
+    // -------------------------------------------------------------------------
+
+    private static DefaultTableModel createModel(String[] columns) {
+        return new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return true;
+            }
+        };
+    }
+
+    private static void populateModel(DefaultTableModel model, List<CategoryEntry> entries, boolean hasColor) {
+        model.setRowCount(0);
+        if (entries == null) return;
+        for (CategoryEntry e : entries) {
+            if (hasColor) {
+                model.addRow(new Object[]{
+                        nvl(e.getCode()),
+                        nvl(e.getDescription()),
+                        nvl(e.getColor())
+                });
+            } else {
+                model.addRow(new Object[]{
+                        nvl(e.getCode()),
+                        nvl(e.getDescription())
+                });
+            }
+        }
+    }
+
+    private CategoryData buildCategoryData() {
+        CategoryData data = new CategoryData();
+        data.setVersion(versionField.getText().trim());
+        data.setLanguage(languageField.getText().trim());
+        data.setBuilding_categories(modelToEntries(buildingModel, true));
+        data.setItem_categories(modelToEntries(itemModel, false));
+        data.setEvidence_categories(modelToEntries(evidenceModel, false));
+        data.setCase_types(modelToEntries(caseModel, false));
+        return data;
+    }
+
+    private static List<CategoryEntry> modelToEntries(DefaultTableModel model, boolean hasColor) {
+        List<CategoryEntry> list = new ArrayList<>();
+        for (int r = 0; r < model.getRowCount(); r++) {
+            CategoryEntry entry = new CategoryEntry();
+            entry.setCode(cellStr(model, r, 0));
+            entry.setDescription(cellStr(model, r, 1));
+            if (hasColor) {
+                entry.setColor(cellStr(model, r, 2));
+            }
+            list.add(entry);
+        }
+        return list;
+    }
+
+    private static String cellStr(DefaultTableModel model, int row, int col) {
+        Object val = model.getValueAt(row, col);
+        return val != null ? val.toString() : "";
+    }
+
+    private static String nvl(String s) {
+        return s != null ? s : "";
+    }
+
+    // -------------------------------------------------------------------------
+    // Inner renderer: colour swatch for the Color column
+    // -------------------------------------------------------------------------
+
+    static final class ColorCellRenderer extends JLabel implements TableCellRenderer {
+
+        ColorCellRenderer() {
+            setOpaque(true);
+            setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value,
+                boolean isSelected, boolean hasFocus,
+                int row, int col) {
+
+            String hex = value != null ? value.toString().trim() : "";
+            setText(hex);
+
+            try {
+                Color bg = Color.decode(hex);
+                setBackground(bg);
+                // Choose white or black foreground for contrast
+                double lum = 0.299 * bg.getRed() + 0.587 * bg.getGreen() + 0.114 * bg.getBlue();
+                setForeground(lum > 140 ? Color.BLACK : Color.WHITE);
+            } catch (NumberFormatException e) {
+                setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+            }
+            return this;
+        }
+    }
+}
