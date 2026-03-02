@@ -119,13 +119,13 @@ While there's no existing test infrastructure, the implementation:
 
 ```
 Modified Files:
-  core/src/main/java/eb/framework1/Profile.java (+27 lines)
-  core/src/main/java/eb/framework1/ProfileManager.java (+14 lines)
-  core/src/main/java/eb/framework1/CharacterAttributeScreen.java (+6 lines)
-  core/src/main/java/eb/framework1/ProfileSelectionScreen.java (+3 lines)
+  core/src/main/java/eb/gmodel1/Profile.java (+27 lines)
+  core/src/main/java/eb/gmodel1/ProfileManager.java (+14 lines)
+  core/src/main/java/eb/gmodel1/CharacterAttributeScreen.java (+6 lines)
+  core/src/main/java/eb/gmodel1/ProfileSelectionScreen.java (+3 lines)
 
 New Files:
-  core/src/main/java/eb/framework1/ProfileLoadSummaryScreen.java (+289 lines)
+  core/src/main/java/eb/gmodel1/ProfileLoadSummaryScreen.java (+289 lines)
   
 Documentation:
   IMPLEMENTATION_SUMMARY_PROFILE_DATA.md (+91 lines)

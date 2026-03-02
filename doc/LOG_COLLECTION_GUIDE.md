@@ -132,7 +132,7 @@ Android automatically creates bug reports on crash. To access:
    Look for error messages:
    ```
    E/ProfileCreationScreen: Error in show(): <error message>
-       at eb.framework1.ProfileCreationScreen.show(...)
+       at eb.gmodel1.ProfileCreationScreen.show(...)
        at com.badlogic.gdx.Game.setScreen(...)
        ...
    ```

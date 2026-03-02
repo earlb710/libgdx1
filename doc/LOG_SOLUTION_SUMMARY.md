@@ -140,7 +140,7 @@ I/ProfileCreationScreen: show() called
 I/ProfileCreationScreen: Creating SpriteBatch...
 E/ProfileCreationScreen: Error in show(): IllegalStateException: Failed to create OpenGL context
     at com.badlogic.gdx.graphics.g2d.SpriteBatch.<init>(SpriteBatch.java:123)
-    at eb.framework1.ProfileCreationScreen.show(ProfileCreationScreen.java:60)
+    at eb.gmodel1.ProfileCreationScreen.show(ProfileCreationScreen.java:60)
     ...
 ```
 

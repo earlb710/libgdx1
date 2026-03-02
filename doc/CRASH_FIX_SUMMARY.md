@@ -6,7 +6,7 @@ You reported this crash when clicking the Play button:
 
 ```
 com.badlogic.gdx.utils.GdxRuntimeException: No buffer allocated!
-at eb.framework1.SplashScreen.render(SplashScreen.java:102)
+at eb.gmodel1.SplashScreen.render(SplashScreen.java:102)
 ```
 
 ## What Was Wrong

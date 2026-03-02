@@ -1,0 +1,172 @@
+package eb.gmodel1.popup;
+
+import eb.gmodel1.ui.*;
+
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Popup explaining that the character was too tired to act.
+ *
+ * <p>Shown (centred on screen, non-blocking of the map) whenever the player attempts
+ * a stamina-costing action while stamina is at 2 or below.
+ * The popup describes what automatically happened: the player was sent home and
+ * either rested (daytime) or slept until 06:00 (nighttime).
+ *
+ * <p>Dismiss via the OK button.
+ */
+public class TirednessPopup {
+
+    private static final Color BG_COLOR     = new Color(0.18f, 0.04f, 0.04f, 1f);
+    private static final Color BORDER_COLOR = new Color(0.85f, 0.25f, 0.25f, 1f);
+    private static final Color TITLE_COLOR  = new Color(1.00f, 0.40f, 0.40f, 1f);
+    private static final Color BTN_COLOR    = new Color(0.10f, 0.50f, 0.15f, 1f);
+
+    private final SpriteBatch   batch;
+    private final ShapeRenderer sr;
+    private final BitmapFont    font;
+    private final BitmapFont    smallFont;
+    private final GlyphLayout   glyph;
+
+    private boolean      visible = false;
+    private final List<String> lines = new ArrayList<>();
+
+    // OK button bounds (written during draw, read by onTap)
+    private float okX, okY, okW, okH;
+
+    public TirednessPopup(SpriteBatch batch, ShapeRenderer sr,
+                   BitmapFont font, BitmapFont smallFont, GlyphLayout glyph) {
+        this.batch     = batch;
+        this.sr        = sr;
+        this.font      = font;
+        this.smallFont = smallFont;
+        this.glyph     = glyph;
+    }
+
+    // -------------------------------------------------------------------------
+    // State queries
+    // -------------------------------------------------------------------------
+
+    public boolean isVisible() { return visible; }
+
+    // -------------------------------------------------------------------------
+    // Commands
+    // -------------------------------------------------------------------------
+
+    /** Shows the popup with the given descriptive message lines. */
+    public void show(List<String> messageLines) {
+        lines.clear();
+        lines.addAll(messageLines);
+        visible = true;
+        okW = 0;
+    }
+
+    /** Dismiss the popup if the OK button was tapped. */
+    public void onTap(int screenX, int flippedY) {
+        if (visible && okW > 0
+                && screenX >= okX && screenX <= okX + okW
+                && flippedY >= okY && flippedY <= okY + okH) {
+            visible = false;
+            lines.clear();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Drawing
+    // -------------------------------------------------------------------------
+
+    public void draw(int screenW, int screenH) {
+        if (!visible) return;
+
+        final float PAD    = 20f;
+        final float GAP    = 8f;
+
+        // --- Font metrics ---
+        glyph.setText(font, "Hg");
+        float fontH      = glyph.height;
+        float titleLineH = fontH + GAP;
+
+        glyph.setText(smallFont, "Hg");
+        float smallH     = glyph.height;
+        float smallLineH = smallH + GAP;
+
+        // --- Button dimensions ---
+        TextMeasurer.TextBounds okBounds = TextMeasurer.measure(font, glyph, "OK", 24f, 10f);
+        float okBtnW = okBounds.width;
+        float okBtnH = okBounds.height;
+
+        // --- Content widths ---
+        glyph.setText(font, "Too Tired!");
+        float titleW = glyph.width;
+        float maxLineW = 0f;
+        for (String line : lines) {
+            glyph.setText(smallFont, line);
+            if (glyph.width > maxLineW) maxLineW = glyph.width;
+        }
+
+        // --- Dialog dimensions ---
+        float contentW = Math.max(titleW, Math.max(maxLineW, okBounds.textWidth));
+        float dialogW  = Math.min(screenW * 0.92f, contentW + 2 * PAD);
+        okBtnW = Math.min(okBtnW, dialogW - 2 * PAD);
+
+        float btnGap  = Math.max(PAD, titleLineH);
+        float dialogH = PAD + titleLineH + fontH
+                + lines.size() * smallLineH
+                + btnGap + okBtnH + PAD;
+        dialogH = Math.min(dialogH, screenH * 0.90f);
+
+        float dialogX = (screenW - dialogW) / 2f;
+        float dialogY = (screenH - dialogH) / 2f;
+
+        okX = dialogX + (dialogW - okBtnW) / 2f;
+        okY = dialogY + PAD;
+        okW = okBtnW;
+        okH = okBtnH;
+
+        // --- Shapes ---
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(BG_COLOR);
+        sr.rect(dialogX, dialogY, dialogW, dialogH);
+        sr.setColor(BTN_COLOR);
+        sr.rect(okX, okY, okW, okH);
+        sr.end();
+
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        sr.setColor(BORDER_COLOR);
+        sr.rect(dialogX,     dialogY,     dialogW,     dialogH);
+        sr.rect(dialogX + 1, dialogY + 1, dialogW - 2, dialogH - 2);
+        sr.rect(okX,     okY,     okW,     okH);
+        sr.rect(okX + 1, okY + 1, okW - 2, okH - 2);
+        sr.end();
+
+        // --- Text ---
+        batch.begin();
+        float ty = dialogY + dialogH - PAD - fontH;
+
+        font.setColor(TITLE_COLOR);
+        glyph.setText(font, "Too Tired!");
+        font.draw(batch, "Too Tired!", dialogX + (dialogW - glyph.width) / 2f, ty);
+        ty -= titleLineH + fontH;
+
+        smallFont.setColor(Color.WHITE);
+        for (String line : lines) {
+            glyph.setText(smallFont, line);
+            smallFont.draw(batch, line, dialogX + (dialogW - glyph.width) / 2f, ty);
+            ty -= smallLineH;
+        }
+
+        glyph.setText(font, "OK");
+        font.setColor(Color.WHITE);
+        font.draw(batch, "OK",
+                okX + (okW - glyph.width) / 2f,
+                okY + (okH + glyph.height) / 2f);
+        batch.end();
+    }
+}

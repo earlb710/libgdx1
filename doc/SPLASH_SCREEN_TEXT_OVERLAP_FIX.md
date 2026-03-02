@@ -63,7 +63,7 @@ Overlap region: (centerY + 165) - (centerY + 115) = 50 pixels of overlap!
 
 ### Code Change
 
-**File:** `core/src/main/java/eb/framework1/SplashScreen.java`
+**File:** `core/src/main/java/eb/gmodel1/SplashScreen.java`
 
 **Line 140 changed:**
 ```java

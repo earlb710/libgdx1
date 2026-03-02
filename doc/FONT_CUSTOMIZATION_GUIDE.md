@@ -546,7 +546,7 @@ adb logcat | grep FontManager
 
 - Google Fonts: https://fonts.google.com/
 - Font Squirrel: https://www.fontsquirrel.com/
-- FontManager: `core/src/main/java/eb/framework1/FontManager.java`
+- FontManager: `core/src/main/java/eb/gmodel1/FontManager.java`
 
 ## Need Help?
 

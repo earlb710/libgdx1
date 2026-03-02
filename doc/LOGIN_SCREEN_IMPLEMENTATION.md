@@ -7,7 +7,7 @@ This implementation adds a login screen that appears when the current user is un
 
 ### UserManager (45 lines)
 - Manages user persistence using LibGDX Preferences
-- Stores the current username in `framework1.preferences`
+- Stores the current username in `gmodel1.preferences`
 - Provides methods to check if a user exists and to set/get the current user
 - **Validation:**
   - Null check on username parameter
@@ -80,9 +80,9 @@ To test this feature:
 
 To reset and see the login screen again:
 - Delete the preferences file (location varies by platform)
-  - Windows: User home directory/.prefs/framework1.preferences
-  - Linux: User home directory/.prefs/framework1.preferences
-  - macOS: User home directory/.prefs/framework1.preferences
+  - Windows: User home directory/.prefs/gmodel1.preferences
+  - Linux: User home directory/.prefs/gmodel1.preferences
+  - macOS: User home directory/.prefs/gmodel1.preferences
 - Or modify UserManager to clear the stored username programmatically
 
 ## Code Statistics
