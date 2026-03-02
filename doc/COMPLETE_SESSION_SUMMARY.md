@@ -192,7 +192,7 @@ This document summarizes all work completed in this comprehensive development se
 
 ```
 libgdx1/
-├── core/src/main/java/eb/framework1/
+├── core/src/main/java/eb/gmodel1/
 │   ├── Main.java
 │   ├── UserManager.java
 │   ├── Profile.java

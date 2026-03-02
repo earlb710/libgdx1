@@ -108,7 +108,7 @@ Y Position    Element                      Description
 
 ## Code Changes
 
-**File:** `core/src/main/java/eb/framework1/SplashScreen.java`
+**File:** `core/src/main/java/eb/gmodel1/SplashScreen.java`
 
 **Lines 79-90:**
 ```java

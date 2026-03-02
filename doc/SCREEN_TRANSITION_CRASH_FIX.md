@@ -9,7 +9,7 @@ Users experienced a critical crash when clicking the Play button on the splash s
 ```
 com.badlogic.gdx.utils.GdxRuntimeException: No buffer allocated!
 at com.badlogic.gdx.graphics.glutils.IndexBufferObject.bind(IndexBufferObject.java:187)
-at eb.framework1.SplashScreen.render(SplashScreen.java:130)
+at eb.gmodel1.SplashScreen.render(SplashScreen.java:130)
 ```
 
 ### When It Occurred
