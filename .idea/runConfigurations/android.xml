@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="android" type="AndroidRunConfigurationType" factoryName="Android App">
-    <module name="libgdx1.android.main" />
+    <module name="libgdx1.android" />
     <option name="DEPLOY" value="default_apk" />
     <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
     <option name="DEPLOY_AS_INSTANT" value="false" />
