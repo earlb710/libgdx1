@@ -1,0 +1,23 @@
+plugins {
+    id "application"
+}
+
+application.mainClass = 'eb.admin.AdminApp'
+java.sourceCompatibility = 8
+java.targetCompatibility = 8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// Use the project root as working directory so the app can auto-load
+// assets/text/category_en.json relative to the repository root.
+// In a standalone build (cd tools && ./gradlew run), rootDir == tools/ and
+// the user can open the file manually via File > Open.
+run {
+    workingDir = project.rootDir
+}
