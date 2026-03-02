@@ -10,6 +10,32 @@ This project was generated with a template including simple application launcher
 - `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
 - `android`: Android mobile platform. Needs Android SDK.
 
+## Admin Tool
+
+The `tools/` module provides a desktop (Java AWT/Swing) admin tool for editing
+game data JSON files such as the category definitions in `assets/text/category_en.json`.
+
+### Running in Android Studio
+
+1. Open the project root in Android Studio (File → Open → select the repository root).
+2. Wait for the Gradle sync to complete.
+3. In the toolbar, select the **AdminApp** run configuration from the dropdown list.
+4. Click the **Run** button (▶).
+
+The Category Editor window opens and automatically loads `assets/text/category_en.json`.
+
+Alternatively you can use the Gradle tool window:
+
+- View → Tool Windows → Gradle
+- Navigate to **Framework1 → tools → Tasks → application → run**
+- Double-click **run**
+
+### Running from the command line
+
+```
+./gradlew :tools:run
+```
+
 ## Gradle
 
 This project uses [Gradle](https://gradle.org/) to manage dependencies.
