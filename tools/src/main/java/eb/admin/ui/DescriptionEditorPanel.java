@@ -440,14 +440,49 @@ public class DescriptionEditorPanel extends JPanel {
 
     /** Shows a popup menu with rating options at (x, y) relative to the table. */
     private void showAnnotationMenu(int row, int col, int x, int y) {
+        String existingRating = findExistingRating(cellStr(row, 0), tableModel.getColumnName(col));
         JPopupMenu menu = new JPopupMenu("Rate");
         for (String rating : RATINGS) {
             String ratingId = rating.toLowerCase().replace(' ', '_');
-            JMenuItem item = new JMenuItem(rating);
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(rating, ratingId.equals(existingRating));
             item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
             menu.add(item);
         }
         menu.show(table, x, y);
+    }
+
+    /**
+     * Returns the rating of the most recent annotation for the given key and column,
+     * or {@code null} if no annotation exists for this cell.
+     */
+    private String findExistingRating(String key, String column) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (!annotationFile.exists()) {
+            return null;
+        }
+        try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            JsonObject existing = gson.fromJson(r, JsonObject.class);
+            if (existing == null || !existing.has("annotations")) {
+                return null;
+            }
+            String lastRating = null;
+            String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+            for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                JsonObject entry = el.getAsJsonObject();
+                if (filePath.equals(entry.get("file").getAsString())
+                        && key.equals(entry.get("key").getAsString())
+                        && column.equals(entry.get("column").getAsString())) {
+                    lastRating = entry.get("rating").getAsString();
+                }
+            }
+            return lastRating;
+        } catch (IOException | RuntimeException ex) {
+            System.err.println("Could not read annotation.json for rating lookup: " + ex.getMessage());
+            return null;
+        }
     }
 
     /** Asks for an optional comment using a multiline editor then persists the annotation. */
