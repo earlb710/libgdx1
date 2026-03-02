@@ -35,7 +35,18 @@ public class DescriptionEditorPanel extends JPanel {
     private final JTextField languageField = new JTextField(8);
 
     private final DefaultTableModel tableModel = createModel();
-    private final JTable table = new JTable(tableModel);
+    private final JTable table = new JTable(tableModel) {
+        @Override
+        public boolean editCellAt(int row, int column, java.util.EventObject e) {
+            if (e instanceof java.awt.event.MouseEvent
+                    && ((java.awt.event.MouseEvent) e).getClickCount() >= 2
+                    && tableModel.isCellEditable(row, column)) {
+                SwingUtilities.invokeLater(() -> openMultilineEditor(row, column));
+                return false;
+            }
+            return super.editCellAt(row, column, e);
+        }
+    };
 
     /** Parallel list – preserves the original JSON value (object or array) for each table row. */
     private final List<JsonElement> entryObjects = new ArrayList<>();
@@ -106,23 +117,6 @@ public class DescriptionEditorPanel extends JPanel {
         center.add(tableScrollPane, BorderLayout.CENTER);
         center.add(buttons,         BorderLayout.SOUTH);
         add(center, BorderLayout.CENTER);
-
-        // Double-click opens a multiline popup editor for any editable column
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getClickCount() == 2) {
-                    int row = table.rowAtPoint(evt.getPoint());
-                    int col = table.columnAtPoint(evt.getPoint());
-                    if (row >= 0 && col >= 0 && tableModel.isCellEditable(row, col)) {
-                        if (table.isEditing()) {
-                            table.getCellEditor().cancelCellEditing();
-                        }
-                        openMultilineEditor(row, col);
-                    }
-                }
-            }
-        });
     }
 
     /** Opens a scrollable multiline dialog pre-filled with the current cell value. */
