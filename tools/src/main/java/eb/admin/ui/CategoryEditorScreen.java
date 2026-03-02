@@ -71,13 +71,21 @@ public class CategoryEditorScreen extends JFrame {
 
         setJMenuBar(buildMenuBar());
 
-        add(buildMetaPanel(), BorderLayout.NORTH);
+        // Inner category sub-tabs (Building / Item / Evidence / Case Types)
+        JTabbedPane categoryTabs = new JTabbedPane();
+        categoryTabs.addTab("Building Categories", buildTabPanel(buildingModel, true));
+        categoryTabs.addTab("Item Categories",     buildTabPanel(itemModel,     false));
+        categoryTabs.addTab("Evidence Categories", buildTabPanel(evidenceModel, false));
+        categoryTabs.addTab("Case Types",          buildTabPanel(caseModel,     false));
 
-        tabbedPane.addTab("Building Categories", buildTabPanel(buildingModel, true));
-        tabbedPane.addTab("Item Categories",     buildTabPanel(itemModel,     false));
-        tabbedPane.addTab("Evidence Categories", buildTabPanel(evidenceModel, false));
-        tabbedPane.addTab("Case Types",          buildTabPanel(caseModel,     false));
-        tabbedPane.addTab("Descriptions",        descPanel);
+        // "Categories" top-level panel: meta (version/lang) + inner sub-tabs
+        JPanel categoriesPanel = new JPanel(new BorderLayout(0, 4));
+        categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
+        categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
+
+        // Outer tabs: "Categories" and "Descriptions"
+        tabbedPane.addTab("Categories",   categoriesPanel);
+        tabbedPane.addTab("Descriptions", descPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
