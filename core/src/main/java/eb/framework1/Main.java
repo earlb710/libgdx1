@@ -1,5 +1,10 @@
 package eb.framework1;
 
+import eb.framework1.save.*;
+import eb.framework1.screen.*;
+import eb.framework1.ui.*;
+
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
