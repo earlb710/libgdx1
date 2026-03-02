@@ -28,6 +28,7 @@ import java.util.List;
  *   2. Item Categories      – code, description
  *   3. Evidence Categories  – code, description
  *   4. Case Types           – code, description
+ *   5. Descriptions         – key, default description text (description_en.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -47,6 +48,8 @@ public class CategoryEditorScreen extends JFrame {
 
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
+
+    private final DescriptionEditorPanel descPanel = new DescriptionEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -74,6 +77,7 @@ public class CategoryEditorScreen extends JFrame {
         tabbedPane.addTab("Item Categories",     buildTabPanel(itemModel,     false));
         tabbedPane.addTab("Evidence Categories", buildTabPanel(evidenceModel, false));
         tabbedPane.addTab("Case Types",          buildTabPanel(caseModel,     false));
+        tabbedPane.addTab("Descriptions",        descPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
