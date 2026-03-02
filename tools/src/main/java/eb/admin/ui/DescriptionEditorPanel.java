@@ -450,15 +450,21 @@ public class DescriptionEditorPanel extends JPanel {
         menu.show(table, x, y);
     }
 
-    /** Asks for an optional comment then persists the annotation. */
+    /** Asks for an optional comment using a multiline editor then persists the annotation. */
     private void promptAndSaveAnnotation(int row, int col, String rating) {
-        String comment = (String) JOptionPane.showInputDialog(
-                this, "Comment (optional):", "Add Annotation – " + rating,
-                JOptionPane.PLAIN_MESSAGE, null, null, "");
-        if (comment == null) {
+        JTextArea textArea = new JTextArea(6, 50);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setPreferredSize(new Dimension(520, 160));
+
+        int result = JOptionPane.showConfirmDialog(
+                this, scroll, "Add Annotation – " + rating + " (comment optional)",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
             return; // cancelled
         }
-        saveAnnotation(cellStr(row, 0), tableModel.getColumnName(col), rating, comment.trim());
+        saveAnnotation(cellStr(row, 0), tableModel.getColumnName(col), rating, textArea.getText().trim());
     }
 
     /**
