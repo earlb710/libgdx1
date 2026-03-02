@@ -2,6 +2,7 @@ package eb.admin.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -13,8 +14,11 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -117,6 +121,21 @@ public class DescriptionEditorPanel extends JPanel {
         center.add(tableScrollPane, BorderLayout.CENTER);
         center.add(buttons,         BorderLayout.SOUTH);
         add(center, BorderLayout.CENTER);
+
+        // Right-click opens annotation rating menu for any editable cell
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    int col = table.columnAtPoint(e.getPoint());
+                    if (row >= 0 && col >= 0 && tableModel.isCellEditable(row, col)) {
+                        table.setRowSelectionInterval(row, row);
+                        showAnnotationMenu(row, col, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
     }
 
     /** Opens a scrollable multiline dialog pre-filled with the current cell value. */
@@ -411,5 +430,79 @@ public class DescriptionEditorPanel extends JPanel {
     private String cellStr(int row, int col) {
         Object val = tableModel.getValueAt(row, col);
         return val != null ? val.toString() : "";
+    }
+
+    // -------------------------------------------------------------------------
+    // Annotation system
+    // -------------------------------------------------------------------------
+
+    private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
+
+    /** Shows a popup menu with rating options at (x, y) relative to the table. */
+    private void showAnnotationMenu(int row, int col, int x, int y) {
+        JPopupMenu menu = new JPopupMenu("Rate");
+        for (String rating : RATINGS) {
+            String ratingId = rating.toLowerCase().replace(' ', '_');
+            JMenuItem item = new JMenuItem(rating);
+            item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
+            menu.add(item);
+        }
+        menu.show(table, x, y);
+    }
+
+    /** Asks for an optional comment then persists the annotation. */
+    private void promptAndSaveAnnotation(int row, int col, String rating) {
+        String comment = (String) JOptionPane.showInputDialog(
+                this, "Comment (optional):", "Add Annotation – " + rating,
+                JOptionPane.PLAIN_MESSAGE, null, null, "");
+        if (comment == null) {
+            return; // cancelled
+        }
+        saveAnnotation(cellStr(row, 0), tableModel.getColumnName(col), rating, comment.trim());
+    }
+
+    /**
+     * Appends an annotation entry to annotation.json located next to the currently
+     * open file (or in the working directory when no file is loaded).
+     * Each entry records: file, key, column, rating, comment.
+     */
+    private void saveAnnotation(String key, String column, String rating, String comment) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray annotations = new JsonArray();
+
+        if (annotationFile.exists()) {
+            try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    annotations = existing.get("annotations").getAsJsonArray();
+                }
+            } catch (IOException | RuntimeException ex) {
+                System.err.println("Could not read annotation.json, starting fresh: " + ex.getMessage());
+            }
+        }
+
+        JsonObject entry = new JsonObject();
+        entry.addProperty("file",    currentFile != null ? currentFile.getAbsolutePath() : "");
+        entry.addProperty("key",     key);
+        entry.addProperty("column",  column);
+        entry.addProperty("rating",  rating);
+        entry.addProperty("comment", comment);
+        annotations.add(entry);
+
+        JsonObject root = new JsonObject();
+        root.add("annotations", annotations);
+
+        try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            gson.toJson(root, w);
+            statusLabel.setText("Annotation saved: " + annotationFile.getAbsolutePath());
+        } catch (Exception ex) {
+            showScrollableError(this,
+                    "Error saving annotation:\n" + ex.getMessage(),
+                    "Annotation Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
