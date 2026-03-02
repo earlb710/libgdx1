@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class DescriptionEditorPanel extends JPanel {
     private final JTextField languageField = new JTextField(8);
 
     private final DefaultTableModel tableModel = createModel();
+    /** Maps "key\0column" → most-recent ratingId for background highlighting. */
+    private final Map<String, String> annotationRatings = new HashMap<>();
     private final JTable table = new JTable(tableModel) {
         @Override
         public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -49,6 +53,20 @@ public class DescriptionEditorPanel extends JPanel {
                 return false;
             }
             return super.editCellAt(row, column, e);
+        }
+
+        @Override
+        public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            Component c = super.prepareRenderer(renderer, row, column);
+            if (!isRowSelected(row)) {
+                Object keyVal = tableModel.getValueAt(row, 0);
+                String key = keyVal != null ? keyVal.toString() : "";
+                String colName = tableModel.getColumnName(column);
+                String ratingId = annotationRatings.get(key + "\0" + colName);
+                Color bg = ratingToColor(ratingId);
+                c.setBackground(bg != null ? bg : getBackground());
+            }
+            return c;
         }
     };
 
@@ -272,6 +290,7 @@ public class DescriptionEditorPanel extends JPanel {
 
             currentFile = file;
             statusLabel.setText("Descriptions loaded: " + file.getAbsolutePath());
+            loadAnnotationColors();
         } catch (Exception ex) {
             showScrollableError(this,
                     "Error loading file:\n" + ex.getMessage(),
@@ -438,6 +457,61 @@ public class DescriptionEditorPanel extends JPanel {
 
     private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
 
+    /**
+     * Returns a pastel background color for the given rating id,
+     * ranging from green (excellent) through yellow (sufficient) to red (very bad).
+     * Returns {@code null} when the rating is unrecognised or {@code null}.
+     */
+    static Color ratingToColor(String ratingId) {
+        if (ratingId == null) return null;
+        switch (ratingId) {
+            case "excellent": return new Color(198, 239, 206);
+            case "good":      return new Color(226, 250, 214);
+            case "sufficient": return new Color(255, 253, 184);
+            case "bad":       return new Color(255, 215, 179);
+            case "very_bad":  return new Color(255, 199, 199);
+            default:          return null;
+        }
+    }
+
+    /**
+     * Re-reads annotation.json and rebuilds {@link #annotationRatings}, then
+     * repaints the table so background colors are updated immediately.
+     */
+    private void loadAnnotationColors() {
+        annotationRatings.clear();
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (annotationFile.exists()) {
+            try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject entry = el.getAsJsonObject();
+                        JsonElement fileEl    = entry.get("file");
+                        JsonElement keyEl     = entry.get("key");
+                        JsonElement columnEl  = entry.get("column");
+                        JsonElement ratingEl  = entry.get("rating");
+                        if (fileEl == null || keyEl == null || columnEl == null || ratingEl == null) {
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString())) {
+                            annotationRatings.put(
+                                    keyEl.getAsString() + "\0" + columnEl.getAsString(),
+                                    ratingEl.getAsString());
+                        }
+                    }
+                }
+            } catch (IOException | RuntimeException ex) {
+                System.err.println("Could not read annotation.json for color highlighting: " + ex.getMessage());
+            }
+        }
+        table.repaint();
+    }
+
     /** Shows a popup menu with rating options at (x, y) relative to the table. */
     private void showAnnotationMenu(int row, int col, int x, int y) {
         String existingRating = findExistingRating(cellStr(row, 0), tableModel.getColumnName(col));
@@ -540,6 +614,7 @@ public class DescriptionEditorPanel extends JPanel {
         try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
             gson.toJson(root, w);
             statusLabel.setText("Annotation saved: " + annotationFile.getAbsolutePath());
+            loadAnnotationColors();
         } catch (Exception ex) {
             showScrollableError(this,
                     "Error saving annotation:\n" + ex.getMessage(),
