@@ -33,7 +33,6 @@ public class CategoryEditorScreen extends JFrame {
 
     private static final String WINDOW_TITLE = "Game Admin – Category Editor";
     private static final String DEFAULT_JSON_PATH = "assets/text/category_en.json";
-    private static final String DEFAULT_JSON_PATH_FALLBACK = "../assets/text/category_en.json";
 
     // Metadata fields
     private final JTextField versionField = new JTextField(8);
@@ -193,11 +192,6 @@ public class CategoryEditorScreen extends JFrame {
         File defaultFile = new File(DEFAULT_JSON_PATH);
         if (defaultFile.exists()) {
             loadFromFile(defaultFile);
-            return;
-        }
-        File fallback = new File(DEFAULT_JSON_PATH_FALLBACK);
-        if (fallback.exists()) {
-            loadFromFile(fallback);
         }
     }
 
@@ -207,15 +201,8 @@ public class CategoryEditorScreen extends JFrame {
         if (currentFile != null) {
             chooser.setCurrentDirectory(currentFile.getParentFile());
         } else {
-            // Prefer ../assets/text when it exists (standalone run from tools/),
-            // otherwise fall back to one level up, then the current directory.
-            File assetsText = new File("../assets/text");
-            if (assetsText.isDirectory()) {
-                chooser.setCurrentDirectory(assetsText);
-            } else {
-                File parent = new File(".").getAbsoluteFile().getParentFile();
-                chooser.setCurrentDirectory(parent != null ? parent : new File("."));
-            }
+            File assetsText = new File("assets/text");
+            chooser.setCurrentDirectory(assetsText.isDirectory() ? assetsText : new File("."));
         }
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             loadFromFile(chooser.getSelectedFile());
