@@ -36,8 +36,8 @@ public class DescriptionEditorPanel extends JPanel {
     private final DefaultTableModel tableModel = createModel();
     private final JTable table = new JTable(tableModel);
 
-    /** Parallel list – preserves the full JSON object for each table row. */
-    private final List<JsonObject> entryObjects = new ArrayList<>();
+    /** Parallel list – preserves the original JSON value (object or array) for each table row. */
+    private final List<JsonElement> entryObjects = new ArrayList<>();
 
     private File currentFile;
     private final JLabel statusLabel;
@@ -80,7 +80,7 @@ public class DescriptionEditorPanel extends JPanel {
                 tableModel.removeRow(row);
                 entryObjects.remove(row);
             } else {
-                JOptionPane.showMessageDialog(this,
+                showScrollableError(this,
                         "Please select a row to delete.",
                         "No Selection", JOptionPane.WARNING_MESSAGE);
             }
@@ -163,17 +163,18 @@ public class DescriptionEditorPanel extends JPanel {
 
             if (root.has("descriptions")) {
                 for (Map.Entry<String, JsonElement> descEntry : root.getAsJsonObject("descriptions").entrySet()) {
-                    JsonObject entry = descEntry.getValue().getAsJsonObject();
+                    JsonElement value = descEntry.getValue();
+                    JsonObject entry = firstObjectOf(value);
                     String defaultText = entry.has("default") ? entry.get("default").getAsString() : "";
                     tableModel.addRow(new Object[]{descEntry.getKey(), defaultText});
-                    entryObjects.add(entry);
+                    entryObjects.add(value);
                 }
             }
 
             currentFile = file;
             statusLabel.setText("Descriptions loaded: " + file.getAbsolutePath());
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
+            showScrollableError(this,
                     "Error loading file:\n" + ex.getMessage(),
                     "Load Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -202,11 +203,32 @@ public class DescriptionEditorPanel extends JPanel {
             JsonObject descriptions = new JsonObject();
             for (int r = 0; r < tableModel.getRowCount(); r++) {
                 String key = cellStr(r, 0);
-                JsonObject entry = r < entryObjects.size()
-                        ? entryObjects.get(r).deepCopy()
-                        : new JsonObject();
-                entry.addProperty("default", cellStr(r, 1));
-                if (!key.isEmpty()) {
+                if (key.isEmpty()) {
+                    continue;
+                }
+                JsonElement original = r < entryObjects.size() ? entryObjects.get(r) : new JsonObject();
+                if (original.isJsonArray()) {
+                    // Preserve array structure; update "default" in the first object element
+                    JsonElement arrayCopy = original.deepCopy();
+                    boolean updated = false;
+                    for (JsonElement item : arrayCopy.getAsJsonArray()) {
+                        if (item.isJsonObject()) {
+                            item.getAsJsonObject().addProperty("default", cellStr(r, 1));
+                            updated = true;
+                            break;
+                        }
+                    }
+                    if (!updated) {
+                        JsonObject fallback = new JsonObject();
+                        fallback.addProperty("default", cellStr(r, 1));
+                        arrayCopy.getAsJsonArray().add(fallback);
+                    }
+                    descriptions.add(key, arrayCopy);
+                } else {
+                    JsonObject entry = original.isJsonObject()
+                            ? original.deepCopy().getAsJsonObject()
+                            : new JsonObject();
+                    entry.addProperty("default", cellStr(r, 1));
                     descriptions.add(key, entry);
                 }
             }
@@ -221,7 +243,7 @@ public class DescriptionEditorPanel extends JPanel {
                     "File saved successfully.",
                     "Saved", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
+            showScrollableError(this,
                     "Error saving file:\n" + ex.getMessage(),
                     "Save Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -230,6 +252,42 @@ public class DescriptionEditorPanel extends JPanel {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns the first JsonObject from a JsonElement.
+     * If the element is a JsonArray, returns the first JsonObject element (if any).
+     * Falls back to an empty JsonObject for unrecognized shapes.
+     */
+    private static JsonObject firstObjectOf(JsonElement element) {
+        if (element.isJsonObject()) {
+            return element.getAsJsonObject();
+        }
+        if (element.isJsonArray()) {
+            for (JsonElement item : element.getAsJsonArray()) {
+                if (item.isJsonObject()) {
+                    return item.getAsJsonObject();
+                }
+            }
+        }
+        return new JsonObject();
+    }
+
+    /**
+     * Shows an error dialog with the message in a scrollable text area so that
+     * very long messages do not run off the screen.
+     */
+    private static void showScrollableError(Component parent, String message, String title, int messageType) {
+        JTextArea textArea = new JTextArea(message);
+        textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setFont(UIManager.getFont("Label.font"));
+        textArea.setBackground(UIManager.getColor("OptionPane.background"));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(500, 160));
+        scrollPane.setBorder(null);
+        JOptionPane.showMessageDialog(parent, scrollPane, title, messageType);
+    }
 
     private static DefaultTableModel createModel() {
         return new DefaultTableModel(new String[]{"Key", "Default Description"}, 0) {
