@@ -106,6 +106,42 @@ public class DescriptionEditorPanel extends JPanel {
         center.add(tableScrollPane, BorderLayout.CENTER);
         center.add(buttons,         BorderLayout.SOUTH);
         add(center, BorderLayout.CENTER);
+
+        // Double-click opens a multiline popup editor for any editable column
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) {
+                    int row = table.rowAtPoint(evt.getPoint());
+                    int col = table.columnAtPoint(evt.getPoint());
+                    if (row >= 0 && col >= 0 && tableModel.isCellEditable(row, col)) {
+                        if (table.isEditing()) {
+                            table.getCellEditor().cancelCellEditing();
+                        }
+                        openMultilineEditor(row, col);
+                    }
+                }
+            }
+        });
+    }
+
+    /** Opens a scrollable multiline dialog pre-filled with the current cell value. */
+    private void openMultilineEditor(int row, int col) {
+        String current = cellStr(row, col);
+        String colName = tableModel.getColumnName(col);
+
+        JTextArea textArea = new JTextArea(current, 8, 50);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setPreferredSize(new Dimension(520, 200));
+
+        int result = JOptionPane.showConfirmDialog(
+                this, scroll, "Edit: " + colName,
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result == JOptionPane.OK_OPTION) {
+            tableModel.setValueAt(textArea.getText(), row, col);
+        }
     }
 
     private JPanel buildNorthPanel() {
@@ -251,6 +287,7 @@ public class DescriptionEditorPanel extends JPanel {
             root.addProperty("language", languageField.getText().trim());
 
             JsonObject descriptions = new JsonObject();
+            int colCount = tableModel.getColumnCount();
             for (int r = 0; r < tableModel.getRowCount(); r++) {
                 String key = cellStr(r, 0);
                 if (key.isEmpty()) {
@@ -258,27 +295,27 @@ public class DescriptionEditorPanel extends JPanel {
                 }
                 JsonElement original = r < entryObjects.size() ? entryObjects.get(r) : new JsonObject();
                 if (original.isJsonArray()) {
-                    // Preserve array structure; update "default" in the first object element
                     JsonElement arrayCopy = original.deepCopy();
-                    boolean updated = false;
+                    JsonObject targetObj = null;
                     for (JsonElement item : arrayCopy.getAsJsonArray()) {
                         if (item.isJsonObject()) {
-                            item.getAsJsonObject().addProperty("default", cellStr(r, 1));
-                            updated = true;
+                            targetObj = item.getAsJsonObject();
                             break;
                         }
                     }
-                    if (!updated) {
-                        JsonObject fallback = new JsonObject();
-                        fallback.addProperty("default", cellStr(r, 1));
-                        arrayCopy.getAsJsonArray().add(fallback);
+                    if (targetObj == null) {
+                        targetObj = new JsonObject();
+                        arrayCopy.getAsJsonArray().add(targetObj);
                     }
+                    targetObj.addProperty("default", cellStr(r, 1));
+                    applyVariantColumns(targetObj, r, colCount);
                     descriptions.add(key, arrayCopy);
                 } else {
                     JsonObject entry = original.isJsonObject()
                             ? original.deepCopy().getAsJsonObject()
                             : new JsonObject();
                     entry.addProperty("default", cellStr(r, 1));
+                    applyVariantColumns(entry, r, colCount);
                     descriptions.add(key, entry);
                 }
             }
@@ -302,6 +339,35 @@ public class DescriptionEditorPanel extends JPanel {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Writes edited variant column values (col ≥ 2) back into the given JSON object.
+     * If a cell value is non-empty the corresponding sub-key is set; if it is empty
+     * the sub-key is removed, and if the parent group object becomes empty after removal
+     * the whole group key is also removed from the entry.
+     */
+    private void applyVariantColumns(JsonObject entry, int row, int colCount) {
+        for (int c = 2; c < colCount; c++) {
+            String[] parts = tableModel.getColumnName(c).split("\\.", 2);
+            if (parts.length != 2) continue;
+            String groupKey = parts[0], subKey = parts[1];
+            String val = cellStr(row, c);
+            JsonObject grp = entry.has(groupKey) && entry.get(groupKey).isJsonObject()
+                    ? entry.get(groupKey).getAsJsonObject()
+                    : new JsonObject();
+            if (!val.isEmpty()) {
+                grp.addProperty(subKey, val);
+                entry.add(groupKey, grp);
+            } else if (grp.has(subKey)) {
+                grp.remove(subKey);
+                if (!grp.entrySet().isEmpty()) {
+                    entry.add(groupKey, grp);
+                } else {
+                    entry.remove(groupKey);
+                }
+            }
+        }
+    }
 
     /**
      * Returns the first JsonObject from a JsonElement.
@@ -343,7 +409,7 @@ public class DescriptionEditorPanel extends JPanel {
         return new DefaultTableModel(new String[]{"Key", "Default Description"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-                return col < 2;
+                return true;
             }
         };
     }
