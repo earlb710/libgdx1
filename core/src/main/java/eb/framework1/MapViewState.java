@@ -106,6 +106,12 @@ class MapViewState {
     // --- Traveled road path (accumulates every junction visited while walking) ---
     java.util.List<int[]> traveledPath = new java.util.ArrayList<>();
 
+    // --- Developer mode toggle ---
+    /** When {@code true} developer-mode features are active. Default ON. */
+    boolean developerMode = true;
+    /** Bounds of the "D" toggle button in the top info bar (written by InfoPanelRenderer). */
+    float devModeBtnX, devModeBtnY, devModeBtnW, devModeBtnH;
+
     // --- Help toggle (info panel "?" button) ---
     boolean helpVisible = false;
     float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
@@ -120,6 +126,12 @@ class MapViewState {
     float[] tabY = new float[4];
     float[] tabW = new float[4];
     float   tabH = 0f;
+
+    // --- Expand/collapse button (▲/▼ after the last tab) ---
+    /** When {@code true} the info panel covers the full screen (minus the top info bar). */
+    boolean panelExpanded = false;
+    /** Bounds of the expand/collapse button (written by InfoPanelRenderer, read by MainScreen). */
+    float expandBtnX, expandBtnY, expandBtnW, expandBtnH;
 
     // --- Info panel scroll (written by InfoPanelRenderer each frame) ---
     static final float SCROLLBAR_THICKNESS = 8f;

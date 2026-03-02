@@ -138,5 +138,39 @@
       "code": "photographic",
       "description": "Photographs, images, and visual documentation of scenes, persons, or objects"
     }
+  ],
+  "case_types": [
+    {
+      "code": "MISSING_PERSON",
+      "description": "Locate a person who has disappeared and determine what happened to them"
+    },
+    {
+      "code": "INFIDELITY",
+      "description": "Gather evidence of a partner's unfaithful behaviour"
+    },
+    {
+      "code": "THEFT",
+      "description": "Identify who stole property and, if possible, recover it"
+    },
+    {
+      "code": "FRAUD",
+      "description": "Uncover deliberate financial deception or identity misrepresentation"
+    },
+    {
+      "code": "BLACKMAIL",
+      "description": "Identify the source of a blackmail threat and neutralise it"
+    },
+    {
+      "code": "MURDER",
+      "description": "Reinvestigate a suspicious death the authorities closed too quickly"
+    },
+    {
+      "code": "STALKING",
+      "description": "Identify and document a stalker threatening the client or their family"
+    },
+    {
+      "code": "CORPORATE_ESPIONAGE",
+      "description": "Uncover an internal information leak damaging a business"
+    }
   ]
 }

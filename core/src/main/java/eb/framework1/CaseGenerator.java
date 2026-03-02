@@ -120,11 +120,139 @@ public class CaseGenerator {
         cf.setObjective(objective);
         cf.setComplexity(1 + random.nextInt(3));  // 1, 2, or 3
         cf.setStoryRoot(buildStoryTree(type, cf.getComplexity(), subjectName));
+        cf.setMeetingDialogue(buildMeetingDialogue(type, subjectName, objective, description,
+                cf.getStoryRoot()));
 
         for (CaseLead lead : buildLeads(type, subjectName)) {
             cf.addLead(lead);
         }
         return cf;
+    }
+
+    // =========================================================================
+    // Meeting dialogue generation
+    // =========================================================================
+
+    /**
+     * Builds the pre-generated meeting dialogue for the client appointment.
+     *
+     * <p>The returned list always contains the four standard questions (objective,
+     * description, timeline, contacts) with case-specific answers, followed by
+     * <em>one entry per {@link CaseStoryNode.NodeType#PLOT_TWIST} phase</em> in
+     * the story tree so that the player can ask about every major branch of the
+     * investigation.
+     *
+     * @param type      case category
+     * @param subject   name of the person being investigated
+     * @param objective one-sentence summary of the player's goal
+     * @param desc      narrative description of the problem
+     * @param storyRoot root of the story tree (may be {@code null})
+     * @return ordered list of question/answer pairs ready for use in {@link MeetPopup}
+     */
+    List<MeetingQA> buildMeetingDialogue(CaseType type, String subject,
+                                         String objective, String desc,
+                                         CaseStoryNode storyRoot) {
+        List<MeetingQA> dialogue = new ArrayList<>();
+
+        // --- Q1: What exactly do you need me to do? ---
+        dialogue.add(new MeetingQA(
+                "What exactly do you need me to do?",
+                objective != null && !objective.isEmpty() ? objective
+                        : "I need you to investigate " + subject + " and report what you find."));
+
+        // --- Q2: Tell me more about the subject ---
+        dialogue.add(new MeetingQA(
+                "Tell me more about the subject.",
+                desc != null && !desc.isEmpty() ? desc
+                        : "The subject is " + subject + ". I don't have much else to share right now."));
+
+        // --- Q3: How long has this been going on? ---
+        dialogue.add(new MeetingQA(
+                "How long has this been going on?",
+                buildTimelineAnswer(type, subject)));
+
+        // --- Q4: Is there anyone else who knows about this? ---
+        dialogue.add(new MeetingQA(
+                "Is there anyone else who knows about this?",
+                buildContactsAnswer(type, subject)));
+
+        // --- One entry per PLOT_TWIST phase (covers all story-tree branches) ---
+        if (storyRoot != null) {
+            for (CaseStoryNode phase : storyRoot.getChildren()) {
+                if (phase.getNodeType() == CaseStoryNode.NodeType.PLOT_TWIST) {
+                    String phaseTitle = phase.getTitle();
+                    String phaseDesc  = phase.getDescription();
+                    String question   = "What can you tell me about \"" + phaseTitle + "\"?";
+                    String answer     = phaseDesc != null && !phaseDesc.isEmpty()
+                            ? phaseDesc : "That phase of the investigation will become clearer as you dig in.";
+                    dialogue.add(new MeetingQA(question, answer));
+                }
+            }
+        }
+
+        return dialogue;
+    }
+
+    /** Case-specific answer for the "How long has this been going on?" question. */
+    private String buildTimelineAnswer(CaseType type, String subject) {
+        switch (type) {
+            case MISSING_PERSON:
+                return subject + " was last seen three days ago. Every hour matters at this point.";
+            case INFIDELITY:
+                return "The behaviour I've noticed has been going on for at least two months, "
+                        + "though I only started keeping records in the last few weeks.";
+            case THEFT:
+                return "The incident happened five days ago. I reported it to the police the same day.";
+            case FRAUD:
+                return "I started noticing irregularities about six months ago, "
+                        + "but the discrepancies may go back further than that.";
+            case BLACKMAIL:
+                return "The first message arrived three weeks ago. They've been escalating since then.";
+            case MURDER:
+                return "The death was ruled accidental two months ago. I've been fighting the official "
+                        + "account ever since.";
+            case STALKING:
+                return "I first noticed " + subject + " following me about six weeks ago. "
+                        + "It's become more aggressive in the last fortnight.";
+            case CORPORATE_ESPIONAGE:
+                return "Our competitors started undercutting us suspiciously well about four months ago. "
+                        + "That's when I started watching " + subject + " more closely.";
+            default:
+                return "It's been going on for a while — long enough that I knew I needed help.";
+        }
+    }
+
+    /** Case-specific answer for the "Is there anyone else who knows about this?" question. */
+    private String buildContactsAnswer(CaseType type, String subject) {
+        switch (type) {
+            case MISSING_PERSON:
+                return subject + "'s closest friend knows I'm looking into it. "
+                        + "The family asked me to keep things quiet until we know more.";
+            case INFIDELITY:
+                return "No one else knows. I haven't told friends or family — "
+                        + "I didn't want to start rumours before I had proof.";
+            case THEFT:
+                return "My insurance company knows, and so does the officer who took my report. "
+                        + "Beyond that, I've kept it to myself.";
+            case FRAUD:
+                return "My accountant noticed the discrepancies first and flagged it to me. "
+                        + "I've told no one else — especially not anyone at the firm.";
+            case BLACKMAIL:
+                return "No one. That's why I came to you privately. "
+                        + "If this gets out it could ruin me.";
+            case MURDER:
+                return "The victim's family suspects something is wrong. "
+                        + "One of the detectives on the original case may be open to revisiting it.";
+            case STALKING:
+                return "My neighbour has seen " + subject + " outside my building. "
+                        + "She'd be willing to make a statement if it comes to that.";
+            case CORPORATE_ESPIONAGE:
+                return "My legal team is aware there may be a leak. "
+                        + "I've kept the specific suspicion about " + subject
+                        + " restricted to myself and one trusted colleague.";
+            default:
+                return "Very few people. I prefer to keep this contained for now.";
+        }
     }
 
     // -------------------------------------------------------------------------

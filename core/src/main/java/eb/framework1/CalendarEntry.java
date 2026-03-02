@@ -18,26 +18,40 @@ class CalendarEntry {
      */
     final String contactName;
 
+    /**
+     * Gender of the contact ({@code "M"} or {@code "F"}).
+     * Used by {@link ClientIntroductionGenerator} to tailor the introduction message.
+     * Defaults to {@code "M"} when not specified.
+     */
+    final String contactGender;
+
     /** Convenience constructor with no reward and no contact name (backward-compat). */
     CalendarEntry(String dateTime, String title, String location) {
-        this(dateTime, title, location, 0, null, -1, -1, "");
+        this(dateTime, title, location, 0, null, -1, -1, "", "M");
     }
 
     CalendarEntry(String dateTime, String title, String location,
                   int rewardMoney, String rewardItemName) {
-        this(dateTime, title, location, rewardMoney, rewardItemName, -1, -1, "");
+        this(dateTime, title, location, rewardMoney, rewardItemName, -1, -1, "", "M");
     }
 
     CalendarEntry(String dateTime, String title, String location,
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY) {
-        this(dateTime, title, location, rewardMoney, rewardItemName, locationCellX, locationCellY, "");
+        this(dateTime, title, location, rewardMoney, rewardItemName, locationCellX, locationCellY, "", "M");
     }
 
     CalendarEntry(String dateTime, String title, String location,
                   int rewardMoney, String rewardItemName,
                   int locationCellX, int locationCellY,
                   String contactName) {
+        this(dateTime, title, location, rewardMoney, rewardItemName, locationCellX, locationCellY, contactName, "M");
+    }
+
+    CalendarEntry(String dateTime, String title, String location,
+                  int rewardMoney, String rewardItemName,
+                  int locationCellX, int locationCellY,
+                  String contactName, String contactGender) {
         this.dateTime       = dateTime     != null ? dateTime     : "";
         this.title          = title        != null ? title        : "";
         this.location       = location     != null ? location     : "";
@@ -46,5 +60,7 @@ class CalendarEntry {
         this.locationCellX  = locationCellX;
         this.locationCellY  = locationCellY;
         this.contactName    = contactName  != null ? contactName  : "";
+        this.contactGender  = (contactGender != null && !contactGender.trim().isEmpty())
+                              ? contactGender.trim().toUpperCase() : "M";
     }
 }

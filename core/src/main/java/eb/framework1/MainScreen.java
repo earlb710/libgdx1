@@ -74,6 +74,18 @@ public class MainScreen implements Screen {
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
     private ConfirmPopup         confirmDropPopup;
+    private NotePopup            notePopup;
+    private MeetPopup            meetPopup;
+    /** The appointment currently shown in meetPopup; null when no meeting is open. */
+    private CalendarEntry        currentMeetAppt;
+    /**
+     * Case pre-generated when the meeting popup is opened, before the player
+     * has tapped Accept or Reject.  Stored here so its meeting dialogue can be
+     * shown during the appointment and so it can be added to the profile on
+     * Accept without generating a second, different case.  Cleared on
+     * Accept (transferred to profile) or Reject/Close (discarded).
+     */
+    private CaseFile             pendingCase;
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
     /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
@@ -284,6 +296,10 @@ public class MainScreen implements Screen {
 
         confirmDropPopup = new ConfirmPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        notePopup = new NotePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
+        meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -392,6 +408,15 @@ public class MainScreen implements Screen {
             confirmDropPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (notePopup.isVisible()) {
+            notePopup.update(delta);
+            notePopup.draw(state.screenWidth, state.screenHeight);
+        }
+
+        if (meetPopup.isVisible()) {
+            meetPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -413,9 +438,14 @@ public class MainScreen implements Screen {
     public void resize(int width, int height) {
         state.screenWidth    = width;
         state.screenHeight   = height;
-        state.infoAreaHeight = (int)(height * state.infoPanelRatio)
-                + (int)(MapViewState.SCROLLBAR_THICKNESS);
-        state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
+        if (state.panelExpanded) {
+            state.infoAreaHeight = height - MapViewState.INFO_BAR_HEIGHT;
+            state.mapAreaHeight  = 0;
+        } else {
+            state.infoAreaHeight = (int)(height * state.infoPanelRatio)
+                    + (int)(MapViewState.SCROLLBAR_THICKNESS);
+            state.mapAreaHeight  = height - state.infoAreaHeight - MapViewState.INFO_BAR_HEIGHT;
+        }
         Gdx.app.log("MainScreen", "Resized to " + width + "x" + height
                 + " (info=" + state.infoAreaHeight + " map=" + state.mapAreaHeight + ")");
     }
@@ -473,6 +503,7 @@ public class MainScreen implements Screen {
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
+            || meetPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -747,6 +778,24 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Note popup blocks all normal interaction until dismissed
+                if (notePopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
+                // Meet popup blocks all normal interaction until dismissed
+                if (meetPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Left-click with context menu visible – record position for tap detection
                 if (contextMenu.isVisible()) {
                     dragStartX = screenX;
@@ -754,7 +803,13 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                if (flippedY > state.infoAreaHeight) {
+                if (flippedY > state.screenHeight - MapViewState.INFO_BAR_HEIGHT) {
+                    // Top info bar — treat as tap target (not map drag)
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                } else if (flippedY > state.infoAreaHeight) {
                     isDragging       = true;
                     dragStartX       = screenX;
                     dragStartY       = screenY;
@@ -918,6 +973,27 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Note popup: checkbox toggles or Save / Cancel
+                if (notePopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = notePopup.onTap(screenX, flippedY);
+                            if (result == NotePopup.RESULT_CONFIRM) {
+                                state.noteIncludeTime     = notePopup.isIncludeTime();
+                                state.noteIncludeLocation = notePopup.isIncludeLocation();
+                                Gdx.input.setOnscreenKeyboardVisible(false);
+                                submitNoteFromPopup();
+                            } else if (result == NotePopup.RESULT_CANCEL) {
+                                Gdx.input.setOnscreenKeyboardVisible(false);
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Hotel reception popup: night selection or cancel
                 if (hotelReceptionPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -996,6 +1072,27 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Meet popup: tap a question button, accept/reject, or close button
+                if (meetPopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            int result = meetPopup.onTap(screenX, flippedY);
+                            if (result == MeetPopup.RESULT_ACCEPTED) {
+                                handleMeetingAccepted();
+                            } else if (result == MeetPopup.RESULT_REJECTED) {
+                                handleMeetingRejected();
+                            }
+                            // RESULT_CLOSED: popup hides but the appointment and
+                            // pendingCase are preserved so the player can reopen
+                            // the meeting by tapping the Meet button again.
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Left-click: handle context menu first
                 if (contextMenu.isVisible()) {
                     float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
@@ -1058,12 +1155,13 @@ public class MainScreen implements Screen {
                             checkGoToHotelRoomButtonClick(screenX, flippedY);
                             checkEquipDropButtonClick(screenX, flippedY);
                             checkHelpButtonClick(screenX, flippedY);
-                            checkNoteCheckboxClick(screenX, flippedY);
                             checkAddNoteButtonClick(screenX, flippedY);
                             checkServiceButtonClick(screenX, flippedY);
                         }
                         checkTabClick(screenX, flippedY);
+                        checkExpandButtonClick(screenX, flippedY);
                         checkAppointmentButtonClick(screenX, flippedY);
+                        checkDevModeButtonClick(screenX, flippedY);
                     }
                     infoAreaPressed = false;
                 }
@@ -1128,6 +1226,18 @@ public class MainScreen implements Screen {
             @Override
             public boolean mouseMoved(int screenX, int screenY) {
                 updateCursorCell(screenX, state.screenHeight - screenY);
+                return false;
+            }
+
+            @Override
+            public boolean keyTyped(char character) {
+                if (notePopup.isVisible()) return notePopup.keyTyped(character);
+                return false;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (notePopup.isVisible()) return notePopup.keyDown(keycode);
                 return false;
             }
         });
@@ -1288,6 +1398,16 @@ public class MainScreen implements Screen {
         }
     }
 
+    private void checkExpandButtonClick(int screenX, int flippedY) {
+        if (state.expandBtnW <= 0) return;
+        if (screenX >= state.expandBtnX && screenX <= state.expandBtnX + state.expandBtnW
+                && flippedY >= state.expandBtnY && flippedY <= state.expandBtnY + state.expandBtnH) {
+            state.panelExpanded = !state.panelExpanded;
+            resize(state.screenWidth, state.screenHeight);
+            Gdx.app.log("MainScreen", "Panel expanded: " + state.panelExpanded);
+        }
+    }
+
     private void checkMoveToButtonClick(int screenX, int flippedY) {
         if (state.moveToButtonW <= 0) return;
         if (screenX >= state.moveToButtonX && screenX <= state.moveToButtonX + state.moveToButtonW
@@ -1381,12 +1501,223 @@ public class MainScreen implements Screen {
         if (state.appointmentBtnW <= 0) return;
         if (screenX >= state.appointmentBtnX && screenX <= state.appointmentBtnX + state.appointmentBtnW
                 && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
-            // Switch to the Calendar tab so the player can see the appointment details
-            state.activeInfoTab = "CALENDAR";
-            state.infoScrollY   = 0f;
-            state.infoScrollX   = 0f;
-            Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+            CalendarEntry appt = findUpcomingAppointment();
+            if (appt != null && !appt.contactName.isEmpty()) {
+                // Pre-generate the case now (before Accept/Reject) so the meeting dialogue
+                // can be shown during the appointment.  The pending case is transferred to
+                // the profile on Accept and discarded on Reject/Close.
+                if (pendingCase == null
+                        || pendingCase.getClientName() == null
+                        || !appt.contactName.equalsIgnoreCase(pendingCase.getClientName())) {
+                    GameDataManager gdm = game.getGameDataManager();
+                    PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
+                    if (png != null) {
+                        CaseGenerator caseGen = new CaseGenerator(png);
+                        pendingCase = caseGen.generate(profile.getGameDateTime());
+                        pendingCase.setClientName(appt.contactName);
+                        Gdx.app.log("MainScreen", "Pending case pre-generated for: " + appt.contactName);
+                    }
+                }
+                String caseContext = (pendingCase != null && !pendingCase.getObjective().isEmpty())
+                        ? pendingCase.getObjective() : "";
+                java.util.List<MeetingQA> dialogue = pendingCase != null
+                        ? pendingCase.getMeetingDialogue() : java.util.Collections.emptyList();
+                currentMeetAppt = appt;
+                meetPopup.show(appt, caseContext, dialogue);
+                Gdx.app.log("MainScreen", "Meet popup opened for: " + appt.contactName);
+            } else {
+                // No named contact — fall back to showing the Calendar tab
+                state.activeInfoTab = "CALENDAR";
+                state.infoScrollY   = 0f;
+                state.infoScrollX   = 0f;
+                Gdx.app.log("MainScreen", "Appointment button tapped — switching to Calendar tab");
+            }
         }
+    }
+
+    /**
+     * Finds the upcoming appointment at the player's current location within
+     * the 3-hour window, mirroring the logic in
+     * {@link InfoPanelRenderer#findUpcomingAppointmentAtLocation}.
+     */
+    private CalendarEntry findUpcomingAppointment() {
+        if (state.charCellX < 0 || state.charCellY < 0) return null;
+        Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+        String buildingName = (cell != null && cell.hasBuilding() && cell.getBuilding().isDiscovered())
+                ? cell.getBuilding().getName() : null;
+        boolean atHome = state.charCellX == state.homeCellX && state.charCellY == state.homeCellY;
+
+        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        for (CalendarEntry entry : profile.getCalendarEntries()) {
+            boolean locationMatches;
+            if ("Your Office".equalsIgnoreCase(entry.location)) {
+                locationMatches = atHome;
+            } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
+                // Match by exact cell coordinates. Works even when the building at
+                // those coordinates is undiscovered (e.g. coffee shop not yet visited).
+                locationMatches = state.charCellX == entry.locationCellX
+                        && state.charCellY == entry.locationCellY;
+            } else {
+                locationMatches = buildingName != null
+                        && buildingName.equalsIgnoreCase(entry.location);
+            }
+            if (!locationMatches) continue;
+            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            if (diff >= 0 && diff <= 180) return entry;
+        }
+        return null;
+    }
+
+    /**
+     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time string to total
+     * minutes, mirroring the helper in {@link InfoPanelRenderer}.
+     */
+    private static long dateTimeToMinutes(String dt) {
+        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        try {
+            String[] halves = dt.split(" ");
+            String[] d = halves[0].split("-");
+            String[] t = halves[1].split(":");
+            int year  = Integer.parseInt(d[0]);
+            int month = Integer.parseInt(d[1]);
+            int day   = Integer.parseInt(d[2]);
+            int hour  = Integer.parseInt(t[0]);
+            int min   = Integer.parseInt(t[1]);
+            long totalDays = (long)(year - 2050) * 365L;
+            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
+            totalDays += day;
+            return totalDays * 24L * 60L + hour * 60L + min;
+        } catch (Exception e) {
+            return Long.MAX_VALUE / 2;
+        }
+    }
+
+    /**
+     * Returns the first open {@link CaseFile} whose client name matches
+     * {@code contactName}, or {@code null} if none is found.
+     */
+    private CaseFile findCaseForContact(String contactName) {
+        if (contactName == null || contactName.isEmpty()) return null;
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                return cf;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the objective of the first open {@link CaseFile} whose client
+     * name matches {@code contactName}, or an empty string if none is found.
+     */
+    private String findCaseContextForContact(String contactName) {
+        if (contactName == null || contactName.isEmpty()) return "";
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                String obj = cf.getObjective();
+                return (obj != null) ? obj : "";
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Called when the player taps "Accept Case".  Uses the pre-generated
+     * {@link #pendingCase} (created when the meeting popup was opened) so the
+     * accepted case exactly matches the dialogue the player just read.
+     * Falls back to generating a fresh case if the pending case is unavailable.
+     * Delegates to {@link #handleMeetingClosed()} to record the meeting note
+     * and any asked questions.
+     */
+    private void handleMeetingAccepted() {
+        if (pendingCase != null) {
+            profile.addCaseFile(pendingCase);
+            Gdx.app.log("MainScreen", "Case accepted (pre-generated): " + pendingCase.getName());
+            pendingCase = null;
+        } else {
+            // Fallback: generate a case on-the-spot if no pending case exists
+            GameDataManager gdm = game.getGameDataManager();
+            PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
+            if (png != null) {
+                CaseGenerator caseGen = new CaseGenerator(png);
+                CaseFile newCase = caseGen.generate(profile.getGameDateTime());
+                if (currentMeetAppt != null && !currentMeetAppt.contactName.isEmpty()) {
+                    newCase.setClientName(currentMeetAppt.contactName);
+                }
+                profile.addCaseFile(newCase);
+                Gdx.app.log("MainScreen", "Case accepted (fallback-generated): " + newCase.getName());
+            } else {
+                Gdx.app.log("MainScreen", "Cannot generate case: PersonNameGenerator unavailable");
+            }
+        }
+        handleMeetingClosed();
+    }
+
+    /**
+     * Called when the player taps "Reject Case".  Discards the pre-generated
+     * {@link #pendingCase}, removes the appointment from the calendar (so the
+     * Meet button disappears), and clears tracking state.  No meeting notes or
+     * clues are recorded.
+     */
+    private void handleMeetingRejected() {
+        pendingCase = null;
+        if (currentMeetAppt != null) {
+            profile.removeCalendarEntry(currentMeetAppt);
+            Gdx.app.log("MainScreen", "Meeting rejected; appointment removed for: "
+                    + currentMeetAppt.contactName);
+            currentMeetAppt = null;
+        }
+    }
+
+    /**
+     * Called after the player taps "Accept Case" (via {@link #handleMeetingAccepted()}).
+     * Finds the newly-added {@link CaseFile} that matches the appointment's contact name
+     * and records a meeting note plus a clue entry for every question the
+     * player asked during the meeting.  Also removes the completed appointment.
+     */
+    private void handleMeetingClosed() {
+        if (currentMeetAppt == null) return;
+        String contactName = currentMeetAppt.contactName;
+
+        // pendingCase is already null here (transferred to the profile in
+        // handleMeetingAccepted before this method is called).
+        pendingCase = null;
+
+        if (contactName.isEmpty()) {
+            profile.removeCalendarEntry(currentMeetAppt);
+            currentMeetAppt = null;
+            return;
+        }
+
+        // Locate the matching open case file (same logic as findCaseContextForContact)
+        CaseFile matchingCase = null;
+        for (CaseFile cf : profile.getCaseFiles()) {
+            if (cf.isOpen() && contactName.equalsIgnoreCase(cf.getClientName())) {
+                matchingCase = cf;
+                break;
+            }
+        }
+        if (matchingCase == null) {
+            Gdx.app.log("MainScreen", "No open case found for contact: " + contactName);
+            profile.removeCalendarEntry(currentMeetAppt);
+            currentMeetAppt = null;
+            return;
+        }
+
+        // Add a note recording who was met, when and where
+        String gameDateTime = profile.getGameDateTime();
+        String location     = currentMeetAppt.location.isEmpty() ? "unknown location" : currentMeetAppt.location;
+        matchingCase.addNote("Met " + contactName + " at " + location + " (" + gameDateTime + ")");
+
+        // Add a clue entry for each question the player asked
+        for (String question : meetPopup.getAskedQuestions()) {
+            matchingCase.addClue("Asked " + contactName + ": \"" + question + "\"");
+        }
+
+        Gdx.app.log("MainScreen", "Case file updated after meeting: " + matchingCase.getName());
+        // Remove the completed appointment from the calendar
+        profile.removeCalendarEntry(currentMeetAppt);
+        currentMeetAppt = null;
     }
 
     private void checkServiceButtonClick(int screenX, int flippedY) {
@@ -1471,16 +1802,12 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkNoteCheckboxClick(int screenX, int flippedY) {
-        if (state.noteTimeCbW > 0
-                && screenX >= state.noteTimeCbX && screenX <= state.noteTimeCbX + state.noteTimeCbW
-                && flippedY >= state.noteTimeCbY && flippedY <= state.noteTimeCbY + state.noteTimeCbH) {
-            state.noteIncludeTime = !state.noteIncludeTime;
-        }
-        if (state.noteLocCbW > 0
-                && screenX >= state.noteLocCbX && screenX <= state.noteLocCbX + state.noteLocCbW
-                && flippedY >= state.noteLocCbY && flippedY <= state.noteLocCbY + state.noteLocCbH) {
-            state.noteIncludeLocation = !state.noteIncludeLocation;
+    private void checkDevModeButtonClick(int screenX, int flippedY) {
+        if (state.devModeBtnW <= 0) return;
+        if (screenX >= state.devModeBtnX && screenX <= state.devModeBtnX + state.devModeBtnW
+                && flippedY >= state.devModeBtnY && flippedY <= state.devModeBtnY + state.devModeBtnH) {
+            state.developerMode = !state.developerMode;
+            Gdx.app.log("MainScreen", "Developer mode " + (state.developerMode ? "ON" : "OFF"));
         }
     }
 
@@ -1490,34 +1817,31 @@ public class MainScreen implements Screen {
                 && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
             CaseFile active = profile.getActiveCaseFile();
             if (active != null) {
-                final boolean includeTime     = state.noteIncludeTime;
-                final boolean includeLocation = state.noteIncludeLocation;
-                Gdx.input.getTextInput(new Input.TextInputListener() {
-                    @Override
-                    public void input(String text) {
-                        if (text != null && !text.trim().isEmpty()) {
-                            StringBuilder sb = new StringBuilder();
-                            if (includeTime) {
-                                sb.append("[").append(profile.getGameDateTime()).append("] ");
-                            }
-                            if (includeLocation) {
-                                String loc = getCurrentLocationName();
-                                if (loc != null && !loc.isEmpty()) {
-                                    sb.append("@ ").append(loc).append(" ");
-                                }
-                            }
-                            sb.append(text.trim());
-                            active.addNote(sb.toString());
-                            Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
-                        }
-                    }
-                    @Override
-                    public void canceled() {
-                        // User cancelled — do nothing
-                    }
-                }, "Add Note", "", "Enter your note...");
+                notePopup.show(state.noteIncludeTime, state.noteIncludeLocation);
+                Gdx.input.setOnscreenKeyboardVisible(true);
             }
         }
+    }
+
+    /** Saves the note typed in the popup to the active case file. */
+    private void submitNoteFromPopup() {
+        CaseFile active = profile.getActiveCaseFile();
+        if (active == null) return;
+        String text = notePopup.getNoteText();
+        if (text.isEmpty()) return;
+        StringBuilder sb = new StringBuilder();
+        if (state.noteIncludeTime) {
+            sb.append("[").append(profile.getGameDateTime()).append("] ");
+        }
+        if (state.noteIncludeLocation) {
+            String loc = getCurrentLocationName();
+            if (loc != null && !loc.isEmpty()) {
+                sb.append("@ ").append(loc).append(" ");
+            }
+        }
+        sb.append(text);
+        active.addNote(sb.toString());
+        Gdx.app.log("MainScreen", "Note added to case: " + active.getName());
     }
 
     /** Returns the building name at the character's current location, or the cell coordinates. */
@@ -1608,6 +1932,7 @@ public class MainScreen implements Screen {
         restingPopup.start(resultMsg, animDots, "Sleeping", 0.2f, () -> {
             profile.advanceGameTime(minutesPerDot);
             profile.addStaminaUpTo(staminaPerDot, cap);
+            profile.removeExpiredCalendarEntries();
         });
     }
 
@@ -2351,6 +2676,7 @@ public class MainScreen implements Screen {
             int   staminaGain = Math.round(profile.getMaxStamina() * fraction);
             profile.addStamina(staminaGain);
             profile.advanceGameTime(minutesSleep);
+            profile.removeExpiredCalendarEntries();
             msgLines.add("You slept until 06:00.");
             msgLines.add("+" + staminaGain + " stamina restored.");
         } else {
@@ -2623,7 +2949,7 @@ public class MainScreen implements Screen {
                         loc,
                         reward, null,
                         locCellX, locCellY,
-                        clientName
+                        clientName, gender
                 ));
             }
         }
@@ -2654,7 +2980,7 @@ public class MainScreen implements Screen {
                 new CalendarEntry(email.calendarDateTime, email.calendarTitle, email.calendarLocation,
                         email.rewardMoney, email.rewardItemName,
                         email.locationCellX, email.locationCellY,
-                        email.calendarContactName));
+                        email.calendarContactName, email.contactGender));
         Gdx.app.log("MainScreen", "Calendar entry added: " + email.calendarTitle
                 + " @ " + email.calendarDateTime
                 + (email.rewardMoney > 0 ? "  reward=$" + email.rewardMoney : ""));

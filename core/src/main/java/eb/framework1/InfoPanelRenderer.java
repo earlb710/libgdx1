@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +52,21 @@ class InfoPanelRenderer {
     static final Color         NOVEL_COLOR            = new Color(0.70f, 0.90f, 1.00f, 1f);
     private static final Color ADD_NOTE_BTN_COLOR     = new Color(0.3f,  0.3f,  0.55f, 1f);
     private static final Color NOTE_COLOR             = new Color(0.85f, 0.85f, 0.70f, 1f);
+    private static final Color NOTE_DIVIDER_COLOR     = new Color(0.30f, 0.30f, 0.40f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
     private static final Color SERVICE_BTN_COLOR       = new Color(0.15f, 0.45f, 0.45f, 1f);
+    private static final Color DEV_BTN_ON_FILL         = new Color(0.10f, 0.40f, 0.15f, 1f);
+    private static final Color DEV_BTN_ON_BORDER       = new Color(0.20f, 0.80f, 0.30f, 1f);
+    private static final Color DEV_BTN_OFF_FILL        = new Color(0.20f, 0.20f, 0.20f, 1f);
+    private static final Color DEV_BTN_OFF_BORDER      = new Color(0.45f, 0.45f, 0.45f, 1f);
+    private static final Color DEV_BTN_TEXT_ON         = new Color(0.30f, 1.00f, 0.40f, 1f);
+    private static final Color DEV_BTN_TEXT_OFF        = new Color(0.55f, 0.55f, 0.55f, 1f);
+    private static final Color DEV_INFO_LABEL_COLOR    = new Color(0.30f, 1.00f, 0.40f, 1f);
+    private static final Color DEV_INFO_HIDDEN_COLOR   = new Color(1.00f, 0.55f, 0.10f, 1f);
+    private static final Color DEV_INFO_HINT_COLOR     = new Color(0.65f, 0.65f, 0.65f, 1f);
+    private static final Color EXPAND_BTN_FILL         = new Color(0.14f, 0.14f, 0.20f, 1f);
+    private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
+    private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -109,17 +123,48 @@ class InfoPanelRenderer {
         glyphLayout.setText(smallFont, "Hg");
         float textY = barY + (MapViewState.INFO_BAR_HEIGHT + glyphLayout.height) / 2;
 
-        // Date / time (left) — smallFont
+        // Developer-mode toggle button "D" — top-left, before date
+        final float DEV_BTN_PAD_H = 6f;  // horizontal padding inside button
+        final float DEV_BTN_PAD_V = 6f;  // vertical padding inside button
+        glyphLayout.setText(smallFont, "D");
+        float devBtnW = glyphLayout.width + DEV_BTN_PAD_H * 2f;
+        float devBtnH = glyphLayout.height + DEV_BTN_PAD_V * 2f;
+        float devBtnX = 10f;
+        float devBtnY = barY + (MapViewState.INFO_BAR_HEIGHT - devBtnH) / 2f;
+        s.devModeBtnX = devBtnX;
+        s.devModeBtnY = devBtnY;
+        s.devModeBtnW = devBtnW;
+        s.devModeBtnH = devBtnH;
+        batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(s.developerMode ? DEV_BTN_ON_FILL : DEV_BTN_OFF_FILL);
+        shapeRenderer.rect(devBtnX, devBtnY, devBtnW, devBtnH);
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(s.developerMode ? DEV_BTN_ON_BORDER : DEV_BTN_OFF_BORDER);
+        shapeRenderer.rect(devBtnX, devBtnY, devBtnW, devBtnH);
+        shapeRenderer.end();
+
+        batch.begin();
+        glyphLayout.setText(smallFont, "D");
+        smallFont.setColor(s.developerMode ? DEV_BTN_TEXT_ON : DEV_BTN_TEXT_OFF);
+        smallFont.draw(batch, "D",
+                devBtnX + DEV_BTN_PAD_H,
+                devBtnY + devBtnH - DEV_BTN_PAD_V);
+
+        // Date / time (left) — smallFont, shifted right of the "D" button
+        float dateX = devBtnX + devBtnW + 8f;
         String dateTime = profile.getGameDateTime();
         int spaceIdx = dateTime.indexOf(' ');
         String datePart = spaceIdx >= 0 ? dateTime.substring(0, spaceIdx) : dateTime;
         String timePart = spaceIdx >= 0 ? dateTime.substring(spaceIdx) : "";
 
         smallFont.setColor(Color.GREEN);
-        smallFont.draw(batch, datePart, 10, textY);
+        smallFont.draw(batch, datePart, dateX, textY);
         glyphLayout.setText(smallFont, datePart);
         smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, timePart, 10 + glyphLayout.width, textY);
+        smallFont.draw(batch, timePart, dateX + glyphLayout.width, textY);
 
         // Money (right) — smallFont
         String moneyText = "$" + profile.getMoney();
@@ -180,6 +225,15 @@ class InfoPanelRenderer {
             tabWidths[i] = glyphLayout.width + tabPadX * 2f;
         }
 
+        // Pre-compute expand/collapse button geometry so we can include it in the
+        // existing begin/end blocks below (avoids extra flush operations).
+        final String arrowLabel = s.panelExpanded ? "\u25BC" : "\u25B2";   // ▼ = collapse, ▲ = expand
+        glyphLayout.setText(smallFont, arrowLabel);
+        float arrowBtnW = glyphLayout.width + tabPadX * 2f;
+        float arrowBtnH = tabH;
+        // x position is computed after the tab widths loop below; placeholder for now
+        // (set once 'tx' reaches the end of all tabs in the fill block)
+
         // The active tab is 3px taller at the top to appear "raised".
         // Inactive tabs are shifted up by that same amount so the bottom of all tabs
         // aligns with the separator, but the active tab sits 3px higher.
@@ -208,6 +262,13 @@ class InfoPanelRenderer {
             }
             tx += tabWidths[i];
         }
+        // Expand/collapse button fill — pinned to the far right of the tab bar
+        s.expandBtnX = s.screenWidth - arrowBtnW;
+        s.expandBtnY = tabBarY;
+        s.expandBtnW = arrowBtnW;
+        s.expandBtnH = arrowBtnH;
+        shapeRenderer.setColor(EXPAND_BTN_FILL);
+        shapeRenderer.rect(s.expandBtnX, s.expandBtnY, arrowBtnW, arrowBtnH);
         shapeRenderer.end();
 
         // Borders and separator
@@ -236,6 +297,9 @@ class InfoPanelRenderer {
             }
             tx += tabWidths[i];
         }
+        // Expand/collapse button border
+        shapeRenderer.setColor(EXPAND_BTN_BORDER);
+        shapeRenderer.rect(s.expandBtnX, s.expandBtnY, arrowBtnW, arrowBtnH);
         // Separator line across the full width except under the active tab
         shapeRenderer.setColor(new Color(0.55f, 0.75f, 1.00f, 1f));
         shapeRenderer.line(0,                         tabBarY, activeTabX,              tabBarY);
@@ -245,7 +309,7 @@ class InfoPanelRenderer {
         shapeRenderer.line(0, tabBarTop, s.screenWidth, tabBarTop);
         shapeRenderer.end();
 
-        // Tab labels — active tab: bold white; inactive: dimmed regular
+        // Tab labels and expand button label — active tab: bold white; inactive: dimmed regular
         batch.begin();
         tx = 0f;
         for (int i = 0; i < TAB_LABELS.length; i++) {
@@ -261,6 +325,12 @@ class InfoPanelRenderer {
                     labelY);
             tx += tabWidths[i];
         }
+        // Arrow label centred in the expand button
+        glyphLayout.setText(smallFont, arrowLabel);
+        smallFont.setColor(EXPAND_BTN_TEXT);
+        smallFont.draw(batch, arrowLabel,
+                s.expandBtnX + (arrowBtnW - glyphLayout.width) / 2f,
+                tabBarY + tabPadY + tabFontH);
         batch.end();
 
         // The panel area available for tab content is below the tab bar
@@ -1040,15 +1110,16 @@ class InfoPanelRenderer {
                 ? cell.getBuilding().getName() : null;
         boolean atHome = s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
 
-        if (buildingName == null && !atHome) return null;
-
         long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
                 locationMatches = atHome;
             } else if (entry.locationCellX >= 0 && entry.locationCellY >= 0) {
-                // Match by exact cell coordinates when they are stored on the entry
+                // Match by exact cell coordinates when they are stored on the entry.
+                // This works even if the building at those coordinates is not yet
+                // discovered, so appointments at undiscovered venues (e.g. a coffee
+                // shop the player hasn't visited yet) still show the Meet button.
                 locationMatches = s.charCellX == entry.locationCellX
                         && s.charCellY == entry.locationCellY;
             } else {
@@ -1230,8 +1301,6 @@ class InfoPanelRenderer {
 
         final float PAD           = 12f;
         final float SB            = MapViewState.SCROLLBAR_THICKNESS;
-        final float CB_LABEL_GAP  = 6f;
-        final float CB_ROW_PAD    = 4f;
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -1282,22 +1351,20 @@ class InfoPanelRenderer {
             return;
         }
 
-        // ── Fixed bottom: checkboxes + "Add Note" button ──────────────────────
-        float cbSize = fontCapH;
-        float cbRowH = cbSize + CB_ROW_PAD;
-        float btnH   = fontCapH + 12f;
+        // ── Fixed bottom row: "Add Note" button ───────────────────────────────
+        // Size the button from font metrics
+        glyphLayout.setText(font, "Add Note");
+        float addNoteLabelW = glyphLayout.width;
+        float btnH      = fontCapH + 12f;
+        float addNoteBtnW = addNoteLabelW + PAD * 2f;
 
-        // Lay out controls from the bottom up (above the scrollbar)
-        float btnY    = SB + PAD;
-        float locCbY  = btnY + btnH + 4f;
-        float timeCbY = locCbY + cbRowH + 4f;
-        // The fixed area ends here; content area sits above it
-        float fixedAreaTop = timeCbY + cbRowH + 4f;
+        float rowY  = SB + PAD;                         // bottom of the row
 
-        // Register click areas (actual screen positions — controls don't scroll)
-        s.addNoteBtnX = PAD;   s.addNoteBtnY = btnY;    s.addNoteBtnW = 120f; s.addNoteBtnH = btnH;
-        s.noteLocCbX  = PAD;   s.noteLocCbY  = locCbY;  s.noteLocCbW  = cbSize; s.noteLocCbH = cbSize;
-        s.noteTimeCbX = PAD;   s.noteTimeCbY = timeCbY; s.noteTimeCbW = cbSize; s.noteTimeCbH = cbSize;
+        // The fixed area ends here; scrollable content area sits above it
+        float fixedAreaTop = rowY + btnH + PAD;
+
+        // Register click area (checkboxes now live in NotePopup — only button here)
+        s.addNoteBtnX = PAD;    s.addNoteBtnY = rowY;  s.addNoteBtnW = addNoteBtnW; s.addNoteBtnH = btnH;
 
         // Draw "Add Note" button
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -1316,55 +1383,58 @@ class InfoPanelRenderer {
                 s.addNoteBtnY + (s.addNoteBtnH + glyphLayout.height) / 2f);
         batch.end();
 
-        // Draw "Include current location" checkbox
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.rect(s.noteLocCbX, s.noteLocCbY, s.noteLocCbW, s.noteLocCbH);
-        shapeRenderer.end();
-        if (s.noteIncludeLocation) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(LABEL_COLOR);
-            float inset = 3f;
-            shapeRenderer.rect(s.noteLocCbX + inset, s.noteLocCbY + inset,
-                    s.noteLocCbW - inset * 2, s.noteLocCbH - inset * 2);
-            shapeRenderer.end();
-        }
-        batch.begin();
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, "Include current location",
-                s.noteLocCbX + s.noteLocCbW + CB_LABEL_GAP,
-                s.noteLocCbY + s.noteLocCbH - 2f);
-        batch.end();
-
-        // Draw "Include current time" checkbox
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(INFO_BORDER_COLOR);
-        shapeRenderer.rect(s.noteTimeCbX, s.noteTimeCbY, s.noteTimeCbW, s.noteTimeCbH);
-        shapeRenderer.end();
-        if (s.noteIncludeTime) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(LABEL_COLOR);
-            float inset = 3f;
-            shapeRenderer.rect(s.noteTimeCbX + inset, s.noteTimeCbY + inset,
-                    s.noteTimeCbW - inset * 2, s.noteTimeCbH - inset * 2);
-            shapeRenderer.end();
-        }
-        batch.begin();
-        smallFont.setColor(Color.WHITE);
-        smallFont.draw(batch, "Include current time",
-                s.noteTimeCbX + s.noteTimeCbW + CB_LABEL_GAP,
-                s.noteTimeCbY + s.noteTimeCbH - 2f);
-        batch.end();
-
         // ── Scrollable content area ───────────────────────────────────────────
         float contentAreaH = contentTop - fixedAreaTop;
+
+        // Pre-compute word-wrapped lines for description and objective so that
+        // totalH below and the drawing pass both use the same line counts.
+        final float wrapW = s.screenWidth - SB - PAD - 8f;
+        List<String> descLines = active.getDescription().isEmpty()
+                ? Collections.emptyList()
+                : WordWrapper.wrap(active.getDescription(), wrapW, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                  });
+        List<String> objLines = active.getObjective().isEmpty()
+                ? Collections.emptyList()
+                : WordWrapper.wrap(active.getObjective(), wrapW, t -> {
+                    glyphLayout.setText(font, t);
+                    return glyphLayout.width;
+                  });
+        List<String> typeDescLines = (active.getCaseType() != null && !active.getCaseType().getDescription().isEmpty())
+                ? WordWrapper.wrap(active.getCaseType().getDescription(), wrapW, t -> {
+                    glyphLayout.setText(smallFont, t);
+                    return glyphLayout.width;
+                  })
+                : Collections.emptyList();
 
         // Compute total virtual height so we can set the scroll limit
         CaseStoryNode storyRoot = active.getStoryRoot();
         float totalH = 0;
+        // Dev info block (shown only in developer mode)
+        if (s.developerMode) {
+            totalH += fontLineH; // "[DEV]" header
+            totalH += fontLineH; // Type
+            totalH += fontLineH; // Client
+            totalH += fontLineH; // Subject
+            if (!objLines.isEmpty()) {
+                totalH += fontLineH;                        // "Objective:" header line
+                totalH += fontLineH * objLines.size();      // wrapped objective lines
+            }
+            totalH += fontLineH; // Complexity
+        }
         totalH += fontLineH;   // Status
         totalH += fontLineH;   // Opened
-        if (!active.getDescription().isEmpty()) totalH += fontLineH * 2f;
+        if (!typeDescLines.isEmpty()) {
+            totalH += fontLineH;                         // "Type: <displayName>" line
+            totalH += smallLineH * typeDescLines.size(); // wrapped type description lines
+            totalH += PAD / 2f;                          // small gap after
+        }
+        if (!descLines.isEmpty()) {
+            totalH += fontLineH;                        // "Description:" header
+            totalH += smallLineH * descLines.size();    // wrapped description lines
+            totalH += PAD / 2f;                         // small gap after
+        }
         // Progress section
         if (storyRoot != null) {
             totalH += fontLineH; // "Progress" header
@@ -1388,6 +1458,19 @@ class InfoPanelRenderer {
         totalH += fontLineH * 0.9f * active.getEvidence().size();
         totalH += fontLineH;                                   // Notes header
         totalH += fontLineH * 0.9f * active.getNotes().size();
+        // Leads section
+        if (s.developerMode) {
+            // Show all leads (discovered + undiscovered)
+            List<CaseLead> allLeads = active.getLeads();
+            totalH += fontLineH;                                           // Leads header
+            totalH += fontLineH * 0.9f * allLeads.size() * 2f;            // 2 lines per lead
+        } else {
+            List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
+            if (!discoveredLeads.isEmpty()) {
+                totalH += fontLineH;                                       // Leads header
+                totalH += fontLineH * 0.9f * discoveredLeads.size();      // 1 line per discovered lead
+            }
+        }
         totalH += PAD;                                         // bottom padding
 
         s.infoMaxScrollY = Math.max(0f, totalH - contentAreaH);
@@ -1402,6 +1485,56 @@ class InfoPanelRenderer {
         batch.begin();
         drawScrollY = s.infoScrollY;
         float ty = contentTop - PAD;  // virtual Y cursor (offset by drawScrollY when drawing)
+
+        // ── Developer-mode info block ─────────────────────────────────────────
+        if (s.developerMode) {
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "[DEV INFO]", PAD, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Type: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getCaseType() != null ? active.getCaseType().getDisplayName() : "—",
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Client: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Client: ");
+            font.setColor(Color.WHITE);
+            String clientVal = active.getClientName().isEmpty() ? "—" : active.getClientName();
+            font.draw(batch, clientVal, PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Subject: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Subject: ");
+            font.setColor(Color.WHITE);
+            String subjectVal = active.getSubjectName().isEmpty() ? "—" : active.getSubjectName();
+            font.draw(batch, subjectVal, PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+
+            if (!objLines.isEmpty()) {
+                font.setColor(DEV_INFO_LABEL_COLOR);
+                font.draw(batch, "Objective:", PAD, ty + drawScrollY);
+                ty -= fontLineH;
+                font.setColor(Color.WHITE);
+                for (String line : objLines) {
+                    font.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                    ty -= fontLineH;
+                }
+            }
+
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Complexity: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Complexity: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getComplexity() + " (hidden)",
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+        }
 
         // Status
         font.setColor(LABEL_COLOR);
@@ -1419,15 +1552,35 @@ class InfoPanelRenderer {
         font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, ty + drawScrollY);
         ty -= fontLineH;
 
-        // Description
-        if (!active.getDescription().isEmpty()) {
+        // Case type + description
+        if (active.getCaseType() != null && !typeDescLines.isEmpty()) {
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Type: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, active.getCaseType().getDisplayName(), PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            smallFont.setColor(NOVEL_COLOR);
+            for (String line : typeDescLines) {
+                smallFont.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH;
+            }
+            smallFont.setColor(Color.WHITE);
+            ty -= PAD / 2f;
+        }
+
+        // Description (word-wrapped)
+        if (!descLines.isEmpty()) {
             font.setColor(LABEL_COLOR);
             font.draw(batch, "Description:", PAD, ty + drawScrollY);
             ty -= fontLineH;
             smallFont.setColor(NOVEL_COLOR);
-            smallFont.draw(batch, active.getDescription(), PAD + 8f, ty + drawScrollY);
+            for (String line : descLines) {
+                smallFont.draw(batch, line, PAD + 8f, ty + drawScrollY);
+                ty -= smallLineH;
+            }
             smallFont.setColor(Color.WHITE);
-            ty -= fontLineH;
+            ty -= PAD / 2f;
         }
 
         // ── Story-tree progress panel (new) ───────────────────────────────────
@@ -1515,12 +1668,75 @@ class InfoPanelRenderer {
         font.draw(batch, String.valueOf(active.getNotes().size()),
                 PAD + glyphLayout.width, ty + drawScrollY);
         ty -= fontLineH;
-        for (String note : active.getNotes()) {
+        List<String> notesList = active.getNotes();
+        float[] noteDividerYs = new float[Math.max(0, notesList.size() - 1)];
+        int noteDividerCount = 0;
+        for (int ni = 0; ni < notesList.size(); ni++) {
             noteFont.setColor(NOTE_COLOR);
-            noteFont.draw(batch, "\u2022 " + note, PAD + 8f, ty + drawScrollY);
+            noteFont.draw(batch, "\u2022 " + notesList.get(ni), PAD + 8f, ty + drawScrollY);
             ty -= fontLineH * 0.9f;
+            if (ni < notesList.size() - 1) {
+                noteDividerYs[noteDividerCount++] = ty + drawScrollY + fontLineH * 0.9f * 0.25f; // 25% up in the gap
+            }
         }
         noteFont.setColor(Color.WHITE);
+        if (noteDividerCount > 0) {
+            batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(NOTE_DIVIDER_COLOR);
+            for (int di = 0; di < noteDividerCount; di++) {
+                shapeRenderer.line(PAD + 4f, noteDividerYs[di], s.screenWidth - SB - PAD, noteDividerYs[di]);
+            }
+            shapeRenderer.end();
+            batch.begin();
+        }
+
+        // Leads
+        List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
+        if (s.developerMode) {
+            // Dev mode: show ALL leads; tag undiscovered ones with [HIDDEN]
+            List<CaseLead> allLeads = active.getLeads();
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Leads: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(allLeads.size()), PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            for (CaseLead lead : allLeads) {
+                if (lead.isDiscovered()) {
+                    smallFont.setColor(Color.WHITE);
+                    smallFont.draw(batch, "\u2022 " + lead.getDescription()
+                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
+                            PAD + 8f, ty + drawScrollY);
+                } else {
+                    smallFont.setColor(DEV_INFO_HIDDEN_COLOR);
+                    smallFont.draw(batch, "\u2022 [HIDDEN] " + lead.getDescription()
+                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
+                            PAD + 8f, ty + drawScrollY);
+                }
+                ty -= fontLineH * 0.9f;
+                smallFont.setColor(DEV_INFO_HINT_COLOR);
+                smallFont.draw(batch, "    Hint: " + lead.getHint(), PAD + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        } else if (!discoveredLeads.isEmpty()) {
+            // Normal mode: only show leads the player has uncovered
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(font, "Leads: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(discoveredLeads.size()),
+                    PAD + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            for (CaseLead lead : discoveredLeads) {
+                smallFont.setColor(NOVEL_COLOR);
+                smallFont.draw(batch, "\u2022 " + lead.getDescription(),
+                        PAD + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        }
 
         batch.end();
         drawScrollY = 0f;
