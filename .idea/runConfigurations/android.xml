@@ -15,7 +15,6 @@
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
     <option name="INSPECTION_WITHOUT_ACTIVITY_RESTART" value="false" />
-    <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
