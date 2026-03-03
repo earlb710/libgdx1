@@ -154,15 +154,23 @@ public class CategoryEditorScreen extends JFrame {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
                 Component c = super.prepareRenderer(renderer, row, col);
-                if (!isRowSelected(row)) {
-                    Object keyVal = getModel().getValueAt(row, 0);
-                    String key = keyVal != null ? keyVal.toString() : "";
-                    String colName = getModel().getColumnName(col);
-                    String ratingId = annotationRatings.get(key + "\0" + colName);
-                    Color bg = DescriptionEditorPanel.ratingToColor(ratingId);
-                    c.setBackground(bg != null ? bg : getBackground());
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
+                if (bg != null) {
+                    c.setBackground(bg);
+                } else if (!isRowSelected(row)) {
+                    c.setBackground(getBackground());
                 }
                 return c;
+            }
+
+            @Override
+            public javax.swing.table.TableCellEditor getCellEditor(int row, int column) {
+                javax.swing.table.TableCellEditor editor = super.getCellEditor(row, column);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
+                if (bg != null && editor instanceof DefaultCellEditor) {
+                    ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                }
+                return editor;
             }
         };
         categoryTables.add(table);
@@ -392,6 +400,18 @@ public class CategoryEditorScreen extends JFrame {
     // -------------------------------------------------------------------------
     // Annotation support for category tables
     // -------------------------------------------------------------------------
+
+    /**
+     * Returns the annotation background color for the cell at (row, column) in
+     * the given model, or {@code null} if the cell has no annotation.
+     */
+    private Color getAnnotationColor(DefaultTableModel m, int row, int column) {
+        Object keyVal = m.getValueAt(row, 0);
+        String key = keyVal != null ? keyVal.toString() : "";
+        String colName = m.getColumnName(column);
+        String ratingId = annotationRatings.get(key + "\0" + colName);
+        return DescriptionEditorPanel.ratingToColor(ratingId);
+    }
 
     private File annotationFile() {
         return currentFile != null

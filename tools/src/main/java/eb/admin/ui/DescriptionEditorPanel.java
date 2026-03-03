@@ -58,13 +58,15 @@ public class DescriptionEditorPanel extends JPanel {
         @Override
         public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
             Component c = super.prepareRenderer(renderer, row, column);
-            if (!isRowSelected(row)) {
-                Object keyVal = tableModel.getValueAt(row, 0);
-                String key = keyVal != null ? keyVal.toString() : "";
-                String colName = tableModel.getColumnName(column);
-                String ratingId = annotationRatings.get(key + "\0" + colName);
-                Color bg = ratingToColor(ratingId);
-                c.setBackground(bg != null ? bg : getBackground());
+            Object keyVal = tableModel.getValueAt(row, 0);
+            String key = keyVal != null ? keyVal.toString() : "";
+            String colName = tableModel.getColumnName(column);
+            String ratingId = annotationRatings.get(key + "\0" + colName);
+            Color bg = ratingToColor(ratingId);
+            if (bg != null) {
+                c.setBackground(bg);
+            } else if (!isRowSelected(row)) {
+                c.setBackground(getBackground());
             }
             return c;
         }
