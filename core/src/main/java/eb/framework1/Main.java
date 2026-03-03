@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
-    private UserManager userManager;
     private ProfileManager profileManager;
     private FontManager fontManager;
     private GameDataManager gameDataManager;
@@ -32,32 +31,18 @@ public class Main extends Game {
             Gdx.app.log("Main", "Creating FontManager...");
             fontManager = new FontManager();
             
-            Gdx.app.log("Main", "Creating UserManager...");
-            userManager = new UserManager();
-            
             Gdx.app.log("Main", "Creating ProfileManager...");
             profileManager = new ProfileManager();
             
             Gdx.app.log("Main", "Creating GameDataManager...");
             gameDataManager = new GameDataManager();
             
-            // Check if user exists, if not show login screen
-            Gdx.app.log("Main", "Checking if user exists...");
-            if (userManager.hasUser()) {
-                Gdx.app.log("Main", "User exists, showing SplashScreen");
-                setScreen(new SplashScreen(this));
-            } else {
-                Gdx.app.log("Main", "No user, showing LoginScreen");
-                setScreen(new LoginScreen(this));
-            }
+            Gdx.app.log("Main", "Showing SplashScreen");
+            setScreen(new SplashScreen(this));
             Gdx.app.log("Main", "create() completed successfully");
         } catch (Exception e) {
             Gdx.app.error("Main", "Error in create(): " + e.getMessage(), e);
         }
-    }
-    
-    public UserManager getUserManager() {
-        return userManager;
     }
     
     public ProfileManager getProfileManager() {
