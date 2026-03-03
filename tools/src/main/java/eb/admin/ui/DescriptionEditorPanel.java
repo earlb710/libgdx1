@@ -36,6 +36,7 @@ import java.util.Map;
 public class DescriptionEditorPanel extends JPanel {
 
     private static final String DEFAULT_JSON_PATH = "assets/text/description_en.json";
+    private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
 
     private final JTextField versionField = new JTextField(8);
     private final JTextField languageField = new JTextField(8);
@@ -65,8 +66,10 @@ public class DescriptionEditorPanel extends JPanel {
             Color bg = ratingToColor(ratingId);
             if (bg != null) {
                 c.setBackground(bg);
+                c.setForeground(ANNOTATION_FOREGROUND);
             } else if (!isRowSelected(row)) {
                 c.setBackground(getBackground());
+                c.setForeground(getForeground());
             }
             return c;
         }

@@ -42,6 +42,7 @@ public class CategoryEditorScreen extends JFrame {
 
     private static final String WINDOW_TITLE = "Game Admin – Category Editor";
     private static final String DEFAULT_JSON_PATH = "assets/text/category_en.json";
+    private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
 
     // Metadata fields
     private final JTextField versionField = new JTextField(8);
@@ -160,8 +161,10 @@ public class CategoryEditorScreen extends JFrame {
                 Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
                 if (bg != null) {
                     c.setBackground(bg);
+                    c.setForeground(ANNOTATION_FOREGROUND);
                 } else if (!isRowSelected(row)) {
                     c.setBackground(getBackground());
+                    c.setForeground(getForeground());
                 }
                 return c;
             }
