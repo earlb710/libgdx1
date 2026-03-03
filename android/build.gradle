@@ -34,7 +34,7 @@ android {
 		}
   }
   defaultConfig {
-    applicationId 'eb.gmodel1'
+    applicationId 'eb.framework1'
     minSdkVersion 21
     targetSdkVersion 34
     versionCode 1
@@ -130,7 +130,7 @@ tasks.register('run', Exec) {
   }
 
   def adb = path + "/platform-tools/adb"
-  commandLine "$adb", 'shell', 'am', 'start', '-n', 'eb.gmodel1/eb.gmodel1.android.AndroidLauncher'
+  commandLine "$adb", 'shell', 'am', 'start', '-n', 'eb.framework1/eb.gmodel1.android.AndroidLauncher'
 }
 
 eclipse.project.name = appName + "-android"
