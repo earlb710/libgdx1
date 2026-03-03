@@ -102,7 +102,7 @@ Manages all profile operations:
 - `getProfileByName(characterName)` → Profile
 
 **Storage**:
-- Preferences key: "gmodel1.profiles"
+- Preferences key: "framework1.profiles"
 - JSON format for easy serialization
 - Selected profile stored separately
 
@@ -148,7 +148,7 @@ Profiles are stored in LibGDX Preferences with the following structure:
 ```
 
 ### Location by Platform
-- **Desktop**: User home directory/.prefs/gmodel1.profiles
+- **Desktop**: User home directory/.prefs/framework1.profiles
 - **Android**: SharedPreferences
 - **iOS**: NSUserDefaults
 
