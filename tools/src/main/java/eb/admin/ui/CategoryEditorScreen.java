@@ -154,6 +154,9 @@ public class CategoryEditorScreen extends JFrame {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
                 Component c = super.prepareRenderer(renderer, row, col);
+                if ("Color".equals(getModel().getColumnName(col))) {
+                    return c; // preserve ColorCellRenderer's hex-color background
+                }
                 Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
                 if (bg != null) {
                     c.setBackground(bg);
@@ -166,9 +169,11 @@ public class CategoryEditorScreen extends JFrame {
             @Override
             public javax.swing.table.TableCellEditor getCellEditor(int row, int column) {
                 javax.swing.table.TableCellEditor editor = super.getCellEditor(row, column);
-                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
-                if (bg != null && editor instanceof DefaultCellEditor) {
-                    ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                if (!"Color".equals(getModel().getColumnName(column))) {
+                    Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
+                    if (bg != null && editor instanceof DefaultCellEditor) {
+                        ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                    }
                 }
                 return editor;
             }
@@ -547,6 +552,7 @@ public class CategoryEditorScreen extends JFrame {
         root.add("annotations", annotations);
         try (Writer w = Files.newBufferedWriter(af.toPath(), StandardCharsets.UTF_8)) {
             gson.toJson(root, w);
+            w.flush();
             statusLabel.setText("Annotation saved: " + af.getAbsolutePath());
             loadAnnotationColors();
         } catch (Exception ex) {

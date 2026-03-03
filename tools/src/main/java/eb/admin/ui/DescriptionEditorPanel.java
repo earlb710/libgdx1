@@ -683,6 +683,7 @@ public class DescriptionEditorPanel extends JPanel {
 
         try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
             gson.toJson(root, w);
+            w.flush();
             statusLabel.setText("Annotation saved: " + annotationFile.getAbsolutePath());
             loadAnnotationColors();
         } catch (Exception ex) {
