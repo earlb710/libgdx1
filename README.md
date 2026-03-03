@@ -1,4 +1,4 @@
-# Framework1
+# Gmodel1
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
@@ -27,7 +27,7 @@ The Category Editor window opens and automatically loads `assets/text/category_e
 Alternatively you can use the Gradle tool window:
 
 - View → Tool Windows → Gradle
-- Navigate to **Framework1 → tools → Tasks → application → run**
+- Navigate to **GModel1 → tools → Tasks → application → run**
 - Double-click **run**
 
 ### Running from the command line

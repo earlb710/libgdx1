@@ -52,7 +52,7 @@ configure(subprojects - project(':android')) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'Framework1'
+  ext.appName = 'GModel1'
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
@@ -62,4 +62,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'Framework1' + '-parent'
+eclipse.project.name = 'GModel1' + '-parent'
