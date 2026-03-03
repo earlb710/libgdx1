@@ -7,7 +7,7 @@ On app startup, Android logs showed numerous hiddenapi warnings:
 ```
 hiddenapi: Accessing hidden field Landroid/os/Debug;->mWaiting:Z ... denied
 hiddenapi: Accessing hidden method Ldalvik/system/VMDebug;->attachAgent ... denied
-hiddenapi: DexFile /data/data/eb.gmodel1/code_cache/perfa.jar is in boot class path
+hiddenapi: DexFile /data/data/eb.framework1/code_cache/perfa.jar is in boot class path
 ```
 
 ## What Are HiddenAPI Warnings?
@@ -44,7 +44,7 @@ These warnings are:
 
 ```gradle
 defaultConfig {
-    applicationId 'eb.gmodel1'
+    applicationId 'eb.framework1'
     minSdkVersion 21
     targetSdkVersion 34  // Changed from 35
     versionCode 1

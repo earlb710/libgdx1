@@ -95,7 +95,7 @@ To verify the fix works:
 
 ## Files Changed
 
-- `core/src/main/java/eb/gmodel1/SplashScreen.java` - Line 241-242
+- `core/src/main/java/eb/framework1/SplashScreen.java` - Line 241-242
 
 ## Commit
 

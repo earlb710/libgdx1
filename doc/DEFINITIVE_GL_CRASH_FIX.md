@@ -9,7 +9,7 @@ This document explains the **definitive and final fix** for the GL buffer alloca
 ### Initial Crash
 ```
 com.badlogic.gdx.utils.GdxRuntimeException: No buffer allocated!
-at eb.gmodel1.SplashScreen.render(SplashScreen.java:130)
+at eb.framework1.SplashScreen.render(SplashScreen.java:130)
 ```
 
 ### Evolution of Fixes

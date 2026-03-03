@@ -188,7 +188,7 @@ LoginScreen ──────────────────────�
 ## File Structure
 
 ```
-core/src/main/java/eb/gmodel1/
+core/src/main/java/eb/framework1/
 ├── Main.java (manages UserManager + ProfileManager)
 ├── UserManager.java (username persistence)
 ├── ProfileManager.java (profile CRUD operations)

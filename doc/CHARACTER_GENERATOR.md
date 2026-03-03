@@ -197,7 +197,7 @@ The suspect is the person being investigated.  This maps to the existing
 ## `CharacterGenerator` and `NpcCharacter` — What Is Implemented
 
 `NpcCharacter.java` and `CharacterGenerator.java` are implemented in the
-`eb.gmodel1` package.
+`eb.framework1` package.
 
 ### `NpcCharacter`
 A builder-based immutable data class carrying all base NPC fields (identity,

@@ -5,7 +5,7 @@
 The application crashed when transitioning to MainScreen with the following error:
 
 ```
-2026-02-18 13:15:53.444  2291-2591  Main                    eb.gmodel1                        E  Error in setScreen(): Couldn't load file: libgdx.png
+2026-02-18 13:15:53.444  2291-2591  Main                    eb.framework1                        E  Error in setScreen(): Couldn't load file: libgdx.png
 com.badlogic.gdx.utils.GdxRuntimeException: Couldn't load file: libgdx.png
     at com.badlogic.gdx.graphics.Pixmap.
 ```
@@ -25,7 +25,7 @@ This is a critical runtime error that prevented the application from loading the
 2. **Found code reference:**
    ```bash
    grep -r "libgdx.png" --include="*.java"
-   # Result: ./core/src/main/java/eb/gmodel1/MainScreen.java
+   # Result: ./core/src/main/java/eb/framework1/MainScreen.java
    ```
 
 3. **Checked assets directory:**
@@ -277,8 +277,8 @@ public void render(float delta) {
 
 ## Related Files
 
-- `core/src/main/java/eb/gmodel1/MainScreen.java` - Main game screen
-- `lwjgl3/src/main/java/eb/gmodel1/lwjgl3/Lwjgl3Launcher.java` - Desktop launcher
+- `core/src/main/java/eb/framework1/MainScreen.java` - Main game screen
+- `lwjgl3/src/main/java/eb/framework1/lwjgl3/Lwjgl3Launcher.java` - Desktop launcher
 - `assets/logo.png` - Application logo (used as replacement)
 - `assets/font.ttf` - Roboto font (unrelated but in same directory)
 

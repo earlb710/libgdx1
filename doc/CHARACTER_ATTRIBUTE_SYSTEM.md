@@ -64,7 +64,7 @@ Points to Allocate: 30 - 11 = 19 points
 
 ### CharacterAttribute Enum
 
-**Location:** `core/src/main/java/eb/gmodel1/CharacterAttribute.java`
+**Location:** `core/src/main/java/eb/framework1/CharacterAttribute.java`
 
 **Structure:**
 ```java
@@ -87,7 +87,7 @@ public enum CharacterAttribute {
 
 ### CharacterAttributeScreen
 
-**Location:** `core/src/main/java/eb/gmodel1/CharacterAttributeScreen.java`
+**Location:** `core/src/main/java/eb/framework1/CharacterAttributeScreen.java`
 
 **Key Features:**
 
