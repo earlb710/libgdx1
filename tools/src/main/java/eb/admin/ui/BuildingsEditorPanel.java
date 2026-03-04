@@ -102,8 +102,7 @@ public class BuildingsEditorPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(160);
         table.getColumnModel().getColumn(1).setPreferredWidth(180);
         table.getColumnModel().getColumn(2).setPreferredWidth(120);
-        table.getColumnModel().getColumn(3).setPreferredWidth(320);
-        table.getColumnModel().getColumn(4).setPreferredWidth(420);
+        table.getColumnModel().getColumn(3).setPreferredWidth(420);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JButton addBtn    = new JButton("Add Row");
@@ -111,7 +110,7 @@ public class BuildingsEditorPanel extends JPanel {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            tableModel.addRow(new Object[]{"", "", "", "", ""});
+            tableModel.addRow(new Object[]{"", "", "", ""});
             originalObjects.add(new JsonObject());
             int last = tableModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
