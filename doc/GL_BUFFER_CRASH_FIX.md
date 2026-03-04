@@ -16,7 +16,7 @@ com.badlogic.gdx.utils.GdxRuntimeException: No buffer allocated!
 	at com.badlogic.gdx.graphics.g2d.SpriteBatch.draw(SpriteBatch.java:578)
 	at com.badlogic.gdx.graphics.g2d.BitmapFontCache.draw(BitmapFontCache.java:254)
 	at com.badlogic.gdx.graphics.g2d.BitmapFont.draw(BitmapFont.java:196)
-	at eb.gmodel1.SplashScreen.render(SplashScreen.java:102)
+	at eb.framework1.SplashScreen.render(SplashScreen.java:102)
 ```
 
 ## Root Cause
@@ -119,7 +119,7 @@ To verify the fix works:
 1. **Launch Application**
    ```bash
    ./gradlew android:installDebug
-   adb shell am start -n eb.gmodel1/eb.gmodel1.android.AndroidLauncher
+   adb shell am start -n eb.framework1/eb.framework1.android.AndroidLauncher
    ```
 
 2. **Test Screen Transitions**
