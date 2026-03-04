@@ -381,7 +381,7 @@ public class NovelTextEngine {
      * </ol>
      * </p>
      *
-     * @param name     Improvement name exactly as it appears in {@code buildings.json}
+     * @param name     Improvement name exactly as it appears in {@code text/buildings_en.json}
      * @param location Map location code (e.g. {@code "G6"}); may be null (uses first variant)
      * @param gender   Character gender string ("male" or "female"); may be null
      * @return Selected description text, never {@code null}

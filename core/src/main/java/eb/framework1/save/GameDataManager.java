@@ -21,7 +21,7 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE      = "buildings.json";
+    private static final String BUILDINGS_FILE      = "text/buildings_en.json";
     private static final String PERSON_NAMES_FILE   = "person_names.json";
     private static final String SURNAMES_FILE       = "person_surnames.json";
     private static final String COMPANY_NAMES_FILE  = "company_names.json";
@@ -213,15 +213,15 @@ public class GameDataManager {
      * Buildings are already loaded during construction; this method is a no-op kept for
      * test compatibility.
      *
-     * @param path unused – buildings were loaded from {@code buildings.json} during construction
+     * @param path unused – buildings were loaded from {@code text/buildings_en.json} during construction
      */
     public void loadBuildings(String path) {
-        // No-op: buildings are loaded automatically in the constructor from buildings.json.
+        // No-op: buildings are loaded automatically in the constructor from text/buildings_en.json.
         // This overload exists for test code that previously passed a path explicitly.
     }
 
     /**
-     * Loads building definitions from buildings.json
+     * Loads building definitions from text/buildings_en.json
      */
     private void loadBuildings() {
         try {
@@ -252,7 +252,7 @@ public class GameDataManager {
                 }
             }
 
-            Gdx.app.log("GameDataManager", "Loaded buildings.json v" + buildingsVersion + " with " + buildings.size() + " buildings");
+            Gdx.app.log("GameDataManager", "Loaded text/buildings_en.json v" + buildingsVersion + " with " + buildings.size() + " buildings");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading buildings: " + e.getMessage(), e);
         }
@@ -391,7 +391,7 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the version of the loaded buildings.json file.
+     * Returns the version of the loaded text/buildings_en.json file.
      */
     public String getBuildingsVersion() {
         return buildingsVersion;

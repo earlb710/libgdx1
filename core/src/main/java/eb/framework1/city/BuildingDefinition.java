@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a building definition loaded from buildings.json.
+ * Represents a building definition loaded from text/buildings_en.json.
  * This defines the template/type of a building, not an individual building instance.
  */
 public class BuildingDefinition {
@@ -24,7 +24,7 @@ public class BuildingDefinition {
     private double percentage;
     private String description;
     private List<String> improvements;
-    /** Attribute modifiers from buildings.json (attribute name → modifier value). */
+    /** Attribute modifiers from text/buildings_en.json (attribute name → modifier value). */
     private Map<String, Integer> attributeModifiers;
 
     public BuildingDefinition() {
@@ -129,7 +129,7 @@ public class BuildingDefinition {
     }
 
     /**
-     * Returns the raw attribute modifiers defined in buildings.json for this building type.
+     * Returns the raw attribute modifiers defined in text/buildings_en.json for this building type.
      * Keys are {@link CharacterAttribute} enum names; values are modifier amounts.
      * Returns an empty map when no modifiers are defined for this building type.
      */

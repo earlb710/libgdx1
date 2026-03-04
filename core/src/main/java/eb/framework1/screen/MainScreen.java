@@ -2803,7 +2803,7 @@ public class MainScreen implements Screen {
         Building building = cell.getBuilding();
         BuildingDefinition def = building.getDefinition();
 
-        // Use description_en.json as the building description; fall back to buildings.json if not found
+        // Use description_en.json as the building description; fall back to text/buildings_en.json if not found
         String description = null;
         if (novelTextEngine != null && def != null) {
             String state = building.getState();
