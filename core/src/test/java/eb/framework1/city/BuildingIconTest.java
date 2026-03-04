@@ -44,13 +44,7 @@ public class BuildingIconTest {
 
     @Test
     public void testAllBuildingIconFilesExist() {
-        // Verify that every building in buildings_en.json has a corresponding icon file
-        File testDir = new File("test");
-        if (!testDir.exists()) {
-            testDir = new File("../../test");
-        }
-        Assume.assumeTrue("Test directory not found, skipping icon file check", testDir.exists());
-
+        // Verify that every building in buildings.json has a corresponding icon file
         File assetsDir = new File("assets");
         if (!assetsDir.exists()) {
             assetsDir = new File("../../assets");
@@ -58,7 +52,7 @@ public class BuildingIconTest {
         Assume.assumeTrue("Assets directory not found, skipping icon file check", assetsDir.exists());
 
         GameDataManager gdm = new GameDataManager();
-        gdm.loadBuildings(new File(testDir, "buildings_en.json").getAbsolutePath());
+        gdm.loadBuildings(new File(assetsDir, "buildings.json").getAbsolutePath());
 
         for (BuildingDefinition def : gdm.getBuildings()) {
             String iconPath = def.getIconPath();
