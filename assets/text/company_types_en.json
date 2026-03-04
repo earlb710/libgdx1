@@ -1,0 +1,181 @@
+{
+  "version": "1.0",
+  "language": "en",
+  "description": "Company type definitions. Each type lists the building IDs where that kind of company operates.",
+  "types": [
+    {
+      "id": "retail",
+      "name": "Retail",
+      "description": "Stores and shops that sell goods directly to consumers",
+      "buildings": [
+        "convenience_store",
+        "small_retail_store",
+        "pharmacy",
+        "strip_mall",
+        "shopping_center",
+        "regional_mall",
+        "warehouse_store",
+        "supermarket",
+        "laundromat"
+      ]
+    },
+    {
+      "id": "food",
+      "name": "Food & Beverage",
+      "description": "Restaurants, cafes, and fast food establishments",
+      "buildings": [
+        "fast_food_restaurant",
+        "coffee_shop",
+        "restaurant_casual",
+        "restaurant_fine_dining"
+      ]
+    },
+    {
+      "id": "hospitality",
+      "name": "Hospitality",
+      "description": "Hotels and lodging establishments",
+      "buildings": [
+        "hotel_budget",
+        "hotel_business",
+        "hotel_luxury"
+      ]
+    },
+    {
+      "id": "medical",
+      "name": "Medical & Healthcare",
+      "description": "Healthcare providers including clinics, hospitals, dental and veterinary practices",
+      "buildings": [
+        "medical_clinic",
+        "dental_office",
+        "veterinary_clinic",
+        "hospital_small",
+        "hospital_large",
+        "urgent_care",
+        "pharmacy"
+      ]
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "description": "Schools, colleges, daycares, and libraries",
+      "buildings": [
+        "daycare_center",
+        "elementary_school",
+        "high_school",
+        "community_college",
+        "library"
+      ]
+    },
+    {
+      "id": "office",
+      "name": "Office & Professional Services",
+      "description": "Corporate offices, law firms, consultancies, and coworking spaces",
+      "buildings": [
+        "office_building_small",
+        "office_building_medium",
+        "office_building_large",
+        "corporate_headquarters",
+        "coworking_space"
+      ]
+    },
+    {
+      "id": "industrial",
+      "name": "Industrial & Logistics",
+      "description": "Warehouses, manufacturers, and storage facilities",
+      "buildings": [
+        "warehouse_small",
+        "warehouse_large",
+        "manufacturing_facility",
+        "data_center",
+        "self_storage"
+      ]
+    },
+    {
+      "id": "entertainment",
+      "name": "Entertainment & Leisure",
+      "description": "Venues for movies, bowling, nightlife, and sports",
+      "buildings": [
+        "movie_theater",
+        "bowling_alley",
+        "nightclub",
+        "sports_arena"
+      ]
+    },
+    {
+      "id": "financial",
+      "name": "Financial Services",
+      "description": "Banks, credit unions, and financial institutions",
+      "buildings": [
+        "bank_branch",
+        "office_building_small",
+        "office_building_medium"
+      ]
+    },
+    {
+      "id": "automotive",
+      "name": "Automotive",
+      "description": "Car dealerships, repair shops, and gas stations",
+      "buildings": [
+        "car_dealership",
+        "auto_repair_shop",
+        "gas_station"
+      ]
+    },
+    {
+      "id": "fitness",
+      "name": "Fitness & Wellness",
+      "description": "Gyms, fitness centers, and wellness studios",
+      "buildings": [
+        "gym_fitness_center",
+        "hair_salon"
+      ]
+    },
+    {
+      "id": "government",
+      "name": "Government & Public Services",
+      "description": "Municipal, law enforcement, and civic buildings",
+      "buildings": [
+        "city_hall",
+        "courthouse",
+        "police_station",
+        "fire_station",
+        "post_office",
+        "prison",
+        "community_center"
+      ]
+    },
+    {
+      "id": "residential",
+      "name": "Residential & Property",
+      "description": "Property management companies operating residential buildings",
+      "buildings": [
+        "small_apartment_building",
+        "medium_apartment_building",
+        "large_apartment_building",
+        "luxury_apartment_tower",
+        "highrise_apartment_complex",
+        "townhouse_row",
+        "condominium_building",
+        "senior_living_facility"
+      ]
+    },
+    {
+      "id": "technology",
+      "name": "Technology",
+      "description": "Tech companies, data centers, and software firms",
+      "buildings": [
+        "data_center",
+        "office_building_medium",
+        "office_building_large",
+        "corporate_headquarters",
+        "coworking_space"
+      ]
+    },
+    {
+      "id": "G",
+      "name": "Generic",
+      "description": "Generic company names suitable for any building type",
+      "buildings": []
+    }
+  ]
+}

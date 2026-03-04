@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -20,6 +21,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +37,17 @@ import java.util.Map;
 public class DescriptionEditorPanel extends JPanel {
 
     private static final String DEFAULT_JSON_PATH = "assets/text/description_en.json";
+    private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
 
     private final JTextField versionField = new JTextField(8);
-    private final JTextField languageField = new JTextField(8);
+    private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
+    private final JTextField fileField = new JTextField();
+    /** When true, combo ActionListener does not trigger a language switch. */
+    private boolean suppressLangListener = false;
 
     private final DefaultTableModel tableModel = createModel();
+    /** Maps "key\0column" → most-recent ratingId for background highlighting. */
+    private final Map<String, String> annotationRatings = new HashMap<>();
     private final JTable table = new JTable(tableModel) {
         @Override
         public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -49,6 +58,24 @@ public class DescriptionEditorPanel extends JPanel {
                 return false;
             }
             return super.editCellAt(row, column, e);
+        }
+
+        @Override
+        public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            Component c = super.prepareRenderer(renderer, row, column);
+            Object keyVal = tableModel.getValueAt(row, 0);
+            String key = keyVal != null ? keyVal.toString() : "";
+            String colName = tableModel.getColumnName(column);
+            String ratingId = annotationRatings.get(key + "\0" + colName);
+            Color bg = ratingToColor(ratingId);
+            if (bg != null) {
+                c.setBackground(bg);
+                c.setForeground(ANNOTATION_FOREGROUND);
+            } else if (!isRowSelected(row)) {
+                c.setBackground(getBackground());
+                c.setForeground(getForeground());
+            }
+            return c;
         }
     };
 
@@ -70,6 +97,13 @@ public class DescriptionEditorPanel extends JPanel {
 
     private void buildUI() {
         setLayout(new BorderLayout(0, 4));
+
+        languageCombo.addActionListener(e -> {
+            if (!suppressLangListener) {
+                switchLanguage((String) languageCombo.getSelectedItem());
+            }
+        });
+
         add(buildNorthPanel(), BorderLayout.NORTH);
 
         table.setRowHeight(26);
@@ -149,22 +183,78 @@ public class DescriptionEditorPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(520, 200));
 
-        int result = JOptionPane.showConfirmDialog(
-                this, scroll, "Edit: " + colName,
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(owner, "Edit: " + colName, Dialog.ModalityType.APPLICATION_MODAL);
+
+        JButton okBtn       = new JButton("OK");
+        JButton cancelBtn   = new JButton("Cancel");
+        JButton annotateBtn = new JButton("Annotate\u2026");
+
+        okBtn.addActionListener(e -> {
             tableModel.setValueAt(textArea.getText(), row, col);
+            dialog.dispose();
+        });
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        annotateBtn.addActionListener(e -> {
+            JPopupMenu menu = buildAnnotationPopup(row, col);
+            menu.show(annotateBtn, 0, annotateBtn.getHeight());
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 4));
+        buttons.add(annotateBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(okBtn);
+        buttons.add(cancelBtn);
+
+        dialog.setLayout(new BorderLayout(0, 4));
+        dialog.add(scroll,   BorderLayout.CENTER);
+        dialog.add(buttons,  BorderLayout.SOUTH);
+        dialog.getRootPane().setDefaultButton(okBtn);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Builds a {@link JPopupMenu} with rating options for the cell at (row, col).
+     * Selecting a rating opens the annotation comment prompt.
+     */
+    private JPopupMenu buildAnnotationPopup(int row, int col) {
+        String key = cellStr(row, 0);
+        String existingRating = findExistingRating(key, tableModel.getColumnName(col));
+        JPopupMenu menu = new JPopupMenu("Rate");
+        for (String rating : RATINGS) {
+            String ratingId = rating.toLowerCase().replace(' ', '_');
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(rating, ratingId.equals(existingRating));
+            item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
+            menu.add(item);
         }
+        menu.addSeparator();
+        JMenuItem clearItem = new JMenuItem("Clear");
+        clearItem.addActionListener(e -> clearAnnotationsForItem(key));
+        menu.add(clearItem);
+        return menu;
     }
 
     private JPanel buildNorthPanel() {
-        JPanel meta = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        fileField.setEditable(false);
+
+        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        metaTop.add(new JLabel("Version:"));
+        metaTop.add(versionField);
+        metaTop.add(Box.createHorizontalStrut(12));
+        metaTop.add(new JLabel("Language:"));
+        metaTop.add(languageCombo);
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(fileField, BorderLayout.CENTER);
+
+        JPanel meta = new JPanel(new BorderLayout());
         meta.setBorder(BorderFactory.createTitledBorder("File Metadata"));
-        meta.add(new JLabel("Version:"));
-        meta.add(versionField);
-        meta.add(Box.createHorizontalStrut(12));
-        meta.add(new JLabel("Language:"));
-        meta.add(languageField);
+        meta.add(metaTop,  BorderLayout.NORTH);
+        meta.add(fileRow,  BorderLayout.CENTER);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         JButton openBtn   = new JButton("Open…");
@@ -213,7 +303,9 @@ public class DescriptionEditorPanel extends JPanel {
             JsonObject root = new Gson().fromJson(reader, JsonObject.class);
 
             versionField.setText(root.has("version") ? root.get("version").getAsString() : "");
-            languageField.setText(root.has("language") ? root.get("language").getAsString() : "");
+            suppressLangListener = true;
+            languageCombo.setSelectedItem(root.has("language") ? root.get("language").getAsString() : "en");
+            suppressLangListener = false;
 
             // First pass: collect all variant keys in encounter order (LinkedHashSet for O(1) dedup)
             LinkedHashSet<String> seen = new LinkedHashSet<>();
@@ -250,7 +342,11 @@ public class DescriptionEditorPanel extends JPanel {
             entryObjects.clear();
 
             if (root.has("descriptions")) {
-                for (Map.Entry<String, JsonElement> descEntry : root.getAsJsonObject("descriptions").entrySet()) {
+                // Sort entries alphabetically by key, then populate rows and entryObjects in that order
+                List<Map.Entry<String, JsonElement>> sortedEntries = new ArrayList<>(
+                        root.getAsJsonObject("descriptions").entrySet());
+                sortedEntries.sort(Comparator.comparing(Map.Entry::getKey));
+                for (Map.Entry<String, JsonElement> descEntry : sortedEntries) {
                     JsonElement value = descEntry.getValue();
                     JsonObject entry = firstObjectOf(value);
                     Object[] row = new Object[columnNames.size()];
@@ -271,7 +367,9 @@ public class DescriptionEditorPanel extends JPanel {
             }
 
             currentFile = file;
+            fileField.setText(file.getAbsolutePath());
             statusLabel.setText("Descriptions loaded: " + file.getAbsolutePath());
+            loadAnnotationColors();
         } catch (Exception ex) {
             showScrollableError(this,
                     "Error loading file:\n" + ex.getMessage(),
@@ -297,7 +395,7 @@ public class DescriptionEditorPanel extends JPanel {
         try {
             JsonObject root = new JsonObject();
             root.addProperty("version", versionField.getText().trim());
-            root.addProperty("language", languageField.getText().trim());
+            root.addProperty("language", (String) languageCombo.getSelectedItem());
 
             JsonObject descriptions = new JsonObject();
             int colCount = tableModel.getColumnCount();
@@ -339,6 +437,7 @@ public class DescriptionEditorPanel extends JPanel {
                 gson.toJson(root, writer);
             }
             statusLabel.setText("Descriptions saved: " + currentFile.getAbsolutePath());
+            fileField.setText(currentFile.getAbsolutePath());
             JOptionPane.showMessageDialog(this,
                     "File saved successfully.",
                     "Saved", JOptionPane.INFORMATION_MESSAGE);
@@ -352,6 +451,27 @@ public class DescriptionEditorPanel extends JPanel {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Called when the user picks a different language in the combo.
+     * Opens the corresponding file if it exists, or resets to a blank page otherwise.
+     */
+    private void switchLanguage(String newLang) {
+        if (currentFile == null) return;
+        File newFile = EditorUtils.deriveFileForLanguage(currentFile, newLang);
+        if (newFile == null) return;
+        if (newFile.exists()) {
+            loadFromFile(newFile);
+        } else {
+            // Blank page for the new language
+            tableModel.setRowCount(0);
+            entryObjects.clear();
+            versionField.setText("");
+            currentFile = newFile;
+            fileField.setText(newFile.getAbsolutePath());
+            statusLabel.setText("New file (not yet saved): " + newFile.getAbsolutePath());
+        }
+    }
 
     /**
      * Writes edited variant column values (col ≥ 2) back into the given JSON object.
@@ -438,28 +558,205 @@ public class DescriptionEditorPanel extends JPanel {
 
     private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
 
-    /** Shows a popup menu with rating options at (x, y) relative to the table. */
-    private void showAnnotationMenu(int row, int col, int x, int y) {
-        JPopupMenu menu = new JPopupMenu("Rate");
-        for (String rating : RATINGS) {
-            String ratingId = rating.toLowerCase().replace(' ', '_');
-            JMenuItem item = new JMenuItem(rating);
-            item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
-            menu.add(item);
+    /**
+     * Returns a pastel background color for the given rating id,
+     * ranging from green (excellent) through yellow (sufficient) to red (very bad).
+     * Returns {@code null} when the rating is unrecognised or {@code null}.
+     */
+    static Color ratingToColor(String ratingId) {
+        if (ratingId == null) return null;
+        switch (ratingId) {
+            case "excellent": return new Color(198, 239, 206);
+            case "good":      return new Color(226, 250, 214);
+            case "sufficient": return new Color(255, 253, 184);
+            case "bad":       return new Color(255, 215, 179);
+            case "very_bad":  return new Color(255, 199, 199);
+            default:          return null;
         }
-        menu.show(table, x, y);
     }
 
-    /** Asks for an optional comment using a multiline editor then persists the annotation. */
+    /**
+     * Re-reads annotation.json and rebuilds {@link #annotationRatings}, then
+     * repaints the table so background colors are updated immediately.
+     */
+    private void loadAnnotationColors() {
+        annotationRatings.clear();
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (annotationFile.exists()) {
+            try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject entry = el.getAsJsonObject();
+                        JsonElement fileEl    = entry.get("file");
+                        JsonElement keyEl     = entry.get("key");
+                        JsonElement columnEl  = entry.get("column");
+                        JsonElement ratingEl  = entry.get("rating");
+                        if (fileEl == null || keyEl == null || columnEl == null || ratingEl == null) {
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString())) {
+                            annotationRatings.put(
+                                    keyEl.getAsString() + "\0" + columnEl.getAsString(),
+                                    ratingEl.getAsString());
+                        }
+                    }
+                }
+            } catch (IOException | RuntimeException ex) {
+                System.err.println("Could not read annotation.json for color highlighting: " + ex.getMessage());
+            }
+        }
+        table.repaint();
+    }
+
+    /** Shows a popup menu with rating options at (x, y) relative to the table. */
+    private void showAnnotationMenu(int row, int col, int x, int y) {
+        buildAnnotationPopup(row, col).show(table, x, y);
+    }
+
+    /** Removes all annotations for the given item key from annotation.json. */
+    private void clearAnnotationsForItem(String key) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray annotations = new JsonArray();
+        String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+        if (annotationFile.exists()) {
+            try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject e = el.getAsJsonObject();
+                        JsonElement fileEl = e.get("file");
+                        JsonElement keyEl  = e.get("key");
+                        if (fileEl == null || keyEl == null) {
+                            annotations.add(e);
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString()) && key.equals(keyEl.getAsString())) {
+                            continue; // drop all entries for this item
+                        }
+                        annotations.add(e);
+                    }
+                }
+            } catch (IOException | RuntimeException ex) {
+                showScrollableError(this,
+                        "Could not read annotation.json:\n" + ex.getMessage(),
+                        "Annotation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        JsonObject root = new JsonObject();
+        root.add("annotations", annotations);
+        try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            gson.toJson(root, w);
+            w.flush();
+            statusLabel.setText("Annotations cleared: " + annotationFile.getAbsolutePath());
+            loadAnnotationColors();
+        } catch (Exception ex) {
+            showScrollableError(this,
+                    "Error clearing annotation:\n" + ex.getMessage(),
+                    "Annotation Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Returns the rating of the most recent annotation for the given key and column,
+     * or {@code null} if no annotation exists for this cell.
+     */
+    private String findExistingRating(String key, String column) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (!annotationFile.exists()) {
+            return null;
+        }
+        try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            JsonObject existing = gson.fromJson(r, JsonObject.class);
+            if (existing == null || !existing.has("annotations")) {
+                return null;
+            }
+            String lastRating = null;
+            String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+            for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                JsonObject entry = el.getAsJsonObject();
+                JsonElement fileEl = entry.get("file");
+                JsonElement keyEl  = entry.get("key");
+                JsonElement colEl  = entry.get("column");
+                if (fileEl == null || keyEl == null || colEl == null) continue;
+                if (filePath.equals(fileEl.getAsString())
+                        && key.equals(keyEl.getAsString())
+                        && column.equals(colEl.getAsString())) {
+                    JsonElement ratingEl = entry.get("rating");
+                    lastRating = ratingEl != null ? ratingEl.getAsString() : null;
+                }
+            }
+            return lastRating;
+        } catch (IOException | RuntimeException ex) {
+            System.err.println("Could not read annotation.json for rating lookup: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Returns the comment of the most recent annotation for the given key and column,
+     * or an empty string if no annotation exists.
+     */
+    private String findExistingComment(String key, String column) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        if (!annotationFile.exists()) {
+            return "";
+        }
+        try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            JsonObject existing = gson.fromJson(r, JsonObject.class);
+            if (existing == null || !existing.has("annotations")) {
+                return "";
+            }
+            String lastComment = "";
+            String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+            for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                JsonObject entry = el.getAsJsonObject();
+                JsonElement fileEl = entry.get("file");
+                JsonElement keyEl  = entry.get("key");
+                JsonElement colEl  = entry.get("column");
+                if (fileEl == null || keyEl == null || colEl == null) continue;
+                if (filePath.equals(fileEl.getAsString())
+                        && key.equals(keyEl.getAsString())
+                        && column.equals(colEl.getAsString())) {
+                    JsonElement commentEl = entry.get("comment");
+                    lastComment = commentEl != null ? commentEl.getAsString() : "";
+                }
+            }
+            return lastComment;
+        } catch (IOException | RuntimeException ex) {
+            System.err.println("Could not read annotation.json for comment lookup: " + ex.getMessage());
+            return "";
+        }
+    }
+
+    /**
+     * Opens a comment dialog pre-filled with the existing annotation comment.
+     * Saves the annotation when OK is clicked; removes it when the comment is cleared.
+     */
     private void promptAndSaveAnnotation(int row, int col, String rating) {
-        JTextArea textArea = new JTextArea(6, 50);
+        String existingComment = findExistingComment(cellStr(row, 0), tableModel.getColumnName(col));
+        JTextArea textArea = new JTextArea(existingComment, 6, 50);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(520, 160));
 
         int result = JOptionPane.showConfirmDialog(
-                this, scroll, "Add Annotation – " + rating + " (comment optional)",
+                this, scroll, "Annotation – " + rating + " (clear comment to remove)",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result != JOptionPane.OK_OPTION) {
             return; // cancelled
@@ -468,9 +765,9 @@ public class DescriptionEditorPanel extends JPanel {
     }
 
     /**
-     * Appends an annotation entry to annotation.json located next to the currently
-     * open file (or in the working directory when no file is loaded).
-     * Each entry records: file, key, column, rating, comment.
+     * Updates annotation.json for the given key/column: removes any existing entry
+     * for this file+key+column, then adds a new entry only if {@code comment} is
+     * non-empty.  This means clearing the comment removes the annotation link.
      */
     private void saveAnnotation(String key, String column, String rating, String comment) {
         File annotationFile = currentFile != null
@@ -479,32 +776,54 @@ public class DescriptionEditorPanel extends JPanel {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonArray annotations = new JsonArray();
+        String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
 
         if (annotationFile.exists()) {
             try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
                 JsonObject existing = gson.fromJson(r, JsonObject.class);
                 if (existing != null && existing.has("annotations")) {
-                    annotations = existing.get("annotations").getAsJsonArray();
+                    // Copy all entries except the existing one for this file+key+column
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject e = el.getAsJsonObject();
+                        JsonElement fileEl = e.get("file");
+                        JsonElement keyEl  = e.get("key");
+                        JsonElement colEl  = e.get("column");
+                        if (fileEl == null || keyEl == null || colEl == null) {
+                            annotations.add(e); // preserve entries with missing fields
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString())
+                                && key.equals(keyEl.getAsString())
+                                && column.equals(colEl.getAsString())) {
+                            continue; // drop the old entry for this cell
+                        }
+                        annotations.add(e);
+                    }
                 }
             } catch (IOException | RuntimeException ex) {
                 System.err.println("Could not read annotation.json, starting fresh: " + ex.getMessage());
             }
         }
 
-        JsonObject entry = new JsonObject();
-        entry.addProperty("file",    currentFile != null ? currentFile.getAbsolutePath() : "");
-        entry.addProperty("key",     key);
-        entry.addProperty("column",  column);
-        entry.addProperty("rating",  rating);
-        entry.addProperty("comment", comment);
-        annotations.add(entry);
+        // Only write a new entry when the comment is non-empty
+        if (!comment.isEmpty()) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("file",    filePath);
+            entry.addProperty("key",     key);
+            entry.addProperty("column",  column);
+            entry.addProperty("rating",  rating);
+            entry.addProperty("comment", comment);
+            annotations.add(entry);
+        }
 
         JsonObject root = new JsonObject();
         root.add("annotations", annotations);
 
         try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
             gson.toJson(root, w);
+            w.flush();
             statusLabel.setText("Annotation saved: " + annotationFile.getAbsolutePath());
+            loadAnnotationColors();
         } catch (Exception ex) {
             showScrollableError(this,
                     "Error saving annotation:\n" + ex.getMessage(),
