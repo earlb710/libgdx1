@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Panel that displays and edits the contents of buildings_en.json.
  *
- * The table shows each building's ID, Name, Category, Description, and
+ * The table shows each building's ID, Name, Category, and
  * Improvements (as a comma-separated list).  All other numeric fields
  * (minFloors, maxFloors, unitsPerFloor, capacity, percentage) are
  * preserved transparently on load and save.  Annotation support mirrors
@@ -246,10 +246,9 @@ public class BuildingsEditorPanel extends JPanel {
                 }
                 rows.sort(Comparator.comparing(o -> (o.has("id") ? o.get("id").getAsString() : "")));
                 for (JsonObject entry : rows) {
-                    String id   = entry.has("id")          ? entry.get("id").getAsString()          : "";
-                    String name = entry.has("name")        ? entry.get("name").getAsString()        : "";
-                    String cat  = entry.has("category")    ? entry.get("category").getAsString()    : "";
-                    String desc = entry.has("description") ? entry.get("description").getAsString() : "";
+                    String id   = entry.has("id")       ? entry.get("id").getAsString()       : "";
+                    String name = entry.has("name")     ? entry.get("name").getAsString()     : "";
+                    String cat  = entry.has("category") ? entry.get("category").getAsString() : "";
                     String improvements = "";
                     if (entry.has("improvements") && entry.get("improvements").isJsonArray()) {
                         List<String> imps = new ArrayList<>();
@@ -260,7 +259,7 @@ public class BuildingsEditorPanel extends JPanel {
                         }
                         improvements = String.join(", ", imps);
                     }
-                    tableModel.addRow(new Object[]{id, name, cat, desc, improvements});
+                    tableModel.addRow(new Object[]{id, name, cat, improvements});
                     originalObjects.add(entry);
                 }
             }
@@ -298,11 +297,10 @@ public class BuildingsEditorPanel extends JPanel {
 
             JsonArray buildings = new JsonArray();
             for (int r = 0; r < tableModel.getRowCount(); r++) {
-                String id           = cellStr(r, 0);
-                String name         = cellStr(r, 1);
-                String category     = cellStr(r, 2);
-                String desc         = cellStr(r, 3);
-                String improvementsStr = cellStr(r, 4);
+                String id              = cellStr(r, 0);
+                String name            = cellStr(r, 1);
+                String category        = cellStr(r, 2);
+                String improvementsStr = cellStr(r, 3);
 
                 // Start from the original object to preserve numeric fields
                 JsonObject original = r < originalObjects.size() ? originalObjects.get(r) : new JsonObject();
@@ -316,8 +314,6 @@ public class BuildingsEditorPanel extends JPanel {
                         entry.add(numField, original.get(numField));
                     }
                 }
-                entry.addProperty("description", desc);
-
                 JsonArray impsArray = new JsonArray();
                 if (!improvementsStr.isEmpty()) {
                     for (String imp : improvementsStr.split(",")) {
@@ -373,7 +369,7 @@ public class BuildingsEditorPanel extends JPanel {
     }
 
     private static DefaultTableModel createModel() {
-        return new DefaultTableModel(new String[]{"ID", "Name", "Category", "Description", "Improvements"}, 0) {
+        return new DefaultTableModel(new String[]{"ID", "Name", "Category", "Improvements"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;

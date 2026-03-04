@@ -1,6 +1,5 @@
 {
   "version": "1.2",
-  "description": "Urban/city building definitions with extended improvements, floor ranges, and units per floor",
   "buildings": [
     {
       "id": "parking_lot_small",
@@ -11,7 +10,6 @@
       "unitsPerFloor": 0,
       "capacity": 20,
       "percentage": 3.0,
-      "description": "A small surface parking lot for local businesses",
       "improvements": [
         "Security Camera",
         "Lighting",
@@ -32,7 +30,6 @@
       "unitsPerFloor": 0,
       "capacity": 100,
       "percentage": 1.5,
-      "description": "A large surface parking lot for shopping centers",
       "improvements": [
         "Security Camera",
         "Lighting",
@@ -55,7 +52,6 @@
       "unitsPerFloor": 0,
       "capacity": 150,
       "percentage": 0.8,
-      "description": "A compact multi-level parking structure",
       "improvements": [
         "Elevator",
         "Security System",
@@ -78,7 +74,6 @@
       "unitsPerFloor": 0,
       "capacity": 500,
       "percentage": 0.4,
-      "description": "A major parking structure for downtown areas",
       "improvements": [
         "Multiple Elevators",
         "Security Office",
@@ -103,7 +98,6 @@
       "unitsPerFloor": 3,
       "capacity": 15,
       "percentage": 2.5,
-      "description": "A small neighborhood convenience store",
       "improvements": [
         "Refrigeration",
         "Security System",
@@ -126,7 +120,6 @@
       "unitsPerFloor": 4,
       "capacity": 20,
       "percentage": 1.8,
-      "description": "A fuel station with convenience store",
       "improvements": [
         "Fuel Pumps",
         "Car Wash",
@@ -151,7 +144,6 @@
       "unitsPerFloor": 5,
       "capacity": 50,
       "percentage": 2.2,
-      "description": "A quick service restaurant with drive-through",
       "improvements": [
         "Drive-Through",
         "Indoor Seating",
@@ -179,7 +171,6 @@
       "unitsPerFloor": 4,
       "capacity": 30,
       "percentage": 2.0,
-      "description": "A cozy coffee shop for the neighborhood",
       "improvements": [
         "Espresso Machine",
         "WiFi",
@@ -204,7 +195,6 @@
       "unitsPerFloor": 4,
       "capacity": 25,
       "percentage": 4.0,
-      "description": "A boutique retail shop",
       "improvements": [
         "Display Windows",
         "Security System",
@@ -229,7 +219,6 @@
       "unitsPerFloor": 5,
       "capacity": 30,
       "percentage": 1.2,
-      "description": "A local pharmacy with health services",
       "improvements": [
         "Prescription Counter",
         "Drive-Through",
@@ -254,7 +243,6 @@
       "unitsPerFloor": 5,
       "capacity": 40,
       "percentage": 0.8,
-      "description": "A local bank branch with ATMs",
       "improvements": [
         "Vault",
         "ATM Lobby",
@@ -279,7 +267,6 @@
       "unitsPerFloor": 3,
       "capacity": 25,
       "percentage": 0.6,
-      "description": "A self-service laundry facility",
       "improvements": [
         "Commercial Washers",
         "Dryers",
@@ -304,7 +291,6 @@
       "unitsPerFloor": 4,
       "capacity": 20,
       "percentage": 1.5,
-      "description": "A neighborhood hair and beauty salon",
       "improvements": [
         "Styling Stations",
         "Shampoo Bowls",
@@ -329,7 +315,6 @@
       "unitsPerFloor": 6,
       "capacity": 150,
       "percentage": 0.5,
-      "description": "A full-service gym with equipment",
       "improvements": [
         "Cardio Equipment",
         "Weight Room",
@@ -361,7 +346,6 @@
       "unitsPerFloor": 6,
       "capacity": 60,
       "percentage": 0.8,
-      "description": "An outpatient medical clinic",
       "improvements": [
         "Exam Rooms",
         "X-Ray",
@@ -388,7 +372,6 @@
       "unitsPerFloor": 5,
       "capacity": 30,
       "percentage": 0.9,
-      "description": "A dental practice with multiple chairs",
       "improvements": [
         "Dental Chairs",
         "X-Ray Equipment",
@@ -413,7 +396,6 @@
       "unitsPerFloor": 4,
       "capacity": 40,
       "percentage": 0.4,
-      "description": "An animal hospital and clinic",
       "improvements": [
         "Exam Rooms",
         "Surgery Suite",
@@ -440,7 +422,6 @@
       "unitsPerFloor": 5,
       "capacity": 50,
       "percentage": 0.7,
-      "description": "A childcare and early learning center",
       "improvements": [
         "Playrooms",
         "Nap Area",
@@ -467,7 +448,6 @@
       "unitsPerFloor": 8,
       "capacity": 500,
       "percentage": 0.4,
-      "description": "A public elementary school",
       "improvements": [
         "Classrooms",
         "Gymnasium",
@@ -496,7 +476,6 @@
       "unitsPerFloor": 10,
       "capacity": 1500,
       "percentage": 0.15,
-      "description": "A public high school",
       "improvements": [
         "Science Labs",
         "Auditorium",
@@ -525,7 +504,6 @@
       "unitsPerFloor": 8,
       "capacity": 3000,
       "percentage": 0.05,
-      "description": "A two-year community college",
       "improvements": [
         "Lecture Halls",
         "Library",
@@ -557,7 +535,6 @@
       "unitsPerFloor": 4,
       "capacity": 30,
       "percentage": 0.3,
-      "description": "A local fire department station",
       "improvements": [
         "Truck Bays",
         "Living Quarters",
@@ -586,7 +563,6 @@
       "unitsPerFloor": 6,
       "capacity": 80,
       "percentage": 0.2,
-      "description": "A local police precinct",
       "improvements": [
         "Holding Cells",
         "Evidence Room",
@@ -617,7 +593,6 @@
       "unitsPerFloor": 10,
       "capacity": 300,
       "percentage": 0.1,
-      "description": "A correctional facility for housing inmates",
       "improvements": [
         "Cell Block A",
         "Cell Block B",
@@ -644,7 +619,6 @@
       "unitsPerFloor": 4,
       "capacity": 30,
       "percentage": 0.3,
-      "description": "A United States Post Office branch",
       "improvements": [
         "PO Boxes",
         "Package Sorting",
@@ -669,7 +643,6 @@
       "unitsPerFloor": 5,
       "capacity": 200,
       "percentage": 0.2,
-      "description": "A public library with community programs",
       "improvements": [
         "Book Stacks",
         "Computer Lab",
@@ -700,7 +673,6 @@
       "unitsPerFloor": 6,
       "capacity": 300,
       "percentage": 0.2,
-      "description": "A multi-purpose community facility",
       "improvements": [
         "Gymnasium",
         "Meeting Rooms",
@@ -727,7 +699,6 @@
       "unitsPerFloor": 7,
       "capacity": 200,
       "percentage": 0.05,
-      "description": "The municipal government building",
       "improvements": [
         "Council Chambers",
         "Clerk's Office",
@@ -756,7 +727,6 @@
       "unitsPerFloor": 6,
       "capacity": 400,
       "percentage": 0.05,
-      "description": "The county courthouse",
       "improvements": [
         "Courtrooms",
         "Judge's Chambers",
@@ -787,7 +757,6 @@
       "unitsPerFloor": 4,
       "capacity": 12,
       "percentage": 8.0,
-      "description": "A small apartment building with 12 units",
       "improvements": [
         "Laundry Room",
         "Mailboxes",
@@ -812,7 +781,6 @@
       "unitsPerFloor": 6,
       "capacity": 40,
       "percentage": 6.0,
-      "description": "A mid-rise apartment building",
       "improvements": [
         "Elevator",
         "Fitness Room",
@@ -839,7 +807,6 @@
       "unitsPerFloor": 8,
       "capacity": 80,
       "percentage": 4.0,
-      "description": "A large apartment complex",
       "improvements": [
         "Pool",
         "Clubhouse",
@@ -868,7 +835,6 @@
       "unitsPerFloor": 6,
       "capacity": 150,
       "percentage": 1.0,
-      "description": "A luxury high-rise apartment building",
       "improvements": [
         "Doorman",
         "Spa",
@@ -897,7 +863,6 @@
       "unitsPerFloor": 10,
       "capacity": 300,
       "percentage": 0.5,
-      "description": "A 20+ story residential tower",
       "improvements": [
         "24hr Security",
         "Rooftop Pool",
@@ -926,7 +891,6 @@
       "unitsPerFloor": 3,
       "capacity": 8,
       "percentage": 5.0,
-      "description": "A row of connected townhouses",
       "improvements": [
         "Private Garages",
         "Patios",
@@ -951,7 +915,6 @@
       "unitsPerFloor": 6,
       "capacity": 60,
       "percentage": 2.5,
-      "description": "An owner-occupied condo building",
       "improvements": [
         "HOA Office",
         "Meeting Room",
@@ -978,7 +941,6 @@
       "unitsPerFloor": 8,
       "capacity": 80,
       "percentage": 0.5,
-      "description": "An assisted living community",
       "improvements": [
         "Dining Hall",
         "Medical Office",
@@ -1007,7 +969,6 @@
       "unitsPerFloor": 10,
       "capacity": 80,
       "percentage": 0.6,
-      "description": "An economy hotel chain",
       "improvements": [
         "Free Breakfast",
         "WiFi",
@@ -1038,7 +999,6 @@
       "unitsPerFloor": 8,
       "capacity": 200,
       "percentage": 0.3,
-      "description": "A business-class hotel",
       "improvements": [
         "Conference Rooms",
         "Business Center",
@@ -1071,7 +1031,6 @@
       "unitsPerFloor": 6,
       "capacity": 300,
       "percentage": 0.1,
-      "description": "A five-star luxury hotel",
       "improvements": [
         "Spa",
         "Fine Dining",
@@ -1104,7 +1063,6 @@
       "unitsPerFloor": 4,
       "capacity": 100,
       "percentage": 3.0,
-      "description": "A small professional office building",
       "improvements": [
         "Conference Room",
         "Break Room",
@@ -1129,7 +1087,6 @@
       "unitsPerFloor": 6,
       "capacity": 400,
       "percentage": 1.5,
-      "description": "A mid-rise office tower",
       "improvements": [
         "Multiple Elevators",
         "Lobby",
@@ -1156,7 +1113,6 @@
       "unitsPerFloor": 8,
       "capacity": 1000,
       "percentage": 0.5,
-      "description": "A major office tower",
       "improvements": [
         "Executive Floors",
         "Fitness Center",
@@ -1185,7 +1141,6 @@
       "unitsPerFloor": 10,
       "capacity": 2000,
       "percentage": 0.1,
-      "description": "A corporate campus main building",
       "improvements": [
         "Executive Suite",
         "Auditorium",
@@ -1214,7 +1169,6 @@
       "unitsPerFloor": 5,
       "capacity": 150,
       "percentage": 0.8,
-      "description": "A shared workspace facility",
       "improvements": [
         "Hot Desks",
         "Private Offices",
@@ -1241,7 +1195,6 @@
       "unitsPerFloor": 8,
       "capacity": 200,
       "percentage": 2.0,
-      "description": "A small shopping center with multiple stores",
       "improvements": [
         "Shared Parking",
         "Anchor Store",
@@ -1266,7 +1219,6 @@
       "unitsPerFloor": 10,
       "capacity": 500,
       "percentage": 0.4,
-      "description": "A medium-sized shopping complex",
       "improvements": [
         "Food Court",
         "Movie Theater",
@@ -1293,7 +1245,6 @@
       "unitsPerFloor": 10,
       "capacity": 2000,
       "percentage": 0.1,
-      "description": "A large regional shopping mall",
       "improvements": [
         "Multiple Anchors",
         "Entertainment Zone",
@@ -1322,7 +1273,6 @@
       "unitsPerFloor": 6,
       "capacity": 200,
       "percentage": 1.5,
-      "description": "A full-service grocery store",
       "improvements": [
         "Deli Counter",
         "Bakery",
@@ -1349,7 +1299,6 @@
       "unitsPerFloor": 8,
       "capacity": 500,
       "percentage": 0.3,
-      "description": "A bulk goods retail warehouse",
       "improvements": [
         "Loading Docks",
         "Food Court",
@@ -1376,7 +1325,6 @@
       "unitsPerFloor": 4,
       "capacity": 100,
       "percentage": 2.5,
-      "description": "A casual dining restaurant",
       "improvements": [
         "Full Kitchen",
         "Bar Area",
@@ -1401,7 +1349,6 @@
       "unitsPerFloor": 3,
       "capacity": 60,
       "percentage": 0.3,
-      "description": "An upscale fine dining establishment",
       "improvements": [
         "Wine Cellar",
         "Chef's Table",
@@ -1429,7 +1376,6 @@
       "unitsPerFloor": 5,
       "capacity": 800,
       "percentage": 0.2,
-      "description": "A multiplex cinema",
       "improvements": [
         "IMAX Screen",
         "Recliner Seats",
@@ -1456,7 +1402,6 @@
       "unitsPerFloor": 4,
       "capacity": 200,
       "percentage": 0.1,
-      "description": "A bowling and entertainment center",
       "improvements": [
         "Bowling Lanes",
         "Arcade",
@@ -1481,7 +1426,6 @@
       "unitsPerFloor": 4,
       "capacity": 500,
       "percentage": 0.15,
-      "description": "A dance club and nightlife venue",
       "improvements": [
         "Dance Floor",
         "VIP Lounge",
@@ -1512,7 +1456,6 @@
       "unitsPerFloor": 10,
       "capacity": 15000,
       "percentage": 0.05,
-      "description": "A multi-purpose sports and concert venue",
       "improvements": [
         "Luxury Suites",
         "Jumbotron",
@@ -1545,7 +1488,6 @@
       "unitsPerFloor": 3,
       "capacity": 50,
       "percentage": 2.0,
-      "description": "A small storage warehouse",
       "improvements": [
         "Loading Dock",
         "Racking",
@@ -1570,7 +1512,6 @@
       "unitsPerFloor": 5,
       "capacity": 100,
       "percentage": 1.0,
-      "description": "A large distribution warehouse",
       "improvements": [
         "Multiple Docks",
         "Cold Storage",
@@ -1597,7 +1538,6 @@
       "unitsPerFloor": 6,
       "capacity": 300,
       "percentage": 0.5,
-      "description": "A light manufacturing plant",
       "improvements": [
         "Assembly Line",
         "Quality Control Lab",
@@ -1624,7 +1564,6 @@
       "unitsPerFloor": 4,
       "capacity": 50,
       "percentage": 0.2,
-      "description": "A technology data center",
       "improvements": [
         "Server Rooms",
         "Cooling System",
@@ -1655,7 +1594,6 @@
       "unitsPerFloor": 10,
       "capacity": 30,
       "percentage": 0.8,
-      "description": "A climate-controlled storage facility",
       "improvements": [
         "Climate Control",
         "24hr Access",
@@ -1682,7 +1620,6 @@
       "unitsPerFloor": 5,
       "capacity": 400,
       "percentage": 0.8,
-      "description": "A community church",
       "improvements": [
         "Sanctuary",
         "Fellowship Hall",
@@ -1712,7 +1649,6 @@
       "unitsPerFloor": 4,
       "capacity": 500,
       "percentage": 0.15,
-      "description": "An Islamic community center",
       "improvements": [
         "Prayer Hall",
         "Ablution Area",
@@ -1742,7 +1678,6 @@
       "unitsPerFloor": 4,
       "capacity": 300,
       "percentage": 0.1,
-      "description": "A Jewish synagogue",
       "improvements": [
         "Sanctuary",
         "Social Hall",
@@ -1772,7 +1707,6 @@
       "unitsPerFloor": 8,
       "capacity": 100,
       "percentage": 0.15,
-      "description": "A community hospital",
       "improvements": [
         "Emergency Room",
         "Surgery Center",
@@ -1803,7 +1737,6 @@
       "unitsPerFloor": 10,
       "capacity": 500,
       "percentage": 0.05,
-      "description": "A major medical center",
       "improvements": [
         "Trauma Center",
         "ICU",
@@ -1836,7 +1769,6 @@
       "unitsPerFloor": 5,
       "capacity": 40,
       "percentage": 0.5,
-      "description": "A walk-in medical clinic",
       "improvements": [
         "Exam Rooms",
         "X-Ray",
@@ -1861,7 +1793,6 @@
       "unitsPerFloor": 5,
       "capacity": 50,
       "percentage": 0.4,
-      "description": "An automobile dealership",
       "improvements": [
         "Showroom",
         "Service Center",
@@ -1886,7 +1817,6 @@
       "unitsPerFloor": 3,
       "capacity": 20,
       "percentage": 1.5,
-      "description": "An automotive service center",
       "improvements": [
         "Service Bays",
         "Tire Storage",
@@ -1911,7 +1841,6 @@
       "unitsPerFloor": 6,
       "capacity": 500,
       "percentage": 0.2,
-      "description": "A public transit hub",
       "improvements": [
         "Platforms",
         "Ticket Office",
@@ -1938,7 +1867,6 @@
       "unitsPerFloor": 1,
       "capacity": 20,
       "percentage": 0.5,
-      "description": "A specialist shop selling surveillance gear, protective equipment, and tools for private investigators",
       "improvements": [
         "Display Cases",
         "Security Camera Demo Wall",
@@ -1964,7 +1892,6 @@
       "unitsPerFloor": 4,
       "capacity": 100,
       "percentage": 0.1,
-      "description": "A city bus maintenance and dispatch facility",
       "improvements": [
         "Maintenance Bays",
         "Fueling Station",
