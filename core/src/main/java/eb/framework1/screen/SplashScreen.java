@@ -163,7 +163,7 @@ public class SplashScreen implements Screen {
             batch.begin();
             glyphLayout.setText(buttonFont, "Exit App : Are you sure?");
             float qX = (Gdx.graphics.getWidth() - glyphLayout.width) / 2f;
-            float qY = quitButton.y + BUTTON_HEIGHT + 50f;
+            float qY = quitButton.y + BUTTON_HEIGHT + glyphLayout.height + 20f;
             buttonFont.setColor(Color.WHITE);
             buttonFont.draw(batch, "Exit App : Are you sure?", qX, qY);
             batch.end();
