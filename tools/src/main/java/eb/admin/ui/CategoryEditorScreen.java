@@ -58,7 +58,8 @@ public class CategoryEditorScreen extends JFrame {
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
 
-    private final DescriptionEditorPanel descPanel     = new DescriptionEditorPanel(statusLabel);
+    private final DescriptionEditorPanel descPanel         = new DescriptionEditorPanel(statusLabel);
+    private final CompanyTypesEditorPanel companyTypesPanel = new CompanyTypesEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -98,9 +99,10 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories" and "Descriptions"
-        tabbedPane.addTab("Categories",   categoriesPanel);
-        tabbedPane.addTab("Descriptions", descPanel);
+        // Outer tabs: "Categories", "Descriptions", and "Company Types"
+        tabbedPane.addTab("Categories",    categoriesPanel);
+        tabbedPane.addTab("Descriptions",  descPanel);
+        tabbedPane.addTab("Company Types", companyTypesPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
