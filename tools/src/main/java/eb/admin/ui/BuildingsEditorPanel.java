@@ -228,6 +228,9 @@ public class BuildingsEditorPanel extends JPanel {
     private void loadFromFile(File file) {
         try (Reader reader = new FileReader(file)) {
             JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+            if (root == null) {
+                throw new IllegalArgumentException("File does not contain a valid JSON object.");
+            }
 
             versionField.setText(root.has("version")  ? root.get("version").getAsString()  : "");
             suppressLangListener = true;
@@ -251,7 +254,9 @@ public class BuildingsEditorPanel extends JPanel {
                     if (entry.has("improvements") && entry.get("improvements").isJsonArray()) {
                         List<String> imps = new ArrayList<>();
                         for (JsonElement imp : entry.getAsJsonArray("improvements")) {
-                            imps.add(imp.getAsString());
+                            if (imp != null && !imp.isJsonNull()) {
+                                imps.add(imp.getAsString());
+                            }
                         }
                         improvements = String.join(", ", imps);
                     }
@@ -323,6 +328,10 @@ public class BuildingsEditorPanel extends JPanel {
                     }
                 }
                 entry.add("improvements", impsArray);
+                // Preserve attribute_modifiers if present in the original
+                if (original.has("attribute_modifiers")) {
+                    entry.add("attribute_modifiers", original.get("attribute_modifiers"));
+                }
                 buildings.add(entry);
             }
             root.add("buildings", buildings);
