@@ -172,12 +172,57 @@ public class DescriptionEditorPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(textArea);
         scroll.setPreferredSize(new Dimension(520, 200));
 
-        int result = JOptionPane.showConfirmDialog(
-                this, scroll, "Edit: " + colName,
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(owner, "Edit: " + colName, Dialog.ModalityType.APPLICATION_MODAL);
+
+        JButton okBtn       = new JButton("OK");
+        JButton cancelBtn   = new JButton("Cancel");
+        JButton annotateBtn = new JButton("Annotate\u2026");
+
+        okBtn.addActionListener(e -> {
             tableModel.setValueAt(textArea.getText(), row, col);
+            dialog.dispose();
+        });
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        annotateBtn.addActionListener(e -> {
+            JPopupMenu menu = buildAnnotationPopup(row, col);
+            menu.show(annotateBtn, 0, annotateBtn.getHeight());
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 4));
+        buttons.add(annotateBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(okBtn);
+        buttons.add(cancelBtn);
+
+        dialog.setLayout(new BorderLayout(0, 4));
+        dialog.add(scroll,   BorderLayout.CENTER);
+        dialog.add(buttons,  BorderLayout.SOUTH);
+        dialog.getRootPane().setDefaultButton(okBtn);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Builds a {@link JPopupMenu} with rating options for the cell at (row, col).
+     * Selecting a rating opens the annotation comment prompt.
+     */
+    private JPopupMenu buildAnnotationPopup(int row, int col) {
+        String key = cellStr(row, 0);
+        String existingRating = findExistingRating(key, tableModel.getColumnName(col));
+        JPopupMenu menu = new JPopupMenu("Rate");
+        for (String rating : RATINGS) {
+            String ratingId = rating.toLowerCase().replace(' ', '_');
+            JCheckBoxMenuItem item = new JCheckBoxMenuItem(rating, ratingId.equals(existingRating));
+            item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
+            menu.add(item);
         }
+        menu.addSeparator();
+        JMenuItem clearItem = new JMenuItem("Clear");
+        clearItem.addActionListener(e -> clearAnnotationsForItem(key));
+        menu.add(clearItem);
+        return menu;
     }
 
     private JPanel buildNorthPanel() {
@@ -519,20 +564,7 @@ public class DescriptionEditorPanel extends JPanel {
 
     /** Shows a popup menu with rating options at (x, y) relative to the table. */
     private void showAnnotationMenu(int row, int col, int x, int y) {
-        String key = cellStr(row, 0);
-        String existingRating = findExistingRating(key, tableModel.getColumnName(col));
-        JPopupMenu menu = new JPopupMenu("Rate");
-        for (String rating : RATINGS) {
-            String ratingId = rating.toLowerCase().replace(' ', '_');
-            JCheckBoxMenuItem item = new JCheckBoxMenuItem(rating, ratingId.equals(existingRating));
-            item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
-            menu.add(item);
-        }
-        menu.addSeparator();
-        JMenuItem clearItem = new JMenuItem("Clear");
-        clearItem.addActionListener(e -> clearAnnotationsForItem(key));
-        menu.add(clearItem);
-        menu.show(table, x, y);
+        buildAnnotationPopup(row, col).show(table, x, y);
     }
 
     /** Removes all annotations for the given item key from annotation.json. */
