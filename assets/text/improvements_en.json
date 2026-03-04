@@ -1,0 +1,4757 @@
+{
+  "version": "1.0",
+  "improvements": [
+    {
+      "id": "24hr_access",
+      "name": "24hr Access",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "24hr_security",
+      "name": "24hr Security",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "3d_theaters",
+      "name": "3D Theaters",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "atm",
+      "name": "ATM",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "atm_lobby",
+      "name": "ATM Lobby",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ablution_area",
+      "name": "Ablution Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "activity_room",
+      "name": "Activity Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "admin_office",
+      "name": "Admin Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "administration",
+      "name": "Administration",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "administrative_office",
+      "name": "Administrative Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "air_station",
+      "name": "Air Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "alarm_system",
+      "name": "Alarm System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "alignment_rack",
+      "name": "Alignment Rack",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "alterations_area",
+      "name": "Alterations Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ambulance_bay",
+      "name": "Ambulance Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "anchor_store",
+      "name": "Anchor Store",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "arcade",
+      "name": "Arcade",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "archive_room",
+      "name": "Archive Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "archives",
+      "name": "Archives",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "armory",
+      "name": "Armory",
+      "attribute_modifiers": {
+        "INTIMIDATION": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "art_gallery",
+      "name": "Art Gallery",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "art_room",
+      "name": "Art Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "art_studio",
+      "name": "Art Studio",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "arts_center",
+      "name": "Arts Center",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "assembly_line",
+      "name": "Assembly Line",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "athletic_fields",
+      "name": "Athletic Fields",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "attic_storage",
+      "name": "Attic Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "attorney_meeting_rooms",
+      "name": "Attorney Meeting Rooms",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTELLIGENCE": 2
+      }
+    },
+    {
+      "id": "audiobook_section",
+      "name": "Audiobook Section",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "auditorium",
+      "name": "Auditorium",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "auto_buying_program",
+      "name": "Auto Buying Program",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "auto_shop",
+      "name": "Auto Shop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "automotive_bay",
+      "name": "Automotive Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "backup_generators",
+      "name": "Backup Generators",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "backyard",
+      "name": "Backyard",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ballroom",
+      "name": "Ballroom",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "band_room",
+      "name": "Band Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "bank_branch",
+      "name": "Bank Branch",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "banking_services",
+      "name": "Banking Services",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "banquet_hall",
+      "name": "Banquet Hall",
+      "attribute_modifiers": {
+        "CHARISMA": 2
+      }
+    },
+    {
+      "id": "bar",
+      "name": "Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "bar_area",
+      "name": "Bar Area",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "bar_lounge",
+      "name": "Bar Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "basement",
+      "name": "Basement",
+      "attribute_modifiers": {
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "basketball_court",
+      "name": "Basketball Court",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "battery_charging",
+      "name": "Battery Charging",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "battery_room",
+      "name": "Battery Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "beer_garden",
+      "name": "Beer Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "bicycle_storage",
+      "name": "Bicycle Storage",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "MEMORY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "bike_rack",
+      "name": "Bike Rack",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "bike_room",
+      "name": "Bike Room",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "bike_storage",
+      "name": "Bike Storage",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "MEMORY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "billiards_area",
+      "name": "Billiards Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "blood_draw_station",
+      "name": "Blood Draw Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "blood_pressure_station",
+      "name": "Blood Pressure Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "board_room",
+      "name": "Board Room",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "body_shop",
+      "name": "Body Shop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "book_stacks",
+      "name": "Book Stacks",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "booking_area",
+      "name": "Booking Area",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "bookstore",
+      "name": "Bookstore",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "bottle_service",
+      "name": "Bottle Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "bowling_alley",
+      "name": "Bowling Alley",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "bowling_lanes",
+      "name": "Bowling Lanes",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "box_office",
+      "name": "Box Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "break_room",
+      "name": "Break Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "building_management_office",
+      "name": "Building Management Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "bullet_resistant_glass",
+      "name": "Bullet-Resistant Glass",
+      "attribute_modifiers": {
+        "INTIMIDATION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "burn_center",
+      "name": "Burn Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "bus_stop",
+      "name": "Bus Stop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "business_center",
+      "name": "Business Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "butcher",
+      "name": "Butcher",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "butler_service",
+      "name": "Butler Service",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "cable_management",
+      "name": "Cable Management",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cafeteria",
+      "name": "Cafeteria",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "campus_security",
+      "name": "Campus Security",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "cancer_center",
+      "name": "Cancer Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "canopy_lighting",
+      "name": "Canopy Lighting",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "captain_office",
+      "name": "Captain Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "car_service",
+      "name": "Car Service",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "car_wash",
+      "name": "Car Wash",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "cardiac_care",
+      "name": "Cardiac Care",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "cardio_equipment",
+      "name": "Cardio Equipment",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "caretaker_suite",
+      "name": "Caretaker Suite",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "carousel",
+      "name": "Carousel",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "carrier_route",
+      "name": "Carrier Route",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "cart_corral",
+      "name": "Cart Corral",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "cast_room",
+      "name": "Cast Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cat_ward",
+      "name": "Cat Ward",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cell_block_a",
+      "name": "Cell Block A",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cell_block_b",
+      "name": "Cell Block B",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cellar_storage",
+      "name": "Cellar Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "change_machine",
+      "name": "Change Machine",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "chapel",
+      "name": "Chapel",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "charging_stations",
+      "name": "Charging Stations",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "check_in_kiosk",
+      "name": "Check-In Kiosk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "chef_s_garden",
+      "name": "Chef's Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "chef_s_table",
+      "name": "Chef's Table",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "child_care",
+      "name": "Child Care",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "children_s_area",
+      "name": "Children's Area",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "children_s_playroom",
+      "name": "Children's Playroom",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "children_s_room",
+      "name": "Children's Room",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "choir_room",
+      "name": "Choir Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cigar_lounge",
+      "name": "Cigar Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "city_manager",
+      "name": "City Manager",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "classroom",
+      "name": "Classroom",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "classrooms",
+      "name": "Classrooms",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "clerk_s_office",
+      "name": "Clerk's Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "climate_control",
+      "name": "Climate Control",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "climbing_wall",
+      "name": "Climbing Wall",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "club_level",
+      "name": "Club Level",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STEALTH": -1
+      }
+    },
+    {
+      "id": "clubhouse",
+      "name": "Clubhouse",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STEALTH": -1
+      }
+    },
+    {
+      "id": "co_working_space",
+      "name": "Co-Working Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "coat_check",
+      "name": "Coat Check",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "coffee_bar",
+      "name": "Coffee Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "coffee_shop",
+      "name": "Coffee Shop",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "coffee_station",
+      "name": "Coffee Station",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "cold_brew_station",
+      "name": "Cold Brew Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cold_storage",
+      "name": "Cold Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "color_bar",
+      "name": "Color Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "command_center",
+      "name": "Command Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "commercial_kitchen",
+      "name": "Commercial Kitchen",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "commercial_washers",
+      "name": "Commercial Washers",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "common_patio",
+      "name": "Common Patio",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "community_board",
+      "name": "Community Board",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "community_room",
+      "name": "Community Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "computer_lab",
+      "name": "Computer Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "computer_labs",
+      "name": "Computer Labs",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "concession_stand",
+      "name": "Concession Stand",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "concession_stands",
+      "name": "Concession Stands",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "concierge",
+      "name": "Concierge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "concierge_service",
+      "name": "Concierge Service",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "conference_center",
+      "name": "Conference Center",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "conference_room",
+      "name": "Conference Room",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "conference_rooms",
+      "name": "Conference Rooms",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "consultation_office",
+      "name": "Consultation Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "consultation_room",
+      "name": "Consultation Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "control_room",
+      "name": "Control Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "convenience_store",
+      "name": "Convenience Store",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "conveyor_system",
+      "name": "Conveyor System",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "cooling_system",
+      "name": "Cooling System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "cosmetics_section",
+      "name": "Cosmetics Section",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "council_chambers",
+      "name": "Council Chambers",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "counseling_center",
+      "name": "Counseling Center",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "counselor_office",
+      "name": "Counselor Office",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTELLIGENCE": 2
+      }
+    },
+    {
+      "id": "courtrooms",
+      "name": "Courtrooms",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "courtyard",
+      "name": "Courtyard",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "covered_walkway",
+      "name": "Covered Walkway",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "craft_room",
+      "name": "Craft Room",
+      "attribute_modifiers": {
+        "INTUITION": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "cross_dock_area",
+      "name": "Cross-Dock Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "currency_counter",
+      "name": "Currency Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "customer_lounge",
+      "name": "Customer Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "customer_parking",
+      "name": "Customer Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "customer_service",
+      "name": "Customer Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dj_booth",
+      "name": "DJ Booth",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "dvd_collection",
+      "name": "DVD Collection",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dance_floor",
+      "name": "Dance Floor",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "dance_studio",
+      "name": "Dance Studio",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "CHARISMA": 1,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "data_center",
+      "name": "Data Center",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "day_care",
+      "name": "Day Care",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "CHARISMA": 1,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "daycare",
+      "name": "Daycare",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "CHARISMA": 1,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "decontamination_room",
+      "name": "Decontamination Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "deli_counter",
+      "name": "Deli Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "delivery_area",
+      "name": "Delivery Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "delivery_station",
+      "name": "Delivery Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dental_chairs",
+      "name": "Dental Chairs",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "dental_suite",
+      "name": "Dental Suite",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "department_store",
+      "name": "Department Store",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "detailing_bay",
+      "name": "Detailing Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "detective_office",
+      "name": "Detective Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "detergent_dispenser",
+      "name": "Detergent Dispenser",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "diagnostic_station",
+      "name": "Diagnostic Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "digital_menu_boards",
+      "name": "Digital Menu Boards",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "digital_signage",
+      "name": "Digital Signage",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "dine_in_options",
+      "name": "Dine-In Options",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dining_hall",
+      "name": "Dining Hall",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "directory_kiosk",
+      "name": "Directory Kiosk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dispatch_center",
+      "name": "Dispatch Center",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "MEMORY": 1,
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "dispatch_office",
+      "name": "Dispatch Office",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1,
+        "MEMORY": 1,
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "display_cases",
+      "name": "Display Cases",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "display_windows",
+      "name": "Display Windows",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "district_attorney",
+      "name": "District Attorney",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 2
+      }
+    },
+    {
+      "id": "document_storage",
+      "name": "Document Storage",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "dog_park",
+      "name": "Dog Park",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "dog_run",
+      "name": "Dog Run",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dog_ward",
+      "name": "Dog Ward",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dog_wash",
+      "name": "Dog Wash",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dolby_atmos",
+      "name": "Dolby Atmos",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "doorman",
+      "name": "Doorman",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "drama_theater",
+      "name": "Drama Theater",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "drive_through",
+      "name": "Drive-Through",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "drive_through_lane",
+      "name": "Drive-Through Lane",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "drive_through_window",
+      "name": "Drive-Through Window",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "driver_facilities",
+      "name": "Driver Facilities",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "drop_off_service",
+      "name": "Drop-Off Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dry_cleaning",
+      "name": "Dry Cleaning",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "dryers",
+      "name": "Dryers",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ev_charger",
+      "name": "EV Charger",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ev_chargers",
+      "name": "EV Chargers",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ev_charging",
+      "name": "EV Charging",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ev_charging_station",
+      "name": "EV Charging Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "electric_car_charging",
+      "name": "Electric Car Charging",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "electric_vehicle_charging",
+      "name": "Electric Vehicle Charging",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "elevator",
+      "name": "Elevator",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "elevators",
+      "name": "Elevators",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "emergency_call_box",
+      "name": "Emergency Call Box",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "emergency_call_system",
+      "name": "Emergency Call System",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "emergency_exits",
+      "name": "Emergency Exits",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "emergency_lighting",
+      "name": "Emergency Lighting",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "emergency_room",
+      "name": "Emergency Room",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "employee_break_area",
+      "name": "Employee Break Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "employee_break_room",
+      "name": "Employee Break Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "employee_cafeteria",
+      "name": "Employee Cafeteria",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "employee_store",
+      "name": "Employee Store",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "engineering_office",
+      "name": "Engineering Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "entertainment_suite",
+      "name": "Entertainment Suite",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "entertainment_zone",
+      "name": "Entertainment Zone",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "equipment_storage",
+      "name": "Equipment Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "escalators",
+      "name": "Escalators",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "escape_room",
+      "name": "Escape Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "espresso_machine",
+      "name": "Espresso Machine",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "event_control_center",
+      "name": "Event Control Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "event_space",
+      "name": "Event Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "evidence_room",
+      "name": "Evidence Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "exam_rooms",
+      "name": "Exam Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "executive_floors",
+      "name": "Executive Floors",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "executive_lounge",
+      "name": "Executive Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "executive_suite",
+      "name": "Executive Suite",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "exercise_yard",
+      "name": "Exercise Yard",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "family_restrooms",
+      "name": "Family Restrooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "family_visiting_room",
+      "name": "Family Visiting Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fellowship_hall",
+      "name": "Fellowship Hall",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "finance_department",
+      "name": "Finance Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "finance_office",
+      "name": "Finance Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "financial_aid",
+      "name": "Financial Aid",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fine_dining",
+      "name": "Fine Dining",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "finished_goods_area",
+      "name": "Finished Goods Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fire_escape",
+      "name": "Fire Escape",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "fire_lane",
+      "name": "Fire Lane",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "fire_pit",
+      "name": "Fire Pit",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "fire_safety_system",
+      "name": "Fire Safety System",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "fire_suppression",
+      "name": "Fire Suppression",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "fireplace",
+      "name": "Fireplace",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "first_aid_station",
+      "name": "First Aid Station",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "fitness_center",
+      "name": "Fitness Center",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "fitness_room",
+      "name": "Fitness Room",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "fitting_room",
+      "name": "Fitting Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fitting_rooms",
+      "name": "Fitting Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fleet_parking",
+      "name": "Fleet Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "floral_department",
+      "name": "Floral Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "folding_tables",
+      "name": "Folding Tables",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "food_court",
+      "name": "Food Court",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "food_hall",
+      "name": "Food Hall",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "forklift_area",
+      "name": "Forklift Area",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "fountain_court",
+      "name": "Fountain Court",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "free_breakfast",
+      "name": "Free Breakfast",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "front_desk",
+      "name": "Front Desk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "front_porch",
+      "name": "Front Porch",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "fuel_pumps",
+      "name": "Fuel Pumps",
+      "attribute_modifiers": {
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "fuel_station",
+      "name": "Fuel Station",
+      "attribute_modifiers": {
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "fueling_station",
+      "name": "Fueling Station",
+      "attribute_modifiers": {
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "full_kitchen",
+      "name": "Full Kitchen",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "funeral_services",
+      "name": "Funeral Services",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "game_room",
+      "name": "Game Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "garden",
+      "name": "Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "gas_station",
+      "name": "Gas Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "genealogy_room",
+      "name": "Genealogy Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "gift_shop",
+      "name": "Gift Shop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "gift_wrapping",
+      "name": "Gift Wrapping",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "golf_simulator",
+      "name": "Golf Simulator",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "green_roof",
+      "name": "Green Roof",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "green_room",
+      "name": "Green Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "grilling_area",
+      "name": "Grilling Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "grooming_station",
+      "name": "Grooming Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "group_fitness_studio",
+      "name": "Group Fitness Studio",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "INTUITION": 1,
+        "STAMINA": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "guard_tower",
+      "name": "Guard Tower",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "guest_apartments",
+      "name": "Guest Apartments",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "guest_lounge",
+      "name": "Guest Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "guest_parking",
+      "name": "Guest Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "guest_suite",
+      "name": "Guest Suite",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "guest_suites",
+      "name": "Guest Suites",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "gymnasium",
+      "name": "Gymnasium",
+      "attribute_modifiers": {
+        "STAMINA": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "hoa_common_area",
+      "name": "HOA Common Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "hoa_office",
+      "name": "HOA Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "hair_salon",
+      "name": "Hair Salon",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "handicap_spaces",
+      "name": "Handicap Spaces",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "hazmat_storage",
+      "name": "Hazmat Storage",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "health_clinic",
+      "name": "Health Clinic",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "hearing_aid_center",
+      "name": "Hearing Aid Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "hearing_assistance",
+      "name": "Hearing Assistance",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "helipad",
+      "name": "Helipad",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "holding_cells",
+      "name": "Holding Cells",
+      "attribute_modifiers": {
+        "INTIMIDATION": 2
+      }
+    },
+    {
+      "id": "home_medical_equipment",
+      "name": "Home Medical Equipment",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "home_office_nook",
+      "name": "Home Office Nook",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "hose_tower",
+      "name": "Hose Tower",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "host_stand",
+      "name": "Host Stand",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "hot_desks",
+      "name": "Hot Desks",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "hot_food_bar",
+      "name": "Hot Food Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "hot_food_counter",
+      "name": "Hot Food Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "human_resources",
+      "name": "Human Resources",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "icu",
+      "name": "ICU",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "imax_screen",
+      "name": "IMAX Screen",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "it_department",
+      "name": "IT Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "iv_therapy",
+      "name": "IV Therapy",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "ice_machine",
+      "name": "Ice Machine",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ice_rink_equipment",
+      "name": "Ice Rink Equipment",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ice_skating_rink",
+      "name": "Ice Skating Rink",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "imaging",
+      "name": "Imaging",
+      "attribute_modifiers": {
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "imam_s_office",
+      "name": "Imam's Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "indoor_seating",
+      "name": "Indoor Seating",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "infant_care",
+      "name": "Infant Care",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "infinity_pool",
+      "name": "Infinity Pool",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "infirmary",
+      "name": "Infirmary",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "information_booth",
+      "name": "Information Booth",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "innovation_lab",
+      "name": "Innovation Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "INTUITION": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "insurance_services",
+      "name": "Insurance Services",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "intercom_system",
+      "name": "Intercom System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "interrogation_room",
+      "name": "Interrogation Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTIMIDATION": 2
+      }
+    },
+    {
+      "id": "interview_room",
+      "name": "Interview Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "inventory_system",
+      "name": "Inventory System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "isolation_ward",
+      "name": "Isolation Ward",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "judge_s_chambers",
+      "name": "Judge's Chambers",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "INTIMIDATION": 2
+      }
+    },
+    {
+      "id": "juice_bar",
+      "name": "Juice Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "jumbotron",
+      "name": "Jumbotron",
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STEALTH": -1
+      }
+    },
+    {
+      "id": "jury_assembly",
+      "name": "Jury Assembly",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "kennels",
+      "name": "Kennels",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "key_cutting_machine",
+      "name": "Key Cutting Machine",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "kids_area",
+      "name": "Kids Area",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "kids_play_area",
+      "name": "Kids Play Area",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "kids_zone",
+      "name": "Kids Zone",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "kiss_and_ride",
+      "name": "Kiss and Ride",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "lab",
+      "name": "Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "lab_area",
+      "name": "Lab Area",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "lab_services",
+      "name": "Lab Services",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "laboratory",
+      "name": "Laboratory",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "landscaping",
+      "name": "Landscaping",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "laser_tag",
+      "name": "Laser Tag",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "laundry",
+      "name": "Laundry",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "laundry_room",
+      "name": "Laundry Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "law_library",
+      "name": "Law Library",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "league_office",
+      "name": "League Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "lecture_halls",
+      "name": "Lecture Halls",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "library",
+      "name": "Library",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "library_lounge",
+      "name": "Library Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1,
+        "INTELLIGENCE": 2,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "library_wing",
+      "name": "Library Wing",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "lift_equipment",
+      "name": "Lift Equipment",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "light_show",
+      "name": "Light Show",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STEALTH": -1
+      }
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "living_quarters",
+      "name": "Living Quarters",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "loading_area",
+      "name": "Loading Area",
+      "attribute_modifiers": {
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "loading_dock",
+      "name": "Loading Dock",
+      "attribute_modifiers": {
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "loading_docks",
+      "name": "Loading Docks",
+      "attribute_modifiers": {
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "loan_office",
+      "name": "Loan Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "lobby",
+      "name": "Lobby",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "local_history_archive",
+      "name": "Local History Archive",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "locker_room",
+      "name": "Locker Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "locker_rooms",
+      "name": "Locker Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "lost_and_found",
+      "name": "Lost and Found",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "lottery_terminal",
+      "name": "Lottery Terminal",
+      "attribute_modifiers": {
+        "INTELLIGENCE": -1,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "lounge_area",
+      "name": "Lounge Area",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "lounge_bar",
+      "name": "Lounge Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "luggage_storage",
+      "name": "Luggage Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "luxury_suites",
+      "name": "Luxury Suites",
+      "attribute_modifiers": {
+        "CHARISMA": 2
+      }
+    },
+    {
+      "id": "luxury_wing",
+      "name": "Luxury Wing",
+      "attribute_modifiers": {
+        "CHARISMA": 2
+      }
+    },
+    {
+      "id": "mail_center",
+      "name": "Mail Center",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "mail_room",
+      "name": "Mail Room",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "mail_service",
+      "name": "Mail Service",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "mailboxes",
+      "name": "Mailboxes",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "maintenance_bays",
+      "name": "Maintenance Bays",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "maintenance_room",
+      "name": "Maintenance Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "maintenance_shop",
+      "name": "Maintenance Shop",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "maker_space",
+      "name": "Maker Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1,
+        "INTUITION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "management_office",
+      "name": "Management Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "massage_chair",
+      "name": "Massage Chair",
+      "attribute_modifiers": {
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "maternity_ward",
+      "name": "Maternity Ward",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mayor_office",
+      "name": "Mayor Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "meat_department",
+      "name": "Meat Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "media_booth",
+      "name": "Media Booth",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mediation_rooms",
+      "name": "Mediation Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "medical_clinic",
+      "name": "Medical Clinic",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "medical_office",
+      "name": "Medical Office",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 2
+      }
+    },
+    {
+      "id": "medical_records",
+      "name": "Medical Records",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1,
+        "MEMORY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "medical_room",
+      "name": "Medical Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "medical_storage",
+      "name": "Medical Storage",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "medication_storage",
+      "name": "Medication Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "meet_me_room",
+      "name": "Meet-Me Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "meeting_room",
+      "name": "Meeting Room",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "meeting_rooms",
+      "name": "Meeting Rooms",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "meeting_space",
+      "name": "Meeting Space",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "meeting_suites",
+      "name": "Meeting Suites",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "memorial_garden",
+      "name": "Memorial Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "memory_care_unit",
+      "name": "Memory Care Unit",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "merchandise_display",
+      "name": "Merchandise Display",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mezzanine",
+      "name": "Mezzanine",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "microwave_rooms",
+      "name": "Microwave Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mikvah",
+      "name": "Mikvah",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "minaret",
+      "name": "Minaret",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mobile_order_pickup",
+      "name": "Mobile Order Pickup",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "mobile_pickup",
+      "name": "Mobile Pickup",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "motorcycle_parking",
+      "name": "Motorcycle Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "movie_complex",
+      "name": "Movie Complex",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "movie_theater",
+      "name": "Movie Theater",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "moving_truck_rental",
+      "name": "Moving Truck Rental",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "multiple_anchors",
+      "name": "Multiple Anchors",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "multiple_bars",
+      "name": "Multiple Bars",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "multiple_docks",
+      "name": "Multiple Docks",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "multiple_elevators",
+      "name": "Multiple Elevators",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "multiple_restaurants",
+      "name": "Multiple Restaurants",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "music_room",
+      "name": "Music Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "nail_station",
+      "name": "Nail Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "nap_area",
+      "name": "Nap Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "nebulizer_station",
+      "name": "Nebulizer Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "network_operations_center",
+      "name": "Network Operations Center",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "newsstand",
+      "name": "Newsstand",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "night_deposit",
+      "name": "Night Deposit",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "nitrous_system",
+      "name": "Nitrous System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "nurse_office",
+      "name": "Nurse Office",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "nurse_station",
+      "name": "Nurse Station",
+      "attribute_modifiers": {
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "nursery",
+      "name": "Nursery",
+      "attribute_modifiers": {
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "nursing_lab",
+      "name": "Nursing Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "office",
+      "name": "Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "office_block",
+      "name": "Office Block",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "office_space",
+      "name": "Office Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "oil_change_bay",
+      "name": "Oil Change Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "online_pickup",
+      "name": "Online Pickup",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "open_kitchen",
+      "name": "Open Kitchen",
+      "attribute_modifiers": {
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "optical_center",
+      "name": "Optical Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "outdoor_courtyard",
+      "name": "Outdoor Courtyard",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "outdoor_garden",
+      "name": "Outdoor Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "outdoor_patio",
+      "name": "Outdoor Patio",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "outdoor_playground",
+      "name": "Outdoor Playground",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "outdoor_seating",
+      "name": "Outdoor Seating",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "outdoor_terrace",
+      "name": "Outdoor Terrace",
+      "attribute_modifiers": {
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "po_boxes",
+      "name": "PO Boxes",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "package_lockers",
+      "name": "Package Lockers",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "package_room",
+      "name": "Package Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "package_sorting",
+      "name": "Package Sorting",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "packing_supplies",
+      "name": "Packing Supplies",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "paint_booth",
+      "name": "Paint Booth",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "panoramic_x_ray",
+      "name": "Panoramic X-Ray",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "parent_lounge",
+      "name": "Parent Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "parking",
+      "name": "Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parking_garage",
+      "name": "Parking Garage",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parking_lot",
+      "name": "Parking Lot",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parking_sensors",
+      "name": "Parking Sensors",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parking_structure",
+      "name": "Parking Structure",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parks_department",
+      "name": "Parks Department",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTUITION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "parts_department",
+      "name": "Parts Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "parts_storage",
+      "name": "Parts Storage",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "party_decks",
+      "name": "Party Decks",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTUITION": 2,
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "party_room",
+      "name": "Party Room",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTUITION": 2,
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "party_rooms",
+      "name": "Party Rooms",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTUITION": 2,
+        "STAMINA": -1
+      }
+    },
+    {
+      "id": "passport_services",
+      "name": "Passport Services",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "pastor_s_office",
+      "name": "Pastor's Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "patient_education",
+      "name": "Patient Education",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 2,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "patient_hotel",
+      "name": "Patient Hotel",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "patient_rooms",
+      "name": "Patient Rooms",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "patio_seating",
+      "name": "Patio Seating",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "patios",
+      "name": "Patios",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "payment_kiosk",
+      "name": "Payment Kiosk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "payment_machines",
+      "name": "Payment Machines",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "payment_terminal",
+      "name": "Payment Terminal",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "pediatric_unit",
+      "name": "Pediatric Unit",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "periodicals_section",
+      "name": "Periodicals Section",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "permit_center",
+      "name": "Permit Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "personal_shopping",
+      "name": "Personal Shopping",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "personal_training",
+      "name": "Personal Training",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "pet_friendly_rooms",
+      "name": "Pet Friendly Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "pet_retail",
+      "name": "Pet Retail",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "pet_spa",
+      "name": "Pet Spa",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "pet_washing_station",
+      "name": "Pet Washing Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "pharmacy",
+      "name": "Pharmacy",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "phone_booths",
+      "name": "Phone Booths",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "photo_center",
+      "name": "Photo Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "photography_studio",
+      "name": "Photography Studio",
+      "attribute_modifiers": {
+        "INTUITION": 2,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "physical_therapy",
+      "name": "Physical Therapy",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "pick_and_pack",
+      "name": "Pick and Pack",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "planning_department",
+      "name": "Planning Department",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "platforms",
+      "name": "Platforms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "play_area",
+      "name": "Play Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "playground",
+      "name": "Playground",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "playrooms",
+      "name": "Playrooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "podcast_studio",
+      "name": "Podcast Studio",
+      "attribute_modifiers": {
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "point_of_sale",
+      "name": "Point of Sale",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "pool",
+      "name": "Pool",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "prayer_hall",
+      "name": "Prayer Hall",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "prayer_room",
+      "name": "Prayer Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "premium_large_format",
+      "name": "Premium Large Format",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "preschool_classroom",
+      "name": "Preschool Classroom",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "prescription_counter",
+      "name": "Prescription Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "presidential_suite",
+      "name": "Presidential Suite",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 2
+      }
+    },
+    {
+      "id": "press_box",
+      "name": "Press Box",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "press_room",
+      "name": "Press Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "principal_office",
+      "name": "Principal Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "print_center",
+      "name": "Print Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "private_beach",
+      "name": "Private Beach",
+      "attribute_modifiers": {
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_cinema",
+      "name": "Private Cinema",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_dining",
+      "name": "Private Dining",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_dining_room",
+      "name": "Private Dining Room",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_elevator",
+      "name": "Private Elevator",
+      "attribute_modifiers": {
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_events_space",
+      "name": "Private Events Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_garages",
+      "name": "Private Garages",
+      "attribute_modifiers": {
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "private_karaoke",
+      "name": "Private Karaoke",
+      "attribute_modifiers": {
+        "CHARISMA": 2
+      }
+    },
+    {
+      "id": "private_offices",
+      "name": "Private Offices",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "pro_shop",
+      "name": "Pro Shop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "probation_office",
+      "name": "Probation Office",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "INTELLIGENCE": 1,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "procedure_room",
+      "name": "Procedure Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "product_display",
+      "name": "Product Display",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "projection_booth",
+      "name": "Projection Booth",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "propane_exchange",
+      "name": "Propane Exchange",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "public_defender",
+      "name": "Public Defender",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "public_works",
+      "name": "Public Works",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "qc_station",
+      "name": "QC Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "quality_control_lab",
+      "name": "Quality Control Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "quiet_reading_room",
+      "name": "Quiet Reading Room",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "rv_parking",
+      "name": "RV Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "rabbi_s_office",
+      "name": "Rabbi's Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "racking",
+      "name": "Racking",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "raised_floor",
+      "name": "Raised Floor",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "raw_material_storage",
+      "name": "Raw Material Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "reception",
+      "name": "Reception",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "reception_area",
+      "name": "Reception Area",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "reception_desk",
+      "name": "Reception Desk",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "recliner_seats",
+      "name": "Recliner Seats",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "records_office",
+      "name": "Records Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "records_room",
+      "name": "Records Room",
+      "attribute_modifiers": {
+        "MEMORY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "records_storage",
+      "name": "Records Storage",
+      "attribute_modifiers": {
+        "MEMORY": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "records_vault",
+      "name": "Records Vault",
+      "attribute_modifiers": {
+        "MEMORY": 2,
+        "PERCEPTION": 2,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "recovery_room",
+      "name": "Recovery Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "recycling_area",
+      "name": "Recycling Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "recycling_center",
+      "name": "Recycling Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "reference_desk",
+      "name": "Reference Desk",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 2
+      }
+    },
+    {
+      "id": "refrigerated_meds",
+      "name": "Refrigerated Meds",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "refrigeration",
+      "name": "Refrigeration",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "rehabilitation_center",
+      "name": "Rehabilitation Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "religious_school",
+      "name": "Religious School",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "repair_bench",
+      "name": "Repair Bench",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "research_labs",
+      "name": "Research Labs",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "residents_gym",
+      "name": "Residents Gym",
+      "attribute_modifiers": {
+        "STAMINA": 2,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "residents_only_elevator",
+      "name": "Residents Only Elevator",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "restaurant",
+      "name": "Restaurant",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "restaurant_space",
+      "name": "Restaurant Space",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "restrooms",
+      "name": "Restrooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "retail_counter",
+      "name": "Retail Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "retail_kiosks",
+      "name": "Retail Kiosks",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "retail_section",
+      "name": "Retail Section",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "retail_shops",
+      "name": "Retail Shops",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "retail_space",
+      "name": "Retail Space",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "returns_processing",
+      "name": "Returns Processing",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "roasting_equipment",
+      "name": "Roasting Equipment",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "roll_call_room",
+      "name": "Roll Call Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "roll_up_doors",
+      "name": "Roll-Up Doors",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "rolling_carts",
+      "name": "Rolling Carts",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "roof_garden",
+      "name": "Roof Garden",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "rooftop_bar",
+      "name": "Rooftop Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "rooftop_deck",
+      "name": "Rooftop Deck",
+      "attribute_modifiers": {
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "rooftop_lounge",
+      "name": "Rooftop Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "rooftop_pool",
+      "name": "Rooftop Pool",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "rooftop_terrace",
+      "name": "Rooftop Terrace",
+      "attribute_modifiers": {
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "room_service",
+      "name": "Room Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "safe_deposit_boxes",
+      "name": "Safe Deposit Boxes",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "safe_display",
+      "name": "Safe Display",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sanctuary",
+      "name": "Sanctuary",
+      "attribute_modifiers": {
+        "EMPATHY": 2,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "sauna",
+      "name": "Sauna",
+      "attribute_modifiers": {
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "scale_station",
+      "name": "Scale Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "science_building",
+      "name": "Science Building",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "science_lab",
+      "name": "Science Lab",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "science_labs",
+      "name": "Science Labs",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "seafood_counter",
+      "name": "Seafood Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "seating_area",
+      "name": "Seating Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_camera",
+      "name": "Security Camera",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_camera_demo_wall",
+      "name": "Security Camera Demo Wall",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_cameras",
+      "name": "Security Cameras",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_checkpoint",
+      "name": "Security Checkpoint",
+      "attribute_modifiers": {
+        "INTIMIDATION": 2,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_desk",
+      "name": "Security Desk",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_office",
+      "name": "Security Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_operations",
+      "name": "Security Operations",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "security_patrol",
+      "name": "Security Patrol",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "security_system",
+      "name": "Security System",
+      "attribute_modifiers": {
+        "INTIMIDATION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "self_checkout",
+      "name": "Self-Checkout",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "self_order_kiosk",
+      "name": "Self-Order Kiosk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "self_service_kiosk",
+      "name": "Self-Service Kiosk",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "senior_center",
+      "name": "Senior Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "server_room",
+      "name": "Server Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "server_rooms",
+      "name": "Server Rooms",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "service_bays",
+      "name": "Service Bays",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "service_center",
+      "name": "Service Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shampoo_bowls",
+      "name": "Shampoo Bowls",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shared_parking",
+      "name": "Shared Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "shipping_bay",
+      "name": "Shipping Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shipping_station",
+      "name": "Shipping Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shooting_range",
+      "name": "Shooting Range",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shopping_cart_corral",
+      "name": "Shopping Cart Corral",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "EMPATHY": 1,
+        "INTUITION": 2
+      }
+    },
+    {
+      "id": "shower_facilities",
+      "name": "Shower Facilities",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "showroom",
+      "name": "Showroom",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "shuttle_service",
+      "name": "Shuttle Service",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "signage_pylon",
+      "name": "Signage Pylon",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sky_lobby",
+      "name": "Sky Lobby",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sky_lounge",
+      "name": "Sky Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "snack_bar",
+      "name": "Snack Bar",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "social_hall",
+      "name": "Social Hall",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "soda_fountain",
+      "name": "Soda Fountain",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "solitary_confinement",
+      "name": "Solitary Confinement",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sommelier_station",
+      "name": "Sommelier Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sound_system",
+      "name": "Sound System",
+      "attribute_modifiers": {
+        "PERCEPTION": -1,
+        "STEALTH": -1
+      }
+    },
+    {
+      "id": "spa",
+      "name": "Spa",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "special_ed_room",
+      "name": "Special Ed Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "speed_bumps",
+      "name": "Speed Bumps",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "spin_room",
+      "name": "Spin Room",
+      "attribute_modifiers": {
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "sports_bar",
+      "name": "Sports Bar",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "staff_lounge",
+      "name": "Staff Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "staff_room",
+      "name": "Staff Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "stage",
+      "name": "Stage",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "stairwell",
+      "name": "Stairwell",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "stamp_vending",
+      "name": "Stamp Vending",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sterilization_room",
+      "name": "Sterilization Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "storage",
+      "name": "Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "storage_closet",
+      "name": "Storage Closet",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "storage_lot",
+      "name": "Storage Lot",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "storage_room",
+      "name": "Storage Room",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "storage_units",
+      "name": "Storage Units",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "storm_drains",
+      "name": "Storm Drains",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "striping",
+      "name": "Striping",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "student_center",
+      "name": "Student Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "study_rooms",
+      "name": "Study Rooms",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "styling_stations",
+      "name": "Styling Stations",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "sunday_school_rooms",
+      "name": "Sunday School Rooms",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "supervisor_office",
+      "name": "Supervisor Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "surgery_center",
+      "name": "Surgery Center",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "surgery_suite",
+      "name": "Surgery Suite",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 2,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "swimming_pool",
+      "name": "Swimming Pool",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "tv",
+      "name": "TV",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "take_out_counter",
+      "name": "Take-Out Counter",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "tasting_room",
+      "name": "Tasting Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "teacher_lounge",
+      "name": "Teacher Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "teaching_facility",
+      "name": "Teaching Facility",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "team_facilities",
+      "name": "Team Facilities",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "teen_zone",
+      "name": "Teen Zone",
+      "attribute_modifiers": {
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "teller_stations",
+      "name": "Teller Stations",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "tennis_court",
+      "name": "Tennis Court",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "terrace_gardens",
+      "name": "Terrace Gardens",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "test_drive_lot",
+      "name": "Test Drive Lot",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "testing_center",
+      "name": "Testing Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "theater_room",
+      "name": "Theater Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "ticket_office",
+      "name": "Ticket Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "tire_center",
+      "name": "Tire Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "tire_storage",
+      "name": "Tire Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "toddler_room",
+      "name": "Toddler Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "tool_crib",
+      "name": "Tool Crib",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "tool_storage",
+      "name": "Tool Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "towel_service",
+      "name": "Towel Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "track",
+      "name": "Track",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "training_center",
+      "name": "Training Center",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "training_facility",
+      "name": "Training Facility",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "training_room",
+      "name": "Training Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "transit_hub",
+      "name": "Transit Hub",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "transportation_service",
+      "name": "Transportation Service",
+      "attribute_modifiers": {
+        "AGILITY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "trash_chute",
+      "name": "Trash Chute",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "trash_enclosure",
+      "name": "Trash Enclosure",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "trauma_center",
+      "name": "Trauma Center",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STAMINA": 2
+      }
+    },
+    {
+      "id": "travel_services",
+      "name": "Travel Services",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "triage_area",
+      "name": "Triage Area",
+      "attribute_modifiers": {
+        "INTUITION": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "truck_bays",
+      "name": "Truck Bays",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ups_room",
+      "name": "UPS Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "underground_parking",
+      "name": "Underground Parking",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1,
+        "STEALTH": 2
+      }
+    },
+    {
+      "id": "underground_tanks",
+      "name": "Underground Tanks",
+      "attribute_modifiers": {
+        "STEALTH": 2
+      }
+    },
+    {
+      "id": "used_car_lot",
+      "name": "Used Car Lot",
+      "attribute_modifiers": {
+        "AGILITY": 1
+      }
+    },
+    {
+      "id": "vip_entrance",
+      "name": "VIP Entrance",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "vip_lanes",
+      "name": "VIP Lanes",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "vip_lounge",
+      "name": "VIP Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "vip_parking",
+      "name": "VIP Parking",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 1,
+        "INTIMIDATION": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "vip_seating",
+      "name": "VIP Seating",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "INTIMIDATION": 1
+      }
+    },
+    {
+      "id": "vaccine_station",
+      "name": "Vaccine Station",
+      "attribute_modifiers": {
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "vacuum_station",
+      "name": "Vacuum Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "valet_parking",
+      "name": "Valet Parking",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1,
+        "PERCEPTION": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "valet_service",
+      "name": "Valet Service",
+      "attribute_modifiers": {
+        "CHARISMA": 1
+      }
+    },
+    {
+      "id": "vault",
+      "name": "Vault",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "vehicle_storage",
+      "name": "Vehicle Storage",
+      "attribute_modifiers": {
+        "MEMORY": 1
+      }
+    },
+    {
+      "id": "vending",
+      "name": "Vending",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "vending_machines",
+      "name": "Vending Machines",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ventilation",
+      "name": "Ventilation",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "ventilation_system",
+      "name": "Ventilation System",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "visitation_room",
+      "name": "Visitation Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "visitor_center",
+      "name": "Visitor Center",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "wait_station",
+      "name": "Wait Station",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "waiting_area",
+      "name": "Waiting Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "waiting_room",
+      "name": "Waiting Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "walk_in_closet",
+      "name": "Walk-In Closet",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "walk_in_cooler",
+      "name": "Walk-In Cooler",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "walk_in_freezer",
+      "name": "Walk-In Freezer",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "warden_office",
+      "name": "Warden Office",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "wash_bay",
+      "name": "Wash Bay",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "waxing_room",
+      "name": "Waxing Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "weight_room",
+      "name": "Weight Room",
+      "attribute_modifiers": {
+        "STAMINA": 1,
+        "STRENGTH": 2
+      }
+    },
+    {
+      "id": "welding_shop",
+      "name": "Welding Shop",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "wellness_room",
+      "name": "Wellness Room",
+      "attribute_modifiers": {
+        "EMPATHY": 1,
+        "STAMINA": 1
+      }
+    },
+    {
+      "id": "whitening_room",
+      "name": "Whitening Room",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "wifi",
+      "name": "WiFi",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1
+      }
+    },
+    {
+      "id": "wine_cellar",
+      "name": "Wine Cellar",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "PERCEPTION": 1,
+        "STEALTH": 1
+      }
+    },
+    {
+      "id": "wine_storage",
+      "name": "Wine Storage",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "MEMORY": 1,
+        "PERCEPTION": 1
+      }
+    },
+    {
+      "id": "witness_waiting_area",
+      "name": "Witness Waiting Area",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "women_s_section",
+      "name": "Women's Section",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "woodshop",
+      "name": "Woodshop",
+      "attribute_modifiers": {
+        "PERCEPTION": 1,
+        "STRENGTH": 1
+      }
+    },
+    {
+      "id": "workshop",
+      "name": "Workshop",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "x_ray",
+      "name": "X-Ray",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "x_ray_equipment",
+      "name": "X-Ray Equipment",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "x_ray_room",
+      "name": "X-Ray Room",
+      "attribute_modifiers": {
+        "INTELLIGENCE": 1,
+        "PERCEPTION": 2
+      }
+    },
+    {
+      "id": "yacht_service",
+      "name": "Yacht Service",
+      "attribute_modifiers": {}
+    },
+    {
+      "id": "yoga_studio",
+      "name": "Yoga Studio",
+      "attribute_modifiers": {
+        "AGILITY": 2,
+        "EMPATHY": 1,
+        "INTUITION": 1
+      }
+    },
+    {
+      "id": "youth_center",
+      "name": "Youth Center",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    },
+    {
+      "id": "youth_lounge",
+      "name": "Youth Lounge",
+      "attribute_modifiers": {
+        "CHARISMA": 2,
+        "EMPATHY": 2
+      }
+    },
+    {
+      "id": "youth_room",
+      "name": "Youth Room",
+      "attribute_modifiers": {
+        "CHARISMA": 1,
+        "EMPATHY": 1
+      }
+    }
+  ]
+}
