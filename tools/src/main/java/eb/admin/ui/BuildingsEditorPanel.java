@@ -41,6 +41,23 @@ public class BuildingsEditorPanel extends JPanel {
     private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
     private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
 
+    /**
+     * Description sub-field keys (relative to the "description" object).
+     * Each entry maps to a table column starting at {@link #DESC_COL_START}.
+     */
+    private static final String[] DESC_COL_KEYS = {
+        "default",
+        "time.morning", "time.afternoon", "time.evening", "time.night",
+        "gender.male", "gender.female",
+        "state.good", "state.normal", "state.bad",
+        "attribute.AGILITY", "attribute.CHARISMA", "attribute.EMPATHY",
+        "attribute.INTELLIGENCE", "attribute.INTIMIDATION", "attribute.INTUITION",
+        "attribute.MEMORY", "attribute.PERCEPTION", "attribute.STAMINA",
+        "attribute.STEALTH", "attribute.STRENGTH"
+    };
+    /** Column index of the first description sub-field column. */
+    private static final int DESC_COL_START = 10;
+
     private final JTextField versionField  = new JTextField(8);
     private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
     private final JTextField fileField = new JTextField();
@@ -108,8 +125,11 @@ public class BuildingsEditorPanel extends JPanel {
         table.getColumnModel().getColumn(6).setPreferredWidth(80);    // Capacity
         table.getColumnModel().getColumn(7).setPreferredWidth(90);    // Percentage
         table.getColumnModel().getColumn(8).setPreferredWidth(320);   // Improvements
-        table.getColumnModel().getColumn(9).setPreferredWidth(300);   // Attr Modifiers
-        table.getColumnModel().getColumn(10).setPreferredWidth(500);  // Description
+        table.getColumnModel().getColumn(9).setPreferredWidth(260);   // Attr Modifiers
+        // description sub-columns (cols 10-30)
+        for (int i = DESC_COL_START; i < DESC_COL_START + DESC_COL_KEYS.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(300);
+        }
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JButton addBtn    = new JButton("Add Row");
@@ -117,7 +137,11 @@ public class BuildingsEditorPanel extends JPanel {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            tableModel.addRow(new Object[]{"", "", "", "", "", "", "", "", "", "", ""});
+            tableModel.addRow(new Object[]{
+                    "", "", "", "", "", "", "", "", "", "",  // 10 fixed cols
+                    "", "", "", "", "", "", "", "", "", "",  // desc cols 10-19
+                    "", "", "", "", "", "", "", "", "", "", ""  // desc cols 20-30
+            });
             originalObjects.add(new JsonObject());
             int last = tableModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
@@ -251,7 +275,6 @@ public class BuildingsEditorPanel extends JPanel {
                     rows.add(el.getAsJsonObject());
                 }
                 rows.sort(Comparator.comparing(o -> (o.has("id") ? o.get("id").getAsString() : "")));
-                Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
                 for (JsonObject entry : rows) {
                     String id            = entry.has("id")           ? entry.get("id").getAsString()           : "";
                     String name          = entry.has("name")         ? entry.get("name").getAsString()         : "";
@@ -271,14 +294,29 @@ public class BuildingsEditorPanel extends JPanel {
                         }
                         improvements = String.join(", ", imps);
                     }
-                    String attrModifiers = entry.has("attribute_modifiers")
-                            ? prettyGson.toJson(entry.get("attribute_modifiers")) : "";
-                    String description   = entry.has("description")
-                            ? prettyGson.toJson(entry.get("description")) : "";
-                    tableModel.addRow(new Object[]{
-                            id, name, cat,
-                            minFloors, maxFloors, unitsPerFloor, capacity, percentage,
-                            improvements, attrModifiers, description});
+                    // Attr modifiers: display as flat "KEY": value pairs without braces
+                    String attrModifiers = "";
+                    if (entry.has("attribute_modifiers") && entry.get("attribute_modifiers").isJsonObject()) {
+                        attrModifiers = attrModToFlatString(entry.getAsJsonObject("attribute_modifiers"));
+                    }
+                    // Description: one cell per sub-field
+                    JsonObject desc = entry.has("description") && entry.get("description").isJsonObject()
+                            ? entry.getAsJsonObject("description") : null;
+                    Object[] rowData = new Object[DESC_COL_START + DESC_COL_KEYS.length];
+                    rowData[0] = id;
+                    rowData[1] = name;
+                    rowData[2] = cat;
+                    rowData[3] = minFloors;
+                    rowData[4] = maxFloors;
+                    rowData[5] = unitsPerFloor;
+                    rowData[6] = capacity;
+                    rowData[7] = percentage;
+                    rowData[8] = improvements;
+                    rowData[9] = attrModifiers;
+                    for (int i = 0; i < DESC_COL_KEYS.length; i++) {
+                        rowData[DESC_COL_START + i] = descFieldValue(desc, DESC_COL_KEYS[i]);
+                    }
+                    tableModel.addRow(rowData);
                     originalObjects.add(entry);
                 }
             }
@@ -327,7 +365,6 @@ public class BuildingsEditorPanel extends JPanel {
                 String percentageStr    = cellStr(r, 7);
                 String improvementsStr  = cellStr(r, 8);
                 String attrModStr       = cellStr(r, 9);
-                String descriptionStr   = cellStr(r, 10);
 
                 JsonObject original = r < originalObjects.size() ? originalObjects.get(r) : new JsonObject();
                 JsonObject entry = new JsonObject();
@@ -353,10 +390,15 @@ public class BuildingsEditorPanel extends JPanel {
                 }
                 entry.add("improvements", impsArray);
 
-                // Attribute modifiers – parse JSON string from cell, fall back to original
+                // Attribute modifiers – flat string "KEY": value → JSON object
                 if (!attrModStr.trim().isEmpty()) {
                     try {
-                        entry.add("attribute_modifiers", parseGson.fromJson(attrModStr, JsonElement.class));
+                        JsonObject parsed = parseGson.fromJson("{" + attrModStr.trim() + "}", JsonObject.class);
+                        if (parsed != null) {
+                            entry.add("attribute_modifiers", parsed);
+                        } else if (original.has("attribute_modifiers")) {
+                            entry.add("attribute_modifiers", original.get("attribute_modifiers"));
+                        }
                     } catch (Exception ex) {
                         if (original.has("attribute_modifiers")) {
                             entry.add("attribute_modifiers", original.get("attribute_modifiers"));
@@ -366,15 +408,24 @@ public class BuildingsEditorPanel extends JPanel {
                     entry.add("attribute_modifiers", original.get("attribute_modifiers"));
                 }
 
-                // Description – parse JSON string from cell, fall back to original
-                if (!descriptionStr.trim().isEmpty()) {
-                    try {
-                        entry.add("description", parseGson.fromJson(descriptionStr, JsonElement.class));
-                    } catch (Exception ex) {
-                        if (original.has("description")) {
-                            entry.add("description", original.get("description"));
+                // Description – reconstruct from individual sub-field columns
+                JsonObject descObj = new JsonObject();
+                for (int i = 0; i < DESC_COL_KEYS.length; i++) {
+                    String val = cellStr(r, DESC_COL_START + i);
+                    if (!val.trim().isEmpty()) {
+                        String[] parts = DESC_COL_KEYS[i].split("\\.", 2);
+                        if (parts.length == 1) {
+                            descObj.addProperty(parts[0], val);
+                        } else {
+                            if (!descObj.has(parts[0]) || !descObj.get(parts[0]).isJsonObject()) {
+                                descObj.add(parts[0], new JsonObject());
+                            }
+                            descObj.getAsJsonObject(parts[0]).addProperty(parts[1], val);
                         }
                     }
+                }
+                if (descObj.size() > 0) {
+                    entry.add("description", descObj);
                 } else if (original.has("description")) {
                     entry.add("description", original.get("description"));
                 }
@@ -421,9 +472,23 @@ public class BuildingsEditorPanel extends JPanel {
 
     private static DefaultTableModel createModel() {
         return new DefaultTableModel(
-                new String[]{"ID", "Name", "Category",
+                new String[]{
+                        "ID", "Name", "Category",
                         "Min Floors", "Max Floors", "Units/Floor", "Capacity", "Percentage",
-                        "Improvements", "Attr Modifiers", "Description"}, 0) {
+                        "Improvements", "Attr Modifiers",
+                        // description sub-columns
+                        "desc.default",
+                        "desc.time.morning", "desc.time.afternoon",
+                        "desc.time.evening", "desc.time.night",
+                        "desc.gender.male", "desc.gender.female",
+                        "desc.state.good", "desc.state.normal", "desc.state.bad",
+                        "desc.attribute.AGILITY", "desc.attribute.CHARISMA",
+                        "desc.attribute.EMPATHY", "desc.attribute.INTELLIGENCE",
+                        "desc.attribute.INTIMIDATION", "desc.attribute.INTUITION",
+                        "desc.attribute.MEMORY", "desc.attribute.PERCEPTION",
+                        "desc.attribute.STAMINA", "desc.attribute.STEALTH",
+                        "desc.attribute.STRENGTH"
+                }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;
@@ -458,6 +523,41 @@ public class BuildingsEditorPanel extends JPanel {
         if (original.has(field)) {
             entry.add(field, original.get(field));
         }
+    }
+
+    /**
+     * Converts an attribute_modifiers JSON object to a flat display string.
+     * E.g. {"INTELLIGENCE": 3, "MEMORY": 2} → "INTELLIGENCE": 3, "MEMORY": 2
+     * Keys are sorted alphabetically for consistent display order.
+     * JsonElement.toString() is used to preserve correct JSON types (numbers
+     * without extra quotes, strings with quotes) for round-trip save/load.
+     */
+    private static String attrModToFlatString(JsonObject attrMod) {
+        StringBuilder sb = new StringBuilder();
+        attrMod.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(kv -> {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append('"').append(kv.getKey()).append("\": ").append(kv.getValue().toString());
+                });
+        return sb.toString();
+    }
+
+    /**
+     * Reads a single leaf value from the description object using a dotted key such as
+     * "default", "time.morning", "gender.male", "attribute.AGILITY".
+     */
+    private static String descFieldValue(JsonObject desc, String key) {
+        if (desc == null) return "";
+        String[] parts = key.split("\\.", 2);
+        if (parts.length == 1) {
+            JsonElement el = desc.get(parts[0]);
+            return (el != null && !el.isJsonNull() && el.isJsonPrimitive()) ? el.getAsString() : "";
+        }
+        JsonElement parent = desc.get(parts[0]);
+        if (parent == null || !parent.isJsonObject()) return "";
+        JsonElement el = parent.getAsJsonObject().get(parts[1]);
+        return (el != null && !el.isJsonNull() && el.isJsonPrimitive()) ? el.getAsString() : "";
     }
 
     // -------------------------------------------------------------------------
