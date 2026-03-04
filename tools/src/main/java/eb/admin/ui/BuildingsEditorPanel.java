@@ -324,9 +324,12 @@ public class BuildingsEditorPanel extends JPanel {
                     }
                 }
                 entry.add("improvements", impsArray);
-                // Preserve attribute_modifiers if present in the original
+                // Preserve attribute_modifiers and description if present in the original
                 if (original.has("attribute_modifiers")) {
                     entry.add("attribute_modifiers", original.get("attribute_modifiers"));
+                }
+                if (original.has("description")) {
+                    entry.add("description", original.get("description"));
                 }
                 buildings.add(entry);
             }

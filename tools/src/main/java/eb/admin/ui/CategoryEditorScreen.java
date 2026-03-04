@@ -37,9 +37,8 @@ import java.util.Map;
  *   2. Item Categories      – code, description
  *   3. Evidence Categories  – code, description
  *   4. Case Types           – code, description
- *   5. Descriptions         – key, default description text (description_en.json)
- *   6. Buildings            – id, name, category, description, improvements (buildings_en.json)
- *   7. Company Types        – id, name, description, buildings (company_types_en.json)
+ *   5. Buildings            – id, name, category, description, improvements (buildings_en.json)
+ *   6. Company Types        – id, name, description, buildings (company_types_en.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -64,7 +63,6 @@ public class CategoryEditorScreen extends JFrame {
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
 
-    private final DescriptionEditorPanel descPanel         = new DescriptionEditorPanel(statusLabel);
     private final BuildingsEditorPanel   buildingsPanel    = new BuildingsEditorPanel(statusLabel);
     private final CompanyTypesEditorPanel companyTypesPanel = new CompanyTypesEditorPanel(statusLabel);
 
@@ -112,9 +110,8 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories", "Descriptions", "Buildings", and "Company Types"
+        // Outer tabs: "Categories", "Buildings", and "Company Types"
         tabbedPane.addTab("Categories",    categoriesPanel);
-        tabbedPane.addTab("Descriptions",  descPanel);
         tabbedPane.addTab("Buildings",     buildingsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
         add(tabbedPane, BorderLayout.CENTER);
