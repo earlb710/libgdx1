@@ -99,10 +99,17 @@ public class BuildingsEditorPanel extends JPanel {
         table.setRowHeight(26);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
-        table.getColumnModel().getColumn(0).setPreferredWidth(160);
-        table.getColumnModel().getColumn(1).setPreferredWidth(180);
-        table.getColumnModel().getColumn(2).setPreferredWidth(120);
-        table.getColumnModel().getColumn(3).setPreferredWidth(420);
+        table.getColumnModel().getColumn(0).setPreferredWidth(160);   // ID
+        table.getColumnModel().getColumn(1).setPreferredWidth(180);   // Name
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);   // Category
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);    // Min Floors
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);    // Max Floors
+        table.getColumnModel().getColumn(5).setPreferredWidth(90);    // Units/Floor
+        table.getColumnModel().getColumn(6).setPreferredWidth(80);    // Capacity
+        table.getColumnModel().getColumn(7).setPreferredWidth(90);    // Percentage
+        table.getColumnModel().getColumn(8).setPreferredWidth(320);   // Improvements
+        table.getColumnModel().getColumn(9).setPreferredWidth(300);   // Attr Modifiers
+        table.getColumnModel().getColumn(10).setPreferredWidth(500);  // Description
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JButton addBtn    = new JButton("Add Row");
@@ -110,7 +117,7 @@ public class BuildingsEditorPanel extends JPanel {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            tableModel.addRow(new Object[]{"", "", "", ""});
+            tableModel.addRow(new Object[]{"", "", "", "", "", "", "", "", "", "", ""});
             originalObjects.add(new JsonObject());
             int last = tableModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
@@ -244,11 +251,17 @@ public class BuildingsEditorPanel extends JPanel {
                     rows.add(el.getAsJsonObject());
                 }
                 rows.sort(Comparator.comparing(o -> (o.has("id") ? o.get("id").getAsString() : "")));
+                Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
                 for (JsonObject entry : rows) {
-                    String id   = entry.has("id")       ? entry.get("id").getAsString()       : "";
-                    String name = entry.has("name")     ? entry.get("name").getAsString()     : "";
-                    String cat  = entry.has("category") ? entry.get("category").getAsString() : "";
-                    String improvements = "";
+                    String id            = entry.has("id")           ? entry.get("id").getAsString()           : "";
+                    String name          = entry.has("name")         ? entry.get("name").getAsString()         : "";
+                    String cat           = entry.has("category")     ? entry.get("category").getAsString()     : "";
+                    String minFloors     = entry.has("minFloors")    ? entry.get("minFloors").getAsString()    : "";
+                    String maxFloors     = entry.has("maxFloors")    ? entry.get("maxFloors").getAsString()    : "";
+                    String unitsPerFloor = entry.has("unitsPerFloor") ? entry.get("unitsPerFloor").getAsString() : "";
+                    String capacity      = entry.has("capacity")     ? entry.get("capacity").getAsString()     : "";
+                    String percentage    = entry.has("percentage")   ? entry.get("percentage").getAsString()   : "";
+                    String improvements  = "";
                     if (entry.has("improvements") && entry.get("improvements").isJsonArray()) {
                         List<String> imps = new ArrayList<>();
                         for (JsonElement imp : entry.getAsJsonArray("improvements")) {
@@ -258,7 +271,14 @@ public class BuildingsEditorPanel extends JPanel {
                         }
                         improvements = String.join(", ", imps);
                     }
-                    tableModel.addRow(new Object[]{id, name, cat, improvements});
+                    String attrModifiers = entry.has("attribute_modifiers")
+                            ? prettyGson.toJson(entry.get("attribute_modifiers")) : "";
+                    String description   = entry.has("description")
+                            ? prettyGson.toJson(entry.get("description")) : "";
+                    tableModel.addRow(new Object[]{
+                            id, name, cat,
+                            minFloors, maxFloors, unitsPerFloor, capacity, percentage,
+                            improvements, attrModifiers, description});
                     originalObjects.add(entry);
                 }
             }
@@ -295,24 +315,33 @@ public class BuildingsEditorPanel extends JPanel {
             root.addProperty("language", (String) languageCombo.getSelectedItem());
 
             JsonArray buildings = new JsonArray();
+            Gson parseGson = new Gson();
             for (int r = 0; r < tableModel.getRowCount(); r++) {
-                String id              = cellStr(r, 0);
-                String name            = cellStr(r, 1);
-                String category        = cellStr(r, 2);
-                String improvementsStr = cellStr(r, 3);
+                String id               = cellStr(r, 0);
+                String name             = cellStr(r, 1);
+                String category         = cellStr(r, 2);
+                String minFloorsStr     = cellStr(r, 3);
+                String maxFloorsStr     = cellStr(r, 4);
+                String unitsPerFloorStr = cellStr(r, 5);
+                String capacityStr      = cellStr(r, 6);
+                String percentageStr    = cellStr(r, 7);
+                String improvementsStr  = cellStr(r, 8);
+                String attrModStr       = cellStr(r, 9);
+                String descriptionStr   = cellStr(r, 10);
 
-                // Start from the original object to preserve numeric fields
                 JsonObject original = r < originalObjects.size() ? originalObjects.get(r) : new JsonObject();
                 JsonObject entry = new JsonObject();
-                entry.addProperty("id",          id);
-                entry.addProperty("name",        name);
-                entry.addProperty("category",    category);
-                // Copy preserved numeric fields in their original order
-                for (String numField : new String[]{"minFloors", "maxFloors", "unitsPerFloor", "capacity", "percentage"}) {
-                    if (original.has(numField)) {
-                        entry.add(numField, original.get(numField));
-                    }
-                }
+                entry.addProperty("id",       id);
+                entry.addProperty("name",     name);
+                entry.addProperty("category", category);
+
+                // Numeric fields – use the edited table value, fall back to original
+                addIntField(entry,    "minFloors",     minFloorsStr,     original);
+                addIntField(entry,    "maxFloors",     maxFloorsStr,     original);
+                addIntField(entry,    "unitsPerFloor", unitsPerFloorStr, original);
+                addIntField(entry,    "capacity",      capacityStr,      original);
+                addDoubleField(entry, "percentage",    percentageStr,    original);
+
                 JsonArray impsArray = new JsonArray();
                 if (!improvementsStr.isEmpty()) {
                     for (String imp : improvementsStr.split(",")) {
@@ -323,13 +352,33 @@ public class BuildingsEditorPanel extends JPanel {
                     }
                 }
                 entry.add("improvements", impsArray);
-                // Preserve attribute_modifiers and description if present in the original
-                if (original.has("attribute_modifiers")) {
+
+                // Attribute modifiers – parse JSON string from cell, fall back to original
+                if (!attrModStr.trim().isEmpty()) {
+                    try {
+                        entry.add("attribute_modifiers", parseGson.fromJson(attrModStr, JsonElement.class));
+                    } catch (Exception ex) {
+                        if (original.has("attribute_modifiers")) {
+                            entry.add("attribute_modifiers", original.get("attribute_modifiers"));
+                        }
+                    }
+                } else if (original.has("attribute_modifiers")) {
                     entry.add("attribute_modifiers", original.get("attribute_modifiers"));
                 }
-                if (original.has("description")) {
+
+                // Description – parse JSON string from cell, fall back to original
+                if (!descriptionStr.trim().isEmpty()) {
+                    try {
+                        entry.add("description", parseGson.fromJson(descriptionStr, JsonElement.class));
+                    } catch (Exception ex) {
+                        if (original.has("description")) {
+                            entry.add("description", original.get("description"));
+                        }
+                    }
+                } else if (original.has("description")) {
                     entry.add("description", original.get("description"));
                 }
+
                 buildings.add(entry);
             }
             root.add("buildings", buildings);
@@ -371,7 +420,10 @@ public class BuildingsEditorPanel extends JPanel {
     }
 
     private static DefaultTableModel createModel() {
-        return new DefaultTableModel(new String[]{"ID", "Name", "Category", "Improvements"}, 0) {
+        return new DefaultTableModel(
+                new String[]{"ID", "Name", "Category",
+                        "Min Floors", "Max Floors", "Units/Floor", "Capacity", "Percentage",
+                        "Improvements", "Attr Modifiers", "Description"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;
@@ -382,6 +434,30 @@ public class BuildingsEditorPanel extends JPanel {
     private String cellStr(int row, int col) {
         Object val = tableModel.getValueAt(row, col);
         return val != null ? val.toString() : "";
+    }
+
+    private static void addIntField(JsonObject entry, String field, String raw, JsonObject original) {
+        if (!raw.trim().isEmpty()) {
+            try {
+                entry.addProperty(field, Integer.parseInt(raw.trim()));
+                return;
+            } catch (NumberFormatException ignored) { /* fall through */ }
+        }
+        if (original.has(field)) {
+            entry.add(field, original.get(field));
+        }
+    }
+
+    private static void addDoubleField(JsonObject entry, String field, String raw, JsonObject original) {
+        if (!raw.trim().isEmpty()) {
+            try {
+                entry.addProperty(field, Double.parseDouble(raw.trim()));
+                return;
+            } catch (NumberFormatException ignored) { /* fall through */ }
+        }
+        if (original.has(field)) {
+            entry.add(field, original.get(field));
+        }
     }
 
     // -------------------------------------------------------------------------
