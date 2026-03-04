@@ -271,7 +271,18 @@ public class GameDataManager {
         building.setUnitsPerFloor(json.getInt("unitsPerFloor"));
         building.setCapacity(json.getInt("capacity"));
         building.setPercentage(json.getDouble("percentage"));
-        building.setDescription(json.getString("description"));
+        // description is now a nested object; use description.default as the plain string
+        JsonValue descJson = json.get("description");
+        String descriptionDefault = "";
+        if (descJson != null) {
+            if (descJson.isObject()) {
+                descriptionDefault = descJson.getString("default", "");
+            } else {
+                // legacy flat-string fallback
+                descriptionDefault = descJson.asString();
+            }
+        }
+        building.setDescription(descriptionDefault);
 
         List<String> improvements = new ArrayList<>();
         JsonValue improvementsArray = json.get("improvements");

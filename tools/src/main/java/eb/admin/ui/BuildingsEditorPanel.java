@@ -71,6 +71,18 @@ public class BuildingsEditorPanel extends JPanel {
 
     private final JTable table = new JTable(tableModel) {
         @Override
+        public boolean editCellAt(int row, int column, java.util.EventObject e) {
+            if (e instanceof java.awt.event.MouseEvent
+                    && ((java.awt.event.MouseEvent) e).getClickCount() >= 2
+                    && column >= DESC_COL_START
+                    && tableModel.isCellEditable(row, column)) {
+                SwingUtilities.invokeLater(() -> openMultilineEditor(row, column));
+                return false;
+            }
+            return super.editCellAt(row, column, e);
+        }
+
+        @Override
         public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
             Component c = super.prepareRenderer(renderer, row, column);
             Object keyVal = tableModel.getValueAt(row, 0);
@@ -476,18 +488,18 @@ public class BuildingsEditorPanel extends JPanel {
                         "ID", "Name", "Category",
                         "Min Floors", "Max Floors", "Units/Floor", "Capacity", "Percentage",
                         "Improvements", "Attr Modifiers",
-                        // description sub-columns
-                        "desc.default",
-                        "desc.time.morning", "desc.time.afternoon",
-                        "desc.time.evening", "desc.time.night",
-                        "desc.gender.male", "desc.gender.female",
-                        "desc.state.good", "desc.state.normal", "desc.state.bad",
-                        "desc.attribute.AGILITY", "desc.attribute.CHARISMA",
-                        "desc.attribute.EMPATHY", "desc.attribute.INTELLIGENCE",
-                        "desc.attribute.INTIMIDATION", "desc.attribute.INTUITION",
-                        "desc.attribute.MEMORY", "desc.attribute.PERCEPTION",
-                        "desc.attribute.STAMINA", "desc.attribute.STEALTH",
-                        "desc.attribute.STRENGTH"
+                        // description sub-columns (no "desc." prefix)
+                        "default",
+                        "time.morning", "time.afternoon",
+                        "time.evening", "time.night",
+                        "gender.male", "gender.female",
+                        "state.good", "state.normal", "state.bad",
+                        "attribute.AGILITY", "attribute.CHARISMA",
+                        "attribute.EMPATHY", "attribute.INTELLIGENCE",
+                        "attribute.INTIMIDATION", "attribute.INTUITION",
+                        "attribute.MEMORY", "attribute.PERCEPTION",
+                        "attribute.STAMINA", "attribute.STEALTH",
+                        "attribute.STRENGTH"
                 }, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -499,6 +511,42 @@ public class BuildingsEditorPanel extends JPanel {
     private String cellStr(int row, int col) {
         Object val = tableModel.getValueAt(row, col);
         return val != null ? val.toString() : "";
+    }
+
+    /** Opens a scrollable multiline dialog pre-filled with the current cell value. */
+    private void openMultilineEditor(int row, int col) {
+        String current = cellStr(row, col);
+        String colName = tableModel.getColumnName(col);
+
+        JTextArea textArea = new JTextArea(current, 8, 50);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scroll = new JScrollPane(textArea);
+        scroll.setPreferredSize(new Dimension(520, 200));
+
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(owner, "Edit: " + colName, Dialog.ModalityType.APPLICATION_MODAL);
+
+        JButton okBtn     = new JButton("OK");
+        JButton cancelBtn = new JButton("Cancel");
+
+        okBtn.addActionListener(e -> {
+            tableModel.setValueAt(textArea.getText(), row, col);
+            dialog.dispose();
+        });
+        cancelBtn.addActionListener(e -> dialog.dispose());
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 4));
+        buttons.add(okBtn);
+        buttons.add(cancelBtn);
+
+        dialog.setLayout(new BorderLayout(0, 4));
+        dialog.add(scroll,   BorderLayout.CENTER);
+        dialog.add(buttons,  BorderLayout.SOUTH);
+        dialog.getRootPane().setDefaultButton(okBtn);
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
     private static void addIntField(JsonObject entry, String field, String raw, JsonObject original) {
