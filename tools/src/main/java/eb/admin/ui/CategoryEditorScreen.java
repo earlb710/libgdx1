@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class CategoryEditorScreen extends JFrame {
     // Metadata fields
     private final JTextField versionField = new JTextField(8);
     private final JTextField languageField = new JTextField(8);
+    private final JTextField fileField = new JTextField();
 
     // Tab pane and table models
     private final JTabbedPane tabbedPane = new JTabbedPane();
@@ -136,13 +138,24 @@ public class CategoryEditorScreen extends JFrame {
     }
 
     private JPanel buildMetaPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        fileField.setEditable(false);
+
+        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        metaTop.add(new JLabel("Version:"));
+        metaTop.add(versionField);
+        metaTop.add(Box.createHorizontalStrut(12));
+        metaTop.add(new JLabel("Language:"));
+        metaTop.add(languageField);
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(fileField, BorderLayout.CENTER);
+
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("File Metadata"));
-        panel.add(new JLabel("Version:"));
-        panel.add(versionField);
-        panel.add(Box.createHorizontalStrut(12));
-        panel.add(new JLabel("Language:"));
-        panel.add(languageField);
+        panel.add(metaTop, BorderLayout.NORTH);
+        panel.add(fileRow, BorderLayout.CENTER);
         return panel;
     }
 
@@ -298,6 +311,7 @@ public class CategoryEditorScreen extends JFrame {
             populateModel(caseModel,     data.getCase_types(),          false);
 
             currentFile = file;
+            fileField.setText(file.getAbsolutePath());
             setTitle(WINDOW_TITLE + " – " + file.getName());
             statusLabel.setText("Loaded: " + file.getAbsolutePath());
             loadAnnotationColors();
@@ -330,6 +344,7 @@ public class CategoryEditorScreen extends JFrame {
                 gson.toJson(data, writer);
             }
             setTitle(WINDOW_TITLE + " – " + currentFile.getName());
+            fileField.setText(currentFile.getAbsolutePath());
             statusLabel.setText("Saved: " + currentFile.getAbsolutePath());
             JOptionPane.showMessageDialog(this,
                     "File saved successfully.",
@@ -357,7 +372,9 @@ public class CategoryEditorScreen extends JFrame {
     private static void populateModel(DefaultTableModel model, List<CategoryEntry> entries, boolean hasColor) {
         model.setRowCount(0);
         if (entries == null) return;
-        for (CategoryEntry e : entries) {
+        List<CategoryEntry> sorted = new ArrayList<>(entries);
+        sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
+        for (CategoryEntry e : sorted) {
             if (hasColor) {
                 model.addRow(new Object[]{
                         nvl(e.getCode()),

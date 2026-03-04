@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ public class DescriptionEditorPanel extends JPanel {
 
     private final JTextField versionField = new JTextField(8);
     private final JTextField languageField = new JTextField(8);
+    private final JTextField fileField = new JTextField();
 
     private final DefaultTableModel tableModel = createModel();
     /** Maps "key\0column" → most-recent ratingId for background highlighting. */
@@ -226,13 +228,24 @@ public class DescriptionEditorPanel extends JPanel {
     }
 
     private JPanel buildNorthPanel() {
-        JPanel meta = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        fileField.setEditable(false);
+
+        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        metaTop.add(new JLabel("Version:"));
+        metaTop.add(versionField);
+        metaTop.add(Box.createHorizontalStrut(12));
+        metaTop.add(new JLabel("Language:"));
+        metaTop.add(languageField);
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(fileField, BorderLayout.CENTER);
+
+        JPanel meta = new JPanel(new BorderLayout());
         meta.setBorder(BorderFactory.createTitledBorder("File Metadata"));
-        meta.add(new JLabel("Version:"));
-        meta.add(versionField);
-        meta.add(Box.createHorizontalStrut(12));
-        meta.add(new JLabel("Language:"));
-        meta.add(languageField);
+        meta.add(metaTop,  BorderLayout.NORTH);
+        meta.add(fileRow,  BorderLayout.CENTER);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         JButton openBtn   = new JButton("Open…");
@@ -318,7 +331,11 @@ public class DescriptionEditorPanel extends JPanel {
             entryObjects.clear();
 
             if (root.has("descriptions")) {
-                for (Map.Entry<String, JsonElement> descEntry : root.getAsJsonObject("descriptions").entrySet()) {
+                // Sort entries alphabetically by key, then populate rows and entryObjects in that order
+                List<Map.Entry<String, JsonElement>> sortedEntries = new ArrayList<>(
+                        root.getAsJsonObject("descriptions").entrySet());
+                sortedEntries.sort(Comparator.comparing(Map.Entry::getKey));
+                for (Map.Entry<String, JsonElement> descEntry : sortedEntries) {
                     JsonElement value = descEntry.getValue();
                     JsonObject entry = firstObjectOf(value);
                     Object[] row = new Object[columnNames.size()];
@@ -339,6 +356,7 @@ public class DescriptionEditorPanel extends JPanel {
             }
 
             currentFile = file;
+            fileField.setText(file.getAbsolutePath());
             statusLabel.setText("Descriptions loaded: " + file.getAbsolutePath());
             loadAnnotationColors();
         } catch (Exception ex) {
@@ -408,6 +426,7 @@ public class DescriptionEditorPanel extends JPanel {
                 gson.toJson(root, writer);
             }
             statusLabel.setText("Descriptions saved: " + currentFile.getAbsolutePath());
+            fileField.setText(currentFile.getAbsolutePath());
             JOptionPane.showMessageDialog(this,
                     "File saved successfully.",
                     "Saved", JOptionPane.INFORMATION_MESSAGE);

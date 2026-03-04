@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class CompanyTypesEditorPanel extends JPanel {
 
     private final JTextField versionField  = new JTextField(8);
     private final JTextField languageField = new JTextField(8);
+    private final JTextField fileField = new JTextField();
 
     private final DefaultTableModel tableModel = createModel();
     private final Map<String, String> annotationRatings = new HashMap<>();
@@ -146,13 +148,24 @@ public class CompanyTypesEditorPanel extends JPanel {
     }
 
     private JPanel buildNorthPanel() {
-        JPanel meta = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
+        fileField.setEditable(false);
+
+        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        metaTop.add(new JLabel("Version:"));
+        metaTop.add(versionField);
+        metaTop.add(Box.createHorizontalStrut(12));
+        metaTop.add(new JLabel("Language:"));
+        metaTop.add(languageField);
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(fileField, BorderLayout.CENTER);
+
+        JPanel meta = new JPanel(new BorderLayout());
         meta.setBorder(BorderFactory.createTitledBorder("File Metadata"));
-        meta.add(new JLabel("Version:"));
-        meta.add(versionField);
-        meta.add(Box.createHorizontalStrut(12));
-        meta.add(new JLabel("Language:"));
-        meta.add(languageField);
+        meta.add(metaTop,  BorderLayout.NORTH);
+        meta.add(fileRow,  BorderLayout.CENTER);
 
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         JButton openBtn   = new JButton("Open…");
@@ -205,6 +218,8 @@ public class CompanyTypesEditorPanel extends JPanel {
 
             tableModel.setRowCount(0);
             if (root.has("types")) {
+                // Collect rows, then sort alphabetically by id (column 0)
+                List<Object[]> rows = new ArrayList<>();
                 for (JsonElement el : root.getAsJsonArray("types")) {
                     JsonObject entry = el.getAsJsonObject();
                     String id   = entry.has("id")   ? entry.get("id").getAsString()   : "";
@@ -218,11 +233,16 @@ public class CompanyTypesEditorPanel extends JPanel {
                         }
                         buildings = String.join(", ", bids);
                     }
-                    tableModel.addRow(new Object[]{id, name, desc, buildings});
+                    rows.add(new Object[]{id, name, desc, buildings});
+                }
+                rows.sort(Comparator.comparing(r -> r[0].toString()));
+                for (Object[] row : rows) {
+                    tableModel.addRow(row);
                 }
             }
 
             currentFile = file;
+            fileField.setText(file.getAbsolutePath());
             statusLabel.setText("Company types loaded: " + file.getAbsolutePath());
             loadAnnotationColors();
         } catch (Exception ex) {
@@ -283,6 +303,7 @@ public class CompanyTypesEditorPanel extends JPanel {
                 gson.toJson(root, writer);
             }
             statusLabel.setText("Company types saved: " + currentFile.getAbsolutePath());
+            fileField.setText(currentFile.getAbsolutePath());
             JOptionPane.showMessageDialog(this,
                     "File saved successfully.",
                     "Saved", JOptionPane.INFORMATION_MESSAGE);
