@@ -40,8 +40,10 @@ public class DescriptionEditorPanel extends JPanel {
     private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
 
     private final JTextField versionField = new JTextField(8);
-    private final JTextField languageField = new JTextField(8);
+    private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
     private final JTextField fileField = new JTextField();
+    /** When true, combo ActionListener does not trigger a language switch. */
+    private boolean suppressLangListener = false;
 
     private final DefaultTableModel tableModel = createModel();
     /** Maps "key\0column" → most-recent ratingId for background highlighting. */
@@ -95,6 +97,13 @@ public class DescriptionEditorPanel extends JPanel {
 
     private void buildUI() {
         setLayout(new BorderLayout(0, 4));
+
+        languageCombo.addActionListener(e -> {
+            if (!suppressLangListener) {
+                switchLanguage((String) languageCombo.getSelectedItem());
+            }
+        });
+
         add(buildNorthPanel(), BorderLayout.NORTH);
 
         table.setRowHeight(26);
@@ -235,7 +244,7 @@ public class DescriptionEditorPanel extends JPanel {
         metaTop.add(versionField);
         metaTop.add(Box.createHorizontalStrut(12));
         metaTop.add(new JLabel("Language:"));
-        metaTop.add(languageField);
+        metaTop.add(languageCombo);
 
         JPanel fileRow = new JPanel(new BorderLayout(4, 0));
         fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
@@ -294,7 +303,9 @@ public class DescriptionEditorPanel extends JPanel {
             JsonObject root = new Gson().fromJson(reader, JsonObject.class);
 
             versionField.setText(root.has("version") ? root.get("version").getAsString() : "");
-            languageField.setText(root.has("language") ? root.get("language").getAsString() : "");
+            suppressLangListener = true;
+            languageCombo.setSelectedItem(root.has("language") ? root.get("language").getAsString() : "en");
+            suppressLangListener = false;
 
             // First pass: collect all variant keys in encounter order (LinkedHashSet for O(1) dedup)
             LinkedHashSet<String> seen = new LinkedHashSet<>();
@@ -384,7 +395,7 @@ public class DescriptionEditorPanel extends JPanel {
         try {
             JsonObject root = new JsonObject();
             root.addProperty("version", versionField.getText().trim());
-            root.addProperty("language", languageField.getText().trim());
+            root.addProperty("language", (String) languageCombo.getSelectedItem());
 
             JsonObject descriptions = new JsonObject();
             int colCount = tableModel.getColumnCount();
@@ -440,6 +451,27 @@ public class DescriptionEditorPanel extends JPanel {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Called when the user picks a different language in the combo.
+     * Opens the corresponding file if it exists, or resets to a blank page otherwise.
+     */
+    private void switchLanguage(String newLang) {
+        if (currentFile == null) return;
+        File newFile = EditorUtils.deriveFileForLanguage(currentFile, newLang);
+        if (newFile == null) return;
+        if (newFile.exists()) {
+            loadFromFile(newFile);
+        } else {
+            // Blank page for the new language
+            tableModel.setRowCount(0);
+            entryObjects.clear();
+            versionField.setText("");
+            currentFile = newFile;
+            fileField.setText(newFile.getAbsolutePath());
+            statusLabel.setText("New file (not yet saved): " + newFile.getAbsolutePath());
+        }
+    }
 
     /**
      * Writes edited variant column values (col ≥ 2) back into the given JSON object.

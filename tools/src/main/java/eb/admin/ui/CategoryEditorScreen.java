@@ -47,8 +47,10 @@ public class CategoryEditorScreen extends JFrame {
 
     // Metadata fields
     private final JTextField versionField = new JTextField(8);
-    private final JTextField languageField = new JTextField(8);
+    private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
     private final JTextField fileField = new JTextField();
+    /** When true, combo ActionListener does not trigger a language switch. */
+    private boolean suppressLangListener = false;
 
     // Tab pane and table models
     private final JTabbedPane tabbedPane = new JTabbedPane();
@@ -86,6 +88,12 @@ public class CategoryEditorScreen extends JFrame {
         setSize(980, 640);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 4));
+
+        languageCombo.addActionListener(e -> {
+            if (!suppressLangListener) {
+                switchLanguage((String) languageCombo.getSelectedItem());
+            }
+        });
 
         setJMenuBar(buildMenuBar());
 
@@ -145,7 +153,7 @@ public class CategoryEditorScreen extends JFrame {
         metaTop.add(versionField);
         metaTop.add(Box.createHorizontalStrut(12));
         metaTop.add(new JLabel("Language:"));
-        metaTop.add(languageField);
+        metaTop.add(languageCombo);
 
         JPanel fileRow = new JPanel(new BorderLayout(4, 0));
         fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
@@ -303,7 +311,9 @@ public class CategoryEditorScreen extends JFrame {
             CategoryData data = gson.fromJson(reader, CategoryData.class);
 
             versionField.setText(data.getVersion() != null ? data.getVersion() : "");
-            languageField.setText(data.getLanguage() != null ? data.getLanguage() : "");
+            suppressLangListener = true;
+            languageCombo.setSelectedItem(data.getLanguage() != null ? data.getLanguage() : "en");
+            suppressLangListener = false;
 
             populateModel(buildingModel, data.getBuilding_categories(), true);
             populateModel(itemModel,     data.getItem_categories(),     false);
@@ -360,6 +370,25 @@ public class CategoryEditorScreen extends JFrame {
     // Model helpers
     // -------------------------------------------------------------------------
 
+    private void switchLanguage(String newLang) {
+        if (currentFile == null) return;
+        File newFile = EditorUtils.deriveFileForLanguage(currentFile, newLang);
+        if (newFile == null) return;
+        if (newFile.exists()) {
+            loadFromFile(newFile);
+        } else {
+            buildingModel.setRowCount(0);
+            itemModel.setRowCount(0);
+            evidenceModel.setRowCount(0);
+            caseModel.setRowCount(0);
+            versionField.setText("");
+            currentFile = newFile;
+            fileField.setText(newFile.getAbsolutePath());
+            setTitle(WINDOW_TITLE + " – " + newFile.getName());
+            statusLabel.setText("New file (not yet saved): " + newFile.getAbsolutePath());
+        }
+    }
+
     private static DefaultTableModel createModel(String[] columns) {
         return new DefaultTableModel(columns, 0) {
             @Override
@@ -393,7 +422,7 @@ public class CategoryEditorScreen extends JFrame {
     private CategoryData buildCategoryData() {
         CategoryData data = new CategoryData();
         data.setVersion(versionField.getText().trim());
-        data.setLanguage(languageField.getText().trim());
+        data.setLanguage((String) languageCombo.getSelectedItem());
         data.setBuilding_categories(modelToEntries(buildingModel, true));
         data.setItem_categories(modelToEntries(itemModel, false));
         data.setEvidence_categories(modelToEntries(evidenceModel, false));
