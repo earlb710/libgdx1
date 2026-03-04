@@ -519,7 +519,8 @@ public class DescriptionEditorPanel extends JPanel {
 
     /** Shows a popup menu with rating options at (x, y) relative to the table. */
     private void showAnnotationMenu(int row, int col, int x, int y) {
-        String existingRating = findExistingRating(cellStr(row, 0), tableModel.getColumnName(col));
+        String key = cellStr(row, 0);
+        String existingRating = findExistingRating(key, tableModel.getColumnName(col));
         JPopupMenu menu = new JPopupMenu("Rate");
         for (String rating : RATINGS) {
             String ratingId = rating.toLowerCase().replace(' ', '_');
@@ -527,7 +528,58 @@ public class DescriptionEditorPanel extends JPanel {
             item.addActionListener(e -> promptAndSaveAnnotation(row, col, ratingId));
             menu.add(item);
         }
+        menu.addSeparator();
+        JMenuItem clearItem = new JMenuItem("Clear");
+        clearItem.addActionListener(e -> clearAnnotationsForItem(key));
+        menu.add(clearItem);
         menu.show(table, x, y);
+    }
+
+    /** Removes all annotations for the given item key from annotation.json. */
+    private void clearAnnotationsForItem(String key) {
+        File annotationFile = currentFile != null
+                ? new File(currentFile.getParent(), "annotation.json")
+                : new File("annotation.json");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray annotations = new JsonArray();
+        String filePath = currentFile != null ? currentFile.getAbsolutePath() : "";
+        if (annotationFile.exists()) {
+            try (Reader r = Files.newBufferedReader(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject e = el.getAsJsonObject();
+                        JsonElement fileEl = e.get("file");
+                        JsonElement keyEl  = e.get("key");
+                        if (fileEl == null || keyEl == null) {
+                            annotations.add(e);
+                            continue;
+                        }
+                        if (filePath.equals(fileEl.getAsString()) && key.equals(keyEl.getAsString())) {
+                            continue; // drop all entries for this item
+                        }
+                        annotations.add(e);
+                    }
+                }
+            } catch (IOException | RuntimeException ex) {
+                showScrollableError(this,
+                        "Could not read annotation.json:\n" + ex.getMessage(),
+                        "Annotation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        JsonObject root = new JsonObject();
+        root.add("annotations", annotations);
+        try (Writer w = Files.newBufferedWriter(annotationFile.toPath(), StandardCharsets.UTF_8)) {
+            gson.toJson(root, w);
+            w.flush();
+            statusLabel.setText("Annotations cleared: " + annotationFile.getAbsolutePath());
+            loadAnnotationColors();
+        } catch (Exception ex) {
+            showScrollableError(this,
+                    "Error clearing annotation:\n" + ex.getMessage(),
+                    "Annotation Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**

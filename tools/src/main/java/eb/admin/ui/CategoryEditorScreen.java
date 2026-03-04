@@ -444,7 +444,56 @@ public class CategoryEditorScreen extends JFrame {
             item.addActionListener(e -> promptAndSaveAnnotation(key, column, ratingId));
             menu.add(item);
         }
+        menu.addSeparator();
+        JMenuItem clearItem = new JMenuItem("Clear");
+        clearItem.addActionListener(e -> clearAnnotationsForItem(key));
+        menu.add(clearItem);
         menu.show(table, x, y);
+    }
+
+    /** Removes all annotations for the given item key from annotation.json. */
+    private void clearAnnotationsForItem(String key) {
+        File af = annotationFile();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray annotations = new JsonArray();
+        String fp = annotationFilePath();
+        if (af.exists()) {
+            try (Reader r = Files.newBufferedReader(af.toPath(), StandardCharsets.UTF_8)) {
+                JsonObject existing = gson.fromJson(r, JsonObject.class);
+                if (existing != null && existing.has("annotations")) {
+                    for (JsonElement el : existing.get("annotations").getAsJsonArray()) {
+                        JsonObject e = el.getAsJsonObject();
+                        JsonElement fileEl = e.get("file");
+                        JsonElement keyEl  = e.get("key");
+                        if (fileEl == null || keyEl == null) {
+                            annotations.add(e);
+                            continue;
+                        }
+                        if (fp.equals(fileEl.getAsString()) && key.equals(keyEl.getAsString())) {
+                            continue; // drop all entries for this item
+                        }
+                        annotations.add(e);
+                    }
+                }
+            } catch (IOException | RuntimeException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Could not read annotation.json:\n" + ex.getMessage(),
+                        "Annotation Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        JsonObject root = new JsonObject();
+        root.add("annotations", annotations);
+        try (Writer w = Files.newBufferedWriter(af.toPath(), StandardCharsets.UTF_8)) {
+            gson.toJson(root, w);
+            w.flush();
+            statusLabel.setText("Annotations cleared: " + af.getAbsolutePath());
+            loadAnnotationColors();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error clearing annotation:\n" + ex.getMessage(),
+                    "Annotation Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private String findExistingRating(String key, String column) {
