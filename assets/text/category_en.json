@@ -172,5 +172,37 @@
       "code": "CORPORATE_ESPIONAGE",
       "description": "Uncover an internal information leak damaging a business"
     }
+  ],
+  "improvement_categories": [
+    {
+      "code": "mental",
+      "description": "Cognitive and mental skill improvements such as memory, focus, and deduction",
+      "color": "#5C6BC0",
+      "actions": "rest, meditate, study"
+    },
+    {
+      "code": "physical",
+      "description": "Physical fitness and body conditioning improvements",
+      "color": "#EF5350",
+      "actions": "exercise, train, practice"
+    },
+    {
+      "code": "social",
+      "description": "Interpersonal and communication skill improvements",
+      "color": "#26A69A",
+      "actions": "converse, network, observe"
+    },
+    {
+      "code": "technical",
+      "description": "Technical and analytical skill improvements",
+      "color": "#FFA726",
+      "actions": "repair, hack, analyze"
+    },
+    {
+      "code": "creative",
+      "description": "Creative expression and artistic skill improvements",
+      "color": "#AB47BC",
+      "actions": "draw, write, compose"
+    }
   ]
 }

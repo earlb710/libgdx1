@@ -56,7 +56,7 @@ public class Building {
         this.improvements = new ArrayList<>(improvements);
         this.definition = definition;
         this.floors = floors;
-        // Prefer attribute_modifiers defined in buildings.json (via definition);
+        // Prefer attribute_modifiers defined in text/buildings_en.json (via definition);
         // fall back to keyword-based BuildingEffects for buildings without a JSON definition.
         if (definition != null && !definition.getAttributeModifiers().isEmpty()) {
             Map<CharacterAttribute, Integer> mods = new HashMap<>();

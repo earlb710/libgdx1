@@ -22,8 +22,8 @@ final class EditorUtils {
 
     /**
      * Derives the sibling file for {@code newLang} by replacing the language
-     * suffix in {@code base}'s name (e.g. {@code description_en.json} with
-     * {@code newLang="fr"} → {@code description_fr.json}).
+     * suffix in {@code base}'s name (e.g. {@code buildings_en.json} with
+     * {@code newLang="fr"} → {@code buildings_fr.json}).
      *
      * @return the derived file, or {@code null} if the pattern is not found
      */
@@ -32,10 +32,10 @@ final class EditorUtils {
         String name = base.getName();
         int dot = name.lastIndexOf('.');
         if (dot < 0) return null;
-        String stem = name.substring(0, dot);       // e.g. "description_en"
+        String stem = name.substring(0, dot);       // e.g. "buildings_en"
         int under = stem.lastIndexOf('_');
         if (under < 0) return null;
-        String prefix = stem.substring(0, under);   // e.g. "description"
+        String prefix = stem.substring(0, under);   // e.g. "buildings"
         return new File(base.getParentFile(), prefix + "_" + newLang + ".json");
     }
 }

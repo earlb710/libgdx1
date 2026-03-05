@@ -21,19 +21,21 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE      = "buildings_en.json";
+    private static final String BUILDINGS_FILE      = "text/buildings_en.json";
+    private static final String IMPROVEMENTS_FILE   = "text/improvements_en.json";
     private static final String PERSON_NAMES_FILE   = "person_names.json";
     private static final String SURNAMES_FILE       = "person_surnames.json";
     private static final String COMPANY_NAMES_FILE  = "company_names.json";
     private static final String COMPANY_TYPES_FILE  = "company_types.json";
     private static final String CATEGORIES_FILE = "text/category_en.json";
-    private static final String TEXT_FILE       = "text/description_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
     private final Map<String, List<BuildingDefinition>> buildingsByCategory;
     private final List<CategoryDefinition> categories;
     private final Map<String, CategoryDefinition> categoriesById;
+    /** Improvement data keyed by lower-case improvement name. */
+    private final Map<String, ImprovementData> improvementDataByName;
 
     private String buildingsVersion;
     private String categoriesVersion;
@@ -49,10 +51,11 @@ public class GameDataManager {
         this.buildingsByCategory = new HashMap<>();
         this.categories = new ArrayList<>();
         this.categoriesById = new HashMap<>();
+        this.improvementDataByName = new HashMap<>();
 
         loadBuildings();
         loadCategories();
-        loadNovelTextEngine();
+        loadImprovements();
         loadPersonNames();
         loadCompanyNames();
 
@@ -60,22 +63,44 @@ public class GameDataManager {
     }
 
     /**
-     * Loads the novel text engine from {@code text/description_en.json}.
+     * Loads improvement metadata from {@code text/improvements_en.json}.
+     * Populates {@link #improvementDataByName} keyed by lower-case improvement name.
      */
-    private void loadNovelTextEngine() {
+    private void loadImprovements() {
         try {
-            FileHandle file = Gdx.files.internal(TEXT_FILE);
+            FileHandle file = Gdx.files.internal(IMPROVEMENTS_FILE);
             if (!file.exists()) {
-                Gdx.app.error("GameDataManager", "Text file not found: " + TEXT_FILE);
-                novelTextEngine = new NovelTextEngine(null, null);
+                Gdx.app.log("GameDataManager", "Improvements file not found: " + IMPROVEMENTS_FILE);
                 return;
             }
-            String json = file.readString("UTF-8");
-            novelTextEngine = NovelTextEngine.fromJsonString(json);
-            Gdx.app.log("GameDataManager", "Loaded novel text engine from " + TEXT_FILE);
+            JsonReader reader = new JsonReader();
+            JsonValue root = reader.parse(file);
+            JsonValue impsArray = root.get("improvements");
+            if (impsArray == null) return;
+            int count = 0;
+            for (JsonValue entry = impsArray.child; entry != null; entry = entry.next) {
+                String name = entry.getString("name", "");
+                if (name.isEmpty()) continue;
+                String function  = entry.getString("function", "");
+                int    effective = entry.getInt("effective", 0);
+
+                Map<String, String> restrict = new HashMap<>();
+                JsonValue restrictJson = entry.get("restrict");
+                if (restrictJson != null) {
+                    for (JsonValue rv = restrictJson.child; rv != null; rv = rv.next) {
+                        restrict.put(rv.name().toLowerCase(), rv.asString());
+                    }
+                }
+                ImprovementData data = new ImprovementData(
+                        name.toLowerCase(), function, effective, restrict);
+                improvementDataByName.put(name.toLowerCase(), data);
+                count++;
+            }
+            Gdx.app.log("GameDataManager",
+                    "Loaded " + count + " improvement entries from " + IMPROVEMENTS_FILE);
         } catch (Exception e) {
-            Gdx.app.error("GameDataManager", "Error loading novel text engine: " + e.getMessage(), e);
-            novelTextEngine = new NovelTextEngine(null, null);
+            Gdx.app.error("GameDataManager",
+                    "Error loading " + IMPROVEMENTS_FILE + ": " + e.getMessage(), e);
         }
     }
 
@@ -213,26 +238,29 @@ public class GameDataManager {
      * Buildings are already loaded during construction; this method is a no-op kept for
      * test compatibility.
      *
-     * @param path unused – buildings were loaded from {@code buildings_en.json} during construction
+     * @param path unused – buildings were loaded from {@code text/buildings_en.json} during construction
      */
     public void loadBuildings(String path) {
-        // No-op: buildings are loaded automatically in the constructor from buildings_en.json.
+        // No-op: buildings are loaded automatically in the constructor from text/buildings_en.json.
         // This overload exists for test code that previously passed a path explicitly.
     }
 
     /**
-     * Loads building definitions from buildings_en.json
+     * Loads building definitions from text/buildings_en.json
      */
     private void loadBuildings() {
         try {
             FileHandle file = Gdx.files.internal(BUILDINGS_FILE);
             if (!file.exists()) {
                 Gdx.app.error("GameDataManager", "Buildings file not found: " + BUILDINGS_FILE);
+                novelTextEngine = new NovelTextEngine(null, null);
                 return;
             }
 
+            // Read as string so both the buildings parser and the novel text engine can use it.
+            String json = file.readString("UTF-8");
             JsonReader reader = new JsonReader();
-            JsonValue root = reader.parse(file);
+            JsonValue root = reader.parse(json);
 
             buildingsVersion = root.getString("version", "unknown");
 
@@ -252,8 +280,13 @@ public class GameDataManager {
                 }
             }
 
-            Gdx.app.log("GameDataManager", "Loaded buildings_en.json v" + buildingsVersion + " with " + buildings.size() + " buildings");
+            // Load the novel text engine from the descriptions/improvements sections of the same file.
+            novelTextEngine = NovelTextEngine.fromJsonString(json);
+
+            Gdx.app.log("GameDataManager", "Loaded " + BUILDINGS_FILE + " v" + buildingsVersion
+                    + " with " + buildings.size() + " buildings");
         } catch (Exception e) {
+            novelTextEngine = new NovelTextEngine(null, null);
             Gdx.app.error("GameDataManager", "Error loading buildings: " + e.getMessage(), e);
         }
     }
@@ -271,7 +304,18 @@ public class GameDataManager {
         building.setUnitsPerFloor(json.getInt("unitsPerFloor"));
         building.setCapacity(json.getInt("capacity"));
         building.setPercentage(json.getDouble("percentage"));
-        building.setDescription(json.getString("description"));
+        // description is now a nested object; use description.default as the plain string
+        JsonValue descJson = json.get("description");
+        String descriptionDefault = "";
+        if (descJson != null) {
+            if (descJson.isObject()) {
+                descriptionDefault = descJson.getString("default", "");
+            } else {
+                // legacy flat-string fallback
+                descriptionDefault = descJson.asString();
+            }
+        }
+        building.setDescription(descriptionDefault);
 
         List<String> improvements = new ArrayList<>();
         JsonValue improvementsArray = json.get("improvements");
@@ -391,7 +435,7 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the version of the loaded buildings_en.json file.
+     * Returns the version of the loaded text/buildings_en.json file.
      */
     public String getBuildingsVersion() {
         return buildingsVersion;
@@ -405,7 +449,7 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the {@link NovelTextEngine} loaded from {@code text/description_en.json}.
+     * Returns the {@link NovelTextEngine} loaded from {@code text/buildings_en.json}.
      * Never {@code null}; returns an empty engine if the file could not be loaded.
      */
     public NovelTextEngine getNovelTextEngine() {
@@ -430,5 +474,16 @@ public class GameDataManager {
      */
     public CompanyNameGenerator getCompanyNameGenerator() {
         return companyNameGenerator;
+    }
+
+    /**
+     * Returns the {@link ImprovementData} for the given improvement name, or
+     * {@code null} if the improvement is not found in {@code improvements_en.json}.
+     *
+     * @param name improvement name (case-insensitive)
+     */
+    public ImprovementData getImprovementData(String name) {
+        if (name == null) return null;
+        return improvementDataByName.get(name.toLowerCase());
     }
 }

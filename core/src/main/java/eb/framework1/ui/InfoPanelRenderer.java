@@ -724,7 +724,7 @@ public class InfoPanelRenderer {
                         }
                     }
 
-                    // Building description from description_en.json (word-wrapped, novel colour)
+                    // Building description from buildings_en.json (word-wrapped, novel colour)
                     List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
                     if (!novelLines.isEmpty()) {
                         textY -= smallLineH;
@@ -1805,7 +1805,7 @@ public class InfoPanelRenderer {
     }
 
     /**
-     * Returns the building description from {@code description_en.json} via the novel text engine,
+     * Returns the building description from {@code buildings_en.json} (descriptions section) via the novel text engine,
      * contextualised to the current time of day, the character's attributes and gender.
      * When the building has a state ("good", "normal", "bad"), the state-specific description
      * is preferred; otherwise the default contextual description is used.
@@ -1831,7 +1831,7 @@ public class InfoPanelRenderer {
     }
 
     /**
-     * Returns the building description from {@code description_en.json}, word-wrapped to
+     * Returns the building description from {@code buildings_en.json} (descriptions section), word-wrapped to
      * {@code wrapWidth} pixels. Returns an empty list when no description is available.
      */
     private List<String> buildingNovelLines(Building b, float wrapWidth) {

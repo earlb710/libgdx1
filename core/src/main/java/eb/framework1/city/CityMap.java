@@ -349,7 +349,7 @@ public class CityMap {
             for (int i = 0; i < 4; i++) {
                 int level = random.nextInt(5) + 1; // Levels 1-5
                 int hiddenValue = random.nextInt(6); // Hidden value 0-5
-                selectedImprovements.add(new Improvement(shuffled.get(i), level, hiddenValue));
+                selectedImprovements.add(makeImprovement(shuffled.get(i), level, hiddenValue));
             }
         } else if (!availableImprovements.isEmpty()) {
             // Not enough improvements, use what's available and fill with duplicates
@@ -357,7 +357,7 @@ public class CityMap {
                 String impName = availableImprovements.get(random.nextInt(availableImprovements.size()));
                 int level = random.nextInt(5) + 1;
                 int hiddenValue = random.nextInt(6); // Hidden value 0-5
-                selectedImprovements.add(new Improvement(impName, level, hiddenValue));
+                selectedImprovements.add(makeImprovement(impName, level, hiddenValue));
             }
         } else {
             // No improvements defined, use fallback improvements
@@ -365,7 +365,7 @@ public class CityMap {
                 String impName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
                 int level = random.nextInt(5) + 1;
                 int hiddenValue = random.nextInt(6); // Hidden value 0-5
-                selectedImprovements.add(new Improvement(impName, level, hiddenValue));
+                selectedImprovements.add(makeImprovement(impName, level, hiddenValue));
             }
         }
         
@@ -499,7 +499,7 @@ public class CityMap {
             String improvementName = FALLBACK_IMPROVEMENT_TYPES[random.nextInt(FALLBACK_IMPROVEMENT_TYPES.length)];
             int level = random.nextInt(5) + 1; // Levels 1-5
             int hiddenValue = random.nextInt(6); // Hidden value 0-5
-            improvements.add(new Improvement(improvementName, level, hiddenValue));
+            improvements.add(makeImprovement(improvementName, level, hiddenValue));
         }
         
         return new Building(buildingName, improvements);
@@ -880,5 +880,14 @@ public class CityMap {
             sb.append('\n');
         }
         return sb.toString();
+    }
+
+    /**
+     * Creates an {@link Improvement} with the supplied name/level/hiddenValue and
+     * attaches any {@link ImprovementData} found in the loaded {@link GameDataManager}.
+     */
+    private Improvement makeImprovement(String name, int level, int hiddenValue) {
+        ImprovementData data = (gameData != null) ? gameData.getImprovementData(name) : null;
+        return new Improvement(name, level, hiddenValue, data);
     }
 }

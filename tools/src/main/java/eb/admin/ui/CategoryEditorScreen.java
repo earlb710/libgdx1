@@ -33,11 +33,14 @@ import java.util.Map;
  * Allows viewing and editing of all category sections inside category_en.json.
  *
  * Tabs:
- *   1. Building Categories  – code, description, color
- *   2. Item Categories      – code, description
- *   3. Evidence Categories  – code, description
- *   4. Case Types           – code, description
- *   5. Descriptions         – key, default description text (description_en.json)
+ *   1. Building Categories      – code, description, color
+ *   2. Item Categories          – code, description
+ *   3. Evidence Categories      – code, description
+ *   4. Case Types               – code, description
+ *   5. Improvement Categories   – code, description, color, function
+ *   6. Buildings                – id, name, category, description, improvements (buildings_en.json)
+ *   7. Improvements             – id, name, attribute_modifiers (improvements_en.json)
+ *   8. Company Types            – id, name, description, buildings (company_types_en.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -54,16 +57,19 @@ public class CategoryEditorScreen extends JFrame {
 
     // Tab pane and table models
     private final JTabbedPane tabbedPane = new JTabbedPane();
-    private final DefaultTableModel buildingModel = createModel(new String[]{"Code", "Description", "Color"});
-    private final DefaultTableModel itemModel     = createModel(new String[]{"Code", "Description"});
-    private final DefaultTableModel evidenceModel = createModel(new String[]{"Code", "Description"});
-    private final DefaultTableModel caseModel     = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel buildingModel     = createModel(new String[]{"Code", "Description", "Color"});
+    private final DefaultTableModel itemModel         = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel evidenceModel     = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel caseModel         = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel improvementCategoryModel =
+            createModel(new String[]{"Code", "Description", "Color", "Actions"});
 
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
 
-    private final DescriptionEditorPanel descPanel         = new DescriptionEditorPanel(statusLabel);
-    private final CompanyTypesEditorPanel companyTypesPanel = new CompanyTypesEditorPanel(statusLabel);
+    private final BuildingsEditorPanel      buildingsPanel     = new BuildingsEditorPanel(statusLabel);
+    private final ImprovementsEditorPanel   improvementsPanel  = new ImprovementsEditorPanel(statusLabel);
+    private final CompanyTypesEditorPanel   companyTypesPanel  = new CompanyTypesEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -97,21 +103,23 @@ public class CategoryEditorScreen extends JFrame {
 
         setJMenuBar(buildMenuBar());
 
-        // Inner category sub-tabs (Building / Item / Evidence / Case Types)
+        // Inner category sub-tabs (Building / Item / Evidence / Case Types / Improvement Categories)
         JTabbedPane categoryTabs = new JTabbedPane();
-        categoryTabs.addTab("Building Categories", buildTabPanel(buildingModel, true));
-        categoryTabs.addTab("Item Categories",     buildTabPanel(itemModel,     false));
-        categoryTabs.addTab("Evidence Categories", buildTabPanel(evidenceModel, false));
-        categoryTabs.addTab("Case Types",          buildTabPanel(caseModel,     false));
+        categoryTabs.addTab("Building Categories",     buildTabPanel(buildingModel,             true,  false));
+        categoryTabs.addTab("Item Categories",         buildTabPanel(itemModel,                 false, false));
+        categoryTabs.addTab("Evidence Categories",     buildTabPanel(evidenceModel,             false, false));
+        categoryTabs.addTab("Case Types",              buildTabPanel(caseModel,                 false, false));
+        categoryTabs.addTab("Improvement Categories",  buildTabPanel(improvementCategoryModel,  true,  true));
 
         // "Categories" top-level panel: meta (version/lang) + inner sub-tabs
         JPanel categoriesPanel = new JPanel(new BorderLayout(0, 4));
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories", "Descriptions", and "Company Types"
+        // Outer tabs: "Categories", "Buildings", "Improvements", and "Company Types"
         tabbedPane.addTab("Categories",    categoriesPanel);
-        tabbedPane.addTab("Descriptions",  descPanel);
+        tabbedPane.addTab("Buildings",     buildingsPanel);
+        tabbedPane.addTab("Improvements",  improvementsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
@@ -170,10 +178,11 @@ public class CategoryEditorScreen extends JFrame {
     /**
      * Builds a panel containing an editable JTable and a button toolbar.
      *
-     * @param model    the table model to use
-     * @param hasColor whether the table has a Color column (building categories only)
+     * @param model       the table model to use
+     * @param hasColor    whether the table has a Color column (building/improvement categories)
+     * @param hasFunction whether the table has a Function column (improvement categories only)
      */
-    private JPanel buildTabPanel(DefaultTableModel model, boolean hasColor) {
+    private JPanel buildTabPanel(DefaultTableModel model, boolean hasColor, boolean hasFunction) {
         JTable table = new JTable(model) {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
@@ -209,14 +218,21 @@ public class CategoryEditorScreen extends JFrame {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
 
-        if (hasColor) {
-            // Set preferred widths
+        if (hasColor && hasFunction) {
+            // Improvement categories: Code, Description, Color, Function
+            table.getColumnModel().getColumn(0).setPreferredWidth(130);
+            table.getColumnModel().getColumn(1).setPreferredWidth(380);
+            table.getColumnModel().getColumn(2).setPreferredWidth(100);
+            table.getColumnModel().getColumn(3).setPreferredWidth(250);
+            table.getColumnModel().getColumn(2).setCellRenderer(new ColorCellRenderer());
+        } else if (hasColor) {
+            // Building categories: Code, Description, Color
             table.getColumnModel().getColumn(0).setPreferredWidth(140);
             table.getColumnModel().getColumn(1).setPreferredWidth(520);
             table.getColumnModel().getColumn(2).setPreferredWidth(100);
-            // Color swatch renderer
             table.getColumnModel().getColumn(2).setCellRenderer(new ColorCellRenderer());
         } else {
+            // Item / Evidence / Case Types: Code, Description
             table.getColumnModel().getColumn(0).setPreferredWidth(180);
             table.getColumnModel().getColumn(1).setPreferredWidth(680);
         }
@@ -245,7 +261,9 @@ public class CategoryEditorScreen extends JFrame {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            if (hasColor) {
+            if (hasColor && hasFunction) {
+                model.addRow(new Object[]{"", "", "", ""});
+            } else if (hasColor) {
                 model.addRow(new Object[]{"", "", ""});
             } else {
                 model.addRow(new Object[]{"", ""});
@@ -315,10 +333,11 @@ public class CategoryEditorScreen extends JFrame {
             languageCombo.setSelectedItem(data.getLanguage() != null ? data.getLanguage() : "en");
             suppressLangListener = false;
 
-            populateModel(buildingModel, data.getBuilding_categories(), true);
-            populateModel(itemModel,     data.getItem_categories(),     false);
-            populateModel(evidenceModel, data.getEvidence_categories(), false);
-            populateModel(caseModel,     data.getCase_types(),          false);
+            populateModel(buildingModel,            data.getBuilding_categories(),     true,  false);
+            populateModel(itemModel,                data.getItem_categories(),          false, false);
+            populateModel(evidenceModel,            data.getEvidence_categories(),      false, false);
+            populateModel(caseModel,                data.getCase_types(),               false, false);
+            populateModel(improvementCategoryModel, data.getImprovement_categories(),   true,  true);
 
             currentFile = file;
             fileField.setText(file.getAbsolutePath());
@@ -381,6 +400,7 @@ public class CategoryEditorScreen extends JFrame {
             itemModel.setRowCount(0);
             evidenceModel.setRowCount(0);
             caseModel.setRowCount(0);
+            improvementCategoryModel.setRowCount(0);
             versionField.setText("");
             currentFile = newFile;
             fileField.setText(newFile.getAbsolutePath());
@@ -398,13 +418,22 @@ public class CategoryEditorScreen extends JFrame {
         };
     }
 
-    private static void populateModel(DefaultTableModel model, List<CategoryEntry> entries, boolean hasColor) {
+    private static void populateModel(DefaultTableModel model, List<CategoryEntry> entries,
+                                      boolean hasColor, boolean hasFunction) {
         model.setRowCount(0);
         if (entries == null) return;
         List<CategoryEntry> sorted = new ArrayList<>(entries);
         sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
         for (CategoryEntry e : sorted) {
-            if (hasColor) {
+            if (hasColor && hasFunction) {
+                // Improvement categories: Code, Description, Color, Actions
+                model.addRow(new Object[]{
+                        nvl(e.getCode()),
+                        nvl(e.getDescription()),
+                        nvl(e.getColor()),
+                        nvl(e.getActions())
+                });
+            } else if (hasColor) {
                 model.addRow(new Object[]{
                         nvl(e.getCode()),
                         nvl(e.getDescription()),
@@ -423,14 +452,16 @@ public class CategoryEditorScreen extends JFrame {
         CategoryData data = new CategoryData();
         data.setVersion(versionField.getText().trim());
         data.setLanguage((String) languageCombo.getSelectedItem());
-        data.setBuilding_categories(modelToEntries(buildingModel, true));
-        data.setItem_categories(modelToEntries(itemModel, false));
-        data.setEvidence_categories(modelToEntries(evidenceModel, false));
-        data.setCase_types(modelToEntries(caseModel, false));
+        data.setBuilding_categories(modelToEntries(buildingModel,            true,  false));
+        data.setItem_categories(modelToEntries(itemModel,                    false, false));
+        data.setEvidence_categories(modelToEntries(evidenceModel,            false, false));
+        data.setCase_types(modelToEntries(caseModel,                         false, false));
+        data.setImprovement_categories(modelToEntries(improvementCategoryModel, true, true));
         return data;
     }
 
-    private static List<CategoryEntry> modelToEntries(DefaultTableModel model, boolean hasColor) {
+    private static List<CategoryEntry> modelToEntries(DefaultTableModel model,
+                                                       boolean hasColor, boolean hasFunction) {
         List<CategoryEntry> list = new ArrayList<>();
         for (int r = 0; r < model.getRowCount(); r++) {
             CategoryEntry entry = new CategoryEntry();
@@ -438,6 +469,10 @@ public class CategoryEditorScreen extends JFrame {
             entry.setDescription(cellStr(model, r, 1));
             if (hasColor) {
                 entry.setColor(cellStr(model, r, 2));
+            }
+            // hasFunction=true is only valid when hasColor=true (improvement categories)
+            if (hasFunction) {
+                entry.setActions(cellStr(model, r, 3));
             }
             list.add(entry);
         }

@@ -49,6 +49,8 @@ final public class BuildingServices {
     public static final String SVC_BUY_SUPPLIES   = "buy_supplies";
     public static final String SVC_BUY_SNACKS     = "buy_snacks";
     public static final String SVC_LAUNDRY        = "laundry";
+    /** Triggered when a building has at least one discovered improvement with a function. */
+    public static final String SVC_USE_IMPROVEMENTS = "use_improvements";
 
     // -------------------------------------------------------------------------
     // Profile attribute keys for gym tracking
@@ -132,150 +134,203 @@ final public class BuildingServices {
         String id  = building.getDefinition().getId();
         String cat = building.getDefinition().getCategory();
 
+        List<BuildingService> base;
         switch (id) {
             // ---- Hospitality ------------------------------------------------
             case "hotel_budget":
-                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                base = list(new BuildingService(SVC_HOTEL_RECEPTION,
                         "Talk to Reception", "Check in for a night's stay.", 0, 0));
+                break;
             case "hotel_business":
-                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                base = list(new BuildingService(SVC_HOTEL_RECEPTION,
                         "Talk to Reception", "Check in for a night's stay.", 0, 0));
+                break;
             case "hotel_luxury":
-                return list(new BuildingService(SVC_HOTEL_RECEPTION,
+                base = list(new BuildingService(SVC_HOTEL_RECEPTION,
                         "Talk to Reception", "Check in for a night's stay.", 0, 0));
+                break;
 
             // ---- Fitness Centre ---------------------------------------------
             case "gym_fitness_center":
-                return list(new BuildingService(SVC_GYM_INSTRUCTOR,
+                base = list(new BuildingService(SVC_GYM_INSTRUCTOR,
                         "Talk to Instructor", "Get professional training advice.", 0, 0));
+                break;
 
             // ---- Food & Drink -----------------------------------------------
             case "fast_food_restaurant":
-                return list(new BuildingService(SVC_BUY_MEAL,
+                base = list(new BuildingService(SVC_BUY_MEAL,
                         "Grab a Bite", "Quick meal at the counter.",
                         8, 20));
+                break;
             case "coffee_shop":
-                return list(new BuildingService(SVC_BUY_COFFEE,
+                base = list(new BuildingService(SVC_BUY_COFFEE,
                         "Buy a Coffee", "A hot cup to sharpen your senses.",
                         5, 10));
+                break;
             case "restaurant_casual":
-                return list(new BuildingService(SVC_BUY_MEAL,
+                base = list(new BuildingService(SVC_BUY_MEAL,
                         "Have a Meal", "Sit-down meal with decent food.",
                         15, 30));
+                break;
             case "restaurant_fine_dining":
-                return list(new BuildingService(SVC_FINE_DINING,
+                base = list(new BuildingService(SVC_FINE_DINING,
                         "Fine Dining", "An exquisite dining experience.",
                         60, 60));
+                break;
 
             // ---- Pharmacy ---------------------------------------------------
             case "pharmacy":
-                return list(new BuildingService(SVC_BUY_MEDICINE,
+                base = list(new BuildingService(SVC_BUY_MEDICINE,
                         "Buy Medicine", "Pick up over-the-counter supplies.",
                         20, 10));
+                break;
 
             // ---- Medical ----------------------------------------------------
             case "medical_clinic":
-                return list(new BuildingService(SVC_DOCTOR,
+                base = list(new BuildingService(SVC_DOCTOR,
                         "See a Doctor", "Receive medical attention.",
                         80, 60));
+                break;
             case "urgent_care":
-                return list(new BuildingService(SVC_DOCTOR,
+                base = list(new BuildingService(SVC_DOCTOR,
                         "Urgent Care", "Fast-track medical treatment.",
                         150, 45));
+                break;
             case "hospital_small":
             case "hospital_large":
-                return list(new BuildingService(SVC_DOCTOR,
+                base = list(new BuildingService(SVC_DOCTOR,
                         "Medical Treatment", "Full hospital care.",
                         200, 120));
+                break;
 
             // ---- Education --------------------------------------------------
             case "library":
-                return list(new BuildingService(SVC_LIBRARY_STUDY,
+                base = list(new BuildingService(SVC_LIBRARY_STUDY,
                         "Study", "Read and research at the library.",
                         0, 90));
+                break;
             case "community_college":
-                return list(new BuildingService(SVC_ATTEND_CLASS,
+                base = list(new BuildingService(SVC_ATTEND_CLASS,
                         "Attend a Class", "Enrol in a short course.",
                         40, 120));
+                break;
 
             // ---- Entertainment ----------------------------------------------
             case "movie_theater":
-                return list(new BuildingService(SVC_ENTERTAINMENT,
+                base = list(new BuildingService(SVC_ENTERTAINMENT,
                         "Watch a Film", "Kick back and watch a movie.",
                         12, 120));
+                break;
             case "bowling_alley":
-                return list(new BuildingService(SVC_ENTERTAINMENT,
+                base = list(new BuildingService(SVC_ENTERTAINMENT,
                         "Go Bowling", "Roll a few frames.",
                         15, 60));
+                break;
             case "nightclub":
-                return list(new BuildingService(SVC_ENTERTAINMENT,
+                base = list(new BuildingService(SVC_ENTERTAINMENT,
                         "Night Out", "Dance the night away.",
                         30, 120));
+                break;
             case "sports_arena":
-                return list(new BuildingService(SVC_ENTERTAINMENT,
+                base = list(new BuildingService(SVC_ENTERTAINMENT,
                         "Watch a Game", "Cheer on the local team.",
                         25, 180));
+                break;
 
             // ---- Religious --------------------------------------------------
             case "church":
             case "mosque":
             case "synagogue":
-                return list(new BuildingService(SVC_ATTEND_SERVICE,
+                base = list(new BuildingService(SVC_ATTEND_SERVICE,
                         "Attend Service", "Spend time in quiet reflection.",
                         0, 60));
+                break;
 
             // ---- Hair Salon -------------------------------------------------
             case "hair_salon":
-                return list(new BuildingService(SVC_HAIRCUT,
+                base = list(new BuildingService(SVC_HAIRCUT,
                         "Get a Haircut", "Look your best.",
                         25, 30));
+                break;
 
             // ---- Security & Surveillance Shop --------------------------------
             case "security_shop":
-                return list(new BuildingService(SVC_BUY_GEAR,
+                base = list(new BuildingService(SVC_BUY_GEAR,
                         "Browse Gear", "Buy surveillance and protective equipment.",
                         0, 15));
+                break;
             // ---- Supply / Retail ----------------------------------------
             case "convenience_store":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Buy Supplies", "Pick up everyday essentials.",
                         5, 10));
+                break;
             case "gas_station":
-                return list(new BuildingService(SVC_BUY_SNACKS,
+                base = list(new BuildingService(SVC_BUY_SNACKS,
                         "Buy Snacks", "Grab a quick bite and a drink.",
                         4, 5));
+                break;
             case "supermarket":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Buy Groceries", "Stock up on food and household items.",
                         15, 20));
+                break;
             case "warehouse_store":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Buy in Bulk", "Load up on supplies at wholesale prices.",
                         30, 30));
+                break;
             case "small_retail_store":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Browse Store", "Pick up a few items.",
                         10, 15));
+                break;
             case "strip_mall":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Run Errands", "Knock out a few errands.",
                         10, 20));
+                break;
             case "shopping_center":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Go Shopping", "Browse the shops for what you need.",
                         20, 45));
+                break;
             case "regional_mall":
-                return list(new BuildingService(SVC_BUY_SUPPLIES,
+                base = list(new BuildingService(SVC_BUY_SUPPLIES,
                         "Shop at the Mall", "Spend some time shopping.",
                         30, 60));
+                break;
             case "laundromat":
-                return list(new BuildingService(SVC_LAUNDRY,
+                base = list(new BuildingService(SVC_LAUNDRY,
                         "Do Laundry", "Wash and dry your clothes.",
                         8, 45));
+                break;
 
             default:
-                return Collections.emptyList();
+                base = Collections.emptyList();
+                break;
         }
+
+        // Append "Use Improvements" if any discovered improvement has a function.
+        if (hasDiscoveredFunctionalImprovement(building)) {
+            List<BuildingService> extended = new ArrayList<>(base);
+            extended.add(new BuildingService(SVC_USE_IMPROVEMENTS,
+                    "Use Improvements", "Interact with available facilities.", 0, 0));
+            return Collections.unmodifiableList(extended);
+        }
+        return base;
+    }
+
+    /**
+     * Returns {@code true} if the building has at least one discovered improvement
+     * that has a non-empty {@code function} field.
+     */
+    public static boolean hasDiscoveredFunctionalImprovement(Building building) {
+        if (building == null) return false;
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.isDiscovered() && imp.hasFunction()) return true;
+        }
+        return false;
     }
 
     // -------------------------------------------------------------------------
