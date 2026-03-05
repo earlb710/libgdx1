@@ -146,7 +146,8 @@ public class ImprovementsEditorPanel extends JPanel {
         table.getColumnModel().getColumn(3).setPreferredWidth(130); // Category
         table.getColumnModel().getColumn(4).setPreferredWidth(120); // Function
         table.getColumnModel().getColumn(5).setPreferredWidth(80);  // Effective
-        table.getColumnModel().getColumn(6).setPreferredWidth(480); // Description
+        table.getColumnModel().getColumn(6).setPreferredWidth(160); // Restrict
+        table.getColumnModel().getColumn(7).setPreferredWidth(480); // Description
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         // Category column: combobox with all known category codes
@@ -326,11 +327,15 @@ public class ImprovementsEditorPanel extends JPanel {
                     String effective   = entry.has("effective")
                             ? String.valueOf(entry.get("effective").getAsInt()) : "";
                     String description = entry.has("description") ? entry.get("description").getAsString() : "";
+                    String restrict    = "";
+                    if (entry.has("restrict") && entry.get("restrict").isJsonObject()) {
+                        restrict = restrictObjectToString(entry.getAsJsonObject("restrict"));
+                    }
                     String mods = "";
                     if (entry.has("attribute_modifiers") && entry.get("attribute_modifiers").isJsonObject()) {
                         mods = attributeModifiersToString(entry.getAsJsonObject("attribute_modifiers"));
                     }
-                    rows.add(new Object[]{id, name, mods, category, function, effective, description});
+                    rows.add(new Object[]{id, name, mods, category, function, effective, restrict, description});
                 }
                 rows.sort(Comparator.comparing(r -> r[0].toString()));
                 for (Object[] row : rows) {
@@ -377,7 +382,8 @@ public class ImprovementsEditorPanel extends JPanel {
                 String category    = cellStr(r, 3);
                 String function    = cellStr(r, 4);
                 String effectiveStr = cellStr(r, 5);
-                String description = cellStr(r, 6);
+                String restrictStr  = cellStr(r, 6);
+                String description = cellStr(r, 7);
 
                 JsonObject entry = new JsonObject();
                 entry.addProperty("id",   id);
@@ -397,6 +403,12 @@ public class ImprovementsEditorPanel extends JPanel {
                     } catch (NumberFormatException ignored) {
                         statusLabel.setText("Warning: row " + (r + 1) + " – invalid effective value \""
                                 + effectiveStr.trim() + "\"; field omitted.");
+                    }
+                }
+                if (!restrictStr.isEmpty()) {
+                    JsonObject restrictObj = parseRestrictString(restrictStr);
+                    if (restrictObj != null && restrictObj.size() > 0) {
+                        entry.add("restrict", restrictObj);
                     }
                 }
                 if (!description.isEmpty()) entry.addProperty("description", description);
@@ -463,6 +475,46 @@ public class ImprovementsEditorPanel extends JPanel {
         return obj;
     }
 
+    /**
+     * Converts a restrict JSON object to a compact display string.
+     * E.g. {"gender":"male","strength":3} → "gender: male, strength: 3"
+     */
+    private static String restrictObjectToString(JsonObject restrict) {
+        if (restrict == null || restrict.size() == 0) return "";
+        List<String> parts = new ArrayList<>();
+        List<Map.Entry<String, JsonElement>> entries = new ArrayList<>(restrict.entrySet());
+        entries.sort(Map.Entry.comparingByKey());
+        for (Map.Entry<String, JsonElement> entry : entries) {
+            parts.add(entry.getKey() + ": " + entry.getValue().getAsString());
+        }
+        return String.join(", ", parts);
+    }
+
+    /**
+     * Parses a restrict display string back to a JSON object.
+     * E.g. "gender: male, strength: 3" → {"gender":"male","strength":3}
+     * Numeric values are stored as numbers; others as strings.
+     */
+    private static JsonObject parseRestrictString(String restrictStr) {
+        JsonObject obj = new JsonObject();
+        if (restrictStr == null || restrictStr.trim().isEmpty()) return obj;
+        for (String part : restrictStr.split(",")) {
+            String trimmed = part.trim();
+            if (trimmed.isEmpty()) continue;
+            String[] kv = trimmed.split(":", 2);
+            if (kv.length == 2) {
+                String key = kv[0].trim().toLowerCase();
+                String val = kv[1].trim();
+                try {
+                    obj.addProperty(key, Integer.parseInt(val));
+                } catch (NumberFormatException e) {
+                    obj.addProperty(key, val.toLowerCase());
+                }
+            }
+        }
+        return obj;
+    }
+
     private void switchLanguage(String newLang) {
         if (currentFile == null) return;
         File newFile = EditorUtils.deriveFileForLanguage(currentFile, newLang);
@@ -480,7 +532,7 @@ public class ImprovementsEditorPanel extends JPanel {
 
     private static DefaultTableModel createModel() {
         return new DefaultTableModel(
-                new String[]{"ID", "Name", "Attribute Modifiers", "Category", "Function", "Effective", "Description"}, 0) {
+                new String[]{"ID", "Name", "Attribute Modifiers", "Category", "Function", "Effective", "Restrict", "Description"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;

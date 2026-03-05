@@ -83,6 +83,7 @@ public class MainScreen implements Screen {
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private ShopPopup            shopPopup;
+    private ImprovementUsePopup  improvementUsePopup;
     private List<ShopItem>       shopItems = new ArrayList<>();
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
@@ -303,6 +304,9 @@ public class MainScreen implements Screen {
 
         shopPopup = new ShopPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        improvementUsePopup = new ImprovementUsePopup(batch, shapeRenderer, font, smallFont,
+                glyphLayout, profile);
+
         emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         phonePopup = new PhonePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -409,6 +413,10 @@ public class MainScreen implements Screen {
             shopPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (improvementUsePopup.isVisible()) {
+            improvementUsePopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (emailPopup.isVisible()) {
             emailPopup.draw(state.screenWidth, state.screenHeight);
         }
@@ -513,6 +521,7 @@ public class MainScreen implements Screen {
             || hotelReceptionPopup.isVisible()
             || gymInstructorPopup.isVisible()
             || shopPopup.isVisible()
+            || improvementUsePopup.isVisible()
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
@@ -1055,6 +1064,23 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // Improvement use popup: tap a Use button or Close
+                if (improvementUsePopup.isVisible()) {
+                    if (infoAreaPressed) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) {
+                            improvementUsePopup.onTap(screenX, flippedY);
+                            int tapped = improvementUsePopup.pollTapped();
+                            if (tapped >= 0) {
+                                handleImprovementUse(improvementUsePopup.getRowImprovement(tapped));
+                            }
+                        }
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Email popup: Accept, Decline, or Close
                 if (emailPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -1228,6 +1254,10 @@ public class MainScreen implements Screen {
                 }
                 if (shopPopup.isVisible()) {
                     shopPopup.scroll(amountY * 20f);
+                    return true;
+                }
+                if (improvementUsePopup.isVisible()) {
+                    improvementUsePopup.scroll(amountY * 20f);
                     return true;
                 }
                 float old = state.zoomLevel;
@@ -2230,6 +2260,16 @@ public class MainScreen implements Screen {
             case BuildingServices.SVC_GYM_INSTRUCTOR: {
                 gymInstructorPopup.show();
                 return;  // popup drives the rest
+            }
+
+            // ---- Improvement use popup -------------------------------------
+            case BuildingServices.SVC_USE_IMPROVEMENTS: {
+                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
+                if (cell.hasBuilding()) {
+                    Building bld = cell.getBuilding();
+                    improvementUsePopup.show(bld, bld.getDisplayName());
+                }
+                return;
             }
 
             // ---- Food: restore stamina -----------------------------------
@@ -3254,5 +3294,95 @@ public class MainScreen implements Screen {
 
         Gdx.app.log("MainScreen", "Starting buildings discovered from home "
                 + refX + "," + refY);
+    }
+
+    /**
+     * Called when the player taps "Use" on an improvement in the
+     * {@link ImprovementUsePopup}.  Applies a basic stamina effect based on the
+     * improvement's function and effective rating, then shows the result popup.
+     */
+    private void handleImprovementUse(Improvement imp) {
+        if (imp == null) return;
+        List<String> resultLines = new ArrayList<>();
+        String fn = imp.getFunction();
+        int eff = imp.getEffective();
+
+        // Advance time (10 min per use of an improvement)
+        profile.advanceGameTime(10);
+        profile.useStamina(1);
+
+        // Basic effect per function type
+        switch (fn) {
+            case "rest": {
+                int gain = Math.max(1, eff / 20);
+                profile.addStamina(gain);
+                resultLines.add("You rested at the " + imp.getName() + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            case "exercise": {
+                int staminaCost = 2;
+                profile.useStamina(staminaCost);
+                resultLines.add("You exercised at the " + imp.getName() + ".");
+                resultLines.add("Spent " + staminaCost + " extra stamina working out.");
+                break;
+            }
+            case "study": {
+                String intAttr = CharacterAttribute.INTELLIGENCE.name();
+                int cur = profile.getAttribute(intAttr);
+                float chance = eff / 200f;   // 50% eff → 25% chance
+                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                    profile.setAttribute(intAttr, cur + 1);
+                    resultLines.add("You studied at the " + imp.getName() + ".");
+                    resultLines.add("Your Intelligence improved!");
+                } else {
+                    resultLines.add("You studied at the " + imp.getName() + ".");
+                    resultLines.add("No breakthrough this time.");
+                }
+                break;
+            }
+            case "converse": {
+                String chaAttr = CharacterAttribute.CHARISMA.name();
+                int cur = profile.getAttribute(chaAttr);
+                float chance = eff / 200f;
+                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                    profile.setAttribute(chaAttr, cur + 1);
+                    resultLines.add("You socialised at the " + imp.getName() + ".");
+                    resultLines.add("Your Charisma improved!");
+                } else {
+                    resultLines.add("You socialised at the " + imp.getName() + ".");
+                    resultLines.add("A pleasant interaction.");
+                }
+                break;
+            }
+            case "draw": {
+                String perAttr = CharacterAttribute.PERCEPTION.name();
+                int cur = profile.getAttribute(perAttr);
+                float chance = eff / 200f;
+                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                    profile.setAttribute(perAttr, cur + 1);
+                    resultLines.add("You explored the " + imp.getName() + ".");
+                    resultLines.add("Your Perception sharpened!");
+                } else {
+                    resultLines.add("You explored the " + imp.getName() + ".");
+                    resultLines.add("An interesting experience.");
+                }
+                break;
+            }
+            case "repair": {
+                int gain = Math.max(1, eff / 25);
+                profile.addStamina(gain);
+                resultLines.add("You used the " + imp.getName() + ".");
+                resultLines.add("+" + gain + " stamina.");
+                break;
+            }
+            default: {
+                resultLines.add("You used the " + imp.getName() + ".");
+                break;
+            }
+        }
+
+        serviceResultPopup.show(imp.getName(), resultLines);
+        Gdx.app.log("MainScreen", "ImprovementUse: " + imp.getName() + " fn=" + fn);
     }
 }

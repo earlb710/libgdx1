@@ -253,7 +253,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 95,
-      "description": "An open turf field for team sports, training drills, and competitive play."
+      "description": "An open turf field for team sports, training drills, and competitive play.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "attic_storage",
@@ -440,7 +443,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "A regulation court for basketball, pick-up games, and athletic drills."
+      "description": "A regulation court for basketball, pick-up games, and athletic drills.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "battery_charging",
@@ -1039,7 +1045,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "An indoor bouldering wall with colour-coded routes for all skill levels."
+      "description": "An indoor bouldering wall with colour-coded routes for all skill levels.",
+      "restrict": {
+        "strength": 3
+      }
     },
     {
       "id": "club_level",
@@ -2306,7 +2315,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 95,
-      "description": "A fully equipped fitness centre with cardio machines, free weights, and group class studios."
+      "description": "A fully equipped fitness centre with cardio machines, free weights, and group class studios.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "fitness_room",
@@ -2319,7 +2331,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "An exercise room stocked with weights, cardio equipment, and stretch mats."
+      "description": "An exercise room stocked with weights, cardio equipment, and stretch mats.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "fitting_room",
@@ -2582,7 +2597,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "A group fitness studio hosting scheduled classes in aerobics, HIIT, and strength training."
+      "description": "A group fitness studio hosting scheduled classes in aerobics, HIIT, and strength training.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "guard_tower",
@@ -2652,7 +2670,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 95,
-      "description": "A regulation gymnasium supporting team sports, fitness classes, and athletic training."
+      "description": "A regulation gymnasium supporting team sports, fitness classes, and athletic training.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "hoa_common_area",
@@ -2679,7 +2700,10 @@
       "category": "social",
       "function": "converse",
       "effective": 75,
-      "description": "A professional hair salon offering cuts, colour, and styling by licensed stylists."
+      "description": "A professional hair salon offering cuts, colour, and styling by licensed stylists.",
+      "restrict": {
+        "gender": "female"
+      }
     },
     {
       "id": "handicap_spaces",
@@ -5109,7 +5133,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 95,
-      "description": "A fully equipped exercise space supporting strength training and cardiovascular conditioning."
+      "description": "A fully equipped exercise space supporting strength training and cardiovascular conditioning.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "residents_only_elevator",
@@ -5287,7 +5314,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 80,
-      "description": "A rooftop terrace offering open-air seating with elevated views of the city."
+      "description": "A rooftop terrace offering open-air seating with elevated views of the city.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "rooftop_terrace",
@@ -5979,7 +6009,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "An aquatic facility for lap swimming, aqua fitness, and water recreation."
+      "description": "An aquatic facility for lap swimming, aqua fitness, and water recreation.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "tv",
@@ -6067,7 +6100,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "A maintained court surface for tennis and racquet sports."
+      "description": "A maintained court surface for tennis and racquet sports.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "terrace_gardens",
@@ -6181,7 +6217,10 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "A marked running track for sprints, distance training, and competitive timing."
+      "description": "A marked running track for sprints, distance training, and competitive timing.",
+      "restrict": {
+        "strength": 2
+      }
     },
     {
       "id": "training_center",
@@ -6562,7 +6601,11 @@
       "category": "physical",
       "function": "exercise",
       "effective": 90,
-      "description": "A free-weights room with barbells, dumbbells, benches, and resistance machines."
+      "description": "A free-weights room with barbells, dumbbells, benches, and resistance machines.",
+      "restrict": {
+        "gender": "male",
+        "strength": 3
+      }
     },
     {
       "id": "welding_shop",
@@ -6644,7 +6687,10 @@
       "category": "mental",
       "function": "rest",
       "effective": 55,
-      "description": "A dedicated women's section providing a private, comfortable space for female occupants."
+      "description": "A dedicated women's section providing a private, comfortable space for female occupants.",
+      "restrict": {
+        "gender": "female"
+      }
     },
     {
       "id": "woodshop",

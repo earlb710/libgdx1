@@ -17,6 +17,9 @@ import java.util.Map;
  *
  * Each improvement may also affect character attributes (from -3 to +3),
  * determined by the improvement's name via {@link ImprovementEffects}.
+ *
+ * <p>Runtime function/effective/restrict data is supplied via {@link ImprovementData}
+ * (loaded from {@code text/improvements_en.json}).
  */
 public class Improvement {
     private final String name;
@@ -26,16 +29,22 @@ public class Improvement {
     private final Map<CharacterAttribute, Integer> attributeModifiers;
     private boolean discovered;
 
+    // --- Optional runtime data from improvements_en.json ---
+    private final String function;
+    private final int effective;
+    private final ImprovementData data;
+
     /**
-     * Creates a new Improvement with a hidden value.
+     * Creates a new Improvement with a hidden value and optional runtime data.
      * Improvements are not discovered by default.
      * Attribute modifiers are automatically determined from the improvement name.
      *
      * @param name        The improvement name (cannot be null or empty)
      * @param level       The improvement level (must be >= 0)
      * @param hiddenValue How hidden the improvement is (0-5, where 0 = found on arrival)
+     * @param data        Optional runtime data; may be {@code null}
      */
-    public Improvement(String name, int level, int hiddenValue) {
+    public Improvement(String name, int level, int hiddenValue, ImprovementData data) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Improvement name cannot be null or empty");
         }
@@ -51,6 +60,16 @@ public class Improvement {
         this.discovered = false;
         this.quality = ImprovementEffects.getQuality(this.name);
         this.attributeModifiers = ImprovementEffects.getEffects(this.name);
+        this.data      = data;
+        this.function  = (data != null) ? data.function  : "";
+        this.effective = (data != null) ? data.effective : 0;
+    }
+
+    /**
+     * Creates a new Improvement without runtime data (legacy / test constructor).
+     */
+    public Improvement(String name, int level, int hiddenValue) {
+        this(name, level, hiddenValue, null);
     }
 
     public String getName() {
@@ -107,11 +126,45 @@ public class Improvement {
         return attributeModifiers;
     }
 
+    /**
+     * Returns the function of this improvement (e.g. "rest", "exercise"), or an
+     * empty string if this improvement has no function.
+     */
+    public String getFunction() {
+        return function;
+    }
+
+    /**
+     * Returns {@code true} if this improvement has a function.
+     */
+    public boolean hasFunction() {
+        return !function.isEmpty();
+    }
+
+    /**
+     * Returns the effectiveness rating (50–100) for this improvement's function,
+     * or {@code 0} if no function is set.
+     */
+    public int getEffective() {
+        return effective;
+    }
+
+    /**
+     * Returns the {@link ImprovementData} backing this improvement, or {@code null}
+     * if no data was provided (legacy construction).
+     */
+    public ImprovementData getData() {
+        return data;
+    }
+
     @Override
     public String toString() {
         return "Improvement{name='" + name + "', level=" + level +
                ", hiddenValue=" + hiddenValue + ", quality=" + quality +
                ", discovered=" + discovered +
-               ", modifiers=" + attributeModifiers + "}";
+               ", modifiers=" + attributeModifiers +
+               (function.isEmpty() ? "" : ", function=" + function + ", effective=" + effective) +
+               "}";
     }
 }
+

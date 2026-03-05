@@ -22,6 +22,7 @@ import java.util.Map;
  */
 public class GameDataManager {
     private static final String BUILDINGS_FILE      = "text/buildings_en.json";
+    private static final String IMPROVEMENTS_FILE   = "text/improvements_en.json";
     private static final String PERSON_NAMES_FILE   = "person_names.json";
     private static final String SURNAMES_FILE       = "person_surnames.json";
     private static final String COMPANY_NAMES_FILE  = "company_names.json";
@@ -34,6 +35,8 @@ public class GameDataManager {
     private final Map<String, List<BuildingDefinition>> buildingsByCategory;
     private final List<CategoryDefinition> categories;
     private final Map<String, CategoryDefinition> categoriesById;
+    /** Improvement data keyed by lower-case improvement name. */
+    private final Map<String, ImprovementData> improvementDataByName;
 
     private String buildingsVersion;
     private String categoriesVersion;
@@ -49,14 +52,58 @@ public class GameDataManager {
         this.buildingsByCategory = new HashMap<>();
         this.categories = new ArrayList<>();
         this.categoriesById = new HashMap<>();
+        this.improvementDataByName = new HashMap<>();
 
         loadBuildings();
         loadCategories();
+        loadImprovements();
         loadNovelTextEngine();
         loadPersonNames();
         loadCompanyNames();
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
+    }
+
+    /**
+     * Loads improvement metadata from {@code text/improvements_en.json}.
+     * Populates {@link #improvementDataByName} keyed by lower-case improvement name.
+     */
+    private void loadImprovements() {
+        try {
+            FileHandle file = Gdx.files.internal(IMPROVEMENTS_FILE);
+            if (!file.exists()) {
+                Gdx.app.log("GameDataManager", "Improvements file not found: " + IMPROVEMENTS_FILE);
+                return;
+            }
+            JsonReader reader = new JsonReader();
+            JsonValue root = reader.parse(file);
+            JsonValue impsArray = root.get("improvements");
+            if (impsArray == null) return;
+            int count = 0;
+            for (JsonValue entry = impsArray.child; entry != null; entry = entry.next) {
+                String name = entry.getString("name", "");
+                if (name.isEmpty()) continue;
+                String function  = entry.getString("function", "");
+                int    effective = entry.getInt("effective", 0);
+
+                Map<String, String> restrict = new HashMap<>();
+                JsonValue restrictJson = entry.get("restrict");
+                if (restrictJson != null) {
+                    for (JsonValue rv = restrictJson.child; rv != null; rv = rv.next) {
+                        restrict.put(rv.name().toLowerCase(), rv.asString());
+                    }
+                }
+                ImprovementData data = new ImprovementData(
+                        name.toLowerCase(), function, effective, restrict);
+                improvementDataByName.put(name.toLowerCase(), data);
+                count++;
+            }
+            Gdx.app.log("GameDataManager",
+                    "Loaded " + count + " improvement entries from " + IMPROVEMENTS_FILE);
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager",
+                    "Error loading " + IMPROVEMENTS_FILE + ": " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -441,5 +488,16 @@ public class GameDataManager {
      */
     public CompanyNameGenerator getCompanyNameGenerator() {
         return companyNameGenerator;
+    }
+
+    /**
+     * Returns the {@link ImprovementData} for the given improvement name, or
+     * {@code null} if the improvement is not found in {@code improvements_en.json}.
+     *
+     * @param name improvement name (case-insensitive)
+     */
+    public ImprovementData getImprovementData(String name) {
+        if (name == null) return null;
+        return improvementDataByName.get(name.toLowerCase());
     }
 }

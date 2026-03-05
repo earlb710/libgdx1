@@ -1,0 +1,77 @@
+package eb.framework1.city;
+
+import java.util.Collections;
+import java.util.Map;
+
+/**
+ * Runtime data for an improvement loaded from {@code text/improvements_en.json}.
+ *
+ * <p>Holds the optional {@code function} (e.g. "rest", "exercise"), the
+ * {@code effective} rating (50–100, present only when function is set), and
+ * an optional {@code restrict} map that gates access to the improvement.
+ *
+ * <p>Supported restrict keys:
+ * <ul>
+ *   <li>{@code "gender"} – {@code "male"} or {@code "female"}</li>
+ *   <li>{@code "strength"} – minimum STRENGTH attribute value (integer)</li>
+ * </ul>
+ */
+public final class ImprovementData {
+
+    /** Identifies this entry; matches the improvement's name (lower-cased). */
+    public final String nameLower;
+
+    /** The function this improvement provides (e.g. "rest", "exercise"); may be empty. */
+    public final String function;
+
+    /** Effectiveness rating 50–100; 0 when no function is set. */
+    public final int effective;
+
+    /**
+     * Restriction map.  Keys are lower-case restriction names; values are
+     * the required values (Strings or Integers stored as Strings).
+     * Empty map means no restrictions.
+     */
+    private final Map<String, String> restrict;
+
+    public ImprovementData(String nameLower, String function, int effective,
+                           Map<String, String> restrict) {
+        this.nameLower = nameLower;
+        this.function  = function  != null ? function  : "";
+        this.effective = effective;
+        this.restrict  = restrict  != null ? Collections.unmodifiableMap(restrict)
+                                           : Collections.emptyMap();
+    }
+
+    /** Returns an unmodifiable view of the restriction map. */
+    public Map<String, String> getRestrict() {
+        return restrict;
+    }
+
+    /** Returns {@code true} if this improvement has a function. */
+    public boolean hasFunction() {
+        return !function.isEmpty();
+    }
+
+    /** Returns {@code true} if this improvement has any access restrictions. */
+    public boolean hasRestrict() {
+        return !restrict.isEmpty();
+    }
+
+    /**
+     * Returns the required gender, or {@code null} if no gender restriction.
+     * The value is lower-cased (e.g. {@code "male"}, {@code "female"}).
+     */
+    public String getRequiredGender() {
+        return restrict.get("gender");
+    }
+
+    /**
+     * Returns the minimum STRENGTH required, or {@code 0} if no strength restriction.
+     */
+    public int getRequiredStrength() {
+        String val = restrict.get("strength");
+        if (val == null) return 0;
+        try { return Integer.parseInt(val); } catch (NumberFormatException e) { return 0; }
+    }
+}
