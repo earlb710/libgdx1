@@ -1761,6 +1761,23 @@ public class MainScreen implements Screen {
             matchingCase.addClue("Asked " + contactName + ": \"" + question + "\"");
         }
 
+        // Record a bilateral relationship entry for this first meeting.
+        // Try to find the NPC in the world NPC list so the NPC also gets an entry.
+        eb.framework1.character.NpcCharacter contactNpc = null;
+        for (eb.framework1.character.NpcCharacter npc : state.allNpcs) {
+            if (contactName.equalsIgnoreCase(npc.getFullName())) {
+                contactNpc = npc;
+                break;
+            }
+        }
+        int contactCharisma = (contactNpc != null)
+                ? contactNpc.getAttribute(eb.framework1.character.CharacterAttribute.CHARISMA)
+                : eb.framework1.character.Relationship.NEUTRAL_CHARISMA;
+        String contactId = (contactNpc != null) ? contactNpc.getId() : contactName;
+        eb.framework1.character.Relationship.recordMeeting(
+                profile, contactId, contactName, contactCharisma, contactNpc);
+        Gdx.app.log("MainScreen", "Relationship recorded: player ↔ " + contactName);
+
         Gdx.app.log("MainScreen", "Case file updated after meeting: " + matchingCase.getName());
         // Remove the completed appointment from the calendar
         profile.removeCalendarEntry(currentMeetAppt);

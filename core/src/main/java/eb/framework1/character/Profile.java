@@ -45,7 +45,9 @@ public class Profile {
     private final java.util.Set<String> phonedContactKeys = new java.util.LinkedHashSet<>();
     // Ratings for phoned contacts, keyed by "caseId|contactName"
     private final Map<String, PhoneMessageRating> contactMessageRatings = new HashMap<>();
-    
+    // Relationships with characters this profile has met
+    private final List<Relationship> relationships = new ArrayList<>();
+
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
     }
@@ -661,6 +663,49 @@ public class Profile {
             throw new IllegalArgumentException("CaseFile is not in the case files list");
         }
         this.activeCaseFile = caseFile;
+    }
+
+    // -------------------------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------------------------
+
+    /**
+     * Adds a relationship entry, replacing any existing entry for the same
+     * {@link Relationship#getTargetId() targetId}.
+     *
+     * @param relationship must not be {@code null}
+     */
+    public void addOrUpdateRelationship(Relationship relationship) {
+        if (relationship == null) throw new IllegalArgumentException("relationship must not be null");
+        for (int i = 0; i < relationships.size(); i++) {
+            if (relationships.get(i).getTargetId().equals(relationship.getTargetId())) {
+                relationships.set(i, relationship);
+                return;
+            }
+        }
+        relationships.add(relationship);
+    }
+
+    /**
+     * Returns the relationship entry for the character with the given ID, or
+     * {@code null} if no such entry exists.
+     *
+     * @param targetId the identifier to look up
+     */
+    public Relationship getRelationship(String targetId) {
+        if (targetId == null) return null;
+        for (Relationship r : relationships) {
+            if (r.getTargetId().equals(targetId)) return r;
+        }
+        return null;
+    }
+
+    /**
+     * Returns an unmodifiable view of all relationship entries held by this
+     * profile.
+     */
+    public List<Relationship> getRelationships() {
+        return Collections.unmodifiableList(relationships);
     }
 
     // -------------------------------------------------------------------------
