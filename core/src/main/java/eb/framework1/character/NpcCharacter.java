@@ -79,6 +79,18 @@ public final class NpcCharacter {
      */
     private final Map<CharacterAttribute, Integer> attributes;
 
+    /**
+     * Skills inferred from the NPC's occupation.  Populated by {@link NpcGenerator};
+     * empty list when constructed via {@link CharacterGenerator} directly.
+     */
+    private final List<NpcSkill> skills;
+
+    /**
+     * Daily schedule that describes where the NPC is at each hour of the day.
+     * {@code null} when constructed via {@link CharacterGenerator} directly.
+     */
+    private final NpcSchedule schedule;
+
     // -------------------------------------------------------------------------
     // Construction
     // -------------------------------------------------------------------------
@@ -103,6 +115,9 @@ public final class NpcCharacter {
         this.personalityProfile   = b.personalityProfile;
         this.attributes           = Collections.unmodifiableMap(
                 new EnumMap<>(b.attributes));
+        this.skills               = Collections.unmodifiableList(
+                new ArrayList<>(b.skills));
+        this.schedule             = b.schedule;
     }
 
     // -------------------------------------------------------------------------
@@ -235,6 +250,31 @@ public final class NpcCharacter {
     }
 
     // -------------------------------------------------------------------------
+    // Accessors — skills and schedule
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the skills inferred from this NPC's occupation by
+     * {@link NpcGenerator}.  Returns an empty list for NPCs created directly
+     * via {@link CharacterGenerator} (without the full generation pipeline).
+     *
+     * @return unmodifiable list of skills; never {@code null}
+     */
+    public List<NpcSkill> getSkills() {
+        return skills;
+    }
+
+    /**
+     * Returns the NPC's daily schedule as built by {@link NpcGenerator}, or
+     * {@code null} if the NPC was not enriched by the generator.
+     *
+     * @return the {@link NpcSchedule}, or {@code null}
+     */
+    public NpcSchedule getSchedule() {
+        return schedule;
+    }
+
+    // -------------------------------------------------------------------------
     // Object overrides
     // -------------------------------------------------------------------------
 
@@ -279,6 +319,8 @@ public final class NpcCharacter {
         private PersonalityProfile personalityProfile = PersonalityProfile.DEFAULT;
         private final Map<CharacterAttribute, Integer> attributes =
                 new EnumMap<>(CharacterAttribute.class);
+        private final List<NpcSkill> skills = new ArrayList<>();
+        private NpcSchedule schedule = null;
 
         /**
          * Sets the mandatory unique identifier.
@@ -452,6 +494,59 @@ public final class NpcCharacter {
                     attribute(e.getKey(), e.getValue());
                 }
             }
+            return this;
+        }
+
+        /**
+         * Replaces the entire list of frequently-visited locations.
+         * Entries that are {@code null} or blank are silently ignored.
+         *
+         * @param locations list of location strings; {@code null} clears the list
+         */
+        public Builder frequentLocations(List<String> locations) {
+            this.frequentLocations.clear();
+            if (locations != null) {
+                for (String loc : locations) {
+                    addFrequentLocation(loc);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Adds a skill to the NPC's skill list.  {@code null} is silently ignored.
+         *
+         * @param skill the skill to add
+         */
+        public Builder addSkill(NpcSkill skill) {
+            if (skill != null) this.skills.add(skill);
+            return this;
+        }
+
+        /**
+         * Replaces the entire skill list.  {@code null} values in the list are
+         * silently ignored.
+         *
+         * @param skills the new skill list; {@code null} clears the list
+         */
+        public Builder skills(List<NpcSkill> skills) {
+            this.skills.clear();
+            if (skills != null) {
+                for (NpcSkill s : skills) {
+                    if (s != null) this.skills.add(s);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Sets the NPC's daily schedule.  {@code null} is permitted and means
+         * the NPC has no schedule.
+         *
+         * @param schedule the schedule, or {@code null}
+         */
+        public Builder schedule(NpcSchedule schedule) {
+            this.schedule = schedule;
             return this;
         }
 
