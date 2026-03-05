@@ -657,22 +657,7 @@ public class InfoPanelRenderer {
                 Building building = cell.getBuilding();
                 if (building.isDiscovered()) {
                     String bMod = formatAttributeModifiers(building.getAttributeModifiers());
-                    float dx = textX - drawScrollX;
-                    float dy = textY + drawScrollY;
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Building: ", dx, dy);
-                    glyphLayout.setText(font, "Building: ");
-                    float nameX = dx + glyphLayout.width;
                     String bName = building.getDisplayName();
-                    smallFont.setColor(Color.WHITE);
-                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
-                    if (!bMod.isEmpty()) {
-                        glyphLayout.setText(smallFont, bName);
-                        tinyFont.setColor(Color.WHITE);
-                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
-                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
-                    }
-                    textY -= fontLineH;
 
                     if (building.getDefinition() != null) {
                         textY = drawLabelValue(font, "Type: ",
@@ -700,8 +685,27 @@ public class InfoPanelRenderer {
 
                     // Building description from buildings_en.json (word-wrapped, novel colour)
                     List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+
+                    // Space above "Building: name", then draw it just above the description
+                    textY -= smallLineH;
+                    float dx = textX - drawScrollX;
+                    float dy = textY + drawScrollY;
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "Building: ", dx, dy);
+                    glyphLayout.setText(font, "Building: ");
+                    float nameX = dx + glyphLayout.width;
+                    smallFont.setColor(Color.WHITE);
+                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
+                    if (!bMod.isEmpty()) {
+                        glyphLayout.setText(smallFont, bName);
+                        tinyFont.setColor(Color.WHITE);
+                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
+                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
+                    }
+                    textY -= fontLineH;
+
+                    // Description immediately below "Building: name" (no extra gap)
                     if (!novelLines.isEmpty()) {
-                        textY -= smallLineH;
                         smallFont.setColor(NOVEL_COLOR);
                         for (String nLine : novelLines) {
                             smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
