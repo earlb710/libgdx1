@@ -167,12 +167,13 @@ public class LookAroundPopup {
         List<String> impDescLines = java.util.Collections.emptyList();
         List<String> novelLines   = java.util.Collections.emptyList();
 
+        // Always fill the full screen width
+        dialogW = MAX_W;
+
         if (state == State.ANIMATING) {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Looking around...", 0f, 0f);
             headingH     = headBounds.textHeight;
             headingLineH = headingH + GAP;
-            // Width: heading + 2*PAD (no scrollbar needed for animation state)
-            dialogW = MathUtils.clamp(headBounds.textWidth + 2 * PAD, MIN_W, MAX_W);
             // Height: exactly PAD top + text + PAD bottom so text is always PAD from each border
             dialogH      = 2 * PAD + headingH;
             needsScroll  = false;
@@ -182,18 +183,12 @@ public class LookAroundPopup {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Found:", 0f, 0f);
             headingH     = headBounds.textHeight;
             headingLineH = headingH + GAP;
-            // Measure items: total height and max width
+            // Measure items: total height
             TextMeasurer.TextBounds itemsBounds =
                     TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f);
             // measureLines gives N*lineH + (N-1)*GAP but draw loop uses N*(lineH+GAP).
             // Add one trailing GAP so the last item is never clipped.
             float itemsH   = itemsBounds.textHeight + (foundItems.isEmpty() ? 0f : GAP);
-            float maxItemW = itemsBounds.textWidth;
-
-            // Width = widest of (heading, items, ok-button-text) + 2*PAD + scrollbar margin
-            float rawContentW = Math.max(headBounds.textWidth,
-                                Math.max(maxItemW, okBounds.textWidth));
-            dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
 
             // Wrap width available for description text inside the dialog
             float wrapWidth = dialogW - 2 * PAD;
@@ -322,7 +317,7 @@ public class LookAroundPopup {
                 ty -= smallLineH;
             }
             if (!impDescLines.isEmpty()) {
-                smallFont.setColor(Color.WHITE);
+                smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
                 for (String dLine : impDescLines) {
                     smallFont.draw(batch, dLine, dialogX + PAD, ty);
                     ty -= smallLineH;
