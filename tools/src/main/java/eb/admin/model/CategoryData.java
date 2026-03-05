@@ -14,6 +14,7 @@ public class CategoryData {
     private List<CategoryEntry> evidence_categories = new ArrayList<>();
     private List<CategoryEntry> case_types = new ArrayList<>();
     private List<CategoryEntry> improvement_categories = new ArrayList<>();
+    private List<CategoryEntry> skill_categories = new ArrayList<>();
 
     public String getVersion() {
         return version;
@@ -69,5 +70,13 @@ public class CategoryData {
 
     public void setImprovement_categories(List<CategoryEntry> improvement_categories) {
         this.improvement_categories = improvement_categories;
+    }
+
+    public List<CategoryEntry> getSkill_categories() {
+        return skill_categories;
+    }
+
+    public void setSkill_categories(List<CategoryEntry> skill_categories) {
+        this.skill_categories = skill_categories;
     }
 }
