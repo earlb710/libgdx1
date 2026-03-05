@@ -698,8 +698,19 @@ public class InfoPanelRenderer {
                         }
                     }
 
+                    // Building description from buildings_en.json (word-wrapped, novel colour)
+                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+                    if (!novelLines.isEmpty()) {
+                        textY -= smallLineH;
+                        smallFont.setColor(NOVEL_COLOR);
+                        for (String nLine : novelLines) {
+                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                            textY -= smallLineH;
+                        }
+                    }
+
                     font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
+                    font.draw(batch, "Locations:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
@@ -732,17 +743,6 @@ public class InfoPanelRenderer {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
                             textY -= fontLineH;
-                        }
-                    }
-
-                    // Building description from buildings_en.json (word-wrapped, novel colour)
-                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
-                    if (!novelLines.isEmpty()) {
-                        textY -= smallLineH;
-                        smallFont.setColor(NOVEL_COLOR);
-                        for (String nLine : novelLines) {
-                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
-                            textY -= smallLineH;
                         }
                     }
                 } else {
@@ -1891,16 +1891,16 @@ public class InfoPanelRenderer {
             h += fontLineH;               // "Tenants:" header
             h += smallLineH * tenants.size();
         }
-        h += fontLineH; // "Improvements:" header (advance)
+        int novelLineCount = buildingNovelLines(b, wrapWidth).size();
+        if (novelLineCount > 0) {
+            h += smallLineH * (1 + novelLineCount); // blank gap + description lines
+        }
+        h += fontLineH; // "Locations:" header (advance)
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
             if (imp.isDiscovered()) {
                 h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
             }
-        }
-        int novelLineCount = buildingNovelLines(b, wrapWidth).size();
-        if (novelLineCount > 0) {
-            h += smallLineH * (1 + novelLineCount); // blank gap + description lines
         }
         return h;
     }
@@ -1945,7 +1945,7 @@ public class InfoPanelRenderer {
                         maxW = Math.max(maxW, glyphLayout.width);
                     }
                 }
-                glyphLayout.setText(font, "Improvements:");
+                glyphLayout.setText(font, "Locations:");
                 maxW = Math.max(maxW, glyphLayout.width);
                 for (Improvement imp : b.getImprovements()) {
                     String namePart = "  - " + (imp.isDiscovered() ? imp.getName() : "???");
