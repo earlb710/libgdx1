@@ -2843,7 +2843,7 @@ public class MainScreen implements Screen {
         Building building = cell.getBuilding();
         BuildingDefinition def = building.getDefinition();
 
-        // Use description_en.json as the building description; fall back to text/buildings_en.json if not found
+        // Use buildings_en.json descriptions as the building description; fall back to the static description field if not found
         String description = null;
         if (novelTextEngine != null && def != null) {
             String state = building.getState();
@@ -3108,7 +3108,7 @@ public class MainScreen implements Screen {
 
     /**
      * Returns a contextual description of the player's home office, selected from
-     * {@code description_en.json} using the office building's current state
+     * {@code buildings_en.json} (descriptions section) using the office building's current state
      * (good/normal/bad).  Falls back to the time-of-day description when no state
      * variant is defined, and to an empty string when no JSON entry is found.
      */
@@ -3131,7 +3131,7 @@ public class MainScreen implements Screen {
 
     /**
      * Returns a contextual room description for the given hotel building, selected
-     * from {@code description_en.json} using the room-specific key derived from the
+     * from {@code buildings_en.json} (descriptions section) using the room-specific key derived from the
      * building definition ID ({@code <id>_room}) and the building's state
      * (good/normal/bad).  Falls back to time-of-day then default text.
      *

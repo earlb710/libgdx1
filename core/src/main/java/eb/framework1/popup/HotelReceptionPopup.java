@@ -119,7 +119,7 @@ public class HotelReceptionPopup {
      * @param roomType     e.g. "Budget Room", "Comfortable Room", "Luxury Suite"
      * @param nightly      nightly rate in in-game currency
      * @param staminaBonus extra stamina added on a full 8-hour sleep while checked in
-     * @param roomDesc     contextual room description from {@code description_en.json}; may be null
+     * @param roomDesc     contextual room description from {@code buildings_en.json}; may be null
      */
     public void show(String hotelName, String roomType, int nightly, int staminaBonus, String roomDesc) {
         show(hotelName, roomType, nightly, staminaBonus, roomDesc, 0);
@@ -133,7 +133,7 @@ public class HotelReceptionPopup {
      * @param roomType      e.g. "Budget Room", "Comfortable Room", "Luxury Suite"
      * @param nightly       nightly rate in in-game currency
      * @param staminaBonus  extra stamina added on a full 8-hour sleep while checked in
-     * @param roomDesc      contextual room description from {@code description_en.json}; may be null
+     * @param roomDesc      contextual room description from {@code buildings_en.json}; may be null
      * @param currentNights number of prepaid nights the player already has (0 = not checked in)
      */
     public void show(String hotelName, String roomType, int nightly, int staminaBonus,

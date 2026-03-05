@@ -28,15 +28,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Panel that displays and edits the contents of description_en.json.
+ * Panel that displays and edits the {@code "descriptions"} section of
+ * {@code buildings_en.json}.
  *
  * The table shows each location key and its "default" description text.
  * All other nested fields (time, attribute, gender, state) are preserved
- * transparently on load and save.
+ * transparently on load and save.  When saving, the panel merges the edited
+ * descriptions back into the full {@code buildings_en.json} file so the
+ * {@code "buildings"} and {@code "improvements"} sections are never lost.
  */
 public class DescriptionEditorPanel extends JPanel {
 
-    private static final String DEFAULT_JSON_PATH = "assets/text/description_en.json";
+    private static final String DEFAULT_JSON_PATH = "assets/text/buildings_en.json";
     private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
 
     private final JTextField versionField = new JTextField(8);
@@ -393,8 +396,20 @@ public class DescriptionEditorPanel extends JPanel {
         }
 
         try {
-            JsonObject root = new JsonObject();
-            root.addProperty("version", versionField.getText().trim());
+            // Read existing file so we preserve all sections (e.g. "buildings") that
+            // this editor does not manage.
+            JsonObject root;
+            if (currentFile.exists()) {
+                try (Reader r = new FileReader(currentFile)) {
+                    root = new Gson().fromJson(r, JsonObject.class);
+                }
+                if (root == null) root = new JsonObject();
+            } else {
+                root = new JsonObject();
+            }
+
+            // Update only the fields this editor owns.
+            root.addProperty("version",  versionField.getText().trim());
             root.addProperty("language", (String) languageCombo.getSelectedItem());
 
             JsonObject descriptions = new JsonObject();

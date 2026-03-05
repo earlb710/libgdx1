@@ -28,7 +28,6 @@ public class GameDataManager {
     private static final String COMPANY_NAMES_FILE  = "company_names.json";
     private static final String COMPANY_TYPES_FILE  = "company_types.json";
     private static final String CATEGORIES_FILE = "text/category_en.json";
-    private static final String TEXT_FILE       = "text/description_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -57,7 +56,6 @@ public class GameDataManager {
         loadBuildings();
         loadCategories();
         loadImprovements();
-        loadNovelTextEngine();
         loadPersonNames();
         loadCompanyNames();
 
@@ -103,26 +101,6 @@ public class GameDataManager {
         } catch (Exception e) {
             Gdx.app.error("GameDataManager",
                     "Error loading " + IMPROVEMENTS_FILE + ": " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Loads the novel text engine from {@code text/description_en.json}.
-     */
-    private void loadNovelTextEngine() {
-        try {
-            FileHandle file = Gdx.files.internal(TEXT_FILE);
-            if (!file.exists()) {
-                Gdx.app.error("GameDataManager", "Text file not found: " + TEXT_FILE);
-                novelTextEngine = new NovelTextEngine(null, null);
-                return;
-            }
-            String json = file.readString("UTF-8");
-            novelTextEngine = NovelTextEngine.fromJsonString(json);
-            Gdx.app.log("GameDataManager", "Loaded novel text engine from " + TEXT_FILE);
-        } catch (Exception e) {
-            Gdx.app.error("GameDataManager", "Error loading novel text engine: " + e.getMessage(), e);
-            novelTextEngine = new NovelTextEngine(null, null);
         }
     }
 
@@ -275,11 +253,14 @@ public class GameDataManager {
             FileHandle file = Gdx.files.internal(BUILDINGS_FILE);
             if (!file.exists()) {
                 Gdx.app.error("GameDataManager", "Buildings file not found: " + BUILDINGS_FILE);
+                novelTextEngine = new NovelTextEngine(null, null);
                 return;
             }
 
+            // Read as string so both the buildings parser and the novel text engine can use it.
+            String json = file.readString("UTF-8");
             JsonReader reader = new JsonReader();
-            JsonValue root = reader.parse(file);
+            JsonValue root = reader.parse(json);
 
             buildingsVersion = root.getString("version", "unknown");
 
@@ -299,8 +280,13 @@ public class GameDataManager {
                 }
             }
 
-            Gdx.app.log("GameDataManager", "Loaded text/buildings_en.json v" + buildingsVersion + " with " + buildings.size() + " buildings");
+            // Load the novel text engine from the descriptions/improvements sections of the same file.
+            novelTextEngine = NovelTextEngine.fromJsonString(json);
+
+            Gdx.app.log("GameDataManager", "Loaded " + BUILDINGS_FILE + " v" + buildingsVersion
+                    + " with " + buildings.size() + " buildings");
         } catch (Exception e) {
+            novelTextEngine = new NovelTextEngine(null, null);
             Gdx.app.error("GameDataManager", "Error loading buildings: " + e.getMessage(), e);
         }
     }
@@ -463,7 +449,7 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the {@link NovelTextEngine} loaded from {@code text/description_en.json}.
+     * Returns the {@link NovelTextEngine} loaded from {@code text/buildings_en.json}.
      * Never {@code null}; returns an empty engine if the file could not be loaded.
      */
     public NovelTextEngine getNovelTextEngine() {
