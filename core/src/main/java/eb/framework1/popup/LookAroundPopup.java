@@ -359,9 +359,13 @@ public class LookAroundPopup {
                 if (rng.nextFloat() < chance) {
                     easiest.discover();
                     String mod = InfoPanelRenderer.formatAttributeModifiers(easiest.getAttributeModifiers());
-                    String entry = easiest.getName() + " (Lvl " + easiest.getLevel() + ")"
+                    String entry = easiest.getName()
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
+                    ImprovementData impData = easiest.getData();
+                    if (impData != null && !impData.getDescription().isEmpty()) {
+                        foundItems.add("  " + impData.getDescription());
+                    }
                     if (novelTextEngine != null) {
                         String desc = novelTextEngine.getImprovementDescription(
                                 easiest.getName(), profile.getGender());
