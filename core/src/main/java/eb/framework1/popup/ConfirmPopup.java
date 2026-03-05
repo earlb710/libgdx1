@@ -108,7 +108,7 @@ public class ConfirmPopup {
         glyph.setText(smallFont, message);
         float msgRawW = glyph.width;
         float minW = Math.max(titleW, Math.max(yesW_ + BTN_SPACING + noW_, msgRawW));
-        float dialogW = Math.min(screenW * 0.85f, minW + 2 * PAD);
+        float dialogW = Math.min(screenW, minW + 2 * PAD);
         float contentW = dialogW - 2 * PAD;
 
         // Word-wrap message to content width; measure real wrapped height

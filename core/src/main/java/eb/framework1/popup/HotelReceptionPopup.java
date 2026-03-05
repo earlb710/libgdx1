@@ -191,7 +191,7 @@ public class HotelReceptionPopup {
         final float GAP      = 10f;
         final float BTN_SPACING = 12f;
         final float MIN_W    = 320f;
-        final float MAX_W    = screenW * 0.85f;
+        final float MAX_W    = screenW;
 
         // --- Font metrics ---
         glyph.setText(font, "Hg");

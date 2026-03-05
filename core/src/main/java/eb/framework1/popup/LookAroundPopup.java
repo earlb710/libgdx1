@@ -146,7 +146,7 @@ public class LookAroundPopup {
         final float PAD    = 24f;
         final float GAP    = 14f;  // extra inter-line spacing added to each text height
         final float MIN_W  = 320f;
-        final float MAX_W  = screenW * 0.9f;
+        final float MAX_W  = screenW;
         final float MAX_H  = screenH * 0.8f;
 
         // --- Measure OK button (fixed, always visible) ---

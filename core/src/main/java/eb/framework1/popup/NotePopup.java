@@ -225,7 +225,7 @@ public class NotePopup {
         float cancelW_  = cancelBounds.width;
 
         // Popup uses almost full screen width so the text area has maximum space
-        float dialogW   = screenW * 0.96f;
+        float dialogW   = screenW;
         float contentW  = dialogW - PAD * 2f;
 
         // Text area: full content width, TEXT_AREA_LINES lines tall
