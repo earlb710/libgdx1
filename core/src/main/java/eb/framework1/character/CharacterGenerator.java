@@ -320,4 +320,62 @@ public class CharacterGenerator {
     private String pick(String... options) {
         return options[random.nextInt(options.length)];
     }
+
+    // -------------------------------------------------------------------------
+    // Player-character randomisation
+    // -------------------------------------------------------------------------
+
+    /**
+     * Randomly distributes {@code freePoints} across the eleven investigative
+     * attributes, starting each at {@link #ATTR_MIN} (1).
+     *
+     * <p>This mirrors the point-buy logic of {@link
+     * eb.framework1.screen.CharacterAttributeScreen} but allocates the points
+     * randomly instead of letting the player choose.  The result is a balanced
+     * starting character whose attribute total equals
+     * {@code 11 * ATTR_MIN + freePoints}.
+     *
+     * <p>The method has no libGDX dependency and can be called from plain JUnit
+     * tests.  Pass a seeded {@link Random} for deterministic output.
+     *
+     * @param freePoints the number of extra points to distribute above the
+     *                   minimum; non-negative
+     * @param random     source of randomness; {@code null} creates a new
+     *                   {@code Random}
+     * @return an {@link EnumMap} mapping each investigative
+     *         {@link CharacterAttribute} to its assigned value (1–10)
+     */
+    public static Map<CharacterAttribute, Integer> generatePlayerAttributes(
+            int freePoints, Random random) {
+
+        if (freePoints < 0) {
+            throw new IllegalArgumentException("freePoints must be non-negative");
+        }
+        Random rng = random != null ? random : new Random();
+
+        Map<CharacterAttribute, Integer> attrs = new EnumMap<>(CharacterAttribute.class);
+        for (CharacterAttribute attr : INVESTIGATIVE_ATTRIBUTES) {
+            attrs.put(attr, ATTR_MIN);
+        }
+
+        int remaining = freePoints;
+        // Safety counter: prevents an infinite loop when freePoints exceeds the
+        // maximum distributable total (ATTR_MAX - ATTR_MIN) * attribute count.
+        // Using 2× the product of freePoints and attribute count gives enough
+        // attempts even in the most adversarial random sequences while keeping
+        // the bound tight.
+        int maxAttempts = freePoints * INVESTIGATIVE_ATTRIBUTES.length * 2 + 1;
+        int attempts = 0;
+        while (remaining > 0 && attempts < maxAttempts) {
+            CharacterAttribute candidate =
+                    INVESTIGATIVE_ATTRIBUTES[rng.nextInt(INVESTIGATIVE_ATTRIBUTES.length)];
+            if (attrs.get(candidate) < ATTR_MAX) {
+                attrs.put(candidate, attrs.get(candidate) + 1);
+                remaining--;
+            }
+            attempts++;
+        }
+
+        return attrs;
+    }
 }

@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -692,5 +693,77 @@ public class CharacterGeneratorTest {
         assertEquals(1, npc.getHonesty());
         assertEquals(2, npc.getNervousness());
         assertEquals(7, npc.getCooperativeness());
+    }
+
+    // =========================================================================
+    // CharacterGenerator — generatePlayerAttributes
+    // =========================================================================
+
+    @Test
+    public void generatePlayerAttributes_zeroPoints_allAtMinimum() {
+        Map<CharacterAttribute, Integer> attrs =
+                CharacterGenerator.generatePlayerAttributes(0, new Random(1));
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            assertEquals("Expected min value for " + attr, 1, (int) attrs.get(attr));
+        }
+    }
+
+    @Test
+    public void generatePlayerAttributes_containsAllInvestigativeAttributes() {
+        Map<CharacterAttribute, Integer> attrs =
+                CharacterGenerator.generatePlayerAttributes(10, new Random(2));
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            assertTrue("Missing attribute " + attr, attrs.containsKey(attr));
+        }
+    }
+
+    @Test
+    public void generatePlayerAttributes_totalPointsCorrect() {
+        int freePoints = 10;
+        Map<CharacterAttribute, Integer> attrs =
+                CharacterGenerator.generatePlayerAttributes(freePoints, new Random(3));
+        int total = 0;
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            total += attrs.get(attr);
+        }
+        // Every attribute starts at 1; freePoints extra are distributed.
+        assertEquals(CharacterGenerator.INVESTIGATIVE_ATTRIBUTES.length + freePoints, total);
+    }
+
+    @Test
+    public void generatePlayerAttributes_valuesWithinRange() {
+        Map<CharacterAttribute, Integer> attrs =
+                CharacterGenerator.generatePlayerAttributes(10, new Random(4));
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            int v = attrs.get(attr);
+            assertTrue("Attribute " + attr + " out of range: " + v, v >= 1 && v <= 10);
+        }
+    }
+
+    @Test
+    public void generatePlayerAttributes_nullRandomUsesDefault() {
+        // Should not throw; a default Random is used internally.
+        Map<CharacterAttribute, Integer> attrs =
+                CharacterGenerator.generatePlayerAttributes(10, null);
+        assertNotNull(attrs);
+        assertFalse(attrs.isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void generatePlayerAttributes_negativePoints_throws() {
+        CharacterGenerator.generatePlayerAttributes(-1, new Random(5));
+    }
+
+    @Test
+    public void generatePlayerAttributes_deterministicWithSeed() {
+        Random r1 = new Random(42);
+        Random r2 = new Random(42);
+        Map<CharacterAttribute, Integer> a1 =
+                CharacterGenerator.generatePlayerAttributes(10, r1);
+        Map<CharacterAttribute, Integer> a2 =
+                CharacterGenerator.generatePlayerAttributes(10, r2);
+        for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
+            assertEquals("Mismatch for " + attr, a1.get(attr), a2.get(attr));
+        }
     }
 }
