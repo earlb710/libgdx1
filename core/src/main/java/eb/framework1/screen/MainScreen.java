@@ -344,6 +344,10 @@ public class MainScreen implements Screen {
         if (state.isWalking) updateWalk(delta);
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
+        // Keep the NPC-overlay hour in sync with the current in-game time so that
+        // stick figures are repositioned on the map every time the clock advances.
+        state.currentHour = profile.getCurrentHour();
+
         mapRenderer.drawMap(state);
         mapRenderer.drawRulers(state);
         infoPanelRenderer.drawInfoBar(state);
