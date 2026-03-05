@@ -282,7 +282,7 @@ public class ImprovementUsePopup {
         // Row backgrounds (alternating)
         float rowAreaTop = dialogY + dialogH - PAD - fontLineH - PAD / 2f;
         float rowAreaBot = dialogY + PAD + closeBtnH + PAD;
-        float clipedScrollH = rowAreaTop - rowAreaBot;
+        float clippedScrollH = rowAreaTop - rowAreaBot;
         for (int i = 0; i < rows.size(); i++) {
             float rowTop = rowAreaTop - i * rowH - scrollY;
             float rowBot = rowTop - smallLineH;
@@ -321,7 +321,7 @@ public class ImprovementUsePopup {
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor((int) (dialogX + 1), (int) rowAreaBot,
                 (int) (dialogW - SCROLLBAR_W - 4f - 2f),
-                (int) Math.max(0, clipedScrollH));
+                (int) Math.max(0, clippedScrollH));
 
         batch.begin();
         for (int i = 0; i < rows.size(); i++) {

@@ -3331,7 +3331,7 @@ public class MainScreen implements Screen {
                 String intAttr = CharacterAttribute.INTELLIGENCE.name();
                 int cur = profile.getAttribute(intAttr);
                 float chance = eff / 200f;   // 50% eff → 25% chance
-                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                if (MathUtils.random() < chance) {
                     profile.setAttribute(intAttr, cur + 1);
                     resultLines.add("You studied at the " + imp.getName() + ".");
                     resultLines.add("Your Intelligence improved!");
@@ -3345,7 +3345,7 @@ public class MainScreen implements Screen {
                 String chaAttr = CharacterAttribute.CHARISMA.name();
                 int cur = profile.getAttribute(chaAttr);
                 float chance = eff / 200f;
-                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                if (MathUtils.random() < chance) {
                     profile.setAttribute(chaAttr, cur + 1);
                     resultLines.add("You socialised at the " + imp.getName() + ".");
                     resultLines.add("Your Charisma improved!");
@@ -3359,7 +3359,7 @@ public class MainScreen implements Screen {
                 String perAttr = CharacterAttribute.PERCEPTION.name();
                 int cur = profile.getAttribute(perAttr);
                 float chance = eff / 200f;
-                if (com.badlogic.gdx.math.MathUtils.random() < chance) {
+                if (MathUtils.random() < chance) {
                     profile.setAttribute(perAttr, cur + 1);
                     resultLines.add("You explored the " + imp.getName() + ".");
                     resultLines.add("Your Perception sharpened!");

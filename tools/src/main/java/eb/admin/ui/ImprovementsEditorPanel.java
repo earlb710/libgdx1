@@ -485,7 +485,10 @@ public class ImprovementsEditorPanel extends JPanel {
         List<Map.Entry<String, JsonElement>> entries = new ArrayList<>(restrict.entrySet());
         entries.sort(Map.Entry.comparingByKey());
         for (Map.Entry<String, JsonElement> entry : entries) {
-            parts.add(entry.getKey() + ": " + entry.getValue().getAsString());
+            JsonElement val = entry.getValue();
+            String valStr = val.isJsonPrimitive() ? val.getAsJsonPrimitive().getAsString()
+                                                  : val.toString();
+            parts.add(entry.getKey().toLowerCase() + ": " + valStr);
         }
         return String.join(", ", parts);
     }
