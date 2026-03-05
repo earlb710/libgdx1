@@ -717,6 +717,17 @@ public class InfoPanelRenderer {
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
+                            // Description from improvements_en.json (word-wrapped, novel colour)
+                            List<String> descLines = impDescriptionLines(imp, wrapWidth);
+                            if (!descLines.isEmpty()) {
+                                smallFont.setColor(NOVEL_COLOR);
+                                for (String dLine : descLines) {
+                                    float ddy = textY + drawScrollY;
+                                    if (ddy < contentAreaBottom - smallLineH) break;
+                                    smallFont.draw(batch, dLine, idx + 8f, ddy);
+                                    textY -= smallLineH;
+                                }
+                            }
                         } else {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
@@ -1844,6 +1855,19 @@ public class InfoPanelRenderer {
     }
 
     /**
+     * Returns the description of an improvement, word-wrapped to {@code wrapWidth} pixels
+     * using {@code smallFont}. Returns an empty list when no description is available.
+     */
+    private List<String> impDescriptionLines(Improvement imp, float wrapWidth) {
+        ImprovementData data = imp.getData();
+        if (data == null || data.getDescription().isEmpty()) return java.util.Collections.emptyList();
+        return WordWrapper.wrap(data.getDescription(), wrapWidth, t -> {
+            glyphLayout.setText(smallFont, t);
+            return glyphLayout.width;
+        });
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      *
@@ -1870,6 +1894,9 @@ public class InfoPanelRenderer {
         h += fontLineH; // "Improvements:" header (advance)
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
+            if (imp.isDiscovered()) {
+                h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
+            }
         }
         int novelLineCount = buildingNovelLines(b, wrapWidth).size();
         if (novelLineCount > 0) {

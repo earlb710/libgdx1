@@ -2867,8 +2867,19 @@ public class MainScreen implements Screen {
             description = def.getDescription();
         }
 
+        // Collect auto-discovered improvements (hiddenValue == 0) with their descriptions
+        List<String> improvementLines = new ArrayList<>();
+        for (Improvement imp : building.getImprovements()) {
+            if (imp.getHiddenValue() != 0) continue;
+            improvementLines.add("- " + imp.getName());
+            ImprovementData impData = imp.getData();
+            if (impData != null && !impData.getDescription().isEmpty()) {
+                improvementLines.add("  " + impData.getDescription());
+            }
+        }
+
         discoveryPopup.show(building.getDisplayName(), building.getName(), description, null,
-                java.util.Collections.emptyList(), newDiscovery);
+                improvementLines, newDiscovery);
     }
 
     /**

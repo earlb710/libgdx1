@@ -7,8 +7,9 @@ import java.util.Map;
  * Runtime data for an improvement loaded from {@code text/improvements_en.json}.
  *
  * <p>Holds the optional {@code function} (e.g. "rest", "exercise"), the
- * {@code effective} rating (50–100, present only when function is set), and
- * an optional {@code restrict} map that gates access to the improvement.
+ * {@code effective} rating (50–100, present only when function is set),
+ * an optional {@code restrict} map that gates access to the improvement,
+ * and an optional human-readable {@code description}.
  *
  * <p>Supported restrict keys:
  * <ul>
@@ -27,6 +28,9 @@ public final class ImprovementData {
     /** Effectiveness rating 50–100; 0 when no function is set. */
     public final int effective;
 
+    /** Human-readable description of this improvement; may be empty. */
+    public final String description;
+
     /**
      * Restriction map.  Keys are lower-case restriction names; values are
      * the required values (Strings or Integers stored as Strings).
@@ -35,12 +39,18 @@ public final class ImprovementData {
     private final Map<String, String> restrict;
 
     public ImprovementData(String nameLower, String function, int effective,
-                           Map<String, String> restrict) {
-        this.nameLower = nameLower;
-        this.function  = function  != null ? function  : "";
-        this.effective = effective;
-        this.restrict  = restrict  != null ? Collections.unmodifiableMap(restrict)
-                                           : Collections.emptyMap();
+                           Map<String, String> restrict, String description) {
+        this.nameLower   = nameLower;
+        this.function    = function    != null ? function    : "";
+        this.effective   = effective;
+        this.description = description != null ? description : "";
+        this.restrict    = restrict    != null ? Collections.unmodifiableMap(restrict)
+                                               : Collections.emptyMap();
+    }
+
+    /** Returns the human-readable description, or an empty string if none. */
+    public String getDescription() {
+        return description;
     }
 
     /** Returns an unmodifiable view of the restriction map. */
