@@ -83,7 +83,6 @@ public class MainScreen implements Screen {
     private HotelReceptionPopup hotelReceptionPopup;
     private GymInstructorPopup  gymInstructorPopup;
     private ShopPopup            shopPopup;
-    private ImprovementUsePopup  improvementUsePopup;
     private List<ShopItem>       shopItems = new ArrayList<>();
     private EmailPopup           emailPopup;
     private PhonePopup           phonePopup;
@@ -304,9 +303,6 @@ public class MainScreen implements Screen {
 
         shopPopup = new ShopPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
-        improvementUsePopup = new ImprovementUsePopup(batch, shapeRenderer, font, smallFont,
-                glyphLayout, profile);
-
         emailPopup = new EmailPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         phonePopup = new PhonePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
@@ -413,10 +409,6 @@ public class MainScreen implements Screen {
             shopPopup.draw(state.screenWidth, state.screenHeight);
         }
 
-        if (improvementUsePopup.isVisible()) {
-            improvementUsePopup.draw(state.screenWidth, state.screenHeight);
-        }
-
         if (emailPopup.isVisible()) {
             emailPopup.draw(state.screenWidth, state.screenHeight);
         }
@@ -521,7 +513,6 @@ public class MainScreen implements Screen {
             || hotelReceptionPopup.isVisible()
             || gymInstructorPopup.isVisible()
             || shopPopup.isVisible()
-            || improvementUsePopup.isVisible()
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
@@ -1064,23 +1055,6 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
-                // Improvement use popup: tap a Use button or Close
-                if (improvementUsePopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            improvementUsePopup.onTap(screenX, flippedY);
-                            int tapped = improvementUsePopup.pollTapped();
-                            if (tapped >= 0) {
-                                handleImprovementUse(improvementUsePopup.getRowImprovement(tapped));
-                            }
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
                 // Email popup: Accept, Decline, or Close
                 if (emailPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -1196,6 +1170,7 @@ public class MainScreen implements Screen {
                             checkHelpButtonClick(screenX, flippedY);
                             checkAddNoteButtonClick(screenX, flippedY);
                             checkServiceButtonClick(screenX, flippedY);
+                            checkImprovementButtonClick(screenX, flippedY);
                         }
                         checkTabClick(screenX, flippedY);
                         checkExpandButtonClick(screenX, flippedY);
@@ -1254,10 +1229,6 @@ public class MainScreen implements Screen {
                 }
                 if (shopPopup.isVisible()) {
                     shopPopup.scroll(amountY * 20f);
-                    return true;
-                }
-                if (improvementUsePopup.isVisible()) {
-                    improvementUsePopup.scroll(amountY * 20f);
                     return true;
                 }
                 float old = state.zoomLevel;
@@ -1775,6 +1746,18 @@ public class MainScreen implements Screen {
         }
     }
 
+    private void checkImprovementButtonClick(int screenX, int flippedY) {
+        if (state.impBtnCount <= 0) return;
+        for (int i = 0; i < state.impBtnCount; i++) {
+            if (state.impBtnW[i] <= 0 || state.impBtnImp[i] == null) continue;
+            if (screenX >= state.impBtnX[i] && screenX <= state.impBtnX[i] + state.impBtnW[i]
+                    && flippedY >= state.impBtnY[i] && flippedY <= state.impBtnY[i] + state.impBtnH) {
+                handleImprovementUse(state.impBtnImp[i]);
+                return;
+            }
+        }
+    }
+
     private void checkEquipDropButtonClick(int screenX, int flippedY) {
         if (state.equipDropBtnCount <= 0) return;
         for (int i = 0; i < state.equipDropBtnCount && i < MapViewState.MAX_EQUIP_BTNS; i++) {
@@ -2260,16 +2243,6 @@ public class MainScreen implements Screen {
             case BuildingServices.SVC_GYM_INSTRUCTOR: {
                 gymInstructorPopup.show();
                 return;  // popup drives the rest
-            }
-
-            // ---- Improvement use popup -------------------------------------
-            case BuildingServices.SVC_USE_IMPROVEMENTS: {
-                Cell cell = cityMap.getCell(state.charCellX, state.charCellY);
-                if (cell.hasBuilding()) {
-                    Building bld = cell.getBuilding();
-                    improvementUsePopup.show(bld, bld.getDisplayName());
-                }
-                return;
             }
 
             // ---- Food: restore stamina -----------------------------------
@@ -3308,9 +3281,9 @@ public class MainScreen implements Screen {
     }
 
     /**
-     * Called when the player taps "Use" on an improvement in the
-     * {@link ImprovementUsePopup}.  Applies a basic stamina effect based on the
-     * improvement's function and effective rating, then shows the result popup.
+     * Called when the player taps an inline action button for an improvement.
+     * Applies a basic stamina effect based on the improvement's function and
+     * effective rating, then shows the result popup.
      */
     private void handleImprovementUse(Improvement imp) {
         if (imp == null) return;
