@@ -204,5 +204,19 @@
       "color": "#AB47BC",
       "actions": "draw, write, compose"
     }
+  ],
+  "skill_categories": [
+    {
+      "code": "work",
+      "name": "Work"
+    },
+    {
+      "code": "hobbies",
+      "name": "Hobbies"
+    },
+    {
+      "code": "general",
+      "name": "General"
+    }
   ]
 }
