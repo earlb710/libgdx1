@@ -6,8 +6,6 @@
       "name": "24hr Access",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "Keeps the facility open and accessible around the clock."
     },
     {
@@ -57,8 +55,6 @@
       "name": "Ablution Area",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "A designated washing and ritual cleansing area supplied with running water."
     },
     {
@@ -78,8 +74,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -90,8 +84,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "The central office from which day-to-day facility administration is coordinated."
     },
     {
@@ -102,8 +94,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -150,8 +140,6 @@
       "name": "Anchor Store",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 45,
       "description": "A flagship retail tenant that anchors the complex and drives sustained foot traffic."
     },
     {
@@ -306,8 +294,6 @@
       "name": "Auditorium",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "A fixed-seating auditorium suited for presentations, performances, and large lectures."
     },
     {
@@ -322,8 +308,6 @@
       "name": "Auto Shop",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "A full-service auto shop handling oil changes, tyre rotations, and mechanical repairs."
     },
     {
@@ -540,8 +524,6 @@
       "name": "Blood Draw Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "A clinical phlebotomy station for scheduled and walk-in blood draws."
     },
     {
@@ -549,8 +531,6 @@
       "name": "Blood Pressure Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "A self-service blood pressure station for regular health monitoring."
     },
     {
@@ -561,8 +541,6 @@
         "INTIMIDATION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A formal boardroom equipped with conferencing technology for executive decision-making."
     },
     {
@@ -592,8 +570,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 20,
       "description": "A processing area where arrestees are photographed, fingerprinted, and documented."
     },
     {
@@ -604,8 +580,6 @@
         "MEMORY": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A retail bookshop carrying new titles, reference materials, and specialty publications."
     },
     {
@@ -664,8 +638,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "The central office from which day-to-day building management is coordinated."
     },
     {
@@ -697,8 +669,6 @@
       "name": "Business Center",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A professional business centre offering printing, meeting rooms, and workstations."
     },
     {
@@ -772,8 +742,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "The commanding officer's private workspace stocked with operational briefs and reports."
     },
     {
@@ -783,8 +751,6 @@
         "AGILITY": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A dedicated car service area where vehicles are collected, cleaned, and returned."
     },
     {
@@ -902,8 +868,6 @@
       "name": "Change Machine",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 40,
       "description": "A coin and note change machine providing quick currency denomination exchange."
     },
     {
@@ -942,8 +906,6 @@
         "STAMINA": 1
       },
       "category": "creative",
-      "function": "draw",
-      "effective": 45,
       "description": "A working kitchen garden supplying fresh herbs, vegetables, and edible plants."
     },
     {
@@ -962,8 +924,6 @@
         "AGILITY": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 45,
       "description": "A supervised childcare space where children are safely looked after during business hours."
     },
     {
@@ -1007,8 +967,6 @@
       "name": "Choir Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "An acoustically designed room providing space for choral rehearsal and vocal training."
     },
     {
@@ -1029,8 +987,6 @@
       "name": "City Manager",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "The official workspace where civic administration and municipal policy are managed."
     },
     {
@@ -1064,8 +1020,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -1126,8 +1080,6 @@
       "name": "Coat Check",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A staffed coat-check counter providing secure storage for outerwear and accessories."
     },
     {
@@ -1208,8 +1160,6 @@
         "PERCEPTION": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "A commercial kitchen built to health-code standards for high-volume meal service."
     },
     {
@@ -1235,8 +1185,6 @@
       "name": "Community Board",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 40,
       "description": "A public bulletin board where notices, events, and community information are posted."
     },
     {
@@ -1279,8 +1227,6 @@
       "name": "Concession Stand",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A concession stand serving snacks, drinks, and quick bites to passing visitors."
     },
     {
@@ -1288,8 +1234,6 @@
       "name": "Concession Stands",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A concession stand serving snacks, drinks, and quick bites to passing visitors."
     },
     {
@@ -1359,8 +1303,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 45,
       "description": "A private consultation office for one-on-one professional or medical appointments."
     },
     {
@@ -1368,8 +1310,6 @@
       "name": "Consultation Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A private room for confidential patient or client consultations."
     },
     {
@@ -1384,8 +1324,6 @@
       "name": "Convenience Store",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A small retail outlet stocking everyday essentials, snacks, and beverages."
     },
     {
@@ -1469,8 +1407,6 @@
       "name": "Covered Walkway",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A sheltered walkway connecting buildings and protecting pedestrians from the elements."
     },
     {
@@ -1536,8 +1472,6 @@
         "CHARISMA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "A purpose-built DJ booth with integrated sound, mixing, and lighting controls."
     },
     {
@@ -1593,8 +1527,6 @@
         "EMPATHY": 2
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "A licensed daycare facility providing structured activities and care for young children."
     },
     {
@@ -1625,8 +1557,6 @@
       "name": "Deli Counter",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A deli counter serving cured meats, cheeses, prepared salads, and made-to-order sandwiches."
     },
     {
@@ -1641,8 +1571,6 @@
       "name": "Delivery Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 40,
       "description": "A managed delivery station for receiving, logging, and distributing inbound parcels."
     },
     {
@@ -1690,8 +1618,6 @@
         "PERCEPTION": 2
       },
       "category": "mental",
-      "function": "study",
-      "effective": 40,
       "description": "A discreet investigative office equipped for case research and client consultation."
     },
     {
@@ -1822,8 +1748,6 @@
         "STAMINA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A fenced outdoor park where dogs exercise, socialise, and play off-leash."
     },
     {
@@ -1831,8 +1755,6 @@
       "name": "Dog Run",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "An enclosed dog run providing a safe lane for canine exercise and activity."
     },
     {
@@ -1864,8 +1786,6 @@
         "PERCEPTION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A uniformed doorman who greets arrivals, manages the entrance, and assists with luggage."
     },
     {
@@ -1906,8 +1826,6 @@
       "name": "Driver Facilities",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "Dedicated rest and hygiene facilities for professional drivers and delivery personnel."
     },
     {
@@ -1986,8 +1904,6 @@
       "name": "Elevator",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A passenger elevator providing step-free vertical access across all floors."
     },
     {
@@ -1995,8 +1911,6 @@
       "name": "Elevators",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A passenger elevator providing step-free vertical access across all floors."
     },
     {
@@ -2084,8 +1998,6 @@
       "name": "Employee Store",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 30,
       "description": "An in-house retail outlet offering discounted merchandise to staff members."
     },
     {
@@ -2137,8 +2049,6 @@
       "name": "Escalators",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Moving escalators that carry passengers between floors without effort."
     },
     {
@@ -2162,8 +2072,6 @@
       "name": "Event Control Center",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 30,
       "description": "A backstage operations hub for managing logistics, AV, and staff during events."
     },
     {
@@ -2174,8 +2082,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 35,
       "description": "A versatile venue that can be arranged for conferences, parties, or public gatherings."
     },
     {
@@ -2237,8 +2143,6 @@
       "name": "Exercise Yard",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "An open outdoor exercise yard for physical activity and fresh-air recreation."
     },
     {
@@ -2288,8 +2192,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "The department responsible for budgeting, payroll, and financial reporting."
     },
     {
@@ -2424,8 +2326,6 @@
       "name": "Fitting Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A private fitting room where customers try on garments before purchasing."
     },
     {
@@ -2433,8 +2333,6 @@
       "name": "Fitting Rooms",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "Private fitting rooms where customers try on garments before purchasing."
     },
     {
@@ -2465,8 +2363,6 @@
       "name": "Folding Tables",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Lightweight folding tables that can be quickly set up for events, classes, and dining."
     },
     {
@@ -2481,8 +2377,6 @@
       "name": "Food Hall",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "A curated food hall featuring multiple dining vendors in a shared market-style space."
     },
     {
@@ -2500,8 +2394,6 @@
       "name": "Fountain Court",
       "attribute_modifiers": {},
       "category": "physical",
-      "function": "exercise",
-      "effective": 35,
       "description": "An open courtyard centred on a decorative fountain, providing a pleasant gathering spot."
     },
     {
@@ -2518,8 +2410,6 @@
       "name": "Front Desk",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A welcoming front-desk reception that greets guests and manages check-ins."
     },
     {
@@ -2576,8 +2466,6 @@
       "name": "Funeral Services",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Discreet funeral services covering arrangement, preparation, and ceremonial support."
     },
     {
@@ -2618,8 +2506,6 @@
       "name": "Genealogy Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "A reference room stocked with genealogy databases, microfiche, and family history resources."
     },
     {
@@ -2627,8 +2513,6 @@
       "name": "Gift Shop",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A curated gift shop stocking souvenirs, keepsakes, and locally made items."
     },
     {
@@ -2657,8 +2541,6 @@
         "EMPATHY": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A planted green roof providing insulation benefits and reducing stormwater runoff."
     },
     {
@@ -2686,8 +2568,6 @@
       "name": "Grooming Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 20,
       "description": "A professional grooming station for pet bathing, coat trimming, and styling services."
     },
     {
@@ -2719,8 +2599,6 @@
         "INTUITION": 2
       },
       "category": "creative",
-      "function": "draw",
-      "effective": 45,
       "description": "Self-contained guest apartments offering furnished accommodation for extended stays."
     },
     {
@@ -2792,8 +2670,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -2834,8 +2710,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 25,
       "description": "An on-site health clinic providing primary care, occupational health, and wellness checks."
     },
     {
@@ -2843,8 +2717,6 @@
       "name": "Hearing Aid Center",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A specialist hearing centre offering assessments, hearing aid fitting, and device servicing."
     },
     {
@@ -2852,8 +2724,6 @@
       "name": "Hearing Assistance",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "Assistive hearing technology including induction loops and amplification for occupants."
     },
     {
@@ -2908,8 +2778,6 @@
       "name": "Host Stand",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A staffed host stand managing seating, reservations, and guest flow at the venue entrance."
     },
     {
@@ -2917,8 +2785,6 @@
       "name": "Hot Desks",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Flexible hot-desking spaces bookable on a first-come, first-served basis."
     },
     {
@@ -2938,8 +2804,6 @@
       "name": "Hot Food Counter",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A staffed counter serving freshly prepared hot meals and daily specials."
     },
     {
@@ -2960,8 +2824,6 @@
         "STAMINA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "An intensive care unit providing continuous monitoring and life support for critical patients."
     },
     {
@@ -2998,8 +2860,6 @@
       "name": "Ice Machine",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 30,
       "description": "A commercial ice machine providing a continuous supply of ice for food and beverage use."
     },
     {
@@ -3036,8 +2896,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 35,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -3078,8 +2936,6 @@
       "name": "Infirmary",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "An on-site infirmary staffed for basic medical assessment and first-aid care."
     },
     {
@@ -3087,8 +2943,6 @@
       "name": "Information Booth",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A staffed information booth answering visitor queries and providing directional guidance."
     },
     {
@@ -3133,8 +2987,6 @@
       "name": "Interview Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A private, soundproofed interview room suitable for structured candidate or witness interviews."
     },
     {
@@ -3159,8 +3011,6 @@
         "INTIMIDATION": 2
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "The judge's private chambers used for case review, deliberation, and legal preparation."
     },
     {
@@ -3195,8 +3045,6 @@
         "STAMINA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A jury assembly room where prospective jurors gather for orientation and selection proceedings."
     },
     {
@@ -3204,8 +3052,6 @@
       "name": "Kennels",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "Supervised kennels providing secure overnight boarding for dogs and cats."
     },
     {
@@ -3267,8 +3113,6 @@
         "PERCEPTION": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 30,
       "description": "A fully equipped kitchen supporting food preparation, cooking, and service."
     },
     {
@@ -3324,8 +3168,6 @@
       "name": "Landscaping",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "Professional grounds landscaping maintaining plantings, pathways, and outdoor presentation."
     },
     {
@@ -3342,8 +3184,6 @@
       "name": "Laundry",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "On-site laundry facilities with commercial washers and dryers."
     },
     {
@@ -3351,8 +3191,6 @@
       "name": "Laundry Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "On-site laundry facilities with commercial washers and dryers."
     },
     {
@@ -3374,8 +3212,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -3386,8 +3222,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A tiered auditorium-style room suited to presentations and academic lectures."
     },
     {
@@ -3500,8 +3334,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 20,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -3521,8 +3353,6 @@
         "MEMORY": 2
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A dedicated archive preserving local history documents, photographs, and artefacts."
     },
     {
@@ -3558,8 +3388,6 @@
         "INTUITION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A licensed lottery terminal enabling the purchase of state lottery tickets on site."
     },
     {
@@ -3593,8 +3421,6 @@
         "MEMORY": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "Secure luggage storage allowing guests to leave bags safely before check-in or after check-out."
     },
     {
@@ -3695,8 +3521,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 20,
       "description": "A full-service spa offering massages, facials, and restorative body treatments."
     },
     {
@@ -3706,8 +3530,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "The central office from which day-to-day building management is coordinated."
     },
     {
@@ -3726,8 +3548,6 @@
       "name": "Maternity Ward",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "A maternity ward providing ante- and post-natal care and delivery suite services."
     },
     {
@@ -3737,8 +3557,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -3749,8 +3567,6 @@
         "INTUITION": 2
       },
       "category": "creative",
-      "function": "draw",
-      "effective": 40,
       "description": "A retail meat department offering fresh cuts, butcher service, and specialty meat products."
     },
     {
@@ -3758,8 +3574,6 @@
       "name": "Media Booth",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "study",
-      "effective": 40,
       "description": "A broadcast media booth equipped for live commentary, recording, and event coverage."
     },
     {
@@ -3767,8 +3581,6 @@
       "name": "Mediation Rooms",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "study",
-      "effective": 45,
       "description": "Private mediation rooms configured for confidential dispute resolution sessions."
     },
     {
@@ -3779,8 +3591,6 @@
         "INTELLIGENCE": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 20,
       "description": "An on-site medical clinic offering consultations, diagnostics, and basic treatment."
     },
     {
@@ -3813,8 +3623,6 @@
         "INTELLIGENCE": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 20,
       "description": "A clinical medical room for patient examinations, treatment, and minor procedures."
     },
     {
@@ -3842,8 +3650,6 @@
       "name": "Meet-Me Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "A neutral meet-me room used for cross-carrier network interconnection and co-location."
     },
     {
@@ -3924,8 +3730,6 @@
       "name": "Mezzanine",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "An intermediate mezzanine level providing additional floor space above the ground floor."
     },
     {
@@ -3933,8 +3737,6 @@
       "name": "Microwave Rooms",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "Communal rooms equipped with microwave ovens for staff meal reheating."
     },
     {
@@ -3951,8 +3753,6 @@
       "name": "Minaret",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A mosque minaret tower used for the call to prayer and as an architectural landmark."
     },
     {
@@ -4088,8 +3888,6 @@
       "name": "Nebulizer Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "A clinical nebulizer station for administering inhaled medication to respiratory patients."
     },
     {
@@ -4108,8 +3906,6 @@
       "name": "Newsstand",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A retail newsstand carrying daily newspapers, magazines, and reference periodicals."
     },
     {
@@ -4134,8 +3930,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -4179,8 +3973,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -4190,8 +3982,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -4226,8 +4016,6 @@
         "PERCEPTION": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "An open-plan kitchen visible from the dining area, showcasing live food preparation."
     },
     {
@@ -4246,8 +4034,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 45,
       "description": "An enclosed courtyard providing natural light, greenery, and informal seating."
     },
     {
@@ -4442,8 +4228,6 @@
         "STAMINA": 1
       },
       "category": "creative",
-      "function": "draw",
-      "effective": 20,
       "description": "The parks department responsible for the maintenance and programming of green spaces."
     },
     {
@@ -4526,8 +4310,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 35,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -4550,8 +4332,6 @@
         "EMPATHY": 1
       },
       "category": "social",
-      "function": "converse",
-      "effective": 45,
       "description": "A patient-hotel wing offering hotel-standard rooms for non-acute recovering patients."
     },
     {
@@ -4615,8 +4395,6 @@
       "name": "Pediatric Unit",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "A paediatric unit providing age-appropriate care in a child-friendly environment."
     },
     {
@@ -4640,8 +4418,6 @@
       "name": "Personal Shopping",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A personal shopping service pairing customers with a dedicated style adviser."
     },
     {
@@ -4652,8 +4428,6 @@
         "STAMINA": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 40,
       "description": "Personal training sessions with qualified instructors for tailored fitness programming."
     },
     {
@@ -4670,8 +4444,6 @@
       "name": "Pet Retail",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "A pet retail section carrying food, accessories, and care products for companion animals."
     },
     {
@@ -4682,8 +4454,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 20,
       "description": "A full-service spa offering massages, facials, and restorative body treatments."
     },
     {
@@ -4691,8 +4461,6 @@
       "name": "Pet Washing Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 35,
       "description": "A self-service pet washing station with raised tubs, dryers, and grooming supplies."
     },
     {
@@ -4710,8 +4478,6 @@
       "name": "Phone Booths",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Private phone booths providing quiet spaces for calls and virtual meetings."
     },
     {
@@ -4900,8 +4666,6 @@
       "name": "Press Box",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "An elevated press box providing media professionals with prime views and broadcast access."
     },
     {
@@ -4918,8 +4682,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 30,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -4984,8 +4746,6 @@
         "STEALTH": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A passenger elevator providing step-free vertical access across all floors."
     },
     {
@@ -4997,8 +4757,6 @@
         "STEALTH": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 25,
       "description": "A full-service spa offering massages, facials, and restorative body treatments."
     },
     {
@@ -5029,8 +4787,6 @@
         "STEALTH": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 35,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -5038,8 +4794,6 @@
       "name": "Pro Shop",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A pro shop stocking specialist equipment, apparel, and accessories for enthusiasts."
     },
     {
@@ -5051,8 +4805,6 @@
         "INTIMIDATION": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -5148,8 +4900,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 35,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -5229,8 +4979,6 @@
         "PERCEPTION": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 20,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -5295,8 +5043,6 @@
         "MEMORY": 2
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A staffed reference desk providing research guidance, catalogue assistance, and information."
     },
     {
@@ -5370,8 +5116,6 @@
       "name": "Residents Only Elevator",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A passenger elevator providing step-free vertical access across all floors."
     },
     {
@@ -5411,8 +5155,6 @@
       "name": "Retail Counter",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "A staffed retail counter where customers browse, enquire, and complete purchases."
     },
     {
@@ -5420,8 +5162,6 @@
       "name": "Retail Kiosks",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "Compact retail kiosks strategically positioned to capture high-traffic impulse purchases."
     },
     {
@@ -5429,8 +5169,6 @@
       "name": "Retail Section",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 20,
       "description": "A dedicated retail section offering curated merchandise relevant to occupant needs."
     },
     {
@@ -5438,8 +5176,6 @@
       "name": "Retail Shops",
       "attribute_modifiers": {},
       "category": "social",
-      "function": "converse",
-      "effective": 25,
       "description": "A collection of retail shops providing varied merchandise for occupants and visitors."
     },
     {
@@ -5615,8 +5351,6 @@
       "name": "Scale Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 30,
       "description": "A calibrated scale station for accurate weighing of packages, produce, or materials."
     },
     {
@@ -5627,8 +5361,6 @@
         "PERCEPTION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A dedicated science building housing laboratories, lecture halls, and research facilities."
     },
     {
@@ -5660,8 +5392,6 @@
       "name": "Seafood Counter",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A retail seafood counter offering fresh fish, shellfish, and prepared seafood products."
     },
     {
@@ -5705,8 +5435,6 @@
         "PERCEPTION": 2
       },
       "category": "technical",
-      "function": "repair",
-      "effective": 45,
       "description": "Continuous video monitoring that records activity throughout the premises."
     },
     {
@@ -5868,8 +5596,6 @@
       "name": "Shampoo Bowls",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "Professional shampoo bowls providing a dedicated wash station for salon hair services."
     },
     {
@@ -5895,8 +5621,6 @@
       "name": "Shipping Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 45,
       "description": "A shipping department that processes and dispatches outbound orders and freight."
     },
     {
@@ -5904,8 +5628,6 @@
       "name": "Shooting Range",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "An indoor shooting range with designated lanes, target systems, and safety partitions."
     },
     {
@@ -5942,8 +5664,6 @@
         "AGILITY": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A scheduled shuttle service transporting guests between the facility and key destinations."
     },
     {
@@ -6000,8 +5720,6 @@
       "name": "Soda Fountain",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A self-service soda fountain offering refillable fountain drinks and flavour combinations."
     },
     {
@@ -6026,8 +5744,6 @@
         "STEALTH": -1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "A professional venue sound system delivering clear, balanced audio across all areas."
     },
     {
@@ -6047,8 +5763,6 @@
       "name": "Special Ed Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A specially resourced classroom supporting students with diverse learning needs."
     },
     {
@@ -6065,8 +5779,6 @@
         "STAMINA": 2
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 45,
       "description": "A dedicated spin room fitted with stationary bikes for high-intensity cycling classes."
     },
     {
@@ -6079,8 +5791,6 @@
         "STAMINA": 1
       },
       "category": "physical",
-      "function": "exercise",
-      "effective": 25,
       "description": "A sports bar with multiple screens broadcasting live events alongside drinks service."
     },
     {
@@ -6237,8 +5947,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 25,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -6287,8 +5995,6 @@
       "name": "Take-Out Counter",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A take-out counter where customers collect prepared orders for off-premises consumption."
     },
     {
@@ -6349,8 +6055,6 @@
       "name": "Teller Stations",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "Staffed bank teller stations processing deposits, withdrawals, and account transactions."
     },
     {
@@ -6390,8 +6094,6 @@
       "name": "Testing Center",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A proctored testing centre providing secure environments for examinations and assessments."
     },
     {
@@ -6565,8 +6267,6 @@
       "name": "Travel Services",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "A travel services desk arranging flights, hotels, car hire, and itinerary planning."
     },
     {
@@ -6631,8 +6331,6 @@
         "INTIMIDATION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 40,
       "description": "A private VIP entrance providing priority access and a discreet arrival experience."
     },
     {
@@ -6643,8 +6341,6 @@
         "INTIMIDATION": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "Dedicated VIP lanes enabling swift, queue-free entry for premium guests and members."
     },
     {
@@ -6692,8 +6388,6 @@
         "STAMINA": 1
       },
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "An on-site vaccine station for scheduled immunisation clinics and routine vaccination."
     },
     {
@@ -6701,8 +6395,6 @@
       "name": "Vacuum Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 25,
       "description": "A commercial vehicle vacuum station for interior cabin cleaning and detailing."
     },
     {
@@ -6715,8 +6407,6 @@
         "STAMINA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A valet parking service that parks, stores, and retrieves vehicles on demand."
     },
     {
@@ -6726,8 +6416,6 @@
         "CHARISMA": 1
       },
       "category": "mental",
-      "function": "rest",
-      "effective": 25,
       "description": "A valet parking service that parks, stores, and retrieves vehicles on demand."
     },
     {
@@ -6754,8 +6442,6 @@
       "name": "Vending",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 20,
       "description": "Automated vending units dispensing snacks, drinks, and convenience items around the clock."
     },
     {
@@ -6763,8 +6449,6 @@
       "name": "Vending Machines",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 35,
       "description": "An automated vending machine dispensing snacks, drinks, and convenience items."
     },
     {
@@ -6804,8 +6488,6 @@
       "name": "Wait Station",
       "attribute_modifiers": {},
       "category": "technical",
-      "function": "repair",
-      "effective": 20,
       "description": "A service wait station equipped with drinks, cutlery, and supplies for floor staff."
     },
     {
@@ -6854,8 +6536,6 @@
         "INTELLIGENCE": 1
       },
       "category": "mental",
-      "function": "study",
-      "effective": 20,
       "description": "A professional workspace providing desk space, meeting areas, and administrative support."
     },
     {
@@ -6870,8 +6550,6 @@
       "name": "Waxing Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 35,
       "description": "A private treatment room for professional body-waxing and hair-removal services."
     },
     {
@@ -6913,8 +6591,6 @@
       "name": "Whitening Room",
       "attribute_modifiers": {},
       "category": "mental",
-      "function": "rest",
-      "effective": 30,
       "description": "A clinical treatment room providing tooth-whitening procedures under professional supervision."
     },
     {
