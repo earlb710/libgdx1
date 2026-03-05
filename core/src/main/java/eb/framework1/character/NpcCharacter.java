@@ -91,6 +91,19 @@ public final class NpcCharacter {
      */
     private final NpcSchedule schedule;
 
+    /**
+     * Date of birth in {@code "YYYY-MM-DD"} format (using the in-game year).
+     * Empty string when not explicitly set.
+     */
+    private final String birthdate;
+
+    /**
+     * Whether this NPC can be tracked / shown on the city map.
+     * In debug / developer mode all NPCs are treated as tracked regardless of
+     * this flag.
+     */
+    private final boolean tracked;
+
     // -------------------------------------------------------------------------
     // Construction
     // -------------------------------------------------------------------------
@@ -118,6 +131,8 @@ public final class NpcCharacter {
         this.skills               = Collections.unmodifiableList(
                 new ArrayList<>(b.skills));
         this.schedule             = b.schedule;
+        this.birthdate            = b.birthdate != null ? b.birthdate : "";
+        this.tracked              = b.tracked;
     }
 
     // -------------------------------------------------------------------------
@@ -275,6 +290,64 @@ public final class NpcCharacter {
     }
 
     // -------------------------------------------------------------------------
+    // Accessors — birthdate and tracking
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the NPC's date of birth in {@code "YYYY-MM-DD"} format (using
+     * the in-game calendar year).  Returns an empty string if the birthdate
+     * was not explicitly set.
+     */
+    public String getBirthdate() {
+        return birthdate;
+    }
+
+    /**
+     * Returns {@code true} if this NPC can be tracked / shown on the city map
+     * in normal game mode.  In developer / debug mode all NPCs are treated as
+     * tracked regardless of this flag.
+     */
+    public boolean isTracked() {
+        return tracked;
+    }
+
+    // -------------------------------------------------------------------------
+    // Convenience — current map position (derived from schedule)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the city-map cell X-coordinate for this NPC at the given hour,
+     * derived from the NPC's {@link NpcSchedule}.
+     *
+     * <p>Returns {@code -1} when no schedule is assigned, when no entry covers
+     * {@code hour}, or when the matching entry has no known cell coordinate.
+     *
+     * @param hour hour of the day (0–23)
+     * @return cell X coordinate, or {@code -1} if unknown
+     */
+    public int getCurrentCellX(int hour) {
+        if (schedule == null) return -1;
+        NpcScheduleEntry entry = schedule.getEntryForHour(hour);
+        return (entry != null) ? entry.cellX : -1;
+    }
+
+    /**
+     * Returns the city-map cell Y-coordinate for this NPC at the given hour,
+     * derived from the NPC's {@link NpcSchedule}.
+     *
+     * <p>Returns {@code -1} when no schedule is assigned, when no entry covers
+     * {@code hour}, or when the matching entry has no known cell coordinate.
+     *
+     * @param hour hour of the day (0–23)
+     * @return cell Y coordinate, or {@code -1} if unknown
+     */
+    public int getCurrentCellY(int hour) {
+        if (schedule == null) return -1;
+        NpcScheduleEntry entry = schedule.getEntryForHour(hour);
+        return (entry != null) ? entry.cellY : -1;
+    }
+
+    // -------------------------------------------------------------------------
     // Object overrides
     // -------------------------------------------------------------------------
 
@@ -321,6 +394,8 @@ public final class NpcCharacter {
                 new EnumMap<>(CharacterAttribute.class);
         private final List<NpcSkill> skills = new ArrayList<>();
         private NpcSchedule schedule = null;
+        private String      birthdate = "";
+        private boolean     tracked   = false;
 
         /**
          * Sets the mandatory unique identifier.
@@ -547,6 +622,28 @@ public final class NpcCharacter {
          */
         public Builder schedule(NpcSchedule schedule) {
             this.schedule = schedule;
+            return this;
+        }
+
+        /**
+         * Sets the NPC's date of birth as a {@code "YYYY-MM-DD"} string.
+         * {@code null} or blank is stored as an empty string.
+         *
+         * @param birthdate date of birth string, or {@code null}
+         */
+        public Builder birthdate(String birthdate) {
+            this.birthdate = (birthdate != null) ? birthdate.trim() : "";
+            return this;
+        }
+
+        /**
+         * Sets whether this NPC can be tracked / shown on the city map in
+         * normal game mode.
+         *
+         * @param tracked {@code true} to enable tracking
+         */
+        public Builder tracked(boolean tracked) {
+            this.tracked = tracked;
             return this;
         }
 

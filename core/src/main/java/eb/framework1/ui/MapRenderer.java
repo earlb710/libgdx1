@@ -2,6 +2,7 @@ package eb.framework1.ui;
 
 import eb.framework1.city.*;
 import eb.framework1.screen.*;
+import eb.framework1.character.*;
 
 
 import com.badlogic.gdx.Gdx;
@@ -28,6 +29,13 @@ public class MapRenderer {
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
     private static final Color TRAVELED_ROAD_COLOR   = new Color(0.3f,  0.75f, 1f,    1f);
+    /** Color of the tracked-NPC stick figure (cyan). */
+    private static final Color NPC_FIGURE_COLOR      = new Color(0f,   1f,    1f,    1f);
+    /** Color of the tracked-NPC stick figure in debug mode (orange). */
+    private static final Color NPC_DEBUG_COLOR       = new Color(1f,   0.55f, 0f,    1f);
+    /** Number of segments used for the stick-figure head circle. 8 gives a clear octagon
+     *  at the small sizes used on the map without the overhead of a smooth circle. */
+    private static final int   HEAD_CIRCLE_SEGMENTS  = 8;
 
     public static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -315,6 +323,11 @@ public class MapRenderer {
         }
         shapeRenderer.end();
 
+        // NPC stick figures (tracked NPCs, or all NPCs in developer / debug mode)
+        drawNpcStickFigures(s, mapStartX, mapStartY, cellSize,
+                startCellX, startCellY, endCellX, endCellY,
+                fracOffsetX, fracOffsetY, visibleCellsY);
+
         // Selection highlight
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         if (s.selectedCellX >= 0 && s.selectedCellY >= 0
@@ -346,6 +359,97 @@ public class MapRenderer {
             smallFont.getData().setScale(1.0f);
             batch.end();
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // NPC stick-figure rendering
+    // -------------------------------------------------------------------------
+
+    /**
+     * Draws a small stick figure at the current map position of each NPC that
+     * should be visible.
+     *
+     * <p>In developer / debug mode ({@link MapViewState#developerMode}) all
+     * NPCs in {@link MapViewState#allNpcs} are drawn (using an orange colour).
+     * In normal mode only NPCs where
+     * {@link NpcCharacter#isTracked()} is {@code true} are drawn (cyan).
+     *
+     * <p>The NPC's position is determined by
+     * {@link NpcCharacter#getCurrentCellX(int)} /
+     * {@link NpcCharacter#getCurrentCellY(int)} using
+     * {@link MapViewState#currentHour}.  NPCs with no known cell ({@code -1})
+     * or outside the currently visible map area are silently skipped.
+     */
+    private void drawNpcStickFigures(MapViewState s,
+            float mapStartX, float mapStartY, float cellSize,
+            int startCellX, int startCellY, int endCellX, int endCellY,
+            float fracOffsetX, float fracOffsetY, int visibleCellsY) {
+
+        if (s.allNpcs == null || s.allNpcs.isEmpty()) return;
+
+        Color figureColor = s.developerMode ? NPC_DEBUG_COLOR : NPC_FIGURE_COLOR;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(figureColor);
+
+        for (NpcCharacter npc : s.allNpcs) {
+            if (!s.developerMode && !npc.isTracked()) continue;
+
+            int nx = npc.getCurrentCellX(s.currentHour);
+            int ny = npc.getCurrentCellY(s.currentHour);
+            if (nx < 0 || ny < 0) continue;
+            if (nx < startCellX || nx >= endCellX || ny < startCellY || ny >= endCellY) continue;
+
+            float cx = mapStartX + (nx - startCellX - fracOffsetX) * cellSize;
+            float cy = mapStartY + (visibleCellsY - 1 - (ny - startCellY - fracOffsetY)) * cellSize;
+            drawStickFigure(shapeRenderer, cx + cellSize * 0.5f, cy + cellSize * 0.5f, cellSize);
+        }
+
+        shapeRenderer.end();
+    }
+
+    /**
+     * Draws a simple five-line stick figure centred at ({@code cx}, {@code cy}).
+     *
+     * <p>The figure is scaled to roughly 40 % of {@code cellSize}:
+     * <ul>
+     *   <li>A filled circle for the head.</li>
+     *   <li>A vertical line for the torso.</li>
+     *   <li>Two diagonal lines for the arms.</li>
+     *   <li>Two diagonal lines for the legs.</li>
+     * </ul>
+     *
+     * <p>The {@link ShapeRenderer} must already be in
+     * {@link ShapeRenderer.ShapeType#Line} mode with the desired colour set.
+     *
+     * @param sr       shape renderer already in Line mode
+     * @param cx       centre X of the figure (screen pixels)
+     * @param cy       centre Y of the figure (screen pixels)
+     * @param cellSize size of one map cell (screen pixels); used for scaling
+     */
+    static void drawStickFigure(ShapeRenderer sr, float cx, float cy, float cellSize) {
+        float scale      = cellSize * 0.18f;   // overall scale unit
+        float headR      = Math.max(2f, scale * 0.55f);
+        float torsoLen   = scale * 1.4f;
+        float limbLen    = scale * 1.0f;
+
+        // Torso: from top of torso (below head) down
+        float torsoTop    = cy + headR + scale * 0.1f;
+        float torsoBottom = torsoTop - torsoLen;
+
+        sr.line(cx, torsoTop, cx, torsoBottom);
+
+        // Arms: spread from mid-torso
+        float armY = torsoTop - torsoLen * 0.35f;
+        sr.line(cx, armY, cx - limbLen, armY - limbLen * 0.5f);
+        sr.line(cx, armY, cx + limbLen, armY - limbLen * 0.5f);
+
+        // Legs: spread from bottom of torso
+        sr.line(cx, torsoBottom, cx - limbLen * 0.7f, torsoBottom - limbLen);
+        sr.line(cx, torsoBottom, cx + limbLen * 0.7f, torsoBottom - limbLen);
+
+        // Head: small circle (use polygon approximation)
+        sr.circle(cx, torsoTop + headR + scale * 0.05f, headR, HEAD_CIRCLE_SEGMENTS);
     }
 
     public void drawRulers(MapViewState s) {

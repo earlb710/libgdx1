@@ -54,6 +54,15 @@ public class NpcGenerator {
     // State
     // -------------------------------------------------------------------------
 
+    /** The in-game base year from which birthdates are derived. */
+    static final int GAME_YEAR = 2050;
+
+    /** Days per month (non-leap year). February capped at 28 so that dates remain
+     *  valid regardless of whether the birth year is a leap year. */
+    private static final int[] DAYS_IN_MONTH = {
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+
     private final CharacterGenerator charGen;
     private final Random             random;
 
@@ -148,6 +157,9 @@ public class NpcGenerator {
         List<NpcSkill> skills   = inferSkills(base.getOccupation());
         NpcSchedule    schedule = buildSchedule(base, skills, cityMap);
 
+        // Derive birthdate from age: birth year = GAME_YEAR − age, random month/day
+        String birthdate = buildBirthdate(base.getAge());
+
         // Extract updated home and work addresses from the generated schedule
         String homeAddress = base.getHomeAddress();
         String workAddress = base.getWorkplaceAddress();
@@ -189,7 +201,9 @@ public class NpcGenerator {
                 .attributes(base.getAttributes())
                 .frequentLocations(base.getFrequentLocations())
                 .skills(skills)
-                .schedule(schedule);
+                .schedule(schedule)
+                .birthdate(birthdate);
+        // tracked defaults to false; callers can set it explicitly after generation
 
         // Add the evening leisure/shopping location as a frequent location
         if (!leisureAddress.isEmpty()) {
@@ -447,6 +461,27 @@ public class NpcGenerator {
                 NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
 
         return new NpcSchedule(entries);
+    }
+
+    // -------------------------------------------------------------------------
+    // Birthdate helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Derives a {@code "YYYY-MM-DD"} birthdate string from an age in years.
+     *
+     * <p>The birth year is {@code GAME_YEAR − age}.  Month and day are chosen
+     * randomly so that every NPC born in the same year has a plausible, unique
+     * birthday.
+     *
+     * @param age age in years (non-negative); 0 produces birth year == GAME_YEAR
+     * @return birthdate string in {@code "YYYY-MM-DD"} format
+     */
+    String buildBirthdate(int age) {
+        int birthYear = GAME_YEAR - Math.max(0, age);
+        int month     = 1 + random.nextInt(12);          // 1–12
+        int day       = 1 + random.nextInt(DAYS_IN_MONTH[month - 1]); // 1–28/30/31
+        return String.format("%04d-%02d-%02d", birthYear, month, day);
     }
 
     // -------------------------------------------------------------------------

@@ -439,4 +439,158 @@ public class NpcGeneratorTest {
         NpcCharacter npc2 = makeGenerator(101).generateVictim(CaseType.STALKING, null);
         assertEquals(npc1.getSchedule().size(), npc2.getSchedule().size());
     }
+
+    // =========================================================================
+    // Birthdate
+    // =========================================================================
+
+    @Test
+    public void generateClient_hasBirthdate() {
+        NpcCharacter npc = makeGenerator(200).generateClient(CaseType.FRAUD, null);
+        assertFalse("Birthdate must not be empty", npc.getBirthdate().isEmpty());
+    }
+
+    @Test
+    public void birthdate_matchesExpectedFormat() {
+        NpcCharacter npc = makeGenerator(201).generateVictim(CaseType.MURDER, null);
+        String bd = npc.getBirthdate();
+        // Must be "YYYY-MM-DD"
+        assertTrue("Birthdate must match YYYY-MM-DD: " + bd,
+                bd.matches("\\d{4}-\\d{2}-\\d{2}"));
+    }
+
+    @Test
+    public void birthdate_yearMatchesAgeFromGameYear() {
+        NpcCharacter npc = makeGenerator(202).generateSuspect(CaseType.THEFT, null);
+        int birthYear = Integer.parseInt(npc.getBirthdate().substring(0, 4));
+        int expectedBirthYear = NpcGenerator.GAME_YEAR - npc.getAge();
+        assertEquals("Birth year must equal GAME_YEAR − age",
+                expectedBirthYear, birthYear);
+    }
+
+    @Test
+    public void birthdate_monthInRange() {
+        NpcCharacter npc = makeGenerator(203).generateClient(CaseType.BLACKMAIL, null);
+        int month = Integer.parseInt(npc.getBirthdate().substring(5, 7));
+        assertTrue("Month must be 1–12", month >= 1 && month <= 12);
+    }
+
+    @Test
+    public void birthdate_dayInRange() {
+        NpcCharacter npc = makeGenerator(204).generateSuspect(CaseType.FRAUD, null);
+        int day = Integer.parseInt(npc.getBirthdate().substring(8, 10));
+        assertTrue("Day must be 1–31", day >= 1 && day <= 31);
+    }
+
+    @Test
+    public void buildBirthdate_helper_zeroAge() {
+        List<PersonNameGenerator.NameEntry> names =
+                Arrays.asList(new PersonNameGenerator.NameEntry("Sam", "M"));
+        PersonNameGenerator nameGen = new PersonNameGenerator(names, Arrays.asList("X"),
+                new Random(99));
+        NpcGenerator gen = new NpcGenerator(nameGen, new Random(99));
+        String bd = gen.buildBirthdate(0);
+        int year = Integer.parseInt(bd.substring(0, 4));
+        assertEquals(NpcGenerator.GAME_YEAR, year);
+    }
+
+    @Test
+    public void determinism_sameSeedProducesSameBirthdate() {
+        NpcCharacter npc1 = makeGenerator(205).generateClient(CaseType.FRAUD, null);
+        NpcCharacter npc2 = makeGenerator(205).generateClient(CaseType.FRAUD, null);
+        assertEquals(npc1.getBirthdate(), npc2.getBirthdate());
+    }
+
+    // =========================================================================
+    // Tracking flag
+    // =========================================================================
+
+    @Test
+    public void generateClient_trackedDefaultsFalse() {
+        NpcCharacter npc = makeGenerator(300).generateClient(CaseType.THEFT, null);
+        assertFalse("NPC tracked flag should default to false", npc.isTracked());
+    }
+
+    @Test
+    public void builder_tracked_canBeSetTrue() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("t1").fullName("Test Person").gender("M")
+                .tracked(true)
+                .build();
+        assertTrue(npc.isTracked());
+    }
+
+    @Test
+    public void builder_tracked_defaultFalse() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("t2").fullName("Test Person").gender("F")
+                .build();
+        assertFalse(npc.isTracked());
+    }
+
+    // =========================================================================
+    // getCurrentCellX / getCurrentCellY
+    // =========================================================================
+
+    @Test
+    public void getCurrentCellX_noSchedule_returnsMinusOne() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cx1").fullName("Test").gender("M").build();
+        assertEquals(-1, npc.getCurrentCellX(10));
+    }
+
+    @Test
+    public void getCurrentCellY_noSchedule_returnsMinusOne() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cy1").fullName("Test").gender("M").build();
+        assertEquals(-1, npc.getCurrentCellY(10));
+    }
+
+    @Test
+    public void getCurrentCellX_withScheduleAndKnownCell_returnsCell() {
+        List<NpcScheduleEntry> entries = Arrays.asList(
+                new NpcScheduleEntry(0, 24, NpcScheduleEntry.HOME, "Home", 5, 7)
+        );
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cx2").fullName("Test").gender("M")
+                .schedule(new NpcSchedule(entries))
+                .build();
+        assertEquals(5, npc.getCurrentCellX(12));
+    }
+
+    @Test
+    public void getCurrentCellY_withScheduleAndKnownCell_returnsCell() {
+        List<NpcScheduleEntry> entries = Arrays.asList(
+                new NpcScheduleEntry(0, 24, NpcScheduleEntry.HOME, "Home", 5, 7)
+        );
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cy2").fullName("Test").gender("M")
+                .schedule(new NpcSchedule(entries))
+                .build();
+        assertEquals(7, npc.getCurrentCellY(12));
+    }
+
+    @Test
+    public void getCurrentCellX_entryWithNoCell_returnsMinusOne() {
+        List<NpcScheduleEntry> entries = Arrays.asList(
+                new NpcScheduleEntry(0, 24, NpcScheduleEntry.HOME, "Home", -1, -1)
+        );
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cx3").fullName("Test").gender("M")
+                .schedule(new NpcSchedule(entries))
+                .build();
+        assertEquals(-1, npc.getCurrentCellX(10));
+    }
+
+    @Test
+    public void getCurrentCellX_hourOutsideAllEntries_returnsMinusOne() {
+        List<NpcScheduleEntry> entries = Arrays.asList(
+                new NpcScheduleEntry(9, 17, NpcScheduleEntry.WORK, "Office", 3, 3)
+        );
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cx4").fullName("Test").gender("M")
+                .schedule(new NpcSchedule(entries))
+                .build();
+        assertEquals(-1, npc.getCurrentCellX(5));
+    }
 }

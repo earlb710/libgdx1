@@ -117,6 +117,25 @@ public class MapViewState {
     /** Bounds of the "D" toggle button in the top info bar (written by InfoPanelRenderer). */
     public float devModeBtnX, devModeBtnY, devModeBtnW, devModeBtnH;
 
+    // --- NPC tracking overlay ---
+    /**
+     * List of all NPC characters known to the current session.  Populated by
+     * {@code MainScreen} whenever NPCs are generated or loaded.  In developer
+     * mode all NPCs in this list are rendered as stick figures on the map;
+     * otherwise only those with {@link eb.framework1.character.NpcCharacter#isTracked()}
+     * equal to {@code true} are shown.
+     */
+    public java.util.List<eb.framework1.character.NpcCharacter> allNpcs =
+            new java.util.ArrayList<>();
+
+    /**
+     * Current in-game hour (0–23).  Used by {@code MapRenderer} to determine
+     * which schedule entry is active and where each NPC should be drawn.
+     * Updated by {@code MainScreen} each frame from the profile's
+     * {@code gameDateTime} string.
+     */
+    public int currentHour = 8;
+
     // --- Help toggle (info panel "?" button) ---
     public boolean helpVisible = false;
     public float helpBtnX, helpBtnY, helpBtnW, helpBtnH;
