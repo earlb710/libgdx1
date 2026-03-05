@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Panel that displays and edits the contents of buildings_en.json.
  *
- * The table shows each building's ID, Name, Category, and
+ * The table shows each building's ID, Name, Category, Icon, and
  * Improvements (as a comma-separated list).  All other numeric fields
  * (minFloors, maxFloors, unitsPerFloor, capacity, percentage) are
  * preserved transparently on load and save.  Annotation support mirrors
@@ -56,7 +56,7 @@ public class BuildingsEditorPanel extends JPanel {
         "attribute.STEALTH", "attribute.STRENGTH"
     };
     /** Column index of the first description sub-field column. */
-    private static final int DESC_COL_START = 10;
+    private static final int DESC_COL_START = 11;
 
     private final JTextField versionField  = new JTextField(8);
     private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
@@ -131,14 +131,15 @@ public class BuildingsEditorPanel extends JPanel {
         table.getColumnModel().getColumn(0).setPreferredWidth(160);   // ID
         table.getColumnModel().getColumn(1).setPreferredWidth(180);   // Name
         table.getColumnModel().getColumn(2).setPreferredWidth(120);   // Category
-        table.getColumnModel().getColumn(3).setPreferredWidth(80);    // Min Floors
-        table.getColumnModel().getColumn(4).setPreferredWidth(80);    // Max Floors
-        table.getColumnModel().getColumn(5).setPreferredWidth(90);    // Units/Floor
-        table.getColumnModel().getColumn(6).setPreferredWidth(80);    // Capacity
-        table.getColumnModel().getColumn(7).setPreferredWidth(90);    // Percentage
-        table.getColumnModel().getColumn(8).setPreferredWidth(320);   // Improvements
-        table.getColumnModel().getColumn(9).setPreferredWidth(260);   // Attr Modifiers
-        // description sub-columns (cols 10-30)
+        table.getColumnModel().getColumn(3).setPreferredWidth(180);   // Icon
+        table.getColumnModel().getColumn(4).setPreferredWidth(80);    // Min Floors
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);    // Max Floors
+        table.getColumnModel().getColumn(6).setPreferredWidth(90);    // Units/Floor
+        table.getColumnModel().getColumn(7).setPreferredWidth(80);    // Capacity
+        table.getColumnModel().getColumn(8).setPreferredWidth(90);    // Percentage
+        table.getColumnModel().getColumn(9).setPreferredWidth(320);   // Improvements
+        table.getColumnModel().getColumn(10).setPreferredWidth(260);  // Attr Modifiers
+        // description sub-columns (cols 11-31)
         for (int i = DESC_COL_START; i < DESC_COL_START + DESC_COL_KEYS.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(300);
         }
@@ -150,9 +151,9 @@ public class BuildingsEditorPanel extends JPanel {
 
         addBtn.addActionListener((ActionEvent e) -> {
             tableModel.addRow(new Object[]{
-                    "", "", "", "", "", "", "", "", "", "",  // 10 fixed cols
-                    "", "", "", "", "", "", "", "", "", "",  // desc cols 10-19
-                    "", "", "", "", "", "", "", "", "", "", ""  // desc cols 20-30
+                    "", "", "", "", "", "", "", "", "", "", "",  // 11 fixed cols
+                    "", "", "", "", "", "", "", "", "", "",  // desc cols 11-20
+                    "", "", "", "", "", "", "", "", "", "", ""  // desc cols 21-31
             });
             originalObjects.add(new JsonObject());
             int last = tableModel.getRowCount() - 1;
@@ -291,6 +292,7 @@ public class BuildingsEditorPanel extends JPanel {
                     String id            = entry.has("id")           ? entry.get("id").getAsString()           : "";
                     String name          = entry.has("name")         ? entry.get("name").getAsString()         : "";
                     String cat           = entry.has("category")     ? entry.get("category").getAsString()     : "";
+                    String icon          = entry.has("icon")         ? entry.get("icon").getAsString()         : "";
                     String minFloors     = entry.has("minFloors")    ? entry.get("minFloors").getAsString()    : "";
                     String maxFloors     = entry.has("maxFloors")    ? entry.get("maxFloors").getAsString()    : "";
                     String unitsPerFloor = entry.has("unitsPerFloor") ? entry.get("unitsPerFloor").getAsString() : "";
@@ -318,13 +320,14 @@ public class BuildingsEditorPanel extends JPanel {
                     rowData[0] = id;
                     rowData[1] = name;
                     rowData[2] = cat;
-                    rowData[3] = minFloors;
-                    rowData[4] = maxFloors;
-                    rowData[5] = unitsPerFloor;
-                    rowData[6] = capacity;
-                    rowData[7] = percentage;
-                    rowData[8] = improvements;
-                    rowData[9] = attrModifiers;
+                    rowData[3] = icon;
+                    rowData[4] = minFloors;
+                    rowData[5] = maxFloors;
+                    rowData[6] = unitsPerFloor;
+                    rowData[7] = capacity;
+                    rowData[8] = percentage;
+                    rowData[9] = improvements;
+                    rowData[10] = attrModifiers;
                     for (int i = 0; i < DESC_COL_KEYS.length; i++) {
                         rowData[DESC_COL_START + i] = descFieldValue(desc, DESC_COL_KEYS[i]);
                     }
@@ -370,19 +373,21 @@ public class BuildingsEditorPanel extends JPanel {
                 String id               = cellStr(r, 0);
                 String name             = cellStr(r, 1);
                 String category         = cellStr(r, 2);
-                String minFloorsStr     = cellStr(r, 3);
-                String maxFloorsStr     = cellStr(r, 4);
-                String unitsPerFloorStr = cellStr(r, 5);
-                String capacityStr      = cellStr(r, 6);
-                String percentageStr    = cellStr(r, 7);
-                String improvementsStr  = cellStr(r, 8);
-                String attrModStr       = cellStr(r, 9);
+                String icon             = cellStr(r, 3);
+                String minFloorsStr     = cellStr(r, 4);
+                String maxFloorsStr     = cellStr(r, 5);
+                String unitsPerFloorStr = cellStr(r, 6);
+                String capacityStr      = cellStr(r, 7);
+                String percentageStr    = cellStr(r, 8);
+                String improvementsStr  = cellStr(r, 9);
+                String attrModStr       = cellStr(r, 10);
 
                 JsonObject original = r < originalObjects.size() ? originalObjects.get(r) : new JsonObject();
                 JsonObject entry = new JsonObject();
                 entry.addProperty("id",       id);
                 entry.addProperty("name",     name);
                 entry.addProperty("category", category);
+                if (!icon.isEmpty()) entry.addProperty("icon", icon);
 
                 // Numeric fields – use the edited table value, fall back to original
                 addIntField(entry,    "minFloors",     minFloorsStr,     original);
@@ -485,7 +490,7 @@ public class BuildingsEditorPanel extends JPanel {
     private static DefaultTableModel createModel() {
         return new DefaultTableModel(
                 new String[]{
-                        "ID", "Name", "Category",
+                        "ID", "Name", "Category", "Icon",
                         "Min Floors", "Max Floors", "Units/Floor", "Capacity", "Percentage",
                         "Improvements", "Attr Modifiers",
                         // description sub-columns (no "desc." prefix)
