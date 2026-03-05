@@ -2,12 +2,15 @@ package eb.admin.model;
 
 /**
  * Represents a single entry in any category list within category_en.json.
- * The {@code color} field is only used by building categories.
+ * The {@code color} field is used by building categories and improvement categories.
+ * The {@code actions} field is only used by improvement categories and holds a
+ * comma-separated list of action button labels (e.g. "rest, read, practice").
  */
 public class CategoryEntry {
     private String code;
     private String description;
     private String color;
+    private String actions;
 
     public CategoryEntry() {
     }
@@ -34,5 +37,13 @@ public class CategoryEntry {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getActions() {
+        return actions;
+    }
+
+    public void setActions(String actions) {
+        this.actions = actions;
     }
 }
