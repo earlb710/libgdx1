@@ -14,7 +14,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.Gdx;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Popup displayed when the player first arrives at a building (new location discovered).
@@ -180,10 +182,18 @@ public class DiscoveryPopup {
         }
         scrollLines.addAll(descLines);
         scrollLines.addAll(novelLines);
+        Set<Integer> impDescIndices = new HashSet<>();
         if (!improvementLines.isEmpty()) {
             scrollLines.add("Improvements found:");
             for (String impLine : improvementLines) {
+                boolean isDesc = impLine.startsWith("  ");
+                int startIdx = scrollLines.size();
                 scrollLines.addAll(WordWrapper.wrap(impLine, textAreaMaxW, measurer));
+                if (isDesc) {
+                    for (int j = startIdx; j < scrollLines.size(); j++) {
+                        impDescIndices.add(j);
+                    }
+                }
             }
         }
 
@@ -270,12 +280,13 @@ public class DiscoveryPopup {
                 dialogX + (dialogW - SCROLLBAR_W - glyph.width) / 2f, ty);
         ty -= fontLineH + TITLE_GAP;
 
-        // Content lines (building type in bold bright white; novel text in light-blue; everything else white)
+        // Content lines (building type in bold bright white; novel text + improvement descriptions in light-blue; everything else white)
         for (int i = 0; i < scrollLines.size(); i++) {
             boolean isType  = buildingType != null && i == 0;
-            boolean isNovel = i >= novelStartIdx && i < novelEndIdx;
+            boolean isNovel  = i >= novelStartIdx && i < novelEndIdx;
+            boolean isImpDesc = impDescIndices.contains(i);
             BitmapFont lineFont = isType ? boldSmallFont : smallFont;
-            lineFont.setColor(isNovel ? NOVEL_COLOR : Color.WHITE);
+            lineFont.setColor(isNovel || isImpDesc ? NOVEL_COLOR : Color.WHITE);
             String line = scrollLines.get(i);
             glyph.setText(lineFont, line);
             lineFont.draw(batch, line, dialogX + PAD, ty);
