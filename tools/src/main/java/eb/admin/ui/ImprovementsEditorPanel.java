@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -29,15 +30,21 @@ import java.util.Map;
 /**
  * Panel that displays and edits the contents of improvements_en.json.
  *
- * The table shows each improvement's ID, Name, and Attribute Modifiers
- * (as a comma-separated list, e.g. "PERCEPTION: 2, STAMINA: 1").
+ * The table shows each improvement's ID, Name, Attribute Modifiers
+ * (as a comma-separated list, e.g. "PERCEPTION: 2, STAMINA: 1"),
+ * Category (linked to an improvement_category code), and Function
+ * (a single action drawn from that category's actions list).
  * Annotation support mirrors the pattern used by {@link CompanyTypesEditorPanel}.
  */
 public class ImprovementsEditorPanel extends JPanel {
 
-    private static final String DEFAULT_JSON_PATH = "assets/text/improvements_en.json";
-    private static final Color ANNOTATION_FOREGROUND = new Color(0, 0, 139);
+    private static final String DEFAULT_JSON_PATH        = "assets/text/improvements_en.json";
+    private static final String DEFAULT_CATEGORY_JSON    = "assets/text/category_en.json";
+    private static final Color  ANNOTATION_FOREGROUND    = new Color(0, 0, 139);
     private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
+
+    /** Category code → ordered list of action strings (from improvement_categories). */
+    private final Map<String, List<String>> categoryActions = new HashMap<>();
 
     private final JTextField versionField  = new JTextField(8);
     private final JComboBox<String> languageCombo = new JComboBox<>(EditorUtils.LANGUAGES);
@@ -73,8 +80,43 @@ public class ImprovementsEditorPanel extends JPanel {
 
     public ImprovementsEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
+        loadCategoryActions();
         buildUI();
         tryLoadDefaultFile();
+    }
+
+    // -------------------------------------------------------------------------
+    // Category actions loader
+    // -------------------------------------------------------------------------
+
+    /**
+     * Reads improvement_categories from category_en.json and populates
+     * {@link #categoryActions} with category-code → action-list entries.
+     */
+    private void loadCategoryActions() {
+        categoryActions.clear();
+        File catFile = new File(DEFAULT_CATEGORY_JSON);
+        if (!catFile.exists()) return;
+        try (Reader r = new FileReader(catFile)) {
+            JsonObject root = new Gson().fromJson(r, JsonObject.class);
+            if (root == null || !root.has("improvement_categories")) return;
+            for (JsonElement el : root.getAsJsonArray("improvement_categories")) {
+                JsonObject cat = el.getAsJsonObject();
+                String code          = cat.has("code")    ? cat.get("code").getAsString()    : "";
+                String actionsText   = cat.has("actions")  ? cat.get("actions").getAsString() : "";
+                List<String> actionList = new ArrayList<>();
+                actionList.add(""); // allow blank / unset
+                for (String a : actionsText.split(",")) {
+                    String trimmed = a.trim();
+                    if (!trimmed.isEmpty()) actionList.add(trimmed);
+                }
+                if (!code.isEmpty()) {
+                    categoryActions.put(code, actionList);
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Could not load improvement categories: " + ex.getMessage());
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -95,17 +137,25 @@ public class ImprovementsEditorPanel extends JPanel {
         table.setRowHeight(26);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
-        table.getColumnModel().getColumn(0).setPreferredWidth(180);
-        table.getColumnModel().getColumn(1).setPreferredWidth(220);
-        table.getColumnModel().getColumn(2).setPreferredWidth(420);
+        table.getColumnModel().getColumn(0).setPreferredWidth(180); // ID
+        table.getColumnModel().getColumn(1).setPreferredWidth(220); // Name
+        table.getColumnModel().getColumn(2).setPreferredWidth(360); // Attribute Modifiers
+        table.getColumnModel().getColumn(3).setPreferredWidth(130); // Category
+        table.getColumnModel().getColumn(4).setPreferredWidth(120); // Function
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // Category column: combobox with all known category codes
+        installCategoryEditor();
+
+        // Function column: combobox whose options depend on the selected category
+        installFunctionEditor();
 
         JButton addBtn    = new JButton("Add Row");
         JButton deleteBtn = new JButton("Delete Row");
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            tableModel.addRow(new Object[]{"", "", ""});
+            tableModel.addRow(new Object[]{"", "", "", "", ""});
             int last = tableModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
             table.setRowSelectionInterval(last, last);
@@ -153,6 +203,39 @@ public class ImprovementsEditorPanel extends JPanel {
                 }
             }
         });
+    }
+
+    /** Installs a JComboBox cell editor on the Category column (col 3). */
+    private void installCategoryEditor() {
+        List<String> codes = new ArrayList<>();
+        codes.add("");
+        codes.addAll(categoryActions.keySet());
+        Collections.sort(codes.subList(1, codes.size()));
+        JComboBox<String> categoryCombo = new JComboBox<>(codes.toArray(new String[0]));
+        table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(categoryCombo));
+    }
+
+    /**
+     * Installs a context-sensitive JComboBox cell editor on the Function column (col 4).
+     * The options are repopulated from the category chosen in col 3 each time editing begins.
+     */
+    private void installFunctionEditor() {
+        JComboBox<String> functionCombo = new JComboBox<>(new String[]{""});
+        DefaultCellEditor functionEditor = new DefaultCellEditor(functionCombo) {
+            @Override
+            public Component getTableCellEditorComponent(JTable t, Object value,
+                                                         boolean isSelected, int row, int column) {
+                // Repopulate options based on current category value
+                String cat = cellStr(row, 3);
+                List<String> actions = categoryActions.getOrDefault(cat, Collections.singletonList(""));
+                functionCombo.removeAllItems();
+                for (String a : actions) {
+                    functionCombo.addItem(a);
+                }
+                return super.getTableCellEditorComponent(t, value, isSelected, row, column);
+            }
+        };
+        table.getColumnModel().getColumn(4).setCellEditor(functionEditor);
     }
 
     private JPanel buildNorthPanel() {
@@ -231,13 +314,15 @@ public class ImprovementsEditorPanel extends JPanel {
                 List<Object[]> rows = new ArrayList<>();
                 for (JsonElement el : root.getAsJsonArray("improvements")) {
                     JsonObject entry = el.getAsJsonObject();
-                    String id   = entry.has("id")   ? entry.get("id").getAsString()   : "";
-                    String name = entry.has("name")  ? entry.get("name").getAsString()  : "";
+                    String id       = entry.has("id")       ? entry.get("id").getAsString()       : "";
+                    String name     = entry.has("name")     ? entry.get("name").getAsString()     : "";
+                    String category = entry.has("category") ? entry.get("category").getAsString() : "";
+                    String function = entry.has("function") ? entry.get("function").getAsString() : "";
                     String mods = "";
                     if (entry.has("attribute_modifiers") && entry.get("attribute_modifiers").isJsonObject()) {
                         mods = attributeModifiersToString(entry.getAsJsonObject("attribute_modifiers"));
                     }
-                    rows.add(new Object[]{id, name, mods});
+                    rows.add(new Object[]{id, name, mods, category, function});
                 }
                 rows.sort(Comparator.comparing(r -> r[0].toString()));
                 for (Object[] row : rows) {
@@ -278,14 +363,18 @@ public class ImprovementsEditorPanel extends JPanel {
 
             JsonArray improvements = new JsonArray();
             for (int r = 0; r < tableModel.getRowCount(); r++) {
-                String id   = cellStr(r, 0);
-                String name = cellStr(r, 1);
-                String modsStr = cellStr(r, 2);
+                String id       = cellStr(r, 0);
+                String name     = cellStr(r, 1);
+                String modsStr  = cellStr(r, 2);
+                String category = cellStr(r, 3);
+                String function = cellStr(r, 4);
 
                 JsonObject entry = new JsonObject();
                 entry.addProperty("id",   id);
                 entry.addProperty("name", name);
                 entry.add("attribute_modifiers", parseAttributeModifiers(modsStr));
+                if (!category.isEmpty()) entry.addProperty("category", category);
+                if (!function.isEmpty()) entry.addProperty("function", function);
                 improvements.add(entry);
             }
             root.add("improvements", improvements);
@@ -365,7 +454,8 @@ public class ImprovementsEditorPanel extends JPanel {
     }
 
     private static DefaultTableModel createModel() {
-        return new DefaultTableModel(new String[]{"ID", "Name", "Attribute Modifiers"}, 0) {
+        return new DefaultTableModel(
+                new String[]{"ID", "Name", "Attribute Modifiers", "Category", "Function"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;

@@ -4,7 +4,9 @@
     {
       "id": "24hr_access",
       "name": "24hr Access",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "24hr_security",
@@ -12,7 +14,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "3d_theaters",
@@ -20,27 +24,37 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "atm",
       "name": "ATM",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "atm_lobby",
       "name": "ATM Lobby",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "ablution_area",
       "name": "Ablution Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "activity_room",
       "name": "Activity Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "admin_office",
@@ -48,7 +62,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "administration",
@@ -56,7 +72,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "administrative_office",
@@ -64,37 +82,51 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "air_station",
       "name": "Air Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "alarm_system",
       "name": "Alarm System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "alignment_rack",
       "name": "Alignment Rack",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "alterations_area",
       "name": "Alterations Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ambulance_bay",
       "name": "Ambulance Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "anchor_store",
       "name": "Anchor Store",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "arcade",
@@ -102,7 +134,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "archive_room",
@@ -110,7 +144,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "archives",
@@ -118,7 +154,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "armory",
@@ -126,7 +164,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "art_gallery",
@@ -135,7 +175,9 @@
         "EMPATHY": 1,
         "INTUITION": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "art_room",
@@ -143,7 +185,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "art_studio",
@@ -151,7 +195,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "arts_center",
@@ -159,7 +205,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "assembly_line",
@@ -167,7 +215,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "athletic_fields",
@@ -175,7 +225,9 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "STAMINA": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "attic_storage",
@@ -183,7 +235,9 @@
       "attribute_modifiers": {
         "MEMORY": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "attorney_meeting_rooms",
@@ -191,7 +245,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTELLIGENCE": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "audiobook_section",
@@ -199,69 +255,95 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "auditorium",
       "name": "Auditorium",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "auto_buying_program",
       "name": "Auto Buying Program",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "auto_shop",
       "name": "Auto Shop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "automotive_bay",
       "name": "Automotive Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "backup_generators",
       "name": "Backup Generators",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "backyard",
       "name": "Backyard",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bakery",
       "name": "Bakery",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ballroom",
       "name": "Ballroom",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "band_room",
       "name": "Band Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bank_branch",
       "name": "Bank Branch",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "banking_services",
       "name": "Banking Services",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "banquet_hall",
       "name": "Banquet Hall",
       "attribute_modifiers": {
         "CHARISMA": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "bar",
@@ -269,7 +351,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "bar_area",
@@ -277,7 +361,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "bar_lounge",
@@ -285,14 +371,18 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "basement",
       "name": "Basement",
       "attribute_modifiers": {
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "basketball_court",
@@ -300,17 +390,23 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "battery_charging",
       "name": "Battery Charging",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "battery_room",
       "name": "Battery Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "beer_garden",
@@ -318,7 +414,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "bicycle_storage",
@@ -327,7 +425,9 @@
         "AGILITY": 1,
         "MEMORY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bike_rack",
@@ -335,7 +435,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bike_room",
@@ -343,7 +445,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bike_storage",
@@ -352,22 +456,30 @@
         "AGILITY": 1,
         "MEMORY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "billiards_area",
       "name": "Billiards Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "blood_draw_station",
       "name": "Blood Draw Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "blood_pressure_station",
       "name": "Blood Pressure Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "board_room",
@@ -375,12 +487,16 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "body_shop",
       "name": "Body Shop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "book_stacks",
@@ -388,7 +504,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "booking_area",
@@ -396,7 +514,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "bookstore",
@@ -404,45 +524,59 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "bottle_service",
       "name": "Bottle Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bowling_alley",
       "name": "Bowling Alley",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bowling_lanes",
       "name": "Bowling Lanes",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "box_office",
       "name": "Box Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "break_room",
       "name": "Break Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "building_management_office",
       "name": "Building Management Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "bullet_resistant_glass",
@@ -450,27 +584,37 @@
       "attribute_modifiers": {
         "INTIMIDATION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "burn_center",
       "name": "Burn Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "bus_stop",
       "name": "Bus Stop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "business_center",
       "name": "Business Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "butcher",
       "name": "Butcher",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "butler_service",
@@ -478,12 +622,16 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cable_management",
       "name": "Cable Management",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "cafeteria",
@@ -491,7 +639,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "campus_security",
@@ -499,38 +649,50 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "cancer_center",
       "name": "Cancer Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "canopy_lighting",
       "name": "Canopy Lighting",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "captain_office",
       "name": "Captain Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "car_service",
       "name": "Car Service",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "car_wash",
       "name": "Car Wash",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cardiac_care",
@@ -539,7 +701,9 @@
         "AGILITY": 1,
         "INTELLIGENCE": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cardio_equipment",
@@ -547,28 +711,36 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "caretaker_suite",
       "name": "Caretaker Suite",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "carousel",
       "name": "Carousel",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "carrier_route",
       "name": "Carrier Route",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cart_corral",
@@ -577,27 +749,37 @@
         "AGILITY": 1,
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "cast_room",
       "name": "Cast Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cat_ward",
       "name": "Cat Ward",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cell_block_a",
       "name": "Cell Block A",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cell_block_b",
       "name": "Cell Block B",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cellar_storage",
@@ -605,12 +787,16 @@
       "attribute_modifiers": {
         "MEMORY": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "change_machine",
       "name": "Change Machine",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "chapel",
@@ -618,17 +804,23 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTUITION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "charging_stations",
       "name": "Charging Stations",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "check_in_kiosk",
       "name": "Check-In Kiosk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "chef_s_garden",
@@ -636,19 +828,25 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "chef_s_table",
       "name": "Chef's Table",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "child_care",
       "name": "Child Care",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "children_s_area",
@@ -656,7 +854,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "children_s_playroom",
@@ -664,7 +864,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "children_s_room",
@@ -672,12 +874,16 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "choir_room",
       "name": "Choir Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cigar_lounge",
@@ -686,12 +892,16 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "STAMINA": -1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "city_manager",
       "name": "City Manager",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "classroom",
@@ -699,7 +909,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "classrooms",
@@ -707,19 +919,25 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "clerk_s_office",
       "name": "Clerk's Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "climate_control",
       "name": "Climate Control",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "climbing_wall",
@@ -727,7 +945,9 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "club_level",
@@ -735,7 +955,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STEALTH": -1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "clubhouse",
@@ -743,7 +965,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STEALTH": -1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "co_working_space",
@@ -751,12 +975,16 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "coat_check",
       "name": "Coat Check",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "coffee_bar",
@@ -766,7 +994,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "coffee_shop",
@@ -774,7 +1004,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "coffee_station",
@@ -782,19 +1014,25 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "cold_brew_station",
       "name": "Cold Brew Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "cold_storage",
       "name": "Cold Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "color_bar",
@@ -802,41 +1040,55 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "command_center",
       "name": "Command Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "commercial_kitchen",
       "name": "Commercial Kitchen",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "commercial_washers",
       "name": "Commercial Washers",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "common_patio",
       "name": "Common Patio",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "community_board",
       "name": "Community Board",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "community_room",
       "name": "Community Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "computer_lab",
@@ -845,7 +1097,9 @@
         "INTELLIGENCE": 2,
         "MEMORY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "computer_labs",
@@ -854,17 +1108,23 @@
         "INTELLIGENCE": 2,
         "MEMORY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "concession_stand",
       "name": "Concession Stand",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "concession_stands",
       "name": "Concession Stands",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "concierge",
@@ -872,7 +1132,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "concierge_service",
@@ -880,7 +1142,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "conference_center",
@@ -888,7 +1152,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "conference_room",
@@ -896,7 +1162,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "conference_rooms",
@@ -904,51 +1172,69 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "consultation_office",
       "name": "Consultation Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "consultation_room",
       "name": "Consultation Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "control_room",
       "name": "Control Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "convenience_store",
       "name": "Convenience Store",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "conveyor_system",
       "name": "Conveyor System",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cooling_system",
       "name": "Cooling System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "cosmetics_section",
       "name": "Cosmetics Section",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "council_chambers",
       "name": "Council Chambers",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "counseling_center",
@@ -956,7 +1242,9 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "counselor_office",
@@ -964,7 +1252,9 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTELLIGENCE": 2
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "courtrooms",
@@ -972,7 +1262,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "courtyard",
@@ -980,12 +1272,16 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "covered_walkway",
       "name": "Covered Walkway",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "craft_room",
@@ -993,17 +1289,23 @@
       "attribute_modifiers": {
         "INTUITION": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "cross_dock_area",
       "name": "Cross-Dock Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "currency_counter",
       "name": "Currency Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "customer_lounge",
@@ -1011,7 +1313,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "customer_parking",
@@ -1020,24 +1324,32 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "customer_service",
       "name": "Customer Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dj_booth",
       "name": "DJ Booth",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dvd_collection",
       "name": "DVD Collection",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dance_floor",
@@ -1045,7 +1357,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "CHARISMA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "dance_studio",
@@ -1054,7 +1368,9 @@
         "AGILITY": 1,
         "CHARISMA": 1,
         "INTUITION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "data_center",
@@ -1062,7 +1378,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "day_care",
@@ -1071,7 +1389,9 @@
         "AGILITY": 1,
         "CHARISMA": 1,
         "EMPATHY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "daycare",
@@ -1080,7 +1400,9 @@
         "AGILITY": 1,
         "CHARISMA": 1,
         "EMPATHY": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "decontamination_room",
@@ -1088,36 +1410,48 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "deli_counter",
       "name": "Deli Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "delivery_area",
       "name": "Delivery Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "delivery_station",
       "name": "Delivery Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "dental_chairs",
       "name": "Dental Chairs",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dental_suite",
       "name": "Dental Suite",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "department_store",
@@ -1125,12 +1459,16 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "detailing_bay",
       "name": "Detailing Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "detective_office",
@@ -1138,48 +1476,64 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "detergent_dispenser",
       "name": "Detergent Dispenser",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "diagnostic_station",
       "name": "Diagnostic Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "digital_menu_boards",
       "name": "Digital Menu Boards",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "digital_signage",
       "name": "Digital Signage",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dine_in_options",
       "name": "Dine-In Options",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dining_hall",
       "name": "Dining Hall",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "directory_kiosk",
       "name": "Directory Kiosk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dispatch_center",
@@ -1189,7 +1543,9 @@
         "MEMORY": 1,
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "dispatch_office",
@@ -1200,17 +1556,23 @@
         "MEMORY": 1,
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "display_cases",
       "name": "Display Cases",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "display_windows",
       "name": "Display Windows",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "district_attorney",
@@ -1218,7 +1580,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "INTELLIGENCE": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "document_storage",
@@ -1226,7 +1590,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dog_park",
@@ -1234,27 +1600,37 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dog_run",
       "name": "Dog Run",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dog_ward",
       "name": "Dog Ward",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dog_wash",
       "name": "Dog Wash",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dolby_atmos",
       "name": "Dolby Atmos",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "doorman",
@@ -1262,7 +1638,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "drama_theater",
@@ -1270,84 +1648,116 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "drive_through",
       "name": "Drive-Through",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "drive_through_lane",
       "name": "Drive-Through Lane",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "drive_through_window",
       "name": "Drive-Through Window",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "driver_facilities",
       "name": "Driver Facilities",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "drop_off_service",
       "name": "Drop-Off Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dry_cleaning",
       "name": "Dry Cleaning",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "dryers",
       "name": "Dryers",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ev_charger",
       "name": "EV Charger",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ev_chargers",
       "name": "EV Chargers",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ev_charging",
       "name": "EV Charging",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ev_charging_station",
       "name": "EV Charging Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "electric_car_charging",
       "name": "Electric Car Charging",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "electric_vehicle_charging",
       "name": "Electric Vehicle Charging",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "elevator",
       "name": "Elevator",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "elevators",
       "name": "Elevators",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "emergency_call_box",
@@ -1355,7 +1765,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "emergency_call_system",
@@ -1363,7 +1775,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "emergency_exits",
@@ -1371,7 +1785,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "emergency_lighting",
@@ -1379,7 +1795,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "emergency_room",
@@ -1387,17 +1805,23 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "employee_break_area",
       "name": "Employee Break Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "employee_break_room",
       "name": "Employee Break Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "employee_cafeteria",
@@ -1405,60 +1829,80 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "employee_store",
       "name": "Employee Store",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "engineering_office",
       "name": "Engineering Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "entertainment_suite",
       "name": "Entertainment Suite",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "entertainment_zone",
       "name": "Entertainment Zone",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "equipment_storage",
       "name": "Equipment Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "escalators",
       "name": "Escalators",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "escape_room",
       "name": "Escape Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "espresso_machine",
       "name": "Espresso Machine",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "event_control_center",
       "name": "Event Control Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "event_space",
@@ -1466,7 +1910,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "evidence_room",
@@ -1474,12 +1920,16 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "exam_rooms",
       "name": "Exam Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "executive_floors",
@@ -1487,7 +1937,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "executive_lounge",
@@ -1496,7 +1948,9 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "executive_suite",
@@ -1504,22 +1958,30 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "exercise_yard",
       "name": "Exercise Yard",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "family_restrooms",
       "name": "Family Restrooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "family_visiting_room",
       "name": "Family Visiting Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fellowship_hall",
@@ -1527,7 +1989,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "finance_department",
@@ -1535,31 +1999,41 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "finance_office",
       "name": "Finance Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "financial_aid",
       "name": "Financial Aid",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fine_dining",
       "name": "Fine Dining",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "finished_goods_area",
       "name": "Finished Goods Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fire_escape",
@@ -1567,7 +2041,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fire_lane",
@@ -1575,7 +2051,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fire_pit",
@@ -1583,7 +2061,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fire_safety_system",
@@ -1591,7 +2071,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fire_suppression",
@@ -1599,7 +2081,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fireplace",
@@ -1607,7 +2091,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "first_aid_station",
@@ -1615,7 +2101,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "fitness_center",
@@ -1624,7 +2112,9 @@
         "AGILITY": 1,
         "STAMINA": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "fitness_room",
@@ -1633,17 +2123,23 @@
         "AGILITY": 1,
         "STAMINA": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "fitting_room",
       "name": "Fitting Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fitting_rooms",
       "name": "Fitting Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fleet_parking",
@@ -1652,7 +2148,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "floral_department",
@@ -1660,22 +2158,30 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "folding_tables",
       "name": "Folding Tables",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "food_court",
       "name": "Food Court",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "food_hall",
       "name": "Food Hall",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "forklift_area",
@@ -1683,60 +2189,80 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fountain_court",
       "name": "Fountain Court",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "free_breakfast",
       "name": "Free Breakfast",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "front_desk",
       "name": "Front Desk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "front_porch",
       "name": "Front Porch",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fuel_pumps",
       "name": "Fuel Pumps",
       "attribute_modifiers": {
         "STAMINA": -1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "fuel_station",
       "name": "Fuel Station",
       "attribute_modifiers": {
         "STAMINA": -1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "fueling_station",
       "name": "Fueling Station",
       "attribute_modifiers": {
         "STAMINA": -1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "full_kitchen",
       "name": "Full Kitchen",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "funeral_services",
       "name": "Funeral Services",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "game_room",
@@ -1744,7 +2270,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "INTUITION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "garden",
@@ -1752,27 +2280,37 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "gas_station",
       "name": "Gas Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "genealogy_room",
       "name": "Genealogy Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "gift_shop",
       "name": "Gift Shop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "gift_wrapping",
       "name": "Gift Wrapping",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "golf_simulator",
@@ -1780,31 +2318,41 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "green_roof",
       "name": "Green Roof",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "green_room",
       "name": "Green Room",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "grilling_area",
       "name": "Grilling Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "grooming_station",
       "name": "Grooming Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "group_fitness_studio",
@@ -1814,12 +2362,16 @@
         "INTUITION": 1,
         "STAMINA": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "guard_tower",
       "name": "Guard Tower",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "guest_apartments",
@@ -1827,7 +2379,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "guest_lounge",
@@ -1835,7 +2389,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "guest_parking",
@@ -1844,17 +2400,23 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "guest_suite",
       "name": "Guest Suite",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "guest_suites",
       "name": "Guest Suites",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "gymnasium",
@@ -1862,24 +2424,32 @@
       "attribute_modifiers": {
         "STAMINA": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "hoa_common_area",
       "name": "HOA Common Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "hoa_office",
       "name": "HOA Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "hair_salon",
       "name": "Hair Salon",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "handicap_spaces",
@@ -1887,7 +2457,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "hazmat_storage",
@@ -1896,7 +2468,9 @@
         "INTELLIGENCE": 1,
         "MEMORY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "health_clinic",
@@ -1904,17 +2478,23 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "hearing_aid_center",
       "name": "Hearing Aid Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "hearing_assistance",
       "name": "Hearing Assistance",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "helipad",
@@ -1922,14 +2502,18 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "holding_cells",
       "name": "Holding Cells",
       "attribute_modifiers": {
         "INTIMIDATION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "home_medical_equipment",
@@ -1937,29 +2521,39 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "home_office_nook",
       "name": "Home Office Nook",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "hose_tower",
       "name": "Hose Tower",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "host_stand",
       "name": "Host Stand",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "hot_desks",
       "name": "Hot Desks",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "hot_food_bar",
@@ -1967,12 +2561,16 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "hot_food_counter",
       "name": "Hot Food Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "human_resources",
@@ -1980,7 +2578,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "icu",
@@ -1988,12 +2588,16 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "imax_screen",
       "name": "IMAX Screen",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "it_department",
@@ -2001,7 +2605,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "iv_therapy",
@@ -2009,41 +2615,55 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTUITION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "ice_machine",
       "name": "Ice Machine",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "ice_rink_equipment",
       "name": "Ice Rink Equipment",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "ice_skating_rink",
       "name": "Ice Skating Rink",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "imaging",
       "name": "Imaging",
       "attribute_modifiers": {
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "imam_s_office",
       "name": "Imam's Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "indoor_seating",
       "name": "Indoor Seating",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "infant_care",
@@ -2051,7 +2671,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "EMPATHY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "infinity_pool",
@@ -2059,17 +2681,23 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "infirmary",
       "name": "Infirmary",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "information_booth",
       "name": "Information Booth",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "innovation_lab",
@@ -2078,17 +2706,23 @@
         "INTELLIGENCE": 2,
         "INTUITION": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "insurance_services",
       "name": "Insurance Services",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "intercom_system",
       "name": "Intercom System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "interrogation_room",
@@ -2096,22 +2730,30 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTIMIDATION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "interview_room",
       "name": "Interview Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "inventory_system",
       "name": "Inventory System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "isolation_ward",
       "name": "Isolation Ward",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "judge_s_chambers",
@@ -2119,7 +2761,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "INTIMIDATION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "juice_bar",
@@ -2127,7 +2771,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "jumbotron",
@@ -2135,7 +2781,9 @@
       "attribute_modifiers": {
         "PERCEPTION": -1,
         "STEALTH": -1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "jury_assembly",
@@ -2143,17 +2791,23 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "kennels",
       "name": "Kennels",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "key_cutting_machine",
       "name": "Key Cutting Machine",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "kids_area",
@@ -2161,7 +2815,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "kids_play_area",
@@ -2169,7 +2825,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "kids_zone",
@@ -2177,19 +2835,25 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "kiss_and_ride",
       "name": "Kiss and Ride",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "kitchen",
       "name": "Kitchen",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "lab",
@@ -2197,7 +2861,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "lab_area",
@@ -2205,7 +2871,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "lab_services",
@@ -2213,7 +2881,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "laboratory",
@@ -2221,27 +2891,37 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "landscaping",
       "name": "Landscaping",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "laser_tag",
       "name": "Laser Tag",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "laundry",
       "name": "Laundry",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "laundry_room",
       "name": "Laundry Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "law_library",
@@ -2249,14 +2929,18 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "league_office",
       "name": "League Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "lecture_halls",
@@ -2264,7 +2948,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "library",
@@ -2272,7 +2958,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "library_lounge",
@@ -2282,7 +2970,9 @@
         "EMPATHY": 1,
         "INTELLIGENCE": 2,
         "MEMORY": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "library_wing",
@@ -2290,12 +2980,16 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "lift_equipment",
       "name": "Lift Equipment",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "light_show",
@@ -2303,12 +2997,16 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STEALTH": -1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "lighting",
       "name": "Lighting",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "living_quarters",
@@ -2316,40 +3014,52 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "loading_area",
       "name": "Loading Area",
       "attribute_modifiers": {
         "STRENGTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "loading_dock",
       "name": "Loading Dock",
       "attribute_modifiers": {
         "STRENGTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "loading_docks",
       "name": "Loading Docks",
       "attribute_modifiers": {
         "STRENGTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "loan_office",
       "name": "Loan Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "lobby",
       "name": "Lobby",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "local_history_archive",
@@ -2357,22 +3067,30 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "locker_room",
       "name": "Locker Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "locker_rooms",
       "name": "Locker Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "lost_and_found",
       "name": "Lost and Found",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "lottery_terminal",
@@ -2380,7 +3098,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": -1,
         "INTUITION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "lounge_area",
@@ -2388,7 +3108,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "lounge_bar",
@@ -2396,56 +3118,72 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "luggage_storage",
       "name": "Luggage Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "luxury_suites",
       "name": "Luxury Suites",
       "attribute_modifiers": {
         "CHARISMA": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "luxury_wing",
       "name": "Luxury Wing",
       "attribute_modifiers": {
         "CHARISMA": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mail_center",
       "name": "Mail Center",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mail_room",
       "name": "Mail Room",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mail_service",
       "name": "Mail Service",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mailboxes",
       "name": "Mailboxes",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "maintenance_bays",
@@ -2453,7 +3191,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "maintenance_room",
@@ -2461,7 +3201,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "maintenance_shop",
@@ -2469,7 +3211,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "maker_space",
@@ -2479,33 +3223,43 @@
         "INTELLIGENCE": 1,
         "INTUITION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "management_office",
       "name": "Management Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "massage_chair",
       "name": "Massage Chair",
       "attribute_modifiers": {
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "maternity_ward",
       "name": "Maternity Ward",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mayor_office",
       "name": "Mayor Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "meat_department",
@@ -2513,17 +3267,23 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "media_booth",
       "name": "Media Booth",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "mediation_rooms",
       "name": "Mediation Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "medical_clinic",
@@ -2531,7 +3291,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "medical_office",
@@ -2539,7 +3301,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTELLIGENCE": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "medical_records",
@@ -2549,7 +3313,9 @@
         "INTELLIGENCE": 1,
         "MEMORY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "medical_room",
@@ -2557,7 +3323,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "medical_storage",
@@ -2566,33 +3334,43 @@
         "EMPATHY": 1,
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "medication_storage",
       "name": "Medication Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "meet_me_room",
       "name": "Meet-Me Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "meeting_room",
       "name": "Meeting Room",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "meeting_rooms",
       "name": "Meeting Rooms",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "meeting_space",
@@ -2600,14 +3378,18 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "meeting_suites",
       "name": "Meeting Suites",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "memorial_garden",
@@ -2615,49 +3397,67 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "memory_care_unit",
       "name": "Memory Care Unit",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "merchandise_display",
       "name": "Merchandise Display",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mezzanine",
       "name": "Mezzanine",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "microwave_rooms",
       "name": "Microwave Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mikvah",
       "name": "Mikvah",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "minaret",
       "name": "Minaret",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mobile_order_pickup",
       "name": "Mobile Order Pickup",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "mobile_pickup",
       "name": "Mobile Pickup",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "motorcycle_parking",
@@ -2666,14 +3466,18 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "movie_complex",
       "name": "Movie Complex",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "movie_theater",
@@ -2681,17 +3485,23 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "moving_truck_rental",
       "name": "Moving Truck Rental",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "multiple_anchors",
       "name": "Multiple Anchors",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "multiple_bars",
@@ -2699,17 +3509,23 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "multiple_docks",
       "name": "Multiple Docks",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "multiple_elevators",
       "name": "Multiple Elevators",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "multiple_restaurants",
@@ -2717,7 +3533,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "music_room",
@@ -2725,44 +3543,60 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "nail_station",
       "name": "Nail Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "nap_area",
       "name": "Nap Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "nebulizer_station",
       "name": "Nebulizer Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "network_operations_center",
       "name": "Network Operations Center",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "newsstand",
       "name": "Newsstand",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "night_deposit",
       "name": "Night Deposit",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "nitrous_system",
       "name": "Nitrous System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "nurse_office",
@@ -2770,21 +3604,27 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "nurse_station",
       "name": "Nurse Station",
       "attribute_modifiers": {
         "EMPATHY": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "nursery",
       "name": "Nursery",
       "attribute_modifiers": {
         "EMPATHY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "nursing_lab",
@@ -2792,21 +3632,27 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "office",
       "name": "Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "office_block",
       "name": "Office Block",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "office_space",
@@ -2815,29 +3661,39 @@
         "CHARISMA": 1,
         "INTELLIGENCE": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "oil_change_bay",
       "name": "Oil Change Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "online_pickup",
       "name": "Online Pickup",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "open_kitchen",
       "name": "Open Kitchen",
       "attribute_modifiers": {
         "PERCEPTION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "optical_center",
       "name": "Optical Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "outdoor_courtyard",
@@ -2846,7 +3702,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "outdoor_garden",
@@ -2855,7 +3713,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "outdoor_patio",
@@ -2864,7 +3724,9 @@
         "CHARISMA": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "outdoor_playground",
@@ -2874,7 +3736,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "outdoor_seating",
@@ -2882,7 +3746,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "outdoor_terrace",
@@ -2890,37 +3756,51 @@
       "attribute_modifiers": {
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "po_boxes",
       "name": "PO Boxes",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "package_lockers",
       "name": "Package Lockers",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "package_room",
       "name": "Package Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "package_sorting",
       "name": "Package Sorting",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "packing_supplies",
       "name": "Packing Supplies",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "paint_booth",
       "name": "Paint Booth",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "panoramic_x_ray",
@@ -2928,7 +3808,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parent_lounge",
@@ -2936,7 +3818,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "parking",
@@ -2945,7 +3829,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parking_garage",
@@ -2954,7 +3840,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parking_lot",
@@ -2963,7 +3851,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parking_sensors",
@@ -2972,7 +3862,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parking_structure",
@@ -2981,7 +3873,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "parks_department",
@@ -2990,7 +3884,9 @@
         "EMPATHY": 2,
         "INTUITION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "parts_department",
@@ -2998,7 +3894,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "parts_storage",
@@ -3007,7 +3905,9 @@
         "EMPATHY": 1,
         "INTUITION": 2,
         "MEMORY": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "party_decks",
@@ -3017,7 +3917,9 @@
         "EMPATHY": 1,
         "INTUITION": 2,
         "STAMINA": -1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "party_room",
@@ -3027,7 +3929,9 @@
         "EMPATHY": 1,
         "INTUITION": 2,
         "STAMINA": -1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "party_rooms",
@@ -3037,7 +3941,9 @@
         "EMPATHY": 1,
         "INTUITION": 2,
         "STAMINA": -1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "passport_services",
@@ -3045,14 +3951,18 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "pastor_s_office",
       "name": "Pastor's Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "patient_education",
@@ -3061,70 +3971,94 @@
         "EMPATHY": 1,
         "INTELLIGENCE": 2,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "patient_hotel",
       "name": "Patient Hotel",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "patient_rooms",
       "name": "Patient Rooms",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "patio_seating",
       "name": "Patio Seating",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "patios",
       "name": "Patios",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "payment_kiosk",
       "name": "Payment Kiosk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "payment_machines",
       "name": "Payment Machines",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "payment_terminal",
       "name": "Payment Terminal",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "pediatric_unit",
       "name": "Pediatric Unit",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "periodicals_section",
       "name": "Periodicals Section",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "permit_center",
       "name": "Permit Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "personal_shopping",
       "name": "Personal Shopping",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "personal_training",
@@ -3132,17 +4066,23 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "pet_friendly_rooms",
       "name": "Pet Friendly Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "pet_retail",
       "name": "Pet Retail",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "pet_spa",
@@ -3150,12 +4090,16 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "pet_washing_station",
       "name": "Pet Washing Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "pharmacy",
@@ -3163,17 +4107,23 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "phone_booths",
       "name": "Phone Booths",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "photo_center",
       "name": "Photo Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "photography_studio",
@@ -3181,7 +4131,9 @@
       "attribute_modifiers": {
         "INTUITION": 2,
         "PERCEPTION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "physical_therapy",
@@ -3189,12 +4141,16 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "INTUITION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "pick_and_pack",
       "name": "Pick and Pack",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "planning_department",
@@ -3202,17 +4158,23 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "platforms",
       "name": "Platforms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "play_area",
       "name": "Play Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "playground",
@@ -3220,24 +4182,32 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "playrooms",
       "name": "Playrooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "podcast_studio",
       "name": "Podcast Studio",
       "attribute_modifiers": {
         "INTUITION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "point_of_sale",
       "name": "Point of Sale",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "pool",
@@ -3245,7 +4215,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "prayer_hall",
@@ -3253,7 +4225,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "prayer_room",
@@ -3261,12 +4235,16 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "premium_large_format",
       "name": "Premium Large Format",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "preschool_classroom",
@@ -3274,12 +4252,16 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "prescription_counter",
       "name": "Prescription Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "presidential_suite",
@@ -3287,36 +4269,48 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "press_box",
       "name": "Press Box",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "press_room",
       "name": "Press Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "principal_office",
       "name": "Principal Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "print_center",
       "name": "Print Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "private_beach",
       "name": "Private Beach",
       "attribute_modifiers": {
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "private_cinema",
@@ -3325,7 +4319,9 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "private_dining",
@@ -3333,7 +4329,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "private_dining_room",
@@ -3341,14 +4339,18 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "private_elevator",
       "name": "Private Elevator",
       "attribute_modifiers": {
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "private_events_space",
@@ -3357,21 +4359,27 @@
         "CHARISMA": 1,
         "STAMINA": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "private_garages",
       "name": "Private Garages",
       "attribute_modifiers": {
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "private_karaoke",
       "name": "Private Karaoke",
       "attribute_modifiers": {
         "CHARISMA": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "private_offices",
@@ -3379,12 +4387,16 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "pro_shop",
       "name": "Pro Shop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "probation_office",
@@ -3393,42 +4405,58 @@
         "EMPATHY": 1,
         "INTELLIGENCE": 1,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "procedure_room",
       "name": "Procedure Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "product_display",
       "name": "Product Display",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "projection_booth",
       "name": "Projection Booth",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "propane_exchange",
       "name": "Propane Exchange",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "public_defender",
       "name": "Public Defender",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "public_works",
       "name": "Public Works",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "qc_station",
       "name": "QC Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "quality_control_lab",
@@ -3436,7 +4464,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "quiet_reading_room",
@@ -3444,7 +4474,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "rv_parking",
@@ -3453,31 +4485,41 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "rabbi_s_office",
       "name": "Rabbi's Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "racking",
       "name": "Racking",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "raised_floor",
       "name": "Raised Floor",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "raw_material_storage",
       "name": "Raw Material Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "reception",
@@ -3485,7 +4527,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "reception_area",
@@ -3493,7 +4537,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "reception_desk",
@@ -3501,12 +4547,16 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "recliner_seats",
       "name": "Recliner Seats",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "records_office",
@@ -3515,7 +4565,9 @@
         "INTELLIGENCE": 1,
         "MEMORY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "records_room",
@@ -3523,7 +4575,9 @@
       "attribute_modifiers": {
         "MEMORY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "records_storage",
@@ -3531,7 +4585,9 @@
       "attribute_modifiers": {
         "MEMORY": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "records_vault",
@@ -3540,22 +4596,30 @@
         "MEMORY": 2,
         "PERCEPTION": 2,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "recovery_room",
       "name": "Recovery Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "recycling_area",
       "name": "Recycling Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "recycling_center",
       "name": "Recycling Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "reference_desk",
@@ -3563,32 +4627,44 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "refrigerated_meds",
       "name": "Refrigerated Meds",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "refrigeration",
       "name": "Refrigeration",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "rehabilitation_center",
       "name": "Rehabilitation Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "religious_school",
       "name": "Religious School",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "repair_bench",
       "name": "Repair Bench",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "research_labs",
@@ -3597,7 +4673,9 @@
         "INTELLIGENCE": 2,
         "MEMORY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "residents_gym",
@@ -3605,12 +4683,16 @@
       "attribute_modifiers": {
         "STAMINA": 2,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "residents_only_elevator",
       "name": "Residents Only Elevator",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "restaurant",
@@ -3618,7 +4700,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "restaurant_space",
@@ -3627,32 +4711,44 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "restrooms",
       "name": "Restrooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "retail_counter",
       "name": "Retail Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "retail_kiosks",
       "name": "Retail Kiosks",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "retail_section",
       "name": "Retail Section",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "retail_shops",
       "name": "Retail Shops",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "retail_space",
@@ -3660,27 +4756,37 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "returns_processing",
       "name": "Returns Processing",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "roasting_equipment",
       "name": "Roasting Equipment",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "roll_call_room",
       "name": "Roll Call Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "roll_up_doors",
       "name": "Roll-Up Doors",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "rolling_carts",
@@ -3689,7 +4795,9 @@
         "AGILITY": 1,
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "roof_garden",
@@ -3697,7 +4805,9 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "rooftop_bar",
@@ -3706,14 +4816,18 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "rooftop_deck",
       "name": "Rooftop Deck",
       "attribute_modifiers": {
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "rooftop_lounge",
@@ -3722,7 +4836,9 @@
         "CHARISMA": 1,
         "EMPATHY": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "rooftop_pool",
@@ -3731,29 +4847,39 @@
         "AGILITY": 1,
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "rooftop_terrace",
       "name": "Rooftop Terrace",
       "attribute_modifiers": {
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "room_service",
       "name": "Room Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "safe_deposit_boxes",
       "name": "Safe Deposit Boxes",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "safe_display",
       "name": "Safe Display",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sanctuary",
@@ -3761,19 +4887,25 @@
       "attribute_modifiers": {
         "EMPATHY": 2,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sauna",
       "name": "Sauna",
       "attribute_modifiers": {
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "scale_station",
       "name": "Scale Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "science_building",
@@ -3781,7 +4913,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "science_lab",
@@ -3789,7 +4923,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "science_labs",
@@ -3797,17 +4933,23 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "seafood_counter",
       "name": "Seafood Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "seating_area",
       "name": "Seating Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "security",
@@ -3815,7 +4957,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_camera",
@@ -3823,7 +4967,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_camera_demo_wall",
@@ -3831,7 +4977,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_cameras",
@@ -3839,7 +4987,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_checkpoint",
@@ -3847,7 +4997,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 2,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_desk",
@@ -3855,7 +5007,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_office",
@@ -3864,7 +5018,9 @@
         "INTELLIGENCE": 1,
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_operations",
@@ -3872,7 +5028,9 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_patrol",
@@ -3881,7 +5039,9 @@
         "INTIMIDATION": 1,
         "PERCEPTION": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "security_system",
@@ -3889,27 +5049,37 @@
       "attribute_modifiers": {
         "INTIMIDATION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "self_checkout",
       "name": "Self-Checkout",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "self_order_kiosk",
       "name": "Self-Order Kiosk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "self_service_kiosk",
       "name": "Self-Service Kiosk",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "senior_center",
       "name": "Senior Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "server_room",
@@ -3917,7 +5087,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "server_rooms",
@@ -3925,22 +5097,30 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "MEMORY": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "service_bays",
       "name": "Service Bays",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "service_center",
       "name": "Service Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shampoo_bowls",
       "name": "Shampoo Bowls",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shared_parking",
@@ -3949,22 +5129,30 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shipping_bay",
       "name": "Shipping Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shipping_station",
       "name": "Shipping Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "shooting_range",
       "name": "Shooting Range",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shopping_cart_corral",
@@ -3973,34 +5161,46 @@
         "AGILITY": 1,
         "EMPATHY": 1,
         "INTUITION": 2
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "shower_facilities",
       "name": "Shower Facilities",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "showroom",
       "name": "Showroom",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "shuttle_service",
       "name": "Shuttle Service",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "signage_pylon",
       "name": "Signage Pylon",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sky_lobby",
       "name": "Sky Lobby",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "sky_lounge",
@@ -4008,7 +5208,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "snack_bar",
@@ -4016,27 +5218,37 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "social_hall",
       "name": "Social Hall",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "soda_fountain",
       "name": "Soda Fountain",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "solitary_confinement",
       "name": "Solitary Confinement",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sommelier_station",
       "name": "Sommelier Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "sound_system",
@@ -4044,7 +5256,9 @@
       "attribute_modifiers": {
         "PERCEPTION": -1,
         "STEALTH": -1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "spa",
@@ -4052,24 +5266,32 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "special_ed_room",
       "name": "Special Ed Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "speed_bumps",
       "name": "Speed Bumps",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "spin_room",
       "name": "Spin Room",
       "attribute_modifiers": {
         "STAMINA": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sports_bar",
@@ -4079,7 +5301,9 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "staff_lounge",
@@ -4087,82 +5311,110 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "staff_room",
       "name": "Staff Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "stage",
       "name": "Stage",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "stairwell",
       "name": "Stairwell",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "stamp_vending",
       "name": "Stamp Vending",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "sterilization_room",
       "name": "Sterilization Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storage",
       "name": "Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storage_closet",
       "name": "Storage Closet",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storage_lot",
       "name": "Storage Lot",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storage_room",
       "name": "Storage Room",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storage_units",
       "name": "Storage Units",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "storm_drains",
       "name": "Storm Drains",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "striping",
       "name": "Striping",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "student_center",
       "name": "Student Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "study_rooms",
@@ -4170,24 +5422,32 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "styling_stations",
       "name": "Styling Stations",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "sunday_school_rooms",
       "name": "Sunday School Rooms",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "supervisor_office",
       "name": "Supervisor Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "surgery_center",
@@ -4195,7 +5455,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "surgery_suite",
@@ -4203,7 +5465,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "swimming_pool",
@@ -4211,22 +5475,30 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "STAMINA": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "tv",
       "name": "TV",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "take_out_counter",
       "name": "Take-Out Counter",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "tasting_room",
       "name": "Tasting Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "teacher_lounge",
@@ -4234,7 +5506,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "teaching_facility",
@@ -4242,24 +5516,32 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "team_facilities",
       "name": "Team Facilities",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "teen_zone",
       "name": "Teen Zone",
       "attribute_modifiers": {
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "teller_stations",
       "name": "Teller Stations",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "tennis_court",
@@ -4267,7 +5549,9 @@
       "attribute_modifiers": {
         "AGILITY": 2,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "terrace_gardens",
@@ -4276,17 +5560,23 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "test_drive_lot",
       "name": "Test Drive Lot",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "testing_center",
       "name": "Testing Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "theater_room",
@@ -4294,48 +5584,64 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "creative",
+      "function": "draw"
     },
     {
       "id": "ticket_office",
       "name": "Ticket Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "tire_center",
       "name": "Tire Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "tire_storage",
       "name": "Tire Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "toddler_room",
       "name": "Toddler Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "tool_crib",
       "name": "Tool Crib",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "tool_storage",
       "name": "Tool Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "towel_service",
       "name": "Towel Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "track",
@@ -4343,7 +5649,9 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "training_center",
@@ -4351,7 +5659,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "training_facility",
@@ -4359,7 +5669,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "training_room",
@@ -4367,14 +5679,18 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "transit_hub",
       "name": "Transit Hub",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "transportation_service",
@@ -4382,17 +5698,23 @@
       "attribute_modifiers": {
         "AGILITY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "trash_chute",
       "name": "Trash Chute",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "trash_enclosure",
       "name": "Trash Enclosure",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "trauma_center",
@@ -4400,12 +5722,16 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STAMINA": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "travel_services",
       "name": "Travel Services",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "triage_area",
@@ -4413,17 +5739,23 @@
       "attribute_modifiers": {
         "INTUITION": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "truck_bays",
       "name": "Truck Bays",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ups_room",
       "name": "UPS Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "underground_parking",
@@ -4433,21 +5765,27 @@
         "PERCEPTION": 1,
         "STAMINA": 1,
         "STEALTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "underground_tanks",
       "name": "Underground Tanks",
       "attribute_modifiers": {
         "STEALTH": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "used_car_lot",
       "name": "Used Car Lot",
       "attribute_modifiers": {
         "AGILITY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vip_entrance",
@@ -4455,7 +5793,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vip_lanes",
@@ -4463,7 +5803,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vip_lounge",
@@ -4472,7 +5814,9 @@
         "CHARISMA": 2,
         "EMPATHY": 1,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "vip_parking",
@@ -4483,7 +5827,9 @@
         "INTIMIDATION": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vip_seating",
@@ -4491,19 +5837,25 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "INTIMIDATION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vaccine_station",
       "name": "Vaccine Station",
       "attribute_modifiers": {
         "STAMINA": 1
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "vacuum_station",
       "name": "Vacuum Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "valet_parking",
@@ -4513,14 +5865,18 @@
         "EMPATHY": 1,
         "PERCEPTION": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "valet_service",
       "name": "Valet Service",
       "attribute_modifiers": {
         "CHARISMA": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vault",
@@ -4528,91 +5884,125 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vehicle_storage",
       "name": "Vehicle Storage",
       "attribute_modifiers": {
         "MEMORY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vending",
       "name": "Vending",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "vending_machines",
       "name": "Vending Machines",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "ventilation",
       "name": "Ventilation",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "ventilation_system",
       "name": "Ventilation System",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "visitation_room",
       "name": "Visitation Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "visitor_center",
       "name": "Visitor Center",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "wait_station",
       "name": "Wait Station",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "waiting_area",
       "name": "Waiting Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "waiting_room",
       "name": "Waiting Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "walk_in_closet",
       "name": "Walk-In Closet",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "walk_in_cooler",
       "name": "Walk-In Cooler",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "walk_in_freezer",
       "name": "Walk-In Freezer",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "warden_office",
       "name": "Warden Office",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "study"
     },
     {
       "id": "wash_bay",
       "name": "Wash Bay",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "waxing_room",
       "name": "Waxing Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "weight_room",
@@ -4620,7 +6010,9 @@
       "attribute_modifiers": {
         "STAMINA": 1,
         "STRENGTH": 2
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "welding_shop",
@@ -4628,7 +6020,9 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "wellness_room",
@@ -4636,19 +6030,25 @@
       "attribute_modifiers": {
         "EMPATHY": 1,
         "STAMINA": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "whitening_room",
       "name": "Whitening Room",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "wifi",
       "name": "WiFi",
       "attribute_modifiers": {
         "INTELLIGENCE": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "wine_cellar",
@@ -4657,7 +6057,9 @@
         "CHARISMA": 1,
         "PERCEPTION": 1,
         "STEALTH": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "wine_storage",
@@ -4666,17 +6068,23 @@
         "CHARISMA": 1,
         "MEMORY": 1,
         "PERCEPTION": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "witness_waiting_area",
       "name": "Witness Waiting Area",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "women_s_section",
       "name": "Women's Section",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "woodshop",
@@ -4684,12 +6092,16 @@
       "attribute_modifiers": {
         "PERCEPTION": 1,
         "STRENGTH": 1
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "workshop",
       "name": "Workshop",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "x_ray",
@@ -4697,7 +6109,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "x_ray_equipment",
@@ -4705,7 +6119,9 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "technical",
+      "function": "repair"
     },
     {
       "id": "x_ray_room",
@@ -4713,12 +6129,16 @@
       "attribute_modifiers": {
         "INTELLIGENCE": 1,
         "PERCEPTION": 2
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "yacht_service",
       "name": "Yacht Service",
-      "attribute_modifiers": {}
+      "attribute_modifiers": {},
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "yoga_studio",
@@ -4727,7 +6147,9 @@
         "AGILITY": 2,
         "EMPATHY": 1,
         "INTUITION": 1
-      }
+      },
+      "category": "physical",
+      "function": "exercise"
     },
     {
       "id": "youth_center",
@@ -4735,7 +6157,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     },
     {
       "id": "youth_lounge",
@@ -4743,7 +6167,9 @@
       "attribute_modifiers": {
         "CHARISMA": 2,
         "EMPATHY": 2
-      }
+      },
+      "category": "social",
+      "function": "converse"
     },
     {
       "id": "youth_room",
@@ -4751,7 +6177,9 @@
       "attribute_modifiers": {
         "CHARISMA": 1,
         "EMPATHY": 1
-      }
+      },
+      "category": "mental",
+      "function": "rest"
     }
   ]
 }
