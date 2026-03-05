@@ -33,7 +33,9 @@ import java.util.Map;
  * The table shows each improvement's ID, Name, Attribute Modifiers
  * (as a comma-separated list, e.g. "PERCEPTION: 2, STAMINA: 1"),
  * Category (linked to an improvement_category code), Function
- * (a single action drawn from that category's actions list), and
+ * (a single action drawn from that category's actions list),
+ * Effective (1-100 indicating how effective the improvement is at its
+ * function; absent when no function is set), and
  * Description (a short default description of the improvement).
  * Annotation support mirrors the pattern used by {@link CompanyTypesEditorPanel}.
  */
@@ -143,7 +145,8 @@ public class ImprovementsEditorPanel extends JPanel {
         table.getColumnModel().getColumn(2).setPreferredWidth(360); // Attribute Modifiers
         table.getColumnModel().getColumn(3).setPreferredWidth(130); // Category
         table.getColumnModel().getColumn(4).setPreferredWidth(120); // Function
-        table.getColumnModel().getColumn(5).setPreferredWidth(480); // Description
+        table.getColumnModel().getColumn(5).setPreferredWidth(80);  // Effective
+        table.getColumnModel().getColumn(6).setPreferredWidth(480); // Description
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         // Category column: combobox with all known category codes
@@ -157,7 +160,7 @@ public class ImprovementsEditorPanel extends JPanel {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            tableModel.addRow(new Object[]{"", "", "", "", "", ""});
+            tableModel.addRow(new Object[]{"", "", "", "", "", "", ""});
             int last = tableModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
             table.setRowSelectionInterval(last, last);
@@ -320,12 +323,14 @@ public class ImprovementsEditorPanel extends JPanel {
                     String name        = entry.has("name")        ? entry.get("name").getAsString()        : "";
                     String category    = entry.has("category")    ? entry.get("category").getAsString()    : "";
                     String function    = entry.has("function")    ? entry.get("function").getAsString()    : "";
+                    String effective   = entry.has("effective")
+                            ? String.valueOf(entry.get("effective").getAsInt()) : "";
                     String description = entry.has("description") ? entry.get("description").getAsString() : "";
                     String mods = "";
                     if (entry.has("attribute_modifiers") && entry.get("attribute_modifiers").isJsonObject()) {
                         mods = attributeModifiersToString(entry.getAsJsonObject("attribute_modifiers"));
                     }
-                    rows.add(new Object[]{id, name, mods, category, function, description});
+                    rows.add(new Object[]{id, name, mods, category, function, effective, description});
                 }
                 rows.sort(Comparator.comparing(r -> r[0].toString()));
                 for (Object[] row : rows) {
@@ -371,7 +376,8 @@ public class ImprovementsEditorPanel extends JPanel {
                 String modsStr     = cellStr(r, 2);
                 String category    = cellStr(r, 3);
                 String function    = cellStr(r, 4);
-                String description = cellStr(r, 5);
+                String effectiveStr = cellStr(r, 5);
+                String description = cellStr(r, 6);
 
                 JsonObject entry = new JsonObject();
                 entry.addProperty("id",   id);
@@ -379,6 +385,20 @@ public class ImprovementsEditorPanel extends JPanel {
                 entry.add("attribute_modifiers", parseAttributeModifiers(modsStr));
                 if (!category.isEmpty())    entry.addProperty("category",    category);
                 if (!function.isEmpty())    entry.addProperty("function",    function);
+                if (!function.isEmpty() && !effectiveStr.isEmpty()) {
+                    try {
+                        int effVal = Integer.parseInt(effectiveStr.trim());
+                        if (effVal >= 1 && effVal <= 100) {
+                            entry.addProperty("effective", effVal);
+                        } else {
+                            statusLabel.setText("Warning: row " + (r + 1) + " – effective value "
+                                    + effVal + " out of range (1-100); field omitted.");
+                        }
+                    } catch (NumberFormatException ignored) {
+                        statusLabel.setText("Warning: row " + (r + 1) + " – invalid effective value \""
+                                + effectiveStr.trim() + "\"; field omitted.");
+                    }
+                }
                 if (!description.isEmpty()) entry.addProperty("description", description);
                 improvements.add(entry);
             }
@@ -460,7 +480,7 @@ public class ImprovementsEditorPanel extends JPanel {
 
     private static DefaultTableModel createModel() {
         return new DefaultTableModel(
-                new String[]{"ID", "Name", "Attribute Modifiers", "Category", "Function", "Description"}, 0) {
+                new String[]{"ID", "Name", "Attribute Modifiers", "Category", "Function", "Effective", "Description"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 return true;
