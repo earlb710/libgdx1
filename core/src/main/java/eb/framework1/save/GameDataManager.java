@@ -86,8 +86,9 @@ public class GameDataManager {
             for (JsonValue entry = impsArray.child; entry != null; entry = entry.next) {
                 String name = entry.getString("name", "");
                 if (name.isEmpty()) continue;
-                String function  = entry.getString("function", "");
-                int    effective = entry.getInt("effective", 0);
+                String function    = entry.getString("function", "");
+                int    effective   = entry.getInt("effective", 0);
+                String description = entry.getString("description", "");
 
                 Map<String, String> restrict = new HashMap<>();
                 JsonValue restrictJson = entry.get("restrict");
@@ -97,7 +98,7 @@ public class GameDataManager {
                     }
                 }
                 ImprovementData data = new ImprovementData(
-                        name.toLowerCase(), function, effective, restrict);
+                        name.toLowerCase(), function, effective, restrict, description);
                 improvementDataByName.put(name.toLowerCase(), data);
                 count++;
             }

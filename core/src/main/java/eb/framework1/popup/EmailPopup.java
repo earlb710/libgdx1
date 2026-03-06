@@ -295,7 +295,7 @@ public class EmailPopup {
         final float GAP      = 10f;
         final float BTN_GAP  = 16f;
         final float MIN_W    = 340f;
-        final float MAX_W    = screenW * 0.88f;
+        final float MAX_W    = screenW;
 
         // Font metrics
         glyph.setText(font, "Hg");

@@ -76,6 +76,15 @@ public class MapViewState {
     public float[] svcBtnW = new float[MAX_SVC_BTNS];
     public float   svcBtnH = 0f;
     public int     svcBtnCount = 0;
+
+    // Inline improvement action buttons in scrollable content area of info panel
+    public static final int MAX_IMP_BTNS = 8;
+    public float[]       impBtnX   = new float[MAX_IMP_BTNS];
+    public float[]       impBtnY   = new float[MAX_IMP_BTNS];
+    public float[]       impBtnW   = new float[MAX_IMP_BTNS];
+    public float         impBtnH   = 0f;
+    public int           impBtnCount = 0;
+    public Improvement[] impBtnImp = new Improvement[MAX_IMP_BTNS];
     public float addNoteBtnX, addNoteBtnY, addNoteBtnW, addNoteBtnH;
     public boolean noteIncludeTime     = true;
     public boolean noteIncludeLocation = true;

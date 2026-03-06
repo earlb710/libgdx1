@@ -311,13 +311,6 @@ final public class BuildingServices {
                 break;
         }
 
-        // Append "Use Improvements" if any discovered improvement has a function.
-        if (hasDiscoveredFunctionalImprovement(building)) {
-            List<BuildingService> extended = new ArrayList<>(base);
-            extended.add(new BuildingService(SVC_USE_IMPROVEMENTS,
-                    "Use Improvements", "Interact with available facilities.", 0, 0));
-            return Collections.unmodifiableList(extended);
-        }
         return base;
     }
 

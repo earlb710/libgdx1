@@ -64,6 +64,9 @@ public class InfoPanelRenderer {
     private static final Color NOTE_DIVIDER_COLOR     = new Color(0.30f, 0.30f, 0.40f, 1f);
     private static final Color APPOINTMENT_BTN_COLOR  = new Color(0.6f,  0.45f, 0.0f,  1f);
     private static final Color SERVICE_BTN_COLOR       = new Color(0.15f, 0.45f, 0.45f, 1f);
+    private static final Color IMP_ACTION_BTN_COLOR    = new Color(0.10f, 0.45f, 0.20f, 1f);
+    private static final Color IMP_ACTION_BTN_DISABLED = new Color(0.30f, 0.30f, 0.30f, 1f);
+    private static final Color DENY_COLOR              = new Color(1.00f, 0.50f, 0.30f, 1f);
     private static final Color DEV_BTN_ON_FILL         = new Color(0.10f, 0.40f, 0.15f, 1f);
     private static final Color DEV_BTN_ON_BORDER       = new Color(0.20f, 0.80f, 0.30f, 1f);
     private static final Color DEV_BTN_OFF_FILL        = new Color(0.20f, 0.20f, 0.20f, 1f);
@@ -647,6 +650,8 @@ public class InfoPanelRenderer {
         drawScrollY = s.infoScrollY;
 
         float textY = contentStartY;
+        s.impBtnCount = 0;
+        s.impBtnH = BTN_H;
         if (s.selectedCellX >= 0 && s.selectedCellY >= 0) {
             Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
             textY = drawLabelValue(font, "Terrain: ",
@@ -657,22 +662,7 @@ public class InfoPanelRenderer {
                 Building building = cell.getBuilding();
                 if (building.isDiscovered()) {
                     String bMod = formatAttributeModifiers(building.getAttributeModifiers());
-                    float dx = textX - drawScrollX;
-                    float dy = textY + drawScrollY;
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Building: ", dx, dy);
-                    glyphLayout.setText(font, "Building: ");
-                    float nameX = dx + glyphLayout.width;
                     String bName = building.getDisplayName();
-                    smallFont.setColor(Color.WHITE);
-                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
-                    if (!bMod.isEmpty()) {
-                        glyphLayout.setText(smallFont, bName);
-                        tinyFont.setColor(Color.WHITE);
-                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
-                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
-                    }
-                    textY -= fontLineH;
 
                     if (building.getDefinition() != null) {
                         textY = drawLabelValue(font, "Type: ",
@@ -698,8 +688,38 @@ public class InfoPanelRenderer {
                         }
                     }
 
+                    // Building description from buildings_en.json (word-wrapped, novel colour)
+                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+
+                    // Space above "Building: name", then draw it just above the description
+                    textY -= smallLineH;
+                    float dx = textX - drawScrollX;
+                    float dy = textY + drawScrollY;
                     font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Improvements:", textX - drawScrollX, textY + drawScrollY);
+                    font.draw(batch, "Building: ", dx, dy);
+                    glyphLayout.setText(font, "Building: ");
+                    float nameX = dx + glyphLayout.width;
+                    smallFont.setColor(Color.WHITE);
+                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
+                    if (!bMod.isEmpty()) {
+                        glyphLayout.setText(smallFont, bName);
+                        tinyFont.setColor(Color.WHITE);
+                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
+                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
+                    }
+                    textY -= fontLineH;
+
+                    // Description immediately below "Building: name" (no extra gap)
+                    if (!novelLines.isEmpty()) {
+                        smallFont.setColor(NOVEL_COLOR);
+                        for (String nLine : novelLines) {
+                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                            textY -= smallLineH;
+                        }
+                    }
+
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "Locations:", textX - drawScrollX, textY + drawScrollY);
                     textY -= fontLineH;
                     for (Improvement imp : building.getImprovements()) {
                         float idy = textY + drawScrollY;
@@ -717,21 +737,66 @@ public class InfoPanelRenderer {
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
                             textY -= fontLineH;
+                            // --- Inline action button for functional improvements ---
+                            if (imp.hasFunction()) {
+                                String fnLabel = functionLabel(imp.getFunction());
+                                String denyReason = impDenyReason(imp);
+                                boolean allowed = (denyReason == null);
+                                TextMeasurer.TextBounds fbBounds =
+                                        TextMeasurer.measure(font, glyphLayout, fnLabel, PAD_X, PAD_Y);
+                                float fbW = fbBounds.width;
+                                float btnScreenX = idx + 16f;
+                                float btnScreenY = textY + drawScrollY;
+                                // Store screen-space bounds for hit-testing (updated every frame)
+                                if (s.impBtnCount < MapViewState.MAX_IMP_BTNS) {
+                                    s.impBtnX[s.impBtnCount] = btnScreenX;
+                                    s.impBtnY[s.impBtnCount] = btnScreenY;
+                                    s.impBtnW[s.impBtnCount] = fbW;
+                                    s.impBtnImp[s.impBtnCount] = imp;
+                                    s.impBtnCount++;
+                                }
+                                // Draw button if visible
+                                if (btnScreenY + BTN_H > contentAreaBottom && btnScreenY < scissorTop) {
+                                    batch.end();
+                                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                                    shapeRenderer.setColor(allowed ? IMP_ACTION_BTN_COLOR : IMP_ACTION_BTN_DISABLED);
+                                    shapeRenderer.rect(btnScreenX, btnScreenY, fbW, BTN_H);
+                                    shapeRenderer.end();
+                                    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                                    shapeRenderer.setColor(INFO_BORDER_COLOR);
+                                    shapeRenderer.rect(btnScreenX,     btnScreenY,     fbW,     BTN_H);
+                                    shapeRenderer.rect(btnScreenX + 1, btnScreenY + 1, fbW - 2, BTN_H - 2);
+                                    shapeRenderer.end();
+                                    batch.begin();
+                                    glyphLayout.setText(font, fnLabel);
+                                    font.setColor(Color.WHITE);
+                                    font.draw(batch, fnLabel,
+                                            btnScreenX + (fbW - glyphLayout.width) / 2f,
+                                            btnScreenY + (BTN_H + glyphLayout.height) / 2f);
+                                    if (!allowed) {
+                                        smallFont.setColor(DENY_COLOR);
+                                        smallFont.draw(batch, denyReason,
+                                                btnScreenX + fbW + 8f,
+                                                btnScreenY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2f);
+                                    }
+                                }
+                                textY -= fontLineH;
+                            }
+                            // Description from improvements_en.json (word-wrapped, novel colour)
+                            List<String> descLines = impDescriptionLines(imp, wrapWidth);
+                            if (!descLines.isEmpty()) {
+                                smallFont.setColor(NOVEL_COLOR);
+                                for (String dLine : descLines) {
+                                    float ddy = textY + drawScrollY;
+                                    if (ddy < contentAreaBottom - smallLineH) break;
+                                    smallFont.draw(batch, dLine, idx + 8f, ddy);
+                                    textY -= smallLineH;
+                                }
+                            }
                         } else {
                             font.setColor(Color.WHITE);
                             font.draw(batch, "  - ???", idx, idy);
                             textY -= fontLineH;
-                        }
-                    }
-
-                    // Building description from buildings_en.json (word-wrapped, novel colour)
-                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
-                    if (!novelLines.isEmpty()) {
-                        textY -= smallLineH;
-                        smallFont.setColor(NOVEL_COLOR);
-                        for (String nLine : novelLines) {
-                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
-                            textY -= smallLineH;
                         }
                     }
                 } else {
@@ -1844,6 +1909,56 @@ public class InfoPanelRenderer {
     }
 
     /**
+     * Returns the description of an improvement, word-wrapped to {@code wrapWidth} pixels
+     * using {@code smallFont}. Returns an empty list when no description is available.
+     */
+    private List<String> impDescriptionLines(Improvement imp, float wrapWidth) {
+        ImprovementData data = imp.getData();
+        if (data == null || data.getDescription().isEmpty()) return java.util.Collections.emptyList();
+        return WordWrapper.wrap(data.getDescription(), wrapWidth, t -> {
+            glyphLayout.setText(smallFont, t);
+            return glyphLayout.width;
+        });
+    }
+
+    /**
+     * Returns the display label for an improvement action button from its function string.
+     * E.g. "rest" → "Rest", "exercise" → "Exercise".
+     */
+    private static String functionLabel(String fn) {
+        if (fn == null || fn.isEmpty()) return "Use";
+        return Character.toUpperCase(fn.charAt(0)) + fn.substring(1);
+    }
+
+    /**
+     * Returns the plain-English reason why the player cannot use the improvement,
+     * or {@code null} if all restrictions are satisfied.
+     */
+    private String impDenyReason(Improvement imp) {
+        ImprovementData data = imp.getData();
+        if (data == null || !data.hasRestrict()) return null;
+        List<String> failures = new ArrayList<>();
+        String reqGender = data.getRequiredGender();
+        if (reqGender != null && !reqGender.isEmpty() && !reqGender.equalsIgnoreCase(profile.getGender())) {
+            failures.add("you are not " + reqGender);
+        }
+        int reqStr = data.getRequiredStrength();
+        if (reqStr > 0) {
+            int playerStr = profile.getAttribute(CharacterAttribute.STRENGTH.name());
+            if (playerStr < reqStr) {
+                failures.add("not strong enough");
+            }
+        }
+        if (failures.isEmpty()) return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < failures.size(); i++) {
+            if (i > 0) sb.append(" and ");
+            sb.append(failures.get(i));
+        }
+        return sb.toString();
+    }
+
+    /**
      * Computes total virtual height of the content section (sum of all line advances).
      * Used to determine whether vertical scrolling is needed.
      *
@@ -1867,13 +1982,17 @@ public class InfoPanelRenderer {
             h += fontLineH;               // "Tenants:" header
             h += smallLineH * tenants.size();
         }
-        h += fontLineH; // "Improvements:" header (advance)
-        for (Improvement imp : b.getImprovements()) {
-            h += fontLineH; // improvement name row
-        }
         int novelLineCount = buildingNovelLines(b, wrapWidth).size();
         if (novelLineCount > 0) {
             h += smallLineH * (1 + novelLineCount); // blank gap + description lines
+        }
+        h += fontLineH; // "Locations:" header (advance)
+        for (Improvement imp : b.getImprovements()) {
+            h += fontLineH; // improvement name row
+            if (imp.isDiscovered()) {
+                if (imp.hasFunction()) h += fontLineH; // action button row
+                h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
+            }
         }
         return h;
     }
@@ -1918,7 +2037,7 @@ public class InfoPanelRenderer {
                         maxW = Math.max(maxW, glyphLayout.width);
                     }
                 }
-                glyphLayout.setText(font, "Improvements:");
+                glyphLayout.setText(font, "Locations:");
                 maxW = Math.max(maxW, glyphLayout.width);
                 for (Improvement imp : b.getImprovements()) {
                     String namePart = "  - " + (imp.isDiscovered() ? imp.getName() : "???");

@@ -54,6 +54,7 @@ public class LookAroundPopup {
     private float        timer = 0f;
     private int          lookCharX, lookCharY;
     private List<String> foundItems = new ArrayList<>();
+    private String       impDesc    = null;
     private String       novelDesc  = null;
 
     // OK button bounds (written during draw, read by onTap)
@@ -97,6 +98,7 @@ public class LookAroundPopup {
         lookCharX = charX;
         lookCharY = charY;
         foundItems.clear();
+        impDesc   = null;
         novelDesc = null;
         timer   = 0f;
         scrollY = 0f;
@@ -144,7 +146,7 @@ public class LookAroundPopup {
         final float PAD    = 24f;
         final float GAP    = 14f;  // extra inter-line spacing added to each text height
         final float MIN_W  = 320f;
-        final float MAX_W  = screenW * 0.9f;
+        final float MAX_W  = screenW;
         final float MAX_H  = screenH * 0.8f;
 
         // --- Measure OK button (fixed, always visible) ---
@@ -162,14 +164,16 @@ public class LookAroundPopup {
         float headingH, headingLineH;
         float dialogW, dialogH;
         boolean needsScroll;
-        List<String> novelLines = java.util.Collections.emptyList();
+        List<String> impDescLines = java.util.Collections.emptyList();
+        List<String> novelLines   = java.util.Collections.emptyList();
+
+        // Always fill the full screen width
+        dialogW = MAX_W;
 
         if (state == State.ANIMATING) {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Looking around...", 0f, 0f);
             headingH     = headBounds.textHeight;
             headingLineH = headingH + GAP;
-            // Width: heading + 2*PAD (no scrollbar needed for animation state)
-            dialogW = MathUtils.clamp(headBounds.textWidth + 2 * PAD, MIN_W, MAX_W);
             // Height: exactly PAD top + text + PAD bottom so text is always PAD from each border
             dialogH      = 2 * PAD + headingH;
             needsScroll  = false;
@@ -179,26 +183,31 @@ public class LookAroundPopup {
             headBounds   = TextMeasurer.measure(font, glyphLayout, "Found:", 0f, 0f);
             headingH     = headBounds.textHeight;
             headingLineH = headingH + GAP;
-            // Measure items: total height and max width
+            // Measure items: total height
             TextMeasurer.TextBounds itemsBounds =
                     TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f);
             // measureLines gives N*lineH + (N-1)*GAP but draw loop uses N*(lineH+GAP).
             // Add one trailing GAP so the last item is never clipped.
             float itemsH   = itemsBounds.textHeight + (foundItems.isEmpty() ? 0f : GAP);
-            float maxItemW = itemsBounds.textWidth;
 
-            // Width = widest of (heading, items, ok-button-text) + 2*PAD + scrollbar margin
-            float rawContentW = Math.max(headBounds.textWidth,
-                                Math.max(maxItemW, okBounds.textWidth));
-            dialogW = MathUtils.clamp(rawContentW + 2 * PAD + SCROLLBAR_W + 4f, MIN_W, MAX_W);
+            // Wrap width available for description text inside the dialog
+            float wrapWidth = dialogW - 2 * PAD;
+            WordWrapper.WidthMeasurer smallMeasurer = t -> {
+                glyphLayout.setText(smallFont, t);
+                return glyphLayout.width;
+            };
+
+            // Wrap improvement description text (from JSON data) to available content width.
+            if (impDesc != null) {
+                impDescLines = WordWrapper.wrap(impDesc, wrapWidth, smallMeasurer);
+                if (!impDescLines.isEmpty()) {
+                    itemsH += impDescLines.size() * smallLineH;
+                }
+            }
 
             // Wrap novel description text to the available content width and add to height.
             if (novelDesc != null) {
-                float wrapWidth = dialogW - 2 * PAD;
-                novelLines = WordWrapper.wrap(novelDesc, wrapWidth, t -> {
-                    glyphLayout.setText(smallFont, t);
-                    return glyphLayout.width;
-                });
+                novelLines = WordWrapper.wrap(novelDesc, wrapWidth, smallMeasurer);
                 if (!novelLines.isEmpty()) {
                     itemsH += novelLines.size() * smallLineH;
                 }
@@ -255,6 +264,7 @@ public class LookAroundPopup {
             // scrollableH = headingLineH + headingH (char gap) + itemsH; visible area = trackH
             float scrollableH = headBounds.textHeight + GAP + headBounds.textHeight
                     + TextMeasurer.measureLines(smallFont, glyphLayout, foundItems, GAP, 0f, 0f).textHeight
+                    + impDescLines.size() * smallLineH
                     + novelLines.size() * smallLineH;
             float thumbH  = MathUtils.clamp(trackH * (trackH / scrollableH), 12f, trackH);
             float thumbY  = trackY + (trackH - thumbH) * (maxScrollY > 0 ? 1f - scrollY / maxScrollY : 1f);
@@ -305,6 +315,13 @@ public class LookAroundPopup {
                         dialogX + PAD,
                         ty);
                 ty -= smallLineH;
+            }
+            if (!impDescLines.isEmpty()) {
+                smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
+                for (String dLine : impDescLines) {
+                    smallFont.draw(batch, dLine, dialogX + PAD, ty);
+                    ty -= smallLineH;
+                }
             }
             if (!novelLines.isEmpty()) {
                 smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
@@ -359,9 +376,13 @@ public class LookAroundPopup {
                 if (rng.nextFloat() < chance) {
                     easiest.discover();
                     String mod = InfoPanelRenderer.formatAttributeModifiers(easiest.getAttributeModifiers());
-                    String entry = easiest.getName() + " (Lvl " + easiest.getLevel() + ")"
+                    String entry = easiest.getName()
                             + (mod.isEmpty() ? "" : " " + mod);
                     foundItems.add(entry);
+                    ImprovementData impData = easiest.getData();
+                    if (impData != null && !impData.getDescription().isEmpty()) {
+                        impDesc = impData.getDescription();
+                    }
                     if (novelTextEngine != null) {
                         String desc = novelTextEngine.getImprovementDescription(
                                 easiest.getName(), profile.getGender());
