@@ -45,15 +45,13 @@ public class ProfileCreationScreen implements Screen {
     private static final int ICON_SIZE   = 96;  // portrait icon display size
     private static final int ICON_BORDER =  4;  // highlight border width around icon
 
-    // Layout gap constants (device pixels – not density-scaled)
-    private static final int SECTION_GAP       = 40; // space between major form sections
-    private static final int ITEM_GAP          = 10; // space between a label and its widget
+    // Layout padding constants (device pixels – not density-scaled)
     private static final int INPUT_PAD_H       = 10; // horizontal text inset inside the name box
     private static final int INPUT_PAD_V       =  6; // vertical text inset inside the name box
     private static final int BTN_PAD_H         = 28; // horizontal text padding inside buttons
     private static final int BTN_PAD_V         = 14; // vertical text padding inside buttons
-    private static final int TITLE_TOP_MARGIN  = 10; // px from the very top of the screen to the title
-    private static final int TITLE_FORM_GAP    = 20; // px between title bottom and first form item
+    /** Total gap-unit weight used to distribute vertical whitespace across the form (see show()). */
+    private static final int TOTAL_GAP_UNITS   = 19;
     private static final String FONT_MEASURE_CHARS = "Ag"; // representative chars for cap-height measurement
 
     private boolean cursorVisible;
@@ -154,41 +152,82 @@ public class ProfileCreationScreen implements Screen {
             TextMeasurer.TextBounds normalBounds     = TextMeasurer.measure(buttonFont, "Normal",      BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds hardBounds       = TextMeasurer.measure(buttonFont, "Hard",        BTN_PAD_H, BTN_PAD_V);
 
-            // Create / Cancel at bottom of screen
-            createButton = new Rectangle(centerX - (int) createBounds.width - 10, 20,
-                                         (int) createBounds.width, (int) createBounds.height);
-            cancelButton = new Rectangle(centerX + 10, 20,
-                                         (int) cancelBounds.width, (int) cancelBounds.height);
+            // Create / Cancel button sizes are needed for the gap calculation below
+            // (positions are computed in the flowing layout further down)
 
-            // === Flowing top→bottom layout ===
-            int margin = 20;
+            // === Flowing top→bottom layout – gaps proportional to screen height ===
+            //
+            // libGDX coordinate system: Y=0 at bottom, increases upward.
+            //   font.draw(y)  → y is the top (ascent line) of the glyphs
+            //   Rectangle.y   → bottom-left corner of the rect
+            // curY always holds the "top edge" of the next item to place.
+            //
+            // Gap unit weights (19 units total):
+            //   top-margin         : 1
+            //   title → name label : 2  (TITLE_FORM_GAP)
+            //   label → input      : 1  (ITEM_GAP)
+            //   input → random-btn : 1  (ITEM_GAP)
+            //   random-btn → gender: 3  (SECTION_GAP)
+            //   gender  → portrait : 3  (SECTION_GAP)
+            //   portrait → diff    : 3  (SECTION_GAP)
+            //   diff label → btns  : 1  (ITEM_GAP)
+            //   diff btns → create : 3  (SECTION_GAP)
+            //   bottom-margin      : 1
+            //   ──────────────────────
+            //   Total              : 19
+            // ==============================================================
+            int margin  = 20;
+            int screenH = Gdx.graphics.getHeight();
 
-            // Measure title height so the first form item starts just below it
+            // Measure title height
             BitmapFont titleFont = fontManager.getTitleFont();
             glyphLayout.setText(titleFont, "Create Profile");
             int titleFontH = (int) glyphLayout.height;
-            titleDrawY = Gdx.graphics.getHeight() - TITLE_TOP_MARGIN;
-            int curY   = titleDrawY - titleFontH - TITLE_FORM_GAP;
+
+            // Gender-row height – computed here (before totalContent) because it contributes
+            // to the fixed-content sum used to derive the dynamic gap unit.
+            int genderRowH = Math.max(labelH, (int) maleBounds.height);
+
+            // Total height consumed by all content items (no gaps included)
+            int totalContent = titleFontH
+                    + labelH                            // Character Name label
+                    + inputBoxH                         // name input field
+                    + (int) randomNameBounds.height     // Random Name button
+                    + genderRowH                        // Gender label + buttons row
+                    + ICON_SIZE                         // Portrait icons
+                    + labelH                            // Difficulty label
+                    + (int) easyBounds.height           // Difficulty buttons
+                    + (int) createBounds.height;        // Create / Cancel buttons
+
+            // Distribute remaining space proportionally (min 8px per unit).
+            // If totalContent > screenH the gap unit falls back to 8px minimum,
+            // which gracefully degrades on very small screens.
+            int availableForGaps = screenH - totalContent;
+            int gapUnit       = Math.max(8, availableForGaps / TOTAL_GAP_UNITS);
+            int dynItemGap    = gapUnit;
+            int dynSectionGap = gapUnit * 3;
+
+            titleDrawY = screenH - gapUnit;                    // 1-unit top margin
+            int curY   = titleDrawY - titleFontH - gapUnit * 2; // 2-unit TITLE_FORM_GAP
 
             // -- Character Name --
             labelNameY = curY;
-            curY -= labelH + ITEM_GAP;
+            curY -= labelH + dynItemGap;
 
             // Input field box: top edge at curY
             nameInputBox = new Rectangle(margin, curY - inputBoxH, inputBoxW, inputBoxH);
             this.nameInputY = curY - INPUT_PAD_V;   // text baseline inside box
-            curY -= inputBoxH + ITEM_GAP;
+            curY -= inputBoxH + dynItemGap;
 
             // Random Name button: just below input box
             randomNameButton = new Rectangle(margin, curY - (int) randomNameBounds.height,
                                              (int) randomNameBounds.width, (int) randomNameBounds.height);
-            curY -= (int) randomNameBounds.height + SECTION_GAP;
+            curY -= (int) randomNameBounds.height + dynSectionGap;
 
             // -- Gender (label + [Male] [Female] inline) --
             genderLabelY = curY;
             glyphLayout.setText(labelFont, "Gender:");
             int genderBtnX      = margin + (int) glyphLayout.width + 12;
-            int rowH            = Math.max(labelH, (int) maleBounds.height);
             int genderBtnBottom = curY - (int) maleBounds.height;
             genderMaleButton   = new Rectangle(genderBtnX,
                                                genderBtnBottom,
@@ -196,21 +235,21 @@ public class ProfileCreationScreen implements Screen {
             genderFemaleButton = new Rectangle(genderBtnX + (int) maleBounds.width + 8,
                                                genderBtnBottom,
                                                (int) femaleBounds.width, (int) femaleBounds.height);
-            curY -= rowH + SECTION_GAP;
+            curY -= genderRowH + dynSectionGap;
 
             // -- Portrait (label + icons inline on the same row) --
             portraitLabelY = curY;
             glyphLayout.setText(labelFont, "Portrait:");
             int portraitLabelW = (int) glyphLayout.width;
-            int iconLeft   = margin + portraitLabelW + 16; // 16px gap after label text
-            int iconBottomY = curY - ICON_SIZE;            // icons top-aligned with label row
-            icon1Button = new Rectangle(iconLeft,               iconBottomY, ICON_SIZE, ICON_SIZE);
-            icon2Button = new Rectangle(iconLeft + ICON_SIZE + 10, iconBottomY, ICON_SIZE, ICON_SIZE);
-            curY -= ICON_SIZE + SECTION_GAP;
+            int iconLeft    = margin + portraitLabelW + 16; // 16px gap after label text
+            int iconBottomY = curY - ICON_SIZE;             // icons top-aligned with label row
+            icon1Button = new Rectangle(iconLeft,                    iconBottomY, ICON_SIZE, ICON_SIZE);
+            icon2Button = new Rectangle(iconLeft + ICON_SIZE + 10,   iconBottomY, ICON_SIZE, ICON_SIZE);
+            curY -= ICON_SIZE + dynSectionGap;
 
             // -- Difficulty (label row then buttons row) --
             difficultyLabelY = curY;
-            curY -= labelH + ITEM_GAP;
+            curY -= labelH + dynItemGap;
             int diffBtnBottom = curY - (int) easyBounds.height;
             diffEasyButton   = new Rectangle(margin,
                                              diffBtnBottom,
@@ -221,6 +260,15 @@ public class ProfileCreationScreen implements Screen {
             diffHardButton   = new Rectangle(margin + (int) easyBounds.width + 8 + (int) normalBounds.width + 8,
                                              diffBtnBottom,
                                              (int) hardBounds.width, (int) hardBounds.height);
+            curY -= (int) easyBounds.height + dynSectionGap;
+
+            // Create / Cancel: positioned just below difficulty buttons in the flowing layout
+            createButton = new Rectangle(centerX - (int) createBounds.width - 10,
+                                         curY - (int) createBounds.height,
+                                         (int) createBounds.width, (int) createBounds.height);
+            cancelButton = new Rectangle(centerX + 10,
+                                         curY - (int) cancelBounds.height,
+                                         (int) cancelBounds.width, (int) cancelBounds.height);
             
             // Load character icon textures as-is (no pixel transformation)
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
