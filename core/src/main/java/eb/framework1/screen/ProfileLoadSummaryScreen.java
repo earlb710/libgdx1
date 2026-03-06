@@ -150,6 +150,13 @@ public class ProfileLoadSummaryScreen implements Screen {
         bodyFont.setColor(Color.WHITE);
         if (characterIconTexture != null) {
             int iconDisplaySize = 64;
+            // Temporarily end batch so ShapeRenderer can draw the icon background
+            batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0.90f, 0.90f, 0.88f, 1f);
+            shapeRenderer.rect(centerX + 50, currentY - iconDisplaySize + 10, iconDisplaySize, iconDisplaySize);
+            shapeRenderer.end();
+            batch.begin();
             batch.setColor(Color.WHITE);
             batch.draw(characterIconTexture, centerX + 50, currentY - iconDisplaySize + 10, iconDisplaySize, iconDisplaySize);
         }
