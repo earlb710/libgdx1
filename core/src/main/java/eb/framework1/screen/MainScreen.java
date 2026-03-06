@@ -90,6 +90,7 @@ public class MainScreen implements Screen {
     private ConfirmPopup         confirmDropPopup;
     private NotePopup            notePopup;
     private MeetPopup            meetPopup;
+    private NpcAnnotationPopup   npcAnnotationPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -317,6 +318,8 @@ public class MainScreen implements Screen {
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        npcAnnotationPopup = new NpcAnnotationPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -343,6 +346,10 @@ public class MainScreen implements Screen {
         handleKeyboardInput();
         if (state.isWalking) updateWalk(delta);
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
+        // Keep the NPC-overlay hour in sync with the current in-game time so that
+        // stick figures are repositioned on the map every time the clock advances.
+        state.currentHour = profile.getCurrentHour();
 
         mapRenderer.drawMap(state);
         mapRenderer.drawRulers(state);
@@ -438,6 +445,10 @@ public class MainScreen implements Screen {
             meetPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (npcAnnotationPopup.isVisible()) {
+            npcAnnotationPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -526,6 +537,7 @@ public class MainScreen implements Screen {
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
             || meetPopup.isVisible()
+            || npcAnnotationPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -1111,6 +1123,17 @@ public class MainScreen implements Screen {
                     return true;
                 }
 
+                // NPC Annotation popup: close button
+                if (npcAnnotationPopup.isVisible()) {
+                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+                    if (d < TAP_THRESHOLD_PIXELS) {
+                        npcAnnotationPopup.onTap(screenX, flippedY);
+                    }
+                    isDragging = false;
+                    infoAreaPressed = false;
+                    return true;
+                }
+
                 // Meet popup: tap a question button, accept/reject, or close button
                 if (meetPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -1169,6 +1192,12 @@ public class MainScreen implements Screen {
                             lastMapTapTimeMs = now;
                             lastMapTapCellX  = state.selectedCellX;
                             lastMapTapCellY  = state.selectedCellY;
+                            // Show annotation popup when an NPC is at the tapped cell
+                            NpcCharacter tappedNpc =
+                                    npcAtCell(state.selectedCellX, state.selectedCellY);
+                            if (tappedNpc != null) {
+                                npcAnnotationPopup.show(tappedNpc);
+                            }
                         }
                     }
                 }
@@ -1345,6 +1374,21 @@ public class MainScreen implements Screen {
             recalculateRoute();
             Gdx.app.log("MainScreen", "Selected: " + cx + "," + cy);
         }
+    }
+
+    /**
+     * Returns the first NPC whose current cell matches ({@code cx}, {@code cy}),
+     * or {@code null} if no NPC is at that location.
+     */
+    private NpcCharacter npcAtCell(int cx, int cy) {
+        if (state.allNpcs == null || cx < 0 || cy < 0) return null;
+        for (NpcCharacter npc : state.allNpcs) {
+            if (npc.getCurrentCellX(state.currentHour) == cx
+                    && npc.getCurrentCellY(state.currentHour) == cy) {
+                return npc;
+            }
+        }
+        return null;
     }
 
     // -------------------------------------------------------------------------
@@ -1756,6 +1800,23 @@ public class MainScreen implements Screen {
         for (String question : meetPopup.getAskedQuestions()) {
             matchingCase.addClue("Asked " + contactName + ": \"" + question + "\"");
         }
+
+        // Record a bilateral relationship entry for this first meeting.
+        // Try to find the NPC in the world NPC list so the NPC also gets an entry.
+        eb.framework1.character.NpcCharacter contactNpc = null;
+        for (eb.framework1.character.NpcCharacter npc : state.allNpcs) {
+            if (contactName.equalsIgnoreCase(npc.getFullName())) {
+                contactNpc = npc;
+                break;
+            }
+        }
+        int contactCharisma = (contactNpc != null)
+                ? contactNpc.getAttribute(eb.framework1.character.CharacterAttribute.CHARISMA)
+                : eb.framework1.character.Relationship.NEUTRAL_CHARISMA;
+        String contactId = (contactNpc != null) ? contactNpc.getId() : contactName;
+        eb.framework1.character.Relationship.recordMeeting(
+                profile, contactId, contactName, contactCharisma, contactNpc);
+        Gdx.app.log("MainScreen", "Relationship recorded: player ↔ " + contactName);
 
         Gdx.app.log("MainScreen", "Case file updated after meeting: " + matchingCase.getName());
         // Remove the completed appointment from the calendar

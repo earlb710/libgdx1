@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class CharacterAttributeScreen implements Screen {
     private Main game;
@@ -53,6 +54,7 @@ public class CharacterAttributeScreen implements Screen {
     // UI Elements
     private Rectangle confirmButton;
     private Rectangle backButton;
+    private Rectangle randomizeButton;
     private Map<CharacterAttribute, Rectangle> plusButtons;
     private Map<CharacterAttribute, Rectangle> minusButtons;
     private Rectangle moneyPlusButton;
@@ -139,10 +141,13 @@ public class CharacterAttributeScreen implements Screen {
             int centerX = Gdx.graphics.getWidth() / 2;
             
             // Button sizes computed from the label text and font
-            TextMeasurer.TextBounds confirmBounds = TextMeasurer.measure(subtitleFont, "Confirm", 48f, 22f);
-            TextMeasurer.TextBounds backBounds    = TextMeasurer.measure(subtitleFont, "Back",    48f, 22f);
-            confirmButton = new Rectangle(centerX - confirmBounds.width - 20, 50, confirmBounds.width, confirmBounds.height);
-            backButton    = new Rectangle(centerX + 20, 50, backBounds.width, backBounds.height);
+            TextMeasurer.TextBounds confirmBounds    = TextMeasurer.measure(subtitleFont, "Confirm",   48f, 22f);
+            TextMeasurer.TextBounds backBounds       = TextMeasurer.measure(subtitleFont, "Back",      48f, 22f);
+            TextMeasurer.TextBounds randomizeBounds  = TextMeasurer.measure(subtitleFont, "Randomize", 48f, 22f);
+            confirmButton   = new Rectangle(centerX - confirmBounds.width - 20,  50, confirmBounds.width,   confirmBounds.height);
+            backButton      = new Rectangle(centerX + 20,                        50, backBounds.width,      backBounds.height);
+            randomizeButton = new Rectangle(centerX - randomizeBounds.width / 2, 50 + confirmBounds.height + 20,
+                                            randomizeBounds.width, randomizeBounds.height);
             
             // Create +/- buttons for each attribute (positioned in render method)
             for (CharacterAttribute attr : CharacterAttribute.values()) {
@@ -410,8 +415,9 @@ public class CharacterAttributeScreen implements Screen {
         int mouseX = Gdx.input.getX();
         int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
-        drawButton(confirmButton, "Confirm", mouseX, mouseY, pointsRemaining == 0);
-        drawButton(backButton, "Back", mouseX, mouseY, true);
+        drawButton(confirmButton,   "Confirm",   mouseX, mouseY, pointsRemaining == 0);
+        drawButton(backButton,      "Back",       mouseX, mouseY, true);
+        drawButton(randomizeButton, "Randomize",  mouseX, mouseY, true);
     }
     
     private void drawButton(Rectangle button, String text, int mouseX, int mouseY, boolean enabled) {
@@ -506,11 +512,48 @@ public class CharacterAttributeScreen implements Screen {
                 initialized = false;
                 game.setScreen(new ProfileCreationScreen(game));
             }
+
+            // Check Randomize button
+            if (randomizeButton.contains(mouseX, mouseY)) {
+                randomizeCharacter();
+            }
         }
     }
     
     private int getMoneyRemaining() {
         return moneyBudget;
+    }
+
+    /**
+     * Randomly assigns the free distributable points across all investigative
+     * attributes and picks a random body height and weight.  Money is reset to
+     * the default starting amount.  After this call {@code pointsRemaining}
+     * will be 0 and the Confirm button will become enabled.
+     */
+    private void randomizeCharacter() {
+        Random rng = new Random();
+
+        // Distribute free points using CharacterGenerator's shared logic.
+        Map<CharacterAttribute, Integer> randomAttrs =
+                CharacterGenerator.generatePlayerAttributes(FREE_DISTRIBUTABLE_POINTS, rng);
+        for (Map.Entry<CharacterAttribute, Integer> entry : randomAttrs.entrySet()) {
+            attributeValues.put(entry.getKey(), entry.getValue());
+        }
+        pointsRemaining = 0;
+        moneyBudget = STARTING_MONEY;
+
+        // Randomise body measurements within valid ranges.
+        boolean isFemale = "Female".equalsIgnoreCase(gender);
+        int defaultHeight = isFemale ? DEFAULT_HEIGHT_FEMALE : DEFAULT_HEIGHT_MALE;
+        int defaultWeight = isFemale ? DEFAULT_WEIGHT_FEMALE : DEFAULT_WEIGHT_MALE;
+        // Allow ±15 cm height variance and ±15 kg weight variance.
+        int heightVariance = 15;
+        int weightVariance = 15;
+        bodyHeightCm      = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT,
+                defaultHeight + rng.nextInt(heightVariance * 2 + 1) - heightVariance));
+        totalBodyWeightKg = Math.max(MIN_WEIGHT, Math.min(MAX_WEIGHT,
+                defaultWeight + rng.nextInt(weightVariance * 2 + 1) - weightVariance));
+        updateMuscleFatFromWeight();
     }
 
     /**

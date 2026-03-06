@@ -5,12 +5,14 @@ package eb.admin.model;
  * The {@code color} field is used by building categories and improvement categories.
  * The {@code actions} field is only used by improvement categories and holds a
  * comma-separated list of action button labels (e.g. "rest, read, practice").
+ * The {@code name} field is used by skill categories in place of {@code description}.
  */
 public class CategoryEntry {
     private String code;
     private String description;
     private String color;
     private String actions;
+    private String name;
 
     public CategoryEntry() {
     }
@@ -45,5 +47,13 @@ public class CategoryEntry {
 
     public void setActions(String actions) {
         this.actions = actions;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -79,6 +79,38 @@ public final class NpcCharacter {
      */
     private final Map<CharacterAttribute, Integer> attributes;
 
+    /**
+     * Skills inferred from the NPC's occupation.  Populated by {@link NpcGenerator};
+     * empty list when constructed via {@link CharacterGenerator} directly.
+     */
+    private final List<NpcSkill> skills;
+
+    /**
+     * Daily schedule that describes where the NPC is at each hour of the day.
+     * {@code null} when constructed via {@link CharacterGenerator} directly.
+     */
+    private final NpcSchedule schedule;
+
+    /**
+     * Date of birth in {@code "YYYY-MM-DD"} format (using the in-game year).
+     * Empty string when not explicitly set.
+     */
+    private final String birthdate;
+
+    /**
+     * Whether this NPC can be tracked / shown on the city map.
+     * In debug / developer mode all NPCs are treated as tracked regardless of
+     * this flag.
+     */
+    private final boolean tracked;
+
+    /**
+     * Relationships this NPC has formed with characters they have met.
+     * The list is mutable so that relationship entries can be added during
+     * gameplay without rebuilding the NPC object.
+     */
+    private final List<Relationship> relationships = new ArrayList<>();
+
     // -------------------------------------------------------------------------
     // Construction
     // -------------------------------------------------------------------------
@@ -103,6 +135,11 @@ public final class NpcCharacter {
         this.personalityProfile   = b.personalityProfile;
         this.attributes           = Collections.unmodifiableMap(
                 new EnumMap<>(b.attributes));
+        this.skills               = Collections.unmodifiableList(
+                new ArrayList<>(b.skills));
+        this.schedule             = b.schedule;
+        this.birthdate            = b.birthdate != null ? b.birthdate : "";
+        this.tracked              = b.tracked;
     }
 
     // -------------------------------------------------------------------------
@@ -235,6 +272,89 @@ public final class NpcCharacter {
     }
 
     // -------------------------------------------------------------------------
+    // Accessors — skills and schedule
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the skills inferred from this NPC's occupation by
+     * {@link NpcGenerator}.  Returns an empty list for NPCs created directly
+     * via {@link CharacterGenerator} (without the full generation pipeline).
+     *
+     * @return unmodifiable list of skills; never {@code null}
+     */
+    public List<NpcSkill> getSkills() {
+        return skills;
+    }
+
+    /**
+     * Returns the NPC's daily schedule as built by {@link NpcGenerator}, or
+     * {@code null} if the NPC was not enriched by the generator.
+     *
+     * @return the {@link NpcSchedule}, or {@code null}
+     */
+    public NpcSchedule getSchedule() {
+        return schedule;
+    }
+
+    // -------------------------------------------------------------------------
+    // Accessors — birthdate and tracking
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the NPC's date of birth in {@code "YYYY-MM-DD"} format (using
+     * the in-game calendar year).  Returns an empty string if the birthdate
+     * was not explicitly set.
+     */
+    public String getBirthdate() {
+        return birthdate;
+    }
+
+    /**
+     * Returns {@code true} if this NPC can be tracked / shown on the city map
+     * in normal game mode.  In developer / debug mode all NPCs are treated as
+     * tracked regardless of this flag.
+     */
+    public boolean isTracked() {
+        return tracked;
+    }
+
+    // -------------------------------------------------------------------------
+    // Convenience — current map position (derived from schedule)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the city-map cell X-coordinate for this NPC at the given hour,
+     * derived from the NPC's {@link NpcSchedule}.
+     *
+     * <p>Returns {@code -1} when no schedule is assigned, when no entry covers
+     * {@code hour}, or when the matching entry has no known cell coordinate.
+     *
+     * @param hour hour of the day (0–23)
+     * @return cell X coordinate, or {@code -1} if unknown
+     */
+    public int getCurrentCellX(int hour) {
+        if (schedule == null) return -1;
+        NpcScheduleEntry entry = schedule.getEntryForHour(hour);
+        return (entry != null) ? entry.cellX : -1;
+    }
+
+    /**
+     * Returns the city-map cell Y-coordinate for this NPC at the given hour,
+     * derived from the NPC's {@link NpcSchedule}.
+     *
+     * <p>Returns {@code -1} when no schedule is assigned, when no entry covers
+     * {@code hour}, or when the matching entry has no known cell coordinate.
+     *
+     * @param hour hour of the day (0–23)
+     * @return cell Y coordinate, or {@code -1} if unknown
+     */
+    public int getCurrentCellY(int hour) {
+        if (schedule == null) return -1;
+        NpcScheduleEntry entry = schedule.getEntryForHour(hour);
+        return (entry != null) ? entry.cellY : -1;
+    }
+
+    // -------------------------------------------------------------------------
     // Object overrides
     // -------------------------------------------------------------------------
 
@@ -243,6 +363,49 @@ public final class NpcCharacter {
         return "NpcCharacter{id='" + id + "', name='" + fullName
                 + "', gender='" + gender + "', age=" + age
                 + ", occupation='" + occupation + "'}";
+    }
+
+    // -------------------------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------------------------
+
+    /**
+     * Adds a relationship entry, replacing any existing entry for the same
+     * {@link Relationship#getTargetId() targetId}.
+     *
+     * @param relationship must not be {@code null}
+     */
+    public void addOrUpdateRelationship(Relationship relationship) {
+        if (relationship == null) throw new IllegalArgumentException("relationship must not be null");
+        for (int i = 0; i < relationships.size(); i++) {
+            if (relationships.get(i).getTargetId().equals(relationship.getTargetId())) {
+                relationships.set(i, relationship);
+                return;
+            }
+        }
+        relationships.add(relationship);
+    }
+
+    /**
+     * Returns the relationship entry for the character with the given ID, or
+     * {@code null} if no such entry exists.
+     *
+     * @param targetId the identifier to look up
+     */
+    public Relationship getRelationship(String targetId) {
+        if (targetId == null) return null;
+        for (Relationship r : relationships) {
+            if (r.getTargetId().equals(targetId)) return r;
+        }
+        return null;
+    }
+
+    /**
+     * Returns an unmodifiable view of all relationship entries held by this
+     * NPC.
+     */
+    public List<Relationship> getRelationships() {
+        return Collections.unmodifiableList(relationships);
     }
 
     // =========================================================================
@@ -279,6 +442,10 @@ public final class NpcCharacter {
         private PersonalityProfile personalityProfile = PersonalityProfile.DEFAULT;
         private final Map<CharacterAttribute, Integer> attributes =
                 new EnumMap<>(CharacterAttribute.class);
+        private final List<NpcSkill> skills = new ArrayList<>();
+        private NpcSchedule schedule = null;
+        private String      birthdate = "";
+        private boolean     tracked   = false;
 
         /**
          * Sets the mandatory unique identifier.
@@ -452,6 +619,81 @@ public final class NpcCharacter {
                     attribute(e.getKey(), e.getValue());
                 }
             }
+            return this;
+        }
+
+        /**
+         * Replaces the entire list of frequently-visited locations.
+         * Entries that are {@code null} or blank are silently ignored.
+         *
+         * @param locations list of location strings; {@code null} clears the list
+         */
+        public Builder frequentLocations(List<String> locations) {
+            this.frequentLocations.clear();
+            if (locations != null) {
+                for (String loc : locations) {
+                    addFrequentLocation(loc);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Adds a skill to the NPC's skill list.  {@code null} is silently ignored.
+         *
+         * @param skill the skill to add
+         */
+        public Builder addSkill(NpcSkill skill) {
+            if (skill != null) this.skills.add(skill);
+            return this;
+        }
+
+        /**
+         * Replaces the entire skill list.  {@code null} values in the list are
+         * silently ignored.
+         *
+         * @param skills the new skill list; {@code null} clears the list
+         */
+        public Builder skills(List<NpcSkill> skills) {
+            this.skills.clear();
+            if (skills != null) {
+                for (NpcSkill s : skills) {
+                    if (s != null) this.skills.add(s);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Sets the NPC's daily schedule.  {@code null} is permitted and means
+         * the NPC has no schedule.
+         *
+         * @param schedule the schedule, or {@code null}
+         */
+        public Builder schedule(NpcSchedule schedule) {
+            this.schedule = schedule;
+            return this;
+        }
+
+        /**
+         * Sets the NPC's date of birth as a {@code "YYYY-MM-DD"} string.
+         * {@code null} or blank is stored as an empty string.
+         *
+         * @param birthdate date of birth string, or {@code null}
+         */
+        public Builder birthdate(String birthdate) {
+            this.birthdate = (birthdate != null) ? birthdate.trim() : "";
+            return this;
+        }
+
+        /**
+         * Sets whether this NPC can be tracked / shown on the city map in
+         * normal game mode.
+         *
+         * @param tracked {@code true} to enable tracking
+         */
+        public Builder tracked(boolean tracked) {
+            this.tracked = tracked;
             return this;
         }
 

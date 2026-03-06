@@ -1,6 +1,7 @@
 package eb.framework1.save;
 
 import eb.framework1.city.*;
+import eb.framework1.character.SkillCategoryDefinition;
 import eb.framework1.generator.*;
 
 
@@ -34,6 +35,8 @@ public class GameDataManager {
     private final Map<String, List<BuildingDefinition>> buildingsByCategory;
     private final List<CategoryDefinition> categories;
     private final Map<String, CategoryDefinition> categoriesById;
+    private final List<SkillCategoryDefinition> skillCategories;
+    private final Map<String, SkillCategoryDefinition> skillCategoriesByCode;
     /** Improvement data keyed by lower-case improvement name. */
     private final Map<String, ImprovementData> improvementDataByName;
 
@@ -51,6 +54,8 @@ public class GameDataManager {
         this.buildingsByCategory = new HashMap<>();
         this.categories = new ArrayList<>();
         this.categoriesById = new HashMap<>();
+        this.skillCategories = new ArrayList<>();
+        this.skillCategoriesByCode = new HashMap<>();
         this.improvementDataByName = new HashMap<>();
 
         loadBuildings();
@@ -364,7 +369,18 @@ public class GameDataManager {
                 }
             }
 
-            Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion + " with " + categories.size() + " categories");
+            JsonValue skillCatsArray = root.get("skill_categories");
+            if (skillCatsArray != null) {
+                for (JsonValue scJson = skillCatsArray.child; scJson != null; scJson = scJson.next) {
+                    SkillCategoryDefinition sc = parseSkillCategoryDefinition(scJson);
+                    skillCategories.add(sc);
+                    skillCategoriesByCode.put(sc.getCode(), sc);
+                }
+            }
+
+            Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion
+                    + " with " + categories.size() + " building categories and "
+                    + skillCategories.size() + " skill categories");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading categories: " + e.getMessage(), e);
         }
@@ -383,6 +399,16 @@ public class GameDataManager {
         category.setDescription(json.getString("description"));
         category.setColor(json.getString("color", null));
         return category;
+    }
+
+    /**
+     * Parses a single skill-category definition from the
+     * {@code skill_categories} array in {@code category_en.json}.
+     */
+    private SkillCategoryDefinition parseSkillCategoryDefinition(JsonValue json) {
+        String code = json.getString("code", "");
+        String name = json.getString("name", code);
+        return new SkillCategoryDefinition(code, name);
     }
 
     // ===== Accessors =====
@@ -432,6 +458,24 @@ public class GameDataManager {
     public CategoryDefinition getCategoryForBuilding(BuildingDefinition building) {
         if (building == null) return null;
         return categoriesById.get(building.getCategory());
+    }
+
+    /**
+     * Returns all skill-category definitions loaded from the
+     * {@code skill_categories} array of {@code text/category_en.json}.
+     */
+    public List<SkillCategoryDefinition> getSkillCategories() {
+        return Collections.unmodifiableList(skillCategories);
+    }
+
+    /**
+     * Returns a skill-category definition by its code (e.g. {@code "work"}),
+     * or {@code null} if no match is found.
+     *
+     * @param code the code to look up (case-sensitive)
+     */
+    public SkillCategoryDefinition getSkillCategoryByCode(String code) {
+        return skillCategoriesByCode.get(code);
     }
 
     /**

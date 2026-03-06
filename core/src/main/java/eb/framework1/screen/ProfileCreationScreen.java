@@ -54,6 +54,7 @@ public class ProfileCreationScreen implements Screen {
     // Button dimensions
     private Rectangle createButton;
     private Rectangle cancelButton;
+    private Rectangle randomNameButton;
     private Rectangle genderMaleButton;
     private Rectangle genderFemaleButton;
     private Rectangle diffEasyButton;
@@ -103,10 +104,16 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
             
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
-            TextMeasurer.TextBounds createBounds = TextMeasurer.measure(buttonFont, "Create", 48f, 22f);
-            TextMeasurer.TextBounds cancelBounds = TextMeasurer.measure(buttonFont, "Cancel", 48f, 22f);
-            createButton = new Rectangle(centerX - createBounds.width - 20, 50, createBounds.width, createBounds.height);
-            cancelButton = new Rectangle(centerX + 20, 50, cancelBounds.width, cancelBounds.height);
+            TextMeasurer.TextBounds createBounds     = TextMeasurer.measure(buttonFont, "Create",      48f, 22f);
+            TextMeasurer.TextBounds cancelBounds     = TextMeasurer.measure(buttonFont, "Cancel",      48f, 22f);
+            TextMeasurer.TextBounds randomNameBounds = TextMeasurer.measure(buttonFont, "Random Name", 48f, 22f);
+            createButton     = new Rectangle(centerX - createBounds.width - 20,    50, createBounds.width,     createBounds.height);
+            cancelButton     = new Rectangle(centerX + 20,                         50, cancelBounds.width,     cancelBounds.height);
+            // Random Name button sits just below the name input text (startY - 280 - some offset).
+            // Use a fixed Y so layout is consistent regardless of screen size.
+            int nameInputY   = (Gdx.graphics.getHeight() - 200) - 280; // mirrors render() position
+            randomNameButton = new Rectangle(20, nameInputY - randomNameBounds.height - 10,
+                                             randomNameBounds.width, randomNameBounds.height);
             
             // Load character icon textures
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
@@ -300,6 +307,7 @@ public class ProfileCreationScreen implements Screen {
         // Action buttons
         drawButton(createButton, "Create", mouseX, mouseY, false);
         drawButton(cancelButton, "Cancel", mouseX, mouseY, false);
+        drawButton(randomNameButton, "Random Name", mouseX, mouseY, false);
     }
     
     private void drawCharacterIcons() {
@@ -419,8 +427,23 @@ public class ProfileCreationScreen implements Screen {
                 } else {
                     game.setScreen(new SplashScreen(game));
                 }
+            } else if (randomNameButton.contains(mouseX, mouseY)) {
+                generateRandomName();
             }
         }
+    }
+    
+    private void generateRandomName() {
+        String genderCode = selectedGender == 0 ? "M" : "F";
+        String randomName = game.getGameDataManager()
+                .getPersonNameGenerator()
+                .generateFull(genderCode);
+        characterNameInput.setLength(0);
+        // Trim to the maximum allowed length
+        if (randomName.length() > MAX_INPUT_LENGTH) {
+            randomName = randomName.substring(0, MAX_INPUT_LENGTH);
+        }
+        characterNameInput.append(randomName);
     }
     
     private boolean canCreateProfile() {
