@@ -48,6 +48,9 @@ public class Profile {
     // Relationships with characters this profile has met
     private final List<Relationship> relationships = new ArrayList<>();
 
+    /** The display name of the building where the player character lives. */
+    private String homeAddress = "";
+
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
     }
@@ -532,6 +535,18 @@ public class Profile {
     }
 
     // -------------------------------------------------------------------------
+    // Home address
+    // -------------------------------------------------------------------------
+
+    /** Returns the display name of the building where the player character lives. */
+    public String getHomeAddress() { return homeAddress; }
+
+    /** Sets the display name of the building where the player character lives. */
+    public void setHomeAddress(String address) {
+        this.homeAddress = address != null ? address : "";
+    }
+
+    // -------------------------------------------------------------------------
     // Phone contacts
     // -------------------------------------------------------------------------
 
@@ -706,6 +721,45 @@ public class Profile {
      */
     public List<Relationship> getRelationships() {
         return Collections.unmodifiableList(relationships);
+    }
+
+    // -------------------------------------------------------------------------
+    // World NPCs
+    // -------------------------------------------------------------------------
+
+    /** NPCs that populate the game world, generated at the start of a new game. */
+    private final List<NpcCharacter> worldNpcs = new ArrayList<>();
+
+    /**
+     * Adds an NPC to the world NPC list.
+     *
+     * @param npc must not be {@code null}
+     */
+    public void addWorldNpc(NpcCharacter npc) {
+        if (npc == null) throw new IllegalArgumentException("NpcCharacter must not be null");
+        worldNpcs.add(npc);
+    }
+
+    /**
+     * Returns an unmodifiable view of all world NPCs.
+     */
+    public List<NpcCharacter> getWorldNpcs() {
+        return Collections.unmodifiableList(worldNpcs);
+    }
+
+    /**
+     * Replaces the entire world NPC list with the given NPCs.
+     * Used when restoring a save.
+     *
+     * @param npcs list of NPCs; {@code null} clears the list
+     */
+    public void setWorldNpcs(List<NpcCharacter> npcs) {
+        worldNpcs.clear();
+        if (npcs != null) {
+            for (NpcCharacter npc : npcs) {
+                if (npc != null) worldNpcs.add(npc);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------

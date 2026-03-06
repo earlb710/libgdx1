@@ -89,7 +89,6 @@ public class MainScreen implements Screen {
     private ConfirmPopup         confirmDropPopup;
     private NotePopup            notePopup;
     private MeetPopup            meetPopup;
-    private NpcAnnotationPopup   npcAnnotationPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -207,6 +206,7 @@ public class MainScreen implements Screen {
                 int floors = homeBuilding.getFloors();
                 state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
                 state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                profile.setHomeAddress(homeBuilding.getDisplayName());
             }
             Gdx.app.log("MainScreen", "Resumed from save: char=" + state.charCellX + "," + state.charCellY
                     + " home=" + state.homeCellX + "," + state.homeCellY);
@@ -243,6 +243,7 @@ public class MainScreen implements Screen {
                 int floors = homeBuilding.getFloors();
                 state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
                 state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                profile.setHomeAddress(homeBuilding.getDisplayName());
                 state.charCellX     = state.homeCellX;
                 state.charCellY     = state.homeCellY;
                 state.selectedCellX = state.homeCellX;
@@ -262,7 +263,22 @@ public class MainScreen implements Screen {
             }
 
             discoverStartingBuildings();
+
+            // Generate world-population NPCs for a fresh game
+            PersonNameGenerator png = (gameData != null) ? gameData.getPersonNameGenerator() : null;
+            if (png != null) {
+                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31));
+                for (int i = 0; i < 20; i++) {
+                    NpcCharacter npc = npcGen.generateWorldNpc(cityMap);
+                    profile.addWorldNpc(npc);
+                }
+                Gdx.app.log("MainScreen", "Generated " + profile.getWorldNpcs().size() + " world NPCs");
+            }
         }
+
+        // Populate allNpcs from the profile's world NPC list (restored from save or freshly generated)
+        state.allNpcs.clear();
+        state.allNpcs.addAll(profile.getWorldNpcs());
 
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
@@ -270,7 +286,7 @@ public class MainScreen implements Screen {
 
         String iconName = profile.getCharacterIcon();
         if (iconName != null && !iconName.isEmpty()) {
-            Texture charTex = TextureUtils.makeNegative("character/" + iconName + ".png");
+            Texture charTex = TextureUtils.loadAsIs("character/" + iconName + ".png");
             charTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             mapRenderer.setCharacterIconTexture(charTex);
         }
@@ -313,8 +329,6 @@ public class MainScreen implements Screen {
         notePopup = new NotePopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
-
-        npcAnnotationPopup = new NpcAnnotationPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -437,10 +451,6 @@ public class MainScreen implements Screen {
             meetPopup.draw(state.screenWidth, state.screenHeight);
         }
 
-        if (npcAnnotationPopup.isVisible()) {
-            npcAnnotationPopup.draw(state.screenWidth, state.screenHeight);
-        }
-
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -528,7 +538,6 @@ public class MainScreen implements Screen {
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
             || meetPopup.isVisible()
-            || npcAnnotationPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -1098,16 +1107,6 @@ public class MainScreen implements Screen {
                 }
 
                 // NPC Annotation popup: close button
-                if (npcAnnotationPopup.isVisible()) {
-                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (d < TAP_THRESHOLD_PIXELS) {
-                        npcAnnotationPopup.onTap(screenX, flippedY);
-                    }
-                    isDragging = false;
-                    infoAreaPressed = false;
-                    return true;
-                }
-
                 // Meet popup: tap a question button, accept/reject, or close button
                 if (meetPopup.isVisible()) {
                     if (infoAreaPressed) {
@@ -1166,12 +1165,6 @@ public class MainScreen implements Screen {
                             lastMapTapTimeMs = now;
                             lastMapTapCellX  = state.selectedCellX;
                             lastMapTapCellY  = state.selectedCellY;
-                            // Show annotation popup when an NPC is at the tapped cell
-                            NpcCharacter tappedNpc =
-                                    npcAtCell(state.selectedCellX, state.selectedCellY);
-                            if (tappedNpc != null) {
-                                npcAnnotationPopup.show(tappedNpc);
-                            }
                         }
                     }
                 }
@@ -1345,21 +1338,6 @@ public class MainScreen implements Screen {
             recalculateRoute();
             Gdx.app.log("MainScreen", "Selected: " + cx + "," + cy);
         }
-    }
-
-    /**
-     * Returns the first NPC whose current cell matches ({@code cx}, {@code cy}),
-     * or {@code null} if no NPC is at that location.
-     */
-    private NpcCharacter npcAtCell(int cx, int cy) {
-        if (state.allNpcs == null || cx < 0 || cy < 0) return null;
-        for (NpcCharacter npc : state.allNpcs) {
-            if (npc.getCurrentCellX(state.currentHour) == cx
-                    && npc.getCurrentCellY(state.currentHour) == cy) {
-                return npc;
-            }
-        }
-        return null;
     }
 
     // -------------------------------------------------------------------------

@@ -88,7 +88,8 @@ public class GameSave {
              Map<EquipmentSlot, String> equipmentNames,
              List<String> utilityItemNames,
              List<CaseFile> caseFiles,
-             String activeCaseId) {
+             String activeCaseId,
+             List<NpcCharacter> worldNpcs) {
         this.characterName       = characterName;
         this.gender              = gender;
         this.difficulty          = difficulty;
@@ -113,6 +114,8 @@ public class GameSave {
         this.caseFiles = Collections.unmodifiableList(
                 caseFiles != null ? new java.util.ArrayList<>(caseFiles) : new java.util.ArrayList<>());
         this.activeCaseId = activeCaseId;
+        this.worldNpcs = Collections.unmodifiableList(
+                worldNpcs != null ? new java.util.ArrayList<>(worldNpcs) : new java.util.ArrayList<>());
     }
 
     // -------------------------------------------------------------------------
@@ -171,7 +174,8 @@ public class GameSave {
                 snapshotEquipment(profile),
                 snapshotUtility(profile),
                 new java.util.ArrayList<>(profile.getCaseFiles()),
-                profile.getActiveCaseFile() != null ? profile.getActiveCaseFile().getId() : null);
+                profile.getActiveCaseFile() != null ? profile.getActiveCaseFile().getId() : null,
+                new java.util.ArrayList<>(profile.getWorldNpcs()));
     }
 
     /** Snapshot non-utility slots as slot→name map. */
@@ -244,6 +248,8 @@ public class GameSave {
             // explicitly clear active so the restored profile matches the saved state.
             profile.setActiveCaseFile(null);
         }
+        // Restore world NPCs
+        profile.setWorldNpcs(new java.util.ArrayList<>(worldNpcs));
     }
 
     /**
@@ -319,10 +325,15 @@ public class GameSave {
     private final List<CaseFile> caseFiles;
     /** ID of the active case file at save time, or {@code null} if none. */
     private final String activeCaseId;
+    /** World-population NPCs generated at game start (unmodifiable list). */
+    private final List<NpcCharacter> worldNpcs;
 
     /** Returns an unmodifiable view of the snapshotted case files. */
     public List<CaseFile> getCaseFiles() { return caseFiles; }
 
     /** Returns the ID of the case file that was active at save time, or {@code null}. */
     public String getActiveCaseId() { return activeCaseId; }
+
+    /** Returns an unmodifiable view of the world-population NPCs. */
+    public List<NpcCharacter> getWorldNpcs() { return worldNpcs; }
 }

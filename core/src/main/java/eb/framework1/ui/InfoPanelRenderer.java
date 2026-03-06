@@ -736,8 +736,7 @@ public class InfoPanelRenderer {
                                 tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
-                            textY -= fontLineH;
-                            // --- Inline action button for functional improvements ---
+                            // --- Inline action button for functional improvements (right-aligned, same line as heading) ---
                             if (imp.hasFunction()) {
                                 String fnLabel = functionLabel(imp.getFunction());
                                 String denyReason = impDenyReason(imp);
@@ -745,8 +744,8 @@ public class InfoPanelRenderer {
                                 TextMeasurer.TextBounds fbBounds =
                                         TextMeasurer.measure(font, glyphLayout, fnLabel, PAD_X, PAD_Y);
                                 float fbW = fbBounds.width;
-                                float btnScreenX = idx + 16f;
-                                float btnScreenY = textY + drawScrollY;
+                                float btnScreenX = contentAreaW - PAD_X - fbW;
+                                float btnScreenY = idy - (BTN_H + fontCapH) / 2f;
                                 // Store screen-space bounds for hit-testing (updated every frame)
                                 if (s.impBtnCount < MapViewState.MAX_IMP_BTNS) {
                                     s.impBtnX[s.impBtnCount] = btnScreenX;
@@ -774,14 +773,15 @@ public class InfoPanelRenderer {
                                             btnScreenX + (fbW - glyphLayout.width) / 2f,
                                             btnScreenY + (BTN_H + glyphLayout.height) / 2f);
                                     if (!allowed) {
+                                        glyphLayout.setText(smallFont, denyReason);
                                         smallFont.setColor(DENY_COLOR);
                                         smallFont.draw(batch, denyReason,
-                                                btnScreenX + fbW + 8f,
+                                                btnScreenX - 8f - glyphLayout.width,
                                                 btnScreenY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2f);
                                     }
                                 }
-                                textY -= fontLineH;
                             }
+                            textY -= fontLineH;
                             // Description from improvements_en.json (word-wrapped, novel colour)
                             List<String> descLines = impDescriptionLines(imp, wrapWidth);
                             if (!descLines.isEmpty()) {
@@ -801,6 +801,33 @@ public class InfoPanelRenderer {
                     }
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
+                }
+            }
+
+            // NPCs currently at this cell
+            if (s.allNpcs != null && !s.allNpcs.isEmpty()) {
+                List<NpcCharacter> npcsHere = new ArrayList<>();
+                for (NpcCharacter npc : s.allNpcs) {
+                    int nx = npc.getCurrentCellX(s.currentHour);
+                    int ny = npc.getCurrentCellY(s.currentHour);
+                    if (nx == s.selectedCellX && ny == s.selectedCellY) {
+                        npcsHere.add(npc);
+                    }
+                }
+                if (!npcsHere.isEmpty()) {
+                    textY -= fontLineH;
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "People here:", textX - drawScrollX, textY + drawScrollY);
+                    textY -= fontLineH;
+                    for (NpcCharacter npc : npcsHere) {
+                        boolean hasMet = profile.getRelationship(npc.getId()) != null;
+                        String displayName = hasMet
+                                ? "  " + npc.getFullName()
+                                : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
+                        font.setColor(Color.WHITE);
+                        font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+                        textY -= fontLineH;
+                    }
                 }
             }
         } else {
@@ -911,7 +938,9 @@ public class InfoPanelRenderer {
 
         // Total virtual content height (dynamic, based on actual item count)
         float equipHeaderH = fontLineH;
+        boolean hasHomeAddr = profile.getHomeAddress() != null && !profile.getHomeAddress().isEmpty();
         float totalH = fontLineH                                // character name
+                + (hasHomeAddr ? smallLineH : 0f)              // home address
                 + displayedAttrCount * smallLineH               // attributes (MUSCLE_KG and FAT_KG hidden)
                 + smallLineH                                    // blank separator
                 + equipHeaderH                                  // "Equipment" header
@@ -935,6 +964,18 @@ public class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName() + "  Lv." + profile.getDetectiveLevel(),
                 PAD, ty + drawScrollY);
         ty -= fontLineH;
+
+        // Home address (if known)
+        String homeAddr = profile.getHomeAddress();
+        if (homeAddr != null && !homeAddr.isEmpty()) {
+            smallFont.setColor(LABEL_COLOR);
+            smallFont.draw(batch, "Home: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(smallFont, "Home: ");
+            float labelW = glyphLayout.width;
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, homeAddr, PAD + labelW, ty + drawScrollY);
+            ty -= smallLineH;
+        }
 
         // Attributes — centred-[total] layout:
         //   Name (right-aligned left of bracket)  |  [total] (centred)  |  base ±loc ±equip ±body (right of centre)
@@ -1971,9 +2012,28 @@ public class InfoPanelRenderer {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float h = fontLineH; // Terrain (advance)
-        if (!cell.hasBuilding()) return h;
+        if (!cell.hasBuilding()) {
+            // No building — still need to account for NPCs at this cell
+            int npcsAtCell = countNpcsAtCell(s);
+            if (npcsAtCell > 0) {
+                h += fontLineH; // blank gap
+                h += fontLineH; // "People here:" heading
+                h += fontLineH * npcsAtCell;
+            }
+            return h;
+        }
         Building b = cell.getBuilding();
-        if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
+        if (!b.isDiscovered()) {
+            // Building: ??? + possible NPCs
+            float hBase = h + fontLineH;
+            int npcsAtCell = countNpcsAtCell(s);
+            if (npcsAtCell > 0) {
+                hBase += fontLineH; // blank gap
+                hBase += fontLineH; // "People here:" heading
+                hBase += fontLineH * npcsAtCell;
+            }
+            return hBase;
+        }
         h += fontLineH; // Building (advance)
         if (b.getDefinition() != null) h += fontLineH * 2; // Type + Floors
         // Multi-tenant: Tenants header + one line per extra tenant
@@ -1990,11 +2050,30 @@ public class InfoPanelRenderer {
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
             if (imp.isDiscovered()) {
-                if (imp.hasFunction()) h += fontLineH; // action button row
                 h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
             }
         }
+        // NPC section — count NPCs present at this cell at the current hour
+        int npcsAtCell = countNpcsAtCell(s);
+        if (npcsAtCell > 0) {
+            h += fontLineH; // blank gap before "People here:" heading
+            h += fontLineH; // "People here:" heading
+            h += fontLineH * npcsAtCell; // one line per NPC
+        }
         return h;
+    }
+
+    /** Returns the number of NPCs whose current schedule position is the selected cell. */
+    private int countNpcsAtCell(MapViewState s) {
+        if (s.allNpcs == null || s.allNpcs.isEmpty() || s.selectedCellX < 0) return 0;
+        int count = 0;
+        for (NpcCharacter npc : s.allNpcs) {
+            if (npc.getCurrentCellX(s.currentHour) == s.selectedCellX
+                    && npc.getCurrentCellY(s.currentHour) == s.selectedCellY) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
