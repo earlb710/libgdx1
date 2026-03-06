@@ -105,20 +105,20 @@ public class MapRenderer {
 
         // Load NPC gender icons used to mark NPC positions on the map
         try {
-            npcManTexture = new Texture(Gdx.files.internal("icons/man_small_icon.png"));
+            npcManTexture = new Texture(Gdx.files.internal("icons/man_icon.png"));
             npcManTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             npcManTexW = npcManTexture.getWidth();
             npcManTexH = npcManTexture.getHeight();
         } catch (Exception e) {
-            Gdx.app.log("MapRenderer", "Could not load man_small_icon: " + e.getMessage());
+            Gdx.app.log("MapRenderer", "Could not load man_icon: " + e.getMessage());
         }
         try {
-            npcWomanTexture = new Texture(Gdx.files.internal("icons/woman_small_icon.png"));
+            npcWomanTexture = new Texture(Gdx.files.internal("icons/woman_icon.png"));
             npcWomanTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             npcWomanTexW = npcWomanTexture.getWidth();
             npcWomanTexH = npcWomanTexture.getHeight();
         } catch (Exception e) {
-            Gdx.app.log("MapRenderer", "Could not load woman_small_icon: " + e.getMessage());
+            Gdx.app.log("MapRenderer", "Could not load woman_icon: " + e.getMessage());
         }
     }
 
@@ -350,7 +350,7 @@ public class MapRenderer {
         shapeRenderer.end();
 
         // NPC icons (tracked NPCs, or all NPCs in developer / debug mode)
-        drawNpcIcons(s, mapStartX, mapStartY, cellSize,
+        drawNpcIcons(s, mapStartX, mapStartY, cellSize, borderSize, pathwaySize,
                 startCellX, startCellY, endCellX, endCellY,
                 fracOffsetX, fracOffsetY, visibleCellsY);
 
@@ -392,23 +392,25 @@ public class MapRenderer {
     // -------------------------------------------------------------------------
 
     /**
-     * Draws a small gender-specific icon at the lower-left corner of each NPC's
-     * current map cell.
+     * Draws a gender-specific icon at the lower-left corner of each NPC's
+     * current building rectangle, inset from the cell border so the icon
+     * never overlaps a road.
      *
      * <p>In developer / debug mode ({@link MapViewState#developerMode}) all
      * NPCs in {@link MapViewState#allNpcs} are drawn.  In normal mode only NPCs
      * where {@link NpcCharacter#isTracked()} is {@code true} are drawn.
      *
-     * <p>Male NPCs use {@code icons/man_small_icon.png}; female NPCs use
-     * {@code icons/woman_small_icon.png}.  The icon is drawn at its native
-     * texture size and centered within the cell so it sits on the building
-     * rectangle rather than at the cell border.
+     * <p>Male NPCs use {@code icons/man_icon.png}; female NPCs use
+     * {@code icons/woman_icon.png}.  Each icon is drawn at its native texture
+     * size, pinned to the lower-left corner of the building rectangle (i.e.
+     * offset by the West and North border insets of the cell).
      *
      * <p>NPCs with no known cell ({@code -1}) or outside the currently visible
      * map area are silently skipped.
      */
     private void drawNpcIcons(MapViewState s,
             float mapStartX, float mapStartY, float cellSize,
+            float borderSize, float pathwaySize,
             int startCellX, int startCellY, int endCellX, int endCellY,
             float fracOffsetX, float fracOffsetY, int visibleCellsY) {
 
@@ -430,16 +432,19 @@ public class MapRenderer {
             float cellX = mapStartX + (nx - startCellX - fracOffsetX) * cellSize;
             float cellY = mapStartY + (visibleCellsY - 1 - (ny - startCellY - fracOffsetY)) * cellSize;
 
+            // Compute road-border insets so the icon sits inside the building rectangle
+            CellRenderData rd = cityMap.getCellRenderData(nx, ny);
+            float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+            float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+
             boolean isFemale = "F".equalsIgnoreCase(npc.getGender()); // safe: literal.equalsIgnoreCase(null) → false
             Texture icon = isFemale ? npcWomanTexture : npcManTexture;
             if (icon == null) continue;
 
-            // Use the icon's native texture size (cached) and center it within the cell
+            // Pin icon to the lower-left of the building rectangle at native size
             float iconW = isFemale ? npcWomanTexW : npcManTexW;
             float iconH = isFemale ? npcWomanTexH : npcManTexH;
-            float iconX = cellX + (cellSize - iconW) / 2f;
-            float iconY = cellY + (cellSize - iconH) / 2f;
-            batch.draw(icon, iconX, iconY, iconW, iconH);
+            batch.draw(icon, cellX + li, cellY + bi, iconW, iconH);
         }
 
         batch.end();
