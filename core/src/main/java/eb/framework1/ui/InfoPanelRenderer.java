@@ -736,8 +736,7 @@ public class InfoPanelRenderer {
                                 tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
                                         idx + glyphLayout.width, idy - valTinyBottomOff);
                             }
-                            textY -= fontLineH;
-                            // --- Inline action button for functional improvements ---
+                            // --- Inline action button for functional improvements (right-aligned, same line as heading) ---
                             if (imp.hasFunction()) {
                                 String fnLabel = functionLabel(imp.getFunction());
                                 String denyReason = impDenyReason(imp);
@@ -745,8 +744,8 @@ public class InfoPanelRenderer {
                                 TextMeasurer.TextBounds fbBounds =
                                         TextMeasurer.measure(font, glyphLayout, fnLabel, PAD_X, PAD_Y);
                                 float fbW = fbBounds.width;
-                                float btnScreenX = idx + 16f;
-                                float btnScreenY = textY + drawScrollY;
+                                float btnScreenX = contentAreaW - PAD_X - fbW;
+                                float btnScreenY = idy - (BTN_H + fontCapH) / 2f;
                                 // Store screen-space bounds for hit-testing (updated every frame)
                                 if (s.impBtnCount < MapViewState.MAX_IMP_BTNS) {
                                     s.impBtnX[s.impBtnCount] = btnScreenX;
@@ -774,14 +773,15 @@ public class InfoPanelRenderer {
                                             btnScreenX + (fbW - glyphLayout.width) / 2f,
                                             btnScreenY + (BTN_H + glyphLayout.height) / 2f);
                                     if (!allowed) {
+                                        glyphLayout.setText(smallFont, denyReason);
                                         smallFont.setColor(DENY_COLOR);
                                         smallFont.draw(batch, denyReason,
-                                                btnScreenX + fbW + 8f,
+                                                btnScreenX - 8f - glyphLayout.width,
                                                 btnScreenY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2f);
                                     }
                                 }
-                                textY -= fontLineH;
                             }
+                            textY -= fontLineH;
                             // Description from improvements_en.json (word-wrapped, novel colour)
                             List<String> descLines = impDescriptionLines(imp, wrapWidth);
                             if (!descLines.isEmpty()) {
@@ -1990,7 +1990,6 @@ public class InfoPanelRenderer {
         for (Improvement imp : b.getImprovements()) {
             h += fontLineH; // improvement name row
             if (imp.isDiscovered()) {
-                if (imp.hasFunction()) h += fontLineH; // action button row
                 h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
             }
         }
