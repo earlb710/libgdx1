@@ -46,13 +46,14 @@ public class ProfileCreationScreen implements Screen {
     private static final int ICON_BORDER =  4;  // highlight border width around icon
 
     // Layout gap constants (device pixels – not density-scaled)
-    private static final int SECTION_GAP       = 12; // space between major form sections
-    private static final int ITEM_GAP          =  6; // space between a label and its widget
+    private static final int SECTION_GAP       = 40; // space between major form sections
+    private static final int ITEM_GAP          = 10; // space between a label and its widget
     private static final int INPUT_PAD_H       = 10; // horizontal text inset inside the name box
     private static final int INPUT_PAD_V       =  6; // vertical text inset inside the name box
     private static final int BTN_PAD_H         = 28; // horizontal text padding inside buttons
     private static final int BTN_PAD_V         = 14; // vertical text padding inside buttons
-    private static final int TITLE_BOTTOM_MARGIN = 60; // px reserved for the title at the top
+    private static final int TITLE_TOP_MARGIN  = 10; // px from the very top of the screen to the title
+    private static final int TITLE_FORM_GAP    = 20; // px between title bottom and first form item
     private static final String FONT_MEASURE_CHARS = "Ag"; // representative chars for cap-height measurement
 
     private boolean cursorVisible;
@@ -73,6 +74,7 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle nameInputBox;  // visible bordered input field
     private int nameInputY;          // text baseline Y inside nameInputBox
     // Label Y positions (top of each glyph row, computed from font metrics in show())
+    private int titleDrawY;      // Y at which the title is drawn in render()
     private int labelNameY;
     private int genderLabelY;
     private int portraitLabelY;
@@ -160,7 +162,13 @@ public class ProfileCreationScreen implements Screen {
 
             // === Flowing top→bottom layout ===
             int margin = 20;
-            int curY   = Gdx.graphics.getHeight() - TITLE_BOTTOM_MARGIN;  // start below the title
+
+            // Measure title height so the first form item starts just below it
+            BitmapFont titleFont = fontManager.getTitleFont();
+            glyphLayout.setText(titleFont, "Create Profile");
+            int titleFontH = (int) glyphLayout.height;
+            titleDrawY = Gdx.graphics.getHeight() - TITLE_TOP_MARGIN;
+            int curY   = titleDrawY - titleFontH - TITLE_FORM_GAP;
 
             // -- Character Name --
             labelNameY = curY;
@@ -190,12 +198,14 @@ public class ProfileCreationScreen implements Screen {
                                                (int) femaleBounds.width, (int) femaleBounds.height);
             curY -= rowH + SECTION_GAP;
 
-            // -- Portrait (label row then icons row) --
+            // -- Portrait (label + icons inline on the same row) --
             portraitLabelY = curY;
-            curY -= labelH + ITEM_GAP;
-            int iconBottomY = curY - ICON_SIZE;
-            icon1Button = new Rectangle(margin,                  iconBottomY, ICON_SIZE, ICON_SIZE);
-            icon2Button = new Rectangle(margin + ICON_SIZE + 10, iconBottomY, ICON_SIZE, ICON_SIZE);
+            glyphLayout.setText(labelFont, "Portrait:");
+            int portraitLabelW = (int) glyphLayout.width;
+            int iconLeft   = margin + portraitLabelW + 16; // 16px gap after label text
+            int iconBottomY = curY - ICON_SIZE;            // icons top-aligned with label row
+            icon1Button = new Rectangle(iconLeft,               iconBottomY, ICON_SIZE, ICON_SIZE);
+            icon2Button = new Rectangle(iconLeft + ICON_SIZE + 10, iconBottomY, ICON_SIZE, ICON_SIZE);
             curY -= ICON_SIZE + SECTION_GAP;
 
             // -- Difficulty (label row then buttons row) --
@@ -335,7 +345,7 @@ public class ProfileCreationScreen implements Screen {
         glyphLayout.setText(titleFont, titleText);
         titleFont.draw(batch, titleText, 
                       (Gdx.graphics.getWidth() - glyphLayout.width) / 2, 
-                      Gdx.graphics.getHeight() - 30);
+                      titleDrawY);
         
         // Character Name label and input text (using font-metric-based positions)
         labelFont.draw(batch, "Character Name:", 20, labelNameY);
