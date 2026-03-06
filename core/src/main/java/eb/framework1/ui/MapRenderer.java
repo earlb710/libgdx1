@@ -63,8 +63,10 @@ public class MapRenderer {
     /** Small icon textures for NPC markers on the map. */
     private Texture              npcManTexture;
     private Texture              npcWomanTexture;
-    /** Display size (pixels) of the NPC icon on the map. */
-    private static final int     NPC_ICON_SIZE = 10;
+    /** Native dimensions of the NPC marker textures (cached to avoid per-frame queries). */
+    private int                  npcManTexW, npcManTexH;
+    private int                  npcWomanTexW, npcWomanTexH;
+
 
     public MapRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
                 BitmapFont font, BitmapFont smallFont, BitmapFont tinyFont,
@@ -105,12 +107,16 @@ public class MapRenderer {
         try {
             npcManTexture = new Texture(Gdx.files.internal("icons/man_small_icon.png"));
             npcManTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            npcManTexW = npcManTexture.getWidth();
+            npcManTexH = npcManTexture.getHeight();
         } catch (Exception e) {
             Gdx.app.log("MapRenderer", "Could not load man_small_icon: " + e.getMessage());
         }
         try {
             npcWomanTexture = new Texture(Gdx.files.internal("icons/woman_small_icon.png"));
             npcWomanTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            npcWomanTexW = npcWomanTexture.getWidth();
+            npcWomanTexH = npcWomanTexture.getHeight();
         } catch (Exception e) {
             Gdx.app.log("MapRenderer", "Could not load woman_small_icon: " + e.getMessage());
         }
@@ -394,8 +400,9 @@ public class MapRenderer {
      * where {@link NpcCharacter#isTracked()} is {@code true} are drawn.
      *
      * <p>Male NPCs use {@code icons/man_small_icon.png}; female NPCs use
-     * {@code icons/woman_small_icon.png}.  The icon is pinned to the lower-left
-     * corner of the cell at a fixed display size of {@link #NPC_ICON_SIZE} px.
+     * {@code icons/woman_small_icon.png}.  The icon is drawn at its native
+     * texture size and centered within the cell so it sits on the building
+     * rectangle rather than at the cell border.
      *
      * <p>NPCs with no known cell ({@code -1}) or outside the currently visible
      * map area are silently skipped.
@@ -427,7 +434,12 @@ public class MapRenderer {
             Texture icon = isFemale ? npcWomanTexture : npcManTexture;
             if (icon == null) continue;
 
-            batch.draw(icon, cellX, cellY, NPC_ICON_SIZE, NPC_ICON_SIZE);
+            // Use the icon's native texture size (cached) and center it within the cell
+            float iconW = isFemale ? npcWomanTexW : npcManTexW;
+            float iconH = isFemale ? npcWomanTexH : npcManTexH;
+            float iconX = cellX + (cellSize - iconW) / 2f;
+            float iconY = cellY + (cellSize - iconH) / 2f;
+            batch.draw(icon, iconX, iconY, iconW, iconH);
         }
 
         batch.end();
