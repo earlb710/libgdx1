@@ -803,6 +803,33 @@ public class InfoPanelRenderer {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
                 }
             }
+
+            // NPCs currently at this cell
+            if (s.allNpcs != null && !s.allNpcs.isEmpty()) {
+                List<NpcCharacter> npcsHere = new ArrayList<>();
+                for (NpcCharacter npc : s.allNpcs) {
+                    int nx = npc.getCurrentCellX(s.currentHour);
+                    int ny = npc.getCurrentCellY(s.currentHour);
+                    if (nx == s.selectedCellX && ny == s.selectedCellY) {
+                        npcsHere.add(npc);
+                    }
+                }
+                if (!npcsHere.isEmpty()) {
+                    textY -= fontLineH;
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "People here:", textX - drawScrollX, textY + drawScrollY);
+                    textY -= fontLineH;
+                    for (NpcCharacter npc : npcsHere) {
+                        boolean hasMet = profile.getRelationship(npc.getId()) != null;
+                        String displayName = hasMet
+                                ? "  " + npc.getFullName()
+                                : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
+                        font.setColor(Color.WHITE);
+                        font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+                        textY -= fontLineH;
+                    }
+                }
+            }
         } else {
             font.setColor(Color.WHITE);
             font.draw(batch, "Click on a cell to see details",

@@ -1181,10 +1181,11 @@ public class MainScreen implements Screen {
                             lastMapTapTimeMs = now;
                             lastMapTapCellX  = state.selectedCellX;
                             lastMapTapCellY  = state.selectedCellY;
-                            // Show annotation popup when an NPC is at the tapped cell
+                            // Show annotation popup when an untracked NPC is at the tapped cell.
+                            // For tracked NPCs the info panel already lists them.
                             NpcCharacter tappedNpc =
                                     npcAtCell(state.selectedCellX, state.selectedCellY);
-                            if (tappedNpc != null) {
+                            if (tappedNpc != null && !tappedNpc.isTracked()) {
                                 npcAnnotationPopup.show(tappedNpc);
                             }
                         }
