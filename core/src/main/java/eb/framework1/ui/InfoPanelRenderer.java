@@ -938,7 +938,9 @@ public class InfoPanelRenderer {
 
         // Total virtual content height (dynamic, based on actual item count)
         float equipHeaderH = fontLineH;
+        boolean hasHomeAddr = profile.getHomeAddress() != null && !profile.getHomeAddress().isEmpty();
         float totalH = fontLineH                                // character name
+                + (hasHomeAddr ? smallLineH : 0f)              // home address
                 + displayedAttrCount * smallLineH               // attributes (MUSCLE_KG and FAT_KG hidden)
                 + smallLineH                                    // blank separator
                 + equipHeaderH                                  // "Equipment" header
@@ -962,6 +964,18 @@ public class InfoPanelRenderer {
         font.draw(batch, profile.getCharacterName() + "  Lv." + profile.getDetectiveLevel(),
                 PAD, ty + drawScrollY);
         ty -= fontLineH;
+
+        // Home address (if known)
+        String homeAddr = profile.getHomeAddress();
+        if (homeAddr != null && !homeAddr.isEmpty()) {
+            smallFont.setColor(LABEL_COLOR);
+            smallFont.draw(batch, "Home: ", PAD, ty + drawScrollY);
+            glyphLayout.setText(smallFont, "Home: ");
+            float labelW = glyphLayout.width;
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, homeAddr, PAD + labelW, ty + drawScrollY);
+            ty -= smallLineH;
+        }
 
         // Attributes — centred-[total] layout:
         //   Name (right-aligned left of bracket)  |  [total] (centred)  |  base ±loc ±equip ±body (right of centre)

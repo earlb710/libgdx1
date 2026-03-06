@@ -206,6 +206,7 @@ public class MainScreen implements Screen {
                 int floors = homeBuilding.getFloors();
                 state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
                 state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                profile.setHomeAddress(homeBuilding.getDisplayName());
             }
             Gdx.app.log("MainScreen", "Resumed from save: char=" + state.charCellX + "," + state.charCellY
                     + " home=" + state.homeCellX + "," + state.homeCellY);
@@ -242,6 +243,7 @@ public class MainScreen implements Screen {
                 int floors = homeBuilding.getFloors();
                 state.homeFloor      = floors > 1 ? 1 + officeRng.nextInt(floors) : 1;
                 state.homeUnitLetter = (char) ('A' + officeRng.nextInt(26));
+                profile.setHomeAddress(homeBuilding.getDisplayName());
                 state.charCellX     = state.homeCellX;
                 state.charCellY     = state.homeCellY;
                 state.selectedCellX = state.homeCellX;

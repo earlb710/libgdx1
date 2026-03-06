@@ -48,6 +48,9 @@ public class Profile {
     // Relationships with characters this profile has met
     private final List<Relationship> relationships = new ArrayList<>();
 
+    /** The display name of the building where the player character lives. */
+    private String homeAddress = "";
+
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
     }
@@ -529,6 +532,18 @@ public class Profile {
     /** Records the game-date string (YYYY-MM-DD) when emails were last generated. */
     public void setLastEmailCheckDate(String date) {
         this.lastEmailCheckDate = date != null ? date : "";
+    }
+
+    // -------------------------------------------------------------------------
+    // Home address
+    // -------------------------------------------------------------------------
+
+    /** Returns the display name of the building where the player character lives. */
+    public String getHomeAddress() { return homeAddress; }
+
+    /** Sets the display name of the building where the player character lives. */
+    public void setHomeAddress(String address) {
+        this.homeAddress = address != null ? address : "";
     }
 
     // -------------------------------------------------------------------------

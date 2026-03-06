@@ -57,6 +57,21 @@ public class NpcGenerator {
     /** The in-game base year from which birthdates are derived. */
     static final int GAME_YEAR = 2050;
 
+    /** Latest hour that a non-night-shift NPC sleeps until (exclusive). */
+    private static final int MAX_SLEEP_END_HOUR     = 8;
+    /** Hours of post-work leisure or shopping before heading home. */
+    private static final int POST_WORK_LEISURE_HOURS = 3;
+    /** Hour by which all non-night-shift NPCs are home for the evening. */
+    private static final int EVENING_HOME_HOUR       = 22;
+    /** Hour at which an NPC transitions from evening home routine to sleep. */
+    private static final int EVENING_SLEEP_HOUR      = 23;
+    /** Latest work-start hour for an evening-shift NPC. */
+    private static final int EVENING_SHIFT_MAX_START = 20;
+    /** Work-start hour for night-shift NPCs. */
+    private static final int NIGHT_SHIFT_START       = 20;
+    /** Hour at which a night-shift NPC wakes up (after sleeping off the previous shift). */
+    private static final int NIGHT_SHIFT_WAKE_HOUR   = 12;
+
     /** Days per month (non-leap year). February capped at 28 so that dates remain
      *  valid regardless of whether the birth year is a leap year. */
     private static final int[] DAYS_IN_MONTH = {
@@ -344,20 +359,35 @@ public class NpcGenerator {
     // -------------------------------------------------------------------------
 
     /**
+     * Work-shift patterns that vary an NPC's daily work hours.
+     * <ul>
+     *   <li>{@code STANDARD}       — the skill's default start/end hours</li>
+     *   <li>{@code HALF_DAY}       — only the morning half of the standard shift</li>
+     *   <li>{@code EVENING_SHIFT}  — work shifted several hours later than usual</li>
+     *   <li>{@code NIGHT_SHIFT}    — late-evening/night work (20:00–24:00)</li>
+     * </ul>
+     */
+    private enum WorkShift { STANDARD, HALF_DAY, EVENING_SHIFT, NIGHT_SHIFT }
+
+    /**
+     * Randomly picks a {@link WorkShift} weighted so that most NPCs keep
+     * standard hours, but some work half-days, evenings, or nights.
+     */
+    private WorkShift pickShift() {
+        int roll = random.nextInt(100);
+        if (roll < 55) return WorkShift.STANDARD;      // 55 %
+        if (roll < 75) return WorkShift.HALF_DAY;      // 20 %
+        if (roll < 90) return WorkShift.EVENING_SHIFT; // 15 %
+        return WorkShift.NIGHT_SHIFT;                   // 10 %
+    }
+
+    /**
      * Generates a 24-hour daily schedule for an NPC.
      *
-     * <p>The schedule has the following structure:
-     * <ol>
-     *   <li>00:00–06:00 — {@link NpcScheduleEntry#SLEEP} at home</li>
-     *   <li>06:00–(workStart) — {@link NpcScheduleEntry#HOME} (morning routine)</li>
-     *   <li>(workStart)–(workEnd) — {@link NpcScheduleEntry#WORK} at the
-     *       skill-matched building; replaced by HOME + SHOPPING for
-     *       {@link NpcSkill#HOMEMAKER}</li>
-     *   <li>(workEnd)–21:00 — {@link NpcScheduleEntry#LEISURE} or
-     *       {@link NpcScheduleEntry#SHOPPING}</li>
-     *   <li>21:00–22:00 — {@link NpcScheduleEntry#HOME} (evening)</li>
-     *   <li>22:00–24:00 — {@link NpcScheduleEntry#SLEEP}</li>
-     * </ol>
+     * <p>The work window is first chosen by randomly selecting a {@link WorkShift}
+     * (unless the NPC is a homemaker, who always keeps standard hours).  The rest
+     * of the schedule — sleep, home, and leisure slots — is then built around that
+     * window.
      *
      * <p>When {@code cityMap} is non-null, real buildings are located by
      * category and their map coordinates are stored in the entries.
@@ -379,8 +409,39 @@ public class NpcGenerator {
             primarySkill = NpcSkill.FREELANCER;
         }
 
-        int workStart = primarySkill.getWorkStartHour();
-        int workEnd   = primarySkill.getWorkEndHour();
+        int baseWorkStart = primarySkill.getWorkStartHour();
+        int baseWorkEnd   = primarySkill.getWorkEndHour();
+        int duration = baseWorkEnd - baseWorkStart;
+
+        // Homemakers always keep a standard daytime schedule; skip shift variation.
+        boolean isHomemaker = (primarySkill == NpcSkill.HOMEMAKER);
+        WorkShift shift = isHomemaker ? WorkShift.STANDARD : pickShift();
+
+        // Compute effective work start/end based on the chosen shift pattern.
+        int workStart;
+        int workEnd;
+        switch (shift) {
+            case HALF_DAY:
+                // Only work the morning half of the usual shift.
+                workStart = baseWorkStart;
+                workEnd   = baseWorkStart + Math.max(2, duration / 2);
+                break;
+            case EVENING_SHIFT:
+                // Push the shift 4–6 hours later; cap so it doesn't exceed EVENING_SLEEP_HOUR.
+                int pushBy = 4 + random.nextInt(3); // 4, 5, or 6 hours
+                workStart = Math.min(baseWorkStart + pushBy, EVENING_SHIFT_MAX_START);
+                workEnd   = Math.min(workStart + duration, EVENING_SLEEP_HOUR);
+                break;
+            case NIGHT_SHIFT:
+                // Late-evening/overnight work block.
+                workStart = NIGHT_SHIFT_START;
+                workEnd   = 24;
+                break;
+            default: // STANDARD
+                workStart = baseWorkStart;
+                workEnd   = baseWorkEnd;
+                break;
+        }
 
         // --- Resolve locations from city map (or use placeholder text) ---
         String homeName  = npc.getHomeAddress().isEmpty() ? "Home" : npc.getHomeAddress();
@@ -432,48 +493,79 @@ public class NpcGenerator {
         // --- Build entries ---
         List<NpcScheduleEntry> entries = new ArrayList<>();
 
-        // 1. Night sleep 00:00–06:00
-        entries.add(new NpcScheduleEntry(0, 6,
-                NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
-
-        // 2. Morning routine at home (06:00–workStart)
-        if (workStart > 6) {
-            entries.add(new NpcScheduleEntry(6, workStart,
-                    NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
-        }
-
-        // 3. Work block (or homemaker variant)
-        boolean isHomemaker = (primarySkill == NpcSkill.HOMEMAKER);
-        if (isHomemaker) {
-            // Homemakers stay home then go shopping in the middle of the day
-            int shopHour = workStart + (workEnd - workStart) / 2;
-            if (workStart < shopHour) {
-                entries.add(new NpcScheduleEntry(workStart, shopHour,
-                        NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
-            }
-            entries.add(new NpcScheduleEntry(shopHour, workEnd,
-                    NpcScheduleEntry.SHOPPING, leisureName, leisureCellX, leisureCellY));
-        } else {
+        if (shift == WorkShift.NIGHT_SHIFT) {
+            // Night-shift NPCs sleep late, have afternoon leisure, then work overnight.
+            // 00:00–NIGHT_SHIFT_WAKE_HOUR — extended sleep (recovering from previous night's work)
+            entries.add(new NpcScheduleEntry(0, NIGHT_SHIFT_WAKE_HOUR,
+                    NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
+            // NIGHT_SHIFT_WAKE_HOUR–workStart — home / leisure
+            boolean afternoonLeisure = random.nextBoolean();
+            String afternoonActivity = afternoonLeisure ? NpcScheduleEntry.LEISURE : NpcScheduleEntry.HOME;
+            String afternoonLocName  = afternoonLeisure ? leisureName  : homeName;
+            int    afternoonCellX    = afternoonLeisure ? leisureCellX : homeCellX;
+            int    afternoonCellY    = afternoonLeisure ? leisureCellY : homeCellY;
+            entries.add(new NpcScheduleEntry(NIGHT_SHIFT_WAKE_HOUR, workStart,
+                    afternoonActivity, afternoonLocName, afternoonCellX, afternoonCellY));
+            // 20:00–24:00 — work
             entries.add(new NpcScheduleEntry(workStart, workEnd,
                     NpcScheduleEntry.WORK, workName, workCellX, workCellY));
+        } else {
+            // Standard, half-day, and evening-shift NPCs all share the same
+            // daytime-anchored structure; only the work window differs.
+
+            // 1. Night sleep 00:00–sleepEnd
+            int sleepEnd = Math.min(workStart, MAX_SLEEP_END_HOUR);
+            if (sleepEnd < 1) sleepEnd = 1;
+            entries.add(new NpcScheduleEntry(0, sleepEnd,
+                    NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
+
+            // 2. Morning/pre-work routine at home
+            if (workStart > sleepEnd) {
+                entries.add(new NpcScheduleEntry(sleepEnd, workStart,
+                        NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
+            }
+
+            // 3. Work block (or homemaker variant)
+            if (isHomemaker) {
+                // Homemakers stay home then go shopping in the latter half of the day.
+                // Using integer division with no minimum keeps shopHour ≤ workEnd for
+                // short durations, so the HOME sub-block is simply omitted when the
+                // work window is only one hour long.
+                int shopHour = workStart + (workEnd - workStart) / 2;
+                if (workStart < shopHour) {
+                    entries.add(new NpcScheduleEntry(workStart, shopHour,
+                            NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
+                }
+                entries.add(new NpcScheduleEntry(shopHour, workEnd,
+                        NpcScheduleEntry.SHOPPING, leisureName, leisureCellX, leisureCellY));
+            } else {
+                entries.add(new NpcScheduleEntry(workStart, workEnd,
+                        NpcScheduleEntry.WORK, workName, workCellX, workCellY));
+            }
+
+            // 4. Post-work leisure or shopping
+            int eveningHome = Math.min(workEnd + POST_WORK_LEISURE_HOURS, EVENING_HOME_HOUR);
+            if (workEnd < eveningHome) {
+                String eveningActivity = random.nextBoolean()
+                        ? NpcScheduleEntry.LEISURE
+                        : NpcScheduleEntry.SHOPPING;
+                entries.add(new NpcScheduleEntry(workEnd, eveningHome,
+                        eveningActivity, leisureName, leisureCellX, leisureCellY));
+            }
+
+            // 5. Evening home routine until sleep
+            int sleepStart = Math.min(eveningHome + 1, EVENING_SLEEP_HOUR);
+            if (eveningHome < sleepStart) {
+                entries.add(new NpcScheduleEntry(eveningHome, sleepStart,
+                        NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
+            }
+
+            // 6. Night sleep
+            if (sleepStart < 24) {
+                entries.add(new NpcScheduleEntry(sleepStart, 24,
+                        NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
+            }
         }
-
-        // 4. Evening leisure or shopping (workEnd–21:00)
-        if (workEnd < 21) {
-            String eveningActivity = random.nextBoolean()
-                    ? NpcScheduleEntry.LEISURE
-                    : NpcScheduleEntry.SHOPPING;
-            entries.add(new NpcScheduleEntry(workEnd, 21,
-                    eveningActivity, leisureName, leisureCellX, leisureCellY));
-        }
-
-        // 5. Evening home routine (21:00–22:00)
-        entries.add(new NpcScheduleEntry(21, 22,
-                NpcScheduleEntry.HOME, homeName, homeCellX, homeCellY));
-
-        // 6. Night sleep (22:00–24:00)
-        entries.add(new NpcScheduleEntry(22, 24,
-                NpcScheduleEntry.SLEEP, homeName, homeCellX, homeCellY));
 
         return new NpcSchedule(entries);
     }
