@@ -145,12 +145,8 @@ public class TimeEngineTest {
     public void subIntervalCallbacks_minutesSumToTotal_nonDivisible() {
         final int[] totalMinutes = {0};
         TimeEngine engine = new TimeEngine();
-        // 0 → 7 = 420 minutes, 4 intervals × 3 sub = 12 ticks
-        // 420 / 12 = 35 per tick, remainder 0 — exact
-        // Let's use 0 → 7, 5 intervals × 3 sub = 15 ticks
-        // 420 / 15 = 28 per tick, remainder 0
-        // Use 0 → 7, 4 intervals × 2 sub = 8 ticks
-        // 420 / 8 = 52 per tick, remainder 4
+        // 0 → 7 = 420 minutes, 4 intervals × 2 sub = 8 ticks
+        // 420 / 8 = 52 per tick, remainder 4 (added to last tick)
         engine.start(0, 7, 4, 2, "Test", minutes -> totalMinutes[0] += minutes);
         engine.update(10f);
         assertEquals(420, totalMinutes[0]);
