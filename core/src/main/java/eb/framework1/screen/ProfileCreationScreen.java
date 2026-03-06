@@ -44,6 +44,8 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle icon2Button;
     private static final int ICON_SIZE = 128;
     private static final int ICON_BORDER = 4;
+    private static final int LABEL_INPUT_GAP = 30;   // px between label bottom and input text baseline
+    private static final int INPUT_BUTTON_GAP = 30;  // px between input text bottom and Random Name button top
     
     private boolean cursorVisible;
     private float cursorTimer;
@@ -60,6 +62,7 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle diffEasyButton;
     private Rectangle diffNormalButton;
     private Rectangle diffHardButton;
+    private int nameInputY;  // Y baseline for the name input text, computed from actual font metrics
 
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -104,15 +107,24 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
             
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
+            // Compute layout origin first so all button Y positions stay consistent with render().
+            int startY = Gdx.graphics.getHeight() - 200;
+
+            // Measure the actual label height so nameInputY adapts to any font size / density.
+            glyphLayout.setText(labelFont, "Character Name:");
+            this.nameInputY = startY - (int) glyphLayout.height - LABEL_INPUT_GAP;
+
             TextMeasurer.TextBounds createBounds     = TextMeasurer.measure(buttonFont, "Create",      48f, 22f);
             TextMeasurer.TextBounds cancelBounds     = TextMeasurer.measure(buttonFont, "Cancel",      48f, 22f);
             TextMeasurer.TextBounds randomNameBounds = TextMeasurer.measure(buttonFont, "Random Name", 48f, 22f);
-            createButton     = new Rectangle(centerX - createBounds.width - 20,    50, createBounds.width,     createBounds.height);
-            cancelButton     = new Rectangle(centerX + 20,                         50, cancelBounds.width,     cancelBounds.height);
-            // Random Name button sits just below the name input text (startY - 280 - some offset).
-            // Place it 20px below the input text baseline so it doesn't overlap the name field.
-            int nameInputY   = (Gdx.graphics.getHeight() - 200) - 280; // mirrors render() position
-            randomNameButton = new Rectangle(20, nameInputY - randomNameBounds.height - 20,
+            createButton = new Rectangle(centerX - createBounds.width - 20, 50, createBounds.width, createBounds.height);
+            cancelButton = new Rectangle(centerX + 20,                      50, cancelBounds.width, cancelBounds.height);
+            // Place the Random Name button below the input text using the actual font descent so
+            // there is always a visible gap regardless of font size or screen density.
+            // font.getDescent() is negative in libGDX (it is the distance below the baseline),
+            // so  nameInputY + font.getDescent()  gives the Y of the very bottom of the text.
+            float buttonTop = nameInputY + font.getDescent() - INPUT_BUTTON_GAP;
+            randomNameButton = new Rectangle(20, buttonTop - randomNameBounds.height,
                                              randomNameBounds.width, randomNameBounds.height);
             
             // Load character icon textures as-is (no pixel transformation)
@@ -127,9 +139,7 @@ public class ProfileCreationScreen implements Screen {
             woman2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             
             // Calculate button positions relative to labels for proper layout hierarchy
-            // Using the same startY as in render() for consistency
-            int startY = Gdx.graphics.getHeight() - 200;
-            
+            // startY was already computed above; reuse it here.
             // Calculate proper button X position to avoid overlapping with labels
             // Measure the widest label to ensure no overlap
             glyphLayout.setText(labelFont, "Difficulty:");  // Longest label
@@ -267,11 +277,11 @@ public class ProfileCreationScreen implements Screen {
         int centerX = Gdx.graphics.getWidth() / 2;
         int startY = Gdx.graphics.getHeight() - 200;  // Start from top with more margin
         
-        // Character Name field - with much more spacing for large fonts
+        // Character Name label then input text, spaced using the font-metric-based nameInputY
         labelFont.draw(batch, "Character Name:", 20, startY);
         String characterText = characterNameInput.toString();
         if (cursorVisible) characterText += "|";
-        font.draw(batch, characterText, 20, startY - 280);  // Increased spacing from 30 to 280 to prevent overlap
+        font.draw(batch, characterText, 20, nameInputY);
         
         // Gender label - positioned relative to gender buttons
         labelFont.draw(batch, "Gender:", 20, startY - 500);  // Increased spacing

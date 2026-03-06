@@ -74,7 +74,7 @@ public class ProfileLoadSummaryScreen implements Screen {
             // Load character icon texture if available
             String iconName = profile.getCharacterIcon();
             if (iconName != null && !iconName.isEmpty()) {
-                characterIconTexture = TextureUtils.makeNegative("character/" + iconName + ".png");
+                characterIconTexture = TextureUtils.loadAsIs("character/" + iconName + ".png");
                 characterIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             }
             
