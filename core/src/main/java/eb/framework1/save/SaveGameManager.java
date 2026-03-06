@@ -161,6 +161,10 @@ public class SaveGameManager {
             d.caseFiles.add(toCaseFileData(cf));
         }
         d.activeCaseId = save.getActiveCaseId();
+        d.worldNpcs = new ArrayList<>();
+        for (NpcCharacter npc : save.getWorldNpcs()) {
+            d.worldNpcs.add(toNpcData(npc));
+        }
         return d;
     }
 
@@ -190,6 +194,14 @@ public class SaveGameManager {
                 if (cfd != null) caseFiles.add(fromCaseFileData(cfd));
             }
         }
+        // Restore world NPCs
+        java.util.List<NpcCharacter> worldNpcs = new ArrayList<>();
+        if (d.worldNpcs != null) {
+            for (NpcCharacterData nd : d.worldNpcs) {
+                NpcCharacter npc = fromNpcData(nd);
+                if (npc != null) worldNpcs.add(npc);
+            }
+        }
         return new GameSave(
                 d.characterName,
                 d.gender,
@@ -205,7 +217,8 @@ public class SaveGameManager {
                 d.homeCellX, d.homeCellY,
                 bDisc, bOwned, iDisc,
                 equipMap, utilNames,
-                caseFiles, d.activeCaseId);
+                caseFiles, d.activeCaseId,
+                worldNpcs);
     }
 
     // -------------------------------------------------------------------------
@@ -411,6 +424,8 @@ public class SaveGameManager {
         public java.util.List<CaseFileData> caseFiles;
         /** ID of the active case file, or null. */
         public String activeCaseId;
+        /** Serialised world-population NPCs. */
+        public java.util.List<NpcCharacterData> worldNpcs;
     }
 
     // -------------------------------------------------------------------------
@@ -469,5 +484,157 @@ public class SaveGameManager {
         public int complexity;
         /** Root of the story-progression tree; null for legacy/manual cases. */
         public StoryNodeData storyRoot;
+    }
+
+    // -------------------------------------------------------------------------
+    // NPC data transfer objects
+    // -------------------------------------------------------------------------
+
+    /** Serialisable DTO for a single {@link NpcScheduleEntry}. */
+    static class NpcScheduleEntryData {
+        public int    startHour;
+        public int    endHour;
+        public String activityType;
+        public String locationName;
+        public int    cellX;
+        public int    cellY;
+    }
+
+    /** Serialisable DTO for an {@link NpcCharacter}. */
+    static class NpcCharacterData {
+        public String id;
+        public String fullName;
+        public String gender;
+        public int    age;
+        public String occupation;
+        public String spriteKey;
+        public String physicalDescription;
+        public String homeAddress;
+        public String workplaceAddress;
+        public java.util.List<String> frequentLocations;
+        public String phoneNumber;
+        public String email;
+        public int    cooperativeness;
+        public int    honesty;
+        public int    nervousness;
+        /** {@link PersonalityProfile#name()} value. */
+        public String personalityProfile;
+        /** {@link CharacterAttribute#name()} → value. */
+        public Map<String, Integer> attributes;
+        /** {@link NpcSkill#name()} values. */
+        public java.util.List<String> skills;
+        public java.util.List<NpcScheduleEntryData> scheduleEntries;
+        public String birthdate;
+        public boolean tracked;
+    }
+
+    private static NpcCharacterData toNpcData(NpcCharacter npc) {
+        NpcCharacterData d = new NpcCharacterData();
+        d.id                  = npc.getId();
+        d.fullName            = npc.getFullName();
+        d.gender              = npc.getGender();
+        d.age                 = npc.getAge();
+        d.occupation          = npc.getOccupation();
+        d.spriteKey           = npc.getSpriteKey();
+        d.physicalDescription = npc.getPhysicalDescription();
+        d.homeAddress         = npc.getHomeAddress();
+        d.workplaceAddress    = npc.getWorkplaceAddress();
+        d.frequentLocations   = new ArrayList<>(npc.getFrequentLocations());
+        d.phoneNumber         = npc.getPhoneNumber();
+        d.email               = npc.getEmail();
+        d.cooperativeness     = npc.getCooperativeness();
+        d.honesty             = npc.getHonesty();
+        d.nervousness         = npc.getNervousness();
+        d.personalityProfile  = npc.getPersonalityProfile().name();
+        d.attributes          = new HashMap<>();
+        for (Map.Entry<CharacterAttribute, Integer> e : npc.getAttributes().entrySet()) {
+            d.attributes.put(e.getKey().name(), e.getValue());
+        }
+        d.skills = new ArrayList<>();
+        for (NpcSkill s : npc.getSkills()) {
+            d.skills.add(s.name());
+        }
+        d.scheduleEntries = new ArrayList<>();
+        NpcSchedule schedule = npc.getSchedule();
+        if (schedule != null) {
+            for (NpcScheduleEntry entry : schedule.getEntries()) {
+                NpcScheduleEntryData ed = new NpcScheduleEntryData();
+                ed.startHour    = entry.startHour;
+                ed.endHour      = entry.endHour;
+                ed.activityType = entry.activityType;
+                ed.locationName = entry.locationName;
+                ed.cellX        = entry.cellX;
+                ed.cellY        = entry.cellY;
+                d.scheduleEntries.add(ed);
+            }
+        }
+        d.birthdate = npc.getBirthdate();
+        d.tracked   = npc.isTracked();
+        return d;
+    }
+
+    /**
+     * Clamps a personality trait value (cooperativeness, honesty, nervousness) to the
+     * valid 1–10 range.  A stored value of 0 (e.g. from an older save before the field
+     * existed) is treated as the neutral default of 5.
+     */
+    private static int clampTrait(int value) {
+        return Math.max(1, Math.min(10, value == 0 ? 5 : value));
+    }
+
+    private static NpcCharacter fromNpcData(NpcCharacterData d) {
+        if (d == null || d.id == null || d.fullName == null) return null;
+        NpcCharacter.Builder b = new NpcCharacter.Builder()
+                .id(d.id)
+                .fullName(d.fullName)
+                .gender(d.gender != null ? d.gender : "M")
+                .age(d.age < 1 ? 30 : d.age)
+                .occupation(d.occupation != null ? d.occupation : "")
+                .spriteKey(d.spriteKey != null ? d.spriteKey : "")
+                .physicalDescription(d.physicalDescription != null ? d.physicalDescription : "")
+                .homeAddress(d.homeAddress != null ? d.homeAddress : "")
+                .workplaceAddress(d.workplaceAddress != null ? d.workplaceAddress : "")
+                .phoneNumber(d.phoneNumber != null ? d.phoneNumber : "")
+                .email(d.email != null ? d.email : "")
+                .cooperativeness(clampTrait(d.cooperativeness))
+                .honesty(clampTrait(d.honesty))
+                .nervousness(clampTrait(d.nervousness))
+                .birthdate(d.birthdate)
+                .tracked(d.tracked);
+        if (d.frequentLocations != null) {
+            for (String loc : d.frequentLocations) {
+                b.addFrequentLocation(loc);
+            }
+        }
+        if (d.personalityProfile != null) {
+            try { b.personalityProfile(PersonalityProfile.valueOf(d.personalityProfile)); }
+            catch (IllegalArgumentException ignored) { /* use default */ }
+        }
+        if (d.attributes != null) {
+            for (Map.Entry<String, Integer> e : d.attributes.entrySet()) {
+                try {
+                    b.attribute(CharacterAttribute.valueOf(e.getKey()), e.getValue());
+                } catch (IllegalArgumentException ignored) { /* unknown attribute */ }
+            }
+        }
+        if (d.skills != null) {
+            for (String sName : d.skills) {
+                try { b.addSkill(NpcSkill.valueOf(sName)); }
+                catch (IllegalArgumentException ignored) { /* unknown skill */ }
+            }
+        }
+        if (d.scheduleEntries != null && !d.scheduleEntries.isEmpty()) {
+            java.util.List<NpcScheduleEntry> entries = new ArrayList<>();
+            for (NpcScheduleEntryData ed : d.scheduleEntries) {
+                if (ed != null) {
+                    entries.add(new NpcScheduleEntry(
+                            ed.startHour, ed.endHour,
+                            ed.activityType, ed.locationName,
+                            ed.cellX, ed.cellY));
+                }
+            }
+            b.schedule(new NpcSchedule(entries));
+        }
+        return b.build();
     }
 }

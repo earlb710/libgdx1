@@ -145,6 +145,21 @@ public class NpcGenerator {
         return enrich(charGen.generateSuspect(caseType, profile), cityMap);
     }
 
+    /**
+     * Generates a generic world-population NPC enriched with skills and a daily
+     * schedule.  The NPC's occupation is varied by cycling through all
+     * {@link CaseType} values so repeated calls produce occupational diversity.
+     *
+     * @param cityMap optional city map used to resolve real building locations;
+     *                may be {@code null}
+     * @return a fully populated {@link NpcCharacter}
+     */
+    public NpcCharacter generateWorldNpc(CityMap cityMap) {
+        CaseType[] types = CaseType.values();
+        CaseType caseType = types[Math.abs(random.nextInt()) % types.length];
+        return enrich(charGen.generateSuspect(caseType, PersonalityProfile.DEFAULT), cityMap);
+    }
+
     // -------------------------------------------------------------------------
     // Enrichment
     // -------------------------------------------------------------------------

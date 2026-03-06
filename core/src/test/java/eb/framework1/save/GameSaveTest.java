@@ -474,4 +474,82 @@ public class GameSaveTest {
         assertFalse("Mutating returned array must not affect GameSave",
                 s.getBuildingDiscovered()[0]);
     }
+
+    // -------------------------------------------------------------------------
+    // World NPCs
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void testSnapshotCapturesWorldNpcs() {
+        Profile p   = makeProfile();
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("npc-001").fullName("Jane Doe").gender("F")
+                .age(30).cooperativeness(7).honesty(8).nervousness(3).build();
+        p.addWorldNpc(npc);
+
+        CityMap  map = new CityMap(12345L);
+        GameSave s   = GameSave.from(p, map, 0, 0, 0, 0);
+
+        assertEquals("Snapshot should contain 1 world NPC", 1, s.getWorldNpcs().size());
+        assertEquals("Jane Doe", s.getWorldNpcs().get(0).getFullName());
+    }
+
+    @Test
+    public void testApplyToProfileRestoresWorldNpcs() {
+        Profile p = makeProfile();
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("npc-002").fullName("John Smith").gender("M")
+                .age(40).cooperativeness(5).honesty(6).nervousness(4).build();
+        p.addWorldNpc(npc);
+
+        CityMap  map = new CityMap(12345L);
+        GameSave s   = GameSave.from(p, map, 0, 0, 0, 0);
+
+        Profile p2 = new Profile("Alice", "Female", "Normal");
+        s.applyToProfile(p2);
+
+        assertEquals("World NPC count should be restored", 1, p2.getWorldNpcs().size());
+        assertEquals("John Smith", p2.getWorldNpcs().get(0).getFullName());
+    }
+
+    @Test
+    public void testWorldNpcsRoundTripThroughSaveData() {
+        Profile p = makeProfile();
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("npc-003").fullName("Mary Brown").gender("F")
+                .age(25).occupation("Accountant")
+                .cooperativeness(9).honesty(7).nervousness(2)
+                .birthdate("2025-06-15")
+                .build();
+        p.addWorldNpc(npc);
+
+        CityMap  map      = new CityMap(12345L);
+        GameSave original = GameSave.from(p, map, 0, 0, 0, 0);
+
+        SaveGameManager.SaveData data     = SaveGameManager.toData(original);
+        GameSave                 restored = SaveGameManager.fromData(data);
+
+        assertEquals("World NPC count should survive round-trip", 1, restored.getWorldNpcs().size());
+        NpcCharacter restoredNpc = restored.getWorldNpcs().get(0);
+        assertEquals("npc-003",     restoredNpc.getId());
+        assertEquals("Mary Brown",  restoredNpc.getFullName());
+        assertEquals("F",           restoredNpc.getGender());
+        assertEquals(25,            restoredNpc.getAge());
+        assertEquals("Accountant",  restoredNpc.getOccupation());
+        assertEquals("2025-06-15",  restoredNpc.getBirthdate());
+    }
+
+    @Test
+    public void testWorldNpcsEmptyListRoundTrip() {
+        Profile  p        = makeProfile();
+        CityMap  map      = new CityMap(12345L);
+        GameSave original = GameSave.from(p, map, 0, 0, 0, 0);
+
+        SaveGameManager.SaveData data     = SaveGameManager.toData(original);
+        GameSave                 restored = SaveGameManager.fromData(data);
+
+        assertNotNull("worldNpcs must not be null", restored.getWorldNpcs());
+        assertTrue("Empty world NPC list should survive round-trip",
+                restored.getWorldNpcs().isEmpty());
+    }
 }

@@ -593,4 +593,45 @@ public class NpcGeneratorTest {
                 .build();
         assertEquals(-1, npc.getCurrentCellX(5));
     }
+
+    // =========================================================================
+    // generateWorldNpc
+    // =========================================================================
+
+    @Test
+    public void generateWorldNpc_returnsNonNull() {
+        NpcGenerator gen = makeGenerator(42L);
+        NpcCharacter npc = gen.generateWorldNpc(null);
+        assertNotNull("generateWorldNpc must return a non-null NPC", npc);
+    }
+
+    @Test
+    public void generateWorldNpc_returnsUniqueNpcsOnRepeatedCalls() {
+        NpcGenerator gen = makeGenerator(7L);
+        NpcCharacter npc1 = gen.generateWorldNpc(null);
+        NpcCharacter npc2 = gen.generateWorldNpc(null);
+        assertNotEquals("Two consecutive world NPCs should have different IDs",
+                npc1.getId(), npc2.getId());
+    }
+
+    @Test
+    public void generateWorldNpc_hasSchedule() {
+        NpcGenerator gen = makeGenerator(99L);
+        NpcCharacter npc = gen.generateWorldNpc(null);
+        assertNotNull("World NPC should have a daily schedule", npc.getSchedule());
+        assertFalse("World NPC schedule should not be empty",
+                npc.getSchedule().getEntries().isEmpty());
+    }
+
+    @Test
+    public void generateWorldNpc_generate20ProducesDistinctNpcs() {
+        NpcGenerator gen = makeGenerator(123L);
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        for (int i = 0; i < 20; i++) {
+            NpcCharacter npc = gen.generateWorldNpc(null);
+            assertNotNull("NPC " + i + " must not be null", npc);
+            assertTrue("Each NPC must have a unique ID", ids.add(npc.getId()));
+        }
+        assertEquals("Should have generated 20 distinct NPCs", 20, ids.size());
+    }
 }

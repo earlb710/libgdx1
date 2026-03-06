@@ -709,6 +709,45 @@ public class Profile {
     }
 
     // -------------------------------------------------------------------------
+    // World NPCs
+    // -------------------------------------------------------------------------
+
+    /** NPCs that populate the game world, generated at the start of a new game. */
+    private final List<NpcCharacter> worldNpcs = new ArrayList<>();
+
+    /**
+     * Adds an NPC to the world NPC list.
+     *
+     * @param npc must not be {@code null}
+     */
+    public void addWorldNpc(NpcCharacter npc) {
+        if (npc == null) throw new IllegalArgumentException("NpcCharacter must not be null");
+        worldNpcs.add(npc);
+    }
+
+    /**
+     * Returns an unmodifiable view of all world NPCs.
+     */
+    public List<NpcCharacter> getWorldNpcs() {
+        return Collections.unmodifiableList(worldNpcs);
+    }
+
+    /**
+     * Replaces the entire world NPC list with the given NPCs.
+     * Used when restoring a save.
+     *
+     * @param npcs list of NPCs; {@code null} clears the list
+     */
+    public void setWorldNpcs(List<NpcCharacter> npcs) {
+        worldNpcs.clear();
+        if (npcs != null) {
+            for (NpcCharacter npc : npcs) {
+                if (npc != null) worldNpcs.add(npc);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // toString
     // -------------------------------------------------------------------------
 

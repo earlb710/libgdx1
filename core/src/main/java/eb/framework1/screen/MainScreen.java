@@ -262,7 +262,22 @@ public class MainScreen implements Screen {
             }
 
             discoverStartingBuildings();
+
+            // Generate world-population NPCs for a fresh game
+            PersonNameGenerator png = (gameData != null) ? gameData.getPersonNameGenerator() : null;
+            if (png != null) {
+                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31));
+                for (int i = 0; i < 20; i++) {
+                    NpcCharacter npc = npcGen.generateWorldNpc(cityMap);
+                    profile.addWorldNpc(npc);
+                }
+                Gdx.app.log("MainScreen", "Generated " + profile.getWorldNpcs().size() + " world NPCs");
+            }
         }
+
+        // Populate allNpcs from the profile's world NPC list (restored from save or freshly generated)
+        state.allNpcs.clear();
+        state.allNpcs.addAll(profile.getWorldNpcs());
 
         // Build rendering helpers
         mapRenderer = new MapRenderer(batch, shapeRenderer, font, smallFont, tinyFont, glyphLayout, cityMap);
