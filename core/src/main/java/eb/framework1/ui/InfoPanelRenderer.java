@@ -1998,9 +1998,28 @@ public class InfoPanelRenderer {
         if (s.selectedCellX < 0) return fontLineH; // "Click on a cell…"
         Cell cell = cityMap.getCell(s.selectedCellX, s.selectedCellY);
         float h = fontLineH; // Terrain (advance)
-        if (!cell.hasBuilding()) return h;
+        if (!cell.hasBuilding()) {
+            // No building — still need to account for NPCs at this cell
+            int npcsAtCell = countNpcsAtCell(s);
+            if (npcsAtCell > 0) {
+                h += fontLineH; // blank gap
+                h += fontLineH; // "People here:" heading
+                h += fontLineH * npcsAtCell;
+            }
+            return h;
+        }
         Building b = cell.getBuilding();
-        if (!b.isDiscovered()) return h + fontLineH; // Building: ??? (last line)
+        if (!b.isDiscovered()) {
+            // Building: ??? + possible NPCs
+            float hBase = h + fontLineH;
+            int npcsAtCell = countNpcsAtCell(s);
+            if (npcsAtCell > 0) {
+                hBase += fontLineH; // blank gap
+                hBase += fontLineH; // "People here:" heading
+                hBase += fontLineH * npcsAtCell;
+            }
+            return hBase;
+        }
         h += fontLineH; // Building (advance)
         if (b.getDefinition() != null) h += fontLineH * 2; // Type + Floors
         // Multi-tenant: Tenants header + one line per extra tenant
@@ -2020,7 +2039,27 @@ public class InfoPanelRenderer {
                 h += smallLineH * impDescriptionLines(imp, wrapWidth).size(); // description lines
             }
         }
+        // NPC section — count NPCs present at this cell at the current hour
+        int npcsAtCell = countNpcsAtCell(s);
+        if (npcsAtCell > 0) {
+            h += fontLineH; // blank gap before "People here:" heading
+            h += fontLineH; // "People here:" heading
+            h += fontLineH * npcsAtCell; // one line per NPC
+        }
         return h;
+    }
+
+    /** Returns the number of NPCs whose current schedule position is the selected cell. */
+    private int countNpcsAtCell(MapViewState s) {
+        if (s.allNpcs == null || s.allNpcs.isEmpty() || s.selectedCellX < 0) return 0;
+        int count = 0;
+        for (NpcCharacter npc : s.allNpcs) {
+            if (npc.getCurrentCellX(s.currentHour) == s.selectedCellX
+                    && npc.getCurrentCellY(s.currentHour) == s.selectedCellY) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
