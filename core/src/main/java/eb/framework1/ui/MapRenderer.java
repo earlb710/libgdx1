@@ -105,20 +105,20 @@ public class MapRenderer {
 
         // Load NPC gender icons used to mark NPC positions on the map
         try {
-            npcManTexture = new Texture(Gdx.files.internal("icons/man_icon.png"));
-            npcManTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            npcManTexture = new Texture(Gdx.files.internal("icons/man_icon_32.png"));
+            npcManTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             npcManTexW = npcManTexture.getWidth();
             npcManTexH = npcManTexture.getHeight();
         } catch (Exception e) {
-            Gdx.app.log("MapRenderer", "Could not load man_icon: " + e.getMessage());
+            Gdx.app.log("MapRenderer", "Could not load man_icon_32: " + e.getMessage());
         }
         try {
-            npcWomanTexture = new Texture(Gdx.files.internal("icons/woman_icon.png"));
-            npcWomanTexture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            npcWomanTexture = new Texture(Gdx.files.internal("icons/woman_icon_32.png"));
+            npcWomanTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             npcWomanTexW = npcWomanTexture.getWidth();
             npcWomanTexH = npcWomanTexture.getHeight();
         } catch (Exception e) {
-            Gdx.app.log("MapRenderer", "Could not load woman_icon: " + e.getMessage());
+            Gdx.app.log("MapRenderer", "Could not load woman_icon_32: " + e.getMessage());
         }
     }
 
@@ -400,10 +400,10 @@ public class MapRenderer {
      * NPCs in {@link MapViewState#allNpcs} are drawn.  In normal mode only NPCs
      * where {@link NpcCharacter#isTracked()} is {@code true} are drawn.
      *
-     * <p>Male NPCs use {@code icons/man_icon.png}; female NPCs use
-     * {@code icons/woman_icon.png}.  Each icon is drawn at its native texture
-     * size, pinned to the lower-left corner of the building rectangle (i.e.
-     * offset by the West and North border insets of the cell).
+     * <p>Male NPCs use {@code icons/man_icon_32.png}; female NPCs use
+     * {@code icons/woman_icon_32.png}.  Each icon is drawn at its native texture
+     * size (32×64 px), pinned to the lower-left corner of the building rectangle
+     * (i.e. offset by the West and North border insets of the cell).
      *
      * <p>NPCs with no known cell ({@code -1}) or outside the currently visible
      * map area are silently skipped.
