@@ -42,18 +42,26 @@ public class ProfileCreationScreen implements Screen {
     private Texture woman2Texture;
     private Rectangle icon1Button;
     private Rectangle icon2Button;
-    private static final int ICON_SIZE = 128;
-    private static final int ICON_BORDER = 4;
-    private static final int LABEL_INPUT_GAP = 30;   // px between label bottom and input text baseline
-    private static final int INPUT_BUTTON_GAP = 30;  // px between input text bottom and Random Name button top
-    
+    private static final int ICON_SIZE   = 96;  // portrait icon display size
+    private static final int ICON_BORDER =  4;  // highlight border width around icon
+
+    // Layout gap constants (device pixels – not density-scaled)
+    private static final int SECTION_GAP       = 12; // space between major form sections
+    private static final int ITEM_GAP          =  6; // space between a label and its widget
+    private static final int INPUT_PAD_H       = 10; // horizontal text inset inside the name box
+    private static final int INPUT_PAD_V       =  6; // vertical text inset inside the name box
+    private static final int BTN_PAD_H         = 28; // horizontal text padding inside buttons
+    private static final int BTN_PAD_V         = 14; // vertical text padding inside buttons
+    private static final int TITLE_BOTTOM_MARGIN = 60; // px reserved for the title at the top
+    private static final String FONT_MEASURE_CHARS = "Ag"; // representative chars for cap-height measurement
+
     private boolean cursorVisible;
     private float cursorTimer;
     private static final float CURSOR_BLINK_TIME = 0.5f;
     private static final int MAX_INPUT_LENGTH = 20;
     private static final int MIN_INPUT_LENGTH = 2;
     
-    // Button dimensions
+    // Button / input dimensions – all computed in show() from measured font metrics
     private Rectangle createButton;
     private Rectangle cancelButton;
     private Rectangle randomNameButton;
@@ -62,7 +70,13 @@ public class ProfileCreationScreen implements Screen {
     private Rectangle diffEasyButton;
     private Rectangle diffNormalButton;
     private Rectangle diffHardButton;
-    private int nameInputY;  // Y baseline for the name input text, computed from actual font metrics
+    private Rectangle nameInputBox;  // visible bordered input field
+    private int nameInputY;          // text baseline Y inside nameInputBox
+    // Label Y positions (top of each glyph row, computed from font metrics in show())
+    private int labelNameY;
+    private int genderLabelY;
+    private int portraitLabelY;
+    private int difficultyLabelY;
 
     private Color buttonColor = new Color(0.3f, 0.3f, 0.4f, 1f);
     private Color buttonHoverColor = new Color(0.4f, 0.4f, 0.5f, 1f);
@@ -107,25 +121,96 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
             
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
-            // Compute layout origin first so all button Y positions stay consistent with render().
-            int startY = Gdx.graphics.getHeight() - 200;
+            // ==============================================================
+            // Flowing layout: all Y positions derived from actual font metrics
+            // so the form looks correct at any screen density.
+            //
+            // libGDX coordinate system: Y=0 at bottom, increases upward.
+            //   font.draw(y)   → y is the top (ascent line) of the glyphs
+            //   Rectangle.y    → bottom-left corner of the rect
+            // curY always holds the "top edge" of the next item to place.
+            // ==============================================================
+            int screenWidth = Gdx.graphics.getWidth();
 
-            // Measure the actual label height so nameInputY adapts to any font size / density.
-            glyphLayout.setText(labelFont, "Character Name:");
-            this.nameInputY = startY - (int) glyphLayout.height - LABEL_INPUT_GAP;
+            // Measure font cap heights via GlyphLayout
+            glyphLayout.setText(labelFont, FONT_MEASURE_CHARS);
+            int labelH = (int) glyphLayout.height;
+            glyphLayout.setText(font, FONT_MEASURE_CHARS);
+            int inputTextH = (int) glyphLayout.height;
 
-            TextMeasurer.TextBounds createBounds     = TextMeasurer.measure(buttonFont, "Create",      48f, 22f);
-            TextMeasurer.TextBounds cancelBounds     = TextMeasurer.measure(buttonFont, "Cancel",      48f, 22f);
-            TextMeasurer.TextBounds randomNameBounds = TextMeasurer.measure(buttonFont, "Random Name", 48f, 22f);
-            createButton = new Rectangle(centerX - createBounds.width - 20, 50, createBounds.width, createBounds.height);
-            cancelButton = new Rectangle(centerX + 20,                      50, cancelBounds.width, cancelBounds.height);
-            // Place the Random Name button below the input text using the actual font descent so
-            // there is always a visible gap regardless of font size or screen density.
-            // font.getDescent() is negative in libGDX (it is the distance below the baseline),
-            // so  nameInputY + font.getDescent()  gives the Y of the very bottom of the text.
-            float buttonTop = nameInputY + font.getDescent() - INPUT_BUTTON_GAP;
-            randomNameButton = new Rectangle(20, buttonTop - randomNameBounds.height,
-                                             randomNameBounds.width, randomNameBounds.height);
+            // Derived sizes
+            int inputBoxH = inputTextH + INPUT_PAD_V * 2;
+            int inputBoxW = screenWidth - 2 * 20; // margin = 20
+
+            // Button bounds
+            TextMeasurer.TextBounds createBounds     = TextMeasurer.measure(buttonFont, "Create",      BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds cancelBounds     = TextMeasurer.measure(buttonFont, "Cancel",      BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds randomNameBounds = TextMeasurer.measure(buttonFont, "Random Name", BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds maleBounds       = TextMeasurer.measure(buttonFont, "Male",        BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds femaleBounds     = TextMeasurer.measure(buttonFont, "Female",      BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds easyBounds       = TextMeasurer.measure(buttonFont, "Easy",        BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds normalBounds     = TextMeasurer.measure(buttonFont, "Normal",      BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds hardBounds       = TextMeasurer.measure(buttonFont, "Hard",        BTN_PAD_H, BTN_PAD_V);
+
+            // Create / Cancel at bottom of screen
+            createButton = new Rectangle(centerX - (int) createBounds.width - 10, 20,
+                                         (int) createBounds.width, (int) createBounds.height);
+            cancelButton = new Rectangle(centerX + 10, 20,
+                                         (int) cancelBounds.width, (int) cancelBounds.height);
+
+            // === Flowing top→bottom layout ===
+            int margin = 20;
+            int curY   = Gdx.graphics.getHeight() - TITLE_BOTTOM_MARGIN;  // start below the title
+
+            // -- Character Name --
+            labelNameY = curY;
+            curY -= labelH + ITEM_GAP;
+
+            // Input field box: top edge at curY
+            nameInputBox = new Rectangle(margin, curY - inputBoxH, inputBoxW, inputBoxH);
+            this.nameInputY = curY - INPUT_PAD_V;   // text baseline inside box
+            curY -= inputBoxH + ITEM_GAP;
+
+            // Random Name button: just below input box
+            randomNameButton = new Rectangle(margin, curY - (int) randomNameBounds.height,
+                                             (int) randomNameBounds.width, (int) randomNameBounds.height);
+            curY -= (int) randomNameBounds.height + SECTION_GAP;
+
+            // -- Gender (label + [Male] [Female] inline) --
+            genderLabelY = curY;
+            glyphLayout.setText(labelFont, "Gender:");
+            int genderBtnX      = margin + (int) glyphLayout.width + 12;
+            int rowH            = Math.max(labelH, (int) maleBounds.height);
+            int genderBtnBottom = curY - (int) maleBounds.height;
+            genderMaleButton   = new Rectangle(genderBtnX,
+                                               genderBtnBottom,
+                                               (int) maleBounds.width, (int) maleBounds.height);
+            genderFemaleButton = new Rectangle(genderBtnX + (int) maleBounds.width + 8,
+                                               genderBtnBottom,
+                                               (int) femaleBounds.width, (int) femaleBounds.height);
+            curY -= rowH + SECTION_GAP;
+
+            // -- Portrait (label row then icons row) --
+            portraitLabelY = curY;
+            curY -= labelH + ITEM_GAP;
+            int iconBottomY = curY - ICON_SIZE;
+            icon1Button = new Rectangle(margin,                  iconBottomY, ICON_SIZE, ICON_SIZE);
+            icon2Button = new Rectangle(margin + ICON_SIZE + 10, iconBottomY, ICON_SIZE, ICON_SIZE);
+            curY -= ICON_SIZE + SECTION_GAP;
+
+            // -- Difficulty (label row then buttons row) --
+            difficultyLabelY = curY;
+            curY -= labelH + ITEM_GAP;
+            int diffBtnBottom = curY - (int) easyBounds.height;
+            diffEasyButton   = new Rectangle(margin,
+                                             diffBtnBottom,
+                                             (int) easyBounds.width, (int) easyBounds.height);
+            diffNormalButton = new Rectangle(margin + (int) easyBounds.width + 8,
+                                             diffBtnBottom,
+                                             (int) normalBounds.width, (int) normalBounds.height);
+            diffHardButton   = new Rectangle(margin + (int) easyBounds.width + 8 + (int) normalBounds.width + 8,
+                                             diffBtnBottom,
+                                             (int) hardBounds.width, (int) hardBounds.height);
             
             // Load character icon textures as-is (no pixel transformation)
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
@@ -137,38 +222,6 @@ public class ProfileCreationScreen implements Screen {
             man2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             woman1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             woman2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            
-            // Calculate button positions relative to labels for proper layout hierarchy
-            // startY was already computed above; reuse it here.
-            // Calculate proper button X position to avoid overlapping with labels
-            // Measure the widest label to ensure no overlap
-            glyphLayout.setText(labelFont, "Difficulty:");  // Longest label
-            int labelWidth = (int)glyphLayout.width;
-            int buttonStartX = 20 + labelWidth + 30;  // 20 (label x) + label width + 30 (padding)
-            
-            // Gender buttons - positioned BELOW "Gender:" label
-            // Gender label is at startY - 500
-            // Place buttons 100px below the label (to the right horizontally at x=200)
-            int genderButtonY = startY - 500 - 100;
-            TextMeasurer.TextBounds maleBounds   = TextMeasurer.measure(buttonFont, "Male",   48f, 22f);
-            TextMeasurer.TextBounds femaleBounds = TextMeasurer.measure(buttonFont, "Female", 48f, 22f);
-            genderMaleButton   = new Rectangle(buttonStartX, genderButtonY,       maleBounds.width,   maleBounds.height);
-            genderFemaleButton = new Rectangle(buttonStartX, genderButtonY - 110, femaleBounds.width, femaleBounds.height);
-            
-            // Portrait icon buttons - positioned BELOW the female button
-            int iconTopY = startY - 810;
-            icon1Button = new Rectangle(buttonStartX, iconTopY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
-            icon2Button = new Rectangle(buttonStartX + ICON_SIZE + 20, iconTopY - ICON_SIZE, ICON_SIZE, ICON_SIZE);
-            
-            // Difficulty buttons - positioned BELOW portrait icons and "Difficulty:" label
-            // "Difficulty:" label is at startY - 980, buttons start 100px below
-            int diffButtonY = startY - 980 - 100;
-            TextMeasurer.TextBounds easyBounds   = TextMeasurer.measure(buttonFont, "Easy",   48f, 22f);
-            TextMeasurer.TextBounds normalBounds = TextMeasurer.measure(buttonFont, "Normal", 48f, 22f);
-            TextMeasurer.TextBounds hardBounds   = TextMeasurer.measure(buttonFont, "Hard",   48f, 22f);
-            diffEasyButton   = new Rectangle(buttonStartX, diffButtonY,        easyBounds.width,   easyBounds.height);
-            diffNormalButton = new Rectangle(buttonStartX, diffButtonY - 110,  normalBounds.width, normalBounds.height);
-            diffHardButton   = new Rectangle(buttonStartX, diffButtonY - 220,  hardBounds.width,   hardBounds.height);
             
             Gdx.app.log("ProfileCreationScreen", "Button positions - Gender Male: " + genderMaleButton);
             Gdx.app.log("ProfileCreationScreen", "Button positions - Difficulty Hard: " + diffHardButton);
@@ -263,7 +316,17 @@ public class ProfileCreationScreen implements Screen {
         }
         
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
-        
+
+        // Draw the name input field border (ShapeRenderer must run before batch.begin())
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.15f, 0.15f, 0.22f, 1f);  // slightly lighter dark fill
+        shapeRenderer.rect(nameInputBox.x, nameInputBox.y, nameInputBox.width, nameInputBox.height);
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.LIGHT_GRAY);
+        shapeRenderer.rect(nameInputBox.x, nameInputBox.y, nameInputBox.width, nameInputBox.height);
+        shapeRenderer.end();
+
         batch.begin();
         
         // Title
@@ -272,25 +335,22 @@ public class ProfileCreationScreen implements Screen {
         glyphLayout.setText(titleFont, titleText);
         titleFont.draw(batch, titleText, 
                       (Gdx.graphics.getWidth() - glyphLayout.width) / 2, 
-                      Gdx.graphics.getHeight() - 50);
+                      Gdx.graphics.getHeight() - 30);
         
-        int centerX = Gdx.graphics.getWidth() / 2;
-        int startY = Gdx.graphics.getHeight() - 200;  // Start from top with more margin
-        
-        // Character Name label then input text, spaced using the font-metric-based nameInputY
-        labelFont.draw(batch, "Character Name:", 20, startY);
+        // Character Name label and input text (using font-metric-based positions)
+        labelFont.draw(batch, "Character Name:", 20, labelNameY);
         String characterText = characterNameInput.toString();
         if (cursorVisible) characterText += "|";
-        font.draw(batch, characterText, 20, nameInputY);
+        font.draw(batch, characterText, nameInputBox.x + INPUT_PAD_H, nameInputY);
         
-        // Gender label - positioned relative to gender buttons
-        labelFont.draw(batch, "Gender:", 20, startY - 500);  // Increased spacing
+        // Gender label (inline with buttons, computed in show())
+        labelFont.draw(batch, "Gender:", 20, genderLabelY);
         
-        // Portrait icon label
-        labelFont.draw(batch, "Portrait:", 20, startY - 760);
+        // Portrait label
+        labelFont.draw(batch, "Portrait:", 20, portraitLabelY);
         
-        // Difficulty label - positioned below portrait icons
-        labelFont.draw(batch, "Difficulty:", 20, startY - 980);
+        // Difficulty label
+        labelFont.draw(batch, "Difficulty:", 20, difficultyLabelY);
         
         batch.end();
         
@@ -347,6 +407,7 @@ public class ProfileCreationScreen implements Screen {
     
     private void drawIconBorder(Rectangle iconRect, int mouseX, int mouseY, boolean selected) {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // Outer border highlight (selection state)
         if (selected) {
             shapeRenderer.setColor(selectedButtonColor);
         } else if (iconRect.contains(mouseX, mouseY)) {
@@ -354,13 +415,16 @@ public class ProfileCreationScreen implements Screen {
         } else {
             shapeRenderer.setColor(buttonColor);
         }
-        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER, 
+        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER,
                           iconRect.width + ICON_BORDER * 2, iconRect.height + ICON_BORDER * 2);
+        // Light background inside the icon area so dark portrait silhouettes are visible
+        shapeRenderer.setColor(0.90f, 0.90f, 0.88f, 1f);
+        shapeRenderer.rect(iconRect.x, iconRect.y, iconRect.width, iconRect.height);
         shapeRenderer.end();
-        
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(selected ? Color.YELLOW : Color.WHITE);
-        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER, 
+        shapeRenderer.rect(iconRect.x - ICON_BORDER, iconRect.y - ICON_BORDER,
                           iconRect.width + ICON_BORDER * 2, iconRect.height + ICON_BORDER * 2);
         shapeRenderer.end();
     }
