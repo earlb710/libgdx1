@@ -44,6 +44,17 @@ public class TextureUtils {
     }
 
     /**
+     * Loads a texture from the given asset path without any pixel transformation.
+     * Use this when the image should be displayed exactly as it is stored on disk.
+     *
+     * @param path path to the image file relative to the assets directory
+     * @return a new {@link Texture} loaded unchanged; the caller is responsible for disposing it
+     */
+    public static Texture loadAsIs(String path) {
+        return new Texture(Gdx.files.internal(path));
+    }
+
+    /**
      * Loads a texture from the given asset path and inverts the RGB channels of each pixel
      * (negative image), while preserving the alpha channel unchanged.
      *

@@ -110,17 +110,17 @@ public class ProfileCreationScreen implements Screen {
             createButton     = new Rectangle(centerX - createBounds.width - 20,    50, createBounds.width,     createBounds.height);
             cancelButton     = new Rectangle(centerX + 20,                         50, cancelBounds.width,     cancelBounds.height);
             // Random Name button sits just below the name input text (startY - 280 - some offset).
-            // Use a fixed Y so layout is consistent regardless of screen size.
+            // Place it 20px below the input text baseline so it doesn't overlap the name field.
             int nameInputY   = (Gdx.graphics.getHeight() - 200) - 280; // mirrors render() position
-            randomNameButton = new Rectangle(20, nameInputY - randomNameBounds.height - 10,
+            randomNameButton = new Rectangle(20, nameInputY - randomNameBounds.height - 20,
                                              randomNameBounds.width, randomNameBounds.height);
             
-            // Load character icon textures
+            // Load character icon textures as-is (no pixel transformation)
             Gdx.app.log("ProfileCreationScreen", "Loading character icon textures...");
-            man1Texture = TextureUtils.makeWhiteTransparent("character/man1.png");
-            man2Texture = TextureUtils.makeWhiteTransparent("character/man2.png");
-            woman1Texture = TextureUtils.makeWhiteTransparent("character/woman1.png");
-            woman2Texture = TextureUtils.makeWhiteTransparent("character/woman2.png");
+            man1Texture = TextureUtils.loadAsIs("character/man1.png");
+            man2Texture = TextureUtils.loadAsIs("character/man2.png");
+            woman1Texture = TextureUtils.loadAsIs("character/woman1.png");
+            woman2Texture = TextureUtils.loadAsIs("character/woman2.png");
             man1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             man2Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             woman1Texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);

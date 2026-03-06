@@ -285,7 +285,7 @@ public class MainScreen implements Screen {
 
         String iconName = profile.getCharacterIcon();
         if (iconName != null && !iconName.isEmpty()) {
-            Texture charTex = TextureUtils.makeNegative("character/" + iconName + ".png");
+            Texture charTex = TextureUtils.loadAsIs("character/" + iconName + ".png");
             charTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             mapRenderer.setCharacterIconTexture(charTex);
         }
