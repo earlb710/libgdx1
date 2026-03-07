@@ -526,7 +526,7 @@ public class MainScreen implements Screen {
         return lookAroundPopup.isVisible()
             || state.unitInteriorOpen
             || tirednessPopup.isVisible()
-            || restingPopup.isVisible()
+            || (restingPopup.isVisible() && !restingPopup.isAnimating())
             || discoveryPopup.isVisible()
             || serviceResultPopup.isVisible()
             || stashPopup.isVisible()
@@ -681,6 +681,16 @@ public class MainScreen implements Screen {
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Resting popup blocks all normal interaction while visible
+                // (checked before isWalking so the OK button works during Traveling result)
+                if (restingPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Walking animation blocks all input
                 if (state.isWalking) { return true; }
 
@@ -707,15 +717,6 @@ public class MainScreen implements Screen {
 
                 // Tiredness popup blocks all normal interaction until dismissed
                 if (tirednessPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Resting popup blocks all normal interaction while visible
-                if (restingPopup.isVisible()) {
                     infoAreaPressed = true;
                     infoTouchStartX = screenX;
                     infoTouchStartY = screenY;
@@ -866,6 +867,18 @@ public class MainScreen implements Screen {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Resting popup: only the OK button (RESULT phase) can dismiss it
+                // (checked before isWalking so the OK button works during Traveling result)
+                if (restingPopup.isVisible()) {
+                    if (infoAreaPressed && !restingPopup.isAnimating()) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Walking animation blocks all input
                 if (state.isWalking) {
                     infoAreaPressed = false;
@@ -923,17 +936,6 @@ public class MainScreen implements Screen {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) tirednessPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Resting popup: only the OK button (RESULT phase) can dismiss it
-                if (restingPopup.isVisible()) {
-                    if (infoAreaPressed && !restingPopup.isAnimating()) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
                         infoAreaPressed = false;
                     }
                     isDragging = false;
