@@ -42,6 +42,7 @@ import java.util.Map;
  *   7. Buildings                – id, name, category, description, improvements (buildings_en.json)
  *   8. Improvements             – id, name, attribute_modifiers (improvements_en.json)
  *   9. Company Types            – id, name, description, buildings (company_types_en.json)
+ *  10. Names                    – person first-names, surnames, company name templates
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -73,6 +74,7 @@ public class CategoryEditorScreen extends JFrame {
     private final BuildingsEditorPanel      buildingsPanel     = new BuildingsEditorPanel(statusLabel);
     private final ImprovementsEditorPanel   improvementsPanel  = new ImprovementsEditorPanel(statusLabel);
     private final CompanyTypesEditorPanel   companyTypesPanel  = new CompanyTypesEditorPanel(statusLabel);
+    private final NamesEditorPanel          namesPanel         = new NamesEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -120,11 +122,12 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories", "Buildings", "Improvements", and "Company Types"
+        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", and "Names"
         tabbedPane.addTab("Categories",    categoriesPanel);
         tabbedPane.addTab("Buildings",     buildingsPanel);
         tabbedPane.addTab("Improvements",  improvementsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
+        tabbedPane.addTab("Names",         namesPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
