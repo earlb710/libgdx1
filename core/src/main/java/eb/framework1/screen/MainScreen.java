@@ -354,7 +354,7 @@ public class MainScreen implements Screen {
         }
 
         handleKeyboardInput();
-        if (state.isWalking) updateWalk(delta);
+        if (state.isWalking && !restingPopup.isVisible()) finishWalk();
         ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
 
         // Keep the NPC-overlay hour in sync with the current in-game time so that
@@ -526,7 +526,7 @@ public class MainScreen implements Screen {
         return lookAroundPopup.isVisible()
             || state.unitInteriorOpen
             || tirednessPopup.isVisible()
-            || restingPopup.isVisible()
+            || (restingPopup.isVisible() && !restingPopup.isAnimating())
             || discoveryPopup.isVisible()
             || serviceResultPopup.isVisible()
             || stashPopup.isVisible()
@@ -537,6 +537,7 @@ public class MainScreen implements Screen {
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
+            || notePopup.isVisible()
             || meetPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
@@ -680,6 +681,16 @@ public class MainScreen implements Screen {
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Resting popup blocks all normal interaction while visible
+                // (checked before isWalking so the OK button works during Traveling result)
+                if (restingPopup.isVisible()) {
+                    infoAreaPressed = true;
+                    infoTouchStartX = screenX;
+                    infoTouchStartY = screenY;
+                    isDragging      = false;
+                    return true;
+                }
+
                 // Walking animation blocks all input
                 if (state.isWalking) { return true; }
 
@@ -706,15 +717,6 @@ public class MainScreen implements Screen {
 
                 // Tiredness popup blocks all normal interaction until dismissed
                 if (tirednessPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Resting popup blocks all normal interaction while visible
-                if (restingPopup.isVisible()) {
                     infoAreaPressed = true;
                     infoTouchStartX = screenX;
                     infoTouchStartY = screenY;
@@ -865,6 +867,18 @@ public class MainScreen implements Screen {
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
                 int flippedY = state.screenHeight - screenY;
 
+                // Resting popup: only the OK button (RESULT phase) can dismiss it
+                // (checked before isWalking so the OK button works during Traveling result)
+                if (restingPopup.isVisible()) {
+                    if (infoAreaPressed && !restingPopup.isAnimating()) {
+                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
+                        infoAreaPressed = false;
+                    }
+                    isDragging = false;
+                    return true;
+                }
+
                 // Walking animation blocks all input
                 if (state.isWalking) {
                     infoAreaPressed = false;
@@ -922,17 +936,6 @@ public class MainScreen implements Screen {
                     if (infoAreaPressed) {
                         float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
                         if (d < TAP_THRESHOLD_PIXELS) tirednessPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Resting popup: only the OK button (RESULT phase) can dismiss it
-                if (restingPopup.isVisible()) {
-                    if (infoAreaPressed && !restingPopup.isAnimating()) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
                         infoAreaPressed = false;
                     }
                     isDragging = false;
@@ -2006,14 +2009,17 @@ public class MainScreen implements Screen {
         if (state.selectedCellX < 0) return;
         if (checkTirednessBeforeAction()) return;
 
-        // Advance game time and stamina immediately
-        profile.advanceGameTime(state.currentRoute.totalMinutes);
+        int totalMinutes = state.currentRoute.totalMinutes;
+        java.util.List<int[]> path = state.currentRoute.path;
+        int walkSteps = path.size() - 1; // number of junctions to animate (skip start)
+        if (walkSteps <= 0) return;
+
         profile.useStamina(2);
 
         // Seed the traveled path with the starting junction (if not already there)
         if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
-        if (!state.currentRoute.path.isEmpty()) {
-            int[] startJunc = state.currentRoute.path.get(0);
+        if (!path.isEmpty()) {
+            int[] startJunc = path.get(0);
             if (state.traveledPath.isEmpty()
                     || state.traveledPath.get(state.traveledPath.size() - 1)[0] != startJunc[0]
                     || state.traveledPath.get(state.traveledPath.size() - 1)[1] != startJunc[1]) {
@@ -2021,20 +2027,51 @@ public class MainScreen implements Screen {
             }
         }
 
-        // Record destination cell so updateWalk can set charCellX/Y on arrival
+        // Record destination cell so finishWalk can set charCellX/Y on arrival
         state.walkDestCellX = state.selectedCellX;
         state.walkDestCellY = state.selectedCellY;
 
-        // Start walk animation along the route path (junction coordinates)
-        state.walkPath     = state.currentRoute.path;
+        // Set up walk state (animation is driven by restingPopup callbacks)
+        state.walkPath     = path;
         state.walkStepIdx  = 1;  // index 0 is the start junction – skip it
-        state.walkTimer    = MapViewState.WALK_STEP_SECONDS;
         state.isWalking    = true;
         state.currentRoute = null;
         state.unitInteriorOpen = false;
         state.unitIsHotelRoom  = false;
         contextMenu.dismiss();
-        Gdx.app.log("MainScreen", "Walk started, steps=" + state.walkPath.size());
+
+        // Pre-calculate day-part boundary crossing for the result message
+        int hourBefore = profile.getCurrentHour();
+        int minute     = profile.getCurrentMinute();
+        int hourAfter  = ((hourBefore * 60 + minute + totalMinutes) / 60) % 24;
+        String resultMsg = null;
+        boolean crossedEvening = hourBefore < 18 && hourAfter >= 18;
+        boolean crossedMorning = (hourBefore >= 18 || hourBefore < 6)
+                && hourAfter >= 6 && hourAfter < 18;
+        if (crossedEvening) {
+            resultMsg = "It became night.";
+        } else if (crossedMorning) {
+            resultMsg = "It became morning.";
+        }
+
+        // Calculate per-step time advance (remainder goes to the last step)
+        final int minutesPerStep   = totalMinutes / walkSteps;
+        final int remainderMinutes = totalMinutes % walkSteps;
+        final int[] stepCounter    = {0};
+        final int stepsTotal       = walkSteps;
+
+        Gdx.app.log("MainScreen", "Walk started, steps=" + walkSteps
+                + ", totalMinutes=" + totalMinutes);
+
+        // Drive the walk animation through the restingPopup time animation
+        restingPopup.start(resultMsg, walkSteps, "Traveling",
+                MapViewState.WALK_STEP_SECONDS, () -> {
+            stepCounter[0]++;
+            int minutes = minutesPerStep;
+            if (stepCounter[0] == stepsTotal) minutes += remainderMinutes;
+            profile.advanceGameTime(minutes);
+            advanceOneWalkStep();
+        });
     }
 
     /**
@@ -2596,17 +2633,12 @@ public class MainScreen implements Screen {
                 + " x" + qty + " for $" + totalCost);
     }
 
-    /** Called every frame while {@code state.isWalking} is true. */
-    private void updateWalk(float delta) {
-        state.walkTimer -= delta;
-        if (state.walkTimer > 0f) return;
-
-        // Advance to next junction in path
-        if (state.walkStepIdx >= state.walkPath.size()) {
-            // Shouldn't normally reach here, but guard anyway
-            state.isWalking = false;
-            return;
-        }
+    /**
+     * Advances the walk animation by one junction along the path.
+     * Called from the restingPopup per-dot callback.
+     */
+    private void advanceOneWalkStep() {
+        if (state.walkPath == null || state.walkStepIdx >= state.walkPath.size()) return;
 
         int[] junc = state.walkPath.get(state.walkStepIdx);
         int jx = junc[0], jy = junc[1];
@@ -2630,26 +2662,9 @@ public class MainScreen implements Screen {
 
         state.walkStepIdx++;
 
-        if (state.walkStepIdx >= state.walkPath.size()) {
-            // Reached destination – move portrait back onto the cell
-            state.isWalking  = false;
-            state.walkPath   = null;
-            state.charJuncX  = -1f;
-            state.charJuncY  = -1f;
-            state.traveledPath.clear();
-            state.charCellX = state.walkDestCellX;
-            state.charCellY = state.walkDestCellY;
-            state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
-            state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
-            state.clampMapOffset();
-            boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
-            applyHotelArrivalBonus(state.charCellX, state.charCellY);
-            showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
-            Gdx.app.log("MainScreen", "Walk complete, arrived at "
-                    + state.charCellX + "," + state.charCellY);
-        } else {
-            // Discover the two cells on either side of the current road segment (10% each).
-            // Determine direction from the previous junction to the current one.
+        // Discover the two cells on either side of the current road segment (10% each),
+        // but only for intermediate steps (not the final junction).
+        if (state.walkStepIdx < state.walkPath.size() && state.walkStepIdx >= 2) {
             int[] prevJunc = state.walkPath.get(state.walkStepIdx - 2);
             int djx = jx - prevJunc[0];
             int djy = jy - prevJunc[1];
@@ -2675,8 +2690,30 @@ public class MainScreen implements Screen {
                     && side2CY >= 0 && side2CY < CityMap.MAP_SIZE) {
                 if (MathUtils.random() < 0.10f) discoverCell(side2CX, side2CY);
             }
-            state.walkTimer = MapViewState.WALK_STEP_SECONDS;
         }
+    }
+
+    /**
+     * Completes the walk: snaps the character to the destination cell,
+     * discovers the arrival cell, and shows the discovery popup.
+     * Called from the render loop once the restingPopup animation finishes.
+     */
+    private void finishWalk() {
+        state.isWalking  = false;
+        state.walkPath   = null;
+        state.charJuncX  = -1f;
+        state.charJuncY  = -1f;
+        state.traveledPath.clear();
+        state.charCellX = state.walkDestCellX;
+        state.charCellY = state.walkDestCellY;
+        state.mapOffsetX = state.charCellX - state.getVisibleCellsX() / 2.0f;
+        state.mapOffsetY = state.charCellY - state.getVisibleCellsY() / 2.0f;
+        state.clampMapOffset();
+        boolean newlyDiscovered = discoverCell(state.charCellX, state.charCellY);
+        applyHotelArrivalBonus(state.charCellX, state.charCellY);
+        showDiscoveryPopup(state.charCellX, state.charCellY, newlyDiscovered);
+        Gdx.app.log("MainScreen", "Walk complete, arrived at "
+                + state.charCellX + "," + state.charCellY);
     }
 
     /**
