@@ -12,21 +12,21 @@
       "capacity": 20,
       "percentage": 3.0,
       "improvements": [
-        "Security Camera",
-        "Lighting",
-        "Payment Kiosk",
-        "EV Charger",
-        "Speed Bumps",
-        "Striping",
-        "Handicap Spaces",
-        "Fire Lane"
+        "security_camera",
+        "lighting",
+        "payment_kiosk",
+        "ev_charger",
+        "speed_bumps",
+        "striping",
+        "handicap_spaces",
+        "fire_lane"
       ],
       "description": {
         "default": "Cracked asphalt and broken promises. The kind of lot that absorbs what happens to it without keeping records.",
         "time": {
           "morning": "Dawn hasn't done the place any favours. Grease stains and cigarette butts pass for the morning crowd.",
           "afternoon": "Heat shimmers off the blacktop. Every car baking in the sun carries the marks of the city it came from.",
-          "evening": "The lot empties like a bar at last call — fast, and without a backward glance.",
+          "evening": "The lot empties like a bar at last call \u2014 fast, and without a backward glance.",
           "night": "One lamp still burns. The rest are dead, same as every promise this lot ever made."
         },
         "attribute": {
@@ -35,7 +35,7 @@
         },
         "gender": {
           "male": "A man who moves through here like he owns it doesn't get a second look. The lot decides that in about four steps.",
-          "female": "The exits in a place like this sit at the edges of sight — there, and findable, for anyone who thinks to look."
+          "female": "The exits in a place like this sit at the edges of sight \u2014 there, and findable, for anyone who thinks to look."
         },
         "state": {
           "good": "Fresh asphalt lines the lot in crisp white paint. The surface is even and uncracked, recently sealed against the weather.",
@@ -55,28 +55,28 @@
       "capacity": 100,
       "percentage": 1.5,
       "improvements": [
-        "Security Camera",
-        "Lighting",
-        "Payment Kiosk",
-        "Covered Walkway",
-        "EV Chargers",
-        "Cart Corral",
-        "Security Patrol",
-        "Emergency Call Box",
-        "Landscaping",
-        "Storm Drains"
+        "security_camera",
+        "lighting",
+        "payment_kiosk",
+        "covered_walkway",
+        "ev_chargers",
+        "cart_corral",
+        "security_patrol",
+        "emergency_call_box",
+        "landscaping",
+        "storm_drains"
       ],
       "description": {
         "default": "A hundred cars and not one of them parked here by accident. The lot is big enough to swallow an afternoon and small enough that nothing quite disappears.",
         "time": {
           "morning": "Workers funnel in before the sun gets mean. During shift changes, the foot traffic moves in one direction and nobody's counting heads.",
           "afternoon": "The open forecourt offers nothing to stand behind. Still figures draw attention.",
-          "evening": "The tide goes out. Engines turn over in the dark. A few hesitate — catching, faltering, trying again.",
+          "evening": "The tide goes out. Engines turn over in the dark. A few hesitate \u2014 catching, faltering, trying again.",
           "night": "The lot sprawls under a bruised sky. Every shadow that doesn't belong to a car or a lamp post belongs to something else."
         },
         "attribute": {
-          "PERCEPTION": "Three vehicles here don't fit the zip code. Plates, models, parking position — each one a small argument against coincidence.",
-          "STEALTH": "A space this size offers a hundred places to disappear. The best three sit near the perimeter — cover, sightlines, and an exit within four steps.",
+          "PERCEPTION": "Three vehicles here don't fit the zip code. Plates, models, parking position \u2014 each one a small argument against coincidence.",
+          "STEALTH": "A space this size offers a hundred places to disappear. The best three sit near the perimeter \u2014 cover, sightlines, and an exit within four steps.",
           "AGILITY": "The rows between cars offer clear lanes and blind angles in equal measure. No straight lines. No witnesses at the right distance."
         },
         "gender": {
@@ -101,16 +101,16 @@
       "capacity": 150,
       "percentage": 0.8,
       "improvements": [
-        "Elevator",
-        "Security System",
-        "EV Chargers",
-        "Ventilation",
-        "Stairwell",
-        "Fire Suppression",
-        "Emergency Lighting",
-        "Parking Sensors",
-        "Payment Machines",
-        "Security Office"
+        "elevator",
+        "security_system",
+        "ev_chargers",
+        "ventilation",
+        "stairwell",
+        "fire_suppression",
+        "emergency_lighting",
+        "parking_sensors",
+        "payment_machines",
+        "security_office"
       ],
       "description": {
         "default": "Concrete and shadow. The kind of place where things get settled without paperwork.",
@@ -118,7 +118,7 @@
           "morning": "Early arrivals echo off the ceiling. Engines and footsteps bouncing off concrete in the half-light.",
           "afternoon": "Every level occupied. Every car a question. The answers, if there are any, are parked somewhere in this concrete dark.",
           "evening": "The stream of departures fills the levels with movement and noise. Cover comes free at this hour.",
-          "night": "The garage breathes on its own — creaks, drips, the groan of settling steel. The kind of quiet that isn't quiet at all."
+          "night": "The garage breathes on its own \u2014 creaks, drips, the groan of settling steel. The kind of quiet that isn't quiet at all."
         },
         "attribute": {
           "STEALTH": "Pillars every twelve feet. Each one a hard shadow and a reason to stop. The geometry of this place rewards patience.",
@@ -127,7 +127,7 @@
         },
         "gender": {
           "male": "A man who stays in the shadows of a place like this becomes part of its architecture. The dark absorbs him. Nobody accounts for shadows.",
-          "female": "The stairwell lights are noted by anyone who uses them. A woman who moves through a garage without hesitation changes the calculation — working with the space, not against it."
+          "female": "The stairwell lights are noted by anyone who uses them. A woman who moves through a garage without hesitation changes the calculation \u2014 working with the space, not against it."
         },
         "state": {
           "good": "Clean concrete walls reflect bright overhead lighting. The painted floor markings are sharp, the stairwell handrails freshly coated, and the drainage channels clear.",
@@ -147,18 +147,18 @@
       "capacity": 500,
       "percentage": 0.4,
       "improvements": [
-        "Multiple Elevators",
-        "Security Office",
-        "Car Wash",
-        "Valet Service",
-        "EV Charging Station",
-        "Motorcycle Parking",
-        "Bicycle Storage",
-        "Ventilation System",
-        "Fire Suppression",
-        "Emergency Exits",
-        "Digital Signage",
-        "Retail Space"
+        "multiple_elevators",
+        "security_office",
+        "car_wash",
+        "valet_service",
+        "ev_charging_station",
+        "motorcycle_parking",
+        "bicycle_storage",
+        "ventilation_system",
+        "fire_suppression",
+        "emergency_exits",
+        "digital_signage",
+        "retail_space"
       ],
       "description": {
         "default": "Six levels of concrete and secrets. The kind of structure that accumulates what people carry in and don't carry out.",
@@ -170,11 +170,11 @@
         },
         "attribute": {
           "STEALTH": "A structure this size has more blind spots than a crooked precinct. Camera angles overlap in theory. In practice, the gaps are generous.",
-          "PERCEPTION": "The cameras are visible on the way in. Half of them look older than the building itself — housings cracked, lenses fogged.",
+          "PERCEPTION": "The cameras are visible on the way in. Half of them look older than the building itself \u2014 housings cracked, lenses fogged.",
           "AGILITY": "The stairs run along the exterior wall. Fast, predictable, open at both ends. The elevators are a single point of exposure."
         },
         "gender": {
-          "male": "A man who moves through a structure like he built it draws no attention. Sure, deliberate, clearly with a destination — nobody's problem.",
+          "male": "A man who moves through a structure like he built it draws no attention. Sure, deliberate, clearly with a destination \u2014 nobody's problem.",
           "female": "A woman moving through a multi-storey alone gets assessed at every level. She reads that assessment. Uses it."
         },
         "state": {
@@ -195,16 +195,16 @@
       "capacity": 15,
       "percentage": 2.5,
       "improvements": [
-        "Refrigeration",
-        "Security System",
-        "ATM",
-        "Coffee Station",
-        "Lottery Terminal",
-        "Hot Food Counter",
-        "Ice Machine",
-        "Walk-In Cooler",
-        "Digital Signage",
-        "Self-Checkout"
+        "refrigeration",
+        "security_system",
+        "atm",
+        "coffee_station",
+        "lottery_terminal",
+        "hot_food_counter",
+        "ice_machine",
+        "walk_in_cooler",
+        "digital_signage",
+        "self_checkout"
       ],
       "description": {
         "default": "Fluorescent light and stale coffee. The kind of place where lives quietly fall apart between the shelves.",
@@ -240,21 +240,21 @@
       "capacity": 20,
       "percentage": 1.8,
       "improvements": [
-        "Fuel Pumps",
-        "Car Wash",
-        "Air Station",
-        "Convenience Store",
-        "Propane Exchange",
-        "Vacuum Station",
-        "ATM",
-        "EV Charging",
-        "Canopy Lighting",
-        "Underground Tanks",
-        "Payment Terminal",
-        "Security Cameras"
+        "fuel_pumps",
+        "car_wash",
+        "air_station",
+        "convenience_store",
+        "propane_exchange",
+        "vacuum_station",
+        "atm",
+        "ev_charging",
+        "canopy_lighting",
+        "underground_tanks",
+        "payment_terminal",
+        "security_cameras"
       ],
       "description": {
-        "default": "Pump logs, forecourt cameras, and a shop stocked for people who didn't plan ahead. A fuel station with a convenience store records everything — card details, timestamps, the face at the counter. Most people filling up don't think about that.",
+        "default": "Pump logs, forecourt cameras, and a shop stocked for people who didn't plan ahead. A fuel station with a convenience store records everything \u2014 card details, timestamps, the face at the counter. Most people filling up don't think about that.",
         "time": {
           "morning": "Early fill-ups before the commute locks in. Drivers on automatic, buying fuel and coffee without looking at anything too closely. Wide-open observation window.",
           "afternoon": "The pumps quiet down and the shop carries the trade. People stopping for reasons that have nothing to do with fuel. The gap between cover story and real intent shows in the time they spend deciding what to buy.",
@@ -268,7 +268,7 @@
         },
         "gender": {
           "male": "Cash at the pump, nothing from the shop. No record past the nozzle sensor. A stop that leaves almost no trace.",
-          "female": "The attendant clocks the stop — standard procedure. What they log is the transaction. What was noted on the way in doesn't make it into the record."
+          "female": "The attendant clocks the stop \u2014 standard procedure. What they log is the transaction. What was noted on the way in doesn't make it into the record."
         },
         "state": {
           "good": "The canopy overhead is clean white with crisp brand colours. The pump islands are freshly painted and the forecourt surface shows no staining.",
@@ -288,18 +288,18 @@
       "capacity": 50,
       "percentage": 2.2,
       "improvements": [
-        "Drive-Through",
-        "Indoor Seating",
-        "Playground",
-        "WiFi",
-        "Digital Menu Boards",
-        "Self-Order Kiosk",
-        "Mobile Pickup",
-        "Commercial Kitchen",
-        "Walk-In Freezer",
-        "Outdoor Seating",
-        "Party Room",
-        "Soda Fountain"
+        "drive_through",
+        "indoor_seating",
+        "playground",
+        "wifi",
+        "digital_menu_boards",
+        "self_order_kiosk",
+        "mobile_pickup",
+        "commercial_kitchen",
+        "walk_in_freezer",
+        "outdoor_seating",
+        "party_room",
+        "soda_fountain"
       ],
       "attribute_modifiers": {
         "STAMINA": -1
@@ -318,7 +318,7 @@
           "STAMINA": "The grease and the noise accumulate. Most people stop paying attention to anything but the table in front of them inside twenty minutes. The room stays indifferent to that."
         },
         "gender": {
-          "male": "The corner booth, back to the wall, gives a clear view of the room and the door. A man who takes it looks like he belongs here. The booth doesn't announce itself — it just works.",
+          "male": "The corner booth, back to the wall, gives a clear view of the room and the door. A man who takes it looks like he belongs here. The booth doesn't announce itself \u2014 it just works.",
           "female": "A woman who sits where she can see the door draws a neighbour who wants to make conversation. She lets him think he succeeded. The information flows in one direction."
         },
         "state": {
@@ -339,31 +339,31 @@
       "capacity": 30,
       "percentage": 2.0,
       "improvements": [
-        "Espresso Machine",
-        "WiFi",
-        "Outdoor Seating",
-        "Bakery",
-        "Drive-Through Window",
-        "Lounge Area",
-        "Meeting Space",
-        "Roasting Equipment",
-        "Cold Brew Station",
-        "Merchandise Display",
-        "Mobile Order Pickup",
-        "Fireplace"
+        "espresso_machine",
+        "wifi",
+        "outdoor_seating",
+        "bakery",
+        "drive_through_window",
+        "lounge_area",
+        "meeting_space",
+        "roasting_equipment",
+        "cold_brew_station",
+        "merchandise_display",
+        "mobile_order_pickup",
+        "fireplace"
       ],
       "description": {
         "default": "Seven-dollar coffee and secrets sold by the pound. Everyone in here is running from something or toward something worse.",
         "time": {
-          "morning": "The morning rush brings them in loud and caffeinated. Loose mouths, tight schedules — money can't buy discretion.",
+          "morning": "The morning rush brings them in loud and caffeinated. Loose mouths, tight schedules \u2014 money can't buy discretion.",
           "afternoon": "The afternoon crowd settles in with laptops and long drinks. They think they're hiding. They're not.",
           "evening": "Quieter now. The ones who remain have nowhere better to be. The attrition of the evening hour leaves only the committed.",
           "night": "Last customers of the night nursing cold cups. The barista wants to close. The want is written on his face. The customers don't read it."
         },
         "attribute": {
-          "INTELLIGENCE": "A corner table, full view of the room, one coffee, and ninety minutes of plausible presence. The information accumulates in layers — screens, faces, half-heard conversations.",
-          "MEMORY": "The regular at the end of the bar carries a familiar face — the kind that belongs to a different context, a different problem. The weight of it doesn't diminish with distance.",
-          "CHARISMA": "The barista starts the order before the customer reaches the counter. A regular. The easiest cover a coffee shop offers — familiar, expected, part of the furniture."
+          "INTELLIGENCE": "A corner table, full view of the room, one coffee, and ninety minutes of plausible presence. The information accumulates in layers \u2014 screens, faces, half-heard conversations.",
+          "MEMORY": "The regular at the end of the bar carries a familiar face \u2014 the kind that belongs to a different context, a different problem. The weight of it doesn't diminish with distance.",
+          "CHARISMA": "The barista starts the order before the customer reaches the counter. A regular. The easiest cover a coffee shop offers \u2014 familiar, expected, part of the furniture."
         },
         "gender": {
           "male": "A man with a newspaper at a coffee shop table doesn't register. The newspaper doesn't even have to be current. The posture is enough.",
@@ -387,21 +387,21 @@
       "capacity": 25,
       "percentage": 4.0,
       "improvements": [
-        "Display Windows",
-        "Security System",
-        "Fitting Rooms",
-        "Storage Room",
-        "Point of Sale",
-        "Inventory System",
-        "Customer Lounge",
-        "Gift Wrapping",
-        "Alterations Area",
-        "Employee Break Room",
-        "Loading Dock",
-        "Climate Control"
+        "display_windows",
+        "security_system",
+        "fitting_rooms",
+        "storage_room",
+        "point_of_sale",
+        "inventory_system",
+        "customer_lounge",
+        "gift_wrapping",
+        "alterations_area",
+        "employee_break_room",
+        "loading_dock",
+        "climate_control"
       ],
       "description": {
-        "default": "Everything for sale, including information — though most shopkeepers don't know they're selling it.",
+        "default": "Everything for sale, including information \u2014 though most shopkeepers don't know they're selling it.",
         "time": {
           "morning": "Freshly stocked shelves and a shopkeeper who hasn't had their guard up long enough to keep it steady.",
           "afternoon": "The slow burn of a quiet afternoon. The owner has time to read the room. So does anyone who walks into it.",
@@ -435,18 +435,18 @@
       "capacity": 30,
       "percentage": 1.2,
       "improvements": [
-        "Prescription Counter",
-        "Drive-Through",
-        "Health Clinic",
-        "Photo Center",
-        "Vaccine Station",
-        "Consultation Room",
-        "Medication Storage",
-        "Cosmetics Section",
-        "Home Medical Equipment",
-        "Blood Pressure Station",
-        "Digital Signage",
-        "Refrigerated Meds"
+        "prescription_counter",
+        "drive_through",
+        "health_clinic",
+        "photo_center",
+        "vaccine_station",
+        "consultation_room",
+        "medication_storage",
+        "cosmetics_section",
+        "home_medical_equipment",
+        "blood_pressure_station",
+        "digital_signage",
+        "refrigerated_meds"
       ],
       "description": {
         "default": "Prescriptions and secrets. People are never more honest than when they're sick and scared.",
@@ -457,7 +457,7 @@
           "night": "Dark and locked. Only the emergency window glows. Whatever brought someone out this late matters."
         },
         "attribute": {
-          "INTELLIGENCE": "The shelves carry their own record — low stock where demand is high, over-ordering where something's being managed. Out-of-place product in the wrong section. The inventory tells a story.",
+          "INTELLIGENCE": "The shelves carry their own record \u2014 low stock where demand is high, over-ordering where something's being managed. Out-of-place product in the wrong section. The inventory tells a story.",
           "EMPATHY": "Every prescription tells a story. The chapters people carry out in paper bags are the ones they didn't come here to share.",
           "PERCEPTION": "The pharmacist's hands froze for half a second on one name. Just half a second. Enough."
         },
@@ -483,18 +483,18 @@
       "capacity": 40,
       "percentage": 0.8,
       "improvements": [
-        "Vault",
-        "ATM Lobby",
-        "Drive-Through",
-        "Safe Deposit Boxes",
-        "Teller Stations",
-        "Loan Office",
-        "Conference Room",
-        "Night Deposit",
-        "Security System",
-        "Bullet-Resistant Glass",
-        "Currency Counter",
-        "Break Room"
+        "vault",
+        "atm_lobby",
+        "drive_through",
+        "safe_deposit_boxes",
+        "teller_stations",
+        "loan_office",
+        "conference_room",
+        "night_deposit",
+        "security_system",
+        "bullet_resistant_glass",
+        "currency_counter",
+        "break_room"
       ],
       "description": {
         "default": "Money is just a way of keeping score. This branch keeps the tally. Someone in it has been adjusting the numbers.",
@@ -505,7 +505,7 @@
           "night": "Locked. The ATM hums in the dark. Someone's using it at this hour for a reason."
         },
         "attribute": {
-          "INTELLIGENCE": "The floor plan reads itself in under ten seconds — vault access, teller positions, the one camera with the bad angle on the far wall.",
+          "INTELLIGENCE": "The floor plan reads itself in under ten seconds \u2014 vault access, teller positions, the one camera with the bad angle on the far wall.",
           "INTIMIDATION": "The guard straightens when someone walks past without slowing. Authority reads in posture. The response is automatic.",
           "PERCEPTION": "The customer three places ahead in the queue is sweating through a suit jacket on a cool day. That's not the weather."
         },
@@ -531,35 +531,35 @@
       "capacity": 25,
       "percentage": 0.6,
       "improvements": [
-        "Commercial Washers",
-        "Dryers",
-        "Folding Tables",
-        "Vending Machines",
-        "Change Machine",
-        "Detergent Dispenser",
-        "Seating Area",
-        "TV",
-        "WiFi",
-        "Drop-Off Service",
-        "Dry Cleaning",
-        "Lost and Found"
+        "commercial_washers",
+        "dryers",
+        "folding_tables",
+        "vending_machines",
+        "change_machine",
+        "detergent_dispenser",
+        "seating_area",
+        "tv",
+        "wifi",
+        "drop_off_service",
+        "dry_cleaning",
+        "lost_and_found"
       ],
       "description": {
         "default": "Everyone comes here with something to clean. Not all of it fits in a drum.",
         "time": {
           "morning": "The early crowd does their laundry before work. What they're washing out, that's the question.",
-          "afternoon": "The machines drone on. Afternoon light through dirty glass. A good place to sit and think — the sound covers the quiet, and the quiet covers the thinking.",
+          "afternoon": "The machines drone on. Afternoon light through dirty glass. A good place to sit and think \u2014 the sound covers the quiet, and the quiet covers the thinking.",
           "evening": "After-work crowd. Tired, automatic, not watching what's around them. The room is full of inward attention.",
           "night": "Two people and the sound of spinning cycles. At this hour, people are either working unusual shifts or they're hiding something. Sometimes both."
         },
         "attribute": {
           "PERCEPTION": "The man in the corner hasn't looked at his laundry once. He's watching the door.",
-          "MEMORY": "That face belongs to a different neighbourhood. Different context, same trouble — the kind that follows a person from postcode to postcode.",
+          "MEMORY": "That face belongs to a different neighbourhood. Different context, same trouble \u2014 the kind that follows a person from postcode to postcode.",
           "STEALTH": "A figure folding laundry draws no attention. The laundromat is built for occupied waiting. Everyone here is absorbed in their own cycle."
         },
         "gender": {
           "male": "A man with a magazine he isn't reading blends into the wait. The laundromat absorbs him alongside the other slow hours and the spinning drums.",
-          "female": "A woman chatting with the one next to her is unremarkable in a laundromat. The neighbour, the landlord, the troubles — the information moves freely in a space where time is being killed."
+          "female": "A woman chatting with the one next to her is unremarkable in a laundromat. The neighbour, the landlord, the troubles \u2014 the information moves freely in a space where time is being killed."
         },
         "state": {
           "good": "Clean white render and clear shopfront windows reveal the row of machines inside. The exterior signage is fully illuminated and the drainage gutter is clear.",
@@ -579,18 +579,18 @@
       "capacity": 20,
       "percentage": 1.5,
       "improvements": [
-        "Styling Stations",
-        "Shampoo Bowls",
-        "Waiting Area",
-        "Product Display",
-        "Nail Station",
-        "Waxing Room",
-        "Color Bar",
-        "Reception Desk",
-        "Break Room",
-        "Storage Closet",
-        "Retail Section",
-        "Massage Chair"
+        "styling_stations",
+        "shampoo_bowls",
+        "waiting_area",
+        "product_display",
+        "nail_station",
+        "waxing_room",
+        "color_bar",
+        "reception_desk",
+        "break_room",
+        "storage_closet",
+        "retail_section",
+        "massage_chair"
       ],
       "description": {
         "default": "The most honest conversations in any city happen in a hair salon. People say everything when someone's working on their head.",
@@ -601,8 +601,8 @@
           "night": "Dark and locked. Whatever the chairs knew, they gave it up six hours ago."
         },
         "attribute": {
-          "CHARISMA": "The social rhythm of a hair salon has a tempo — regulars, callbacks, the easy banter of familiarity. Someone who matches it reads as a known face, regardless of whether they are.",
-          "EMPATHY": "The chatter sounds like small talk. It isn't. The spaces between the words carry as much as the words themselves — the pauses, the redirections, the laugh that comes a beat too late.",
+          "CHARISMA": "The social rhythm of a hair salon has a tempo \u2014 regulars, callbacks, the easy banter of familiarity. Someone who matches it reads as a known face, regardless of whether they are.",
+          "EMPATHY": "The chatter sounds like small talk. It isn't. The spaces between the words carry as much as the words themselves \u2014 the pauses, the redirections, the laugh that comes a beat too late.",
           "PERCEPTION": "Three conversations happening simultaneously. The room generates information at a rate most people can't process. It all goes into the air."
         },
         "gender": {
@@ -627,22 +627,22 @@
       "capacity": 150,
       "percentage": 0.5,
       "improvements": [
-        "Cardio Equipment",
-        "Weight Room",
-        "Locker Rooms",
-        "Group Fitness Studio",
-        "Swimming Pool",
-        "Sauna",
-        "Personal Training",
-        "Juice Bar",
-        "Child Care",
-        "Basketball Court",
-        "Climbing Wall",
-        "Spin Room",
-        "Yoga Studio",
-        "Physical Therapy",
-        "Towel Service",
-        "Pro Shop"
+        "cardio_equipment",
+        "weight_room",
+        "locker_rooms",
+        "group_fitness_studio",
+        "swimming_pool",
+        "sauna",
+        "personal_training",
+        "juice_bar",
+        "child_care",
+        "basketball_court",
+        "climbing_wall",
+        "spin_room",
+        "yoga_studio",
+        "physical_therapy",
+        "towel_service",
+        "pro_shop"
       ],
       "attribute_modifiers": {
         "STRENGTH": 2
@@ -658,7 +658,7 @@
         "attribute": {
           "STRENGTH": "The heaviest rack sits in the corner, untouched by most. The iron doesn't negotiate. The space is built for things that weigh more than a bad day.",
           "STAMINA": "The cardio floor runs the length of the building. Rows of machines, all of them counting. The distance this place demands shows in the faces of those who've been here since before the light changed.",
-          "AGILITY": "The training floor runs in a natural circuit — free weights along the far wall, machines flanking the centre, mats at the back. Every corner visible from the entrance. No dead ends."
+          "AGILITY": "The training floor runs in a natural circuit \u2014 free weights along the far wall, machines flanking the centre, mats at the back. Every corner visible from the entrance. No dead ends."
         },
         "gender": {
           "male": "Two regulars nod at newcomers and hold equipment for people they've never met. Some spaces run on old, unwritten codes of conduct.",
@@ -682,20 +682,20 @@
       "capacity": 60,
       "percentage": 0.8,
       "improvements": [
-        "Exam Rooms",
-        "X-Ray",
-        "Lab Services",
-        "Waiting Room",
-        "Pharmacy",
-        "Physical Therapy",
-        "Nurse Station",
-        "Records Room",
-        "Procedure Room",
-        "Blood Draw Station",
-        "Reception",
-        "Staff Lounge",
-        "Consultation Office",
-        "Medical Storage"
+        "exam_rooms",
+        "x_ray",
+        "lab_services",
+        "waiting_room",
+        "pharmacy",
+        "physical_therapy",
+        "nurse_station",
+        "records_room",
+        "procedure_room",
+        "blood_draw_station",
+        "reception",
+        "staff_lounge",
+        "consultation_office",
+        "medical_storage"
       ],
       "description": {
         "default": "Sick people, tired doctors, and a filing system that knows everything about everyone. The files are the point.",
@@ -707,12 +707,12 @@
         },
         "attribute": {
           "INTELLIGENCE": "The prescription pad on the counter. The dosages on the display shelf. Everything in this room offers more than the receptionist would.",
-          "EMPATHY": "Every patient in the waiting room is scared of something. The ones scared of the wrong thing are easy to spot — the eyes go to the door, not the clock.",
-          "PERCEPTION": "The desk has been rearranged recently — clipboard repositioned, prescription pad covered. The room adapts when it senses it is being read."
+          "EMPATHY": "Every patient in the waiting room is scared of something. The ones scared of the wrong thing are easy to spot \u2014 the eyes go to the door, not the clock.",
+          "PERCEPTION": "The desk has been rearranged recently \u2014 clipboard repositioned, prescription pad covered. The room adapts when it senses it is being read."
         },
         "gender": {
           "male": "The reception desk is the first checkpoint and the last line of courtesy. The staff are trained to manage the gap between what people say is wrong and what is actually wrong.",
-          "female": "Through the door and past the reception line — a woman moving with purpose in a clinic reads as staff. The question never gets asked."
+          "female": "Through the door and past the reception line \u2014 a woman moving with purpose in a clinic reads as staff. The question never gets asked."
         },
         "state": {
           "good": "A clean rendered building with even paintwork and unscratched entrance glazing. The accessible ramp is freshly marked and the handrails are solid.",
@@ -732,18 +732,18 @@
       "capacity": 30,
       "percentage": 0.9,
       "improvements": [
-        "Dental Chairs",
-        "X-Ray Equipment",
-        "Sterilization Room",
-        "Reception",
-        "Panoramic X-Ray",
-        "Whitening Room",
-        "Consultation Office",
-        "Lab Area",
-        "Patient Education",
-        "Records Storage",
-        "Break Room",
-        "Nitrous System"
+        "dental_chairs",
+        "x_ray_equipment",
+        "sterilization_room",
+        "reception",
+        "panoramic_x_ray",
+        "whitening_room",
+        "consultation_office",
+        "lab_area",
+        "patient_education",
+        "records_storage",
+        "break_room",
+        "nitrous_system"
       ],
       "description": {
         "default": "People say things in a dental chair they'd never say anywhere else. Pain is the world's oldest truth serum.",
@@ -780,28 +780,28 @@
       "capacity": 40,
       "percentage": 0.4,
       "improvements": [
-        "Exam Rooms",
-        "Surgery Suite",
-        "Kennels",
-        "Grooming Station",
-        "X-Ray Room",
-        "Lab Area",
-        "Pharmacy",
-        "Isolation Ward",
-        "Cat Ward",
-        "Dog Ward",
-        "Reception",
-        "Pet Retail",
-        "Recovery Room",
-        "Dental Suite"
+        "exam_rooms",
+        "surgery_suite",
+        "kennels",
+        "grooming_station",
+        "x_ray_room",
+        "lab_area",
+        "pharmacy",
+        "isolation_ward",
+        "cat_ward",
+        "dog_ward",
+        "reception",
+        "pet_retail",
+        "recovery_room",
+        "dental_suite"
       ],
       "description": {
         "default": "Animals don't lie, and the people who love them are halfway honest. A good place to ask questions.",
         "time": {
-          "morning": "First clients of the day — worried owners, anxious animals, and no reason yet to be on guard.",
+          "morning": "First clients of the day \u2014 worried owners, anxious animals, and no reason yet to be on guard.",
           "afternoon": "Routine visits and the kind of chatter that happens when everyone's been waiting too long.",
           "evening": "Last few cases. The day's weight shows on the staff. Weight makes people talk.",
-          "night": "Emergency hours only. Whatever brings someone here at this time of night — it matters."
+          "night": "Emergency hours only. Whatever brings someone here at this time of night \u2014 it matters."
         },
         "attribute": {
           "EMPATHY": "The clinic cat makes its rounds without hurry. Animals don't read threat where there isn't one. The waiting room takes its cue.",
@@ -830,20 +830,20 @@
       "capacity": 50,
       "percentage": 0.7,
       "improvements": [
-        "Playrooms",
-        "Nap Area",
-        "Kitchen",
-        "Outdoor Playground",
-        "Art Room",
-        "Music Room",
-        "Infant Care",
-        "Toddler Room",
-        "Preschool Classroom",
-        "Security System",
-        "Check-In Kiosk",
-        "Parent Lounge",
-        "Office",
-        "Staff Room"
+        "playrooms",
+        "nap_area",
+        "kitchen",
+        "outdoor_playground",
+        "art_room",
+        "music_room",
+        "infant_care",
+        "toddler_room",
+        "preschool_classroom",
+        "security_system",
+        "check_in_kiosk",
+        "parent_lounge",
+        "office",
+        "staff_room"
       ],
       "description": {
         "default": "Small humans, big noise, and staff trained to notice anything out of the ordinary. Any adult without a child in tow is, by definition, out of the ordinary.",
@@ -859,7 +859,7 @@
           "PERCEPTION": "One child has been watching the door. Not waiting for a parent. Watching for something else."
         },
         "gender": {
-          "male": "An unaccompanied adult male in a daycare centre attracts the full protocol. The sign-in sheet, the escort, the visible watchfulness — it's by design.",
+          "male": "An unaccompanied adult male in a daycare centre attracts the full protocol. The sign-in sheet, the escort, the visible watchfulness \u2014 it's by design.",
           "female": "A woman is waved through the entrance with a smile. The assumption holds long enough to matter. The window is narrow."
         },
         "state": {
@@ -880,38 +880,38 @@
       "capacity": 500,
       "percentage": 0.4,
       "improvements": [
-        "Classrooms",
-        "Gymnasium",
-        "Library",
-        "Cafeteria",
-        "Computer Lab",
-        "Art Room",
-        "Music Room",
-        "Playground",
-        "Nurse Office",
-        "Principal Office",
-        "Teacher Lounge",
-        "Auditorium",
-        "Science Lab",
-        "Special Ed Room",
-        "Counselor Office",
-        "Storage"
+        "classrooms",
+        "gymnasium",
+        "library",
+        "cafeteria",
+        "computer_lab",
+        "art_room",
+        "music_room",
+        "playground",
+        "nurse_office",
+        "principal_office",
+        "teacher_lounge",
+        "auditorium",
+        "science_lab",
+        "special_ed_room",
+        "counselor_office",
+        "storage"
       ],
       "description": {
-        "default": "Crayon drawings and the kind of secrets kids carry without knowing they're carrying them. The whole place is built on good faith — which makes it fragile.",
+        "default": "Crayon drawings and the kind of secrets kids carry without knowing they're carrying them. The whole place is built on good faith \u2014 which makes it fragile.",
         "time": {
           "morning": "Assembly echoes down the corridor. Every adult in the building is occupied. The best time to move unseen.",
-          "afternoon": "Classes in session. The halls are empty between periods — a window of maybe forty seconds.",
+          "afternoon": "Classes in session. The halls are empty between periods \u2014 a window of maybe forty seconds.",
           "evening": "After-school activities. Fewer staff, looser protocols, kids who've been here long enough to drop their guard.",
           "night": "Locked and dark. A janitor's cart outside one room. The building keeps its own hours."
         },
         "attribute": {
           "EMPATHY": "Kids read sincerity faster than any polygraph. Genuine interest is legible to them in ways adults have forgotten.",
-          "CHARISMA": "Teachers move naturally around a certain kind of presence — the kind that carries the quiet authority of someone who belongs here.",
-          "PERCEPTION": "The corner of one classroom breaks the pattern. The usual visual noise of a primary school — and then one thing that doesn't belong."
+          "CHARISMA": "Teachers move naturally around a certain kind of presence \u2014 the kind that carries the quiet authority of someone who belongs here.",
+          "PERCEPTION": "The corner of one classroom breaks the pattern. The usual visual noise of a primary school \u2014 and then one thing that doesn't belong."
         },
         "gender": {
-          "male": "An adult male visitor follows the full protocol — sign-in, lanyard, escort. The procedure is deliberate. It slows things down. That is the point.",
+          "male": "An adult male visitor follows the full protocol \u2014 sign-in, lanyard, escort. The procedure is deliberate. It slows things down. That is the point.",
           "female": "A woman moves through the office with the easy manner of a visiting professional. Two teachers assume she's the new reading coordinator. The assumption goes uncorrected."
         },
         "state": {
@@ -932,22 +932,22 @@
       "capacity": 1500,
       "percentage": 0.15,
       "improvements": [
-        "Science Labs",
-        "Auditorium",
-        "Athletic Fields",
-        "Computer Labs",
-        "Library",
-        "Gymnasium",
-        "Swimming Pool",
-        "Track",
-        "Cafeteria",
-        "Band Room",
-        "Art Studio",
-        "Woodshop",
-        "Auto Shop",
-        "Drama Theater",
-        "Weight Room",
-        "Student Center"
+        "science_labs",
+        "auditorium",
+        "athletic_fields",
+        "computer_labs",
+        "library",
+        "gymnasium",
+        "swimming_pool",
+        "track",
+        "cafeteria",
+        "band_room",
+        "art_studio",
+        "woodshop",
+        "auto_shop",
+        "drama_theater",
+        "weight_room",
+        "student_center"
       ],
       "description": {
         "default": "Hierarchy, tension, and information passed in corridors at speeds most adults can't follow. The social architecture is visible to anyone who knows how to read it.",
@@ -958,12 +958,12 @@
           "night": "Dark and locked. Whatever happened here today left its mark on tomorrow."
         },
         "attribute": {
-          "INTELLIGENCE": "The social map of this building is legible — faster to read, perhaps, from the outside looking in than from within it.",
+          "INTELLIGENCE": "The social map of this building is legible \u2014 faster to read, perhaps, from the outside looking in than from within it.",
           "CHARISMA": "Students and staff both respond to a certain kind of presence. The kind that reads as official to anyone not looking closely.",
           "PERCEPTION": "The student who should be in class isn't. Three possible reasons. One of them connects to something larger than a skipped period."
         },
         "gender": {
-          "male": "An adult male gets assessed immediately — visitor, authority, or threat. The calculation happens in seconds. Authority reads cleanest.",
+          "male": "An adult male gets assessed immediately \u2014 visitor, authority, or threat. The calculation happens in seconds. Authority reads cleanest.",
           "female": "A woman at the front office moves through easily. A student's name mentioned in the right tone opens doors that formal channels wouldn't."
         },
         "state": {
@@ -984,22 +984,22 @@
       "capacity": 3000,
       "percentage": 0.05,
       "improvements": [
-        "Lecture Halls",
-        "Library",
-        "Student Center",
-        "Parking Structure",
-        "Science Building",
-        "Arts Center",
-        "Gymnasium",
-        "Cafeteria",
-        "Computer Labs",
-        "Nursing Lab",
-        "Welding Shop",
-        "Automotive Bay",
-        "Bookstore",
-        "Counseling Center",
-        "Testing Center",
-        "Financial Aid"
+        "lecture_halls",
+        "library",
+        "student_center",
+        "parking_structure",
+        "science_building",
+        "arts_center",
+        "gymnasium",
+        "cafeteria",
+        "computer_labs",
+        "nursing_lab",
+        "welding_shop",
+        "automotive_bay",
+        "bookstore",
+        "counseling_center",
+        "testing_center",
+        "financial_aid"
       ],
       "attribute_modifiers": {
         "INTELLIGENCE": 2
@@ -1014,7 +1014,7 @@
         },
         "attribute": {
           "INTELLIGENCE": "The notice board tells more than the admin office would. Who's recruiting, who's advertising, who's watching.",
-          "MEMORY": "Academic environments run on paperwork. Every sheet passed over a desk, every form pinned to a corkboard — a trail for anyone who remembers what they've seen.",
+          "MEMORY": "Academic environments run on paperwork. Every sheet passed over a desk, every form pinned to a corkboard \u2014 a trail for anyone who remembers what they've seen.",
           "CHARISMA": "Faculty and students both engage with the right kind of presence. Genuine curiosity is rare enough that people respond when they encounter it."
         },
         "gender": {
@@ -1039,27 +1039,27 @@
       "capacity": 30,
       "percentage": 0.3,
       "improvements": [
-        "Truck Bays",
-        "Living Quarters",
-        "Training Room",
-        "Equipment Storage",
-        "Kitchen",
-        "Fitness Room",
-        "Dispatch Office",
-        "Hose Tower",
-        "Decontamination Room",
-        "Laundry",
-        "Meeting Room",
-        "Captain Office"
+        "truck_bays",
+        "living_quarters",
+        "training_room",
+        "equipment_storage",
+        "kitchen",
+        "fitness_room",
+        "dispatch_office",
+        "hose_tower",
+        "decontamination_room",
+        "laundry",
+        "meeting_room",
+        "captain_office"
       ],
       "attribute_modifiers": {
         "STRENGTH": 1,
         "STAMINA": 1
       },
       "description": {
-        "default": "These people run toward the thing everyone else runs from. The culture inside is built on that inversion — controlled, physical, loyal.",
+        "default": "These people run toward the thing everyone else runs from. The culture inside is built on that inversion \u2014 controlled, physical, loyal.",
         "time": {
-          "morning": "Morning check is ritual — gear, vehicles, the discipline of people who know the cost of being unprepared.",
+          "morning": "Morning check is ritual \u2014 gear, vehicles, the discipline of people who know the cost of being unprepared.",
           "afternoon": "A call-out empties the station in forty seconds. The building goes from full to hollow in the time it takes to register the alarm.",
           "evening": "Evening shift settling in. The shared meal is where the real conversation happens.",
           "night": "Between calls, the station breathes. The overnight hours carry a particular quality of stillness."
@@ -1067,11 +1067,11 @@
         "attribute": {
           "STRENGTH": "The crew reads a visitor in one look. Physical presence either passes that test or it doesn't. There is no appeal.",
           "STAMINA": "Physical endurance is the baseline currency of this place. The crew's attention goes to those who carry it without advertising it.",
-          "AGILITY": "The station's interior is an obstacle course of equipment, hoses, and hardware. Old training reads in the body — the way someone moves through a space without thinking about it."
+          "AGILITY": "The station's interior is an obstacle course of equipment, hoses, and hardware. Old training reads in the body \u2014 the way someone moves through a space without thinking about it."
         },
         "gender": {
           "male": "The crew reads a man by his hands and his posture. The decision comes fast. It usually lands correctly.",
-          "female": "The station goes quiet when a woman walks in — not hostile, just recalibrating. The pause is brief. Work follows."
+          "female": "The station goes quiet when a woman walks in \u2014 not hostile, just recalibrating. The pause is brief. Work follows."
         },
         "state": {
           "good": "A solid brick or rendered building with clean apparatus bay doors and freshly painted bay aprons. The exterior brickwork is pointed and the windows intact.",
@@ -1091,20 +1091,20 @@
       "capacity": 80,
       "percentage": 0.2,
       "improvements": [
-        "Holding Cells",
-        "Evidence Room",
-        "Dispatch Center",
-        "Training Facility",
-        "Interrogation Room",
-        "Armory",
-        "Locker Room",
-        "Fitness Center",
-        "Roll Call Room",
-        "Detective Office",
-        "Records Room",
-        "Booking Area",
-        "Break Room",
-        "Command Center"
+        "holding_cells",
+        "evidence_room",
+        "dispatch_center",
+        "training_facility",
+        "interrogation_room",
+        "armory",
+        "locker_room",
+        "fitness_center",
+        "roll_call_room",
+        "detective_office",
+        "records_room",
+        "booking_area",
+        "break_room",
+        "command_center"
       ],
       "attribute_modifiers": {
         "PERCEPTION": 2,
@@ -1119,9 +1119,9 @@
           "night": "Night watch. Fewer officers, lower guard, and the kind of quiet that lets things surface."
         },
         "attribute": {
-          "PERCEPTION": "The notice board is covered in layers — old flyers buried under new ones. This place runs on paper and habit.",
+          "PERCEPTION": "The notice board is covered in layers \u2014 old flyers buried under new ones. This place runs on paper and habit.",
           "INTIMIDATION": "A certain presence walks in and the room recalibrates. Some people still carry that frequency. The room knows it when it feels it.",
-          "INTELLIGENCE": "The board connects three cases the detective handling them hasn't linked yet. The pattern is there — thirty seconds and it resolves.",
+          "INTELLIGENCE": "The board connects three cases the detective handling them hasn't linked yet. The pattern is there \u2014 thirty seconds and it resolves.",
           "CHARISMA": "The desk sergeant produces the file before an explanation is offered. Sometimes an old reputation still clears doors."
         },
         "gender": {
@@ -1146,20 +1146,20 @@
       "capacity": 300,
       "percentage": 0.1,
       "improvements": [
-        "Cell Block A",
-        "Cell Block B",
-        "Guard Tower",
-        "Solitary Confinement",
-        "Warden Office",
-        "Visitation Room",
-        "Cafeteria",
-        "Infirmary",
-        "Rehabilitation Center",
-        "Exercise Yard",
-        "Control Room",
-        "Chapel",
-        "Library Wing",
-        "Workshop"
+        "cell_block_a",
+        "cell_block_b",
+        "guard_tower",
+        "solitary_confinement",
+        "warden_office",
+        "visitation_room",
+        "cafeteria",
+        "infirmary",
+        "rehabilitation_center",
+        "exercise_yard",
+        "control_room",
+        "chapel",
+        "library_wing",
+        "workshop"
       ],
       "description": {
         "default": "High walls topped with razor wire rise above every sight line. Watchtowers anchor each corner, their floodlight brackets angled to leave nothing in shadow after dark.",
@@ -1170,12 +1170,12 @@
           "night": "The facility is its own island of light. Every lamp is doing exactly the job it was installed to do, and every shadow has been designed out of the compound."
         },
         "attribute": {
-          "PERCEPTION": "The camera housings track the outer perimeter in overlapping arcs. The blind spots are not accidents — they are where the fence posts break the sight lines.",
+          "PERCEPTION": "The camera housings track the outer perimeter in overlapping arcs. The blind spots are not accidents \u2014 they are where the fence posts break the sight lines.",
           "STEALTH": "The service entrance sits on the north face, away from the main gate. Two cameras, one facing the road, one facing the service lane. Neither covers the gate itself."
         },
         "gender": {
           "male": "The compound reads as a solid wall from any approach. No windows below the third level. The upper tiers have narrow apertures set deep into the masonry.",
-          "female": "The visitor entrance is a separate structure entirely — lower, lighter, with a different grade of glass in the door panels."
+          "female": "The visitor entrance is a separate structure entirely \u2014 lower, lighter, with a different grade of glass in the door panels."
         },
         "state": {
           "good": "The perimeter fence stands perfectly upright, its tensioned wire clean and without gaps. Freshly painted bollards line the service road and every camera housing is intact.",
@@ -1195,18 +1195,18 @@
       "capacity": 30,
       "percentage": 0.3,
       "improvements": [
-        "PO Boxes",
-        "Package Sorting",
-        "Retail Counter",
-        "Loading Dock",
-        "Self-Service Kiosk",
-        "Passport Services",
-        "Scale Station",
-        "Stamp Vending",
-        "Package Lockers",
-        "Carrier Route",
-        "Break Room",
-        "Supervisor Office"
+        "po_boxes",
+        "package_sorting",
+        "retail_counter",
+        "loading_dock",
+        "self_service_kiosk",
+        "passport_services",
+        "scale_station",
+        "stamp_vending",
+        "package_lockers",
+        "carrier_route",
+        "break_room",
+        "supervisor_office"
       ],
       "description": {
         "default": "Every letter is a conversation someone had to pay to have. The building holds the record of every one of them.",
@@ -1214,7 +1214,7 @@
           "morning": "First queue of the day. People who came to collect something that arrived overnight.",
           "afternoon": "Numbered tickets and long waits. The longer people wait, the more they talk.",
           "evening": "Counter down to one window. Whatever comes through at this hour, it wasn't sent through official channels.",
-          "night": "Locked. The sorting room runs overnight. Shift workers who see everything and say nothing — until the right question gives them a reason."
+          "night": "Locked. The sorting room runs overnight. Shift workers who see everything and say nothing \u2014 until the right question gives them a reason."
         },
         "attribute": {
           "MEMORY": "A face at the counter. Handwriting on the parcel at counter three. Both connect to something outside this building and outside this moment.",
@@ -1243,20 +1243,20 @@
       "capacity": 200,
       "percentage": 0.2,
       "improvements": [
-        "Book Stacks",
-        "Computer Lab",
-        "Meeting Rooms",
-        "Children's Area",
-        "Study Rooms",
-        "Periodicals Section",
-        "Reference Desk",
-        "Quiet Reading Room",
-        "Maker Space",
-        "Teen Zone",
-        "Genealogy Room",
-        "Local History Archive",
-        "Audiobook Section",
-        "DVD Collection"
+        "book_stacks",
+        "computer_lab",
+        "meeting_rooms",
+        "children_s_area",
+        "study_rooms",
+        "periodicals_section",
+        "reference_desk",
+        "quiet_reading_room",
+        "maker_space",
+        "teen_zone",
+        "genealogy_room",
+        "local_history_archive",
+        "audiobook_section",
+        "dvd_collection"
       ],
       "attribute_modifiers": {
         "INTELLIGENCE": 3,
@@ -1298,20 +1298,20 @@
       "capacity": 300,
       "percentage": 0.2,
       "improvements": [
-        "Gymnasium",
-        "Meeting Rooms",
-        "Kitchen",
-        "Senior Center",
-        "Youth Room",
-        "Dance Studio",
-        "Art Room",
-        "Computer Lab",
-        "Game Room",
-        "Banquet Hall",
-        "Outdoor Patio",
-        "Stage",
-        "Reception Area",
-        "Office Space"
+        "gymnasium",
+        "meeting_rooms",
+        "kitchen",
+        "senior_center",
+        "youth_room",
+        "dance_studio",
+        "art_room",
+        "computer_lab",
+        "game_room",
+        "banquet_hall",
+        "outdoor_patio",
+        "stage",
+        "reception_area",
+        "office_space"
       ],
       "description": {
         "default": "Community on the surface. Underneath, every grievance, alliance and private arrangement the neighbourhood runs on.",
@@ -1348,22 +1348,22 @@
       "capacity": 200,
       "percentage": 0.05,
       "improvements": [
-        "Council Chambers",
-        "Clerk's Office",
-        "Permit Center",
-        "Archives",
-        "Mayor Office",
-        "City Manager",
-        "Finance Department",
-        "Planning Department",
-        "Human Resources",
-        "IT Department",
-        "Public Works",
-        "Parks Department",
-        "Press Room",
-        "Security Office",
-        "Conference Rooms",
-        "Break Room"
+        "council_chambers",
+        "clerk_s_office",
+        "permit_center",
+        "archives",
+        "mayor_office",
+        "city_manager",
+        "finance_department",
+        "planning_department",
+        "human_resources",
+        "it_department",
+        "public_works",
+        "parks_department",
+        "press_room",
+        "security_office",
+        "conference_rooms",
+        "break_room"
       ],
       "description": {
         "default": "The machine that runs the city. Slow, rusted, and for sale to the right bidder. The bidder's name is somewhere in the building.",
@@ -1400,27 +1400,27 @@
       "capacity": 400,
       "percentage": 0.05,
       "improvements": [
-        "Courtrooms",
-        "Judge's Chambers",
-        "Law Library",
-        "Security Checkpoint",
-        "Clerk's Office",
-        "Jury Assembly",
-        "Holding Cells",
-        "Attorney Meeting Rooms",
-        "Records Vault",
-        "Probation Office",
-        "District Attorney",
-        "Public Defender",
-        "Witness Waiting Area",
-        "Mediation Rooms"
+        "courtrooms",
+        "judge_s_chambers",
+        "law_library",
+        "security_checkpoint",
+        "clerk_s_office",
+        "jury_assembly",
+        "holding_cells",
+        "attorney_meeting_rooms",
+        "records_vault",
+        "probation_office",
+        "district_attorney",
+        "public_defender",
+        "witness_waiting_area",
+        "mediation_rooms"
       ],
       "attribute_modifiers": {
         "INTELLIGENCE": 2,
         "INTIMIDATION": 2
       },
       "description": {
-        "default": "Justice — or the paperwork approximation of it. Both have been on display here. The paperwork outlasts them all.",
+        "default": "Justice \u2014 or the paperwork approximation of it. Both have been on display here. The paperwork outlasts them all.",
         "time": {
           "morning": "Lawyers and defendants funnelling through the metal detectors before the docket opens. Who walks in together tells its own story.",
           "afternoon": "Full session. Courtroom four has a case that keeps being adjourned. The reason is somewhere in the record.",
@@ -1433,7 +1433,7 @@
           "PERCEPTION": "A lawyer passed a note that shouldn't have crossed the aisle. Received one in return that will be denied. Both transactions are on the record."
         },
         "gender": {
-          "male": "A man in the courthouse reads as counsel or professional — either way, he belongs here. Nobody questions it.",
+          "male": "A man in the courthouse reads as counsel or professional \u2014 either way, he belongs here. Nobody questions it.",
           "female": "A female presence in the gallery reads as invisible to people who've been staring at the same faces day after day. Perfect."
         },
         "state": {
@@ -1454,18 +1454,18 @@
       "capacity": 12,
       "percentage": 8.0,
       "improvements": [
-        "Laundry Room",
-        "Mailboxes",
-        "Bike Storage",
-        "Parking Lot",
-        "Cellar Storage",
-        "Intercom System",
-        "Fire Escape",
-        "Common Patio",
-        "Package Room",
-        "Security Cameras",
-        "Recycling Area",
-        "Pet Washing Station"
+        "laundry_room",
+        "mailboxes",
+        "bike_storage",
+        "parking_lot",
+        "cellar_storage",
+        "intercom_system",
+        "fire_escape",
+        "common_patio",
+        "package_room",
+        "security_cameras",
+        "recycling_area",
+        "pet_washing_station"
       ],
       "description": {
         "default": "Thin walls and thinner excuses. Everything in a building like this gets heard eventually.",
@@ -1502,20 +1502,20 @@
       "capacity": 40,
       "percentage": 6.0,
       "improvements": [
-        "Elevator",
-        "Fitness Room",
-        "Rooftop Deck",
-        "Package Lockers",
-        "Laundry Room",
-        "Storage Units",
-        "Bike Room",
-        "Community Room",
-        "Dog Run",
-        "Courtyard",
-        "Security System",
-        "Lobby",
-        "Management Office",
-        "Trash Chute"
+        "elevator",
+        "fitness_room",
+        "rooftop_deck",
+        "package_lockers",
+        "laundry_room",
+        "storage_units",
+        "bike_room",
+        "community_room",
+        "dog_run",
+        "courtyard",
+        "security_system",
+        "lobby",
+        "management_office",
+        "trash_chute"
       ],
       "description": {
         "default": "Layers of lives stacked on top of each other. What happens on one floor echoes on all of them.",
@@ -1552,22 +1552,22 @@
       "capacity": 80,
       "percentage": 4.0,
       "improvements": [
-        "Pool",
-        "Clubhouse",
-        "Parking Garage",
-        "Concierge",
-        "Fitness Center",
-        "Business Center",
-        "Rooftop Lounge",
-        "Dog Park",
-        "Children's Playroom",
-        "Game Room",
-        "Theater Room",
-        "Package Room",
-        "Bike Storage",
-        "Guest Suites",
-        "Wine Storage",
-        "Grilling Area"
+        "pool",
+        "clubhouse",
+        "parking_garage",
+        "concierge",
+        "fitness_center",
+        "business_center",
+        "rooftop_lounge",
+        "dog_park",
+        "children_s_playroom",
+        "game_room",
+        "theater_room",
+        "package_room",
+        "bike_storage",
+        "guest_suites",
+        "wine_storage",
+        "grilling_area"
       ],
       "description": {
         "default": "A hundred apartments, three hundred lies, and one address that connects to everything. The floor that matters is somewhere in this building.",
@@ -1604,22 +1604,22 @@
       "capacity": 150,
       "percentage": 1.0,
       "improvements": [
-        "Doorman",
-        "Spa",
-        "Sky Lounge",
-        "Valet Parking",
-        "Infinity Pool",
-        "Golf Simulator",
-        "Private Dining Room",
-        "Wine Cellar",
-        "Pet Spa",
-        "Children's Room",
-        "Co-Working Space",
-        "Yoga Studio",
-        "Terrace Gardens",
-        "Concierge Service",
-        "Electric Car Charging",
-        "Residents Only Elevator"
+        "doorman",
+        "spa",
+        "sky_lounge",
+        "valet_parking",
+        "infinity_pool",
+        "golf_simulator",
+        "private_dining_room",
+        "wine_cellar",
+        "pet_spa",
+        "children_s_room",
+        "co_working_space",
+        "yoga_studio",
+        "terrace_gardens",
+        "concierge_service",
+        "electric_car_charging",
+        "residents_only_elevator"
       ],
       "description": {
         "default": "Money spent on the illusion of safety. Illusions, of course, never do hold.",
@@ -1656,22 +1656,22 @@
       "capacity": 300,
       "percentage": 0.5,
       "improvements": [
-        "24hr Security",
-        "Rooftop Pool",
-        "Business Center",
-        "Pet Spa",
-        "Sky Lounge",
-        "Concierge",
-        "Valet Parking",
-        "Private Elevator",
-        "Residents Gym",
-        "Yoga Studio",
-        "Kids Play Area",
-        "Entertainment Suite",
-        "Guest Apartments",
-        "Wine Storage",
-        "Private Dining",
-        "Electric Vehicle Charging"
+        "24hr_security",
+        "rooftop_pool",
+        "business_center",
+        "pet_spa",
+        "sky_lounge",
+        "concierge",
+        "valet_parking",
+        "private_elevator",
+        "residents_gym",
+        "yoga_studio",
+        "kids_play_area",
+        "entertainment_suite",
+        "guest_apartments",
+        "wine_storage",
+        "private_dining",
+        "electric_vehicle_charging"
       ],
       "description": {
         "default": "Forty floors of private lives stacked in the sky. Whatever the city holds, something in this stack knows it.",
@@ -1682,7 +1682,7 @@
           "night": "The security desk has one person on it. They've been here since eight. Their route is clockwork."
         },
         "attribute": {
-          "CHARISMA": "The kind of easy conversation that covers three floors' worth of useful information — it starts when someone holds the elevator for a resident.",
+          "CHARISMA": "The kind of easy conversation that covers three floors' worth of useful information \u2014 it starts when someone holds the elevator for a resident.",
           "PERCEPTION": "Hundreds of units and one of them has a different air about it. The number on the door announces itself before the landing ends.",
           "STEALTH": "Anonymous, crowded, and indifferent. A natural habitat for those who prefer not to be found."
         },
@@ -1708,18 +1708,18 @@
       "capacity": 8,
       "percentage": 5.0,
       "improvements": [
-        "Private Garages",
-        "Patios",
-        "HOA Common Area",
-        "Guest Parking",
-        "Rooftop Deck",
-        "Basement",
-        "Backyard",
-        "Front Porch",
-        "Attic Storage",
-        "Laundry Room",
-        "Home Office Nook",
-        "Walk-In Closet"
+        "private_garages",
+        "patios",
+        "hoa_common_area",
+        "guest_parking",
+        "rooftop_deck",
+        "basement",
+        "backyard",
+        "front_porch",
+        "attic_storage",
+        "laundry_room",
+        "home_office_nook",
+        "walk_in_closet"
       ],
       "description": {
         "default": "Respectable facades with interesting interiors. Suburbs keep their secrets quieter than the city. Harder to crack. Worth the effort.",
@@ -1756,20 +1756,20 @@
       "capacity": 60,
       "percentage": 2.5,
       "improvements": [
-        "HOA Office",
-        "Meeting Room",
-        "Pool",
-        "Underground Parking",
-        "Fitness Center",
-        "Sauna",
-        "Party Room",
-        "Rooftop Deck",
-        "Storage Units",
-        "Bike Storage",
-        "Dog Wash",
-        "Package Lockers",
-        "Guest Suite",
-        "Library Lounge"
+        "hoa_office",
+        "meeting_room",
+        "pool",
+        "underground_parking",
+        "fitness_center",
+        "sauna",
+        "party_room",
+        "rooftop_deck",
+        "storage_units",
+        "bike_storage",
+        "dog_wash",
+        "package_lockers",
+        "guest_suite",
+        "library_lounge"
       ],
       "description": {
         "default": "Owner-occupied, well-maintained, and under the impression that nothing bad happens here. The impression is wrong.",
@@ -1780,12 +1780,12 @@
           "night": "Night-mode lobby. One desk lamp and a camera covering the south wall."
         },
         "attribute": {
-          "CHARISMA": "The concierge has a practiced way with long-term residents — an easy familiarity built on years of small interactions. Buildings like this reward familiarity.",
+          "CHARISMA": "The concierge has a practiced way with long-term residents \u2014 an easy familiarity built on years of small interactions. Buildings like this reward familiarity.",
           "PERCEPTION": "A reflection in the lobby mirror places someone on a floor they haven't been assigned.",
           "STEALTH": "Shift timing. Blind-spot rotation. Entry window: ninety seconds. The margins, for the practiced eye, are generous."
         },
         "gender": {
-          "male": "A newspaper folded under one arm. A measured walk to the elevator. Man heading up — nobody's problem.",
+          "male": "A newspaper folded under one arm. A measured walk to the elevator. Man heading up \u2014 nobody's problem.",
           "female": "The concierge is chattier than their job requires. Small talk, in the right hands, trades for building access."
         },
         "state": {
@@ -1806,22 +1806,22 @@
       "capacity": 80,
       "percentage": 0.5,
       "improvements": [
-        "Dining Hall",
-        "Medical Office",
-        "Activity Room",
-        "Garden",
-        "Physical Therapy",
-        "Chapel",
-        "Library",
-        "Hair Salon",
-        "Memory Care Unit",
-        "Outdoor Courtyard",
-        "Movie Theater",
-        "Craft Room",
-        "Nurse Station",
-        "Family Visiting Room",
-        "Emergency Call System",
-        "Transportation Service"
+        "dining_hall",
+        "medical_office",
+        "activity_room",
+        "garden",
+        "physical_therapy",
+        "chapel",
+        "library",
+        "hair_salon",
+        "memory_care_unit",
+        "outdoor_courtyard",
+        "movie_theater",
+        "craft_room",
+        "nurse_station",
+        "family_visiting_room",
+        "emergency_call_system",
+        "transportation_service"
       ],
       "description": {
         "default": "The old and the overlooked. The city filed them away decades ago. That means they saw everything the city wanted forgotten.",
@@ -1858,20 +1858,20 @@
       "capacity": 80,
       "percentage": 0.6,
       "improvements": [
-        "Free Breakfast",
-        "WiFi",
-        "Parking",
-        "Laundry",
-        "Ice Machine",
-        "Vending",
-        "Pool",
-        "Fitness Room",
-        "Business Center",
-        "Pet Friendly Rooms",
-        "Microwave Rooms",
-        "Front Desk",
-        "Luggage Storage",
-        "Guest Lounge"
+        "free_breakfast",
+        "wifi",
+        "parking",
+        "laundry",
+        "ice_machine",
+        "vending",
+        "pool",
+        "fitness_room",
+        "business_center",
+        "pet_friendly_rooms",
+        "microwave_rooms",
+        "front_desk",
+        "luggage_storage",
+        "guest_lounge"
       ],
       "attribute_modifiers": {
         "PERCEPTION": -1,
@@ -1881,7 +1881,7 @@
         "default": "Thin walls and cheaper regrets. Every budget hotel is a short story collection that nobody's proud of.",
         "time": {
           "morning": "The breakfast queue is a parade of people who slept badly and still have to function. The clientele has that look.",
-          "afternoon": "The lobby is transit — everyone passing through, nobody staying.",
+          "afternoon": "The lobby is transit \u2014 everyone passing through, nobody staying.",
           "evening": "Check-in rush. One overworked clerk, a queue that tests patience. The wait is long enough to catalogue who else is checking in.",
           "night": "Somewhere down the hall a door slams. Somewhere else, a call ends badly. The building tells its secrets to anyone willing to listen."
         },
@@ -1912,22 +1912,22 @@
       "capacity": 200,
       "percentage": 0.3,
       "improvements": [
-        "Conference Rooms",
-        "Business Center",
-        "Restaurant",
-        "Fitness Center",
-        "Pool",
-        "Room Service",
-        "Concierge",
-        "Valet Parking",
-        "Executive Lounge",
-        "Bar",
-        "Meeting Suites",
-        "Shuttle Service",
-        "Dry Cleaning",
-        "Spa",
-        "Ballroom",
-        "Gift Shop"
+        "conference_rooms",
+        "business_center",
+        "restaurant",
+        "fitness_center",
+        "pool",
+        "room_service",
+        "concierge",
+        "valet_parking",
+        "executive_lounge",
+        "bar",
+        "meeting_suites",
+        "shuttle_service",
+        "dry_cleaning",
+        "spa",
+        "ballroom",
+        "gift_shop"
       ],
       "attribute_modifiers": {
         "PERCEPTION": -1,
@@ -1944,7 +1944,7 @@
         "attribute": {
           "CHARISMA": "The front desk upgrades without being asked. The look of someone who expects it is unmistakable.",
           "INTELLIGENCE": "The conference attendance list posted at the concierge desk maps who is in town, what organisation they represent, and which floors they have access to.",
-          "PERCEPTION": "The room's sight lines, the corridor camera, and the stairwell exit — all catalogued before the porter finishes the room tour."
+          "PERCEPTION": "The room's sight lines, the corridor camera, and the stairwell exit \u2014 all catalogued before the porter finishes the room tour."
         },
         "gender": {
           "male": "The efficiency of a man who has checked in a hundred times. The name on the register isn't always the same name.",
@@ -1968,22 +1968,22 @@
       "capacity": 300,
       "percentage": 0.1,
       "improvements": [
-        "Spa",
-        "Fine Dining",
-        "Rooftop Bar",
-        "Valet Service",
-        "Butler Service",
-        "Infinity Pool",
-        "Private Beach",
-        "Helipad",
-        "Presidential Suite",
-        "Wine Cellar",
-        "Art Gallery",
-        "Private Cinema",
-        "Tennis Court",
-        "Golf Simulator",
-        "Yacht Service",
-        "Personal Shopping"
+        "spa",
+        "fine_dining",
+        "rooftop_bar",
+        "valet_service",
+        "butler_service",
+        "infinity_pool",
+        "private_beach",
+        "helipad",
+        "presidential_suite",
+        "wine_cellar",
+        "art_gallery",
+        "private_cinema",
+        "tennis_court",
+        "golf_simulator",
+        "yacht_service",
+        "personal_shopping"
       ],
       "attribute_modifiers": {
         "PERCEPTION": -1,
@@ -2000,7 +2000,7 @@
         "attribute": {
           "CHARISMA": "The luxury hotel concierge maintains a near-perfect memory for regular guests. Long-term repeat visitors are known by preference, habit, and quiet expectation.",
           "EMPATHY": "Every exchange here is a transaction. What's being bought and sold at each table is legible to the right eye.",
-          "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van — all three connect to the same name."
+          "INTELLIGENCE": "The guest list, the room assignments, the kitchen supplier with the unmarked van \u2014 all three connect to the same name."
         },
         "gender": {
           "male": "The hotel's assumptions fit like a second suit. Nobody questions the man at the corner table who hasn't ordered yet.",
@@ -2024,21 +2024,21 @@
       "capacity": 100,
       "percentage": 3.0,
       "improvements": [
-        "Conference Room",
-        "Break Room",
-        "Parking Lot",
-        "Security",
-        "Reception Area",
-        "Mail Room",
-        "Server Room",
-        "Storage Room",
-        "Elevator",
-        "Fire Safety System",
-        "Bike Rack",
-        "Outdoor Seating"
+        "conference_room",
+        "break_room",
+        "parking_lot",
+        "security",
+        "reception_area",
+        "mail_room",
+        "server_room",
+        "storage_room",
+        "elevator",
+        "fire_safety_system",
+        "bike_rack",
+        "outdoor_seating"
       ],
       "description": {
-        "default": "Small office, small secrets — but they're the kind that fit in a briefcase and travel well.",
+        "default": "Small office, small secrets \u2014 but they're the kind that fit in a briefcase and travel well.",
         "time": {
           "morning": "Staff arriving, coffee in hand, guard not yet up. The freshest intelligence of the day is at nine a.m.",
           "afternoon": "Post-lunch slowdown. Everyone's a little more honest when they're a little more tired.",
@@ -2072,23 +2072,23 @@
       "capacity": 400,
       "percentage": 1.5,
       "improvements": [
-        "Multiple Elevators",
-        "Lobby",
-        "Parking Garage",
-        "Cafeteria",
-        "Conference Center",
-        "Fitness Center",
-        "Loading Dock",
-        "Security Desk",
-        "Rooftop Terrace",
-        "Bike Storage",
-        "Shower Facilities",
-        "Mail Center",
-        "Data Center",
-        "Building Management Office"
+        "multiple_elevators",
+        "lobby",
+        "parking_garage",
+        "cafeteria",
+        "conference_center",
+        "fitness_center",
+        "loading_dock",
+        "security_desk",
+        "rooftop_terrace",
+        "bike_storage",
+        "shower_facilities",
+        "mail_center",
+        "data_center",
+        "building_management_office"
       ],
       "description": {
-        "default": "Mid-size offices, mid-size lies. The crimes here are the unglamorous kind — fraud, cover-ups, the daily corruption of small decisions.",
+        "default": "Mid-size offices, mid-size lies. The crimes here are the unglamorous kind \u2014 fraud, cover-ups, the daily corruption of small decisions.",
         "time": {
           "morning": "The building wakes with the particular energy of people about to spend eight hours being someone else.",
           "afternoon": "Conference rooms booked solid, hallways full of conversations that stop at a certain kind of footstep. Enough has already been heard.",
@@ -2122,22 +2122,22 @@
       "capacity": 1000,
       "percentage": 0.5,
       "improvements": [
-        "Executive Floors",
-        "Fitness Center",
-        "Sky Lobby",
-        "Helipad",
-        "Multiple Restaurants",
-        "Banking Services",
-        "Medical Office",
-        "Retail Shops",
-        "Conference Center",
-        "Auditorium",
-        "Parking Structure",
-        "Concierge",
-        "Day Care",
-        "Dry Cleaning",
-        "Car Service",
-        "Roof Garden"
+        "executive_floors",
+        "fitness_center",
+        "sky_lobby",
+        "helipad",
+        "multiple_restaurants",
+        "banking_services",
+        "medical_office",
+        "retail_shops",
+        "conference_center",
+        "auditorium",
+        "parking_structure",
+        "concierge",
+        "day_care",
+        "dry_cleaning",
+        "car_service",
+        "roof_garden"
       ],
       "description": {
         "default": "A thousand people and one secret that ties all of them together. It's in here somewhere.",
@@ -2174,22 +2174,22 @@
       "capacity": 2000,
       "percentage": 0.1,
       "improvements": [
-        "Executive Suite",
-        "Auditorium",
-        "Employee Cafeteria",
-        "Daycare",
-        "Fitness Center",
-        "Medical Clinic",
-        "Research Labs",
-        "Training Center",
-        "Visitor Center",
-        "Innovation Lab",
-        "Board Room",
-        "Press Room",
-        "Employee Store",
-        "Campus Security",
-        "Shuttle Service",
-        "Green Roof"
+        "executive_suite",
+        "auditorium",
+        "employee_cafeteria",
+        "daycare",
+        "fitness_center",
+        "medical_clinic",
+        "research_labs",
+        "training_center",
+        "visitor_center",
+        "innovation_lab",
+        "board_room",
+        "press_room",
+        "employee_store",
+        "campus_security",
+        "shuttle_service",
+        "green_roof"
       ],
       "description": {
         "default": "The top floor of everything wrong with the city. This is where decisions get laundered and consequences get delegated.",
@@ -2226,20 +2226,20 @@
       "capacity": 150,
       "percentage": 0.8,
       "improvements": [
-        "Hot Desks",
-        "Private Offices",
-        "Meeting Rooms",
-        "Coffee Bar",
-        "Phone Booths",
-        "Event Space",
-        "Kitchen",
-        "Lounge Area",
-        "Podcast Studio",
-        "Wellness Room",
-        "Mail Service",
-        "Print Center",
-        "Outdoor Terrace",
-        "Bike Storage"
+        "hot_desks",
+        "private_offices",
+        "meeting_rooms",
+        "coffee_bar",
+        "phone_booths",
+        "event_space",
+        "kitchen",
+        "lounge_area",
+        "podcast_studio",
+        "wellness_room",
+        "mail_service",
+        "print_center",
+        "outdoor_terrace",
+        "bike_storage"
       ],
       "description": {
         "default": "Shared desks and the illusion of community. Everyone working independently and desperately hoping someone notices.",
@@ -2276,18 +2276,18 @@
       "capacity": 200,
       "percentage": 2.0,
       "improvements": [
-        "Shared Parking",
-        "Anchor Store",
-        "Restaurant Space",
-        "Loading Area",
-        "Signage Pylon",
-        "Landscaping",
-        "Shopping Cart Corral",
-        "Trash Enclosure",
-        "Drive-Through Lane",
-        "Outdoor Seating",
-        "ATM",
-        "Bus Stop"
+        "shared_parking",
+        "anchor_store",
+        "restaurant_space",
+        "loading_area",
+        "signage_pylon",
+        "landscaping",
+        "shopping_cart_corral",
+        "trash_enclosure",
+        "drive_through_lane",
+        "outdoor_seating",
+        "atm",
+        "bus_stop"
       ],
       "description": {
         "default": "A string of businesses held together by a parking lot and low expectations. Somebody's running something here that isn't on the signage.",
@@ -2324,20 +2324,20 @@
       "capacity": 500,
       "percentage": 0.4,
       "improvements": [
-        "Food Court",
-        "Movie Theater",
-        "Department Store",
-        "Parking Structure",
-        "Customer Service",
-        "Family Restrooms",
-        "Play Area",
-        "Event Space",
-        "Escalators",
-        "Directory Kiosk",
-        "Security Office",
-        "Management Office",
-        "Loading Docks",
-        "Maintenance Room"
+        "food_court",
+        "movie_theater",
+        "department_store",
+        "parking_structure",
+        "customer_service",
+        "family_restrooms",
+        "play_area",
+        "event_space",
+        "escalators",
+        "directory_kiosk",
+        "security_office",
+        "management_office",
+        "loading_docks",
+        "maintenance_room"
       ],
       "description": {
         "default": "Consumption as cover. A thousand people who aren't watching where they're going, and one who is.",
@@ -2348,7 +2348,7 @@
           "night": "Security walks the dark concourse. Their route runs in tight, predictable loops. The pattern repeats."
         },
         "attribute": {
-          "CHARISMA": "The regulars move through it with ease and people respond accordingly — a nod here, a conversation there. Familiarity opens doors faster than credentials.",
+          "CHARISMA": "The regulars move through it with ease and people respond accordingly \u2014 a nod here, a conversation there. Familiarity opens doors faster than credentials.",
           "PERCEPTION": "Exit signs mark three ground-floor routes. Someone near the food court hasn't touched their tray in ten minutes. They're not here to eat.",
           "STEALTH": "A face matched to the crowd's pace disappears into it. The furniture notices nothing."
         },
@@ -2374,28 +2374,28 @@
       "capacity": 2000,
       "percentage": 0.1,
       "improvements": [
-        "Multiple Anchors",
-        "Entertainment Zone",
-        "Luxury Wing",
-        "Valet Parking",
-        "Food Hall",
-        "Movie Complex",
-        "Bowling Alley",
-        "Ice Skating Rink",
-        "Carousel",
-        "Fountain Court",
-        "Concierge Service",
-        "Personal Shopping",
-        "VIP Lounge",
-        "Kids Zone",
-        "Charging Stations",
-        "Transit Hub"
+        "multiple_anchors",
+        "entertainment_zone",
+        "luxury_wing",
+        "valet_parking",
+        "food_hall",
+        "movie_complex",
+        "bowling_alley",
+        "ice_skating_rink",
+        "carousel",
+        "fountain_court",
+        "concierge_service",
+        "personal_shopping",
+        "vip_lounge",
+        "kids_zone",
+        "charging_stations",
+        "transit_hub"
       ],
       "description": {
         "default": "The regional mall: where ambition goes to die and foot traffic goes to multiply. The crowd has its own momentum, and it doesn't care about anyone's agenda.",
         "time": {
           "morning": "Mall walkers in their circuit, the early stores cranking up. The lull before the storm leaves the floor open and the angles clean.",
-          "afternoon": "Packed. Every escalator a river of bodies. One figure moves against the current — the only one who seems to know exactly where they're going.",
+          "afternoon": "Packed. Every escalator a river of bodies. One figure moves against the current \u2014 the only one who seems to know exactly where they're going.",
           "evening": "Last hour of trading. The security rotation thins and the pace picks up. Things happen in the last hour.",
           "night": "The big dark. Emergency lighting and a security patrol that runs like clockwork. Predictable down to the minute."
         },
@@ -2426,20 +2426,20 @@
       "capacity": 200,
       "percentage": 1.5,
       "improvements": [
-        "Deli Counter",
-        "Bakery",
-        "Pharmacy",
-        "Online Pickup",
-        "Butcher",
-        "Seafood Counter",
-        "Floral Department",
-        "Hot Food Bar",
-        "Self-Checkout",
-        "Customer Service",
-        "Bank Branch",
-        "Fuel Station",
-        "Recycling Center",
-        "Community Board"
+        "deli_counter",
+        "bakery",
+        "pharmacy",
+        "online_pickup",
+        "butcher",
+        "seafood_counter",
+        "floral_department",
+        "hot_food_bar",
+        "self_checkout",
+        "customer_service",
+        "bank_branch",
+        "fuel_station",
+        "recycling_center",
+        "community_board"
       ],
       "description": {
         "default": "Aisles and angles. Everything in a supermarket is designed to move people in one direction. The layout is a quiet argument about control.",
@@ -2476,31 +2476,31 @@
       "capacity": 500,
       "percentage": 0.3,
       "improvements": [
-        "Loading Docks",
-        "Food Court",
-        "Tire Center",
-        "Optical Center",
-        "Pharmacy",
-        "Photo Center",
-        "Hearing Aid Center",
-        "Meat Department",
-        "Bakery",
-        "Gas Station",
-        "Business Center",
-        "Travel Services",
-        "Auto Buying Program",
-        "Insurance Services"
+        "loading_docks",
+        "food_court",
+        "tire_center",
+        "optical_center",
+        "pharmacy",
+        "photo_center",
+        "hearing_aid_center",
+        "meat_department",
+        "bakery",
+        "gas_station",
+        "business_center",
+        "travel_services",
+        "auto_buying_program",
+        "insurance_services"
       ],
       "description": {
         "default": "Everything sold in bulk, including whatever the back room doesn't advertise. The fine print is what this place was built on.",
         "time": {
-          "morning": "The store opens thin. The aisles carry sound cleanly — two conversations audible from three rows away. No crowd to absorb what shouldn't be heard.",
+          "morning": "The store opens thin. The aisles carry sound cleanly \u2014 two conversations audible from three rows away. No crowd to absorb what shouldn't be heard.",
           "afternoon": "Forklifts and noise. Good cover for what moves below the surface. The walls are close but the sounds are closer.",
           "evening": "Thinning out. Easier to work but easier to be seen. Double-edged.",
           "night": "Closed. The loading bay out back is a different story."
         },
         "attribute": {
-          "STRENGTH": "The scale of the place is built for weight — industrial shelving, pallet loads, goods measured by the ton. The floor doesn't yield.",
+          "STRENGTH": "The scale of the place is built for weight \u2014 industrial shelving, pallet loads, goods measured by the ton. The floor doesn't yield.",
           "STAMINA": "The floor runs long between departments. The walk from receiving to the back office covers ground most storefronts never see.",
           "PERCEPTION": "One pallet moved recently but logged as untouched. The discrepancy is visible in the documentation."
         },
@@ -2526,18 +2526,18 @@
       "capacity": 100,
       "percentage": 2.5,
       "improvements": [
-        "Full Kitchen",
-        "Bar Area",
-        "Patio Seating",
-        "Private Dining Room",
-        "Game Room",
-        "Event Space",
-        "Take-Out Counter",
-        "Delivery Station",
-        "Host Stand",
-        "Wait Station",
-        "Beer Garden",
-        "Fire Pit"
+        "full_kitchen",
+        "bar_area",
+        "patio_seating",
+        "private_dining_room",
+        "game_room",
+        "event_space",
+        "take_out_counter",
+        "delivery_station",
+        "host_stand",
+        "wait_station",
+        "beer_garden",
+        "fire_pit"
       ],
       "description": {
         "default": "Cheap meals and the kind of conversation that happens when people stop being careful. The chairs are always warm.",
@@ -2550,7 +2550,7 @@
         "attribute": {
           "CHARISMA": "The corner booth in the back is the most valuable table in the room. It fills quickly with people who want to see the room without being seen from it.",
           "EMPATHY": "Two arguments brewing at separate tables. One reconciliation in the corner that has the posture of something that won't hold.",
-          "PERCEPTION": "Three minutes at a table and the room is already mapped — two entrances, one service corridor, a fire exit behind the kitchen that sits propped open."
+          "PERCEPTION": "Three minutes at a table and the room is already mapped \u2014 two entrances, one service corridor, a fire exit behind the kitchen that sits propped open."
         },
         "gender": {
           "male": "A man nursing a coffee in a corner booth is invisible. That's the point, and the room treats him accordingly.",
@@ -2574,18 +2574,18 @@
       "capacity": 60,
       "percentage": 0.3,
       "improvements": [
-        "Wine Cellar",
-        "Chef's Table",
-        "Valet Parking",
-        "Private Events Space",
-        "Lounge Bar",
-        "Open Kitchen",
-        "Tasting Room",
-        "Sommelier Station",
-        "Coat Check",
-        "Cigar Lounge",
-        "Rooftop Terrace",
-        "Chef's Garden"
+        "wine_cellar",
+        "chef_s_table",
+        "valet_parking",
+        "private_events_space",
+        "lounge_bar",
+        "open_kitchen",
+        "tasting_room",
+        "sommelier_station",
+        "coat_check",
+        "cigar_lounge",
+        "rooftop_terrace",
+        "chef_s_garden"
       ],
       "attribute_modifiers": {
         "CHARISMA": 3
@@ -2595,12 +2595,12 @@
         "time": {
           "morning": "The restaurant is dark and silent. Only prep staff working the stock. They see more than the dining room crowd ever does.",
           "afternoon": "Quiet lunch service. Well-dressed regulars conducting business that belongs in a back room.",
-          "evening": "Full house. Every table is a transaction. The evening is a ledger — who owes whom, and what the debt costs.",
+          "evening": "Full house. Every table is a transaction. The evening is a ledger \u2014 who owes whom, and what the debt costs.",
           "night": "The last cover lingers. The staff wants to go home. Someone at table nine doesn't want to be overheard."
         },
         "attribute": {
-          "CHARISMA": "The maitre d' decides in five seconds that a face is worth accommodating. The decision is visible in the posture — the chair moved out, the menu offered first.",
-          "INTELLIGENCE": "The wine list, the menu pricing, the clientele — a front for something. The seams show if the light is right.",
+          "CHARISMA": "The maitre d' decides in five seconds that a face is worth accommodating. The decision is visible in the posture \u2014 the chair moved out, the menu offered first.",
+          "INTELLIGENCE": "The wine list, the menu pricing, the clientele \u2014 a front for something. The seams show if the light is right.",
           "EMPATHY": "Table six has been smiling all evening. The body language says the conversation ended badly three courses ago."
         },
         "gender": {
@@ -2625,20 +2625,20 @@
       "capacity": 800,
       "percentage": 0.2,
       "improvements": [
-        "IMAX Screen",
-        "Recliner Seats",
-        "Arcade",
-        "Dine-In Options",
-        "Dolby Atmos",
-        "3D Theaters",
-        "Premium Large Format",
-        "VIP Seating",
-        "Bar Lounge",
-        "Party Rooms",
-        "Concession Stand",
-        "Box Office",
-        "Projection Booth",
-        "Hearing Assistance"
+        "imax_screen",
+        "recliner_seats",
+        "arcade",
+        "dine_in_options",
+        "dolby_atmos",
+        "3d_theaters",
+        "premium_large_format",
+        "vip_seating",
+        "bar_lounge",
+        "party_rooms",
+        "concession_stand",
+        "box_office",
+        "projection_booth",
+        "hearing_assistance"
       ],
       "description": {
         "default": "Dark rooms and people who came here to stop thinking. Not everyone in the seats is here for the film.",
@@ -2675,18 +2675,18 @@
       "capacity": 200,
       "percentage": 0.1,
       "improvements": [
-        "Bowling Lanes",
-        "Arcade",
-        "Sports Bar",
-        "Party Rooms",
-        "Billiards Area",
-        "Laser Tag",
-        "Escape Room",
-        "Pro Shop",
-        "Snack Bar",
-        "VIP Lanes",
-        "Kids Area",
-        "League Office"
+        "bowling_lanes",
+        "arcade",
+        "sports_bar",
+        "party_rooms",
+        "billiards_area",
+        "laser_tag",
+        "escape_room",
+        "pro_shop",
+        "snack_bar",
+        "vip_lanes",
+        "kids_area",
+        "league_office"
       ],
       "description": {
         "default": "Pins and noise and the democratic misery of rented shoes. Everybody's equal in a bowling alley. That makes it useful.",
@@ -2723,20 +2723,20 @@
       "capacity": 500,
       "percentage": 0.15,
       "improvements": [
-        "Dance Floor",
-        "VIP Lounge",
-        "Sound System",
-        "Light Show",
-        "Multiple Bars",
-        "DJ Booth",
-        "Green Room",
-        "Bottle Service",
-        "Coat Check",
-        "Outdoor Patio",
-        "VIP Entrance",
-        "Security Office",
-        "Photography Studio",
-        "Private Karaoke"
+        "dance_floor",
+        "vip_lounge",
+        "sound_system",
+        "light_show",
+        "multiple_bars",
+        "dj_booth",
+        "green_room",
+        "bottle_service",
+        "coat_check",
+        "outdoor_patio",
+        "vip_entrance",
+        "security_office",
+        "photography_studio",
+        "private_karaoke"
       ],
       "attribute_modifiers": {
         "CHARISMA": 2,
@@ -2751,13 +2751,13 @@
           "night": "The music lands before the door's fully open. This is the only time this place tells the truth."
         },
         "attribute": {
-          "CHARISMA": "The VIP corridor opens without a conversation. The right frequency for rooms like this — someone has it.",
-          "STEALTH": "A figure moves through the crowd and leaves no impression on anyone. Not absence of identity — deliberate erasure.",
+          "CHARISMA": "The VIP corridor opens without a conversation. The right frequency for rooms like this \u2014 someone has it.",
+          "STEALTH": "A figure moves through the crowd and leaves no impression on anyone. Not absence of identity \u2014 deliberate erasure.",
           "INTUITION": "The energy in this room has an undercurrent the regular crowd hasn't caught yet. It's there before it's visible."
         },
         "gender": {
           "male": "The door staff step aside. The right kind of confidence reads in any lighting.",
-          "female": "Access is quick, which is its own kind of problem. Back to something solid, eyes moving — that's the calculus of a woman in a room like this."
+          "female": "Access is quick, which is its own kind of problem. Back to something solid, eyes moving \u2014 that's the calculus of a woman in a room like this."
         },
         "state": {
           "good": "A clean facade with intact neon or LED signage and clear entrance glazing. The queue barriers are new and the entrance canopy is level.",
@@ -2777,22 +2777,22 @@
       "capacity": 15000,
       "percentage": 0.05,
       "improvements": [
-        "Luxury Suites",
-        "Jumbotron",
-        "Concession Stands",
-        "Team Facilities",
-        "Press Box",
-        "Club Level",
-        "Party Decks",
-        "Retail Shops",
-        "Restaurant",
-        "Loading Docks",
-        "Locker Rooms",
-        "Medical Room",
-        "Interview Room",
-        "VIP Parking",
-        "Event Control Center",
-        "Ice Rink Equipment"
+        "luxury_suites",
+        "jumbotron",
+        "concession_stands",
+        "team_facilities",
+        "press_box",
+        "club_level",
+        "party_decks",
+        "retail_shops",
+        "restaurant",
+        "loading_docks",
+        "locker_rooms",
+        "medical_room",
+        "interview_room",
+        "vip_parking",
+        "event_control_center",
+        "ice_rink_equipment"
       ],
       "attribute_modifiers": {
         "STRENGTH": 2,
@@ -2808,11 +2808,11 @@
         },
         "attribute": {
           "STRENGTH": "The physical performance on the field reads differently to someone who understands exactly what it costs.",
-          "STAMINA": "The crowd, the noise, the pressure — it wires most people up and wears them down. Some people run on it.",
+          "STAMINA": "The crowd, the noise, the pressure \u2014 it wires most people up and wears them down. Some people run on it.",
           "AGILITY": "A figure moves through a packed crowd the way a fish moves through water. Nobody notices. Nobody's supposed to."
         },
         "gender": {
-          "male": "Unremarkable in a crowd like this — which is the only thing worth being.",
+          "male": "Unremarkable in a crowd like this \u2014 which is the only thing worth being.",
           "female": "The sight lines the crowd creates run one way. Sixty thousand people looking one direction means nobody's watching the other."
         },
         "state": {
@@ -2833,18 +2833,18 @@
       "capacity": 50,
       "percentage": 2.0,
       "improvements": [
-        "Loading Dock",
-        "Racking",
-        "Office Space",
-        "Security",
-        "Forklift Area",
-        "Shipping Station",
-        "Break Room",
-        "Restrooms",
-        "Climate Control",
-        "Fire Suppression",
-        "Roll-Up Doors",
-        "Mezzanine"
+        "loading_dock",
+        "racking",
+        "office_space",
+        "security",
+        "forklift_area",
+        "shipping_station",
+        "break_room",
+        "restrooms",
+        "climate_control",
+        "fire_suppression",
+        "roll_up_doors",
+        "mezzanine"
       ],
       "description": {
         "default": "Loading bays and blind spots. Warehouses keep the city's secrets stacked on shelves and wrapped in plastic.",
@@ -2855,7 +2855,7 @@
           "night": "Locked up and alarmed. Except for the dock bay on the east side that was deliberately not alarmed."
         },
         "attribute": {
-          "STRENGTH": "Heavy freight and high shelving — the physical language of this place. Someone here speaks it.",
+          "STRENGTH": "Heavy freight and high shelving \u2014 the physical language of this place. Someone here speaks it.",
           "PERCEPTION": "The inventory sheets don't match the shelf count. Someone's moving product through here without logging it.",
           "STEALTH": "Racking twelve feet high on every side. An operation could run from in here and nobody would know where to look."
         },
@@ -2881,20 +2881,20 @@
       "capacity": 100,
       "percentage": 1.0,
       "improvements": [
-        "Multiple Docks",
-        "Cold Storage",
-        "Conveyor System",
-        "Fleet Parking",
-        "Cross-Dock Area",
-        "Pick and Pack",
-        "QC Station",
-        "Office Block",
-        "Employee Break Area",
-        "Training Room",
-        "Returns Processing",
-        "Hazmat Storage",
-        "Battery Charging",
-        "Maintenance Shop"
+        "multiple_docks",
+        "cold_storage",
+        "conveyor_system",
+        "fleet_parking",
+        "cross_dock_area",
+        "pick_and_pack",
+        "qc_station",
+        "office_block",
+        "employee_break_area",
+        "training_room",
+        "returns_processing",
+        "hazmat_storage",
+        "battery_charging",
+        "maintenance_shop"
       ],
       "description": {
         "default": "Two hundred thousand square feet of things that aren't what they're labelled. A building built on the gap between contents and description.",
@@ -2931,20 +2931,20 @@
       "capacity": 300,
       "percentage": 0.5,
       "improvements": [
-        "Assembly Line",
-        "Quality Control Lab",
-        "Shipping Bay",
-        "Employee Break Room",
-        "Raw Material Storage",
-        "Finished Goods Area",
-        "Tool Crib",
-        "Maintenance Shop",
-        "Engineering Office",
-        "Conference Room",
-        "Locker Room",
-        "First Aid Station",
-        "Cafeteria",
-        "Training Center"
+        "assembly_line",
+        "quality_control_lab",
+        "shipping_bay",
+        "employee_break_room",
+        "raw_material_storage",
+        "finished_goods_area",
+        "tool_crib",
+        "maintenance_shop",
+        "engineering_office",
+        "conference_room",
+        "locker_room",
+        "first_aid_station",
+        "cafeteria",
+        "training_center"
       ],
       "description": {
         "default": "The grind of machines making things the city uses without asking how. Someone is here to ask how.",
@@ -2956,11 +2956,11 @@
         },
         "attribute": {
           "STRENGTH": "Honest, physical work. The language of this floor has no room for condescension.",
-          "INTELLIGENCE": "The production schedule, the supply invoices, the deviation logs — the machinery of this place is hiding something in the numbers.",
+          "INTELLIGENCE": "The production schedule, the supply invoices, the deviation logs \u2014 the machinery of this place is hiding something in the numbers.",
           "PERCEPTION": "One line is running out of calibration. It's been running that way for weeks. Someone told it to."
         },
         "gender": {
-          "male": "The floor extends a flat nod to the presence — the acknowledgment of people who assume reason to be here. The reason exists.",
+          "male": "The floor extends a flat nod to the presence \u2014 the acknowledgment of people who assume reason to be here. The reason exists.",
           "female": "The supervisor comes over to manage the situation. The managing ends with answers given."
         },
         "state": {
@@ -2981,20 +2981,20 @@
       "capacity": 50,
       "percentage": 0.2,
       "improvements": [
-        "Server Rooms",
-        "Cooling System",
-        "Backup Generators",
-        "Security Operations",
-        "UPS Room",
-        "Fire Suppression",
-        "Meet-Me Room",
-        "Network Operations Center",
-        "Cable Management",
-        "Raised Floor",
-        "Loading Dock",
-        "Battery Room",
-        "Administrative Office",
-        "Visitor Center"
+        "server_rooms",
+        "cooling_system",
+        "backup_generators",
+        "security_operations",
+        "ups_room",
+        "fire_suppression",
+        "meet_me_room",
+        "network_operations_center",
+        "cable_management",
+        "raised_floor",
+        "loading_dock",
+        "battery_room",
+        "administrative_office",
+        "visitor_center"
       ],
       "attribute_modifiers": {
         "INTELLIGENCE": 3,
@@ -3009,7 +3009,7 @@
           "night": "The facility runs without daylight. The servers don't sleep. Neither does the work."
         },
         "attribute": {
-          "INTELLIGENCE": "Rack layout, cooling architecture, cable management — the infrastructure reads like a blueprint of modern ambition.",
+          "INTELLIGENCE": "Rack layout, cooling architecture, cable management \u2014 the infrastructure reads like a blueprint of modern ambition.",
           "PERCEPTION": "One rack is running three degrees warmer than its neighbours. That's not a cooling fault. That's activity.",
           "STEALTH": "Moving with the certainty of someone who belongs here. Certainty is most of what keycard access buys anyway."
         },
@@ -3035,26 +3035,26 @@
       "capacity": 30,
       "percentage": 0.8,
       "improvements": [
-        "Climate Control",
-        "24hr Access",
-        "Security Cameras",
-        "Loading Area",
-        "Elevator",
-        "Rolling Carts",
-        "Packing Supplies",
-        "Office",
-        "Vehicle Storage",
-        "RV Parking",
-        "Wine Storage",
-        "Document Storage",
-        "Moving Truck Rental",
-        "Insurance Services"
+        "climate_control",
+        "24hr_access",
+        "security_cameras",
+        "loading_area",
+        "elevator",
+        "rolling_carts",
+        "packing_supplies",
+        "office",
+        "vehicle_storage",
+        "rv_parking",
+        "wine_storage",
+        "document_storage",
+        "moving_truck_rental",
+        "insurance_services"
       ],
       "description": {
         "default": "Everything people can't throw away and won't admit to keeping. The private archaeology of a life. One of these units is waiting to be cracked.",
         "time": {
           "morning": "Early access before the day gets complicated. People retrieving things they need urgently don't look casual.",
-          "afternoon": "Regular traffic, regular faces — and one that doesn't belong to the pattern.",
+          "afternoon": "Regular traffic, regular faces \u2014 and one that doesn't belong to the pattern.",
           "evening": "Last entry before the after-hours lockdown. Whatever someone needs that urgently, it couldn't wait.",
           "night": "Access code required. Corridors empty and lit by motion sensors. The unit that matters is at the far end."
         },
@@ -3065,7 +3065,7 @@
         },
         "gender": {
           "male": "The desk clerk hands over a unit key without questions. Men carrying boxes in a self-storage facility are the least suspicious thing in the world.",
-          "female": "The attendant is chatty. Three long-term renters' names and the rough contents of their units — all before the sign-in sheet is finished."
+          "female": "The attendant is chatty. Three long-term renters' names and the rough contents of their units \u2014 all before the sign-in sheet is finished."
         },
         "state": {
           "good": "A clean single-storey or multi-storey building with straight roller shutter doors in uniform condition. The external perimeter fence and gate are intact and freshly painted.",
@@ -3085,20 +3085,20 @@
       "capacity": 400,
       "percentage": 0.8,
       "improvements": [
-        "Sanctuary",
-        "Fellowship Hall",
-        "Sunday School Rooms",
-        "Parking Lot",
-        "Nursery",
-        "Youth Room",
-        "Kitchen",
-        "Pastor's Office",
-        "Choir Room",
-        "Prayer Room",
-        "Library",
-        "Outdoor Garden",
-        "Gymnasium",
-        "Media Booth"
+        "sanctuary",
+        "fellowship_hall",
+        "sunday_school_rooms",
+        "parking_lot",
+        "nursery",
+        "youth_room",
+        "kitchen",
+        "pastor_s_office",
+        "choir_room",
+        "prayer_room",
+        "library",
+        "outdoor_garden",
+        "gymnasium",
+        "media_booth"
       ],
       "attribute_modifiers": {
         "EMPATHY": 2
@@ -3138,20 +3138,20 @@
       "capacity": 500,
       "percentage": 0.15,
       "improvements": [
-        "Prayer Hall",
-        "Ablution Area",
-        "Library",
-        "Community Room",
-        "Minaret",
-        "Imam's Office",
-        "Classroom",
-        "Women's Section",
-        "Kitchen",
-        "Funeral Services",
-        "Youth Center",
-        "Bookstore",
-        "Courtyard",
-        "Parking Structure"
+        "prayer_hall",
+        "ablution_area",
+        "library",
+        "community_room",
+        "minaret",
+        "imam_s_office",
+        "classroom",
+        "women_s_section",
+        "kitchen",
+        "funeral_services",
+        "youth_center",
+        "bookstore",
+        "courtyard",
+        "parking_structure"
       ],
       "attribute_modifiers": {
         "EMPATHY": 2
@@ -3191,20 +3191,20 @@
       "capacity": 300,
       "percentage": 0.1,
       "improvements": [
-        "Sanctuary",
-        "Social Hall",
-        "Religious School",
-        "Kitchen",
-        "Rabbi's Office",
-        "Chapel",
-        "Library",
-        "Youth Lounge",
-        "Gift Shop",
-        "Memorial Garden",
-        "Mikvah",
-        "Archive Room",
-        "Caretaker Suite",
-        "Meeting Rooms"
+        "sanctuary",
+        "social_hall",
+        "religious_school",
+        "kitchen",
+        "rabbi_s_office",
+        "chapel",
+        "library",
+        "youth_lounge",
+        "gift_shop",
+        "memorial_garden",
+        "mikvah",
+        "archive_room",
+        "caretaker_suite",
+        "meeting_rooms"
       ],
       "attribute_modifiers": {
         "EMPATHY": 2
@@ -3218,7 +3218,7 @@
           "night": "Locked. The Ner Tamid burns without end. The eternal light is the only honest thing still running at this hour."
         },
         "attribute": {
-          "EMPATHY": "The community's depth of history is not academic here — it's lived. It meets a visitor at the door.",
+          "EMPATHY": "The community's depth of history is not academic here \u2014 it's lived. It meets a visitor at the door.",
           "MEMORY": "The archives in the back room go back further than any police record. The shammes knows where they are.",
           "INTELLIGENCE": "A building that is simultaneously a house of worship, a community centre, and a library has more answers per square foot than most precincts."
         },
@@ -3244,20 +3244,20 @@
       "capacity": 100,
       "percentage": 0.15,
       "improvements": [
-        "Emergency Room",
-        "Surgery Center",
-        "Imaging",
-        "Pharmacy",
-        "Laboratory",
-        "ICU",
-        "Patient Rooms",
-        "Cafeteria",
-        "Chapel",
-        "Gift Shop",
-        "Helipad",
-        "Ambulance Bay",
-        "Medical Records",
-        "Administration"
+        "emergency_room",
+        "surgery_center",
+        "imaging",
+        "pharmacy",
+        "laboratory",
+        "icu",
+        "patient_rooms",
+        "cafeteria",
+        "chapel",
+        "gift_shop",
+        "helipad",
+        "ambulance_bay",
+        "medical_records",
+        "administration"
       ],
       "attribute_modifiers": {
         "EMPATHY": 3,
@@ -3278,7 +3278,7 @@
         },
         "gender": {
           "male": "A man moving the ward with purpose and pace reads as someone who belongs there. Nobody stops him.",
-          "female": "A nurse stops to check on a woman in the corridor — genuine concern, no suspicion. One question asked and answered. Three others follow."
+          "female": "A nurse stops to check on a woman in the corridor \u2014 genuine concern, no suspicion. One question asked and answered. Three others follow."
         },
         "state": {
           "good": "A clean institutional facade with even render and unscratched entrance glazing. The accessible drop-off area is clearly marked and the signage is fully illuminated.",
@@ -3298,22 +3298,22 @@
       "capacity": 500,
       "percentage": 0.05,
       "improvements": [
-        "Trauma Center",
-        "ICU",
-        "Cancer Center",
-        "Helipad",
-        "Cardiac Care",
-        "Maternity Ward",
-        "Pediatric Unit",
-        "Burn Center",
-        "Research Labs",
-        "Teaching Facility",
-        "Parking Structure",
-        "Pharmacy",
-        "Cafeteria",
-        "Chapel",
-        "Gift Shop",
-        "Patient Hotel"
+        "trauma_center",
+        "icu",
+        "cancer_center",
+        "helipad",
+        "cardiac_care",
+        "maternity_ward",
+        "pediatric_unit",
+        "burn_center",
+        "research_labs",
+        "teaching_facility",
+        "parking_structure",
+        "pharmacy",
+        "cafeteria",
+        "chapel",
+        "gift_shop",
+        "patient_hotel"
       ],
       "attribute_modifiers": {
         "EMPATHY": 2,
@@ -3330,7 +3330,7 @@
         "attribute": {
           "INTELLIGENCE": "The unmanned records desk sits open at the end of the corridor. The supply chain manifest pinned beside it doesn't add up. The inefficiency is structural and nobody has fixed it.",
           "EMPATHY": "The weight of the place hits at the entrance and doesn't lift. The corridors carry it. The faces carry it harder.",
-          "PERCEPTION": "A restricted corridor. The fluorescent hum runs overhead. Industrial cleaner and something underneath it — something the cleaner didn't reach."
+          "PERCEPTION": "A restricted corridor. The fluorescent hum runs overhead. Industrial cleaner and something underneath it \u2014 something the cleaner didn't reach."
         },
         "gender": {
           "male": "A man walking fast in a hospital reads as a consultant late for rounds. Nobody questions the pace.",
@@ -3354,18 +3354,18 @@
       "capacity": 40,
       "percentage": 0.5,
       "improvements": [
-        "Exam Rooms",
-        "X-Ray",
-        "Lab",
-        "Pharmacy",
-        "Waiting Room",
-        "Triage Area",
-        "Procedure Room",
-        "Cast Room",
-        "IV Therapy",
-        "Nebulizer Station",
-        "Records Office",
-        "Staff Lounge"
+        "exam_rooms",
+        "x_ray",
+        "lab",
+        "pharmacy",
+        "waiting_room",
+        "triage_area",
+        "procedure_room",
+        "cast_room",
+        "iv_therapy",
+        "nebulizer_station",
+        "records_office",
+        "staff_lounge"
       ],
       "description": {
         "default": "Not sick enough for the ER, too hurt to wait for a GP. The people here are at their rawest. The room holds that rawness like a bruise.",
@@ -3382,7 +3382,7 @@
         },
         "gender": {
           "male": "A man in the seat nearest the triage desk, holding his side. A pulled muscle. Nobody questions a pulled muscle.",
-          "female": "A woman moves through intake fast — the staff here move quickly on presenting patients. The access window is brief before anyone second-guesses it."
+          "female": "A woman moves through intake fast \u2014 the staff here move quickly on presenting patients. The access window is brief before anyone second-guesses it."
         },
         "state": {
           "good": "A clean modern facade with a large unscratched sign and clear entrance glazing. The accessible ramp and drop-off bay are freshly marked.",
@@ -3402,18 +3402,18 @@
       "capacity": 50,
       "percentage": 0.4,
       "improvements": [
-        "Showroom",
-        "Service Center",
-        "Parts Department",
-        "Test Drive Lot",
-        "Finance Office",
-        "Detailing Bay",
-        "Customer Lounge",
-        "Body Shop",
-        "Used Car Lot",
-        "Wash Bay",
-        "Storage Lot",
-        "Delivery Area"
+        "showroom",
+        "service_center",
+        "parts_department",
+        "test_drive_lot",
+        "finance_office",
+        "detailing_bay",
+        "customer_lounge",
+        "body_shop",
+        "used_car_lot",
+        "wash_bay",
+        "storage_lot",
+        "delivery_area"
       ],
       "description": {
         "default": "Chrome and commission breath. Everyone in here is selling something. Some of them are selling cars.",
@@ -3424,9 +3424,9 @@
           "night": "Showroom lit up, no customers. The floor-to-ceiling glass holds the scene up to the street like an exhibit."
         },
         "attribute": {
-          "CHARISMA": "The salesperson drops the canned pitch mid-sentence. Something in the room has shifted — the balance changed, the script abandoned. A real conversation starts.",
-          "INTELLIGENCE": "Dealer invoice, holdback, regional incentive structure — the numbers behind every sticker price are visible to anyone who knows where to look. The salesperson stops performing the moment the margin is named.",
-          "INTUITION": "The floor manager keeps looking at the lot. Not at the cars — at one specific space. And what it used to hold."
+          "CHARISMA": "The salesperson drops the canned pitch mid-sentence. Something in the room has shifted \u2014 the balance changed, the script abandoned. A real conversation starts.",
+          "INTELLIGENCE": "Dealer invoice, holdback, regional incentive structure \u2014 the numbers behind every sticker price are visible to anyone who knows where to look. The salesperson stops performing the moment the margin is named.",
+          "INTUITION": "The floor manager keeps looking at the lot. Not at the cars \u2014 at one specific space. And what it used to hold."
         },
         "gender": {
           "male": "They open with the high end. The conversation redirects in thirty seconds. The floor reads it as a man who knows what he wants.",
@@ -3450,18 +3450,18 @@
       "capacity": 20,
       "percentage": 1.5,
       "improvements": [
-        "Service Bays",
-        "Tire Storage",
-        "Waiting Room",
-        "Parts Storage",
-        "Alignment Rack",
-        "Lift Equipment",
-        "Oil Change Bay",
-        "Diagnostic Station",
-        "Break Room",
-        "Office",
-        "Car Wash",
-        "Customer Parking"
+        "service_bays",
+        "tire_storage",
+        "waiting_room",
+        "parts_storage",
+        "alignment_rack",
+        "lift_equipment",
+        "oil_change_bay",
+        "diagnostic_station",
+        "break_room",
+        "office",
+        "car_wash",
+        "customer_parking"
       ],
       "description": {
         "default": "Grease and graft. This place fixes things that are broken. The broken things that matter most are never on the service menu.",
@@ -3473,7 +3473,7 @@
         },
         "attribute": {
           "STRENGTH": "The work here is honest and physical. The dialect of the floor is weight and leverage and things that don't argue back.",
-          "INTELLIGENCE": "A diagnostic code flagged on one vehicle cross-references cleanly with a second — one that wasn't brought in for repairs, and isn't on the board.",
+          "INTELLIGENCE": "A diagnostic code flagged on one vehicle cross-references cleanly with a second \u2014 one that wasn't brought in for repairs, and isn't on the board.",
           "PERCEPTION": "One car in the back bay wasn't brought in for repairs. The plates were changed in the last twelve hours."
         },
         "gender": {
@@ -3498,32 +3498,32 @@
       "capacity": 500,
       "percentage": 0.2,
       "improvements": [
-        "Platforms",
-        "Ticket Office",
-        "Waiting Area",
-        "Retail Kiosks",
-        "Escalators",
-        "Elevators",
-        "Information Booth",
-        "Restrooms",
-        "Security Office",
-        "Lost and Found",
-        "Newsstand",
-        "Coffee Shop",
-        "Bike Storage",
-        "Kiss and Ride"
+        "platforms",
+        "ticket_office",
+        "waiting_area",
+        "retail_kiosks",
+        "escalators",
+        "elevators",
+        "information_booth",
+        "restrooms",
+        "security_office",
+        "lost_and_found",
+        "newsstand",
+        "coffee_shop",
+        "bike_storage",
+        "kiss_and_ride"
       ],
       "description": {
         "default": "Noise, sweat, and ten thousand people who aren't watching each other carefully enough. The gaps between their attention are wide.",
         "time": {
           "morning": "The morning rush is a river of blank faces. One of them is lying to someone. Probably more than one.",
           "afternoon": "The midday lull. Easier to pick out the ones who don't have anywhere to be.",
-          "evening": "Tired workers, running feet, no eye contact. The evening crush is where people go invisible — at least in their own estimation.",
-          "night": "The last trains scrape to a halt. Sparse crowd. Every face in this station is now accountable — nowhere left to thin into."
+          "evening": "Tired workers, running feet, no eye contact. The evening crush is where people go invisible \u2014 at least in their own estimation.",
+          "night": "The last trains scrape to a halt. Sparse crowd. Every face in this station is now accountable \u2014 nowhere left to thin into."
         },
         "attribute": {
           "PERCEPTION": "One figure stands stationary in a river of moving bodies. In a transit station, that's not waiting. That's watching.",
-          "AGILITY": "Turnstiles, stairs, platforms — the station lays out a clean line through the crowd for anyone who reads the flow. Most people fight it. The space doesn't require that.",
+          "AGILITY": "Turnstiles, stairs, platforms \u2014 the station lays out a clean line through the crowd for anyone who reads the flow. Most people fight it. The space doesn't require that.",
           "STAMINA": "The noise and the press of bodies inside a transit station at peak hour would wear most people down to the nerve. The station doesn't offer a quiet corner. There isn't one."
         },
         "gender": {
@@ -3548,15 +3548,15 @@
       "capacity": 20,
       "percentage": 0.5,
       "improvements": [
-        "Display Cases",
-        "Security Camera Demo Wall",
-        "Fitting Room",
-        "Storage Room",
-        "Repair Bench",
-        "Key Cutting Machine",
-        "Safe Display",
-        "Alarm System",
-        "Shooting Range"
+        "display_cases",
+        "security_camera_demo_wall",
+        "fitting_room",
+        "storage_room",
+        "repair_bench",
+        "key_cutting_machine",
+        "safe_display",
+        "alarm_system",
+        "shooting_range"
       ],
       "attribute_modifiers": {
         "PERCEPTION": 1,
@@ -3575,8 +3575,8 @@
           "INTELLIGENCE": "The lock display case carries a range of cylinders from residential pin-tumbler to commercial multi-point systems. The technical specifications are printed on the shelf labels."
         },
         "gender": {
-          "male": "The shopfront carries no signage above head height. The product in the window does the advertising — discrete equipment for people who do not want to advertise why they need it.",
-          "female": "The interior has a clear sight line from entrance to the counter at the back. The layout is deliberate — every approach to the cases is visible from the service position."
+          "male": "The shopfront carries no signage above head height. The product in the window does the advertising \u2014 discrete equipment for people who do not want to advertise why they need it.",
+          "female": "The interior has a clear sight line from entrance to the counter at the back. The layout is deliberate \u2014 every approach to the cases is visible from the service position."
         },
         "state": {
           "good": "The shopfront glass is clean and the product display is neatly arranged behind it. The security grille operates smoothly and the entrance step is new and even.",
@@ -3596,18 +3596,18 @@
       "capacity": 100,
       "percentage": 0.1,
       "improvements": [
-        "Maintenance Bays",
-        "Fueling Station",
-        "Driver Facilities",
-        "Dispatch Center",
-        "Parts Storage",
-        "Wash Bay",
-        "Training Room",
-        "Admin Office",
-        "Break Room",
-        "Locker Room",
-        "Tool Storage",
-        "Paint Booth"
+        "maintenance_bays",
+        "fueling_station",
+        "driver_facilities",
+        "dispatch_center",
+        "parts_storage",
+        "wash_bay",
+        "training_room",
+        "admin_office",
+        "break_room",
+        "locker_room",
+        "tool_storage",
+        "paint_booth"
       ],
       "attribute_modifiers": {
         "EMPATHY": -1
@@ -3615,19 +3615,19 @@
       "description": {
         "default": "Diesel and dead ends. The bus depot smells like every city that ever chewed someone up and spat them out.",
         "time": {
-          "morning": "Routes being called, engines idling, the whole machine grinding to life. The morning churn produces cover — bodies moving in every direction, attention divided by the noise.",
-          "afternoon": "The rhythm of the depot runs like clockwork — arrivals, departures, the same faces on the same rotations. Predictable enough to hide a deviation inside it.",
+          "morning": "Routes being called, engines idling, the whole machine grinding to life. The morning churn produces cover \u2014 bodies moving in every direction, attention divided by the noise.",
+          "afternoon": "The rhythm of the depot runs like clockwork \u2014 arrivals, departures, the same faces on the same rotations. Predictable enough to hide a deviation inside it.",
           "evening": "Last runs of the day. Drivers cutting corners, passengers in a hurry. The fatigue of a long shift leaves gaps in everyone's attention.",
           "night": "The yard crew moves through the dark like they've done it a thousand times. The routine is indistinguishable from its interruption, until it isn't."
         },
         "attribute": {
           "STAMINA": "Diesel fumes and engine noise fill the depot at all hours. The kind of environment that accumulates in the lungs and the ears. Not a space that accommodates comfort.",
-          "STRENGTH": "Big machines, heavy work. The depot runs on physical labour — the loading, the coupling, the maintenance that happens at ground level in the grease and the dark.",
-          "PERCEPTION": "Two buses carry the marks of recent movement — residual heat, fresh tyre marks on the apron. The logbook records neither departure. The gap between those two things is a story."
+          "STRENGTH": "Big machines, heavy work. The depot runs on physical labour \u2014 the loading, the coupling, the maintenance that happens at ground level in the grease and the dark.",
+          "PERCEPTION": "Two buses carry the marks of recent movement \u2014 residual heat, fresh tyre marks on the apron. The logbook records neither departure. The gap between those two things is a story."
         },
         "gender": {
           "male": "A man who moves through the yard with the right nod reads as crew. In a depot this size, nobody's counting faces. The work uniform is posture.",
-          "female": "A woman in the yard draws eyes away from everything else for about thirty seconds. The depot crew's attention is a fixed resource — whatever it lands on, it leaves somewhere else uncovered."
+          "female": "A woman in the yard draws eyes away from everything else for about thirty seconds. The depot crew's attention is a fixed resource \u2014 whatever it lands on, it leaves somewhere else uncovered."
         },
         "state": {
           "good": "The depot building presents clean rendered walls and freshly painted bay numbers. Fuel lines and drainage channels show no sign of leaks.",
@@ -3701,7 +3701,7 @@
       "default": "The smell of frying food hits you as you walk in.",
       "time": {
         "morning": "The breakfast crowd fills every table.",
-        "afternoon": "Lunchtime rush — every counter is busy.",
+        "afternoon": "Lunchtime rush \u2014 every counter is busy.",
         "evening": "The evening crowd is light but steady.",
         "night": "A handful of night owls linger over their meals."
       },
@@ -3714,7 +3714,7 @@
     "coffee_shop": {
       "default": "The rich aroma of freshly ground coffee fills the air.",
       "time": {
-        "morning": "The morning rush — a long line of caffeine-seekers.",
+        "morning": "The morning rush \u2014 a long line of caffeine-seekers.",
         "afternoon": "A relaxed afternoon crowd types away on laptops.",
         "evening": "A quieter evening crowd nurses their drinks.",
         "night": "Only a few late-nighters remain, nursing their cups."
@@ -3738,7 +3738,7 @@
       "time": {
         "morning": "The pharmacy opens to a stream of early customers.",
         "afternoon": "A steady flow of customers picking up prescriptions.",
-        "evening": "The evening rush — people collecting their prescriptions after work."
+        "evening": "The evening rush \u2014 people collecting their prescriptions after work."
       },
       "state": {
         "good": "A clean, well-stocked pharmacy with knowledgeable staff.",
@@ -3765,7 +3765,7 @@
         "morning": "A handful of early birds load their machines.",
         "afternoon": "People scroll their phones while waiting for their laundry.",
         "evening": "The evening crowd brings bags of washing.",
-        "night": "A quiet night-time shift — just a few machines spinning."
+        "night": "A quiet night-time shift \u2014 just a few machines spinning."
       },
       "state": {
         "good": "A clean laundromat with modern machines and plenty of detergent.",
@@ -3780,7 +3780,7 @@
         "female": "The stylist greets you warmly and gestures you to a seat."
       },
       "state": {
-        "good": "A smart salon with stylish décor and skilled stylists.",
+        "good": "A smart salon with stylish d\u00e9cor and skilled stylists.",
         "normal": "A pleasant enough salon. The stylists are friendly and competent.",
         "bad": "A faded salon. The mirrors are spotted and the chairs worn."
       }
@@ -3790,7 +3790,7 @@
       "time": {
         "morning": "Early-morning regulars fill every machine.",
         "afternoon": "A moderate afternoon crowd works through their routines.",
-        "evening": "The after-work rush — every bench is occupied.",
+        "evening": "The after-work rush \u2014 every bench is occupied.",
         "night": "A quiet late-night session. You have most of the gym to yourself."
       },
       "attribute": {
@@ -3836,7 +3836,7 @@
       "default": "The cheerful sound of children playing fills the air.",
       "time": {
         "morning": "Parents drop off their little ones, the place bursting with energy.",
-        "afternoon": "Nap time — the center is a little quieter.",
+        "afternoon": "Nap time \u2014 the center is a little quieter.",
         "evening": "Parents collect their children, the day winding down."
       },
       "state": {
@@ -4015,7 +4015,7 @@
       "default": "A gleaming residential tower with a uniformed doorman.",
       "attribute": {
         "CHARISMA": "You blend in naturally with the well-dressed residents.",
-        "PERCEPTION": "Every detail of the upscale décor registers with you."
+        "PERCEPTION": "Every detail of the upscale d\u00e9cor registers with you."
       },
       "state": {
         "good": "An immaculate luxury tower with concierge service and premium amenities.",
@@ -4091,7 +4091,7 @@
       "state": {
         "good": "A sleek, efficiently run business hotel with excellent amenities.",
         "normal": "A solid business hotel meeting the needs of its corporate guests.",
-        "bad": "A business hotel that has slipped. The service is slow and the décor dated."
+        "bad": "A business hotel that has slipped. The service is slow and the d\u00e9cor dated."
       }
     },
     "hotel_business_room": {
@@ -4181,7 +4181,7 @@
       "state": {
         "good": "A commanding corporate headquarters projecting power and success.",
         "normal": "A solid corporate HQ with the expected polish and security.",
-        "bad": "A corporate headquarters under pressure — the shine has worn off."
+        "bad": "A corporate headquarters under pressure \u2014 the shine has worn off."
       }
     },
     "coworking_space": {
@@ -4283,7 +4283,7 @@
         "night": "The last diners of the evening linger over dessert and wine."
       },
       "attribute": {
-        "CHARISMA": "The maître d' greets you with particular warmth.",
+        "CHARISMA": "The ma\u00eetre d' greets you with particular warmth.",
         "INTELLIGENCE": "You read the French menu with ease and order with confidence."
       },
       "state": {
@@ -4295,7 +4295,7 @@
     "movie_theater": {
       "default": "The smell of popcorn and the hum of anticipation fill the lobby.",
       "time": {
-        "afternoon": "The afternoon matinée draws families and retirees.",
+        "afternoon": "The afternoon matin\u00e9e draws families and retirees.",
         "evening": "The blockbuster evening screenings are sold out.",
         "night": "The late-night show attracts a dedicated crowd."
       },
@@ -4546,7 +4546,7 @@
       }
     },
     "your_office": {
-      "default": "Your office — familiar and functional.",
+      "default": "Your office \u2014 familiar and functional.",
       "time": {
         "morning": "The office is quiet in the early morning. You have it to yourself.",
         "afternoon": "The hum of the working day fills the space.",

@@ -883,11 +883,13 @@ public class CityMap {
     }
 
     /**
-     * Creates an {@link Improvement} with the supplied name/level/hiddenValue and
-     * attaches any {@link ImprovementData} found in the loaded {@link GameDataManager}.
+     * Creates an {@link Improvement} with the supplied code/level/hiddenValue.
+     * Looks up the {@link ImprovementData} by code and uses its display name for the
+     * improvement; falls back to the code itself if no data is found.
      */
-    private Improvement makeImprovement(String name, int level, int hiddenValue) {
-        ImprovementData data = (gameData != null) ? gameData.getImprovementData(name) : null;
-        return new Improvement(name, level, hiddenValue, data);
+    private Improvement makeImprovement(String code, int level, int hiddenValue) {
+        ImprovementData data = (gameData != null) ? gameData.getImprovementData(code) : null;
+        String displayName = (data != null && !data.name.isEmpty()) ? data.name : code;
+        return new Improvement(displayName, level, hiddenValue, data);
     }
 }

@@ -37,8 +37,8 @@ public class GameDataManager {
     private final Map<String, CategoryDefinition> categoriesById;
     private final List<SkillCategoryDefinition> skillCategories;
     private final Map<String, SkillCategoryDefinition> skillCategoriesByCode;
-    /** Improvement data keyed by lower-case improvement name. */
-    private final Map<String, ImprovementData> improvementDataByName;
+    /** Improvement data keyed by lower-case improvement code (id). */
+    private final Map<String, ImprovementData> improvementDataByCode;
 
     private String buildingsVersion;
     private String categoriesVersion;
@@ -56,7 +56,7 @@ public class GameDataManager {
         this.categoriesById = new HashMap<>();
         this.skillCategories = new ArrayList<>();
         this.skillCategoriesByCode = new HashMap<>();
-        this.improvementDataByName = new HashMap<>();
+        this.improvementDataByCode = new HashMap<>();
 
         loadBuildings();
         loadCategories();
@@ -69,7 +69,7 @@ public class GameDataManager {
 
     /**
      * Loads improvement metadata from {@code text/improvements_en.json}.
-     * Populates {@link #improvementDataByName} keyed by lower-case improvement name.
+     * Populates {@link #improvementDataByCode} keyed by lower-case improvement code (id).
      */
     private void loadImprovements() {
         try {
@@ -84,8 +84,9 @@ public class GameDataManager {
             if (impsArray == null) return;
             int count = 0;
             for (JsonValue entry = impsArray.child; entry != null; entry = entry.next) {
+                String id   = entry.getString("id", "");
                 String name = entry.getString("name", "");
-                if (name.isEmpty()) continue;
+                if (id.isEmpty()) continue;
                 String function    = entry.getString("function", "");
                 int    effective   = entry.getInt("effective", 0);
                 String description = entry.getString("description", "");
@@ -98,8 +99,8 @@ public class GameDataManager {
                     }
                 }
                 ImprovementData data = new ImprovementData(
-                        name.toLowerCase(), function, effective, restrict, description);
-                improvementDataByName.put(name.toLowerCase(), data);
+                        id.toLowerCase(), name, function, effective, restrict, description);
+                improvementDataByCode.put(id.toLowerCase(), data);
                 count++;
             }
             Gdx.app.log("GameDataManager",
@@ -522,13 +523,13 @@ public class GameDataManager {
     }
 
     /**
-     * Returns the {@link ImprovementData} for the given improvement name, or
+     * Returns the {@link ImprovementData} for the given improvement code, or
      * {@code null} if the improvement is not found in {@code improvements_en.json}.
      *
-     * @param name improvement name (case-insensitive)
+     * @param code improvement code / id (case-insensitive)
      */
-    public ImprovementData getImprovementData(String name) {
-        if (name == null) return null;
-        return improvementDataByName.get(name.toLowerCase());
+    public ImprovementData getImprovementData(String code) {
+        if (code == null) return null;
+        return improvementDataByCode.get(code.toLowerCase());
     }
 }
