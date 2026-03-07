@@ -91,6 +91,48 @@ public class TimeEngine {
     }
 
     /**
+     * Convenience helper for movement actions where the total travel time
+     * in minutes is already known (e.g.&nbsp;from
+     * {@code RouteResult.totalMinutes}).
+     *
+     * <p>Each <em>step</em> produces one animation dot.  Each step is
+     * divided into {@code subIntervals} ticks, and on every tick the
+     * {@code callback} receives the number of game minutes to advance.
+     *
+     * <h3>Example</h3>
+     * <pre>
+     *   // 35-minute walk, 7 steps, 2 sub-interval ticks per step
+     *   engine.startMovement(35, 7, 2, "Traveling", minutes -&gt; {
+     *       profile.advanceGameTime(minutes);
+     *   });
+     * </pre>
+     *
+     * @param totalMinutes total travel time in game minutes (≥ 1)
+     * @param steps        number of walk steps / dots to display (≥ 1)
+     * @param subIntervals number of sub-interval ticks per step (≥ 1)
+     * @param message      text shown during the animation (e.g.&nbsp;"Traveling")
+     * @param callback     invoked once per sub-interval tick, or {@code null}
+     */
+    public void startMovement(int totalMinutes, int steps, int subIntervals,
+                              String message, SubIntervalCallback callback) {
+        this.message      = message != null ? message : "";
+        this.intervals    = Math.max(1, steps);
+        this.subIntervals = Math.max(1, subIntervals);
+        this.callback     = callback;
+
+        this.totalGameMinutes = Math.max(1, totalMinutes);
+
+        this.totalSubTicks     = this.intervals * this.subIntervals;
+        this.minutesPerSubTick = this.totalGameMinutes / totalSubTicks;
+        this.remainderMinutes  = this.totalGameMinutes % totalSubTicks;
+
+        this.timer             = 0f;
+        this.completedSubTicks = 0;
+        this.running           = true;
+        this.completed         = false;
+    }
+
+    /**
      * Advances the engine by {@code delta} seconds.
      * Call once per frame from the render loop.
      */

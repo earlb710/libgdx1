@@ -537,6 +537,7 @@ public class MainScreen implements Screen {
             || emailPopup.isVisible()
             || phonePopup.isVisible()
             || confirmDropPopup.isVisible()
+            || notePopup.isVisible()
             || meetPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible

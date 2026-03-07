@@ -307,4 +307,106 @@ public class TimeEngineTest {
         engine.update(10f);
         assertEquals(1, tickCount[0]);
     }
+
+    // =====================================================================
+    // startMovement() helper
+    // =====================================================================
+
+    @Test
+    public void startMovement_setsRunningState() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(35, 7, 2, "Traveling", null);
+        assertTrue(engine.isRunning());
+        assertFalse(engine.isCompleted());
+        assertTrue(engine.isVisible());
+    }
+
+    @Test
+    public void startMovement_storesTotalGameMinutes() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(35, 7, 2, "Traveling", null);
+        assertEquals(35, engine.getTotalGameMinutes());
+    }
+
+    @Test
+    public void startMovement_minutesSumToTotal() {
+        final int[] totalMinutes = {0};
+        TimeEngine engine = new TimeEngine();
+        // 35 min, 7 steps × 2 sub = 14 ticks → 2 min/tick, remainder 7
+        engine.startMovement(35, 7, 2, "Traveling", minutes -> totalMinutes[0] += minutes);
+        engine.update(10f);
+        assertEquals(35, totalMinutes[0]);
+    }
+
+    @Test
+    public void startMovement_minutesSumToTotal_exactlyDivisible() {
+        final int[] totalMinutes = {0};
+        TimeEngine engine = new TimeEngine();
+        // 60 min, 6 steps × 2 sub = 12 ticks → 5 min/tick, remainder 0
+        engine.startMovement(60, 6, 2, "Walking", minutes -> totalMinutes[0] += minutes);
+        engine.update(10f);
+        assertEquals(60, totalMinutes[0]);
+    }
+
+    @Test
+    public void startMovement_firesCorrectNumberOfCallbacks() {
+        final int[] tickCount = {0};
+        TimeEngine engine = new TimeEngine();
+        // 5 steps × 3 sub = 15 total ticks
+        engine.startMovement(100, 5, 3, "Moving", minutes -> tickCount[0]++);
+        engine.update(10f);
+        assertEquals(15, tickCount[0]);
+    }
+
+    @Test
+    public void startMovement_dotProgression() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(20, 3, 1, "Walking", null);
+
+        engine.update(0.1f); // < 300ms → 0 dots
+        assertEquals("Walking", engine.getDisplayText());
+
+        engine.update(0.21f); // total 0.31 → 1 dot
+        assertEquals("Walking.", engine.getDisplayText());
+
+        engine.update(10f); // all done
+        assertEquals("Walking...", engine.getDisplayText());
+    }
+
+    @Test
+    public void startMovement_clampsMinutesToAtLeast1() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(0, 2, 1, "X", null);
+        assertEquals(1, engine.getTotalGameMinutes());
+    }
+
+    @Test
+    public void startMovement_clampsStepsToAtLeast1() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(10, 0, 1, "X", null);
+        assertEquals(1, engine.getIntervals());
+    }
+
+    @Test
+    public void startMovement_clampsSubIntervalsToAtLeast1() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(10, 2, 0, "X", null);
+        assertEquals(1, engine.getSubIntervals());
+    }
+
+    @Test
+    public void startMovement_nullMessage_treatedAsEmpty() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(10, 2, 1, null, null);
+        assertEquals("", engine.getMessage());
+    }
+
+    @Test
+    public void startMovement_completesAndStops() {
+        TimeEngine engine = new TimeEngine();
+        engine.startMovement(10, 2, 1, "Walk", null);
+        engine.update(10f);
+        assertFalse(engine.isRunning());
+        assertTrue(engine.isCompleted());
+    }
 }
