@@ -973,7 +973,7 @@ public class MainScreen implements Screen {
                 ? cell.getBuilding().getName() : null;
         boolean atHome = state.charCellX == state.homeCellX && state.charCellY == state.homeCellY;
 
-        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        long nowMinutes = CalendarEntry.dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
@@ -988,34 +988,10 @@ public class MainScreen implements Screen {
                         && buildingName.equalsIgnoreCase(entry.location);
             }
             if (!locationMatches) continue;
-            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            long diff = CalendarEntry.dateTimeToMinutes(entry.dateTime) - nowMinutes;
             if (diff >= 0 && diff <= 180) return entry;
         }
         return null;
-    }
-
-    /**
-     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time string to total
-     * minutes, mirroring the helper in {@link InfoPanelRenderer}.
-     */
-    private static long dateTimeToMinutes(String dt) {
-        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-        try {
-            String[] halves = dt.split(" ");
-            String[] d = halves[0].split("-");
-            String[] t = halves[1].split(":");
-            int year  = Integer.parseInt(d[0]);
-            int month = Integer.parseInt(d[1]);
-            int day   = Integer.parseInt(d[2]);
-            int hour  = Integer.parseInt(t[0]);
-            int min   = Integer.parseInt(t[1]);
-            long totalDays = (long)(year - 2050) * 365L;
-            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
-            totalDays += day;
-            return totalDays * 24L * 60L + hour * 60L + min;
-        } catch (Exception e) {
-            return Long.MAX_VALUE / 2;
-        }
     }
 
     /**
