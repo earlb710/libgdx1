@@ -24,9 +24,9 @@ import java.util.Map;
 public class GameDataManager {
     private static final String BUILDINGS_FILE      = "text/buildings_en.json";
     private static final String IMPROVEMENTS_FILE   = "text/improvements_en.json";
-    private static final String PERSON_NAMES_FILE   = "person_names.json";
-    private static final String SURNAMES_FILE       = "person_surnames.json";
-    private static final String COMPANY_NAMES_FILE  = "company_names.json";
+    private static final String PERSON_NAMES_FILE   = "text/person_names.json";
+    private static final String SURNAMES_FILE       = "text/person_surnames.json";
+    private static final String COMPANY_NAMES_FILE  = "text/company_names.json";
     private static final String COMPANY_TYPES_FILE  = "company_types.json";
     private static final String CATEGORIES_FILE = "text/category_en.json";
 

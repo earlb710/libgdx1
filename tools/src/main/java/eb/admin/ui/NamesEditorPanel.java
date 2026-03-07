@@ -44,9 +44,9 @@ public class NamesEditorPanel extends JPanel {
     private static final Color  ANNOTATION_FOREGROUND = new Color(0, 0, 139);
     private static final String[] RATINGS = {"Excellent", "Good", "Sufficient", "Bad", "Very Bad"};
 
-    private static final String DEFAULT_PERSON_NAMES_PATH   = "assets/person_names.json";
-    private static final String DEFAULT_SURNAMES_PATH        = "assets/person_surnames.json";
-    private static final String DEFAULT_COMPANY_NAMES_PATH   = "assets/company_names.json";
+    private static final String DEFAULT_PERSON_NAMES_PATH   = "assets/text/person_names.json";
+    private static final String DEFAULT_SURNAMES_PATH        = "assets/text/person_surnames.json";
+    private static final String DEFAULT_COMPANY_NAMES_PATH   = "assets/text/company_names.json";
 
     private final JLabel statusLabel;
 
