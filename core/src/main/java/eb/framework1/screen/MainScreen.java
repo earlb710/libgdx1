@@ -88,6 +88,7 @@ public class MainScreen implements Screen {
     ConfirmPopup         confirmDropPopup;
     NotePopup            notePopup;
     MeetPopup            meetPopup;
+    ExaminePersonPopup   examinePersonPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -320,6 +321,8 @@ public class MainScreen implements Screen {
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -350,6 +353,13 @@ public class MainScreen implements Screen {
         // Keep the NPC-overlay hour in sync with the current in-game time so that
         // stick figures are repositioned on the map every time the clock advances.
         state.currentHour = profile.getCurrentHour();
+
+        // Keep the set of known NPC IDs in sync with the player's relationships so
+        // that MapRenderer can decide which NPCs get an eye icon drawn next to them.
+        state.knownNpcIds.clear();
+        for (eb.framework1.character.Relationship r : profile.getRelationships()) {
+            state.knownNpcIds.add(r.getTargetId());
+        }
 
         mapRenderer.drawMap(state);
         mapRenderer.drawRulers(state);
@@ -441,6 +451,10 @@ public class MainScreen implements Screen {
             meetPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (examinePersonPopup.isVisible()) {
+            examinePersonPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -529,6 +543,7 @@ public class MainScreen implements Screen {
             || confirmDropPopup.isVisible()
             || notePopup.isVisible()
             || meetPopup.isVisible()
+            || examinePersonPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;

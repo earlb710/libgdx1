@@ -526,6 +526,11 @@ public class SaveGameManager {
         public java.util.List<NpcScheduleEntryData> scheduleEntries;
         public String birthdate;
         public boolean tracked;
+        // Appearance attributes (added later; null/0 in older saves → use defaults)
+        public String hairType;
+        public String hairColor;
+        public int    wealthyLevel;
+        public String favColor;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -568,8 +573,12 @@ public class SaveGameManager {
                 d.scheduleEntries.add(ed);
             }
         }
-        d.birthdate = npc.getBirthdate();
-        d.tracked   = npc.isTracked();
+        d.birthdate     = npc.getBirthdate();
+        d.tracked       = npc.isTracked();
+        d.hairType      = npc.getHairType();
+        d.hairColor     = npc.getHairColor();
+        d.wealthyLevel  = npc.getWealthyLevel();
+        d.favColor      = npc.getFavColor();
         return d;
     }
 
@@ -600,7 +609,11 @@ public class SaveGameManager {
                 .honesty(clampTrait(d.honesty))
                 .nervousness(clampTrait(d.nervousness))
                 .birthdate(d.birthdate)
-                .tracked(d.tracked);
+                .tracked(d.tracked)
+                .hairType(d.hairType != null ? d.hairType : "")
+                .hairColor(d.hairColor != null ? d.hairColor : "")
+                .wealthyLevel(d.wealthyLevel < 1 ? 5 : d.wealthyLevel)
+                .favColor(d.favColor != null ? d.favColor : "");
         if (d.frequentLocations != null) {
             for (String loc : d.frequentLocations) {
                 b.addFrequentLocation(loc);

@@ -77,6 +77,12 @@ public class CharacterGenerator {
     private static final String[] MALE_SPRITES   = { "man1", "man2" };
     private static final String[] FEMALE_SPRITES = { "woman1", "woman2" };
 
+    // Appearance attribute pools
+    private static final String[] HAIR_TYPES  = { "straight", "wavy", "curly", "bald", "buzzed" };
+    private static final String[] HAIR_COLORS = { "black", "brown", "blonde", "red", "gray", "white" };
+    private static final String[] FAV_COLORS  = { "", "", "", "red", "blue", "green",
+                                                   "yellow", "purple", "orange", "black", "white" };
+
     private final PersonNameGenerator nameGen;
     private final Random              random;
 
@@ -231,7 +237,11 @@ public class CharacterGenerator {
                 .honesty(randomInRange(profile.getMinHonesty(),
                                        profile.getMaxHonesty()))
                 .nervousness(randomInRange(profile.getMinNervousness(),
-                                           profile.getMaxNervousness()));
+                                           profile.getMaxNervousness()))
+                .hairType(pick(HAIR_TYPES))
+                .hairColor(pick(HAIR_COLORS))
+                .wealthyLevel(ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1))
+                .favColor(pick(FAV_COLORS));
 
         // Add all eleven investigative attributes, each randomly 1–10.
         for (CharacterAttribute attr : INVESTIGATIVE_ATTRIBUTES) {

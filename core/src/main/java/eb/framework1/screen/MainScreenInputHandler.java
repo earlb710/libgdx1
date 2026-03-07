@@ -463,6 +463,35 @@ class MainScreenInputHandler extends InputAdapter {
             return true;
         }
 
+        // Examine-person popup: Close button
+        if (screen.examinePersonPopup.isVisible()) {
+            float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+            if (d < MainScreen.TAP_THRESHOLD_PIXELS) {
+                screen.examinePersonPopup.onTap(screenX, flippedY);
+            }
+            isDragging = false;
+            infoAreaPressed = false;
+            return true;
+        }
+
+        // Check eye-icon taps on the map (examine unknown NPC from afar)
+        {
+            float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+            if (d < MainScreen.TAP_THRESHOLD_PIXELS && flippedY > screen.state.infoAreaHeight) {
+                eb.framework1.ui.MapViewState s = screen.state;
+                for (int i = 0; i < s.eyeIconCount; i++) {
+                    if (screenX >= s.eyeIconX[i] && screenX <= s.eyeIconX[i] + s.eyeIconW[i]
+                            && flippedY >= s.eyeIconY[i]
+                            && flippedY <= s.eyeIconY[i] + s.eyeIconH) {
+                        screen.examinePersonPopup.show(s.eyeIconNpc[i]);
+                        isDragging = false;
+                        infoAreaPressed = false;
+                        return true;
+                    }
+                }
+            }
+        }
+
         // Left-click: handle context menu first
         if (screen.contextMenu.isVisible()) {
             float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);

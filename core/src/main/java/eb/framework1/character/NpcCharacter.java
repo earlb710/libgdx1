@@ -104,6 +104,29 @@ public final class NpcCharacter {
      */
     private final boolean tracked;
 
+    // -------------------------------------------------------------------------
+    // Appearance attributes
+    // -------------------------------------------------------------------------
+
+    /** Hair type, e.g. {@code "straight"}, {@code "wavy"}, {@code "curly"}, {@code "bald"}. */
+    private final String hairType;
+
+    /** Hair colour, e.g. {@code "black"}, {@code "brown"}, {@code "blonde"}, {@code "red"},
+     *  {@code "gray"}, {@code "white"}. */
+    private final String hairColor;
+
+    /**
+     * Apparent wealth level on a 1–10 scale.
+     * 1 = visibly destitute; 10 = ostentatiously wealthy.
+     */
+    private final int wealthyLevel;
+
+    /**
+     * The NPC's favourite colour (optional; empty string means none observable).
+     * Examples: {@code "red"}, {@code "blue"}, {@code "green"}.
+     */
+    private final String favColor;
+
     /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
@@ -140,6 +163,10 @@ public final class NpcCharacter {
         this.schedule             = b.schedule;
         this.birthdate            = b.birthdate != null ? b.birthdate : "";
         this.tracked              = b.tracked;
+        this.hairType             = b.hairType  != null ? b.hairType  : "";
+        this.hairColor            = b.hairColor != null ? b.hairColor : "";
+        this.wealthyLevel         = b.wealthyLevel;
+        this.favColor             = b.favColor  != null ? b.favColor  : "";
     }
 
     // -------------------------------------------------------------------------
@@ -319,8 +346,32 @@ public final class NpcCharacter {
     }
 
     // -------------------------------------------------------------------------
-    // Convenience — current map position (derived from schedule)
+    // Accessors — appearance attributes
     // -------------------------------------------------------------------------
+
+    /**
+     * Hair type string, e.g. {@code "straight"}, {@code "wavy"}, {@code "curly"},
+     * {@code "bald"}.  Empty string when not set.
+     */
+    public String getHairType() { return hairType; }
+
+    /**
+     * Hair colour string, e.g. {@code "black"}, {@code "brown"}, {@code "blonde"},
+     * {@code "red"}, {@code "gray"}, {@code "white"}.  Empty string when not set.
+     */
+    public String getHairColor() { return hairColor; }
+
+    /**
+     * Apparent wealth level on a 1–10 scale.
+     * 1 = visibly destitute; 10 = ostentatiously wealthy.
+     */
+    public int getWealthyLevel() { return wealthyLevel; }
+
+    /**
+     * Favourite colour (optional), e.g. {@code "red"}, {@code "blue"}.
+     * Empty string when none is observable.
+     */
+    public String getFavColor() { return favColor; }
 
     /**
      * Returns the city-map cell X-coordinate for this NPC at the given hour,
@@ -446,6 +497,12 @@ public final class NpcCharacter {
         private NpcSchedule schedule = null;
         private String      birthdate = "";
         private boolean     tracked   = false;
+
+        // Appearance attributes
+        private String hairType    = "";
+        private String hairColor   = "";
+        private int    wealthyLevel = 5;
+        private String favColor    = "";
 
         /**
          * Sets the mandatory unique identifier.
@@ -694,6 +751,33 @@ public final class NpcCharacter {
          */
         public Builder tracked(boolean tracked) {
             this.tracked = tracked;
+            return this;
+        }
+
+        /** Sets the hair type (e.g. {@code "straight"}, {@code "curly"}, {@code "bald"}). */
+        public Builder hairType(String hairType) {
+            this.hairType = hairType != null ? hairType : "";
+            return this;
+        }
+
+        /** Sets the hair colour (e.g. {@code "black"}, {@code "brown"}, {@code "blonde"}). */
+        public Builder hairColor(String hairColor) {
+            this.hairColor = hairColor != null ? hairColor : "";
+            return this;
+        }
+
+        /**
+         * Sets the apparent wealth level (1–10).
+         * Values outside this range are clamped.
+         */
+        public Builder wealthyLevel(int wealthyLevel) {
+            this.wealthyLevel = Math.max(1, Math.min(10, wealthyLevel));
+            return this;
+        }
+
+        /** Sets the favourite colour (e.g. {@code "red"}, {@code "blue"}; empty = none). */
+        public Builder favColor(String favColor) {
+            this.favColor = favColor != null ? favColor : "";
             return this;
         }
 
