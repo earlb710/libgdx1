@@ -352,177 +352,211 @@ public class CaseGenerator {
     // Lead templates (hidden information + how to discover each)
     // -------------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // Lead builders (one per case type, dispatched from buildLeads)
+    // -------------------------------------------------------------------------
+
     private List<CaseLead> buildLeads(CaseType type, String subject) {
-        List<CaseLead> leads = new ArrayList<>();
-        int leadIndex = 1;
         switch (type) {
-            case MISSING_PERSON:
-                leads.add(lead(leadIndex++,
-                        subject + " withdrew a large sum of cash two days before disappearing,"
-                                + " suggesting a planned departure — or someone forcing their hand.",
-                        "Recent unusual financial activity may explain the disappearance.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        "A neighbour saw " + subject + " arguing with an unknown individual"
-                                + " the evening before they vanished.",
-                        "Someone in the area may have witnessed something important.",
-                        DiscoveryMethod.INTERVIEW));
-                leads.add(lead(leadIndex++,
-                        subject + "'s phone was last active two blocks from their home,"
-                                + " near a parking structure with no CCTV coverage.",
-                        "The subject's last known location has not been fully examined.",
-                        DiscoveryMethod.PHYSICAL_SEARCH));
-                break;
-
-            case INFIDELITY:
-                leads.add(lead(leadIndex++,
-                        subject + " meets the other party at a downtown bar every Tuesday"
-                                + " between 19:00 and 22:00.",
-                        "The subject appears to have a regular undocumented appointment.",
-                        DiscoveryMethod.SURVEILLANCE));
-                leads.add(lead(leadIndex++,
-                        "Hotel receipts under a false name match " + subject
-                                + "'s handwriting and a credit card linked to a shell account.",
-                        "Financial records may corroborate the client's suspicions.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        "A former colleague of " + subject
-                                + " was seen leaving the same address on two separate occasions.",
-                        "Speaking to people from the subject's past may be revealing.",
-                        DiscoveryMethod.INTERVIEW));
-                break;
-
-            case THEFT:
-                leads.add(lead(leadIndex++,
-                        "Fingerprints lifted from the point of entry match " + subject
-                                + "'s on file from a prior caution.",
-                        "The entry point may still hold physical evidence.",
-                        DiscoveryMethod.FORENSICS));
-                leads.add(lead(leadIndex++,
-                        subject + " sold items matching the stolen property's description"
-                                + " to a second-hand dealer two days after the incident.",
-                        "The stolen goods may have already changed hands.",
-                        DiscoveryMethod.BACKGROUND_CHECK));
-                leads.add(lead(leadIndex++,
-                        "A security camera at a nearby business captured a figure matching"
-                                + " " + subject + "'s build leaving the area at 02:30.",
-                        "Footage from the night of the theft may not have been reviewed.",
-                        DiscoveryMethod.PHYSICAL_SEARCH));
-                break;
-
-            case FRAUD:
-                leads.add(lead(leadIndex++,
-                        subject + " set up a dormant company eighteen months ago."
-                                + " Payments from the victim's accounts flow into it via two intermediaries.",
-                        "Corporate records may reveal undisclosed financial connections.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        "An accountant at " + subject + "'s firm suspects the manipulation"
-                                + " but was told to stay quiet.",
-                        "An insider at the subject's workplace may be willing to talk.",
-                        DiscoveryMethod.INTERVIEW));
-                leads.add(lead(leadIndex++,
-                        subject + " has transferred substantial sums abroad in the past"
-                                + " six months, well above their declared income.",
-                        "A background check on the subject's known associates and assets"
-                                + " may expose the full picture.",
-                        DiscoveryMethod.BACKGROUND_CHECK));
-                break;
-
-            case BLACKMAIL:
-                leads.add(lead(leadIndex++,
-                        "The blackmail messages were sent from a disposable device"
-                                + " registered to a false address, but the writing style"
-                                + " is consistent with " + subject + "'s known correspondence.",
-                        "The communication method used carries traces of the sender's habits.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        subject + " was present at the event the client is being blackmailed about"
-                                + " and was seen photographing guests.",
-                        "Witness accounts from that event could place " + subject
-                                + " in a position to gather compromising material.",
-                        DiscoveryMethod.INTERVIEW));
-                leads.add(lead(leadIndex++,
-                        "A hidden drive in " + subject + "'s office contains copies of the"
-                                + " material referenced in the blackmail demands.",
-                        "A search of the subject's private space may yield physical evidence.",
-                        DiscoveryMethod.PHYSICAL_SEARCH));
-                break;
-
-            case MURDER:
-                leads.add(lead(leadIndex++,
-                        "Traces of a sedative not consistent with the victim's prescription"
-                                + " were found on a glass recovered near the scene.",
-                        "Physical objects at the scene may yield forensic evidence"
-                                + " overlooked in the original investigation.",
-                        DiscoveryMethod.FORENSICS));
-                leads.add(lead(leadIndex++,
-                        subject + " altered their alibi between the first and second police"
-                                + " interviews; a witness can confirm the discrepancy.",
-                        "Inconsistencies in the official account may surface"
-                                + " when speaking to those who were there.",
-                        DiscoveryMethod.INTERVIEW));
-                leads.add(lead(leadIndex++,
-                        subject + " was observed watching the victim's residence"
-                                + " on three evenings in the week before the death.",
-                        "Systematic observation of the subject's behaviour patterns"
-                                + " may reveal prior knowledge of the victim's movements.",
-                        DiscoveryMethod.SURVEILLANCE));
-                leads.add(lead(leadIndex,
-                        "The victim sent a message naming " + subject
-                                + " hours before their death; the message was deleted remotely.",
-                        "Reviewing digital records and correspondence"
-                                + " from the days surrounding the incident may be critical.",
-                        DiscoveryMethod.DOCUMENTS));
-                break;
-
-            case STALKING:
-                leads.add(lead(leadIndex++,
-                        subject + " has photographed the client's home and daily routine"
-                                + " over a six-week period; a folder of images was found"
-                                + " discarded near their residence.",
-                        "The subject's personal space may contain evidence of obsessive tracking.",
-                        DiscoveryMethod.PHYSICAL_SEARCH));
-                leads.add(lead(leadIndex++,
-                        subject + " created multiple fake online accounts to monitor"
-                                + " and contact the client.",
-                        "Tracing digital footprints and correspondence trails"
-                                + " may identify the source of online harassment.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        "A former partner of " + subject
-                                + " filed a similar complaint two years ago in another city.",
-                        "A background investigation into the subject's history"
-                                + " may reveal a pattern of behaviour.",
-                        DiscoveryMethod.BACKGROUND_CHECK));
-                break;
-
-            case CORPORATE_ESPIONAGE:
-                leads.add(lead(leadIndex++,
-                        subject + " accessed confidential project files outside normal"
-                                + " working hours on at least twelve occasions in the past quarter.",
-                        "Access logs and internal records may show irregular system activity.",
-                        DiscoveryMethod.DOCUMENTS));
-                leads.add(lead(leadIndex++,
-                        "A colleague noticed " + subject
-                                + " photographing a whiteboard during a closed strategy session.",
-                        "Other staff members may have witnessed suspicious behaviour.",
-                        DiscoveryMethod.INTERVIEW));
-                leads.add(lead(leadIndex++,
-                        subject + " meets a contact from the rival firm monthly"
-                                + " at a location away from both offices.",
-                        "Regular off-site meetings between the subject and"
-                                + " a competitor employee would confirm the leak.",
-                        DiscoveryMethod.SURVEILLANCE));
-                break;
-
+            case MISSING_PERSON:      return buildMissingPersonLeads(subject);
+            case INFIDELITY:          return buildInfidelityLeads(subject);
+            case THEFT:               return buildTheftLeads(subject);
+            case FRAUD:               return buildFraudLeads(subject);
+            case BLACKMAIL:           return buildBlackmailLeads(subject);
+            case MURDER:              return buildMurderLeads(subject);
+            case STALKING:            return buildStalkingLeads(subject);
+            case CORPORATE_ESPIONAGE: return buildCorporateEspionageLeads(subject);
             default:
-                leads.add(lead(leadIndex,
+                List<CaseLead> fallback = new ArrayList<>();
+                fallback.add(lead(1,
                         "Information about " + subject + " has not yet been gathered.",
                         "Begin with a background check on the subject.",
                         DiscoveryMethod.BACKGROUND_CHECK));
-                break;
+                return fallback;
         }
+    }
+
+    private List<CaseLead> buildMissingPersonLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                subject + " withdrew a large sum of cash two days before disappearing,"
+                        + " suggesting a planned departure — or someone forcing their hand.",
+                "Recent unusual financial activity may explain the disappearance.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "A neighbour saw " + subject + " arguing with an unknown individual"
+                        + " the evening before they vanished.",
+                "Someone in the area may have witnessed something important.",
+                DiscoveryMethod.INTERVIEW));
+        leads.add(lead(i++,
+                subject + "'s phone was last active two blocks from their home,"
+                        + " near a parking structure with no CCTV coverage.",
+                "The subject's last known location has not been fully examined.",
+                DiscoveryMethod.PHYSICAL_SEARCH));
+        return leads;
+    }
+
+    private List<CaseLead> buildInfidelityLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                subject + " meets the other party at a downtown bar every Tuesday"
+                        + " between 19:00 and 22:00.",
+                "The subject appears to have a regular undocumented appointment.",
+                DiscoveryMethod.SURVEILLANCE));
+        leads.add(lead(i++,
+                "Hotel receipts under a false name match " + subject
+                        + "'s handwriting and a credit card linked to a shell account.",
+                "Financial records may corroborate the client's suspicions.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "A former colleague of " + subject
+                        + " was seen leaving the same address on two separate occasions.",
+                "Speaking to people from the subject's past may be revealing.",
+                DiscoveryMethod.INTERVIEW));
+        return leads;
+    }
+
+    private List<CaseLead> buildTheftLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                "Fingerprints lifted from the point of entry match " + subject
+                        + "'s on file from a prior caution.",
+                "The entry point may still hold physical evidence.",
+                DiscoveryMethod.FORENSICS));
+        leads.add(lead(i++,
+                subject + " sold items matching the stolen property's description"
+                        + " to a second-hand dealer two days after the incident.",
+                "The stolen goods may have already changed hands.",
+                DiscoveryMethod.BACKGROUND_CHECK));
+        leads.add(lead(i++,
+                "A security camera at a nearby business captured a figure matching"
+                        + " " + subject + "'s build leaving the area at 02:30.",
+                "Footage from the night of the theft may not have been reviewed.",
+                DiscoveryMethod.PHYSICAL_SEARCH));
+        return leads;
+    }
+
+    private List<CaseLead> buildFraudLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                subject + " set up a dormant company eighteen months ago."
+                        + " Payments from the victim's accounts flow into it via two intermediaries.",
+                "Corporate records may reveal undisclosed financial connections.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "An accountant at " + subject + "'s firm suspects the manipulation"
+                        + " but was told to stay quiet.",
+                "An insider at the subject's workplace may be willing to talk.",
+                DiscoveryMethod.INTERVIEW));
+        leads.add(lead(i++,
+                subject + " has transferred substantial sums abroad in the past"
+                        + " six months, well above their declared income.",
+                "A background check on the subject's known associates and assets"
+                        + " may expose the full picture.",
+                DiscoveryMethod.BACKGROUND_CHECK));
+        return leads;
+    }
+
+    private List<CaseLead> buildBlackmailLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                "The blackmail messages were sent from a disposable device"
+                        + " registered to a false address, but the writing style"
+                        + " is consistent with " + subject + "'s known correspondence.",
+                "The communication method used carries traces of the sender's habits.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                subject + " was present at the event the client is being blackmailed about"
+                        + " and was seen photographing guests.",
+                "Witness accounts from that event could place " + subject
+                        + " in a position to gather compromising material.",
+                DiscoveryMethod.INTERVIEW));
+        leads.add(lead(i++,
+                "A hidden drive in " + subject + "'s office contains copies of the"
+                        + " material referenced in the blackmail demands.",
+                "A search of the subject's private space may yield physical evidence.",
+                DiscoveryMethod.PHYSICAL_SEARCH));
+        return leads;
+    }
+
+    private List<CaseLead> buildMurderLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                "Traces of a sedative not consistent with the victim's prescription"
+                        + " were found on a glass recovered near the scene.",
+                "Physical objects at the scene may yield forensic evidence"
+                        + " overlooked in the original investigation.",
+                DiscoveryMethod.FORENSICS));
+        leads.add(lead(i++,
+                subject + " altered their alibi between the first and second police"
+                        + " interviews; a witness can confirm the discrepancy.",
+                "Inconsistencies in the official account may surface"
+                        + " when speaking to those who were there.",
+                DiscoveryMethod.INTERVIEW));
+        leads.add(lead(i++,
+                subject + " was observed watching the victim's residence"
+                        + " on three evenings in the week before the death.",
+                "Systematic observation of the subject's behaviour patterns"
+                        + " may reveal prior knowledge of the victim's movements.",
+                DiscoveryMethod.SURVEILLANCE));
+        leads.add(lead(i++,
+                "The victim sent a message naming " + subject
+                        + " hours before their death; the message was deleted remotely.",
+                "Reviewing digital records and correspondence"
+                        + " from the days surrounding the incident may be critical.",
+                DiscoveryMethod.DOCUMENTS));
+        return leads;
+    }
+
+    private List<CaseLead> buildStalkingLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                subject + " has photographed the client's home and daily routine"
+                        + " over a six-week period; a folder of images was found"
+                        + " discarded near their residence.",
+                "The subject's personal space may contain evidence of obsessive tracking.",
+                DiscoveryMethod.PHYSICAL_SEARCH));
+        leads.add(lead(i++,
+                subject + " created multiple fake online accounts to monitor"
+                        + " and contact the client.",
+                "Tracing digital footprints and correspondence trails"
+                        + " may identify the source of online harassment.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "A former partner of " + subject
+                        + " filed a similar complaint two years ago in another city.",
+                "A background investigation into the subject's history"
+                        + " may reveal a pattern of behaviour.",
+                DiscoveryMethod.BACKGROUND_CHECK));
+        return leads;
+    }
+
+    private List<CaseLead> buildCorporateEspionageLeads(String subject) {
+        List<CaseLead> leads = new ArrayList<>();
+        int i = 1;
+        leads.add(lead(i++,
+                subject + " accessed confidential project files outside normal"
+                        + " working hours on at least twelve occasions in the past quarter.",
+                "Access logs and internal records may show irregular system activity.",
+                DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "A colleague noticed " + subject
+                        + " photographing a whiteboard during a closed strategy session.",
+                "Other staff members may have witnessed suspicious behaviour.",
+                DiscoveryMethod.INTERVIEW));
+        leads.add(lead(i++,
+                subject + " meets a contact from the rival firm monthly"
+                        + " at a location away from both offices.",
+                "Regular off-site meetings between the subject and"
+                        + " a competitor employee would confirm the leak.",
+                DiscoveryMethod.SURVEILLANCE));
         return leads;
     }
 
