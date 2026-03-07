@@ -264,9 +264,16 @@ public class CompanyNameGenerator {
     // -------------------------------------------------------------------------
 
     /**
-     * Builds the eligible pool for a type-filtered request: type-specific
-     * templates + generic templates.  Falls back to all templates if the
-     * combined pool would be empty.
+     * Builds the eligible pool for a type-filtered request.
+     *
+     * <p>Priority order:
+     * <ol>
+     *   <li>Type-specific templates (when they exist) — returned exclusively so
+     *       the building always receives an appropriately themed name.</li>
+     *   <li>Generic ({@code "G"}) templates — used as a fallback when the type is
+     *       unknown, is itself {@code "G"}, or has no templates of its own.</li>
+     *   <li>All templates — last resort when even the generic list is empty.</li>
+     * </ol>
      */
     private List<NameTemplate> buildPool(String typeId) {
         if (typeId == null || TYPE_GENERIC.equals(typeId)) {
@@ -277,11 +284,9 @@ public class CompanyNameGenerator {
             // Unknown or empty type → generics only, or all if no generics
             return genericTemplates.isEmpty() ? allTemplates : genericTemplates;
         }
-        // Union: typed + generic
-        List<NameTemplate> pool = new ArrayList<>(typed.size() + genericTemplates.size());
-        pool.addAll(typed);
-        pool.addAll(genericTemplates);
-        return pool;
+        // Type-specific templates exist — use only those so the building always
+        // gets an appropriately themed name rather than a generic one.
+        return typed;
     }
 
     /**
