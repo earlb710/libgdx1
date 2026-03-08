@@ -2,7 +2,7 @@ package eb.framework1.popup;
 
 import eb.framework1.character.NpcCharacter;
 import eb.framework1.character.PersonDescriptionEngine;
-import eb.framework1.generator.WordWrapper;
+import eb.framework1.ui.WordWrapper;
 import eb.framework1.ui.InfoPanelRenderer;
 import eb.framework1.ui.TextMeasurer;
 
