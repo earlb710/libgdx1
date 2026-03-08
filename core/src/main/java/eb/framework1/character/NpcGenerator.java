@@ -232,7 +232,9 @@ public class NpcGenerator {
                 .frequentLocations(base.getFrequentLocations())
                 .skills(skills)
                 .schedule(schedule)
-                .birthdate(birthdate);
+                .birthdate(birthdate)
+                .visionTrait(base.getVisionTrait())
+                .carriedItems(assignCarriedItemsWithVision(base.getVisionTrait(), skills));
         // tracked defaults to false; callers can set it explicitly after generation
 
         // Add the evening leisure/shopping location as a frequent location
@@ -352,6 +354,55 @@ public class NpcGenerator {
             skills.add(NpcSkill.FREELANCER);
         }
         return skills;
+    }
+
+    // -------------------------------------------------------------------------
+    // Item assignment
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns a list of {@link EquipItem}s an NPC should carry based on their
+     * inferred skills.
+     *
+     * <ul>
+     *   <li>Law-enforcement officers (police, detective, security) carry a
+     *       {@link EquipItem#PISTOL}.</li>
+     * </ul>
+     *
+     * <p>Most NPCs carry nothing, so the returned list is usually empty.
+     *
+     * @param skills non-null list of inferred skills for the NPC
+     * @return a possibly-empty list of items to carry; never {@code null}
+     */
+    static List<EquipItem> assignCarriedItems(List<NpcSkill> skills) {
+        List<EquipItem> items = new ArrayList<>();
+        for (NpcSkill skill : skills) {
+            if (skill == NpcSkill.LAW_ENFORCEMENT) {
+                items.add(EquipItem.PISTOL);
+                return items;
+            }
+        }
+        return items;
+    }
+
+    /**
+     * Builds the full carried-items list by combining skill-based items with a
+     * vision-correction aid.
+     *
+     * <p>Characters with a non-{@link VisionTrait#NONE} trait automatically
+     * carry {@link EquipItem#GLASSES} to compensate for their impairment.
+     *
+     * @param visionTrait the NPC's vision trait (may be {@code null} → treated as NONE)
+     * @param skills      the NPC's inferred skill list
+     * @return a possibly-empty list of items to carry; never {@code null}
+     */
+    static List<EquipItem> assignCarriedItemsWithVision(
+            VisionTrait visionTrait, List<NpcSkill> skills) {
+        List<EquipItem> items = new ArrayList<>(assignCarriedItems(skills));
+        if (visionTrait != null && visionTrait.isImpaired()) {
+            items.add(EquipItem.GLASSES);
+        }
+        return items;
     }
 
     // -------------------------------------------------------------------------

@@ -51,6 +51,9 @@ public class Profile {
     /** The display name of the building where the player character lives. */
     private String homeAddress = "";
 
+    /** Vision impairment trait.  Defaults to {@link VisionTrait#NONE}. */
+    private VisionTrait visionTrait = VisionTrait.NONE;
+
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
     }
@@ -637,6 +640,35 @@ public class Profile {
             total += item.getModifiers().getOrDefault(attr, 0);
         }
         return total;
+    }
+
+    /** Returns the current vision trait; never {@code null}. */
+    public VisionTrait getVisionTrait() {
+        return visionTrait != null ? visionTrait : VisionTrait.NONE;
+    }
+
+    /**
+     * Sets the vision trait.  {@code null} is treated as
+     * {@link VisionTrait#NONE}.
+     */
+    public void setVisionTrait(VisionTrait trait) {
+        this.visionTrait = trait != null ? trait : VisionTrait.NONE;
+    }
+
+    /**
+     * Returns the effective value of an attribute, combining the base stored
+     * value with any modifier from the character's vision trait and all
+     * currently equipped items.
+     *
+     * @param attr the attribute to query; must not be {@code null}
+     * @return effective value (base + vision-trait modifier + equipment modifier)
+     * @throws IllegalArgumentException if {@code attr} is {@code null}
+     */
+    public int getEffectiveAttribute(CharacterAttribute attr) {
+        if (attr == null) throw new IllegalArgumentException("attr must not be null");
+        return getAttribute(attr.name())
+                + getVisionTrait().getModifier(attr)
+                + getEquipmentModifier(attr);
     }
 
     // -------------------------------------------------------------------------

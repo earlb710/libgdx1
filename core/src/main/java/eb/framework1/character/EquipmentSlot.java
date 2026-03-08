@@ -5,7 +5,8 @@ package eb.framework1.character;
  *
  * <ul>
  *   <li>{@link #WEAPON}  – primary weapon (defaults to Pistol)</li>
- *   <li>{@link #BODY}    – body armour / jacket</li>
+ *   <li>{@link #HEAD}    – headwear (hat, cap …)</li>
+ *   <li>{@link #BODY}    – body armour / jacket / coat</li>
  *   <li>{@link #LEGS}    – trousers / leg protection</li>
  *   <li>{@link #FEET}    – footwear</li>
  *   <li>{@link #UTILITY} – utility items (binoculars, camera, pepper spray …);
@@ -15,6 +16,7 @@ package eb.framework1.character;
  */
 public enum EquipmentSlot {
     WEAPON ("Weapon"),
+    HEAD   ("Head"),
     BODY   ("Body"),
     LEGS   ("Legs"),
     FEET   ("Feet"),

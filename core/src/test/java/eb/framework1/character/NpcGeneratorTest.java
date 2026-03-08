@@ -204,8 +204,76 @@ public class NpcGeneratorTest {
     }
 
     // =========================================================================
-    // NpcSkill — skill inference
+    // NpcGenerator.assignCarriedItems — item assignment
     // =========================================================================
+
+    @Test
+    public void assignCarriedItems_lawEnforcement_hasPistol() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.LAW_ENFORCEMENT);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertFalse("Law enforcement should carry items", items.isEmpty());
+        assertEquals("Law enforcement should carry a Pistol", EquipItem.PISTOL, items.get(0));
+    }
+
+    @Test
+    public void assignCarriedItems_freelancer_carriesNothing() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.FREELANCER);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertTrue("Freelancer should carry nothing", items.isEmpty());
+    }
+
+    @Test
+    public void assignCarriedItems_officeWorker_carriesNothing() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.OFFICE_WORKER);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertTrue("Office worker should carry nothing", items.isEmpty());
+    }
+
+    @Test
+    public void assignCarriedItems_emptySkills_carriesNothing() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(
+                java.util.Collections.<NpcSkill>emptyList());
+        assertTrue("No skills → no carried items", items.isEmpty());
+    }
+
+    @Test
+    public void generateNpc_withPoliceOccupation_hasPistol() {
+        // Use NpcCharacter.Builder directly with LAW_ENFORCEMENT skill
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cop-1").fullName("Jane Officer").gender("F")
+                .addSkill(NpcSkill.LAW_ENFORCEMENT)
+                .addCarriedItem(EquipItem.PISTOL)
+                .build();
+        assertFalse("Police officer should carry items", npc.getCarriedItems().isEmpty());
+        assertEquals(EquipItem.PISTOL, npc.getCarriedItems().get(0));
+    }
+
+    @Test
+    public void npcCharacterBuilder_carriedItemsDefaultEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M").build();
+        assertNotNull(npc.getCarriedItems());
+        assertTrue(npc.getCarriedItems().isEmpty());
+    }
+
+    @Test
+    public void npcCharacterBuilder_addCarriedItem_nullIgnored() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M")
+                .addCarriedItem(null)
+                .build();
+        assertTrue(npc.getCarriedItems().isEmpty());
+    }
+
+    @Test
+    public void npcCharacterBuilder_carriedItemsList_replacesExisting() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M")
+                .addCarriedItem(EquipItem.PISTOL)
+                .carriedItems(java.util.Collections.<EquipItem>emptyList())
+                .build();
+        assertTrue("carriedItems() should replace the list", npc.getCarriedItems().isEmpty());
+    }
 
     @Test
     public void inferSkills_null_returnsFreelancer() {
@@ -633,5 +701,128 @@ public class NpcGeneratorTest {
             assertTrue("Each NPC must have a unique ID", ids.add(npc.getId()));
         }
         assertEquals("Should have generated 20 distinct NPCs", 20, ids.size());
+    }
+
+    // =========================================================================
+    // VisionTrait
+    // =========================================================================
+
+    @Test
+    public void visionTrait_noneHasNoModifier() {
+        assertEquals(0, VisionTrait.NONE.getModifier(CharacterAttribute.PERCEPTION));
+        assertFalse(VisionTrait.NONE.isImpaired());
+    }
+
+    @Test
+    public void visionTrait_farsightedReducesPerception() {
+        assertEquals(-1, VisionTrait.FARSIGHTED.getModifier(CharacterAttribute.PERCEPTION));
+        assertTrue(VisionTrait.FARSIGHTED.isImpaired());
+    }
+
+    @Test
+    public void visionTrait_nearsightedReducesPerception() {
+        assertEquals(-1, VisionTrait.NEARSIGHTED.getModifier(CharacterAttribute.PERCEPTION));
+        assertTrue(VisionTrait.NEARSIGHTED.isImpaired());
+    }
+
+    @Test
+    public void visionTrait_onlyAffectsPerception() {
+        assertEquals(0, VisionTrait.FARSIGHTED.getModifier(CharacterAttribute.INTELLIGENCE));
+        assertEquals(0, VisionTrait.NEARSIGHTED.getModifier(CharacterAttribute.STRENGTH));
+    }
+
+    @Test
+    public void assignCarriedItemsWithVision_noImpairment_noGlasses() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItemsWithVision(
+                VisionTrait.NONE,
+                java.util.Collections.<NpcSkill>emptyList());
+        assertFalse("Non-impaired NPC should not carry glasses",
+                items.contains(EquipItem.GLASSES));
+    }
+
+    @Test
+    public void assignCarriedItemsWithVision_farsighted_addsGlasses() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItemsWithVision(
+                VisionTrait.FARSIGHTED,
+                java.util.Collections.<NpcSkill>emptyList());
+        assertTrue("Farsighted NPC should carry glasses",
+                items.contains(EquipItem.GLASSES));
+    }
+
+    @Test
+    public void assignCarriedItemsWithVision_nearsighted_addsGlasses() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItemsWithVision(
+                VisionTrait.NEARSIGHTED,
+                java.util.Collections.<NpcSkill>emptyList());
+        assertTrue("Nearsighted NPC should carry glasses",
+                items.contains(EquipItem.GLASSES));
+    }
+
+    @Test
+    public void assignCarriedItemsWithVision_nullTrait_noGlasses() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItemsWithVision(
+                null,
+                java.util.Collections.<NpcSkill>emptyList());
+        assertFalse("Null trait should not add glasses", items.contains(EquipItem.GLASSES));
+    }
+
+    @Test
+    public void assignCarriedItemsWithVision_lawEnforcementFarsighted_hasBothItems() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItemsWithVision(
+                VisionTrait.FARSIGHTED,
+                Arrays.asList(NpcSkill.LAW_ENFORCEMENT));
+        assertTrue("Should carry a pistol", items.contains(EquipItem.PISTOL));
+        assertTrue("Should carry glasses", items.contains(EquipItem.GLASSES));
+    }
+
+    @Test
+    public void npcCharacterBuilder_visionTraitDefaultsToNone() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("v-1").fullName("Vision Test").gender("F").build();
+        assertEquals(VisionTrait.NONE, npc.getVisionTrait());
+    }
+
+    @Test
+    public void npcCharacterBuilder_visionTraitSetAndGet() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("v-2").fullName("Near Sighted").gender("M")
+                .visionTrait(VisionTrait.NEARSIGHTED)
+                .build();
+        assertEquals(VisionTrait.NEARSIGHTED, npc.getVisionTrait());
+    }
+
+    @Test
+    public void npcCharacterBuilder_visionTraitNullTreatedAsNone() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("v-3").fullName("No Trait").gender("F")
+                .visionTrait(null)
+                .build();
+        assertEquals(VisionTrait.NONE, npc.getVisionTrait());
+    }
+
+    /**
+     * Statistical test: over a large sample, approximately 30% of NPCs
+     * generated by {@link CharacterGenerator} should have a vision impairment.
+     * Acceptable range: 20%–40% (generous tolerance for a random process).
+     */
+    @Test
+    public void characterGenerator_approximately30PercentHaveVisionImpairment() {
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M")
+        );
+        List<String> surnames = Arrays.asList("Smith", "Jones");
+        PersonNameGenerator nameGen = new PersonNameGenerator(firstNames, surnames, new Random(0));
+        CharacterGenerator gen = new CharacterGenerator(nameGen, new Random(0));
+
+        int total = 1000;
+        int impaired = 0;
+        for (int i = 0; i < total; i++) {
+            NpcCharacter npc = gen.generateClient(eb.framework1.investigation.CaseType.FRAUD);
+            if (npc.getVisionTrait().isImpaired()) impaired++;
+        }
+        double ratio = (double) impaired / total;
+        assertTrue("Expected ~30% impaired, got " + impaired + "/" + total,
+                ratio >= 0.20 && ratio <= 0.40);
     }
 }

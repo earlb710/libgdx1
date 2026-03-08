@@ -6,10 +6,11 @@ import java.util.Map;
 /**
  * Runtime data for an improvement loaded from {@code text/improvements_en.json}.
  *
- * <p>Holds the optional {@code function} (e.g. "rest", "exercise"), the
- * {@code effective} rating (50–100, present only when function is set),
- * an optional {@code restrict} map that gates access to the improvement,
- * and an optional human-readable {@code description}.
+ * <p>Holds the human-readable {@code name} (display name), the optional
+ * {@code function} (e.g. "rest", "exercise"), the {@code effective} rating
+ * (50–100, present only when function is set), an optional {@code restrict}
+ * map that gates access to the improvement, and an optional human-readable
+ * {@code description}.
  *
  * <p>Supported restrict keys:
  * <ul>
@@ -19,8 +20,11 @@ import java.util.Map;
  */
 public final class ImprovementData {
 
-    /** Identifies this entry; matches the improvement's name (lower-cased). */
-    public final String nameLower;
+    /** Human-readable display name of this improvement (e.g. "Security Camera"). */
+    public final String name;
+
+    /** Identifies this entry; matches the improvement's code (lower-cased). */
+    public final String codeLower;
 
     /** The function this improvement provides (e.g. "rest", "exercise"); may be empty. */
     public final String function;
@@ -38,9 +42,10 @@ public final class ImprovementData {
      */
     private final Map<String, String> restrict;
 
-    public ImprovementData(String nameLower, String function, int effective,
+    public ImprovementData(String codeLower, String name, String function, int effective,
                            Map<String, String> restrict, String description) {
-        this.nameLower   = nameLower;
+        this.codeLower   = codeLower   != null ? codeLower   : "";
+        this.name        = name        != null ? name        : "";
         this.function    = function    != null ? function    : "";
         this.effective   = effective;
         this.description = description != null ? description : "";

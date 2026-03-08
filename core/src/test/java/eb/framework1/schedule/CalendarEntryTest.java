@@ -166,36 +166,12 @@ public class CalendarEntryTest {
 
     // =========================================================================
     // =========================================================================
-    // 3-hour window — dateTimeToMinutes mirror (package-access helper)
+    // 3-hour window — dateTimeToMinutes (now a shared static on CalendarEntry)
     // =========================================================================
-
-    /**
-     * Mirrors {@code InfoPanelRenderer.dateTimeToMinutes} exactly, so that the
-     * 3-hour threshold can be tested without a LibGDX runtime.
-     */
-    static long dateTimeToMinutes(String dt) {
-        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-        try {
-            String[] halves = dt.split(" ");
-            String[] d = halves[0].split("-");
-            String[] t = halves[1].split(":");
-            int year  = Integer.parseInt(d[0]);
-            int month = Integer.parseInt(d[1]);
-            int day   = Integer.parseInt(d[2]);
-            int hour  = Integer.parseInt(t[0]);
-            int min   = Integer.parseInt(t[1]);
-            long totalDays = (long)(year - 2050) * 365L;
-            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
-            totalDays += day;
-            return totalDays * 24L * 60L + hour * 60L + min;
-        } catch (Exception e) {
-            return Long.MAX_VALUE / 2;
-        }
-    }
 
     /** Returns true when {@code apptDT} is within 3 hours (180 minutes) of {@code nowDT}. */
     private static boolean isWithinThreeHours(String nowDT, String apptDT) {
-        long diff = dateTimeToMinutes(apptDT) - dateTimeToMinutes(nowDT);
+        long diff = CalendarEntry.dateTimeToMinutes(apptDT) - CalendarEntry.dateTimeToMinutes(nowDT);
         return diff >= 0 && diff <= 180;
     }
 
@@ -301,5 +277,43 @@ public class CalendarEntryTest {
     @Test
     public void cellMatch_yourOfficeNotAtHome_isFalse() {
         assertFalse(locationMatchesByCell(3, 3, 2, 2, "Your Office", -1, -1));
+    }
+
+    // =========================================================================
+    // CalendarEntry.dateTimeToMinutes — canonical shared implementation
+    // =========================================================================
+
+    @Test
+    public void dateTimeToMinutes_firstDay_is1440() {
+        // The calendar starts at year 2050 with 0 total days elapsed.
+        // Day 1 of month 1 contributes 1 day = 1440 minutes at midnight.
+        assertEquals(1440L, CalendarEntry.dateTimeToMinutes("2050-01-01 00:00"));
+    }
+
+    @Test
+    public void dateTimeToMinutes_returnsPositiveValue() {
+        // Confirm the shared method returns a sensible positive number for any valid date
+        long v = CalendarEntry.dateTimeToMinutes("2050-06-15 08:30");
+        assertTrue("Should return a large positive number for 2050-06-15", v > 0);
+    }
+
+    @Test
+    public void dateTimeToMinutes_malformedInput_returnsSafeMaxValue() {
+        long v = CalendarEntry.dateTimeToMinutes("not-a-date");
+        assertEquals(Long.MAX_VALUE / 2, v);
+    }
+
+    @Test
+    public void dateTimeToMinutes_twoConsecutiveMinutes_differ_by1() {
+        long a = CalendarEntry.dateTimeToMinutes("2050-03-10 14:00");
+        long b = CalendarEntry.dateTimeToMinutes("2050-03-10 14:01");
+        assertEquals(1L, b - a);
+    }
+
+    @Test
+    public void dateTimeToMinutes_twoConsecutiveDays_differ_by1440() {
+        long a = CalendarEntry.dateTimeToMinutes("2050-04-20 12:00");
+        long b = CalendarEntry.dateTimeToMinutes("2050-04-21 12:00");
+        assertEquals(1440L, b - a);
     }
 }

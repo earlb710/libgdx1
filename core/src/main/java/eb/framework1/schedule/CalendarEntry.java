@@ -66,4 +66,35 @@ public class CalendarEntry {
         this.contactGender  = (contactGender != null && !contactGender.trim().isEmpty())
                               ? contactGender.trim().toUpperCase() : "M";
     }
+
+    // -------------------------------------------------------------------------
+    // Date / time utilities
+    // -------------------------------------------------------------------------
+
+    /**
+     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time string to total
+     * minutes using a standard 365-day calendar (no leap years).
+     *
+     * <p>Returns {@code Long.MAX_VALUE / 2} on malformed input so that a bad
+     * date can never accidentally fall within a finite time window check.
+     */
+    public static long dateTimeToMinutes(String dt) {
+        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        try {
+            String[] halves = dt.split(" ");
+            String[] d = halves[0].split("-");
+            String[] t = halves[1].split(":");
+            int year  = Integer.parseInt(d[0]);
+            int month = Integer.parseInt(d[1]);
+            int day   = Integer.parseInt(d[2]);
+            int hour  = Integer.parseInt(t[0]);
+            int min   = Integer.parseInt(t[1]);
+            long totalDays = (long)(year - 2050) * 365L;
+            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
+            totalDays += day;
+            return totalDays * 24L * 60L + hour * 60L + min;
+        } catch (Exception e) {
+            return Long.MAX_VALUE / 2;
+        }
+    }
 }

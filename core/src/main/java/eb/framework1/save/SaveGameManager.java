@@ -165,6 +165,7 @@ public class SaveGameManager {
         for (NpcCharacter npc : save.getWorldNpcs()) {
             d.worldNpcs.add(toNpcData(npc));
         }
+        d.visionTrait = save.getVisionTrait().name();
         return d;
     }
 
@@ -202,6 +203,12 @@ public class SaveGameManager {
                 if (npc != null) worldNpcs.add(npc);
             }
         }
+        // Restore vision trait (null in older saves → NONE)
+        VisionTrait savedVisionTrait = VisionTrait.NONE;
+        if (d.visionTrait != null) {
+            try { savedVisionTrait = VisionTrait.valueOf(d.visionTrait); }
+            catch (IllegalArgumentException ignored) { /* use default NONE */ }
+        }
         return new GameSave(
                 d.characterName,
                 d.gender,
@@ -218,7 +225,8 @@ public class SaveGameManager {
                 bDisc, bOwned, iDisc,
                 equipMap, utilNames,
                 caseFiles, d.activeCaseId,
-                worldNpcs);
+                worldNpcs,
+                savedVisionTrait);
     }
 
     // -------------------------------------------------------------------------
@@ -426,6 +434,8 @@ public class SaveGameManager {
         public String activeCaseId;
         /** Serialised world-population NPCs. */
         public java.util.List<NpcCharacterData> worldNpcs;
+        /** {@link VisionTrait#name()} value; null in older saves → NONE. */
+        public String visionTrait;
     }
 
     // -------------------------------------------------------------------------
@@ -500,6 +510,14 @@ public class SaveGameManager {
         public int    cellY;
     }
 
+    /** Serialisable DTO for a single {@link EquipItem} carried by an NPC. */
+    static class NpcItemData {
+        /** {@link EquipItem#getName()} value. */
+        public String name;
+        /** {@link EquipmentSlot#name()} value. */
+        public String slot;
+    }
+
     /** Serialisable DTO for an {@link NpcCharacter}. */
     static class NpcCharacterData {
         public String id;
@@ -526,6 +544,18 @@ public class SaveGameManager {
         public java.util.List<NpcScheduleEntryData> scheduleEntries;
         public String birthdate;
         public boolean tracked;
+        // Appearance attributes (added later; null/0 in older saves → use defaults)
+        public String hairType;
+        public String hairColor;
+        public int    wealthyLevel;
+        public String favColor;
+        // Body measurements (added later; 0 in older saves → not set)
+        public int    heightCm;
+        public int    weightKg;
+        // Carried items (added later; null in older saves → empty list)
+        public java.util.List<NpcItemData> carriedItems;
+        // Vision trait (added later; null in older saves → NONE)
+        public String visionTrait;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -568,8 +598,22 @@ public class SaveGameManager {
                 d.scheduleEntries.add(ed);
             }
         }
-        d.birthdate = npc.getBirthdate();
-        d.tracked   = npc.isTracked();
+        d.birthdate     = npc.getBirthdate();
+        d.tracked       = npc.isTracked();
+        d.hairType      = npc.getHairType();
+        d.hairColor     = npc.getHairColor();
+        d.wealthyLevel  = npc.getWealthyLevel();
+        d.favColor      = npc.getFavColor();
+        d.heightCm      = npc.getHeightCm();
+        d.weightKg      = npc.getWeightKg();
+        d.carriedItems  = new ArrayList<>();
+        for (EquipItem item : npc.getCarriedItems()) {
+            NpcItemData itemData = new NpcItemData();
+            itemData.name = item.getName();
+            itemData.slot = item.getSlot().name();
+            d.carriedItems.add(itemData);
+        }
+        d.visionTrait   = npc.getVisionTrait().name();
         return d;
     }
 
@@ -600,7 +644,13 @@ public class SaveGameManager {
                 .honesty(clampTrait(d.honesty))
                 .nervousness(clampTrait(d.nervousness))
                 .birthdate(d.birthdate)
-                .tracked(d.tracked);
+                .tracked(d.tracked)
+                .hairType(d.hairType != null ? d.hairType : "")
+                .hairColor(d.hairColor != null ? d.hairColor : "")
+                .wealthyLevel(d.wealthyLevel < 1 ? 5 : d.wealthyLevel)
+                .favColor(d.favColor != null ? d.favColor : "")
+                .heightCm(d.heightCm)
+                .weightKg(d.weightKg);
         if (d.frequentLocations != null) {
             for (String loc : d.frequentLocations) {
                 b.addFrequentLocation(loc);
@@ -634,6 +684,20 @@ public class SaveGameManager {
                 }
             }
             b.schedule(new NpcSchedule(entries));
+        }
+        if (d.carriedItems != null) {
+            for (NpcItemData itemData : d.carriedItems) {
+                if (itemData == null || itemData.name == null || itemData.slot == null) continue;
+                try {
+                    EquipmentSlot slot = EquipmentSlot.valueOf(itemData.slot);
+                    EquipItem item = EquipItem.findByName(itemData.name, slot);
+                    if (item != null) b.addCarriedItem(item);
+                } catch (IllegalArgumentException ignored) { /* unknown slot or item */ }
+            }
+        }
+        if (d.visionTrait != null) {
+            try { b.visionTrait(VisionTrait.valueOf(d.visionTrait)); }
+            catch (IllegalArgumentException ignored) { /* use default NONE */ }
         }
         return b.build();
     }

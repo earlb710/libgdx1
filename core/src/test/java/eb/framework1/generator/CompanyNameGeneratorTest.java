@@ -115,23 +115,39 @@ public class CompanyNameGeneratorTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void testGenerateByTypeReturnsFromPoolOrGeneric() {
-        // Food templates: "$surname's Diner", "$surname Grill" + 3 generics = pool of 5
-        Set<String> valid = new HashSet<>();
-        valid.add("Smith's Diner"); valid.add("Jones's Diner"); valid.add("Brown's Diner");
-        valid.add("Smith Grill"); valid.add("Jones Grill"); valid.add("Brown Grill");
-        // generics (with $surname replaced)
+    public void testGenerateByTypeReturnsOnlyTypedTemplates() {
+        // Food templates: "$surname's Diner", "$surname Grill" — generics must NOT appear.
+        Set<String> validFood = new HashSet<>();
         for (String s : sampleSurnames()) {
-            valid.add(s + " & Associates");
-            valid.add(s + " Holdings");
+            validFood.add(s + "'s Diner");
+            validFood.add(s + " Grill");
         }
-        valid.add("Global Corp.");
 
         for (int i = 0; i < 100; i++) {
             String name = new CompanyNameGenerator(
                     sampleTemplates(), sampleTypes(), sampleSurnames(),
                     new Random(i)).generate("food");
-            assertTrue("Unexpected name for food type: " + name, valid.contains(name));
+            assertTrue("Expected food-specific name, got generic: " + name,
+                    validFood.contains(name));
+        }
+    }
+
+    @Test
+    public void testGenerateByType_neverReturnsGenericWhenTypedTemplatesExist() {
+        Set<String> genericNames = new HashSet<>();
+        for (String s : sampleSurnames()) {
+            genericNames.add(s + " & Associates");
+            genericNames.add(s + " Holdings");
+        }
+        genericNames.add("Global Corp.");
+
+        // Retail has 2 typed templates; run many times and confirm no generic is returned.
+        for (int i = 0; i < 200; i++) {
+            String name = new CompanyNameGenerator(
+                    sampleTemplates(), sampleTypes(), sampleSurnames(),
+                    new Random(i)).generate("retail");
+            assertFalse("Generic name returned for retail type: " + name,
+                    genericNames.contains(name));
         }
     }
 

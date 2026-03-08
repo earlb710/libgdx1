@@ -167,9 +167,51 @@ public final class EquipItem {
             .modifier(CharacterAttribute.STRENGTH, 1)
             .build();
 
+    /**
+     * Corrective lenses that compensate for a {@link VisionTrait} impairment.
+     * Grants +1 {@link CharacterAttribute#PERCEPTION} while worn.
+     */
+    public static final EquipItem GLASSES = new Builder("Glasses", EquipmentSlot.UTILITY)
+            .description("Corrective lenses that restore full visual acuity.")
+            .weight(0.05f)
+            .modifier(CharacterAttribute.PERCEPTION, 1)
+            .build();
+
+    /**
+     * A hat worn on the head.  Helps conceal the wearer's identity.
+     * Grants +1 {@link CharacterAttribute#STEALTH}.
+     */
+    public static final EquipItem HAT = new Builder("Hat", EquipmentSlot.HEAD)
+            .description("A brimmed hat that helps conceal the wearer's face.")
+            .weight(0.1f)
+            .modifier(CharacterAttribute.STEALTH, 1)
+            .build();
+
+    /**
+     * A long overcoat worn as outerwear.  Conceals the wearer's silhouette.
+     * Grants +1 {@link CharacterAttribute#STEALTH}.
+     */
+    public static final EquipItem COAT = new Builder("Coat", EquipmentSlot.BODY)
+            .description("A long overcoat that obscures the wearer's figure.")
+            .weight(1.2f)
+            .modifier(CharacterAttribute.STEALTH, 1)
+            .build();
+
+    /**
+     * Dark-tinted sunglasses that both conceal the wearer's eyes and aid
+     * in observing bright environments.
+     * Grants +1 {@link CharacterAttribute#STEALTH} and +1 {@link CharacterAttribute#PERCEPTION}.
+     */
+    public static final EquipItem SUN_GLASSES = new Builder("Sun Glasses", EquipmentSlot.UTILITY)
+            .description("Dark-tinted lenses that conceal the eyes and reduce glare.")
+            .weight(0.05f)
+            .modifier(CharacterAttribute.STEALTH, 1)
+            .modifier(CharacterAttribute.PERCEPTION, 1)
+            .build();
+
     /** All known predefined items, in declaration order. */
     private static final EquipItem[] CATALOGUE = {
-        PISTOL, BINOCULARS, CAMERA, PEPPER_SPRAY
+        PISTOL, BINOCULARS, CAMERA, PEPPER_SPRAY, GLASSES, HAT, COAT, SUN_GLASSES
     };
 
     /**

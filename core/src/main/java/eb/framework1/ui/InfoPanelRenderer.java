@@ -12,6 +12,7 @@ import eb.framework1.screen.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -79,6 +80,7 @@ public class InfoPanelRenderer {
     private static final Color EXPAND_BTN_FILL         = new Color(0.14f, 0.14f, 0.20f, 1f);
     private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
     private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
+    private static final Color EYE_ICON_BG_COLOR        = new Color(0.05f, 0.20f, 0.35f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -92,6 +94,9 @@ public class InfoPanelRenderer {
     private final CityMap       cityMap;
     private final Profile       profile;
     private final NovelTextEngine novelTextEngine;
+    /** Eye icon shown next to unknown-NPC entries in the info panel. */
+    private Texture eyeIconTexture;
+    private int     eyeIconTexW, eyeIconTexH;
 
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;
@@ -112,6 +117,22 @@ public class InfoPanelRenderer {
         this.cityMap         = cityMap;
         this.profile         = profile;
         this.novelTextEngine = novelTextEngine;
+        try {
+            eyeIconTexture = new Texture(Gdx.files.internal("icons/eye.png"));
+            eyeIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            eyeIconTexW = eyeIconTexture.getWidth();
+            eyeIconTexH = eyeIconTexture.getHeight();
+        } catch (Exception e) {
+            Gdx.app.log("InfoPanelRenderer", "Could not load eye icon: " + e.getMessage());
+        }
+    }
+
+    /** Releases GPU resources owned by this renderer. */
+    public void dispose() {
+        if (eyeIconTexture != null) {
+            eyeIconTexture.dispose();
+            eyeIconTexture = null;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -370,6 +391,8 @@ public class InfoPanelRenderer {
         s.addNoteBtnW = 0f; // Add Note button and checkboxes are only on the Case File tab
         s.noteTimeCbW = 0f;
         s.noteLocCbW  = 0f;
+        // Reset eye-icon hit areas — repopulated when NPCs are drawn below
+        s.eyeIconCount = 0;
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -826,6 +849,27 @@ public class InfoPanelRenderer {
                                 : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
                         font.setColor(Color.WHITE);
                         font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+
+                        // Eye icon: only for unknown NPCs when the player is at the same cell
+                        int nx = npc.getCurrentCellX(s.currentHour);
+                        int ny = npc.getCurrentCellY(s.currentHour);
+                        boolean playerHere = (nx == s.charCellX && ny == s.charCellY);
+                        if (!hasMet && playerHere && eyeIconTexture != null
+                                && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
+                            glyphLayout.setText(font, displayName);
+                            float iconH = Math.min(eyeIconTexH, fontCapH);
+                            float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
+                                    ? eyeIconTexW * iconH / eyeIconTexH : iconH;
+                            float ex = textX - drawScrollX + glyphLayout.width + 12f;
+                            float ey = textY + drawScrollY - fontCapH;
+                            int idx = s.eyeIconCount++;
+                            s.eyeIconX[idx]   = ex;
+                            s.eyeIconY[idx]   = ey;
+                            s.eyeIconW[idx]   = iconW;
+                            s.eyeIconH        = iconH;
+                            s.eyeIconNpc[idx] = npc;
+                        }
+
                         textY -= fontLineH;
                     }
                 }
@@ -836,7 +880,12 @@ public class InfoPanelRenderer {
                     textX - drawScrollX, textY + drawScrollY);
         }
 
-        batch.flush();
+        batch.end();
+        // Draw eye icons: filled background + icon on top, clipped by the active scissor region
+        for (int i = 0; i < s.eyeIconCount; i++) {
+            drawIconWithBackground(eyeIconTexture, EYE_ICON_BG_COLOR,
+                    s.eyeIconX[i], s.eyeIconY[i], s.eyeIconW[i], s.eyeIconH);
+        }
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollX = 0f;
         drawScrollY = 0f;
@@ -848,6 +897,7 @@ public class InfoPanelRenderer {
         }
         glyphLayout.setText(smallFont, s.cachedZoomText);
         smallFont.setColor(Color.WHITE);
+        batch.begin();
         smallFont.draw(batch, s.cachedZoomText,
                 s.screenWidth - glyphLayout.width - 20,
                 panelH - (glyphLayout.height * 1.4f));
@@ -856,7 +906,33 @@ public class InfoPanelRenderer {
 
         drawScrollbars(s, contentAreaH, contentAreaW, SB);
 
-        // "?" toggle button — lower-right corner of info panel
+        drawInfoTabHelpButton(s);
+    }
+
+    /**
+     * Draws a filled rectangle of {@code bgColor} and then overlays the {@code icon} texture
+     * on top of it, both at position ({@code x}, {@code y}) with size ({@code w} × {@code h}).
+     *
+     * <p>This method manages the {@code shapeRenderer}/{@code batch} state internally.
+     * It must be called while neither the batch nor the shapeRenderer is active.
+     * Both are left inactive when the method returns.
+     */
+    private void drawIconWithBackground(Texture icon, Color bgColor,
+                                        float x, float y, float w, float h) {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(bgColor);
+        shapeRenderer.rect(x, y, w, h);
+        shapeRenderer.end();
+        batch.begin();
+        batch.draw(icon, x, y, w, h);
+        batch.end();
+    }
+
+    /**
+     * Draws the "?" help toggle button in the lower-right corner of the info panel.
+     * Updates the hit-test bounds in {@link MapViewState} so clicks are registered correctly.
+     */
+    private void drawInfoTabHelpButton(MapViewState s) {
         TextMeasurer.TextBounds qb = TextMeasurer.measure(font, glyphLayout, "?", 14f, 8f);
         s.helpBtnX = s.screenWidth - qb.width - 6f;
         s.helpBtnY = 6f;
@@ -890,21 +966,7 @@ public class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawCharacterTab(MapViewState s, int panelH) {
-        // Disable action buttons when character tab is active
-        s.moveToButtonW      = 0f;
-        s.lookAroundBtnW     = 0f;
-        s.restBtnW           = 0f;
-        s.sleepBtnW          = 0f;
-        s.goToOfficeBtnW     = 0f;
-        s.goToHotelRoomBtnW  = 0f;
-        s.openStashBtnW      = 0f;
-        s.checkEmailsBtnW    = 0f;
-        s.openPhoneBtnW      = 0f;
-        s.addNoteBtnW        = 0f;
-        s.noteTimeCbW        = 0f;
-        s.noteLocCbW         = 0f;
-        s.infoMaxScrollX     = 0f;
-        s.infoScrollX        = 0f;
+        clearActionButtons(s);
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -1186,20 +1248,7 @@ public class InfoPanelRenderer {
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollY = 0f;
 
-        // Scrollbar — always draw track; thumb only when scrollable
-        float sbX    = s.screenWidth - SB;
-        float trackH = contentAreaH;
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.2f, 0.2f, 0.3f, 1f);
-        shapeRenderer.rect(sbX, SB, SB, trackH);
-        if (s.infoMaxScrollY > 0f) {
-            float thumbH      = Math.max(SB * 2f, trackH * trackH / totalH);
-            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
-            float thumbY      = SB + (1f - scrollRatio) * (trackH - thumbH);
-            shapeRenderer.setColor(0.5f, 0.5f, 0.7f, 1f);
-            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
-        }
-        shapeRenderer.end();
+        drawSimpleScrollbar(SB, contentAreaH, totalH, s);
     }
 
     // -------------------------------------------------------------------------
@@ -1225,7 +1274,7 @@ public class InfoPanelRenderer {
                 ? cell.getBuilding().getName() : null;
         boolean atHome = s.charCellX == s.homeCellX && s.charCellY == s.homeCellY;
 
-        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        long nowMinutes = CalendarEntry.dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
@@ -1244,36 +1293,10 @@ public class InfoPanelRenderer {
             if (!locationMatches) continue;
 
             // Show when the appointment is between now and 3 hours in the future
-            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            long diff = CalendarEntry.dateTimeToMinutes(entry.dateTime) - nowMinutes;
             if (diff >= 0 && diff <= 180) return entry;
         }
         return null;
-    }
-
-    /**
-     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time to total minutes
-     * using the standard 365-day year with per-month day counts.
-     * Returns {@link Long#MAX_VALUE} / 2 on malformed input so that a bad
-     * date can never accidentally appear within the 3-hour appointment window.
-     */
-    private static long dateTimeToMinutes(String dt) {
-        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-        try {
-            String[] halves = dt.split(" ");
-            String[] d = halves[0].split("-");
-            String[] t = halves[1].split(":");
-            int year  = Integer.parseInt(d[0]);
-            int month = Integer.parseInt(d[1]);
-            int day   = Integer.parseInt(d[2]);
-            int hour  = Integer.parseInt(t[0]);
-            int min   = Integer.parseInt(t[1]);
-            long totalDays = (long)(year - 2050) * 365L;
-            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
-            totalDays += day;
-            return totalDays * 24L * 60L + hour * 60L + min;
-        } catch (Exception e) {
-            return Long.MAX_VALUE / 2;
-        }
     }
 
     // -------------------------------------------------------------------------
@@ -1281,18 +1304,7 @@ public class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawCalendarTab(MapViewState s, int panelH) {
-        // Disable action buttons when calendar tab is active
-        s.moveToButtonW = 0f;
-        s.lookAroundBtnW = 0f;
-        s.restBtnW = 0f;
-        s.sleepBtnW = 0f;
-        s.goToOfficeBtnW = 0f;
-        s.goToHotelRoomBtnW = 0f;
-        s.openStashBtnW = 0f;
-        s.checkEmailsBtnW = 0f;
-        s.openPhoneBtnW = 0f;
-        s.infoMaxScrollX = 0f;
-        s.infoScrollX = 0f;
+        clearActionButtons(s);
 
         glyphLayout.setText(font, "Hg");
         float fontCapH  = glyphLayout.height;
@@ -1381,19 +1393,7 @@ public class InfoPanelRenderer {
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollY = 0f;
 
-        // Vertical scrollbar
-        float sbX = s.screenWidth - SB;
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
-        shapeRenderer.rect(sbX, SB, SB, contentAreaH);
-        if (s.infoMaxScrollY > 0f) {
-            float thumbH = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
-            float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
-            float thumbY = SB + (1f - scrollRatio) * (contentAreaH - thumbH);
-            shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
-            shapeRenderer.rect(sbX, thumbY, SB, thumbH);
-        }
-        shapeRenderer.end();
+        drawSimpleScrollbar(SB, contentAreaH, totalH, s);
     }
 
 
@@ -1401,18 +1401,7 @@ public class InfoPanelRenderer {
     // -------------------------------------------------------------------------
 
     private void drawCaseFileTab(MapViewState s, int panelH) {
-        // Disable action buttons when case file tab is active
-        s.moveToButtonW      = 0f;
-        s.lookAroundBtnW     = 0f;
-        s.restBtnW           = 0f;
-        s.sleepBtnW          = 0f;
-        s.goToOfficeBtnW     = 0f;
-        s.goToHotelRoomBtnW  = 0f;
-        s.infoMaxScrollX     = 0f;
-        s.infoScrollX        = 0f;
-        s.addNoteBtnW        = 0f;
-        s.noteTimeCbW        = 0f;
-        s.noteLocCbW         = 0f;
+        clearActionButtons(s);
 
         final float PAD           = 12f;
         final float SB            = MapViewState.SCROLLBAR_THICKNESS;
@@ -1607,28 +1596,17 @@ public class InfoPanelRenderer {
             font.draw(batch, "[DEV INFO]", PAD, ty + drawScrollY);
             ty -= fontLineH;
 
-            font.setColor(DEV_INFO_LABEL_COLOR);
-            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Type: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, active.getCaseType() != null ? active.getCaseType().getDisplayName() : "—",
-                    PAD + glyphLayout.width, ty + drawScrollY);
+            drawDevLabelValue("Type: ",
+                    active.getCaseType() != null ? active.getCaseType().getDisplayName() : "\u2014",
+                    PAD, ty);
             ty -= fontLineH;
 
-            font.setColor(DEV_INFO_LABEL_COLOR);
-            font.draw(batch, "Client: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Client: ");
-            font.setColor(Color.WHITE);
-            String clientVal = active.getClientName().isEmpty() ? "—" : active.getClientName();
-            font.draw(batch, clientVal, PAD + glyphLayout.width, ty + drawScrollY);
+            String clientVal = active.getClientName().isEmpty() ? "\u2014" : active.getClientName();
+            drawDevLabelValue("Client: ", clientVal, PAD, ty);
             ty -= fontLineH;
 
-            font.setColor(DEV_INFO_LABEL_COLOR);
-            font.draw(batch, "Subject: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Subject: ");
-            font.setColor(Color.WHITE);
-            String subjectVal = active.getSubjectName().isEmpty() ? "—" : active.getSubjectName();
-            font.draw(batch, subjectVal, PAD + glyphLayout.width, ty + drawScrollY);
+            String subjectVal = active.getSubjectName().isEmpty() ? "\u2014" : active.getSubjectName();
+            drawDevLabelValue("Subject: ", subjectVal, PAD, ty);
             ty -= fontLineH;
 
             if (!objLines.isEmpty()) {
@@ -1642,38 +1620,21 @@ public class InfoPanelRenderer {
                 }
             }
 
-            font.setColor(DEV_INFO_LABEL_COLOR);
-            font.draw(batch, "Complexity: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Complexity: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, active.getComplexity() + " (hidden)",
-                    PAD + glyphLayout.width, ty + drawScrollY);
+            drawDevLabelValue("Complexity: ", active.getComplexity() + " (hidden)", PAD, ty);
             ty -= fontLineH;
         }
 
         // Status
-        font.setColor(LABEL_COLOR);
-        font.draw(batch, "Status: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(font, "Status: ");
-        font.setColor(Color.WHITE);
-        font.draw(batch, active.getStatus().name(), PAD + glyphLayout.width, ty + drawScrollY);
+        drawLabelValue(font, "Status: ", active.getStatus().name(), PAD, ty);
         ty -= fontLineH;
 
         // Opened date
-        font.setColor(LABEL_COLOR);
-        font.draw(batch, "Opened: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(font, "Opened: ");
-        font.setColor(Color.WHITE);
-        font.draw(batch, active.getDateOpened(), PAD + glyphLayout.width, ty + drawScrollY);
+        drawLabelValue(font, "Opened: ", active.getDateOpened(), PAD, ty);
         ty -= fontLineH;
 
         // Case type + description
         if (active.getCaseType() != null && !typeDescLines.isEmpty()) {
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Type: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Type: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, active.getCaseType().getDisplayName(), PAD + glyphLayout.width, ty + drawScrollY);
+            drawLabelValue(font, "Type: ", active.getCaseType().getDisplayName(), PAD, ty);
             ty -= fontLineH;
             smallFont.setColor(NOVEL_COLOR);
             for (String line : typeDescLines) {
@@ -1698,82 +1659,13 @@ public class InfoPanelRenderer {
             ty -= PAD / 2f;
         }
 
-        // ── Story-tree progress panel (new) ───────────────────────────────────
-        if (storyRoot != null) {
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Progress", PAD, ty + drawScrollY);
-            ty -= fontLineH;
-
-            if (storyRoot.isFullyComplete()) {
-                smallFont.setColor(new Color(0.5f, 1.0f, 0.5f, 1f));
-                smallFont.draw(batch, "All objectives complete!", PAD + 8f, ty + drawScrollY);
-                smallFont.setColor(Color.WHITE);
-                ty -= fontLineH;
-            } else {
-                CaseStoryNode phase = storyRoot.getNextActiveChild();
-                if (phase != null) {
-                    int phaseIdx   = storyRoot.getChildren().indexOf(phase);
-                    int phaseTotal = storyRoot.getChildren().size();
-                    String phaseLabel = "Phase " + (phaseIdx + 1) + " of " + phaseTotal + ": ";
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, phaseLabel, PAD, ty + drawScrollY);
-                    glyphLayout.setText(font, phaseLabel);
-                    font.setColor(Color.WHITE);
-                    font.draw(batch, phase.getTitle(), PAD + glyphLayout.width, ty + drawScrollY);
-                    ty -= fontLineH;
-
-                    CaseStoryNode milestone = phase.getNextActiveChild();
-                    if (milestone != null) {
-                        font.setColor(LABEL_COLOR);
-                        font.draw(batch, "Milestone: ", PAD, ty + drawScrollY);
-                        glyphLayout.setText(font, "Milestone: ");
-                        font.setColor(NOVEL_COLOR);
-                        font.draw(batch, milestone.getTitle(),
-                                PAD + glyphLayout.width, ty + drawScrollY);
-                        ty -= fontLineH;
-
-                        CaseStoryNode nextAction = milestone.getNextAvailableAction();
-                        if (nextAction != null) {
-                            font.setColor(LABEL_COLOR);
-                            font.draw(batch, "Next: ", PAD, ty + drawScrollY);
-                            glyphLayout.setText(font, "Next: ");
-                            font.setColor(Color.WHITE);
-                            font.draw(batch, "\u25a1 " + nextAction.getTitle(),
-                                    PAD + glyphLayout.width, ty + drawScrollY);
-                            ty -= fontLineH;
-                        }
-                    }
-                }
-            }
-        }
+        ty = drawCaseFileStoryProgress(storyRoot, PAD, fontLineH, ty);
 
         // Clues
-        font.setColor(LABEL_COLOR);
-        font.draw(batch, "Clues: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(font, "Clues: ");
-        font.setColor(Color.WHITE);
-        font.draw(batch, String.valueOf(active.getClues().size()),
-                PAD + glyphLayout.width, ty + drawScrollY);
-        ty -= fontLineH;
-        for (String clue : active.getClues()) {
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "\u2022 " + clue, PAD + 8f, ty + drawScrollY);
-            ty -= fontLineH * 0.9f;
-        }
+        ty = drawBulletListSection("Clues: ", active.getClues(), PAD, fontLineH, ty);
 
         // Evidence
-        font.setColor(LABEL_COLOR);
-        font.draw(batch, "Evidence: ", PAD, ty + drawScrollY);
-        glyphLayout.setText(font, "Evidence: ");
-        font.setColor(Color.WHITE);
-        font.draw(batch, String.valueOf(active.getEvidence().size()),
-                PAD + glyphLayout.width, ty + drawScrollY);
-        ty -= fontLineH;
-        for (String ev : active.getEvidence()) {
-            smallFont.setColor(Color.WHITE);
-            smallFont.draw(batch, "\u2022 " + ev, PAD + 8f, ty + drawScrollY);
-            ty -= fontLineH * 0.9f;
-        }
+        ty = drawBulletListSection("Evidence: ", active.getEvidence(), PAD, fontLineH, ty);
 
         // Notes
         font.setColor(LABEL_COLOR);
@@ -1806,75 +1698,188 @@ public class InfoPanelRenderer {
             batch.begin();
         }
 
-        // Leads
-        List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
-        if (s.developerMode) {
-            // Dev mode: show ALL leads; tag undiscovered ones with [HIDDEN]
-            List<CaseLead> allLeads = active.getLeads();
-            font.setColor(DEV_INFO_LABEL_COLOR);
-            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Leads: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(allLeads.size()), PAD + glyphLayout.width, ty + drawScrollY);
-            ty -= fontLineH;
-            for (CaseLead lead : allLeads) {
-                if (lead.isDiscovered()) {
-                    smallFont.setColor(Color.WHITE);
-                    smallFont.draw(batch, "\u2022 " + lead.getDescription()
-                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
-                            PAD + 8f, ty + drawScrollY);
-                } else {
-                    smallFont.setColor(DEV_INFO_HIDDEN_COLOR);
-                    smallFont.draw(batch, "\u2022 [HIDDEN] " + lead.getDescription()
-                            + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
-                            PAD + 8f, ty + drawScrollY);
-                }
-                ty -= fontLineH * 0.9f;
-                smallFont.setColor(DEV_INFO_HINT_COLOR);
-                smallFont.draw(batch, "    Hint: " + lead.getHint(), PAD + 8f, ty + drawScrollY);
-                smallFont.setColor(Color.WHITE);
-                ty -= fontLineH * 0.9f;
-            }
-        } else if (!discoveredLeads.isEmpty()) {
-            // Normal mode: only show leads the player has uncovered
-            font.setColor(LABEL_COLOR);
-            font.draw(batch, "Leads: ", PAD, ty + drawScrollY);
-            glyphLayout.setText(font, "Leads: ");
-            font.setColor(Color.WHITE);
-            font.draw(batch, String.valueOf(discoveredLeads.size()),
-                    PAD + glyphLayout.width, ty + drawScrollY);
-            ty -= fontLineH;
-            for (CaseLead lead : discoveredLeads) {
-                smallFont.setColor(NOVEL_COLOR);
-                smallFont.draw(batch, "\u2022 " + lead.getDescription(),
-                        PAD + 8f, ty + drawScrollY);
-                smallFont.setColor(Color.WHITE);
-                ty -= fontLineH * 0.9f;
-            }
-        }
+        ty = drawCaseFileLeads(active, s, PAD, fontLineH, ty);
 
         batch.end();
         drawScrollY = 0f;
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
 
-        // Vertical scrollbar
+        drawSimpleScrollbar(fixedAreaTop, contentAreaH, totalH, s);
+    }
+
+    // -------------------------------------------------------------------------
+    // Case File tab — story progress and leads sub-renderers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Draws the story-tree progress section for the active case file, starting at the
+     * current virtual y-cursor {@code ty}, and returns the updated cursor.
+     * Does nothing (returns {@code ty} unchanged) when {@code storyRoot} is {@code null}.
+     */
+    private float drawCaseFileStoryProgress(CaseStoryNode storyRoot, float pad,
+                                             float fontLineH, float ty) {
+        if (storyRoot == null) return ty;
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Progress", pad, ty + drawScrollY);
+        ty -= fontLineH;
+
+        if (storyRoot.isFullyComplete()) {
+            smallFont.setColor(new Color(0.5f, 1.0f, 0.5f, 1f));
+            smallFont.draw(batch, "All objectives complete!", pad + 8f, ty + drawScrollY);
+            smallFont.setColor(Color.WHITE);
+            ty -= fontLineH;
+        } else {
+            CaseStoryNode phase = storyRoot.getNextActiveChild();
+            if (phase != null) {
+                int phaseIdx   = storyRoot.getChildren().indexOf(phase);
+                int phaseTotal = storyRoot.getChildren().size();
+                String phaseLabel = "Phase " + (phaseIdx + 1) + " of " + phaseTotal + ": ";
+                font.setColor(LABEL_COLOR);
+                font.draw(batch, phaseLabel, pad, ty + drawScrollY);
+                glyphLayout.setText(font, phaseLabel);
+                font.setColor(Color.WHITE);
+                font.draw(batch, phase.getTitle(), pad + glyphLayout.width, ty + drawScrollY);
+                ty -= fontLineH;
+
+                CaseStoryNode milestone = phase.getNextActiveChild();
+                if (milestone != null) {
+                    font.setColor(LABEL_COLOR);
+                    font.draw(batch, "Milestone: ", pad, ty + drawScrollY);
+                    glyphLayout.setText(font, "Milestone: ");
+                    font.setColor(NOVEL_COLOR);
+                    font.draw(batch, milestone.getTitle(), pad + glyphLayout.width, ty + drawScrollY);
+                    ty -= fontLineH;
+
+                    CaseStoryNode nextAction = milestone.getNextAvailableAction();
+                    if (nextAction != null) {
+                        drawLabelValue(font, "Next: ", "\u25a1 " + nextAction.getTitle(), pad, ty);
+                        ty -= fontLineH;
+                    }
+                }
+            }
+        }
+        return ty;
+    }
+
+    /**
+     * Draws the leads section for the active case file.
+     * In developer mode all leads (including hidden ones) are shown; otherwise only discovered leads.
+     * Returns the updated y-cursor after all leads have been drawn.
+     */
+    private float drawCaseFileLeads(CaseFile active, MapViewState s, float pad,
+                                    float fontLineH, float ty) {
+        List<CaseLead> discoveredLeads = active.getDiscoveredLeads();
+        if (s.developerMode) {
+            List<CaseLead> allLeads = active.getLeads();
+            font.setColor(DEV_INFO_LABEL_COLOR);
+            font.draw(batch, "Leads: ", pad, ty + drawScrollY);
+            glyphLayout.setText(font, "Leads: ");
+            font.setColor(Color.WHITE);
+            font.draw(batch, String.valueOf(allLeads.size()), pad + glyphLayout.width, ty + drawScrollY);
+            ty -= fontLineH;
+            for (CaseLead lead : allLeads) {
+                if (lead.isDiscovered()) {
+                    smallFont.setColor(Color.WHITE);
+                } else {
+                    smallFont.setColor(DEV_INFO_HIDDEN_COLOR);
+                }
+                String prefix = lead.isDiscovered() ? "\u2022 " : "\u2022 [HIDDEN] ";
+                smallFont.draw(batch, prefix + lead.getDescription()
+                        + "  [" + lead.getDiscoveryMethod().getDisplayName() + "]",
+                        pad + 8f, ty + drawScrollY);
+                ty -= fontLineH * 0.9f;
+                smallFont.setColor(DEV_INFO_HINT_COLOR);
+                smallFont.draw(batch, "    Hint: " + lead.getHint(), pad + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        } else if (!discoveredLeads.isEmpty()) {
+            drawLabelValue(font, "Leads: ", String.valueOf(discoveredLeads.size()), pad, ty);
+            ty -= fontLineH;
+            for (CaseLead lead : discoveredLeads) {
+                smallFont.setColor(NOVEL_COLOR);
+                smallFont.draw(batch, "\u2022 " + lead.getDescription(), pad + 8f, ty + drawScrollY);
+                smallFont.setColor(Color.WHITE);
+                ty -= fontLineH * 0.9f;
+            }
+        }
+        return ty;
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Clears all action-button bounds so inactive tabs don't accidentally leave
+     * stale hit-test regions.  Called at the start of every tab except the Info tab,
+     * which manages its own button visibility directly.
+     */
+    private void clearActionButtons(MapViewState s) {
+        s.moveToButtonW      = 0f;
+        s.lookAroundBtnW     = 0f;
+        s.restBtnW           = 0f;
+        s.sleepBtnW          = 0f;
+        s.goToOfficeBtnW     = 0f;
+        s.goToHotelRoomBtnW  = 0f;
+        s.openStashBtnW      = 0f;
+        s.checkEmailsBtnW    = 0f;
+        s.openPhoneBtnW      = 0f;
+        s.addNoteBtnW        = 0f;
+        s.noteTimeCbW        = 0f;
+        s.noteLocCbW         = 0f;
+        s.infoMaxScrollX     = 0f;
+        s.infoScrollX        = 0f;
+    }
+
+    /**
+     * Draws the vertical scrollbar track and thumb for a tab that has only vertical scrolling.
+     * Always draws the track; the thumb is only drawn when the content is actually scrollable.
+     *
+     * @param trackY   bottom y-coordinate of the scrollbar track
+     * @param trackH   height of the track
+     * @param totalH   total virtual content height (used to compute thumb proportions)
+     * @param s        shared view state (provides screenWidth, infoMaxScrollY, infoScrollY)
+     */
+    private void drawSimpleScrollbar(float trackY, float trackH, float totalH, MapViewState s) {
+        final float SB = MapViewState.SCROLLBAR_THICKNESS;
         float sbX = s.screenWidth - SB;
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(SCROLLBAR_TRACK_COLOR);
-        shapeRenderer.rect(sbX, fixedAreaTop, SB, contentAreaH);
+        shapeRenderer.rect(sbX, trackY, SB, trackH);
         if (s.infoMaxScrollY > 0f) {
-            float thumbH      = Math.max(SB * 2f, contentAreaH * contentAreaH / totalH);
+            float thumbH      = Math.max(SB * 2f, trackH * trackH / totalH);
             float scrollRatio = s.infoScrollY / s.infoMaxScrollY;
-            float thumbY      = fixedAreaTop + (1f - scrollRatio) * (contentAreaH - thumbH);
+            float thumbY      = trackY + (1f - scrollRatio) * (trackH - thumbH);
             shapeRenderer.setColor(SCROLLBAR_THUMB_COLOR);
             shapeRenderer.rect(sbX, thumbY, SB, thumbH);
         }
         shapeRenderer.end();
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
+    /**
+     * Draws a bullet-list section with a count header and one bullet item per list entry.
+     * Uses {@link #LABEL_COLOR} for the header label and white for item text.
+     * Applies the current {@link #drawScrollY} offset when drawing.
+     *
+     * @param header    label for the section header (e.g. {@code "Clues: "})
+     * @param items     list of string items to display as bullets
+     * @param pad       left-side padding / x offset for all text
+     * @param fontLineH line advance for the header font
+     * @param ty        current virtual y-cursor (top of where the section should start)
+     * @return          updated y-cursor after the section
+     */
+    private float drawBulletListSection(String header, List<String> items,
+                                        float pad, float fontLineH, float ty) {
+        drawLabelValue(font, header, String.valueOf(items.size()), pad, ty);
+        ty -= fontLineH;
+        for (String item : items) {
+            smallFont.setColor(Color.WHITE);
+            smallFont.draw(batch, "\u2022 " + item, pad + 8f, ty + drawScrollY);
+            ty -= fontLineH * 0.9f;
+        }
+        return ty;
+    }
 
     /**
      * Returns the total attribute modifier contributed by the building (and all discovered
@@ -1908,6 +1913,21 @@ public class InfoPanelRenderer {
         fnt.setColor(Color.WHITE);
         fnt.draw(batch, value, dx + glyphLayout.width, dy);
         return textY;
+    }
+
+    /**
+     * Variant of {@link #drawLabelValue} that uses {@link #DEV_INFO_LABEL_COLOR} instead of
+     * {@link #LABEL_COLOR} for the label — used exclusively inside the developer-mode info block
+     * of the Case File tab.  Scroll offsets are applied in the same way.
+     */
+    private void drawDevLabelValue(String label, String value, float textX, float textY) {
+        float dx = textX - drawScrollX;
+        float dy = textY + drawScrollY;
+        font.setColor(DEV_INFO_LABEL_COLOR);
+        font.draw(batch, label, dx, dy);
+        glyphLayout.setText(font, label);
+        font.setColor(Color.WHITE);
+        font.draw(batch, value, dx + glyphLayout.width, dy);
     }
 
     /**

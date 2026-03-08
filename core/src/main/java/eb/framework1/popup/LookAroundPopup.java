@@ -359,7 +359,7 @@ public class LookAroundPopup {
         Cell cell = cityMap.getCell(lookCharX, lookCharY);
         if (cell.hasBuilding()) {
             // Attribute key matches how CharacterAttributeScreen saves it (enum .name())
-            int perception = profile.getAttribute(CharacterAttribute.PERCEPTION.name());
+            int perception = profile.getEffectiveAttribute(CharacterAttribute.PERCEPTION);
 
             // Always test against the easiest (lowest hiddenValue > 0) undiscovered improvement
             Improvement easiest = null;

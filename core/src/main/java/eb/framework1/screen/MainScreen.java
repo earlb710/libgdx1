@@ -15,7 +15,6 @@ import eb.framework1.ui.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -66,29 +65,30 @@ public class MainScreen implements Screen {
     private NovelTextEngine  novelTextEngine;
 
     // Shared view state (layout, pan, zoom, selection, button bounds)
-    private final MapViewState state = new MapViewState();
+    final MapViewState state = new MapViewState();
 
     // Rendering helpers
     private MapRenderer       mapRenderer;
     private InfoPanelRenderer infoPanelRenderer;
-    private LookAroundPopup   lookAroundPopup;
+    LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
-    private TirednessPopup    tirednessPopup;
-    private RestingPopup      restingPopup;
+    TirednessPopup    tirednessPopup;
+    RestingPopup      restingPopup;
     private HelpPopup         helpPopup;
-    private DiscoveryPopup    discoveryPopup;
-    private ServiceResultPopup serviceResultPopup;
-    private StashPopup         stashPopup;
-    private PutInStashPopup    putInStashPopup;
-    private HotelReceptionPopup hotelReceptionPopup;
-    private GymInstructorPopup  gymInstructorPopup;
-    private ShopPopup            shopPopup;
-    private List<ShopItem>       shopItems = new ArrayList<>();
-    private EmailPopup           emailPopup;
-    private PhonePopup           phonePopup;
-    private ConfirmPopup         confirmDropPopup;
-    private NotePopup            notePopup;
-    private MeetPopup            meetPopup;
+    DiscoveryPopup    discoveryPopup;
+    ServiceResultPopup serviceResultPopup;
+    StashPopup         stashPopup;
+    PutInStashPopup    putInStashPopup;
+    HotelReceptionPopup hotelReceptionPopup;
+    GymInstructorPopup  gymInstructorPopup;
+    ShopPopup            shopPopup;
+    List<ShopItem>       shopItems = new ArrayList<>();
+    EmailPopup           emailPopup;
+    PhonePopup           phonePopup;
+    ConfirmPopup         confirmDropPopup;
+    NotePopup            notePopup;
+    MeetPopup            meetPopup;
+    ExaminePersonPopup   examinePersonPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -102,46 +102,37 @@ public class MainScreen implements Screen {
     /** The emails generated for today's inbox; null or empty = none generated yet today. */
     private java.util.List<EmailPopup.EmailData> todaysEmails = new java.util.ArrayList<>();
     /** Per-email accept/decline statuses; kept in sync with todaysEmails so re-opens restore marks. */
-    private int[] todaysEmailStatuses = new int[0];
+    int[] todaysEmailStatuses = new int[0];
 
     // Input state
     private InputProcessor previousInputProcessor;
-    private boolean infoAreaPressed = false;
-    private float   infoTouchStartX, infoTouchStartY;
-    private float   infoScrollDragStartScrollY, infoScrollDragStartScrollX;
-    private boolean isDragging = false;
-    private float   dragStartX, dragStartY;
-    private float   dragStartOffsetX, dragStartOffsetY;
     // Context menu (double-click)
-    private final ContextMenu      contextMenu        = new ContextMenu();
-    private final List<String>     contextMenuItems   = new ArrayList<>();
-    private final List<Runnable>   contextMenuActions = new ArrayList<>();
-    private long lastMapTapTimeMs  = 0L;
-    private int  lastMapTapCellX   = -1;
-    private int  lastMapTapCellY   = -1;
+    final ContextMenu      contextMenu        = new ContextMenu();
+    final List<String>     contextMenuItems   = new ArrayList<>();
+    final List<Runnable>   contextMenuActions = new ArrayList<>();
 
     /** Services offered by the building at the player's current cell; refreshed each frame by InfoPanelRenderer
      *  via svcBtnCount.  Kept here so tap-handling can look up the correct BuildingService by index. */
     private List<BuildingService> currentCellServices = new ArrayList<>();
 
     // Quit confirmation (ESC key)
-    private boolean quitConfirming   = false;
-    private float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
-    private float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
+    boolean quitConfirming   = false;
+    float   quitYesBtnX, quitYesBtnY, quitYesBtnW, quitYesBtnH;
+    float   quitNoBtnX,  quitNoBtnY,  quitNoBtnW,  quitNoBtnH;
 
     // Save-done notification overlay (dismissed by the OK button)
-    private boolean saveDoneVisible = false;
-    private float   saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH;
+    boolean saveDoneVisible = false;
+    float   saveDoneOkBtnX, saveDoneOkBtnY, saveDoneOkBtnW, saveDoneOkBtnH;
 
     private final SaveGameManager saveGameManager = new SaveGameManager();
 
-    // Tuning constants
-    private static final float MIN_ZOOM             = 1.0f;
-    private static final float MAX_ZOOM             = 5.33f;
-    private static final float ZOOM_SPEED           = 0.15f;
-    private static final float SCROLL_SPEED         = 0.5f;
-    private static final float TAP_THRESHOLD_PIXELS = 10f;
-    private static final long  DOUBLE_CLICK_MS      = 400L;
+    // Tuning constants (also used by MainScreenInputHandler via package access)
+    static final float MIN_ZOOM             = 1.0f;
+    static final float MAX_ZOOM             = 5.33f;
+    static final float ZOOM_SPEED           = 0.15f;
+    static final float SCROLL_SPEED         = 0.5f;
+    static final float TAP_THRESHOLD_PIXELS = 10f;
+    static final long  DOUBLE_CLICK_MS      = 400L;
     private static final String BUILDING_ID_COFFEE_SHOP   = "coffee_shop";
     private static final String BUILDING_ID_SECURITY_SHOP = "security_shop";
 
@@ -286,7 +277,7 @@ public class MainScreen implements Screen {
 
         String iconName = profile.getCharacterIcon();
         if (iconName != null && !iconName.isEmpty()) {
-            Texture charTex = TextureUtils.loadAsIs("character/" + iconName + ".png");
+            Texture charTex = TextureUtils.loadAsIs("character/" + iconName + "_icon.png");
             charTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             mapRenderer.setCharacterIconTexture(charTex);
         }
@@ -330,6 +321,8 @@ public class MainScreen implements Screen {
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
+        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -360,6 +353,13 @@ public class MainScreen implements Screen {
         // Keep the NPC-overlay hour in sync with the current in-game time so that
         // stick figures are repositioned on the map every time the clock advances.
         state.currentHour = profile.getCurrentHour();
+
+        // Keep the set of known NPC IDs in sync with the player's relationships so
+        // that MapRenderer can decide which NPCs get an eye icon drawn next to them.
+        state.knownNpcIds.clear();
+        for (eb.framework1.character.Relationship r : profile.getRelationships()) {
+            state.knownNpcIds.add(r.getTargetId());
+        }
 
         mapRenderer.drawMap(state);
         mapRenderer.drawRulers(state);
@@ -451,6 +451,10 @@ public class MainScreen implements Screen {
             meetPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (examinePersonPopup.isVisible()) {
+            examinePersonPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -496,9 +500,10 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
-        if (batch         != null) batch.dispose();
-        if (shapeRenderer != null) shapeRenderer.dispose();
-        if (mapRenderer   != null) mapRenderer.dispose();
+        if (batch              != null) batch.dispose();
+        if (shapeRenderer      != null) shapeRenderer.dispose();
+        if (mapRenderer        != null) mapRenderer.dispose();
+        if (infoPanelRenderer  != null) infoPanelRenderer.dispose();
         if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
     }
@@ -539,6 +544,7 @@ public class MainScreen implements Screen {
             || confirmDropPopup.isVisible()
             || notePopup.isVisible()
             || meetPopup.isVisible()
+            || examinePersonPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -676,610 +682,7 @@ public class MainScreen implements Screen {
     // -------------------------------------------------------------------------
 
     private void setupInput() {
-        Gdx.input.setInputProcessor(new InputAdapter() {
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                int flippedY = state.screenHeight - screenY;
-
-                // Resting popup blocks all normal interaction while visible
-                // (checked before isWalking so the OK button works during Traveling result)
-                if (restingPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Walking animation blocks all input
-                if (state.isWalking) { return true; }
-
-                // Quit confirmation overlay blocks all interaction
-                if (quitConfirming) { return true; }
-
-                // Save-done popup blocks all interaction until OK is tapped
-                if (saveDoneVisible) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Any look-around popup blocks normal interaction
-                if (lookAroundPopup.isVisible()) {
-                    infoAreaPressed  = true;
-                    infoTouchStartX  = screenX;
-                    infoTouchStartY  = screenY;
-                    isDragging       = false;
-                    return true;
-                }
-
-                // Tiredness popup blocks all normal interaction until dismissed
-                if (tirednessPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Discovery popup blocks all normal interaction until dismissed
-                if (discoveryPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Service result popup blocks all normal interaction until dismissed
-                if (serviceResultPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Stash popup blocks all normal interaction until dismissed
-                if (stashPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Put-in-stash popup blocks all normal interaction until dismissed
-                if (putInStashPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Confirm drop popup blocks all normal interaction until dismissed
-                if (confirmDropPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Hotel reception popup blocks all normal interaction until dismissed
-                if (hotelReceptionPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Gym instructor popup blocks all normal interaction until dismissed
-                if (gymInstructorPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Shop popup blocks all normal interaction until dismissed
-                if (shopPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Email popup blocks all normal interaction until dismissed
-                if (emailPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Phone popup blocks all normal interaction until dismissed
-                if (phonePopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Note popup blocks all normal interaction until dismissed
-                if (notePopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Meet popup blocks all normal interaction until dismissed
-                if (meetPopup.isVisible()) {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                    return true;
-                }
-
-                // Left-click with context menu visible – record position for tap detection
-                if (contextMenu.isVisible()) {
-                    dragStartX = screenX;
-                    dragStartY = screenY;
-                    return true;
-                }
-
-                if (flippedY > state.screenHeight - MapViewState.INFO_BAR_HEIGHT) {
-                    // Top info bar — treat as tap target (not map drag)
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    isDragging      = false;
-                } else if (flippedY > state.infoAreaHeight) {
-                    isDragging       = true;
-                    dragStartX       = screenX;
-                    dragStartY       = screenY;
-                    dragStartOffsetX = state.mapOffsetX;
-                    dragStartOffsetY = state.mapOffsetY;
-                    infoAreaPressed  = false;
-                } else {
-                    infoAreaPressed = true;
-                    infoTouchStartX = screenX;
-                    infoTouchStartY = screenY;
-                    infoScrollDragStartScrollY = state.infoScrollY;
-                    infoScrollDragStartScrollX = state.infoScrollX;
-                    isDragging      = false;
-                }
-                return true;
-            }
-
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                int flippedY = state.screenHeight - screenY;
-
-                // Resting popup: only the OK button (RESULT phase) can dismiss it
-                // (checked before isWalking so the OK button works during Traveling result)
-                if (restingPopup.isVisible()) {
-                    if (infoAreaPressed && !restingPopup.isAnimating()) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) restingPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Walking animation blocks all input
-                if (state.isWalking) {
-                    infoAreaPressed = false;
-                    isDragging = false;
-                    return true;
-                }
-
-                // Quit confirmation overlay – handle Yes/No only
-                if (quitConfirming) {
-                    if (screenX >= quitYesBtnX && screenX <= quitYesBtnX + quitYesBtnW
-                            && flippedY >= quitYesBtnY && flippedY <= quitYesBtnY + quitYesBtnH) {
-                        Gdx.app.log("MainScreen", "Quit confirmed");
-                        Gdx.app.exit();
-                    } else if (screenX >= quitNoBtnX && screenX <= quitNoBtnX + quitNoBtnW
-                            && flippedY >= quitNoBtnY && flippedY <= quitNoBtnY + quitNoBtnH) {
-                        quitConfirming = false;
-                    }
-                    infoAreaPressed = false;
-                    isDragging = false;
-                    return true;
-                }
-
-                // Save-done popup – only the OK button dismisses it
-                if (saveDoneVisible) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS
-                                && screenX >= saveDoneOkBtnX && screenX <= saveDoneOkBtnX + saveDoneOkBtnW
-                                && flippedY >= saveDoneOkBtnY && flippedY <= saveDoneOkBtnY + saveDoneOkBtnH) {
-                            saveDoneVisible = false;
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                if (lookAroundPopup.isResults()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) lookAroundPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-                if (lookAroundPopup.isAnimating()) {
-                    infoAreaPressed = false;
-                    isDragging = false;
-                    return true;
-                }
-
-                // Tiredness popup: only the OK button can dismiss it
-                if (tirednessPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) tirednessPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Discovery popup: only the OK button can dismiss it
-                if (discoveryPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) discoveryPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Service result popup: only the OK button can dismiss it
-                if (serviceResultPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) serviceResultPopup.onTap(screenX, flippedY);
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Stash popup: Close, Take, or Put in Stash button
-                if (stashPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = stashPopup.onTap(screenX, flippedY);
-                            if (result >= 0) handleTakeFromStash(result);
-                            else if (result == StashPopup.RESULT_PUT_IN_STASH)
-                                putInStashPopup.show();
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Put-in-stash popup: stash the selected item or close
-                if (putInStashPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = putInStashPopup.onTap(screenX, flippedY);
-                            if (result >= 0) handleEquipDrop(result);
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Confirm drop popup: Yes drops/stashes the item; No cancels
-                if (confirmDropPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = confirmDropPopup.onTap(screenX, flippedY);
-                            if (result == ConfirmPopup.RESULT_YES) {
-                                handleEquipDrop(confirmDropPopup.getPendingIdx());
-                            }
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Note popup: checkbox toggles or Save / Cancel
-                if (notePopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = notePopup.onTap(screenX, flippedY);
-                            if (result == NotePopup.RESULT_CONFIRM) {
-                                state.noteIncludeTime     = notePopup.isIncludeTime();
-                                state.noteIncludeLocation = notePopup.isIncludeLocation();
-                                Gdx.input.setOnscreenKeyboardVisible(false);
-                                submitNoteFromPopup();
-                            } else if (result == NotePopup.RESULT_CANCEL) {
-                                Gdx.input.setOnscreenKeyboardVisible(false);
-                            }
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Hotel reception popup: night selection or cancel
-                if (hotelReceptionPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int nights = hotelReceptionPopup.onTap(screenX, flippedY);
-                            if (nights >= 1) {
-                                handleHotelCheckIn(nights,
-                                        hotelReceptionPopup.getDiscountedTotal(nights),
-                                        hotelReceptionPopup.getStaminaBonus());
-                            }
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Gym instructor popup: training option or cancel
-                if (gymInstructorPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int option = gymInstructorPopup.onTap(screenX, flippedY);
-                            if (option >= 0) handleGymTraining(option);
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Shop popup: buy an item or close
-                if (shopPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int idx = shopPopup.onTap(screenX, flippedY);
-                            if (idx >= 0 && idx < shopItems.size()) {
-                                handleShopPurchase(shopItems.get(idx), shopPopup.getLastQuantity());
-                            }
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Email popup: Accept, Decline, or Close
-                if (emailPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = emailPopup.onTap(screenX, flippedY);
-                            if (result >= 0) handleEmailAccepted(result);
-                            // Persist statuses after every interaction so re-opens restore marks
-                            todaysEmailStatuses = emailPopup.getStatuses();
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Phone popup: tap a contact to mark as called, or tap power button to close
-                if (phonePopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = phonePopup.onTap(screenX, flippedY);
-                            if (result >= 0) handleContactPhoned(result);
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // NPC Annotation popup: close button
-                // Meet popup: tap a question button, accept/reject, or close button
-                if (meetPopup.isVisible()) {
-                    if (infoAreaPressed) {
-                        float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                        if (d < TAP_THRESHOLD_PIXELS) {
-                            int result = meetPopup.onTap(screenX, flippedY);
-                            if (result == MeetPopup.RESULT_ACCEPTED) {
-                                handleMeetingAccepted();
-                            } else if (result == MeetPopup.RESULT_REJECTED) {
-                                handleMeetingRejected();
-                            }
-                            // RESULT_CLOSED: popup hides but the appointment and
-                            // pendingCase are preserved so the player can reopen
-                            // the meeting by tapping the Meet button again.
-                        }
-                        infoAreaPressed = false;
-                    }
-                    isDragging = false;
-                    return true;
-                }
-
-                // Left-click: handle context menu first
-                if (contextMenu.isVisible()) {
-                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (d < TAP_THRESHOLD_PIXELS) {
-                        int idx = contextMenu.onTap(screenX, flippedY);
-                        if (idx >= 0 && idx < contextMenuActions.size()) {
-                            contextMenuActions.get(idx).run();
-                        }
-                    }
-                    contextMenu.dismiss();
-                    isDragging = false;
-                    infoAreaPressed = false;
-                    return true;
-                }
-
-                if (isDragging && flippedY > state.infoAreaHeight) {
-                    float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (d < TAP_THRESHOLD_PIXELS) {
-                        if (state.helpVisible) state.helpVisible = false;
-                        selectCellAt(screenX, flippedY);
-                        // Double-click detection: same cell tapped twice within time window
-                        long    now      = System.currentTimeMillis();
-                        boolean sameCell = state.selectedCellX == lastMapTapCellX
-                                        && state.selectedCellY == lastMapTapCellY;
-                        if (now - lastMapTapTimeMs < DOUBLE_CLICK_MS && sameCell
-                                && !lookAroundPopup.isVisible()) {
-                            contextMenu.dismiss();
-                            buildContextMenu(screenX, flippedY);
-                            Gdx.app.log("MainScreen", "Double-click menu at " + screenX + "," + flippedY
-                                    + " items=" + contextMenuItems.size());
-                            lastMapTapTimeMs = 0L;  // reset so triple-click doesn't re-trigger
-                            lastMapTapCellX  = -1;
-                            lastMapTapCellY  = -1;
-                        } else {
-                            lastMapTapTimeMs = now;
-                            lastMapTapCellX  = state.selectedCellX;
-                            lastMapTapCellY  = state.selectedCellY;
-                        }
-                    }
-                }
-                if (infoAreaPressed) {
-                    float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
-                    if (d < TAP_THRESHOLD_PIXELS) {
-                        if (state.unitInteriorOpen) {
-                            // Office popup covers the info panel — only office buttons are active.
-                            // Map-navigation buttons (Look Around, Move To, etc.) must be suppressed
-                            // to prevent click-through to the info panel behind the popup.
-                            checkUnitExitButtonClick(screenX, flippedY);
-                            checkRestButtonClick(screenX, flippedY);
-                            checkSleepButtonClick(screenX, flippedY);
-                            checkOpenStashButtonClick(screenX, flippedY);
-                            checkCheckEmailsButtonClick(screenX, flippedY);
-                            checkOpenPhoneButtonClick(screenX, flippedY);
-                            checkSaveButtonClick(screenX, flippedY);
-                        } else {
-                            checkTabClick(screenX, flippedY);
-                            checkMoveToButtonClick(screenX, flippedY);
-                            checkLookAroundButtonClick(screenX, flippedY);
-                            checkGoToOfficeButtonClick(screenX, flippedY);
-                            checkGoToHotelRoomButtonClick(screenX, flippedY);
-                            checkEquipDropButtonClick(screenX, flippedY);
-                            checkHelpButtonClick(screenX, flippedY);
-                            checkAddNoteButtonClick(screenX, flippedY);
-                            checkServiceButtonClick(screenX, flippedY);
-                            checkImprovementButtonClick(screenX, flippedY);
-                        }
-                        checkTabClick(screenX, flippedY);
-                        checkExpandButtonClick(screenX, flippedY);
-                        checkAppointmentButtonClick(screenX, flippedY);
-                        checkDevModeButtonClick(screenX, flippedY);
-                    }
-                    infoAreaPressed = false;
-                }
-                isDragging = false;
-                return true;
-            }
-
-            @Override
-            public boolean touchDragged(int screenX, int screenY, int pointer) {
-                if (contextMenu.isVisible()) {
-                    // Only dismiss if the finger has moved far enough to be a real drag.
-                    // Tiny jitter during a tap should not cancel the menu before touchUp fires.
-                    float dragDistance = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-                    if (dragDistance >= TAP_THRESHOLD_PIXELS) {
-                        contextMenu.dismiss();
-                    }
-                    return true;
-                }
-                if (isDragging) {
-                    float cs = state.getCellSize();
-                    state.mapOffsetX = dragStartOffsetX - (screenX - dragStartX) / cs;
-                    state.mapOffsetY = dragStartOffsetY - (screenY - dragStartY) / cs;
-                    state.clampMapOffset();
-                    return true;
-                }
-                if (infoAreaPressed && !lookAroundPopup.isVisible() && !discoveryPopup.isVisible()) {
-                    // screenY is 0 at top, increases downward
-                    // Drag up (screenY decreases) → reveal content below → increase infoScrollY
-                    float dy = infoTouchStartY - screenY;
-                    float dx = infoTouchStartX - screenX;
-                    state.infoScrollY = MathUtils.clamp(
-                            infoScrollDragStartScrollY + dy, 0f, state.infoMaxScrollY);
-                    state.infoScrollX = MathUtils.clamp(
-                            infoScrollDragStartScrollX + dx, 0f, state.infoMaxScrollX);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean scrolled(float amountX, float amountY) {
-                contextMenu.dismiss();
-                if (state.unitInteriorOpen) {
-                    state.infoScrollY = MathUtils.clamp(
-                            state.infoScrollY + amountY * 20f, 0f, state.infoMaxScrollY);
-                    return true;
-                }
-                if (discoveryPopup.isVisible()) {
-                    discoveryPopup.scroll(amountY * 20f);
-                    return true;
-                }
-                if (shopPopup.isVisible()) {
-                    shopPopup.scroll(amountY * 20f);
-                    return true;
-                }
-                float old = state.zoomLevel;
-                state.zoomLevel = MathUtils.clamp(state.zoomLevel - amountY * ZOOM_SPEED, MIN_ZOOM, MAX_ZOOM);
-                if (old != state.zoomLevel) state.clampMapOffset();
-                return true;
-            }
-
-            @Override
-            public boolean mouseMoved(int screenX, int screenY) {
-                updateCursorCell(screenX, state.screenHeight - screenY);
-                return false;
-            }
-
-            @Override
-            public boolean keyTyped(char character) {
-                if (notePopup.isVisible()) return notePopup.keyTyped(character);
-                return false;
-            }
-
-            @Override
-            public boolean keyDown(int keycode) {
-                if (notePopup.isVisible()) return notePopup.keyDown(keycode);
-                return false;
-            }
-        });
+        Gdx.input.setInputProcessor(new MainScreenInputHandler(this));
     }
 
     private void handleKeyboardInput() {
@@ -1302,7 +705,7 @@ public class MainScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN))  { state.mapOffsetY -= SCROLL_SPEED; state.clampMapOffset(); }
     }
 
-    private void updateCursorCell(int screenX, int flippedY) {
+    void updateCursorCell(int screenX, int flippedY) {
         float mapAreaX = MapViewState.RULER_WIDTH + MapViewState.RULER_GAP;
         if (flippedY <= state.infoAreaHeight) {
             state.cursorCellX = state.cursorCellY = -1;
@@ -1326,7 +729,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void selectCellAt(int screenX, int screenY) {
+    void selectCellAt(int screenX, int screenY) {
         float cs = state.getCellSize();
         int visY = state.getVisibleCellsY();
         float relX = screenX - (MapViewState.RULER_WIDTH + MapViewState.RULER_GAP);
@@ -1354,7 +757,7 @@ public class MainScreen implements Screen {
      * @param menuScreenX x pixel where the menu should appear
      * @param menuFlippedY y pixel where the menu should appear (y-up)
      */
-    private void buildContextMenu(float menuScreenX, float menuFlippedY) {
+    void buildContextMenu(float menuScreenX, float menuFlippedY) {
         int cx = state.selectedCellX;
         int cy = state.selectedCellY;
         if (cx < 0 || cy < 0) return;
@@ -1419,7 +822,7 @@ public class MainScreen implements Screen {
     // Button hit-testing
     // -------------------------------------------------------------------------
 
-    private void checkTabClick(int screenX, int flippedY) {
+    void checkTabClick(int screenX, int flippedY) {
         if (state.tabH <= 0) return;
         String[] tabIds = { "INFO", "CHARACTER", "CALENDAR", "CASE FILE" };
         for (int i = 0; i < tabIds.length; i++) {
@@ -1437,7 +840,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkExpandButtonClick(int screenX, int flippedY) {
+    void checkExpandButtonClick(int screenX, int flippedY) {
         if (state.expandBtnW <= 0) return;
         if (screenX >= state.expandBtnX && screenX <= state.expandBtnX + state.expandBtnW
                 && flippedY >= state.expandBtnY && flippedY <= state.expandBtnY + state.expandBtnH) {
@@ -1447,7 +850,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkMoveToButtonClick(int screenX, int flippedY) {
+    void checkMoveToButtonClick(int screenX, int flippedY) {
         if (state.moveToButtonW <= 0) return;
         if (screenX >= state.moveToButtonX && screenX <= state.moveToButtonX + state.moveToButtonW
                 && flippedY >= state.moveToButtonY && flippedY <= state.moveToButtonY + state.moveToButtonH) {
@@ -1455,7 +858,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkLookAroundButtonClick(int screenX, int flippedY) {
+    void checkLookAroundButtonClick(int screenX, int flippedY) {
         if (state.lookAroundBtnW <= 0) return;
         if (screenX >= state.lookAroundBtnX && screenX <= state.lookAroundBtnX + state.lookAroundBtnW
                 && flippedY >= state.lookAroundBtnY && flippedY <= state.lookAroundBtnY + state.lookAroundBtnH) {
@@ -1464,7 +867,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkRestButtonClick(int screenX, int flippedY) {
+    void checkRestButtonClick(int screenX, int flippedY) {
         if (state.restBtnW <= 0) return;
         if (screenX >= state.restBtnX && screenX <= state.restBtnX + state.restBtnW
                 && flippedY >= state.restBtnY && flippedY <= state.restBtnY + state.restBtnH) {
@@ -1472,7 +875,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkSleepButtonClick(int screenX, int flippedY) {
+    void checkSleepButtonClick(int screenX, int flippedY) {
         if (state.sleepBtnW <= 0) return;
         if (screenX >= state.sleepBtnX && screenX <= state.sleepBtnX + state.sleepBtnW
                 && flippedY >= state.sleepBtnY && flippedY <= state.sleepBtnY + state.sleepBtnH) {
@@ -1480,7 +883,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkGoToOfficeButtonClick(int screenX, int flippedY) {
+    void checkGoToOfficeButtonClick(int screenX, int flippedY) {
         if (state.goToOfficeBtnW <= 0) return;
         if (screenX >= state.goToOfficeBtnX && screenX <= state.goToOfficeBtnX + state.goToOfficeBtnW
                 && flippedY >= state.goToOfficeBtnY && flippedY <= state.goToOfficeBtnY + state.goToOfficeBtnH) {
@@ -1494,7 +897,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkGoToHotelRoomButtonClick(int screenX, int flippedY) {
+    void checkGoToHotelRoomButtonClick(int screenX, int flippedY) {
         if (state.goToHotelRoomBtnW <= 0) return;
         if (screenX >= state.goToHotelRoomBtnX && screenX <= state.goToHotelRoomBtnX + state.goToHotelRoomBtnW
                 && flippedY >= state.goToHotelRoomBtnY && flippedY <= state.goToHotelRoomBtnY + state.goToHotelRoomBtnH) {
@@ -1510,7 +913,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkOpenStashButtonClick(int screenX, int flippedY) {
+    void checkOpenStashButtonClick(int screenX, int flippedY) {
         if (state.openStashBtnW <= 0) return;
         if (screenX >= state.openStashBtnX && screenX <= state.openStashBtnX + state.openStashBtnW
                 && flippedY >= state.openStashBtnY && flippedY <= state.openStashBtnY + state.openStashBtnH) {
@@ -1519,7 +922,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkCheckEmailsButtonClick(int screenX, int flippedY) {
+    void checkCheckEmailsButtonClick(int screenX, int flippedY) {
         if (state.checkEmailsBtnW <= 0) return;
         if (screenX >= state.checkEmailsBtnX && screenX <= state.checkEmailsBtnX + state.checkEmailsBtnW
                 && flippedY >= state.checkEmailsBtnY && flippedY <= state.checkEmailsBtnY + state.checkEmailsBtnH) {
@@ -1527,7 +930,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkOpenPhoneButtonClick(int screenX, int flippedY) {
+    void checkOpenPhoneButtonClick(int screenX, int flippedY) {
         if (state.openPhoneBtnW <= 0) return;
         if (screenX >= state.openPhoneBtnX && screenX <= state.openPhoneBtnX + state.openPhoneBtnW
                 && flippedY >= state.openPhoneBtnY && flippedY <= state.openPhoneBtnY + state.openPhoneBtnH) {
@@ -1536,7 +939,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkAppointmentButtonClick(int screenX, int flippedY) {
+    void checkAppointmentButtonClick(int screenX, int flippedY) {
         if (state.appointmentBtnW <= 0) return;
         if (screenX >= state.appointmentBtnX && screenX <= state.appointmentBtnX + state.appointmentBtnW
                 && flippedY >= state.appointmentBtnY && flippedY <= state.appointmentBtnY + state.appointmentBtnH) {
@@ -1586,7 +989,7 @@ public class MainScreen implements Screen {
                 ? cell.getBuilding().getName() : null;
         boolean atHome = state.charCellX == state.homeCellX && state.charCellY == state.homeCellY;
 
-        long nowMinutes = dateTimeToMinutes(profile.getGameDateTime());
+        long nowMinutes = CalendarEntry.dateTimeToMinutes(profile.getGameDateTime());
         for (CalendarEntry entry : profile.getCalendarEntries()) {
             boolean locationMatches;
             if ("Your Office".equalsIgnoreCase(entry.location)) {
@@ -1601,34 +1004,10 @@ public class MainScreen implements Screen {
                         && buildingName.equalsIgnoreCase(entry.location);
             }
             if (!locationMatches) continue;
-            long diff = dateTimeToMinutes(entry.dateTime) - nowMinutes;
+            long diff = CalendarEntry.dateTimeToMinutes(entry.dateTime) - nowMinutes;
             if (diff >= 0 && diff <= 180) return entry;
         }
         return null;
-    }
-
-    /**
-     * Converts a {@code "YYYY-MM-DD HH:MM"} game date/time string to total
-     * minutes, mirroring the helper in {@link InfoPanelRenderer}.
-     */
-    private static long dateTimeToMinutes(String dt) {
-        final int[] MONTH_DAYS = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-        try {
-            String[] halves = dt.split(" ");
-            String[] d = halves[0].split("-");
-            String[] t = halves[1].split(":");
-            int year  = Integer.parseInt(d[0]);
-            int month = Integer.parseInt(d[1]);
-            int day   = Integer.parseInt(d[2]);
-            int hour  = Integer.parseInt(t[0]);
-            int min   = Integer.parseInt(t[1]);
-            long totalDays = (long)(year - 2050) * 365L;
-            for (int m = 1; m < month; m++) totalDays += MONTH_DAYS[m - 1];
-            totalDays += day;
-            return totalDays * 24L * 60L + hour * 60L + min;
-        } catch (Exception e) {
-            return Long.MAX_VALUE / 2;
-        }
     }
 
     /**
@@ -1668,7 +1047,7 @@ public class MainScreen implements Screen {
      * Delegates to {@link #handleMeetingClosed()} to record the meeting note
      * and any asked questions.
      */
-    private void handleMeetingAccepted() {
+    void handleMeetingAccepted() {
         if (pendingCase != null) {
             profile.addCaseFile(pendingCase);
             Gdx.app.log("MainScreen", "Case accepted (pre-generated): " + pendingCase.getName());
@@ -1698,7 +1077,7 @@ public class MainScreen implements Screen {
      * Meet button disappears), and clears tracking state.  No meeting notes or
      * clues are recorded.
      */
-    private void handleMeetingRejected() {
+    void handleMeetingRejected() {
         pendingCase = null;
         if (currentMeetAppt != null) {
             profile.removeCalendarEntry(currentMeetAppt);
@@ -1776,7 +1155,7 @@ public class MainScreen implements Screen {
         currentMeetAppt = null;
     }
 
-    private void checkServiceButtonClick(int screenX, int flippedY) {
+    void checkServiceButtonClick(int screenX, int flippedY) {
         if (state.svcBtnCount <= 0) return;
         for (int i = 0; i < state.svcBtnCount && i < currentCellServices.size(); i++) {
             if (state.svcBtnW[i] <= 0) continue;
@@ -1788,7 +1167,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkImprovementButtonClick(int screenX, int flippedY) {
+    void checkImprovementButtonClick(int screenX, int flippedY) {
         if (state.impBtnCount <= 0) return;
         for (int i = 0; i < state.impBtnCount; i++) {
             if (state.impBtnW[i] <= 0 || state.impBtnImp[i] == null) continue;
@@ -1800,7 +1179,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkEquipDropButtonClick(int screenX, int flippedY) {
+    void checkEquipDropButtonClick(int screenX, int flippedY) {
         if (state.equipDropBtnCount <= 0) return;
         for (int i = 0; i < state.equipDropBtnCount && i < MapViewState.MAX_EQUIP_BTNS; i++) {
             if (state.equipDropBtnW[i] <= 0) continue;
@@ -1833,7 +1212,7 @@ public class MainScreen implements Screen {
         return (idx >= 0 && idx < allItems.size()) ? allItems.get(idx).getName() : "item";
     }
 
-    private void checkUnitExitButtonClick(int screenX, int flippedY) {
+    void checkUnitExitButtonClick(int screenX, int flippedY) {
         if (!state.unitInteriorOpen) return;
         if (state.unitExitBtnW > 0
                 && screenX >= state.unitExitBtnX && screenX <= state.unitExitBtnX + state.unitExitBtnW
@@ -1844,7 +1223,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkSaveButtonClick(int screenX, int flippedY) {
+    void checkSaveButtonClick(int screenX, int flippedY) {
         if (!state.unitInteriorOpen) return;
         if (state.saveBtnW > 0
                 && screenX >= state.saveBtnX && screenX <= state.saveBtnX + state.saveBtnW
@@ -1857,7 +1236,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkHelpButtonClick(int screenX, int flippedY) {
+    void checkHelpButtonClick(int screenX, int flippedY) {
         // If the popup is visible, let it handle the tap first (its own "?" close button).
         if (state.helpVisible && helpPopup.onTap(screenX, flippedY)) {
             state.helpVisible = false;
@@ -1870,7 +1249,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkDevModeButtonClick(int screenX, int flippedY) {
+    void checkDevModeButtonClick(int screenX, int flippedY) {
         if (state.devModeBtnW <= 0) return;
         if (screenX >= state.devModeBtnX && screenX <= state.devModeBtnX + state.devModeBtnW
                 && flippedY >= state.devModeBtnY && flippedY <= state.devModeBtnY + state.devModeBtnH) {
@@ -1879,7 +1258,7 @@ public class MainScreen implements Screen {
         }
     }
 
-    private void checkAddNoteButtonClick(int screenX, int flippedY) {
+    void checkAddNoteButtonClick(int screenX, int flippedY) {
         if (state.addNoteBtnW <= 0) return;
         if (screenX >= state.addNoteBtnX && screenX <= state.addNoteBtnX + state.addNoteBtnW
                 && flippedY >= state.addNoteBtnY && flippedY <= state.addNoteBtnY + state.addNoteBtnH) {
@@ -1892,7 +1271,7 @@ public class MainScreen implements Screen {
     }
 
     /** Saves the note typed in the popup to the active case file. */
-    private void submitNoteFromPopup() {
+    void submitNoteFromPopup() {
         CaseFile active = profile.getActiveCaseFile();
         if (active == null) return;
         String text = notePopup.getNoteText();
@@ -2082,7 +1461,7 @@ public class MainScreen implements Screen {
      * When the player is inside their home office the item is moved to the
      * stash instead of being permanently deleted.
      */
-    private void handleEquipDrop(int idx) {
+    void handleEquipDrop(int idx) {
         EquipmentSlot[] mainSlots = { EquipmentSlot.WEAPON, EquipmentSlot.BODY,
                                       EquipmentSlot.LEGS,   EquipmentSlot.FEET };
         List<EquipItem>      allItems   = new ArrayList<>();
@@ -2126,7 +1505,7 @@ public class MainScreen implements Screen {
      * Non-utility items are (re-)equipped in their slot; utility items are added
      * back to the utility list.
      */
-    private void handleTakeFromStash(int index) {
+    void handleTakeFromStash(int index) {
         EquipItem item = profile.takeFromStash(index);
         if (item == null) return;
         if (item.getSlot() == EquipmentSlot.UTILITY) {
@@ -2149,7 +1528,7 @@ public class MainScreen implements Screen {
      * @param nightly  nightly rate in in-game currency
      * @param bonus    extra stamina awarded per full 8-hour sleep while checked in
      */
-    private void handleHotelCheckIn(int nights, int total, int bonus) {
+    void handleHotelCheckIn(int nights, int total, int bonus) {
         List<String> resultLines = new ArrayList<>();
 
         if (total > 0 && profile.getMoney() < total) {
@@ -2193,7 +1572,7 @@ public class MainScreen implements Screen {
      *               {@link BuildingServices#GYM_OPT_STAMINA_SELF},
      *               {@link BuildingServices#GYM_OPT_STAMINA_PT}
      */
-    private void handleGymTraining(int option) {
+    void handleGymTraining(int option) {
         int cost    = (option == BuildingServices.GYM_OPT_STRENGTH_PT
                     || option == BuildingServices.GYM_OPT_STAMINA_PT)
                       ? BuildingServices.GYM_COST_PT : BuildingServices.GYM_COST_SELF;
@@ -2578,7 +1957,7 @@ public class MainScreen implements Screen {
      * @param item     the {@link ShopItem} the player chose to buy
      * @param quantity number of units (always 1 for non-consumables)
      */
-    private void handleShopPurchase(ShopItem item, int quantity) {
+    void handleShopPurchase(ShopItem item, int quantity) {
         int qty        = item.consumable ? Math.max(1, quantity) : 1;
         int totalCost  = item.price * qty;
 
@@ -3078,7 +2457,7 @@ public class MainScreen implements Screen {
      *
      * @param emailIndex index in the email popup's list (from {@link EmailPopup#onTap})
      */
-    private void handleEmailAccepted(int emailIndex) {
+    void handleEmailAccepted(int emailIndex) {
         EmailPopup.EmailData email = emailPopup.getEmailAt(emailIndex);
         if (email == null) return;
         // Guard against duplicate entries (e.g. accept → close → reopen → accept again)
@@ -3148,7 +2527,7 @@ public class MainScreen implements Screen {
      *
      * @param contactIndex index in the phone popup's contact list
      */
-    private void handleContactPhoned(int contactIndex) {
+    void handleContactPhoned(int contactIndex) {
         PhoneContact contact = phonePopup.getContactAt(contactIndex);
         if (contact == null) return;
         if (!contact.phoned) {
@@ -3317,7 +2696,7 @@ public class MainScreen implements Screen {
         }
 
         // PERCEPTION >= 4 → fire station
-        if (profile.getAttribute(CharacterAttribute.PERCEPTION.name()) >= 4) {
+        if (profile.getEffectiveAttribute(CharacterAttribute.PERCEPTION) >= 4) {
             discoverCellIfFound(findNearestBuilding(refX, refY, "fire_station"));
         }
 

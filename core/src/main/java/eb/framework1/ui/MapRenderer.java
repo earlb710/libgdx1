@@ -437,14 +437,16 @@ public class MapRenderer {
             float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
             float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
 
-            boolean isFemale = "F".equalsIgnoreCase(npc.getGender()); // safe: literal.equalsIgnoreCase(null) → false
+            boolean isFemale = "F".equalsIgnoreCase(npc.getGender());
             Texture icon = isFemale ? npcWomanTexture : npcManTexture;
             if (icon == null) continue;
 
             // Pin icon to the lower-left of the building rectangle at native size
             float iconW = isFemale ? npcWomanTexW : npcManTexW;
             float iconH = isFemale ? npcWomanTexH : npcManTexH;
-            batch.draw(icon, cellX + li, cellY + bi, iconW, iconH);
+            float npcIconX = cellX + li;
+            float npcIconY = cellY + bi;
+            batch.draw(icon, npcIconX, npcIconY, iconW, iconH);
         }
 
         batch.end();

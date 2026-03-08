@@ -138,6 +138,24 @@ public class MapViewState {
             new java.util.ArrayList<>();
 
     /**
+     * IDs of NPCs the player has already met (has a {@link eb.framework1.character.Relationship}
+     * entry for).  Updated by {@code MainScreen} each frame.  Used by
+     * {@code InfoPanelRenderer} to decide whether to draw an eye icon next to an NPC.
+     */
+    public java.util.Set<String> knownNpcIds = new java.util.HashSet<>();
+
+    // Eye-icon hit areas in the info panel (one per visible unknown NPC at the player's cell)
+    public static final int MAX_EYE_ICONS = 50;
+    public float[] eyeIconX   = new float[MAX_EYE_ICONS];
+    public float[] eyeIconY   = new float[MAX_EYE_ICONS];
+    public float[] eyeIconW   = new float[MAX_EYE_ICONS];
+    public float   eyeIconH   = 0f;
+    public int     eyeIconCount = 0;
+    /** NPC corresponding to each eye icon (parallel array). */
+    public eb.framework1.character.NpcCharacter[] eyeIconNpc =
+            new eb.framework1.character.NpcCharacter[MAX_EYE_ICONS];
+
+    /**
      * Current in-game hour (0–23).  Used by {@code MapRenderer} to determine
      * which schedule entry is active and where each NPC should be drawn.
      * Updated by {@code MainScreen} each frame from the profile's

@@ -29,6 +29,9 @@ import java.util.Map;
  *       Charisma, Intimidation, Empathy, and Stealth.  Each value is in the
  *       range 1–10.  Generated automatically by {@link CharacterGenerator};
  *       NPCs do not go through the player's point-buy screen.</li>
+ *   <li><strong>Items</strong> — items the NPC visibly carries, such as a pistol
+ *       for a police officer.  Assigned by {@link NpcGenerator} based on
+ *       occupation; empty for most NPCs.</li>
  * </ul>
  *
  * <p>Instances are built through {@link Builder}.  All fields are immutable once
@@ -104,6 +107,53 @@ public final class NpcCharacter {
      */
     private final boolean tracked;
 
+    // -------------------------------------------------------------------------
+    // Appearance attributes
+    // -------------------------------------------------------------------------
+
+    /** Hair type, e.g. {@code "straight"}, {@code "wavy"}, {@code "curly"}, {@code "bald"}. */
+    private final String hairType;
+
+    /** Hair colour, e.g. {@code "black"}, {@code "brown"}, {@code "blonde"}, {@code "red"},
+     *  {@code "gray"}, {@code "white"}. */
+    private final String hairColor;
+
+    /**
+     * Apparent wealth level on a 1–10 scale.
+     * 1 = visibly destitute; 10 = ostentatiously wealthy.
+     */
+    private final int wealthyLevel;
+
+    /**
+     * The NPC's favourite colour (optional; empty string means none observable).
+     * Examples: {@code "red"}, {@code "blue"}, {@code "green"}.
+     */
+    private final String favColor;
+
+    /**
+     * Height in centimetres (e.g. 175).
+     * 0 = not set (description engine will omit the height sentence).
+     */
+    private final int heightCm;
+
+    /**
+     * Body weight in kilograms (e.g. 75).
+     * 0 = not set (description engine will omit the build sentence).
+     */
+    private final int weightKg;
+
+    /**
+     * Items this NPC is currently carrying (e.g. a pistol for a police officer).
+     * The list is empty for NPCs that carry nothing visible.
+     */
+    private final List<EquipItem> carriedItems;
+
+    /**
+     * Vision impairment, if any.  {@link VisionTrait#NONE} means no impairment.
+     * Characters with an impaired trait typically also carry {@link EquipItem#GLASSES}.
+     */
+    private final VisionTrait visionTrait;
+
     /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
@@ -140,6 +190,15 @@ public final class NpcCharacter {
         this.schedule             = b.schedule;
         this.birthdate            = b.birthdate != null ? b.birthdate : "";
         this.tracked              = b.tracked;
+        this.hairType             = b.hairType  != null ? b.hairType  : "";
+        this.hairColor            = b.hairColor != null ? b.hairColor : "";
+        this.wealthyLevel         = b.wealthyLevel;
+        this.favColor             = b.favColor  != null ? b.favColor  : "";
+        this.heightCm             = b.heightCm;
+        this.weightKg             = b.weightKg;
+        this.carriedItems         = Collections.unmodifiableList(
+                new ArrayList<>(b.carriedItems));
+        this.visionTrait          = b.visionTrait;
     }
 
     // -------------------------------------------------------------------------
@@ -319,6 +378,58 @@ public final class NpcCharacter {
     }
 
     // -------------------------------------------------------------------------
+    // Accessors — appearance attributes
+    // -------------------------------------------------------------------------
+
+    /**
+     * Hair type string, e.g. {@code "straight"}, {@code "wavy"}, {@code "curly"},
+     * {@code "bald"}.  Empty string when not set.
+     */
+    public String getHairType() { return hairType; }
+
+    /**
+     * Hair colour string, e.g. {@code "black"}, {@code "brown"}, {@code "blonde"},
+     * {@code "red"}, {@code "gray"}, {@code "white"}.  Empty string when not set.
+     */
+    public String getHairColor() { return hairColor; }
+
+    /**
+     * Apparent wealth level on a 1–10 scale.
+     * 1 = visibly destitute; 10 = ostentatiously wealthy.
+     */
+    public int getWealthyLevel() { return wealthyLevel; }
+
+    /**
+     * Favourite colour (optional), e.g. {@code "red"}, {@code "blue"}.
+     * Empty string when none is observable.
+     */
+    public String getFavColor() { return favColor; }
+
+    /**
+     * Height in centimetres, e.g. {@code 175}.
+     * Returns {@code 0} when not set.
+     */
+    public int getHeightCm() { return heightCm; }
+
+    /**
+     * Body weight in kilograms, e.g. {@code 75}.
+     * Returns {@code 0} when not set.
+     */
+    public int getWeightKg() { return weightKg; }
+
+    /**
+     * Items this NPC is currently carrying (e.g. a pistol for a police officer).
+     * Returns an unmodifiable list; never {@code null}.
+     */
+    public List<EquipItem> getCarriedItems() { return carriedItems; }
+
+    /**
+     * Returns the vision trait for this NPC.
+     * Never {@code null}; defaults to {@link VisionTrait#NONE}.
+     */
+    public VisionTrait getVisionTrait() { return visionTrait; }
+
+    // -------------------------------------------------------------------------
     // Convenience — current map position (derived from schedule)
     // -------------------------------------------------------------------------
 
@@ -446,6 +557,20 @@ public final class NpcCharacter {
         private NpcSchedule schedule = null;
         private String      birthdate = "";
         private boolean     tracked   = false;
+
+        // Appearance attributes
+        private String hairType    = "";
+        private String hairColor   = "";
+        private int    wealthyLevel = 5;
+        private String favColor    = "";
+        private int    heightCm    = 0;
+        private int    weightKg    = 0;
+
+        // Carried items
+        private final List<EquipItem> carriedItems = new ArrayList<>();
+
+        // Vision trait
+        private VisionTrait visionTrait = VisionTrait.NONE;
 
         /**
          * Sets the mandatory unique identifier.
@@ -694,6 +819,87 @@ public final class NpcCharacter {
          */
         public Builder tracked(boolean tracked) {
             this.tracked = tracked;
+            return this;
+        }
+
+        /** Sets the hair type (e.g. {@code "straight"}, {@code "curly"}, {@code "bald"}). */
+        public Builder hairType(String hairType) {
+            this.hairType = hairType != null ? hairType : "";
+            return this;
+        }
+
+        /** Sets the hair colour (e.g. {@code "black"}, {@code "brown"}, {@code "blonde"}). */
+        public Builder hairColor(String hairColor) {
+            this.hairColor = hairColor != null ? hairColor : "";
+            return this;
+        }
+
+        /**
+         * Sets the apparent wealth level (1–10).
+         * Values outside this range are clamped.
+         */
+        public Builder wealthyLevel(int wealthyLevel) {
+            this.wealthyLevel = Math.max(1, Math.min(10, wealthyLevel));
+            return this;
+        }
+
+        /** Sets the favourite colour (e.g. {@code "red"}, {@code "blue"}; empty = none). */
+        public Builder favColor(String favColor) {
+            this.favColor = favColor != null ? favColor : "";
+            return this;
+        }
+
+        /**
+         * Sets the height in centimetres (e.g. {@code 175}).
+         * Values ≤ 0 are stored as-is (means "not set").
+         */
+        public Builder heightCm(int heightCm) {
+            this.heightCm = heightCm;
+            return this;
+        }
+
+        /**
+         * Sets the body weight in kilograms (e.g. {@code 75}).
+         * Values ≤ 0 are stored as-is (means "not set").
+         */
+        public Builder weightKg(int weightKg) {
+            this.weightKg = weightKg;
+            return this;
+        }
+
+        /**
+         * Adds a single item to the NPC's carried-items list.
+         * {@code null} is silently ignored.
+         *
+         * @param item the item to carry
+         */
+        public Builder addCarriedItem(EquipItem item) {
+            if (item != null) this.carriedItems.add(item);
+            return this;
+        }
+
+        /**
+         * Replaces the entire carried-items list.
+         * {@code null} values in the list are silently ignored.
+         *
+         * @param items the new list; {@code null} clears the list
+         */
+        public Builder carriedItems(List<EquipItem> items) {
+            this.carriedItems.clear();
+            if (items != null) {
+                for (EquipItem item : items) {
+                    if (item != null) this.carriedItems.add(item);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Sets the vision trait.  {@code null} is treated as
+         * {@link VisionTrait#NONE}.
+         */
+        public Builder visionTrait(VisionTrait visionTrait) {
+            this.visionTrait = visionTrait != null ? visionTrait : VisionTrait.NONE;
             return this;
         }
 
