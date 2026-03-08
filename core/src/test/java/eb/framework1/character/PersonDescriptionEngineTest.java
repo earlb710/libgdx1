@@ -542,4 +542,47 @@ public class PersonDescriptionEngineTest {
         String desc = PersonDescriptionEngine.describe(npc);
         assertFalse("No glasses → should not say wear glasses", desc.contains("wear glasses"));
     }
+
+    // =========================================================================
+    // PersonDescriptionEngine — sun glasses
+    // =========================================================================
+
+    @Test
+    public void describe_npcWithSunGlasses_saysSunGlasses() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("sg1").fullName("Cool Person").gender("M")
+                .age(30).wealthyLevel(5)
+                .addCarriedItem(EquipItem.SUN_GLASSES)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should say 'sun glasses'", desc.contains("sun glasses"));
+        assertFalse("Should not say 'carrying a sun glasses'",
+                desc.contains("carrying a sun glasses"));
+    }
+
+    @Test
+    public void describe_npcWithSunGlassesAndPistol_bothMentioned() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("sg2").fullName("Cool Cop").gender("F")
+                .age(35).wealthyLevel(5)
+                .addCarriedItem(EquipItem.SUN_GLASSES)
+                .addCarriedItem(EquipItem.PISTOL)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention sun glasses", desc.contains("sun glasses"));
+        assertTrue("Should mention pistol", desc.contains("pistol"));
+    }
+
+    @Test
+    public void describe_npcWithBothGlassesAndSunGlasses_mentionsBoth() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("sg3").fullName("Double Lens").gender("M")
+                .age(40).wealthyLevel(5)
+                .addCarriedItem(EquipItem.GLASSES)
+                .addCarriedItem(EquipItem.SUN_GLASSES)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention glasses", desc.contains("glasses"));
+        assertTrue("Should mention sun glasses", desc.contains("sun glasses"));
+    }
 }

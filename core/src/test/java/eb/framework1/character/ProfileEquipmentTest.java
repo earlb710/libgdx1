@@ -590,4 +590,93 @@ public class ProfileEquipmentTest {
         assertEquals(1, (int) glasses.getModifiers().get(CharacterAttribute.PERCEPTION));
         assertEquals(0.05f, glasses.getWeight(), 0.001f);
     }
+
+    // -------------------------------------------------------------------------
+    // EquipItem — hat, coat, sun glasses
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void equipItem_hat_hasCorrectProperties() {
+        EquipItem hat = EquipItem.HAT;
+        assertEquals("Hat", hat.getName());
+        assertEquals(EquipmentSlot.HEAD, hat.getSlot());
+        assertEquals(1, (int) hat.getModifiers().get(CharacterAttribute.STEALTH));
+        assertEquals(0.1f, hat.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_coat_hasCorrectProperties() {
+        EquipItem coat = EquipItem.COAT;
+        assertEquals("Coat", coat.getName());
+        assertEquals(EquipmentSlot.BODY, coat.getSlot());
+        assertEquals(1, (int) coat.getModifiers().get(CharacterAttribute.STEALTH));
+        assertEquals(1.2f, coat.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void equipItem_sunGlasses_hasCorrectProperties() {
+        EquipItem sg = EquipItem.SUN_GLASSES;
+        assertEquals("Sun Glasses", sg.getName());
+        assertEquals(EquipmentSlot.UTILITY, sg.getSlot());
+        assertEquals(1, (int) sg.getModifiers().get(CharacterAttribute.STEALTH));
+        assertEquals(1, (int) sg.getModifiers().get(CharacterAttribute.PERCEPTION));
+        assertEquals(0.05f, sg.getWeight(), 0.001f);
+    }
+
+    @Test
+    public void profile_hat_increasesEffectiveStealth() {
+        Profile p = new Profile("Alice", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.STEALTH.name(), 4);
+        p.equip(EquipItem.HAT);
+        assertEquals(5, p.getEffectiveAttribute(CharacterAttribute.STEALTH));
+    }
+
+    @Test
+    public void profile_coat_increasesEffectiveStealth() {
+        Profile p = new Profile("Bob", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.STEALTH.name(), 3);
+        p.equip(EquipItem.COAT);
+        assertEquals(4, p.getEffectiveAttribute(CharacterAttribute.STEALTH));
+    }
+
+    @Test
+    public void profile_sunGlasses_increasesBothStealthAndPerception() {
+        Profile p = new Profile("Carol", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.STEALTH.name(), 5);
+        p.setAttribute(CharacterAttribute.PERCEPTION.name(), 5);
+        p.addUtilityItem(EquipItem.SUN_GLASSES);
+        assertEquals(6, p.getEffectiveAttribute(CharacterAttribute.STEALTH));
+        assertEquals(6, p.getEffectiveAttribute(CharacterAttribute.PERCEPTION));
+    }
+
+    @Test
+    public void profile_hatAndCoat_stackStealth() {
+        Profile p = new Profile("Dave", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.STEALTH.name(), 4);
+        p.equip(EquipItem.HAT);
+        p.equip(EquipItem.COAT);
+        // HAT(HEAD, +1) + COAT(BODY, +1) = +2
+        assertEquals(6, p.getEffectiveAttribute(CharacterAttribute.STEALTH));
+    }
+
+    @Test
+    public void equipItem_hat_foundByName() {
+        EquipItem found = EquipItem.findByName("Hat", EquipmentSlot.HEAD);
+        assertNotNull("Hat should be in the catalogue", found);
+        assertEquals(EquipItem.HAT, found);
+    }
+
+    @Test
+    public void equipItem_coat_foundByName() {
+        EquipItem found = EquipItem.findByName("Coat", EquipmentSlot.BODY);
+        assertNotNull("Coat should be in the catalogue", found);
+        assertEquals(EquipItem.COAT, found);
+    }
+
+    @Test
+    public void equipItem_sunGlasses_foundByName() {
+        EquipItem found = EquipItem.findByName("Sun Glasses", EquipmentSlot.UTILITY);
+        assertNotNull("Sun Glasses should be in the catalogue", found);
+        assertEquals(EquipItem.SUN_GLASSES, found);
+    }
 }

@@ -86,16 +86,22 @@ public final class PersonDescriptionEngine {
             sb.append(" They seem to favour the colour ").append(fc).append('.');
         }
 
-        // ── Sentence 5 (optional): glasses (worn on the face, not "carried") ────
+        // ── Sentence 5 (optional): glasses / sun glasses (worn, not "carried") ─
         // ── Sentence 6 (optional): other visible carried items ─────────────────
         List<EquipItem> items = npc.getCarriedItems();
-        boolean hasGlasses = false;
+        boolean hasGlasses    = false;
+        boolean hasSunGlasses = false;
         java.util.List<EquipItem> otherItems = new java.util.ArrayList<>();
         for (EquipItem item : items) {
-            if (item == EquipItem.GLASSES) hasGlasses = true;
+            if (item == EquipItem.GLASSES)     hasGlasses    = true;
+            else if (item == EquipItem.SUN_GLASSES) hasSunGlasses = true;
             else otherItems.add(item);
         }
-        if (hasGlasses) {
+        if (hasGlasses && hasSunGlasses) {
+            sb.append(" They wear glasses and sun glasses.");
+        } else if (hasSunGlasses) {
+            sb.append(" They wear sun glasses.");
+        } else if (hasGlasses) {
             sb.append(" They wear glasses.");
         }
         if (!otherItems.isEmpty()) {
