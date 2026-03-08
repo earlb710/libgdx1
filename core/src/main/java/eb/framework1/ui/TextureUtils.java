@@ -3,12 +3,34 @@ package eb.framework1.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import eb.util.UtilLibGDX;
 
 /**
  * Utility methods for loading and processing textures.
  */
 public class TextureUtils {
+
+    /**
+     * Platform-specific SVG rasterizer. Must be set before calling
+     * {@link #loadSvg(String, int, int)}. Each platform launcher is responsible
+     * for registering the appropriate implementation at startup.
+     */
+    private static SvgLoader svgLoader;
+
+    /**
+     * Registers the platform-specific SVG loader. Call this once at application
+     * startup (before any call to {@link #loadSvg(String, int, int)}).
+     *
+     * @param loader the SVG loader implementation to use; must not be {@code null}
+     * @throws IllegalArgumentException if {@code loader} is {@code null}
+     */
+    public static void setSvgLoader(SvgLoader loader) {
+        if (loader == null) {
+            throw new IllegalArgumentException("SvgLoader must not be null");
+        }
+        svgLoader = loader;
+    }
 
     private TextureUtils() {}
 
@@ -78,6 +100,37 @@ public class TextureUtils {
         pixmap.dispose();
         Texture texture = new Texture(result);
         result.dispose();
+        return texture;
+    }
+
+    /**
+     * Loads an SVG file from the given asset path, rasterizes it at the specified pixel
+     * dimensions, and returns the result as a {@link Texture}.
+     *
+     * <p>Requires a platform-specific {@link SvgLoader} to be registered via
+     * {@link TextureUtils#setSvgLoader(SvgLoader)} before this method is called. Each platform launcher
+     * (e.g. {@code Lwjgl3Launcher}, {@code AndroidLauncher}) registers the appropriate
+     * implementation at startup.
+     *
+     * <p><b>Security note:</b> SVG files should only be loaded from trusted sources
+     * (e.g. bundled game assets), never from untrusted user input.
+     *
+     * @param path   path to the {@code .svg} file relative to the assets directory
+     * @param width  target width in pixels (must be &gt; 0)
+     * @param height target height in pixels (must be &gt; 0)
+     * @return a new {@link Texture} containing the rasterized SVG;
+     *         the caller is responsible for disposing it
+     * @throws GdxRuntimeException if no {@link SvgLoader} has been registered
+     */
+    public static Texture loadSvg(String path, int width, int height) {
+        if (svgLoader == null) {
+            throw new GdxRuntimeException(
+                "No SvgLoader registered. Call TextureUtils.setSvgLoader() before loading SVG files.");
+        }
+        byte[] svgData = Gdx.files.internal(path).readBytes();
+        Pixmap pixmap = svgLoader.rasterize(svgData, width, height);
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
         return texture;
     }
 }
