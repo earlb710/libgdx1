@@ -80,7 +80,7 @@ public class InfoPanelRenderer {
     private static final Color EXPAND_BTN_FILL         = new Color(0.14f, 0.14f, 0.20f, 1f);
     private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
     private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
-    private static final Color EYE_ICON_BORDER_COLOR   = new Color(0.30f, 0.75f, 0.90f, 1f);
+    private static final Color EYE_ICON_BG_COLOR        = new Color(0.05f, 0.20f, 0.35f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -860,9 +860,8 @@ public class InfoPanelRenderer {
                             float iconH = Math.min(eyeIconTexH, fontCapH);
                             float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
                                     ? eyeIconTexW * iconH / eyeIconTexH : iconH;
-                            float ex = textX - drawScrollX + glyphLayout.width + 4f;
+                            float ex = textX - drawScrollX + glyphLayout.width + 12f;
                             float ey = textY + drawScrollY - fontCapH;
-                            batch.draw(eyeIconTexture, ex, ey, iconW, iconH);
                             int idx = s.eyeIconCount++;
                             s.eyeIconX[idx]   = ex;
                             s.eyeIconY[idx]   = ey;
@@ -882,16 +881,10 @@ public class InfoPanelRenderer {
         }
 
         batch.end();
-        // Draw eye-icon border rectangles inside the scissor region
-        if (s.eyeIconCount > 0) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(EYE_ICON_BORDER_COLOR);
-            for (int i = 0; i < s.eyeIconCount; i++) {
-                float pad = 1f;
-                shapeRenderer.rect(s.eyeIconX[i] - pad, s.eyeIconY[i] - pad,
-                        s.eyeIconW[i] + pad * 2f, s.eyeIconH + pad * 2f);
-            }
-            shapeRenderer.end();
+        // Draw eye icons: filled background + icon on top, clipped by the active scissor region
+        for (int i = 0; i < s.eyeIconCount; i++) {
+            drawIconWithBackground(eyeIconTexture, EYE_ICON_BG_COLOR,
+                    s.eyeIconX[i], s.eyeIconY[i], s.eyeIconW[i], s.eyeIconH);
         }
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollX = 0f;
@@ -914,6 +907,25 @@ public class InfoPanelRenderer {
         drawScrollbars(s, contentAreaH, contentAreaW, SB);
 
         drawInfoTabHelpButton(s);
+    }
+
+    /**
+     * Draws a filled rectangle of {@code bgColor} and then overlays the {@code icon} texture
+     * on top of it, both at position ({@code x}, {@code y}) with size ({@code w} × {@code h}).
+     *
+     * <p>This method manages the {@code shapeRenderer}/{@code batch} state internally.
+     * It must be called while neither the batch nor the shapeRenderer is active.
+     * Both are left inactive when the method returns.
+     */
+    private void drawIconWithBackground(Texture icon, Color bgColor,
+                                        float x, float y, float w, float h) {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(bgColor);
+        shapeRenderer.rect(x, y, w, h);
+        shapeRenderer.end();
+        batch.begin();
+        batch.draw(icon, x, y, w, h);
+        batch.end();
     }
 
     /**
