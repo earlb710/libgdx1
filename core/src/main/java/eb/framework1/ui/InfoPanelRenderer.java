@@ -12,6 +12,7 @@ import eb.framework1.screen.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -92,6 +93,9 @@ public class InfoPanelRenderer {
     private final CityMap       cityMap;
     private final Profile       profile;
     private final NovelTextEngine novelTextEngine;
+    /** Eye icon shown next to unknown-NPC entries in the info panel. */
+    private Texture eyeIconTexture;
+    private int     eyeIconTexW, eyeIconTexH;
 
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;
@@ -112,6 +116,22 @@ public class InfoPanelRenderer {
         this.cityMap         = cityMap;
         this.profile         = profile;
         this.novelTextEngine = novelTextEngine;
+        try {
+            eyeIconTexture = new Texture(Gdx.files.internal("icons/eye.png"));
+            eyeIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            eyeIconTexW = eyeIconTexture.getWidth();
+            eyeIconTexH = eyeIconTexture.getHeight();
+        } catch (Exception e) {
+            Gdx.app.log("InfoPanelRenderer", "Could not load eye icon: " + e.getMessage());
+        }
+    }
+
+    /** Releases GPU resources owned by this renderer. */
+    public void dispose() {
+        if (eyeIconTexture != null) {
+            eyeIconTexture.dispose();
+            eyeIconTexture = null;
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -370,6 +390,8 @@ public class InfoPanelRenderer {
         s.addNoteBtnW = 0f; // Add Note button and checkboxes are only on the Case File tab
         s.noteTimeCbW = 0f;
         s.noteLocCbW  = 0f;
+        // Reset eye-icon hit areas — repopulated when NPCs are drawn below
+        s.eyeIconCount = 0;
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -826,6 +848,28 @@ public class InfoPanelRenderer {
                                 : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
                         font.setColor(Color.WHITE);
                         font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+
+                        // Eye icon: only for unknown NPCs when the player is at the same cell
+                        int nx = npc.getCurrentCellX(s.currentHour);
+                        int ny = npc.getCurrentCellY(s.currentHour);
+                        boolean playerHere = (nx == s.charCellX && ny == s.charCellY);
+                        if (!hasMet && playerHere && eyeIconTexture != null
+                                && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
+                            glyphLayout.setText(font, displayName);
+                            float iconH = Math.min(eyeIconTexH, fontCapH);
+                            float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
+                                    ? eyeIconTexW * iconH / eyeIconTexH : iconH;
+                            float ex = textX - drawScrollX + glyphLayout.width + 4f;
+                            float ey = textY + drawScrollY - fontCapH;
+                            batch.draw(eyeIconTexture, ex, ey, iconW, iconH);
+                            int idx = s.eyeIconCount++;
+                            s.eyeIconX[idx]   = ex;
+                            s.eyeIconY[idx]   = ey;
+                            s.eyeIconW[idx]   = iconW;
+                            s.eyeIconH        = iconH;
+                            s.eyeIconNpc[idx] = npc;
+                        }
+
                         textY -= fontLineH;
                     }
                 }

@@ -66,9 +66,6 @@ public class MapRenderer {
     /** Native dimensions of the NPC marker textures (cached to avoid per-frame queries). */
     private int                  npcManTexW, npcManTexH;
     private int                  npcWomanTexW, npcWomanTexH;
-    /** Eye icon drawn next to unknown NPCs to offer "examine from afar". */
-    private Texture              eyeIconTexture;
-    private int                  eyeIconTexW, eyeIconTexH;
 
 
     public MapRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
@@ -123,14 +120,6 @@ public class MapRenderer {
         } catch (Exception e) {
             Gdx.app.log("MapRenderer", "Could not load woman_icon_32: " + e.getMessage());
         }
-        try {
-            eyeIconTexture = new Texture(Gdx.files.internal("icons/eye.png"));
-            eyeIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            eyeIconTexW = eyeIconTexture.getWidth();
-            eyeIconTexH = eyeIconTexture.getHeight();
-        } catch (Exception e) {
-            Gdx.app.log("MapRenderer", "Could not load eye icon: " + e.getMessage());
-        }
     }
 
     public void setCharacterIconTexture(Texture tex) {
@@ -153,10 +142,6 @@ public class MapRenderer {
         if (npcWomanTexture != null) {
             npcWomanTexture.dispose();
             npcWomanTexture = null;
-        }
-        if (eyeIconTexture != null) {
-            eyeIconTexture.dispose();
-            eyeIconTexture = null;
         }
     }
 
@@ -432,14 +417,6 @@ public class MapRenderer {
         if (s.allNpcs == null || s.allNpcs.isEmpty()) return;
         if (npcManTexture == null && npcWomanTexture == null) return;
 
-        // Reset eye-icon hit areas before repopulating
-        s.eyeIconCount = 0;
-
-        // Eye icon size: use native size if available, otherwise a fixed fallback
-        float eyeW = eyeIconTexture != null ? Math.min(eyeIconTexW, 16f) : 16f;
-        float eyeH = eyeIconTexture != null ? Math.min(eyeIconTexH, 16f) : 16f;
-        s.eyeIconH = eyeH;
-
         batch.begin();
         batch.setColor(Color.WHITE);
 
@@ -470,22 +447,6 @@ public class MapRenderer {
             float npcIconX = cellX + li;
             float npcIconY = cellY + bi;
             batch.draw(icon, npcIconX, npcIconY, iconW, iconH);
-
-            // Draw eye icon for unknown NPCs (no relationship in knownNpcIds)
-            boolean isKnown = s.knownNpcIds.contains(npc.getId());
-            if (!isKnown && eyeIconTexture != null
-                    && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
-                // Position eye icon just to the right of the NPC icon, at the top
-                float ex = npcIconX + iconW + 2f;
-                float ey = npcIconY + iconH - eyeH;  // top-align with NPC icon
-                batch.draw(eyeIconTexture, ex, ey, eyeW, eyeH);
-                // Store hit area
-                int idx = s.eyeIconCount++;
-                s.eyeIconX[idx]   = ex;
-                s.eyeIconY[idx]   = ey;
-                s.eyeIconW[idx]   = eyeW;
-                s.eyeIconNpc[idx] = npc;
-            }
         }
 
         batch.end();

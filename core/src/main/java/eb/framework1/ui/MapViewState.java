@@ -140,11 +140,11 @@ public class MapViewState {
     /**
      * IDs of NPCs the player has already met (has a {@link eb.framework1.character.Relationship}
      * entry for).  Updated by {@code MainScreen} each frame.  Used by
-     * {@code MapRenderer} to decide whether to draw an eye icon next to an NPC.
+     * {@code InfoPanelRenderer} to decide whether to draw an eye icon next to an NPC.
      */
     public java.util.Set<String> knownNpcIds = new java.util.HashSet<>();
 
-    // Eye-icon hit areas on the map (one per visible unknown NPC)
+    // Eye-icon hit areas in the info panel (one per visible unknown NPC at the player's cell)
     public static final int MAX_EYE_ICONS = 50;
     public float[] eyeIconX   = new float[MAX_EYE_ICONS];
     public float[] eyeIconY   = new float[MAX_EYE_ICONS];

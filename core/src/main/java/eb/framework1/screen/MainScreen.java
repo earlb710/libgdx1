@@ -500,9 +500,10 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
-        if (batch         != null) batch.dispose();
-        if (shapeRenderer != null) shapeRenderer.dispose();
-        if (mapRenderer   != null) mapRenderer.dispose();
+        if (batch              != null) batch.dispose();
+        if (shapeRenderer      != null) shapeRenderer.dispose();
+        if (mapRenderer        != null) mapRenderer.dispose();
+        if (infoPanelRenderer  != null) infoPanelRenderer.dispose();
         if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
     }
