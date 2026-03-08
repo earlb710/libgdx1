@@ -285,6 +285,42 @@ public class UtilLibGDX {
         return newPixmapSetAlphaColor(source, 255, 255, 255);
     }
 
+    /**
+     * Creates a new pixmap in which every pixel's RGB is replaced with the given colour
+     * while the alpha channel from the source is preserved unchanged.
+     *
+     * <p>This is the correct operation for recolouring a monochrome SVG that has been
+     * rasterized to a single-ink-colour image on a transparent background.  The source
+     * alpha channel already encodes both the shape and the anti-aliased edges, so it
+     * can be kept verbatim; only the ink colour needs to change.
+     *
+     * <p>Example: a black-on-transparent icon can be redrawn as red-on-transparent by
+     * calling {@code newPixmapRecolor(pixmap, 255, 0, 0)}.
+     *
+     * @param source the source pixmap
+     * @param r      target red   channel (0–255)
+     * @param g      target green channel (0–255)
+     * @param b      target blue  channel (0–255)
+     * @return a newly created RGBA8888 pixmap; the caller is responsible for disposing it
+     */
+    public static Pixmap newPixmapRecolor(Pixmap source, int r, int g, int b) {
+        Pixmap newSource = new Pixmap(source.getWidth(), source.getHeight(), Format.RGBA8888);
+        newSource.drawPixmap(source, 0, 0);
+        ByteBuffer buffer = newSource.getPixels();
+        int length = buffer.limit();
+        byte rb = (byte) (r & 0xFF);
+        byte gb = (byte) (g & 0xFF);
+        byte bb = (byte) (b & 0xFF);
+        for (int idx = 0; idx < length; idx = idx + 4) {
+            buffer.put(idx,     rb);
+            buffer.put(idx + 1, gb);
+            buffer.put(idx + 2, bb);
+            // alpha (idx + 3) is left unchanged
+        }
+        buffer.position(0);
+        return newSource;
+    }
+
     public static Pixmap newPixmapNegative(Pixmap source) {
         Pixmap newSource = new Pixmap(source.getWidth(), source.getHeight(), Format.RGBA8888);
         newSource.drawPixmap(source, 0, 0);

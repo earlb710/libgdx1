@@ -179,4 +179,56 @@ public class TextureUtils {
         tinted.dispose();
         return texture;
     }
+
+    /**
+     * Loads a monochrome SVG file from the given asset path, rasterizes it at the specified
+     * pixel dimensions, and recolours the result so the ink is drawn in exactly the given
+     * colour.
+     *
+     * <p>Unlike {@link #loadSvg(String, int, int, Color)} (which blends/tints by averaging),
+     * this method <em>replaces</em> the RGB of every pixel with the target colour and preserves
+     * the source alpha channel unchanged.  This is the correct operation for SVGs that consist
+     * of a single ink colour on a transparent background (e.g. monochrome icon sets): the
+     * rasterized alpha channel encodes both the shape and anti-aliased edges, so only the
+     * colour needs to change.
+     *
+     * <pre>
+     * // Draw a black icon as red
+     * Texture icon = TextureUtils.loadSvgMonochrome("icons/eye.svg", 64, 64, Color.RED);
+     * </pre>
+     *
+     * <p>Requires a platform-specific {@link SvgLoader} to be registered via
+     * {@link TextureUtils#setSvgLoader(SvgLoader)} before this method is called.
+     *
+     * <p><b>Security note:</b> SVG files should only be loaded from trusted sources
+     * (e.g. bundled game assets), never from untrusted user input.
+     *
+     * @param path   path to the {@code .svg} file relative to the assets directory
+     * @param width  target width in pixels (must be &gt; 0)
+     * @param height target height in pixels (must be &gt; 0)
+     * @param color  the exact ink colour to use; must not be {@code null}
+     * @return a new {@link Texture} containing the recoloured, rasterized SVG;
+     *         the caller is responsible for disposing it
+     * @throws GdxRuntimeException      if no {@link SvgLoader} has been registered
+     * @throws IllegalArgumentException if {@code color} is {@code null}
+     */
+    public static Texture loadSvgMonochrome(String path, int width, int height, Color color) {
+        if (color == null) {
+            throw new IllegalArgumentException("color must not be null");
+        }
+        if (svgLoader == null) {
+            throw new GdxRuntimeException(
+                "No SvgLoader registered. Call TextureUtils.setSvgLoader() before loading SVG files.");
+        }
+        byte[] svgData = Gdx.files.internal(path).readBytes();
+        Pixmap pixmap = svgLoader.rasterize(svgData, width, height);
+        Pixmap recolored = UtilLibGDX.newPixmapRecolor(pixmap,
+            Math.round(color.r * 255),
+            Math.round(color.g * 255),
+            Math.round(color.b * 255));
+        pixmap.dispose();
+        Texture texture = new Texture(recolored);
+        recolored.dispose();
+        return texture;
+    }
 }
