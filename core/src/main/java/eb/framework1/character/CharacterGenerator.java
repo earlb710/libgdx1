@@ -265,6 +265,11 @@ public class CharacterGenerator {
             b.attribute(attr, randomAttr());
         }
 
+        // 30% of characters have a vision impairment (farsighted or nearsighted).
+        if (random.nextFloat() < 0.30f) {
+            b.visionTrait(random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED);
+        }
+
         return b;
     }
 

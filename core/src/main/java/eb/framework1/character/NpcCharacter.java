@@ -149,6 +149,12 @@ public final class NpcCharacter {
     private final List<EquipItem> carriedItems;
 
     /**
+     * Vision impairment, if any.  {@link VisionTrait#NONE} means no impairment.
+     * Characters with an impaired trait typically also carry {@link EquipItem#GLASSES}.
+     */
+    private final VisionTrait visionTrait;
+
+    /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
      * gameplay without rebuilding the NPC object.
@@ -192,6 +198,7 @@ public final class NpcCharacter {
         this.weightKg             = b.weightKg;
         this.carriedItems         = Collections.unmodifiableList(
                 new ArrayList<>(b.carriedItems));
+        this.visionTrait          = b.visionTrait;
     }
 
     // -------------------------------------------------------------------------
@@ -416,6 +423,12 @@ public final class NpcCharacter {
      */
     public List<EquipItem> getCarriedItems() { return carriedItems; }
 
+    /**
+     * Returns the vision trait for this NPC.
+     * Never {@code null}; defaults to {@link VisionTrait#NONE}.
+     */
+    public VisionTrait getVisionTrait() { return visionTrait; }
+
     // -------------------------------------------------------------------------
     // Convenience — current map position (derived from schedule)
     // -------------------------------------------------------------------------
@@ -555,6 +568,9 @@ public final class NpcCharacter {
 
         // Carried items
         private final List<EquipItem> carriedItems = new ArrayList<>();
+
+        // Vision trait
+        private VisionTrait visionTrait = VisionTrait.NONE;
 
         /**
          * Sets the mandatory unique identifier.
@@ -875,6 +891,15 @@ public final class NpcCharacter {
                     if (item != null) this.carriedItems.add(item);
                 }
             }
+            return this;
+        }
+
+        /**
+         * Sets the vision trait.  {@code null} is treated as
+         * {@link VisionTrait#NONE}.
+         */
+        public Builder visionTrait(VisionTrait visionTrait) {
+            this.visionTrait = visionTrait != null ? visionTrait : VisionTrait.NONE;
             return this;
         }
 

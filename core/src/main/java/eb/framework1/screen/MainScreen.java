@@ -2696,7 +2696,7 @@ public class MainScreen implements Screen {
         }
 
         // PERCEPTION >= 4 → fire station
-        if (profile.getAttribute(CharacterAttribute.PERCEPTION.name()) >= 4) {
+        if (profile.getEffectiveAttribute(CharacterAttribute.PERCEPTION) >= 4) {
             discoverCellIfFound(findNearestBuilding(refX, refY, "fire_station"));
         }
 

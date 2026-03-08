@@ -89,7 +89,8 @@ public class GameSave {
              List<String> utilityItemNames,
              List<CaseFile> caseFiles,
              String activeCaseId,
-             List<NpcCharacter> worldNpcs) {
+             List<NpcCharacter> worldNpcs,
+             VisionTrait visionTrait) {
         this.characterName       = characterName;
         this.gender              = gender;
         this.difficulty          = difficulty;
@@ -116,6 +117,7 @@ public class GameSave {
         this.activeCaseId = activeCaseId;
         this.worldNpcs = Collections.unmodifiableList(
                 worldNpcs != null ? new java.util.ArrayList<>(worldNpcs) : new java.util.ArrayList<>());
+        this.visionTrait = visionTrait != null ? visionTrait : VisionTrait.NONE;
     }
 
     // -------------------------------------------------------------------------
@@ -175,7 +177,8 @@ public class GameSave {
                 snapshotUtility(profile),
                 new java.util.ArrayList<>(profile.getCaseFiles()),
                 profile.getActiveCaseFile() != null ? profile.getActiveCaseFile().getId() : null,
-                new java.util.ArrayList<>(profile.getWorldNpcs()));
+                new java.util.ArrayList<>(profile.getWorldNpcs()),
+                profile.getVisionTrait());
     }
 
     /** Snapshot non-utility slots as slot→name map. */
@@ -250,6 +253,8 @@ public class GameSave {
         }
         // Restore world NPCs
         profile.setWorldNpcs(new java.util.ArrayList<>(worldNpcs));
+        // Restore vision trait
+        profile.setVisionTrait(visionTrait);
     }
 
     /**
@@ -320,13 +325,14 @@ public class GameSave {
     // -------------------------------------------------------------------------
     // Case files
     // -------------------------------------------------------------------------
-
-    /** Snapshot of all case files on the profile at save time (unmodifiable list). */
     private final List<CaseFile> caseFiles;
     /** ID of the active case file at save time, or {@code null} if none. */
     private final String activeCaseId;
     /** World-population NPCs generated at game start (unmodifiable list). */
     private final List<NpcCharacter> worldNpcs;
+
+    /** Vision impairment of the player character at save time. */
+    private final VisionTrait visionTrait;
 
     /** Returns an unmodifiable view of the snapshotted case files. */
     public List<CaseFile> getCaseFiles() { return caseFiles; }
@@ -336,4 +342,7 @@ public class GameSave {
 
     /** Returns an unmodifiable view of the world-population NPCs. */
     public List<NpcCharacter> getWorldNpcs() { return worldNpcs; }
+
+    /** Returns the player character's vision trait at save time. */
+    public VisionTrait getVisionTrait() { return visionTrait; }
 }

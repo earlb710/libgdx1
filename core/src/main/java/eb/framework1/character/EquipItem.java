@@ -167,9 +167,19 @@ public final class EquipItem {
             .modifier(CharacterAttribute.STRENGTH, 1)
             .build();
 
+    /**
+     * Corrective lenses that compensate for a {@link VisionTrait} impairment.
+     * Grants +1 {@link CharacterAttribute#PERCEPTION} while worn.
+     */
+    public static final EquipItem GLASSES = new Builder("Glasses", EquipmentSlot.UTILITY)
+            .description("Corrective lenses that restore full visual acuity.")
+            .weight(0.05f)
+            .modifier(CharacterAttribute.PERCEPTION, 1)
+            .build();
+
     /** All known predefined items, in declaration order. */
     private static final EquipItem[] CATALOGUE = {
-        PISTOL, BINOCULARS, CAMERA, PEPPER_SPRAY
+        PISTOL, BINOCULARS, CAMERA, PEPPER_SPRAY, GLASSES
     };
 
     /**

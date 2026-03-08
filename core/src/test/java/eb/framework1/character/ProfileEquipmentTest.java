@@ -518,4 +518,76 @@ public class ProfileEquipmentTest {
         p.setAttribute(CharacterAttribute.STRENGTH.name(), 2);
         assertEquals(26f, p.getWeightCapacity(), 0.01f);
     }
+
+    // -------------------------------------------------------------------------
+    // Profile — vision trait
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void profile_visionTrait_defaultsToNone() {
+        Profile p = new Profile("Sam", "Male", "Normal");
+        assertEquals(VisionTrait.NONE, p.getVisionTrait());
+    }
+
+    @Test
+    public void profile_visionTrait_setAndGet() {
+        Profile p = new Profile("Tara", "Female", "Normal");
+        p.setVisionTrait(VisionTrait.FARSIGHTED);
+        assertEquals(VisionTrait.FARSIGHTED, p.getVisionTrait());
+
+        p.setVisionTrait(VisionTrait.NEARSIGHTED);
+        assertEquals(VisionTrait.NEARSIGHTED, p.getVisionTrait());
+
+        p.setVisionTrait(null);
+        assertEquals(VisionTrait.NONE, p.getVisionTrait());
+    }
+
+    @Test
+    public void profile_visionTrait_farsightedReducesEffectivePerception() {
+        Profile p = new Profile("Uma", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.PERCEPTION.name(), 5);
+        p.setVisionTrait(VisionTrait.FARSIGHTED);
+        // base 5 + farsighted -1 + no equipment modifier = 4
+        assertEquals(4, p.getEffectiveAttribute(CharacterAttribute.PERCEPTION));
+    }
+
+    @Test
+    public void profile_visionTrait_nearsightedReducesEffectivePerception() {
+        Profile p = new Profile("Victor", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.PERCEPTION.name(), 7);
+        p.setVisionTrait(VisionTrait.NEARSIGHTED);
+        assertEquals(6, p.getEffectiveAttribute(CharacterAttribute.PERCEPTION));
+    }
+
+    @Test
+    public void profile_glasses_compensatesVisionImpairment() {
+        Profile p = new Profile("Wendy", "Female", "Normal");
+        p.setAttribute(CharacterAttribute.PERCEPTION.name(), 5);
+        p.setVisionTrait(VisionTrait.NEARSIGHTED); // -1 PERCEPTION
+        p.addUtilityItem(EquipItem.GLASSES);       // +1 PERCEPTION
+        // net effect: 5 - 1 + 1 = 5 (fully compensated)
+        assertEquals(5, p.getEffectiveAttribute(CharacterAttribute.PERCEPTION));
+    }
+
+    @Test
+    public void profile_getEffectiveAttribute_noVisionTrait_equalsBaseAndEquipment() {
+        Profile p = new Profile("Xavier", "Male", "Normal");
+        p.setAttribute(CharacterAttribute.PERCEPTION.name(), 4);
+        // Default: no vision trait, pistol (+1 INTIMIDATION, no PERCEPTION modifier)
+        assertEquals(4, p.getEffectiveAttribute(CharacterAttribute.PERCEPTION));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void profile_getEffectiveAttribute_nullThrows() {
+        new Profile("Yara", "Female", "Normal").getEffectiveAttribute(null);
+    }
+
+    @Test
+    public void equipItem_glasses_hasCorrectProperties() {
+        EquipItem glasses = EquipItem.GLASSES;
+        assertEquals("Glasses", glasses.getName());
+        assertEquals(EquipmentSlot.UTILITY, glasses.getSlot());
+        assertEquals(1, (int) glasses.getModifiers().get(CharacterAttribute.PERCEPTION));
+        assertEquals(0.05f, glasses.getWeight(), 0.001f);
+    }
 }

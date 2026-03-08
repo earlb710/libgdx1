@@ -86,18 +86,28 @@ public final class PersonDescriptionEngine {
             sb.append(" They seem to favour the colour ").append(fc).append('.');
         }
 
-        // ── Sentence 5 (optional): visible carried items ──────────────────────
+        // ── Sentence 5 (optional): glasses (worn on the face, not "carried") ────
+        // ── Sentence 6 (optional): other visible carried items ─────────────────
         List<EquipItem> items = npc.getCarriedItems();
-        if (!items.isEmpty()) {
-            if (items.size() == 1) {
+        boolean hasGlasses = false;
+        java.util.List<EquipItem> otherItems = new java.util.ArrayList<>();
+        for (EquipItem item : items) {
+            if (item == EquipItem.GLASSES) hasGlasses = true;
+            else otherItems.add(item);
+        }
+        if (hasGlasses) {
+            sb.append(" They wear glasses.");
+        }
+        if (!otherItems.isEmpty()) {
+            if (otherItems.size() == 1) {
                 sb.append(" They appear to be carrying ")
-                  .append(article(items.get(0).getName())).append(' ')
-                  .append(items.get(0).getName().toLowerCase()).append('.');
+                  .append(article(otherItems.get(0).getName())).append(' ')
+                  .append(otherItems.get(0).getName().toLowerCase()).append('.');
             } else {
                 sb.append(" They appear to be carrying ");
-                for (int i = 0; i < items.size(); i++) {
-                    if (i > 0) sb.append(i == items.size() - 1 ? " and " : ", ");
-                    String name = items.get(i).getName();
+                for (int i = 0; i < otherItems.size(); i++) {
+                    if (i > 0) sb.append(i == otherItems.size() - 1 ? " and " : ", ");
+                    String name = otherItems.get(i).getName();
                     sb.append(article(name)).append(' ').append(name.toLowerCase());
                 }
                 sb.append('.');

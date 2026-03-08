@@ -502,4 +502,44 @@ public class PersonDescriptionEngineTest {
         assertNotNull(npc.getCarriedItems());
         assertTrue(npc.getCarriedItems().isEmpty());
     }
+
+    // =========================================================================
+    // PersonDescriptionEngine — glasses / vision trait
+    // =========================================================================
+
+    @Test
+    public void describe_npcWithGlasses_saysWearGlasses() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("g1").fullName("Four Eyes").gender("F")
+                .age(30).wealthyLevel(5)
+                .addCarriedItem(EquipItem.GLASSES)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should say 'wear glasses'", desc.contains("wear glasses"));
+        assertFalse("Should not say 'carrying a glasses'", desc.contains("carrying a glasses"));
+    }
+
+    @Test
+    public void describe_npcWithGlassesAndPistol_bothMentioned() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("g2").fullName("Armed Nerd").gender("M")
+                .age(40).wealthyLevel(5)
+                .addCarriedItem(EquipItem.GLASSES)
+                .addCarriedItem(EquipItem.PISTOL)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention glasses as 'wear glasses'", desc.contains("wear glasses"));
+        assertTrue("Should mention pistol as carrying", desc.contains("carrying"));
+        assertTrue("Should mention pistol", desc.contains("pistol"));
+    }
+
+    @Test
+    public void describe_npcWithNoGlasses_doesNotSayWearGlasses() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("g3").fullName("Normal Eyes").gender("F")
+                .age(25).wealthyLevel(5)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("No glasses → should not say wear glasses", desc.contains("wear glasses"));
+    }
 }

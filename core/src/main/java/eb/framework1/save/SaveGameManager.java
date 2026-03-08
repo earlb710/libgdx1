@@ -165,6 +165,7 @@ public class SaveGameManager {
         for (NpcCharacter npc : save.getWorldNpcs()) {
             d.worldNpcs.add(toNpcData(npc));
         }
+        d.visionTrait = save.getVisionTrait().name();
         return d;
     }
 
@@ -202,6 +203,12 @@ public class SaveGameManager {
                 if (npc != null) worldNpcs.add(npc);
             }
         }
+        // Restore vision trait (null in older saves → NONE)
+        VisionTrait savedVisionTrait = VisionTrait.NONE;
+        if (d.visionTrait != null) {
+            try { savedVisionTrait = VisionTrait.valueOf(d.visionTrait); }
+            catch (IllegalArgumentException ignored) { /* use default NONE */ }
+        }
         return new GameSave(
                 d.characterName,
                 d.gender,
@@ -218,7 +225,8 @@ public class SaveGameManager {
                 bDisc, bOwned, iDisc,
                 equipMap, utilNames,
                 caseFiles, d.activeCaseId,
-                worldNpcs);
+                worldNpcs,
+                savedVisionTrait);
     }
 
     // -------------------------------------------------------------------------
@@ -426,6 +434,8 @@ public class SaveGameManager {
         public String activeCaseId;
         /** Serialised world-population NPCs. */
         public java.util.List<NpcCharacterData> worldNpcs;
+        /** {@link VisionTrait#name()} value; null in older saves → NONE. */
+        public String visionTrait;
     }
 
     // -------------------------------------------------------------------------
@@ -544,6 +554,8 @@ public class SaveGameManager {
         public int    weightKg;
         // Carried items (added later; null in older saves → empty list)
         public java.util.List<NpcItemData> carriedItems;
+        // Vision trait (added later; null in older saves → NONE)
+        public String visionTrait;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -601,6 +613,7 @@ public class SaveGameManager {
             itemData.slot = item.getSlot().name();
             d.carriedItems.add(itemData);
         }
+        d.visionTrait   = npc.getVisionTrait().name();
         return d;
     }
 
@@ -681,6 +694,10 @@ public class SaveGameManager {
                     if (item != null) b.addCarriedItem(item);
                 } catch (IllegalArgumentException ignored) { /* unknown slot or item */ }
             }
+        }
+        if (d.visionTrait != null) {
+            try { b.visionTrait(VisionTrait.valueOf(d.visionTrait)); }
+            catch (IllegalArgumentException ignored) { /* use default NONE */ }
         }
         return b.build();
     }
