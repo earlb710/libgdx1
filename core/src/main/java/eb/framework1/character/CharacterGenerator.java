@@ -83,6 +83,20 @@ public class CharacterGenerator {
     private static final String[] FAV_COLORS  = { "", "", "", "red", "blue", "green",
                                                    "yellow", "purple", "orange", "black", "white" };
 
+    // Height ranges (cm) and weight ranges (kg) per gender
+    /** Male height range: 160–195 cm. */
+    private static final int MALE_HEIGHT_MIN   = 160;
+    private static final int MALE_HEIGHT_MAX   = 195;
+    /** Female height range: 150–180 cm. */
+    private static final int FEMALE_HEIGHT_MIN = 150;
+    private static final int FEMALE_HEIGHT_MAX = 180;
+    /**
+     * BMI offsets used to derive weight from height.
+     * weight = (height_m)^2 × BMI; BMI is uniformly sampled in [17, 34].
+     */
+    private static final float BMI_MIN = 17f;
+    private static final float BMI_MAX = 34f;
+
     private final PersonNameGenerator nameGen;
     private final Random              random;
 
@@ -243,6 +257,9 @@ public class CharacterGenerator {
                 .wealthyLevel(ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1))
                 .favColor(pick(FAV_COLORS));
 
+        int genHeight = randomHeight(gender);
+        b.heightCm(genHeight).weightKg(randomWeight(genHeight));
+
         // Add all eleven investigative attributes, each randomly 1–10.
         for (CharacterAttribute attr : INVESTIGATIVE_ATTRIBUTES) {
             b.attribute(attr, randomAttr());
@@ -331,9 +348,26 @@ public class CharacterGenerator {
         return options[random.nextInt(options.length)];
     }
 
-    // -------------------------------------------------------------------------
-    // Player-character randomisation
-    // -------------------------------------------------------------------------
+    /** Returns a random height (cm) for the given gender. */
+    private int randomHeight(String gender) {
+        boolean female = "F".equalsIgnoreCase(gender);
+        int min = female ? FEMALE_HEIGHT_MIN : MALE_HEIGHT_MIN;
+        int max = female ? FEMALE_HEIGHT_MAX : MALE_HEIGHT_MAX;
+        return min + random.nextInt(max - min + 1);
+    }
+
+    /**
+     * Returns a random body weight (kg) consistent with a realistic BMI range
+     * for the given height.
+     *
+     * <p>Formula: {@code round(heightM² × bmi)} where {@code bmi} is sampled
+     * uniformly in [{@link #BMI_MIN}, {@link #BMI_MAX}].
+     */
+    private int randomWeight(int heightCm) {
+        float heightM = heightCm / 100f;
+        float bmi     = BMI_MIN + random.nextFloat() * (BMI_MAX - BMI_MIN);
+        return Math.round(heightM * heightM * bmi);
+    }
 
     /**
      * Randomly distributes {@code freePoints} across the eleven investigative

@@ -128,6 +128,18 @@ public final class NpcCharacter {
     private final String favColor;
 
     /**
+     * Height in centimetres (e.g. 175).
+     * 0 = not set (description engine will omit the height sentence).
+     */
+    private final int heightCm;
+
+    /**
+     * Body weight in kilograms (e.g. 75).
+     * 0 = not set (description engine will omit the build sentence).
+     */
+    private final int weightKg;
+
+    /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
      * gameplay without rebuilding the NPC object.
@@ -167,6 +179,8 @@ public final class NpcCharacter {
         this.hairColor            = b.hairColor != null ? b.hairColor : "";
         this.wealthyLevel         = b.wealthyLevel;
         this.favColor             = b.favColor  != null ? b.favColor  : "";
+        this.heightCm             = b.heightCm;
+        this.weightKg             = b.weightKg;
     }
 
     // -------------------------------------------------------------------------
@@ -374,6 +388,22 @@ public final class NpcCharacter {
     public String getFavColor() { return favColor; }
 
     /**
+     * Height in centimetres, e.g. {@code 175}.
+     * Returns {@code 0} when not set.
+     */
+    public int getHeightCm() { return heightCm; }
+
+    /**
+     * Body weight in kilograms, e.g. {@code 75}.
+     * Returns {@code 0} when not set.
+     */
+    public int getWeightKg() { return weightKg; }
+
+    // -------------------------------------------------------------------------
+    // Convenience — current map position (derived from schedule)
+    // -------------------------------------------------------------------------
+
+    /**
      * Returns the city-map cell X-coordinate for this NPC at the given hour,
      * derived from the NPC's {@link NpcSchedule}.
      *
@@ -503,6 +533,8 @@ public final class NpcCharacter {
         private String hairColor   = "";
         private int    wealthyLevel = 5;
         private String favColor    = "";
+        private int    heightCm    = 0;
+        private int    weightKg    = 0;
 
         /**
          * Sets the mandatory unique identifier.
@@ -778,6 +810,24 @@ public final class NpcCharacter {
         /** Sets the favourite colour (e.g. {@code "red"}, {@code "blue"}; empty = none). */
         public Builder favColor(String favColor) {
             this.favColor = favColor != null ? favColor : "";
+            return this;
+        }
+
+        /**
+         * Sets the height in centimetres (e.g. {@code 175}).
+         * Values ≤ 0 are stored as-is (means "not set").
+         */
+        public Builder heightCm(int heightCm) {
+            this.heightCm = heightCm;
+            return this;
+        }
+
+        /**
+         * Sets the body weight in kilograms (e.g. {@code 75}).
+         * Values ≤ 0 are stored as-is (means "not set").
+         */
+        public Builder weightKg(int weightKg) {
+            this.weightKg = weightKg;
             return this;
         }
 

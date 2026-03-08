@@ -4,11 +4,11 @@ package eb.framework1.character;
  * Generates a text description of an {@link NpcCharacter}'s observable appearance
  * as seen from a distance (the "examine from afar" feature).
  *
- * <p>The description is built from the appearance attributes added to
- * {@link NpcCharacter}: hair type and colour, apparent wealth level, and
- * favourite colour.  Only externally visible traits are included —
- * this class intentionally omits private information such as personality or
- * investigative attributes.
+ * <p>The description is built from the appearance attributes on
+ * {@link NpcCharacter}: hair type and colour, apparent wealth level,
+ * height, weight/build, and favourite colour.  Only externally visible
+ * traits are included — this class intentionally omits private information
+ * such as personality or investigative attributes.
  *
  * <p>This class has <strong>no libGDX dependency</strong> and can be unit-tested
  * with plain JUnit.
@@ -17,7 +17,8 @@ package eb.framework1.character;
  * <pre>
  *   String desc = PersonDescriptionEngine.describe(npc);
  *   // → "A middle-aged man with wavy brown hair.
- *   //    They dress in a modest style.
+ *   //    They are tall and of average build.
+ *   //    They appear comfortably dressed.
  *   //    They seem to favour the colour blue."
  * </pre>
  */
@@ -42,7 +43,7 @@ public final class PersonDescriptionEngine {
         StringBuilder sb = new StringBuilder();
 
         // ── Sentence 1: physical silhouette ──────────────────────────────────
-        String ageTerm  = ageTerm(npc.getAge());
+        String ageTerm    = ageTerm(npc.getAge());
         String genderNoun = "F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man";
         sb.append("A ").append(ageTerm).append(' ').append(genderNoun);
 
@@ -60,11 +61,25 @@ public final class PersonDescriptionEngine {
         }
         sb.append('.');
 
-        // ── Sentence 2: apparent wealth ───────────────────────────────────────
-        int w = npc.getWealthyLevel();
-        sb.append(' ').append(wealthDesc(w)).append('.');
+        // ── Sentence 2 (optional): height and build ───────────────────────────
+        int h = npc.getHeightCm();
+        int w = npc.getWeightKg();
+        if (h > 0) {
+            String heightWord = heightDesc(h);
+            if (w > 0) {
+                String buildWord = buildDesc(h, w);
+                sb.append(" They are ").append(heightWord)
+                  .append(" and of ").append(buildWord).append(" build.");
+            } else {
+                sb.append(" They are ").append(heightWord).append('.');
+            }
+        }
 
-        // ── Sentence 3 (optional): favourite colour ───────────────────────────
+        // ── Sentence 3: apparent wealth ───────────────────────────────────────
+        int wealth = npc.getWealthyLevel();
+        sb.append(' ').append(wealthDesc(wealth)).append('.');
+
+        // ── Sentence 4 (optional): favourite colour ───────────────────────────
         String fc = npc.getFavColor();
         if (fc != null && !fc.isEmpty()) {
             sb.append(" They seem to favour the colour ").append(fc).append('.');
@@ -84,6 +99,40 @@ public final class PersonDescriptionEngine {
         if (age < 50)  return "middle-aged";
         if (age < 65)  return "older";
         return "elderly";
+    }
+
+    /**
+     * Maps a height in cm to a qualitative descriptor.
+     * Thresholds are gender-agnostic; the framing ("tall", "short", etc.)
+     * works for both males and females across typical adult ranges.
+     */
+    static String heightDesc(int heightCm) {
+        if (heightCm < 160) return "short";
+        if (heightCm < 170) return "below average height";
+        if (heightCm < 180) return "average height";
+        if (heightCm < 190) return "tall";
+        return "very tall";
+    }
+
+    /**
+     * Derives a qualitative build description from height and weight using BMI.
+     *
+     * <p>BMI = weight(kg) / height(m)²
+     * <ul>
+     *   <li>&lt; 18.5 → slim</li>
+     *   <li>18.5–24.9 → average</li>
+     *   <li>25–29.9 → stocky</li>
+     *   <li>≥ 30    → heavy</li>
+     * </ul>
+     */
+    static String buildDesc(int heightCm, int weightKg) {
+        if (heightCm <= 0) return "average";
+        float heightM = heightCm / 100f;
+        float bmi     = weightKg / (heightM * heightM);
+        if (bmi < 18.5f) return "slim";
+        if (bmi < 25f)   return "average";
+        if (bmi < 30f)   return "stocky";
+        return "heavy";
     }
 
     /** Maps a 1–10 wealth level to a clothing/appearance description sentence. */

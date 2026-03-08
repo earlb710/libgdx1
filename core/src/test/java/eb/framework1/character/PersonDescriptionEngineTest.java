@@ -273,4 +273,188 @@ public class PersonDescriptionEngineTest {
         // favColor may be empty string (= none), but must never be null
         assertNotNull(npc.getFavColor());
     }
+
+    // =========================================================================
+    // NpcCharacter.Builder — height and weight fields
+    // =========================================================================
+
+    @Test
+    public void builder_heightCmDefaultsZero() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M").build();
+        assertEquals(0, npc.getHeightCm());
+    }
+
+    @Test
+    public void builder_weightKgDefaultsZero() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M").build();
+        assertEquals(0, npc.getWeightKg());
+    }
+
+    @Test
+    public void builder_setsHeightCm() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M").heightCm(182).build();
+        assertEquals(182, npc.getHeightCm());
+    }
+
+    @Test
+    public void builder_setsWeightKg() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("F").weightKg(65).build();
+        assertEquals(65, npc.getWeightKg());
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.heightDesc
+    // =========================================================================
+
+    @Test
+    public void heightDesc_short() {
+        assertEquals("short", PersonDescriptionEngine.heightDesc(155));
+    }
+
+    @Test
+    public void heightDesc_belowAverage() {
+        assertEquals("below average height", PersonDescriptionEngine.heightDesc(165));
+    }
+
+    @Test
+    public void heightDesc_averageHeight() {
+        assertEquals("average height", PersonDescriptionEngine.heightDesc(175));
+    }
+
+    @Test
+    public void heightDesc_tall() {
+        assertEquals("tall", PersonDescriptionEngine.heightDesc(185));
+    }
+
+    @Test
+    public void heightDesc_veryTall() {
+        assertEquals("very tall", PersonDescriptionEngine.heightDesc(195));
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.buildDesc
+    // =========================================================================
+
+    @Test
+    public void buildDesc_slim() {
+        // BMI ≈ 17.5 → slim
+        assertEquals("slim", PersonDescriptionEngine.buildDesc(180, 57));
+    }
+
+    @Test
+    public void buildDesc_average() {
+        // BMI ≈ 22 → average
+        assertEquals("average", PersonDescriptionEngine.buildDesc(175, 67));
+    }
+
+    @Test
+    public void buildDesc_stocky() {
+        // BMI ≈ 27 → stocky
+        assertEquals("stocky", PersonDescriptionEngine.buildDesc(175, 83));
+    }
+
+    @Test
+    public void buildDesc_heavy() {
+        // BMI ≈ 32 → heavy
+        assertEquals("heavy", PersonDescriptionEngine.buildDesc(175, 98));
+    }
+
+    @Test
+    public void buildDesc_zeroHeight_returnsAverage() {
+        // Guard: height == 0 should not divide by zero
+        assertEquals("average", PersonDescriptionEngine.buildDesc(0, 70));
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.describe — height/weight sentences
+    // =========================================================================
+
+    @Test
+    public void describe_withHeightAndWeight_containsHeightWord() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("h1").fullName("Tall Person").gender("M")
+                .age(35).wealthyLevel(5).heightCm(190).weightKg(85).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Description should mention 'tall'", desc.contains("tall"));
+    }
+
+    @Test
+    public void describe_withHeightAndWeight_containsBuildWord() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("h2").fullName("Average Build").gender("F")
+                .age(28).wealthyLevel(5).heightCm(165).weightKg(60).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        // height 165, weight 60 → BMI ≈ 22 = average build
+        assertTrue("Description should mention 'build'", desc.contains("build"));
+    }
+
+    @Test
+    public void describe_heightOnlyNoWeight_stillIncludesHeight() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("h3").fullName("Height Only").gender("M")
+                .age(40).wealthyLevel(5).heightCm(175).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Description should mention height", desc.contains("average height"));
+    }
+
+    @Test
+    public void describe_noHeightNoWeight_omitsHeightSentence() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("h4").fullName("No Body").gender("F")
+                .age(50).wealthyLevel(5).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("Height sentence should be absent", desc.contains(" They are "));
+    }
+
+    // =========================================================================
+    // CharacterGenerator — height and weight assigned
+    // =========================================================================
+
+    @Test
+    public void characterGenerator_setsPositiveHeight() {
+        eb.framework1.investigation.CaseType ct = eb.framework1.investigation.CaseType.FRAUD;
+        NpcCharacter npc = makeGenerator(10).generateClient(ct);
+        assertTrue("heightCm should be > 0, was " + npc.getHeightCm(),
+                   npc.getHeightCm() > 0);
+    }
+
+    @Test
+    public void characterGenerator_setsPositiveWeight() {
+        eb.framework1.investigation.CaseType ct = eb.framework1.investigation.CaseType.THEFT;
+        NpcCharacter npc = makeGenerator(20).generateSuspect(ct);
+        assertTrue("weightKg should be > 0, was " + npc.getWeightKg(),
+                   npc.getWeightKg() > 0);
+    }
+
+    @Test
+    public void characterGenerator_heightInMaleRange() {
+        eb.framework1.investigation.CaseType ct = eb.framework1.investigation.CaseType.MURDER;
+        // Run several seeds to cover male generation
+        for (long seed = 100; seed <= 130; seed++) {
+            NpcCharacter npc = makeGenerator(seed).generateSuspect(ct);
+            int h = npc.getHeightCm();
+            assertTrue("height out of expected range: " + h,
+                       h >= 150 && h <= 200); // generous range covering both genders
+        }
+    }
+
+    @Test
+    public void characterGenerator_weightReasonableForHeight() {
+        eb.framework1.investigation.CaseType ct = eb.framework1.investigation.CaseType.FRAUD;
+        for (long seed = 1; seed <= 25; seed++) {
+            NpcCharacter npc = makeGenerator(seed).generateVictim(ct);
+            int h = npc.getHeightCm();
+            int w = npc.getWeightKg();
+            if (h > 0 && w > 0) {
+                float hm  = h / 100f;
+                float bmi = w / (hm * hm);
+                assertTrue("BMI out of plausible range [14,40]: " + bmi + " (h=" + h + ",w=" + w + ")",
+                           bmi >= 14f && bmi <= 40f);
+            }
+        }
+    }
 }

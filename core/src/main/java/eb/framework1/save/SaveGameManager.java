@@ -531,6 +531,9 @@ public class SaveGameManager {
         public String hairColor;
         public int    wealthyLevel;
         public String favColor;
+        // Body measurements (added later; 0 in older saves → not set)
+        public int    heightCm;
+        public int    weightKg;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -579,6 +582,8 @@ public class SaveGameManager {
         d.hairColor     = npc.getHairColor();
         d.wealthyLevel  = npc.getWealthyLevel();
         d.favColor      = npc.getFavColor();
+        d.heightCm      = npc.getHeightCm();
+        d.weightKg      = npc.getWeightKg();
         return d;
     }
 
@@ -613,7 +618,9 @@ public class SaveGameManager {
                 .hairType(d.hairType != null ? d.hairType : "")
                 .hairColor(d.hairColor != null ? d.hairColor : "")
                 .wealthyLevel(d.wealthyLevel < 1 ? 5 : d.wealthyLevel)
-                .favColor(d.favColor != null ? d.favColor : "");
+                .favColor(d.favColor != null ? d.favColor : "")
+                .heightCm(d.heightCm)
+                .weightKg(d.weightKg);
         if (d.frequentLocations != null) {
             for (String loc : d.frequentLocations) {
                 b.addFrequentLocation(loc);
