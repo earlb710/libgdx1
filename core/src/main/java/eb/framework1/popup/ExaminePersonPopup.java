@@ -139,7 +139,7 @@ public class ExaminePersonPopup {
         if (!visible || npc == null) return;
 
         final float PAD       = 18f;
-        final float GAP       = 8f;
+        final float GAP       = 20f;
         final float BTN_PAD_H = 28f;
         final float BTN_PAD_V = 10f;
 
@@ -153,7 +153,7 @@ public class ExaminePersonPopup {
         float smallLineH = smallCapH * 1.35f;
 
         // ── Popup geometry ────────────────────────────────────────────────────
-        float dialogW = screenW * 0.88f;
+        float dialogW = screenW;
         float wrapW   = dialogW - 2f * PAD;
 
         // Re-wrap description each frame (cheap since descLines is cached until next show())
@@ -207,7 +207,7 @@ public class ExaminePersonPopup {
         batch.begin();
 
         // Title
-        String title = "Observing from a distance...";
+        String title = "Observing";
         glyph.setText(font, title);
         font.setColor(TITLE_COLOR);
         font.draw(batch, title,
