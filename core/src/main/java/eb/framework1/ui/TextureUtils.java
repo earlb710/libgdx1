@@ -1,6 +1,7 @@
 package eb.framework1.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -131,6 +132,51 @@ public class TextureUtils {
         Pixmap pixmap = svgLoader.rasterize(svgData, width, height);
         Texture texture = new Texture(pixmap);
         pixmap.dispose();
+        return texture;
+    }
+
+    /**
+     * Loads an SVG file from the given asset path, rasterizes it at the specified pixel
+     * dimensions, applies a colour tint, and returns the result as a {@link Texture}.
+     *
+     * <p>Each output pixel's RGB is blended with the tint by averaging:
+     * {@code output = (original + tint) / 2}. The alpha channel is blended the same
+     * way, so passing {@link Color#WHITE} (all channels at 1.0) leaves the image
+     * unchanged.
+     *
+     * <p>Requires a platform-specific {@link SvgLoader} to be registered via
+     * {@link TextureUtils#setSvgLoader(SvgLoader)} before this method is called.
+     *
+     * <p><b>Security note:</b> SVG files should only be loaded from trusted sources
+     * (e.g. bundled game assets), never from untrusted user input.
+     *
+     * @param path   path to the {@code .svg} file relative to the assets directory
+     * @param width  target width in pixels (must be &gt; 0)
+     * @param height target height in pixels (must be &gt; 0)
+     * @param tint   the colour to blend into the rasterized image; must not be {@code null}
+     * @return a new {@link Texture} containing the tinted, rasterized SVG;
+     *         the caller is responsible for disposing it
+     * @throws GdxRuntimeException   if no {@link SvgLoader} has been registered
+     * @throws IllegalArgumentException if {@code tint} is {@code null}
+     */
+    public static Texture loadSvg(String path, int width, int height, Color tint) {
+        if (tint == null) {
+            throw new IllegalArgumentException("tint must not be null");
+        }
+        if (svgLoader == null) {
+            throw new GdxRuntimeException(
+                "No SvgLoader registered. Call TextureUtils.setSvgLoader() before loading SVG files.");
+        }
+        byte[] svgData = Gdx.files.internal(path).readBytes();
+        Pixmap pixmap = svgLoader.rasterize(svgData, width, height);
+        Pixmap tinted = UtilLibGDX.newPixmapTint(pixmap,
+            Math.round(tint.r * 255),
+            Math.round(tint.g * 255),
+            Math.round(tint.b * 255),
+            Math.round(tint.a * 255));
+        pixmap.dispose();
+        Texture texture = new Texture(tinted);
+        tinted.dispose();
         return texture;
     }
 }
