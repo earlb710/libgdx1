@@ -80,6 +80,7 @@ public class InfoPanelRenderer {
     private static final Color EXPAND_BTN_FILL         = new Color(0.14f, 0.14f, 0.20f, 1f);
     private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
     private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
+    private static final Color EYE_ICON_BORDER_COLOR   = new Color(0.30f, 0.75f, 0.90f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -880,7 +881,18 @@ public class InfoPanelRenderer {
                     textX - drawScrollX, textY + drawScrollY);
         }
 
-        batch.flush();
+        batch.end();
+        // Draw eye-icon border rectangles inside the scissor region
+        if (s.eyeIconCount > 0) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(EYE_ICON_BORDER_COLOR);
+            for (int i = 0; i < s.eyeIconCount; i++) {
+                float pad = 1f;
+                shapeRenderer.rect(s.eyeIconX[i] - pad, s.eyeIconY[i] - pad,
+                        s.eyeIconW[i] + pad * 2f, s.eyeIconH + pad * 2f);
+            }
+            shapeRenderer.end();
+        }
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollX = 0f;
         drawScrollY = 0f;
@@ -892,6 +904,7 @@ public class InfoPanelRenderer {
         }
         glyphLayout.setText(smallFont, s.cachedZoomText);
         smallFont.setColor(Color.WHITE);
+        batch.begin();
         smallFont.draw(batch, s.cachedZoomText,
                 s.screenWidth - glyphLayout.width - 20,
                 panelH - (glyphLayout.height * 1.4f));

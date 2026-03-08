@@ -476,8 +476,8 @@ class MainScreenInputHandler extends InputAdapter {
 
         // Check eye-icon taps on the info panel (examine unknown NPC at current cell)
         {
-            float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
-            if (d < MainScreen.TAP_THRESHOLD_PIXELS) {
+            float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+            if (infoAreaPressed && d < MainScreen.TAP_THRESHOLD_PIXELS) {
                 eb.framework1.ui.MapViewState s = screen.state;
                 for (int i = 0; i < s.eyeIconCount; i++) {
                     if (screenX >= s.eyeIconX[i] && screenX <= s.eyeIconX[i] + s.eyeIconW[i]
