@@ -1,5 +1,6 @@
 package eb.framework1.character;
 
+import java.util.List;
 /**
  * Generates a text description of an {@link NpcCharacter}'s observable appearance
  * as seen from a distance (the "examine from afar" feature).
@@ -85,6 +86,24 @@ public final class PersonDescriptionEngine {
             sb.append(" They seem to favour the colour ").append(fc).append('.');
         }
 
+        // ── Sentence 5 (optional): visible carried items ──────────────────────
+        List<EquipItem> items = npc.getCarriedItems();
+        if (!items.isEmpty()) {
+            if (items.size() == 1) {
+                sb.append(" They appear to be carrying ")
+                  .append(article(items.get(0).getName())).append(' ')
+                  .append(items.get(0).getName().toLowerCase()).append('.');
+            } else {
+                sb.append(" They appear to be carrying ");
+                for (int i = 0; i < items.size(); i++) {
+                    if (i > 0) sb.append(i == items.size() - 1 ? " and " : ", ");
+                    String name = items.get(i).getName();
+                    sb.append(article(name)).append(' ').append(name.toLowerCase());
+                }
+                sb.append('.');
+            }
+        }
+
         return sb.toString();
     }
 
@@ -99,6 +118,18 @@ public final class PersonDescriptionEngine {
         if (age < 50)  return "middle-aged";
         if (age < 65)  return "older";
         return "elderly";
+    }
+
+    /**
+     * Returns the indefinite article ({@code "a"} or {@code "an"}) appropriate
+     * for the given item name.  Matches on the first letter of the name,
+     * case-insensitively.
+     */
+    static String article(String name) {
+        if (name == null || name.isEmpty()) return "a";
+        char first = Character.toLowerCase(name.charAt(0));
+        return (first == 'a' || first == 'e' || first == 'i'
+                || first == 'o' || first == 'u') ? "an" : "a";
     }
 
     /**

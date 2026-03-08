@@ -232,7 +232,8 @@ public class NpcGenerator {
                 .frequentLocations(base.getFrequentLocations())
                 .skills(skills)
                 .schedule(schedule)
-                .birthdate(birthdate);
+                .birthdate(birthdate)
+                .carriedItems(assignCarriedItems(skills));
         // tracked defaults to false; callers can set it explicitly after generation
 
         // Add the evening leisure/shopping location as a frequent location
@@ -352,6 +353,35 @@ public class NpcGenerator {
             skills.add(NpcSkill.FREELANCER);
         }
         return skills;
+    }
+
+    // -------------------------------------------------------------------------
+    // Item assignment
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns a list of {@link EquipItem}s an NPC should carry based on their
+     * inferred skills.
+     *
+     * <ul>
+     *   <li>Law-enforcement officers (police, detective, security) carry a
+     *       {@link EquipItem#PISTOL}.</li>
+     * </ul>
+     *
+     * <p>Most NPCs carry nothing, so the returned list is usually empty.
+     *
+     * @param skills non-null list of inferred skills for the NPC
+     * @return a possibly-empty list of items to carry; never {@code null}
+     */
+    static List<EquipItem> assignCarriedItems(List<NpcSkill> skills) {
+        List<EquipItem> items = new ArrayList<>();
+        for (NpcSkill skill : skills) {
+            if (skill == NpcSkill.LAW_ENFORCEMENT) {
+                items.add(EquipItem.PISTOL);
+                return items;
+            }
+        }
+        return items;
     }
 
     // -------------------------------------------------------------------------

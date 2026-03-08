@@ -29,6 +29,9 @@ import java.util.Map;
  *       Charisma, Intimidation, Empathy, and Stealth.  Each value is in the
  *       range 1–10.  Generated automatically by {@link CharacterGenerator};
  *       NPCs do not go through the player's point-buy screen.</li>
+ *   <li><strong>Items</strong> — items the NPC visibly carries, such as a pistol
+ *       for a police officer.  Assigned by {@link NpcGenerator} based on
+ *       occupation; empty for most NPCs.</li>
  * </ul>
  *
  * <p>Instances are built through {@link Builder}.  All fields are immutable once
@@ -140,6 +143,12 @@ public final class NpcCharacter {
     private final int weightKg;
 
     /**
+     * Items this NPC is currently carrying (e.g. a pistol for a police officer).
+     * The list is empty for NPCs that carry nothing visible.
+     */
+    private final List<EquipItem> carriedItems;
+
+    /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
      * gameplay without rebuilding the NPC object.
@@ -181,6 +190,8 @@ public final class NpcCharacter {
         this.favColor             = b.favColor  != null ? b.favColor  : "";
         this.heightCm             = b.heightCm;
         this.weightKg             = b.weightKg;
+        this.carriedItems         = Collections.unmodifiableList(
+                new ArrayList<>(b.carriedItems));
     }
 
     // -------------------------------------------------------------------------
@@ -399,6 +410,12 @@ public final class NpcCharacter {
      */
     public int getWeightKg() { return weightKg; }
 
+    /**
+     * Items this NPC is currently carrying (e.g. a pistol for a police officer).
+     * Returns an unmodifiable list; never {@code null}.
+     */
+    public List<EquipItem> getCarriedItems() { return carriedItems; }
+
     // -------------------------------------------------------------------------
     // Convenience — current map position (derived from schedule)
     // -------------------------------------------------------------------------
@@ -535,6 +552,9 @@ public final class NpcCharacter {
         private String favColor    = "";
         private int    heightCm    = 0;
         private int    weightKg    = 0;
+
+        // Carried items
+        private final List<EquipItem> carriedItems = new ArrayList<>();
 
         /**
          * Sets the mandatory unique identifier.
@@ -828,6 +848,33 @@ public final class NpcCharacter {
          */
         public Builder weightKg(int weightKg) {
             this.weightKg = weightKg;
+            return this;
+        }
+
+        /**
+         * Adds a single item to the NPC's carried-items list.
+         * {@code null} is silently ignored.
+         *
+         * @param item the item to carry
+         */
+        public Builder addCarriedItem(EquipItem item) {
+            if (item != null) this.carriedItems.add(item);
+            return this;
+        }
+
+        /**
+         * Replaces the entire carried-items list.
+         * {@code null} values in the list are silently ignored.
+         *
+         * @param items the new list; {@code null} clears the list
+         */
+        public Builder carriedItems(List<EquipItem> items) {
+            this.carriedItems.clear();
+            if (items != null) {
+                for (EquipItem item : items) {
+                    if (item != null) this.carriedItems.add(item);
+                }
+            }
             return this;
         }
 

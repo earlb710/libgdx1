@@ -500,6 +500,14 @@ public class SaveGameManager {
         public int    cellY;
     }
 
+    /** Serialisable DTO for a single {@link EquipItem} carried by an NPC. */
+    static class NpcItemData {
+        /** {@link EquipItem#getName()} value. */
+        public String name;
+        /** {@link EquipmentSlot#name()} value. */
+        public String slot;
+    }
+
     /** Serialisable DTO for an {@link NpcCharacter}. */
     static class NpcCharacterData {
         public String id;
@@ -534,6 +542,8 @@ public class SaveGameManager {
         // Body measurements (added later; 0 in older saves → not set)
         public int    heightCm;
         public int    weightKg;
+        // Carried items (added later; null in older saves → empty list)
+        public java.util.List<NpcItemData> carriedItems;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -584,6 +594,13 @@ public class SaveGameManager {
         d.favColor      = npc.getFavColor();
         d.heightCm      = npc.getHeightCm();
         d.weightKg      = npc.getWeightKg();
+        d.carriedItems  = new ArrayList<>();
+        for (EquipItem item : npc.getCarriedItems()) {
+            NpcItemData itemData = new NpcItemData();
+            itemData.name = item.getName();
+            itemData.slot = item.getSlot().name();
+            d.carriedItems.add(itemData);
+        }
         return d;
     }
 
@@ -654,6 +671,16 @@ public class SaveGameManager {
                 }
             }
             b.schedule(new NpcSchedule(entries));
+        }
+        if (d.carriedItems != null) {
+            for (NpcItemData itemData : d.carriedItems) {
+                if (itemData == null || itemData.name == null || itemData.slot == null) continue;
+                try {
+                    EquipmentSlot slot = EquipmentSlot.valueOf(itemData.slot);
+                    EquipItem item = EquipItem.findByName(itemData.name, slot);
+                    if (item != null) b.addCarriedItem(item);
+                } catch (IllegalArgumentException ignored) { /* unknown slot or item */ }
+            }
         }
         return b.build();
     }

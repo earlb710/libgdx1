@@ -457,4 +457,49 @@ public class PersonDescriptionEngineTest {
             }
         }
     }
+
+    // =========================================================================
+    // PersonDescriptionEngine.describe — carried items sentence
+    // =========================================================================
+
+    @Test
+    public void describe_noCarriedItems_omitsItemsSentence() {
+        NpcCharacter npc = makeNpc("M", 30, "straight", "brown", 5, "");
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("No items → no carrying sentence",
+                desc.contains("carrying"));
+    }
+
+    @Test
+    public void describe_oneCarriedItem_mentionsItem() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cop1").fullName("Officer Jones").gender("M")
+                .age(35).wealthyLevel(5)
+                .addCarriedItem(EquipItem.PISTOL)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention the item", desc.contains("pistol"));
+        assertTrue("Should say 'carrying'", desc.contains("carrying"));
+    }
+
+    @Test
+    public void describe_twoCarriedItems_mentionsBoth() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x1").fullName("Guard One").gender("F")
+                .age(28).wealthyLevel(5)
+                .addCarriedItem(EquipItem.PISTOL)
+                .addCarriedItem(EquipItem.BINOCULARS)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention pistol", desc.contains("pistol"));
+        assertTrue("Should mention binoculars", desc.contains("binoculars"));
+        assertTrue("Should use 'and' connector", desc.contains(" and "));
+    }
+
+    @Test
+    public void builder_carriedItemsDefaultEmpty() {
+        NpcCharacter npc = makeNpc("M", 40, "", "", 5, "");
+        assertNotNull(npc.getCarriedItems());
+        assertTrue(npc.getCarriedItems().isEmpty());
+    }
 }

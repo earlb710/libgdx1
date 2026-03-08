@@ -204,8 +204,76 @@ public class NpcGeneratorTest {
     }
 
     // =========================================================================
-    // NpcSkill — skill inference
+    // NpcGenerator.assignCarriedItems — item assignment
     // =========================================================================
+
+    @Test
+    public void assignCarriedItems_lawEnforcement_hasPistol() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.LAW_ENFORCEMENT);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertFalse("Law enforcement should carry items", items.isEmpty());
+        assertEquals("Law enforcement should carry a Pistol", EquipItem.PISTOL, items.get(0));
+    }
+
+    @Test
+    public void assignCarriedItems_freelancer_carriesNothing() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.FREELANCER);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertTrue("Freelancer should carry nothing", items.isEmpty());
+    }
+
+    @Test
+    public void assignCarriedItems_officeWorker_carriesNothing() {
+        List<NpcSkill> skills = Arrays.asList(NpcSkill.OFFICE_WORKER);
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(skills);
+        assertTrue("Office worker should carry nothing", items.isEmpty());
+    }
+
+    @Test
+    public void assignCarriedItems_emptySkills_carriesNothing() {
+        List<EquipItem> items = NpcGenerator.assignCarriedItems(
+                java.util.Collections.<NpcSkill>emptyList());
+        assertTrue("No skills → no carried items", items.isEmpty());
+    }
+
+    @Test
+    public void generateNpc_withPoliceOccupation_hasPistol() {
+        // Use NpcCharacter.Builder directly with LAW_ENFORCEMENT skill
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("cop-1").fullName("Jane Officer").gender("F")
+                .addSkill(NpcSkill.LAW_ENFORCEMENT)
+                .addCarriedItem(EquipItem.PISTOL)
+                .build();
+        assertFalse("Police officer should carry items", npc.getCarriedItems().isEmpty());
+        assertEquals(EquipItem.PISTOL, npc.getCarriedItems().get(0));
+    }
+
+    @Test
+    public void npcCharacterBuilder_carriedItemsDefaultEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M").build();
+        assertNotNull(npc.getCarriedItems());
+        assertTrue(npc.getCarriedItems().isEmpty());
+    }
+
+    @Test
+    public void npcCharacterBuilder_addCarriedItem_nullIgnored() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M")
+                .addCarriedItem(null)
+                .build();
+        assertTrue(npc.getCarriedItems().isEmpty());
+    }
+
+    @Test
+    public void npcCharacterBuilder_carriedItemsList_replacesExisting() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("Nobody").gender("M")
+                .addCarriedItem(EquipItem.PISTOL)
+                .carriedItems(java.util.Collections.<EquipItem>emptyList())
+                .build();
+        assertTrue("carriedItems() should replace the list", npc.getCarriedItems().isEmpty());
+    }
 
     @Test
     public void inferSkills_null_returnsFreelancer() {
