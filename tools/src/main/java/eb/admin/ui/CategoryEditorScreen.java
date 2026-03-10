@@ -43,6 +43,7 @@ import java.util.Map;
  *   8. Improvements             – id, name, attribute_modifiers (improvements_en.json)
  *   9. Company Types            – id, name, description, buildings (company_types_en.json)
  *  10. Names                    – person first-names, surnames, company name templates
+ *  11. SVG                      – SVG Resource: feature/ID/gender index (svgs-index.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -75,6 +76,7 @@ public class CategoryEditorScreen extends JFrame {
     private final ImprovementsEditorPanel   improvementsPanel  = new ImprovementsEditorPanel(statusLabel);
     private final CompanyTypesEditorPanel   companyTypesPanel  = new CompanyTypesEditorPanel(statusLabel);
     private final NamesEditorPanel          namesPanel         = new NamesEditorPanel(statusLabel);
+    private final SvgEditorPanel            svgPanel           = new SvgEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -122,12 +124,13 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", and "Names"
+        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", "Names", and "SVG"
         tabbedPane.addTab("Categories",    categoriesPanel);
         tabbedPane.addTab("Buildings",     buildingsPanel);
         tabbedPane.addTab("Improvements",  improvementsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
         tabbedPane.addTab("Names",         namesPanel);
+        tabbedPane.addTab("SVG",           svgPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
