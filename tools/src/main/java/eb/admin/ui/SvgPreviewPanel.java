@@ -49,7 +49,7 @@ public class SvgPreviewPanel extends JPanel {
      * must <em>not</em> be centred – they rely on absolute canvas positioning.
      */
     private static final Set<String> NO_CENTER_FEATURES = new HashSet<>(
-            Arrays.asList("head", "hair", "hairBg", "body", "jersey"));
+            Arrays.asList("head", "hair", "hairBg", "body", "jersey", "accessories"));
 
     private String fragment    = "";
     private String featureName = "";
@@ -70,8 +70,9 @@ public class SvgPreviewPanel extends JPanel {
     /**
      * Sets the feature name for the current fragment.
      * Features that are not {@code head}, {@code hair}, {@code hairBg},
-     * {@code body}, or {@code jersey} are automatically translated to the
-     * centre of the 400×600 canvas so they are visible in the preview.
+     * {@code body}, {@code jersey}, or {@code accessories} are automatically
+     * translated to the centre of the 400×600 canvas so they are visible in
+     * the preview.
      *
      * @param name feature name (e.g. {@code "eye"}, {@code "glasses"}), or empty
      */
