@@ -8,6 +8,7 @@ import java.awt.geom.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.*;
 
 /**
  * A Swing panel that renders an SVG fragment from {@code svgs.json} using Java2D.
@@ -53,6 +54,16 @@ public class SvgPreviewPanel extends JPanel {
 
     private String fragment    = "";
     private String featureName = "";
+
+    /**
+     * CSS class name → style-string map, rebuilt each paint from any {@code <style>}
+     * elements found in the fragment.  Used by {@link #applyPresentationAttrs}.
+     */
+    private Map<String, String> currentCssStyles = Collections.emptyMap();
+
+    /** Pattern matching a single CSS class rule: {@code .name { ... }}. */
+    private static final Pattern CSS_RULE = Pattern.compile(
+            "\\.([\\w-]+)\\s*\\{([^}]*)\\}", Pattern.DOTALL);
 
     public SvgPreviewPanel() {
         setBackground(Color.WHITE);
@@ -114,10 +125,16 @@ public class SvgPreviewPanel extends JPanel {
                 Document doc = parseXml(
                         "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
                 if (doc != null) {
+                    currentCssStyles = parseCssClassStyles(doc);
                     Graphics2D g2f = (Graphics2D) g2.create();
                     try {
-                        // Centre features that are not canvas-wide (head/hair/hairBg/body/jersey)
-                        if (!featureName.isEmpty() && !NO_CENTER_FEATURES.contains(featureName)) {
+                        // Centre features that are not canvas-wide (head/hair/hairBg/body/jersey/accessories).
+                        // Also skip centering if the fragment already contains canvas-space coordinates
+                        // (coordinates > 150), which indicates the paths are pre-positioned on the face canvas.
+                        boolean needsCentre = !featureName.isEmpty()
+                                && !NO_CENTER_FEATURES.contains(featureName)
+                                && !hasCanvasCoordinates(processed);
+                        if (needsCentre) {
                             g2f.translate(SVG_W / 2.0, SVG_H / 2.0);
                         }
                         renderElement(g2f, doc.getDocumentElement(), new SvgState());
@@ -138,6 +155,47 @@ public class SvgPreviewPanel extends JPanel {
             s = s.replace("$[" + e.getKey() + "]", e.getValue());
         }
         return s;
+    }
+
+    // ── CSS class style parsing ───────────────────────────────────────────────
+
+    /**
+     * Builds a map of CSS class name → style-string from all {@code <style>} elements
+     * found in the document.  Each style-string is in the same "property: value; ..."
+     * format that {@link #applyStyleString} already understands.
+     */
+    private static Map<String, String> parseCssClassStyles(Document doc) {
+        NodeList styleNodes = doc.getElementsByTagName("style");
+        if (styleNodes.getLength() == 0) return Collections.emptyMap();
+        Map<String, String> result = new HashMap<>();
+        for (int i = 0; i < styleNodes.getLength(); i++) {
+            String css = styleNodes.item(i).getTextContent();
+            if (css == null || css.isEmpty()) continue;
+            Matcher m = CSS_RULE.matcher(css);
+            while (m.find()) {
+                result.put(m.group(1), m.group(2).trim());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns {@code true} if the SVG fragment string contains path coordinates
+     * clearly in canvas-space (absolute values &gt; 150), which means the feature
+     * is already positioned on the 400×600 face canvas and must not be
+     * re-centred by the preview panel.
+     */
+    private static boolean hasCanvasCoordinates(String fragment) {
+        // Scan path d= attribute values for large coordinate magnitudes.
+        Matcher pathMatcher = Pattern.compile("\\bd=\"([^\"]+)\"").matcher(fragment);
+        Pattern num = Pattern.compile("[-]?(\\d+)(?:\\.\\d+)?");
+        while (pathMatcher.find()) {
+            Matcher nm = num.matcher(pathMatcher.group(1));
+            while (nm.find()) {
+                if (Integer.parseInt(nm.group(1)) > 150) return true;
+            }
+        }
+        return false;
     }
 
     // ── XML parsing ───────────────────────────────────────────────────────────
@@ -289,12 +347,27 @@ public class SvgPreviewPanel extends JPanel {
 
     // ── Attribute parsing ─────────────────────────────────────────────────────
 
-    private static void applyPresentationAttrs(Element el, SvgState st) {
+    /**
+     * Applies all presentation attributes from {@code el} to {@code st}, including
+     * CSS class-based styles resolved via {@link #currentCssStyles}.
+     *
+     * <p>Priority (lowest → highest): CSS class styles → element attributes → inline style.
+     */
+    private void applyPresentationAttrs(Element el, SvgState st) {
+        // 1. CSS class-based styles (lowest priority)
+        String cls = el.getAttribute("class");
+        if (!cls.isEmpty() && !currentCssStyles.isEmpty()) {
+            for (String c : cls.trim().split("\\s+")) {
+                String classStyle = currentCssStyles.get(c);
+                if (classStyle != null) applyStyleString(classStyle, st);
+            }
+        }
+        // 2. Presentation attributes override class styles
         applyFill(el.getAttribute("fill"), st);
         applyStroke(el.getAttribute("stroke"), el.getAttribute("stroke-width"), st);
-        // Inline style declarations override element attributes
+        // 3. Inline style declarations override element attributes
         applyStyleString(el.getAttribute("style"), st);
-        // Opacity modifies alpha of both colours
+        // 4. Opacity modifies alpha of both colours
         String op = el.getAttribute("opacity");
         if (!op.isEmpty()) {
             float alpha = (float) parseD(op, 1.0);
@@ -330,18 +403,33 @@ public class SvgPreviewPanel extends JPanel {
 
     private static void applyStyleString(String style, SvgState st) {
         if (style.isEmpty()) return;
+        // Collect opacity modifiers separately; they must be applied AFTER fill/stroke
+        // so they operate on the correct colour (e.g. "opacity:0.05; fill:#501414").
+        Float opacity = null;
+        Float fillOpacity = null;
+        Float strokeOpacity = null;
         for (String decl : style.split(";")) {
             int colon = decl.indexOf(':');
             if (colon < 0) continue;
             String prop  = decl.substring(0, colon).trim().toLowerCase();
             String value = decl.substring(colon + 1).trim();
             switch (prop) {
-                case "fill":         applyFill(value, st); break;
-                case "stroke":       applyStroke(value, "", st); break;
-                case "stroke-width": applyStroke("", value, st); break;
+                case "fill":           applyFill(value, st);           break;
+                case "stroke":         applyStroke(value, "", st);     break;
+                case "stroke-width":   applyStroke("", value, st);     break;
+                case "opacity":        opacity       = (float) parseD(value, 1.0); break;
+                case "fill-opacity":   fillOpacity   = (float) parseD(value, 1.0); break;
+                case "stroke-opacity": strokeOpacity = (float) parseD(value, 1.0); break;
                 default: break;
             }
         }
+        // Apply opacity modifiers after fill/stroke colours are resolved
+        if (opacity != null) {
+            if (!st.fillNone   && st.fill   != null) st.fill   = withAlpha(st.fill,   opacity);
+            if (!st.strokeNone && st.stroke != null) st.stroke = withAlpha(st.stroke, opacity);
+        }
+        if (fillOpacity   != null && !st.fillNone   && st.fill   != null) st.fill   = withAlpha(st.fill,   fillOpacity);
+        if (strokeOpacity != null && !st.strokeNone && st.stroke != null) st.stroke = withAlpha(st.stroke, strokeOpacity);
     }
 
     // ── Colour parsing ────────────────────────────────────────────────────────
