@@ -106,7 +106,7 @@ public class SvgEditorPanel extends JPanel {
 
     /** Features for which SVG position on the 400×600 canvas is significant. */
     private static final java.util.Set<String> POSITION_SENSITIVE_FEATURES =
-            new java.util.HashSet<>(java.util.Arrays.asList("head", "hair", "hairBg"));
+            new java.util.HashSet<>(java.util.Arrays.asList("head", "hair", "hairBg", "body", "jersey"));
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -440,8 +440,8 @@ public class SvgEditorPanel extends JPanel {
      * Updates the canvas-note label for the given feature.
      *
      * <p>For position-sensitive features ({@code head}, {@code hair},
-     * {@code hairBg}) a highlighted warning is shown; all other features get
-     * a brief informational note.
+     * {@code hairBg}, {@code body}, {@code jersey}) a highlighted warning is
+     * shown; all other features get a brief informational note.
      *
      * @param feature the selected feature name, or empty string when none selected
      */
@@ -456,10 +456,12 @@ public class SvgEditorPanel extends JPanel {
         } else {
             canvasNoteLabel.setBackground(new Color(235, 244, 255));
             canvasNoteLabel.setForeground(new Color(50, 80, 130));
+            String posFeatures = new java.util.TreeSet<>(POSITION_SENSITIVE_FEATURES)
+                    .stream().collect(java.util.stream.Collectors.joining(", "));
             canvasNoteLabel.setText(
                     "\u2139  Canvas: 400\u00d7600.  "
                     + "For most features position is ignored (auto-placed). "
-                    + "Position is only critical for head and hair SVGs.");
+                    + "Position is only critical for: " + posFeatures + ".");
         }
     }
 
@@ -468,6 +470,7 @@ public class SvgEditorPanel extends JPanel {
         int row = svgIndexTable.getSelectedRow();
         if (row < 0 || svgsData == null) {
             svgDetailArea.setText("(no selection)");
+            svgPreviewPanel.setFeatureName("");
             svgPreviewPanel.setSvgFragment("");
             updateCanvasNoteLabel("");
             return;
@@ -476,6 +479,7 @@ public class SvgEditorPanel extends JPanel {
         String id      = cellStr(svgIndexModel, row, 1);
 
         updateCanvasNoteLabel(feature);
+        svgPreviewPanel.setFeatureName(feature);
 
         if (feature.isEmpty() || id.isEmpty()) {
             svgDetailArea.setText("(feature or id is empty)");

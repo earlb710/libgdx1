@@ -43,7 +43,15 @@ public class SvgPreviewPanel extends JPanel {
         TEMPLATE_DEFAULTS.put("headShave", "#A07050");
     }
 
-    private String fragment = "";
+    /**
+     * Features whose SVG paths are designed to fill the full 400×600 canvas and
+     * must <em>not</em> be centred – they rely on absolute canvas positioning.
+     */
+    private static final Set<String> NO_CENTER_FEATURES = new HashSet<>(
+            Arrays.asList("head", "hair", "hairBg", "body", "jersey"));
+
+    private String fragment    = "";
+    private String featureName = "";
 
     public SvgPreviewPanel() {
         setBackground(Color.WHITE);
@@ -55,6 +63,19 @@ public class SvgPreviewPanel extends JPanel {
     /** Sets the SVG fragment to render and triggers a repaint. */
     public void setSvgFragment(String f) {
         this.fragment = (f != null) ? f : "";
+        repaint();
+    }
+
+    /**
+     * Sets the feature name for the current fragment.
+     * Features that are not {@code head}, {@code hair}, {@code hairBg},
+     * {@code body}, or {@code jersey} are automatically translated to the
+     * centre of the 400×600 canvas so they are visible in the preview.
+     *
+     * @param name feature name (e.g. {@code "eye"}, {@code "glasses"}), or empty
+     */
+    public void setFeatureName(String name) {
+        this.featureName = (name != null) ? name : "";
         repaint();
     }
 
@@ -91,7 +112,16 @@ public class SvgPreviewPanel extends JPanel {
                 Document doc = parseXml(
                         "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
                 if (doc != null) {
-                    renderElement(g2, doc.getDocumentElement(), new SvgState());
+                    Graphics2D g2f = (Graphics2D) g2.create();
+                    try {
+                        // Centre features that are not canvas-wide (head/hair/hairBg/body/jersey)
+                        if (!featureName.isEmpty() && !NO_CENTER_FEATURES.contains(featureName)) {
+                            g2f.translate(SVG_W / 2.0, SVG_H / 2.0);
+                        }
+                        renderElement(g2f, doc.getDocumentElement(), new SvgState());
+                    } finally {
+                        g2f.dispose();
+                    }
                 }
             }
         } finally {
