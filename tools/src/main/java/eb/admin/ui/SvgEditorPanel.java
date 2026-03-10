@@ -93,6 +93,8 @@ public class SvgEditorPanel extends JPanel {
 
     /** Root object of svgs.json – keyed by feature → id → SVG fragment string. */
     private JsonObject svgsData;
+    /** File from which {@link #svgsData} was loaded; used by the Save Fragment button. */
+    private File svgsDataFile;
 
     private final JTextArea      svgDetailArea    = new JTextArea();
     private final SvgPreviewPanel svgPreviewPanel  = new SvgPreviewPanel();
@@ -383,7 +385,7 @@ public class SvgEditorPanel extends JPanel {
 
         // ── Detail area: text + SVG preview ──────────────────────────────────
 
-        svgDetailArea.setEditable(false);
+        svgDetailArea.setEditable(true);
         svgDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
         svgDetailArea.setLineWrap(true);
         svgDetailArea.setWrapStyleWord(false);
@@ -408,10 +410,19 @@ public class SvgEditorPanel extends JPanel {
         // ── Canvas note label ─────────────────────────────────────────────────
         initCanvasNoteLabel();
 
+        // ── Save Fragment button ──────────────────────────────────────────────
+        JButton saveFragmentBtn = new JButton("Save Fragment");
+        saveFragmentBtn.setToolTipText("Save the edited SVG fragment back to svgs.json");
+        saveFragmentBtn.addActionListener((ActionEvent e) -> saveSvgFragment());
+
+        JPanel detailSouth = new JPanel(new BorderLayout(4, 2));
+        detailSouth.add(saveFragmentBtn, BorderLayout.WEST);
+        detailSouth.add(canvasNoteLabel, BorderLayout.CENTER);
+
         JPanel detailPanel = new JPanel(new BorderLayout(0, 2));
         detailPanel.setBorder(BorderFactory.createTitledBorder("SVG Detail"));
-        detailPanel.add(detailSplit,    BorderLayout.CENTER);
-        detailPanel.add(canvasNoteLabel, BorderLayout.SOUTH);
+        detailPanel.add(detailSplit,  BorderLayout.CENTER);
+        detailPanel.add(detailSouth, BorderLayout.SOUTH);
 
         // ── Outer split: index table on top, detail on bottom ─────────────────
 
@@ -558,9 +569,66 @@ public class SvgEditorPanel extends JPanel {
 
     private void loadSvgsDataFromFile(File file) {
         try (Reader reader = new FileReader(file)) {
-            svgsData = new Gson().fromJson(reader, JsonObject.class);
+            svgsData     = new Gson().fromJson(reader, JsonObject.class);
+            svgsDataFile = file;
         } catch (Exception ex) {
-            svgsData = null;
+            svgsData     = null;
+            svgsDataFile = null;
+        }
+    }
+
+    /**
+     * Saves the currently edited SVG fragment (from {@link #svgDetailArea}) back
+     * into {@link #svgsData} for the selected feature/id row, updates the live
+     * preview, and writes the updated {@code svgs.json} file to disk.
+     */
+    private void saveSvgFragment() {
+        int row = svgIndexTable.getSelectedRow();
+        if (row < 0 || svgsData == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No row selected or svgs.json not loaded.",
+                    "Save Fragment", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String feature  = cellStr(svgIndexModel, row, 0).trim();
+        String id       = cellStr(svgIndexModel, row, 1).trim();
+        if (feature.isEmpty() || id.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "The selected row has no Feature or ID.",
+                    "Save Fragment", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String newFragment = svgDetailArea.getText();
+
+        // Update in-memory svgsData
+        if (!svgsData.has(feature)) {
+            svgsData.add(feature, new JsonObject());
+        }
+        svgsData.getAsJsonObject(feature).addProperty(id, newFragment);
+
+        // Refresh live preview
+        svgPreviewPanel.setSvgFragment(newFragment);
+
+        // Persist to file (prompt for a file if none is known)
+        if (svgsDataFile == null) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
+            File d = new File(DEFAULT_SVG_DATA_PATH);
+            chooser.setCurrentDirectory(d.getParentFile().isDirectory()
+                    ? d.getParentFile() : new File("."));
+            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+            svgsDataFile = ensureJsonExtension(chooser.getSelectedFile());
+        }
+
+        try (Writer writer = new FileWriter(svgsDataFile)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(svgsData, writer);
+            statusLabel.setText("SVG fragment saved: " + feature + "/" + id
+                    + " → " + svgsDataFile.getAbsolutePath());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving svgs.json:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -842,10 +910,13 @@ public class SvgEditorPanel extends JPanel {
             chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
             if (currentFile != null) chooser.setSelectedFile(currentFile);
             if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return null;
-            File chosen = chooser.getSelectedFile();
-            return chosen.getName().endsWith(".json") ? chosen
-                    : new File(chosen.getAbsolutePath() + ".json");
+            return ensureJsonExtension(chooser.getSelectedFile());
         }
         return currentFile;
+    }
+
+    private static File ensureJsonExtension(File file) {
+        return file.getName().endsWith(".json") ? file
+                : new File(file.getAbsolutePath() + ".json");
     }
 }

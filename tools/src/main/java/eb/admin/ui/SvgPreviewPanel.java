@@ -6,6 +6,7 @@ import org.w3c.dom.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -150,7 +151,7 @@ public class SvgPreviewPanel extends JPanel {
             dbf.setExpandEntityReferences(false);
             DocumentBuilder db = dbf.newDocumentBuilder();
             db.setErrorHandler(null); // suppress SAX errors to stdout
-            return db.parse(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+            return db.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         } catch (Exception e) {
             return null;
         }
