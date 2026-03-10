@@ -44,6 +44,7 @@ import java.util.Map;
  *   9. Company Types            – id, name, description, buildings (company_types_en.json)
  *  10. Names                    – person first-names, surnames, company name templates
  *  11. SVG Resources            – file parts + items (svg_resource.json)
+ *  11. SVG                      – SVG Resource: feature/ID/gender index (svgs-index.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -125,12 +126,14 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
         // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", "Names", and "SVG Resources"
+        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", "Names", and "SVG"
         tabbedPane.addTab("Categories",    categoriesPanel);
         tabbedPane.addTab("Buildings",     buildingsPanel);
         tabbedPane.addTab("Improvements",  improvementsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
         tabbedPane.addTab("Names",         namesPanel);
         tabbedPane.addTab("SVG Resources", svgPanel);
+        tabbedPane.addTab("SVG",           svgPanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(

@@ -1,5 +1,7 @@
 package eb.framework1.character;
 
+import eb.framework1.face.FaceConfig;
+import eb.framework1.face.FaceGenerator;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
@@ -99,6 +101,7 @@ public class CharacterGenerator {
 
     private final PersonNameGenerator nameGen;
     private final Random              random;
+    private final FaceGenerator       faceGen;
 
     // Counter used to produce unique NPC ids within a single generator instance.
     private int npcCounter = 0;
@@ -131,6 +134,7 @@ public class CharacterGenerator {
         }
         this.nameGen = nameGen;
         this.random  = random != null ? random : new Random();
+        this.faceGen = new FaceGenerator(this.random);
     }
 
     // -------------------------------------------------------------------------
@@ -269,6 +273,12 @@ public class CharacterGenerator {
         if (random.nextFloat() < 0.30f) {
             b.visionTrait(random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED);
         }
+
+        // Generate a vector face that matches the NPC's gender.
+        FaceGenerator.Options faceOpts = new FaceGenerator.Options()
+                .gender("F".equals(gender) ? "female" : "male");
+        FaceConfig face = faceGen.generate(faceOpts);
+        b.faceConfig(face);
 
         return b;
     }
