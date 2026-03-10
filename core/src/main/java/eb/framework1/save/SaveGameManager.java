@@ -2,6 +2,7 @@ package eb.framework1.save;
 
 import eb.framework1.character.*;
 import eb.framework1.city.*;
+import eb.framework1.face.FaceConfig;
 import eb.framework1.investigation.*;
 
 
@@ -556,6 +557,62 @@ public class SaveGameManager {
         public java.util.List<NpcItemData> carriedItems;
         // Vision trait (added later; null in older saves → NONE)
         public String visionTrait;
+        // Face configuration (added later; null in older saves → no face)
+        public FaceConfigData faceConfig;
+    }
+
+    /**
+     * Lightweight DTO that mirrors {@link FaceConfig} for persistence.
+     * Each field corresponds to a feature's key properties.
+     * Null DTO means no face was generated.
+     */
+    static class FaceConfigData {
+        public double fatness;
+        public String[] teamColors;
+        // body
+        public String bodyId;
+        public String bodyColor;
+        public double bodySize;
+        // head
+        public String headId;
+        public String headShave;
+        // hair
+        public String hairId;
+        public String hairColor;
+        public boolean hairFlip;
+        // hairBg
+        public String hairBgId;
+        // eye
+        public String eyeId;
+        public int eyeAngle;
+        // eyebrow
+        public String eyebrowId;
+        public int eyebrowAngle;
+        // ear
+        public String earId;
+        public double earSize;
+        // nose
+        public String noseId;
+        public boolean noseFlip;
+        public double noseSize;
+        // mouth
+        public String mouthId;
+        public boolean mouthFlip;
+        // eyeLine
+        public String eyeLineId;
+        // smileLine
+        public String smileLineId;
+        public double smileLineSize;
+        // miscLine
+        public String miscLineId;
+        // facialHair
+        public String facialHairId;
+        // glasses
+        public String glassesId;
+        // accessories
+        public String accessoriesId;
+        // jersey
+        public String jerseyId;
     }
 
     private static NpcCharacterData toNpcData(NpcCharacter npc) {
@@ -614,7 +671,70 @@ public class SaveGameManager {
             d.carriedItems.add(itemData);
         }
         d.visionTrait   = npc.getVisionTrait().name();
+        if (npc.getFaceConfig() != null) {
+            d.faceConfig = toFaceConfigData(npc.getFaceConfig());
+        }
         return d;
+    }
+
+    private static FaceConfigData toFaceConfigData(FaceConfig f) {
+        FaceConfigData fd = new FaceConfigData();
+        fd.fatness       = f.fatness;
+        fd.teamColors    = f.teamColors.clone();
+        fd.bodyId        = f.body.id;
+        fd.bodyColor     = f.body.color;
+        fd.bodySize      = f.body.size;
+        fd.headId        = f.head.id;
+        fd.headShave     = f.head.shave;
+        fd.hairId        = f.hair.id;
+        fd.hairColor     = f.hair.color;
+        fd.hairFlip      = f.hair.flip;
+        fd.hairBgId      = f.hairBg.id;
+        fd.eyeId         = f.eye.id;
+        fd.eyeAngle      = f.eye.angle;
+        fd.eyebrowId     = f.eyebrow.id;
+        fd.eyebrowAngle  = f.eyebrow.angle;
+        fd.earId         = f.ear.id;
+        fd.earSize       = f.ear.size;
+        fd.noseId        = f.nose.id;
+        fd.noseFlip      = f.nose.flip;
+        fd.noseSize      = f.nose.size;
+        fd.mouthId       = f.mouth.id;
+        fd.mouthFlip     = f.mouth.flip;
+        fd.eyeLineId     = f.eyeLine.id;
+        fd.smileLineId   = f.smileLine.id;
+        fd.smileLineSize = f.smileLine.size;
+        fd.miscLineId    = f.miscLine.id;
+        fd.facialHairId  = f.facialHair.id;
+        fd.glassesId     = f.glasses.id;
+        fd.accessoriesId = f.accessories.id;
+        fd.jerseyId      = f.jersey.id;
+        return fd;
+    }
+
+    private static FaceConfig fromFaceConfigData(FaceConfigData fd) {
+        if (fd == null) return null;
+        return new FaceConfig.Builder()
+            .fatness(fd.fatness)
+            .teamColors(fd.teamColors != null ? fd.teamColors
+                      : new String[]{"#89bfd3","#7a1319","#07364f"})
+            .body(new FaceConfig.BodyFeature(fd.bodyId, fd.bodyColor, fd.bodySize))
+            .head(new FaceConfig.HeadFeature(fd.headId, fd.headShave))
+            .hair(new FaceConfig.HairFeature(fd.hairId, fd.hairColor, fd.hairFlip))
+            .hairBg(new FaceConfig.SimpleFeature(fd.hairBgId))
+            .eye(new FaceConfig.EyeFeature(fd.eyeId, fd.eyeAngle))
+            .eyebrow(new FaceConfig.EyebrowFeature(fd.eyebrowId, fd.eyebrowAngle))
+            .ear(new FaceConfig.EarFeature(fd.earId, fd.earSize))
+            .nose(new FaceConfig.NoseFeature(fd.noseId, fd.noseFlip, fd.noseSize))
+            .mouth(new FaceConfig.MouthFeature(fd.mouthId, fd.mouthFlip))
+            .eyeLine(new FaceConfig.SimpleFeature(fd.eyeLineId))
+            .smileLine(new FaceConfig.SmileLineFeature(fd.smileLineId, fd.smileLineSize))
+            .miscLine(new FaceConfig.SimpleFeature(fd.miscLineId))
+            .facialHair(new FaceConfig.SimpleFeature(fd.facialHairId))
+            .glasses(new FaceConfig.SimpleFeature(fd.glassesId))
+            .accessories(new FaceConfig.SimpleFeature(fd.accessoriesId))
+            .jersey(new FaceConfig.SimpleFeature(fd.jerseyId))
+            .build();
     }
 
     /**
@@ -698,6 +818,10 @@ public class SaveGameManager {
         if (d.visionTrait != null) {
             try { b.visionTrait(VisionTrait.valueOf(d.visionTrait)); }
             catch (IllegalArgumentException ignored) { /* use default NONE */ }
+        }
+        if (d.faceConfig != null) {
+            FaceConfig fc = fromFaceConfigData(d.faceConfig);
+            if (fc != null) b.faceConfig(fc);
         }
         return b.build();
     }
