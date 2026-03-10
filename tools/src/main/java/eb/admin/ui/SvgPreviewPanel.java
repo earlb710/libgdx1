@@ -12,16 +12,24 @@ import java.util.*;
  * A Swing panel that renders an SVG fragment from {@code svgs.json} using Java2D.
  *
  * <p>The nominal SVG coordinate space assumed by facesjs is 400&times;600.
- * The fragment is scaled to fill the panel while keeping the aspect ratio.
+ * The full canvas is always drawn as a light-blue rectangle so that the caller
+ * can see how the fragment is positioned within the complete canvas – which is
+ * especially important for {@code head} and {@code hair} features where position
+ * determines where other facial features are placed.
  *
  * <p>Template variables such as {@code $[skinColor]} are replaced with
  * sensible default preview colours before rendering.
  */
 public class SvgPreviewPanel extends JPanel {
 
-    /** Nominal SVG canvas dimensions used by facesjs. */
-    private static final int SVG_W = 400;
-    private static final int SVG_H = 600;
+    /** Nominal SVG canvas dimensions used by facesjs (400&times;600). */
+    static final int SVG_W = 400;
+    static final int SVG_H = 600;
+
+    /** Canvas fill – pale blue so it is distinct from the panel background. */
+    private static final Color CANVAS_FILL   = new Color(240, 246, 255);
+    /** Canvas border – muted steel blue. */
+    private static final Color CANVAS_BORDER = new Color(170, 195, 225);
 
     /** Default hex colours for each {@code $[varName]} template token. */
     private static final Map<String, String> TEMPLATE_DEFAULTS = new LinkedHashMap<>();
@@ -53,11 +61,6 @@ public class SvgPreviewPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (fragment.isEmpty()) {
-            g.setColor(Color.LIGHT_GRAY);
-            g.drawString("(no selection)", 8, 20);
-            return;
-        }
 
         Graphics2D g2 = (Graphics2D) g.create();
         try {
@@ -75,11 +78,21 @@ public class SvgPreviewPanel extends JPanel {
             g2.translate(ox, oy);
             g2.scale(scale, scale);
 
-            String processed = applyTemplateVars(fragment);
-            Document doc = parseXml(
-                    "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
-            if (doc != null) {
-                renderElement(g2, doc.getDocumentElement(), new SvgState());
+            // Draw the 400×600 canvas so positional context is visible
+            g2.setColor(CANVAS_FILL);
+            g2.fillRect(0, 0, SVG_W, SVG_H);
+            g2.setColor(CANVAS_BORDER);
+            float borderPx = Math.max(0.5f, (float) (1.0 / scale));
+            g2.setStroke(new BasicStroke(borderPx));
+            g2.drawRect(0, 0, SVG_W, SVG_H);
+
+            if (!fragment.isEmpty()) {
+                String processed = applyTemplateVars(fragment);
+                Document doc = parseXml(
+                        "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
+                if (doc != null) {
+                    renderElement(g2, doc.getDocumentElement(), new SvgState());
+                }
             }
         } finally {
             g2.dispose();

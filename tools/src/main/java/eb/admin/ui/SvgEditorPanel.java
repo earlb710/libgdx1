@@ -94,8 +94,19 @@ public class SvgEditorPanel extends JPanel {
     /** Root object of svgs.json – keyed by feature → id → SVG fragment string. */
     private JsonObject svgsData;
 
-    private final JTextArea    svgDetailArea   = new JTextArea();
-    private final SvgPreviewPanel svgPreviewPanel = new SvgPreviewPanel();
+    private final JTextArea      svgDetailArea    = new JTextArea();
+    private final SvgPreviewPanel svgPreviewPanel  = new SvgPreviewPanel();
+
+    /**
+     * Info label shown below the detail panel.
+     * Its text changes based on the selected feature – a highlighted warning is
+     * shown for {@code head} and {@code hair} features where position matters.
+     */
+    private final JLabel canvasNoteLabel = new JLabel();
+
+    /** Features for which SVG position on the 400×600 canvas is significant. */
+    private static final java.util.Set<String> POSITION_SENSITIVE_FEATURES =
+            new java.util.HashSet<>(java.util.Arrays.asList("head", "hair", "hairBg"));
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -383,7 +394,9 @@ public class SvgEditorPanel extends JPanel {
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         detailScroll.setBorder(BorderFactory.createTitledBorder("svgs.json fragment"));
 
-        svgPreviewPanel.setBorder(BorderFactory.createTitledBorder("Preview"));
+        svgPreviewPanel.setBorder(BorderFactory.createTitledBorder(
+                "Preview (canvas: " + SvgPreviewPanel.SVG_W
+                        + "\u00d7" + SvgPreviewPanel.SVG_H + ")"));
         svgPreviewPanel.setPreferredSize(new Dimension(200, 200));
         svgPreviewPanel.setMinimumSize(new Dimension(100, 100));
 
@@ -392,9 +405,13 @@ public class SvgEditorPanel extends JPanel {
         detailSplit.setResizeWeight(0.6);
         detailSplit.setOneTouchExpandable(true);
 
-        JPanel detailPanel = new JPanel(new BorderLayout());
+        // ── Canvas note label ─────────────────────────────────────────────────
+        initCanvasNoteLabel();
+
+        JPanel detailPanel = new JPanel(new BorderLayout(0, 2));
         detailPanel.setBorder(BorderFactory.createTitledBorder("SVG Detail"));
-        detailPanel.add(detailSplit, BorderLayout.CENTER);
+        detailPanel.add(detailSplit,    BorderLayout.CENTER);
+        detailPanel.add(canvasNoteLabel, BorderLayout.SOUTH);
 
         // ── Outer split: index table on top, detail on bottom ─────────────────
 
@@ -409,16 +426,56 @@ public class SvgEditorPanel extends JPanel {
         return tab;
     }
 
+    /**
+     * Initialises the {@link #canvasNoteLabel} with the default (no-selection) text.
+     */
+    private void initCanvasNoteLabel() {
+        canvasNoteLabel.setOpaque(true);
+        canvasNoteLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+        canvasNoteLabel.setFont(canvasNoteLabel.getFont().deriveFont(Font.PLAIN, 11f));
+        updateCanvasNoteLabel("");
+    }
+
+    /**
+     * Updates the canvas-note label for the given feature.
+     *
+     * <p>For position-sensitive features ({@code head}, {@code hair},
+     * {@code hairBg}) a highlighted warning is shown; all other features get
+     * a brief informational note.
+     *
+     * @param feature the selected feature name, or empty string when none selected
+     */
+    private void updateCanvasNoteLabel(String feature) {
+        if (POSITION_SENSITIVE_FEATURES.contains(feature)) {
+            canvasNoteLabel.setBackground(new Color(255, 243, 205));
+            canvasNoteLabel.setForeground(new Color(120, 80, 0));
+            canvasNoteLabel.setText(
+                    "\u26a0  Position matters for \u2018" + feature + "\u2019 SVGs: "
+                    + "draw on the full 400\u00d7600 canvas, matching the existing "
+                    + feature + " SVGs so facial features align correctly.");
+        } else {
+            canvasNoteLabel.setBackground(new Color(235, 244, 255));
+            canvasNoteLabel.setForeground(new Color(50, 80, 130));
+            canvasNoteLabel.setText(
+                    "\u2139  Canvas: 400\u00d7600.  "
+                    + "For most features position is ignored (auto-placed). "
+                    + "Position is only critical for head and hair SVGs.");
+        }
+    }
+
     /** Called whenever the SVG Index table selection changes. */
     private void onSvgIndexRowSelected() {
         int row = svgIndexTable.getSelectedRow();
         if (row < 0 || svgsData == null) {
             svgDetailArea.setText("(no selection)");
             svgPreviewPanel.setSvgFragment("");
+            updateCanvasNoteLabel("");
             return;
         }
         String feature = cellStr(svgIndexModel, row, 0);
         String id      = cellStr(svgIndexModel, row, 1);
+
+        updateCanvasNoteLabel(feature);
 
         if (feature.isEmpty() || id.isEmpty()) {
             svgDetailArea.setText("(feature or id is empty)");
