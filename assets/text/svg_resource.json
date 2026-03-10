@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "svg_resources": [
+    {
+      "file": "eye.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A001", "pathname": "eye", "type": "icon", "w": 64, "h": 64 }
+      ]
+    },
+    {
+      "file": "magnifier.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A002", "pathname": "magnifier", "type": "icon", "w": 64, "h": 64 }
+      ]
+    },
+    {
+      "file": "agent.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A003", "pathname": "agent", "type": "icon", "w": 64, "h": 64 }
+      ]
+    },
+    {
+      "file": "villain.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A004", "pathname": "villain", "type": "icon", "w": 64, "h": 64 }
+      ]
+    },
+    {
+      "file": "gun_bullet.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A005", "pathname": "gun_bullet", "type": "icon", "w": 32, "h": 32 }
+      ]
+    },
+    {
+      "file": "gun_sight.svg",
+      "path": "svg/icons/",
+      "items": [
+        { "id": "A006", "pathname": "gun_sight", "type": "icon", "w": 32, "h": 32 }
+      ]
+    }
+  ]
+}
