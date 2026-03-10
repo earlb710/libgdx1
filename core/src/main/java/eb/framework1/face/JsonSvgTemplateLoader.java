@@ -186,10 +186,10 @@ public final class JsonSvgTemplateLoader implements FaceSvgBuilder.SvgTemplateLo
 
     private static void expect(String json, int[] pos, char ch) {
         if (pos[0] >= json.length() || json.charAt(pos[0]) != ch) {
-            int ctx = Math.min(pos[0] + 40, json.length());
+            int contextEnd = Math.min(pos[0] + 40, json.length());
             throw new IllegalArgumentException(
                     "Expected '" + ch + "' at position " + pos[0]
-                    + " but got: " + json.substring(pos[0], ctx));
+                    + " but got: " + json.substring(pos[0], contextEnd));
         }
         pos[0]++;
     }

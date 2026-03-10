@@ -402,7 +402,8 @@ public class FaceGeneratorTest {
             return;
         }
 
-        String json = new String(Files.readAllBytes(svgsFile.toPath()));
+        String json = new String(Files.readAllBytes(svgsFile.toPath()),
+                java.nio.charset.StandardCharsets.UTF_8);
         JsonSvgTemplateLoader loader = JsonSvgTemplateLoader.fromJson(json);
 
         String bodyTemplate = loader.getSvgTemplate("body", "body");
