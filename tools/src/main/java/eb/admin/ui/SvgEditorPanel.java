@@ -31,13 +31,16 @@ import java.util.Map;
  *   <li><b>SVG Resource</b> – {@code assets/text/svg_resource.json}
  *       (File Parts + Items two-level hierarchy)</li>
  *   <li><b>SVG Index</b>    – {@code assets/face/svgs-index.json}
- *       (Feature, ID, Gender columns)</li>
+ *       (Feature, ID, Gender columns).  Selecting a row shows the
+ *       corresponding SVG fragment from {@code assets/face/svgs.json}
+ *       in a text area and renders it in a live preview panel.</li>
  * </ul>
  */
 public class SvgEditorPanel extends JPanel {
 
     private static final String DEFAULT_RESOURCE_PATH = "assets/text/svg_resource.json";
     private static final String DEFAULT_INDEX_PATH    = "assets/face/svgs-index.json";
+    private static final String DEFAULT_SVG_DATA_PATH = "assets/face/svgs.json";
 
     private final JLabel statusLabel;
 
@@ -85,6 +88,14 @@ public class SvgEditorPanel extends JPanel {
 
     private final JTable svgIndexTable = new JTable(svgIndexModel);
     private File svgIndexFile;
+
+    // ── svgs.json (detail data) fields ────────────────────────────────────────
+
+    /** Root object of svgs.json – keyed by feature → id → SVG fragment string. */
+    private JsonObject svgsData;
+
+    private final JTextArea    svgDetailArea   = new JTextArea();
+    private final SvgPreviewPanel svgPreviewPanel = new SvgPreviewPanel();
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -286,6 +297,12 @@ public class SvgEditorPanel extends JPanel {
         svgIndexTable.getColumnModel().getColumn(2)
                 .setCellEditor(new DefaultCellEditor(genderCombo));
 
+        // Wire up row-selection → detail / preview update
+        svgIndexTable.getSelectionModel().addListSelectionListener(
+                (ListSelectionEvent e) -> {
+                    if (!e.getValueIsAdjusting()) onSvgIndexRowSelected();
+                });
+
         JButton addBtn    = new JButton("Add Row");
         JButton deleteBtn = new JButton("Delete Row");
         JButton saveBtn   = new JButton("Save");
@@ -308,66 +325,117 @@ public class SvgEditorPanel extends JPanel {
         deleteBtn.addActionListener((ActionEvent e) -> deleteSelectedRow(svgIndexTable, svgIndexModel));
         saveBtn.addActionListener((ActionEvent e) -> saveSvgIndex(false));
 
-        return buildTabLayout(svgIndexFileField,
-                svgIndexTable,
-                addBtn, deleteBtn, saveBtn,
-                this::openSvgIndex,
-                () -> saveSvgIndex(false),
-                () -> saveSvgIndex(true));
-    }
-
-    // ── Generic layout builder ────────────────────────────────────────────────
-
-    /**
-     * Assembles the common BorderLayout panel structure used by the SVG Index tab:
-     * a file-path strip at the top, a scrollable table in the centre, and
-     * Add / Delete / Save buttons along the bottom.
-     */
-    private JPanel buildTabLayout(JTextField fileField,
-                                   JTable table,
-                                   JButton addBtn, JButton deleteBtn, JButton saveRowBtn,
-                                   Runnable openAction, Runnable saveAction, Runnable saveAsAction) {
+        // ── North: file path + Open/Save/Save-As toolbar ──────────────────────
 
         JPanel fileRow = new JPanel(new BorderLayout(4, 0));
         fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
         fileRow.add(new JLabel("File:"), BorderLayout.WEST);
-        fileRow.add(fileField, BorderLayout.CENTER);
+        fileRow.add(svgIndexFileField, BorderLayout.CENTER);
 
-        JPanel meta = new JPanel(new BorderLayout());
-        meta.setBorder(BorderFactory.createTitledBorder("File"));
-        meta.add(fileRow, BorderLayout.CENTER);
+        JPanel fileMeta = new JPanel(new BorderLayout());
+        fileMeta.setBorder(BorderFactory.createTitledBorder("File"));
+        fileMeta.add(fileRow, BorderLayout.CENTER);
 
         JButton openBtn   = new JButton("Open\u2026");
-        JButton saveBtn   = new JButton("Save");
+        JButton saveBtn2  = new JButton("Save");
         JButton saveAsBtn = new JButton("Save As\u2026");
-        openBtn.addActionListener((ActionEvent e) -> openAction.run());
-        saveBtn.addActionListener((ActionEvent e) -> saveAction.run());
-        saveAsBtn.addActionListener((ActionEvent e) -> saveAsAction.run());
+        openBtn.addActionListener((ActionEvent e) -> openSvgIndex());
+        saveBtn2.addActionListener((ActionEvent e) -> saveSvgIndex(false));
+        saveAsBtn.addActionListener((ActionEvent e) -> saveSvgIndex(true));
 
         JPanel fileToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         fileToolbar.add(openBtn);
-        fileToolbar.add(saveBtn);
+        fileToolbar.add(saveBtn2);
         fileToolbar.add(saveAsBtn);
 
         JPanel north = new JPanel(new BorderLayout());
-        north.add(meta,        BorderLayout.CENTER);
+        north.add(fileMeta,    BorderLayout.CENTER);
         north.add(fileToolbar, BorderLayout.SOUTH);
+
+        // ── Row toolbar ───────────────────────────────────────────────────────
 
         JPanel rowToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         rowToolbar.add(addBtn);
         rowToolbar.add(deleteBtn);
         rowToolbar.add(Box.createHorizontalStrut(12));
-        rowToolbar.add(saveRowBtn);
+        rowToolbar.add(saveBtn);
 
-        JScrollPane scroll = new JScrollPane(table,
+        // ── Table panel (index) ───────────────────────────────────────────────
+
+        JScrollPane indexScroll = new JScrollPane(svgIndexTable,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        JPanel panel = new JPanel(new BorderLayout(0, 4));
-        panel.add(north,      BorderLayout.NORTH);
-        panel.add(scroll,     BorderLayout.CENTER);
-        panel.add(rowToolbar, BorderLayout.SOUTH);
-        return panel;
+        JPanel tablePanel = new JPanel(new BorderLayout(0, 2));
+        tablePanel.add(indexScroll, BorderLayout.CENTER);
+        tablePanel.add(rowToolbar,  BorderLayout.SOUTH);
+
+        // ── Detail area: text + SVG preview ──────────────────────────────────
+
+        svgDetailArea.setEditable(false);
+        svgDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        svgDetailArea.setLineWrap(true);
+        svgDetailArea.setWrapStyleWord(false);
+        svgDetailArea.setText("(select a row to see the svgs.json fragment)");
+
+        JScrollPane detailScroll = new JScrollPane(svgDetailArea,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("svgs.json fragment"));
+
+        svgPreviewPanel.setBorder(BorderFactory.createTitledBorder("Preview"));
+        svgPreviewPanel.setPreferredSize(new Dimension(200, 200));
+        svgPreviewPanel.setMinimumSize(new Dimension(100, 100));
+
+        JSplitPane detailSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                detailScroll, svgPreviewPanel);
+        detailSplit.setResizeWeight(0.6);
+        detailSplit.setOneTouchExpandable(true);
+
+        JPanel detailPanel = new JPanel(new BorderLayout());
+        detailPanel.setBorder(BorderFactory.createTitledBorder("SVG Detail"));
+        detailPanel.add(detailSplit, BorderLayout.CENTER);
+
+        // ── Outer split: index table on top, detail on bottom ─────────────────
+
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                tablePanel, detailPanel);
+        mainSplit.setResizeWeight(0.6);
+        mainSplit.setOneTouchExpandable(true);
+
+        JPanel tab = new JPanel(new BorderLayout(0, 4));
+        tab.add(north,     BorderLayout.NORTH);
+        tab.add(mainSplit, BorderLayout.CENTER);
+        return tab;
+    }
+
+    /** Called whenever the SVG Index table selection changes. */
+    private void onSvgIndexRowSelected() {
+        int row = svgIndexTable.getSelectedRow();
+        if (row < 0 || svgsData == null) {
+            svgDetailArea.setText("(no selection)");
+            svgPreviewPanel.setSvgFragment("");
+            return;
+        }
+        String feature = cellStr(svgIndexModel, row, 0);
+        String id      = cellStr(svgIndexModel, row, 1);
+
+        if (feature.isEmpty() || id.isEmpty()) {
+            svgDetailArea.setText("(feature or id is empty)");
+            svgPreviewPanel.setSvgFragment("");
+            return;
+        }
+
+        if (svgsData.has(feature) && svgsData.getAsJsonObject(feature).has(id)) {
+            String fragment = svgsData.getAsJsonObject(feature).get(id).getAsString();
+            svgDetailArea.setText(fragment);
+            svgDetailArea.setCaretPosition(0);
+            svgPreviewPanel.setSvgFragment(fragment);
+        } else {
+            svgDetailArea.setText("(no entry found in svgs.json for "
+                    + feature + "/" + id + ")");
+            svgPreviewPanel.setSvgFragment("");
+        }
     }
 
     // ── Selection handler (SVG Resource) ─────────────────────────────────────
@@ -421,6 +489,18 @@ public class SvgEditorPanel extends JPanel {
         if (resourceDefault.exists()) loadSvgResourceFromFile(resourceDefault);
         File indexDefault = new File(DEFAULT_INDEX_PATH);
         if (indexDefault.exists()) loadSvgIndexFromFile(indexDefault);
+        File svgsDataDefault = new File(DEFAULT_SVG_DATA_PATH);
+        if (svgsDataDefault.exists()) loadSvgsDataFromFile(svgsDataDefault);
+    }
+
+    // ── File operations: svgs.json (detail data) ──────────────────────────────
+
+    private void loadSvgsDataFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            svgsData = new Gson().fromJson(reader, JsonObject.class);
+        } catch (Exception ex) {
+            svgsData = null;
+        }
     }
 
     // ── File operations: SVG Resource (svg_resource.json) ────────────────────
