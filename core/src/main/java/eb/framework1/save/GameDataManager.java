@@ -3,6 +3,7 @@ package eb.framework1.save;
 import eb.framework1.city.*;
 import eb.framework1.character.SkillCategoryDefinition;
 import eb.framework1.generator.*;
+import eb.framework1.ui.SvgResourceData;
 
 
 import com.badlogic.gdx.Gdx;
@@ -28,7 +29,8 @@ public class GameDataManager {
     private static final String SURNAMES_FILE       = "text/person_surnames.json";
     private static final String COMPANY_NAMES_FILE  = "text/company_names.json";
     private static final String COMPANY_TYPES_FILE  = "company_types.json";
-    private static final String CATEGORIES_FILE = "text/category_en.json";
+    private static final String CATEGORIES_FILE     = "text/category_en.json";
+    private static final String SVG_RESOURCES_FILE  = "text/svg_resource.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -39,6 +41,8 @@ public class GameDataManager {
     private final Map<String, SkillCategoryDefinition> skillCategoriesByCode;
     /** Improvement data keyed by lower-case improvement code (id). */
     private final Map<String, ImprovementData> improvementDataByCode;
+    /** SVG resource data keyed by item id. */
+    private final Map<String, SvgResourceData> svgResourcesById;
 
     private String buildingsVersion;
     private String categoriesVersion;
@@ -57,10 +61,12 @@ public class GameDataManager {
         this.skillCategories = new ArrayList<>();
         this.skillCategoriesByCode = new HashMap<>();
         this.improvementDataByCode = new HashMap<>();
+        this.svgResourcesById = new HashMap<>();
 
         loadBuildings();
         loadCategories();
         loadImprovements();
+        loadSvgResources();
         loadPersonNames();
         loadCompanyNames();
 
@@ -531,5 +537,70 @@ public class GameDataManager {
     public ImprovementData getImprovementData(String code) {
         if (code == null) return null;
         return improvementDataByCode.get(code.toLowerCase());
+    }
+
+    /**
+     * Returns the {@link SvgResourceData} for the given item id, or
+     * {@code null} if no entry with that id exists.
+     *
+     * @param id item id as it appears in the {@code items} array of {@code svg_resource.json}
+     */
+    public SvgResourceData getSvgResource(String id) {
+        if (id == null) return null;
+        return svgResourcesById.get(id);
+    }
+
+    /**
+     * Loads SVG resource metadata from {@code text/svg_resource.json}.
+     *
+     * <p>The file is structured as a list of <em>file parts</em>, each describing
+     * one SVG file ({@code file}, {@code path}).  Each file part contains an
+     * {@code items} sub-array whose entries supply {@code id}, {@code pathname},
+     * {@code type}, and optional {@code x}/{@code y}/{@code w}/{@code h}.
+     *
+     * <p>Populates {@link #svgResourcesById} keyed by item id.
+     */
+    private void loadSvgResources() {
+        try {
+            FileHandle file = Gdx.files.internal(SVG_RESOURCES_FILE);
+            if (!file.exists()) {
+                Gdx.app.log("GameDataManager", "SVG resources file not found: " + SVG_RESOURCES_FILE);
+                return;
+            }
+            JsonReader reader = new JsonReader();
+            JsonValue root = reader.parse(file);
+            JsonValue array = root.get("svg_resources");
+            if (array == null) return;
+            int count = 0;
+            for (JsonValue filePart = array.child; filePart != null; filePart = filePart.next) {
+                String entryFile = filePart.getString("file", "");
+                String entryPath = filePart.getString("path", "");
+                JsonValue items = filePart.get("items");
+                if (items == null) continue;
+                for (JsonValue item = items.child; item != null; item = item.next) {
+                    String id = item.getString("id", "");
+                    if (id.isEmpty()) {
+                        Gdx.app.log("GameDataManager",
+                                "Skipping SVG resource item with missing 'id' field in " + SVG_RESOURCES_FILE);
+                        continue;
+                    }
+                    String pathname = item.getString("pathname", "");
+                    String type     = item.getString("type", "");
+                    int x = item.getInt("x", 0);
+                    int y = item.getInt("y", 0);
+                    int w = item.getInt("w", 0);
+                    int h = item.getInt("h", 0);
+                    SvgResourceData data = new SvgResourceData(
+                            id, pathname, entryFile, entryPath, type, x, y, w, h);
+                    svgResourcesById.put(id, data);
+                    count++;
+                }
+            }
+            Gdx.app.log("GameDataManager",
+                    "Loaded " + count + " SVG resource entries from " + SVG_RESOURCES_FILE);
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager",
+                    "Error loading " + SVG_RESOURCES_FILE + ": " + e.getMessage(), e);
+        }
     }
 }

@@ -3,11 +3,13 @@ package eb.framework1.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import eb.framework1.Main;
+import eb.framework1.ui.TextureUtils;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        TextureUtils.setSvgLoader(new Lwjgl3SvgLoader());
         createApplication();
     }
 
