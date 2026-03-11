@@ -178,6 +178,26 @@ public final class FaceSvgBuilder {
         double[] center = (info.positions != null) ? computeCenter(featureSvg)
                                                    : null;
 
+        // Debug: log computed centre and target position for eye and nose.
+        boolean debugFeature = "eye".equals(info.name) || "nose".equals(info.name);
+        if (debugFeature) {
+            String id = getFeatureId(face, info.name);
+            System.err.printf("[FaceSvgBuilder] %s (%s): bbox_center=(%.2f, %.2f)%n",
+                    info.name, id,
+                    center != null ? center[0] : 0.0,
+                    center != null ? center[1] : 0.0);
+            if (info.positions != null) {
+                for (int pi = 0; pi < info.positions.length; pi++) {
+                    int px = info.positions[pi][0];
+                    int py = info.positions[pi][1];
+                    double tx = center != null ? px - center[0] : px;
+                    double ty = center != null ? py - center[1] : py;
+                    System.err.printf("[FaceSvgBuilder]   instance[%d]: target=(%d, %d) translate=(%.2f, %.2f)%n",
+                            pi, px, py, tx, ty);
+                }
+            }
+        }
+
         // Apply colour substitutions
         featureSvg = applySubstitutions(featureSvg, face);
 
