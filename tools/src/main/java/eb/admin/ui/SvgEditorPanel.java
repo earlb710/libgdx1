@@ -210,6 +210,10 @@ public class SvgEditorPanel extends JPanel {
                                 {"Primary",      "Secondary",     "Accent"}});
     }
 
+    /** Body-width selector for the face maker (thin = −15%, normal = 0%, thick = +15%). */
+    private final JComboBox<String> faceMakerBuildCombo =
+            new JComboBox<>(new String[]{"normal", "thin", "thick"});
+
     /** One combo box per feature, keyed by feature name, in draw order. */
     private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
 
@@ -1060,6 +1064,16 @@ public class SvgEditorPanel extends JPanel {
         gbc.fill    = GridBagConstraints.HORIZONTAL;
         gbc.anchor  = GridBagConstraints.WEST;
 
+        // Row 0: build (body-width) selector
+        JLabel buildLabel = new JLabel("build:");
+        buildLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        faceMakerBuildCombo.setToolTipText("thin = 15% narrower  |  normal = standard width  |  thick = 15% wider");
+        faceMakerBuildCombo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; gbc.gridwidth = 1;
+        selectorsPanel.add(buildLabel, gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        selectorsPanel.add(faceMakerBuildCombo, gbc);
+
         for (int i = 0; i < FACE_DRAW_ORDER.length; i++) {
             String feature = FACE_DRAW_ORDER[i];
 
@@ -1071,7 +1085,7 @@ public class SvgEditorPanel extends JPanel {
             faceMakerCombos.put(feature, combo);
             combo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
 
-            gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0; gbc.gridwidth = 1;
+            gbc.gridx = 0; gbc.gridy = 1 + i; gbc.weightx = 0; gbc.gridwidth = 1;
             selectorsPanel.add(label, gbc);
             gbc.gridx = 1; gbc.weightx = 1.0;
             selectorsPanel.add(combo, gbc);
@@ -1120,7 +1134,7 @@ public class SvgEditorPanel extends JPanel {
         buttonsPanel.add(randomizeBtn);
         buttonsPanel.add(clearBtn);
 
-        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length;
+        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length + 1;
         gbc.gridwidth = 3; gbc.weightx = 1.0;
         selectorsPanel.add(buttonsPanel, gbc);
 
@@ -1269,6 +1283,20 @@ public class SvgEditorPanel extends JPanel {
 
         String debugText = debugSb.toString().trim();
         faceMakerDebugArea.setText(debugText.isEmpty() ? "(select eye or nose to see position debug)" : debugText);
+
+        // Apply horizontal width scale (build: thin=0.85, normal=1.0, thick=1.15).
+        // Scale is about canvas center-x (200) so the face stays centred.
+        String buildVal = (String) faceMakerBuildCombo.getSelectedItem();
+        double widthScale = "thin".equals(buildVal) ? 0.85 : "thick".equals(buildVal) ? 1.15 : 1.0;
+        if (widthScale != 1.0) {
+            String wrapTransform = String.format(Locale.US,
+                    "translate(200 0) scale(%.4f 1) translate(-200 0)", widthScale);
+            List<String> scaled = new ArrayList<>(fragments.size());
+            for (String frag : fragments) {
+                scaled.add("<g transform=\"" + wrapTransform + "\">" + frag + "</g>");
+            }
+            fragments = scaled;
+        }
 
         faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
     }
