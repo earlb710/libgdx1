@@ -263,8 +263,14 @@ public class SvgPreviewPanel extends JPanel {
             case "path": {
                 String d = el.getAttribute("d");
                 if (!d.isEmpty()) {
-                    Shape s = parseSvgPath(d);
-                    if (s != null) result = union(result, s.getBounds2D());
+                    // Use tight bezier bounds (matching browser getBBox) rather than
+                    // Java2D getBounds2D() which gives the control-point hull and
+                    // overestimates the bounding box for cubic/quadratic curves.
+                    double[] box = tightPathBbox(d);
+                    if (box != null) {
+                        result = union(result, new Rectangle2D.Double(
+                                box[0], box[2], box[1] - box[0], box[3] - box[2]));
+                    }
                 }
                 break;
             }
@@ -303,6 +309,178 @@ public class SvgPreviewPanel extends JPanel {
             }
         }
         return result;
+    }
+
+    // ── Tight bezier bounding-box computation ─────────────────────────────────
+    //
+    // Mirrors the logic in FaceSvgBuilder (core module), duplicated here because
+    // the tools module is a standalone build without a dependency on :core.
+    // Returns [minX, maxX, minY, maxY] for a path d= string, or null.
+
+    private static final java.util.regex.Pattern BBOX_TOKEN = java.util.regex.Pattern.compile(
+            "[MmLlHhVvCcSsQqTtAaZz]"
+            + "|[-+]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][-+]?[0-9]+)?");
+
+    /** Returns [minX, maxX, minY, maxY] for one SVG path d string, or null. */
+    private static double[] tightPathBbox(String d) {
+        double minX = Double.MAX_VALUE, maxX = Double.NEGATIVE_INFINITY;
+        double minY = Double.MAX_VALUE, maxY = Double.NEGATIVE_INFINITY;
+        double curX = 0, curY = 0;
+        char   cmd  = 'M';
+        boolean rel  = false;
+        java.util.List<Double> nums = new java.util.ArrayList<>();
+
+        java.util.regex.Matcher m = BBOX_TOKEN.matcher(d);
+        while (m.find()) {
+            String tok = m.group();
+            char c0 = tok.charAt(0);
+            if (Character.isLetter(c0)) {
+                double[] upd = applyTightBbox(cmd, rel, nums, curX, curY, minX, maxX, minY, maxY);
+                minX = upd[0]; maxX = upd[1]; minY = upd[2]; maxY = upd[3];
+                curX = upd[4]; curY = upd[5];
+                cmd = Character.toUpperCase(c0);
+                rel = Character.isLowerCase(c0);
+                nums.clear();
+            } else {
+                try { nums.add(Double.parseDouble(tok)); } catch (NumberFormatException ignored) {}
+            }
+        }
+        double[] upd = applyTightBbox(cmd, rel, nums, curX, curY, minX, maxX, minY, maxY);
+        minX = upd[0]; maxX = upd[1]; minY = upd[2]; maxY = upd[3];
+        if (minX == Double.MAX_VALUE) return null;
+        return new double[]{minX, maxX, minY, maxY};
+    }
+
+    private static double[] applyTightBbox(char cmd, boolean rel, java.util.List<Double> nums,
+                                            double cx, double cy,
+                                            double minX, double maxX, double minY, double maxY) {
+        int n = nums.size();
+        switch (cmd) {
+            case 'M': case 'L': case 'T': {
+                for (int i = 0; i + 1 < n; i += 2) {
+                    double x = nums.get(i)   + (rel ? cx : 0);
+                    double y = nums.get(i+1) + (rel ? cy : 0);
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    if (y < minY) minY = y; if (y > maxY) maxY = y;
+                    cx = x; cy = y;
+                }
+                break;
+            }
+            case 'H': {
+                for (int i = 0; i < n; i++) {
+                    double x = nums.get(i) + (rel ? cx : 0);
+                    if (x < minX) minX = x; if (x > maxX) maxX = x;
+                    cx = x;
+                }
+                break;
+            }
+            case 'V': {
+                for (int i = 0; i < n; i++) {
+                    double y = nums.get(i) + (rel ? cy : 0);
+                    if (y < minY) minY = y; if (y > maxY) maxY = y;
+                    cy = y;
+                }
+                break;
+            }
+            case 'C': {
+                for (int i = 0; i + 5 < n; i += 6) {
+                    double x1 = nums.get(i)   + (rel ? cx : 0);
+                    double y1 = nums.get(i+1) + (rel ? cy : 0);
+                    double x2 = nums.get(i+2) + (rel ? cx : 0);
+                    double y2 = nums.get(i+3) + (rel ? cy : 0);
+                    double ex = nums.get(i+4) + (rel ? cx : 0);
+                    double ey = nums.get(i+5) + (rel ? cy : 0);
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    double[] xr = {minX, maxX}; double[] yr = {minY, maxY};
+                    tightCubicExtrema(cx, x1, x2, ex, xr);
+                    tightCubicExtrema(cy, y1, y2, ey, yr);
+                    minX = xr[0]; maxX = xr[1]; minY = yr[0]; maxY = yr[1];
+                    cx = ex; cy = ey;
+                }
+                break;
+            }
+            case 'S': {
+                for (int i = 0; i + 3 < n; i += 4) {
+                    double x2 = nums.get(i)   + (rel ? cx : 0);
+                    double y2 = nums.get(i+1) + (rel ? cy : 0);
+                    double ex = nums.get(i+2) + (rel ? cx : 0);
+                    double ey = nums.get(i+3) + (rel ? cy : 0);
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (x2 < minX) minX = x2; if (x2 > maxX) maxX = x2;
+                    if (y2 < minY) minY = y2; if (y2 > maxY) maxY = y2;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    cx = ex; cy = ey;
+                }
+                break;
+            }
+            case 'Q': {
+                for (int i = 0; i + 3 < n; i += 4) {
+                    double qx = nums.get(i)   + (rel ? cx : 0);
+                    double qy = nums.get(i+1) + (rel ? cy : 0);
+                    double ex = nums.get(i+2) + (rel ? cx : 0);
+                    double ey = nums.get(i+3) + (rel ? cy : 0);
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    double[] xr = {minX, maxX}; double[] yr = {minY, maxY};
+                    tightQuadExtrema(cx, qx, ex, xr);
+                    tightQuadExtrema(cy, qy, ey, yr);
+                    minX = xr[0]; maxX = xr[1]; minY = yr[0]; maxY = yr[1];
+                    cx = ex; cy = ey;
+                }
+                break;
+            }
+            case 'A': {
+                for (int i = 0; i + 6 < n; i += 7) {
+                    double rx = nums.get(i), ry = nums.get(i+1);
+                    double ex = nums.get(i+5) + (rel ? cx : 0);
+                    double ey = nums.get(i+6) + (rel ? cy : 0);
+                    if (ex - rx < minX) minX = ex - rx; if (ex + rx > maxX) maxX = ex + rx;
+                    if (ey - ry < minY) minY = ey - ry; if (ey + ry > maxY) maxY = ey + ry;
+                    cx = ex; cy = ey;
+                }
+                break;
+            }
+            default: break;
+        }
+        return new double[]{minX, maxX, minY, maxY, cx, cy};
+    }
+
+    private static void tightCubicExtrema(double p0, double p1, double p2, double p3, double[] mm) {
+        double a = -p0 + 3*p1 - 3*p2 + p3;
+        double b = 2*(p0 - 2*p1 + p2);
+        double c = p1 - p0;
+        for (double t : solveQuad(a, b, c)) {
+            if (t > 0 && t < 1) {
+                double u = 1-t, v = u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3;
+                if (v < mm[0]) mm[0] = v; if (v > mm[1]) mm[1] = v;
+            }
+        }
+    }
+
+    private static void tightQuadExtrema(double p0, double p1, double p2, double[] mm) {
+        double denom = p0 - 2*p1 + p2;
+        if (Math.abs(denom) > 1e-12) {
+            double t = (p0 - p1) / denom;
+            if (t > 0 && t < 1) {
+                double u = 1-t, v = u*u*p0 + 2*u*t*p1 + t*t*p2;
+                if (v < mm[0]) mm[0] = v; if (v > mm[1]) mm[1] = v;
+            }
+        }
+    }
+
+    private static double[] solveQuad(double a, double b, double c) {
+        if (Math.abs(a) < 1e-12) return Math.abs(b) < 1e-12 ? new double[0] : new double[]{-c/b};
+        double disc = b*b - 4*a*c;
+        if (disc < 0) return new double[0];
+        double sq = Math.sqrt(disc);
+        return new double[]{(-b-sq)/(2*a), (-b+sq)/(2*a)};
     }
 
     private static Rectangle2D union(Rectangle2D a, Rectangle2D b) {

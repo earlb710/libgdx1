@@ -314,11 +314,12 @@ public final class FaceSvgBuilder {
      * control-point convex-hull approximation.
      *
      * <p>Does not use any {@code java.awt} classes, making it safe on Android.
+     * Also usable from the tools module for face maker preview positioning.
      *
      * @param svgFragment raw SVG fragment (may contain colour placeholders)
      * @return {cx, cy} centre of the tight bounding box, or {0, 0} if unparseable
      */
-    static double[] computeCenter(String svgFragment) {
+    public static double[] computeCenter(String svgFragment) {
         double minX = Double.MAX_VALUE,  maxX = Double.NEGATIVE_INFINITY;
         double minY = Double.MAX_VALUE,  maxY = Double.NEGATIVE_INFINITY;
 
