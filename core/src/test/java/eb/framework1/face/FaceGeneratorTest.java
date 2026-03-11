@@ -517,4 +517,46 @@ public class FaceGeneratorTest {
                     args.matches(".*\\d,\\d\\d.*"));  // e.g. "135,00" would match
         }
     }
+
+    @Test
+    public void svgBuilder_rightEye_compoundTransformHasCorrectTargetCoords() {
+        // Regression test for canvas-space eye templates (e.g. female13).
+        //
+        // Before the Locale.US fix, compound transforms were emitted with commas as
+        // decimal separators (e.g. "translate(260,00 310,00)").  A strict SVG renderer
+        // would parse "260,00" as two separate numbers (260 and 0), losing the Y
+        // coordinate. If the scale / second translate also failed to parse, only
+        // "translate(260, 310)" would be applied to the raw canvas-space paths.
+        // For a canvas-space template with paths at y ≈ 270, this shifts everything
+        // by +310 → y ≈ 580, placing the eye well *below the mouth* (y = 440).
+        //
+        // This test uses a synthetic path whose bbox centre is at (197, 270) —
+        // matching the real female13 bounding box — and verifies that the compound
+        // transform for the right eye (instance 1) contains the exact target
+        // coordinates as dot-decimal strings.
+        final String canvasSpacePath = "<path d=\"M100 260 L294 280\"/>";
+        // bbox: x = [100, 294] → cx = 197.0;  y = [260, 280] → cy = 270.0
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> canvasSpacePath);
+
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("female13", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // Left eye (instance 0): simple combined translate(-57.00 40.00)
+        assertTrue("left eye must use simple translate with correct values",
+                svg.contains("translate(-57.00 40.00)"));
+
+        // Right eye (instance 1): compound transform.
+        // The FIRST translate must be exactly "translate(260.00 310.00)" — if the
+        // locale were wrong this would be "translate(260,00 310,00)".
+        assertTrue("right eye compound transform must have correct first translate (260, 310)",
+                svg.contains("translate(260.00 310.00)"));
+        // The scale must use dot-decimal notation
+        assertTrue("right eye compound transform must have correct scale",
+                svg.contains("scale(-1.0000 1.0000)"));
+        // The bbox-offset translate must be correct
+        assertTrue("right eye compound transform must have correct bbox-offset translate",
+                svg.contains("translate(-197.00 -270.00)"));
+    }
 }
