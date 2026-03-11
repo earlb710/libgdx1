@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Top-level panel for the <b>SVG</b> tab in the Game Admin tool.
@@ -110,6 +111,25 @@ public class SvgEditorPanel extends JPanel {
     private static final java.util.Set<String> POSITION_SENSITIVE_FEATURES =
             new java.util.HashSet<>(java.util.Arrays.asList("head", "hair", "hairBg", "body", "jersey"));
 
+    // ── Face Maker tab fields ──────────────────────────────────────────────────
+
+    /**
+     * Feature draw order for the face maker preview (back → front).
+     * Mirrors the facesjs layering convention.
+     */
+    private static final String[] FACE_DRAW_ORDER = {
+        "body", "jersey", "head", "hairBg", "ear",
+        "eye", "eyeLine", "eyebrow", "nose", "mouth",
+        "smileLine", "miscLine", "facialHair", "glasses",
+        "hair", "accessories"
+    };
+
+    /** One combo box per feature, keyed by feature name, in draw order. */
+    private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
+
+    /** Composite preview panel for the face maker. */
+    private final SvgPreviewPanel faceMakerPreview = new SvgPreviewPanel();
+
     // ─────────────────────────────────────────────────────────────────────────
 
     public SvgEditorPanel(JLabel statusLabel) {
@@ -126,6 +146,7 @@ public class SvgEditorPanel extends JPanel {
         JTabbedPane subTabs = new JTabbedPane();
         subTabs.addTab("SVG Resource", buildSvgResourceTab());
         subTabs.addTab("SVG Index",    buildSvgIndexTab());
+        subTabs.addTab("Face Maker",   buildFaceMakerTab());
 
         add(subTabs, BorderLayout.CENTER);
     }
@@ -575,6 +596,7 @@ public class SvgEditorPanel extends JPanel {
             svgsData     = null;
             svgsDataFile = null;
         }
+        refreshFaceMakerCombos();
     }
 
     /**
@@ -918,5 +940,154 @@ public class SvgEditorPanel extends JPanel {
     private static File ensureJsonExtension(File file) {
         return file.getName().endsWith(".json") ? file
                 : new File(file.getAbsolutePath() + ".json");
+    }
+
+    // ── Face Maker tab ────────────────────────────────────────────────────────
+
+    /**
+     * Builds the Face Maker sub-tab.
+     *
+     * <p>Left side: a scrollable panel of (feature-label, combobox) rows in
+     * back-to-front draw order, plus Randomize and Clear All buttons.
+     * Right side: a composite {@link SvgPreviewPanel} that renders all selected
+     * fragments stacked on the shared 400×600 canvas.
+     */
+    @SuppressWarnings("unchecked")
+    private JPanel buildFaceMakerTab() {
+        JPanel selectorsPanel = new JPanel(new GridBagLayout());
+        selectorsPanel.setBorder(BorderFactory.createTitledBorder("Feature Selections (back → front)"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets  = new Insets(3, 6, 3, 6);
+        gbc.fill    = GridBagConstraints.HORIZONTAL;
+        gbc.anchor  = GridBagConstraints.WEST;
+
+        for (int i = 0; i < FACE_DRAW_ORDER.length; i++) {
+            String feature = FACE_DRAW_ORDER[i];
+
+            JLabel label = new JLabel(feature + ":");
+            label.setHorizontalAlignment(SwingConstants.RIGHT);
+
+            JComboBox<String> combo = new JComboBox<>();
+            combo.addItem("(none)");
+            faceMakerCombos.put(feature, combo);
+            combo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
+
+            gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0; gbc.gridwidth = 1;
+            selectorsPanel.add(label, gbc);
+            gbc.gridx = 1; gbc.weightx = 1.0;
+            selectorsPanel.add(combo, gbc);
+        }
+
+        JButton randomizeBtn = new JButton("Randomize");
+        JButton clearBtn     = new JButton("Clear All");
+        randomizeBtn.setToolTipText("Pick a random variant for every feature");
+        clearBtn.setToolTipText("Reset all feature selections to (none)");
+        randomizeBtn.addActionListener((ActionEvent e) -> randomizeFaceMaker());
+        clearBtn.addActionListener((ActionEvent e) -> clearFaceMaker());
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttonsPanel.add(randomizeBtn);
+        buttonsPanel.add(clearBtn);
+
+        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length;
+        gbc.gridwidth = 2; gbc.weightx = 1.0;
+        selectorsPanel.add(buttonsPanel, gbc);
+
+        JScrollPane selectorsScroll = new JScrollPane(selectorsPanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        selectorsScroll.setPreferredSize(new Dimension(260, 100));
+        selectorsScroll.setMinimumSize(new Dimension(200, 100));
+
+        faceMakerPreview.setBorder(BorderFactory.createTitledBorder(
+                "Preview (canvas: " + SvgPreviewPanel.SVG_W
+                        + "\u00d7" + SvgPreviewPanel.SVG_H + ")"));
+        faceMakerPreview.setPreferredSize(new Dimension(320, 480));
+        faceMakerPreview.setMinimumSize(new Dimension(200, 300));
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                selectorsScroll, faceMakerPreview);
+        split.setDividerLocation(270);
+        split.setOneTouchExpandable(true);
+
+        JPanel tab = new JPanel(new BorderLayout());
+        tab.add(split, BorderLayout.CENTER);
+        return tab;
+    }
+
+    /**
+     * Repopulates all face-maker combo boxes from the currently loaded
+     * {@link #svgsData}.  Previously selected values are preserved when still
+     * available.
+     */
+    private void refreshFaceMakerCombos() {
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null) continue;
+
+            String currentSelection = (String) combo.getSelectedItem();
+            combo.removeAllItems();
+            combo.addItem("(none)");
+
+            if (svgsData != null && svgsData.has(feature)) {
+                for (Map.Entry<String, JsonElement> entry :
+                        svgsData.getAsJsonObject(feature).entrySet()) {
+                    combo.addItem(entry.getKey());
+                }
+            }
+
+            // Restore previous selection if still present in the new list
+            if (currentSelection != null && !currentSelection.equals("(none)")) {
+                for (int i = 0; i < combo.getItemCount(); i++) {
+                    if (currentSelection.equals(combo.getItemAt(i))) {
+                        combo.setSelectedItem(currentSelection);
+                        break;
+                    }
+                }
+            }
+        }
+        updateFaceMakerPreview();
+    }
+
+    /** Collects the selected fragments in draw order and pushes them to the preview. */
+    private void updateFaceMakerPreview() {
+        if (svgsData == null) {
+            faceMakerPreview.setCompositeFragments(null);
+            return;
+        }
+        List<String> fragments = new ArrayList<>();
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null) continue;
+            String selected = (String) combo.getSelectedItem();
+            if (selected == null || selected.equals("(none)")) continue;
+            if (svgsData.has(feature)) {
+                JsonObject featureObj = svgsData.getAsJsonObject(feature);
+                if (featureObj.has(selected)) {
+                    fragments.add(featureObj.get(selected).getAsString());
+                }
+            }
+        }
+        faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
+    }
+
+    /** Randomly selects one variant for every feature that has data loaded. */
+    private void randomizeFaceMaker() {
+        if (svgsData == null) return;
+        Random rnd = new Random();
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null || combo.getItemCount() <= 1) continue;
+            // item 0 is "(none)"; items 1+ are real variants
+            combo.setSelectedIndex(1 + rnd.nextInt(combo.getItemCount() - 1));
+        }
+    }
+
+    /** Resets all face maker combo boxes to {@code "(none)"}. */
+    private void clearFaceMaker() {
+        for (JComboBox<String> combo : faceMakerCombos.values()) {
+            combo.setSelectedIndex(0);
+        }
     }
 }

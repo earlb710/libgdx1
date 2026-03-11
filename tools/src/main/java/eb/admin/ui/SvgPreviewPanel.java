@@ -55,6 +55,9 @@ public class SvgPreviewPanel extends JPanel {
     private String fragment    = "";
     private String featureName = "";
 
+    /** Ordered fragments for composite face rendering; {@code null} = single-fragment mode. */
+    private java.util.List<String> compositeFragments = null;
+
     /**
      * CSS class name → style-string map, rebuilt each paint from any {@code <style>}
      * elements found in the fragment.  Used by {@link #applyPresentationAttrs}.
@@ -92,6 +95,17 @@ public class SvgPreviewPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Sets an ordered list of SVG fragments for composite face rendering.
+     * Fragments are drawn back-to-front on the shared 400×600 canvas without
+     * automatic centering.  Pass {@code null} to revert to single-fragment mode.
+     */
+    public void setCompositeFragments(java.util.List<String> fragments) {
+        this.compositeFragments = (fragments != null)
+                ? new ArrayList<>(fragments) : null;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -120,7 +134,19 @@ public class SvgPreviewPanel extends JPanel {
             g2.setStroke(new BasicStroke(borderPx));
             g2.drawRect(0, 0, SVG_W, SVG_H);
 
-            if (!fragment.isEmpty()) {
+            if (compositeFragments != null) {
+                // Composite mode: render all fragments in order without centering
+                for (String frag : compositeFragments) {
+                    if (frag == null || frag.isEmpty()) continue;
+                    String processed = applyTemplateVars(frag);
+                    Document doc = parseXml(
+                            "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
+                    if (doc != null) {
+                        currentCssStyles = parseCssClassStyles(doc);
+                        renderElement(g2, doc.getDocumentElement(), new SvgState());
+                    }
+                }
+            } else if (!fragment.isEmpty()) {
                 String processed = applyTemplateVars(fragment);
                 Document doc = parseXml(
                         "<svg xmlns=\"http://www.w3.org/2000/svg\">" + processed + "</svg>");
