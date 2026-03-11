@@ -188,11 +188,11 @@ public class SvgEditorPanel extends JPanel {
                 new String[][]{{"$[skinColor]"},
                                 {"#f2d6cb"},
                                 {"Skin"}});
-        // glasses:    2 colors – primary frame ($[primary]),  secondary ($[secondary])
+        // glasses:    2 colors – lens/straps ($[primary]),  frame ($[secondary])
         FEATURE_COLOR_DEFS.put("glasses",
                 new String[][]{{"$[primary]",    "$[secondary]"},
-                                {"#89bfd3",      "#7a1319"},
-                                {"Primary",      "Secondary"}});
+                                {"#89bfd3",      "#333333"},
+                                {"Lens",         "Frame"}});
         // eyebrow:    1 color  – main ($[hairColor])
         FEATURE_COLOR_DEFS.put("eyebrow",
                 new String[][]{{"$[hairColor]"},
