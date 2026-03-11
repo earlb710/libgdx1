@@ -2,6 +2,7 @@ package eb.framework1.face;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,7 +183,7 @@ public final class FaceSvgBuilder {
         boolean debugFeature = "eye".equals(info.name) || "nose".equals(info.name);
         if (debugFeature) {
             String id = getFeatureId(face, info.name);
-            System.err.printf("[FaceSvgBuilder] %s (%s): bbox_center=(%.2f, %.2f)%n",
+            System.err.printf(Locale.US, "[FaceSvgBuilder] %s (%s): bbox_center=(%.2f, %.2f)%n",
                     info.name, id,
                     center != null ? center[0] : 0.0,
                     center != null ? center[1] : 0.0);
@@ -192,7 +193,7 @@ public final class FaceSvgBuilder {
                     int py = info.positions[pi][1];
                     double tx = center != null ? px - center[0] : px;
                     double ty = center != null ? py - center[1] : py;
-                    System.err.printf("[FaceSvgBuilder]   instance[%d]: target=(%d, %d) translate=(%.2f, %.2f)%n",
+                    System.err.printf(Locale.US, "[FaceSvgBuilder]   instance[%d]: target=(%d, %d) translate=(%.2f, %.2f)%n",
                             pi, px, py, tx, ty);
                 }
             }
@@ -584,19 +585,19 @@ public final class FaceSvgBuilder {
     private static void appendTranslate(StringBuilder t, double x, double y) {
         if (x == 0 && y == 0) return;
         if (t.length() > 0) t.append(' ');
-        t.append(String.format("translate(%.2f %.2f)", x, y));
+        t.append(String.format(Locale.US, "translate(%.2f %.2f)", x, y));
     }
 
     private static void appendScale(StringBuilder t, double x, double y) {
         if (x == 1.0 && y == 1.0) return;
         if (t.length() > 0) t.append(' ');
-        t.append(String.format("scale(%.4f %.4f)", x, y));
+        t.append(String.format(Locale.US, "scale(%.4f %.4f)", x, y));
     }
 
     private static void appendRotate(StringBuilder t, double angle) {
         if (angle == 0) return;
         if (t.length() > 0) t.append(' ');
-        t.append(String.format("rotate(%.2f)", angle));
+        t.append(String.format(Locale.US, "rotate(%.2f)", angle));
     }
 
     // -------------------------------------------------------------------------

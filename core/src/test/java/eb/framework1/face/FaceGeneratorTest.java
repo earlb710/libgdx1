@@ -480,7 +480,8 @@ public class FaceGeneratorTest {
     public void svgBuilder_positioning_centerAtTarget() {
         // Verify that a feature with a known bbox center ends up at the target position.
         // Use a simple path that has bbox center at (5, 5).
-        // For left eye target (140, 310): effective translate should be (140-5, 310-5)=(135, 305)
+        // For left eye instance 0 (simple case): combined translate = (140-5, 310-5) = (135, 305)
+        // For right eye instance 1 (compound case): translate(260, 310) scale(-1,1) translate(-5,-5)
         final String pathWith5x5Center = "<path d=\"M0 0 L10 10\"/>";  // bbox (0-10, 0-10), cx=cy=5
         FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> pathWith5x5Center);
 
@@ -489,8 +490,31 @@ public class FaceGeneratorTest {
                 .build();
         String svg = builder.toSvgString(face);
 
-        // The left eye transform should contain translate(140.00 310.00) and translate(-5.00 -5.00)
-        assertTrue("left eye position translate", svg.contains("translate(140.00 310.00)"));
-        assertTrue("left eye bbox offset translate", svg.contains("translate(-5.00 -5.00)"));
+        // Left eye (instance 0): simple combined translate(135.00 305.00)
+        assertTrue("left eye simple translate", svg.contains("translate(135.00 305.00)"));
+        // Right eye (instance 1): compound — bbox offset as last step
+        assertTrue("right eye bbox offset translate", svg.contains("translate(-5.00 -5.00)"));
+    }
+
+    @Test
+    public void svgBuilder_transforms_useDotsAsDecimalSeparator() {
+        // Verifies that transforms always use '.' as decimal separator regardless of JVM locale.
+        // This is critical for SVG validity — commas in numeric values break the SVG renderer.
+        final String eyePath = "<path d=\"M0 0 L10 10\"/>";
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> eyePath);
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("eye7", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // Every translate() value must use a decimal point, never a comma
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("translate\\(([^)]+)\\)")
+                .matcher(svg);
+        while (m.find()) {
+            String args = m.group(1);
+            assertFalse("translate args must not use comma as decimal separator: " + args,
+                    args.matches(".*\\d,\\d\\d.*"));  // e.g. "135,00" would match
+        }
     }
 }
