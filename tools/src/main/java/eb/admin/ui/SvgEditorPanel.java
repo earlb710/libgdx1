@@ -124,6 +124,22 @@ public class SvgEditorPanel extends JPanel {
         "hair", "accessories"
     };
 
+    /**
+     * Pixel positions [x, y] for features that must be translated on the 400×600
+     * canvas, mirroring {@code FaceSvgBuilder.FEATURE_INFOS}.
+     * Bilateral features have two position pairs: index 0 = left, index 1 = right.
+     * The right instance is also mirrored via {@code scale(-1 1)}.
+     */
+    private static final Map<String, int[][]> FACE_FEATURE_POSITIONS = new LinkedHashMap<>();
+    static {
+        FACE_FEATURE_POSITIONS.put("ear",       new int[][]{{55, 325}, {345, 325}});
+        FACE_FEATURE_POSITIONS.put("eye",       new int[][]{{140, 310}, {260, 310}});
+        FACE_FEATURE_POSITIONS.put("eyebrow",   new int[][]{{140, 270}, {260, 270}});
+        FACE_FEATURE_POSITIONS.put("mouth",     new int[][]{{200, 440}});
+        FACE_FEATURE_POSITIONS.put("nose",      new int[][]{{200, 370}});
+        FACE_FEATURE_POSITIONS.put("smileLine", new int[][]{{150, 435}, {250, 435}});
+    }
+
     /** One combo box per feature, keyed by feature name, in draw order. */
     private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
 
@@ -1062,11 +1078,28 @@ public class SvgEditorPanel extends JPanel {
             if (combo == null) continue;
             String selected = (String) combo.getSelectedItem();
             if (selected == null || selected.equals("(none)")) continue;
-            if (svgsData.has(feature)) {
-                JsonObject featureObj = svgsData.getAsJsonObject(feature);
-                if (featureObj.has(selected)) {
-                    fragments.add(featureObj.get(selected).getAsString());
+            if (!svgsData.has(feature)) continue;
+            JsonObject featureObj = svgsData.getAsJsonObject(feature);
+            if (!featureObj.has(selected)) continue;
+            String frag = featureObj.get(selected).getAsString();
+            if (frag.isEmpty()) continue;
+
+            int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
+            if (positions != null && !SvgPreviewPanel.hasCanvasCoordinates(frag)) {
+                // ORIGIN-relative fragment: wrap with translate so it appears at the
+                // correct face position.  Bilateral features (ear, eye, eyebrow,
+                // smileLine) are drawn twice; the second (right) instance is mirrored
+                // with scale(-1 1).
+                for (int i = 0; i < positions.length; i++) {
+                    int px = positions[i][0];
+                    int py = positions[i][1];
+                    String t = "translate(" + px + " " + py + ")"
+                             + (i == 1 ? " scale(-1 1)" : "");
+                    fragments.add("<g transform=\"" + t + "\">" + frag + "</g>");
                 }
+            } else {
+                // CANVAS-absolute (already positioned) or full-canvas feature: draw as-is.
+                fragments.add(frag);
             }
         }
         faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);

@@ -211,7 +211,8 @@ public class SvgPreviewPanel extends JPanel {
      * is already positioned on the 400×600 face canvas and must not be
      * re-centred by the preview panel.
      */
-    private static boolean hasCanvasCoordinates(String fragment) {
+    /** Package-private so {@link SvgEditorPanel} can reuse the same heuristic. */
+    static boolean hasCanvasCoordinates(String fragment) {
         // Scan path d= attribute values for large coordinate magnitudes.
         Matcher pathMatcher = Pattern.compile("\\bd=\"([^\"]+)\"").matcher(fragment);
         Pattern num = Pattern.compile("[-]?(\\d+)(?:\\.\\d+)?");
