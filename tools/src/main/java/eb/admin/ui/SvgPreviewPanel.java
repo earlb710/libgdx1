@@ -775,7 +775,20 @@ public class SvgPreviewPanel extends JPanel {
             skipSep();
             int start = pos;
             if (pos < s.length() && (s.charAt(pos) == '-' || s.charAt(pos) == '+')) pos++;
-            while (pos < s.length() && (Character.isDigit(s.charAt(pos)) || s.charAt(pos) == '.')) pos++;
+            // Per SVG spec: a second '.' always starts a new number token, so we stop
+            // as soon as we see a second decimal point (e.g. "1.6.3" → "1.6" then "0.3").
+            boolean seenDot = false;
+            while (pos < s.length()) {
+                char ch = s.charAt(pos);
+                if (Character.isDigit(ch)) {
+                    pos++;
+                } else if (ch == '.' && !seenDot) {
+                    seenDot = true;
+                    pos++;
+                } else {
+                    break;
+                }
+            }
             if (pos < s.length() && (s.charAt(pos) == 'e' || s.charAt(pos) == 'E')) {
                 pos++;
                 if (pos < s.length() && (s.charAt(pos) == '-' || s.charAt(pos) == '+')) pos++;
