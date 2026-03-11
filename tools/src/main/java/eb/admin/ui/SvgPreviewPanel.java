@@ -225,6 +225,89 @@ public class SvgPreviewPanel extends JPanel {
         return false;
     }
 
+    /**
+     * Computes the bounding box of all shapes in an SVG fragment by parsing
+     * every {@code <path>}, {@code <circle>}, {@code <ellipse>}, and {@code <rect>}
+     * element at their <em>natural</em> (pre-transform) coordinates.
+     *
+     * <p>This mirrors what a browser's {@code getBBox()} returns: the element's
+     * bounding box in its own local coordinate system, <em>without</em> any
+     * {@code transform} attribute applied.  Use the returned center to compute
+     * the correct facesjs-style {@code translate(px-cx, py-cy)} offset.
+     *
+     * @param fragment raw SVG fragment string (no enclosing {@code <svg>} element needed)
+     * @return unified bounding box, or {@code null} if no shapes could be parsed
+     */
+    static Rectangle2D computeFragmentBounds(String fragment) {
+        if (fragment == null || fragment.isEmpty()) return null;
+        Document doc = parseXml(
+                "<svg xmlns=\"http://www.w3.org/2000/svg\">" + fragment + "</svg>");
+        if (doc == null) return null;
+        Rectangle2D bounds = collectBounds(doc.getDocumentElement());
+        return (bounds == null || bounds.isEmpty()) ? null : bounds;
+    }
+
+    /** Recursively collects the union of all shape bounds within an element tree. */
+    private static Rectangle2D collectBounds(Element el) {
+        String tag = el.getLocalName();
+        if (tag == null) tag = el.getNodeName();
+
+        Rectangle2D result = null;
+
+        switch (tag.toLowerCase()) {
+            case "path": {
+                String d = el.getAttribute("d");
+                if (!d.isEmpty()) {
+                    Shape s = parseSvgPath(d);
+                    if (s != null) result = union(result, s.getBounds2D());
+                }
+                break;
+            }
+            case "circle": {
+                double cx = attrD(el, "cx", 0), cy = attrD(el, "cy", 0),
+                        r = attrD(el, "r", 0);
+                if (r > 0) result = union(result,
+                        new Rectangle2D.Double(cx - r, cy - r, r * 2, r * 2));
+                break;
+            }
+            case "ellipse": {
+                double cx = attrD(el, "cx", 0), cy = attrD(el, "cy", 0),
+                        rx = attrD(el, "rx", 0), ry = attrD(el, "ry", 0);
+                if (rx > 0 && ry > 0) result = union(result,
+                        new Rectangle2D.Double(cx - rx, cy - ry, rx * 2, ry * 2));
+                break;
+            }
+            case "rect": {
+                double x = attrD(el, "x", 0), y = attrD(el, "y", 0),
+                        w = attrD(el, "width", 0), h = attrD(el, "height", 0);
+                if (w > 0 && h > 0) result = union(result,
+                        new Rectangle2D.Double(x, y, w, h));
+                break;
+            }
+            default:
+                break;
+        }
+
+        // Recurse into children (handles <g> and unknown wrappers)
+        NodeList children = el.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n instanceof Element) {
+                Rectangle2D childBounds = collectBounds((Element) n);
+                result = union(result, childBounds);
+            }
+        }
+        return result;
+    }
+
+    private static Rectangle2D union(Rectangle2D a, Rectangle2D b) {
+        if (b == null) return a;
+        if (a == null) return b;
+        Rectangle2D r = new Rectangle2D.Double();
+        Rectangle2D.union(a, b, r);
+        return r;
+    }
+
     // ── XML parsing ───────────────────────────────────────────────────────────
 
     private static Document parseXml(String xml) {

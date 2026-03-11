@@ -115,13 +115,13 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Feature draw order for the face maker preview (back → front).
-     * Mirrors the facesjs layering convention.
+     * Mirrors the exact facesjs {@code featureInfos} layering convention.
      */
     private static final String[] FACE_DRAW_ORDER = {
-        "body", "jersey", "head", "hairBg", "ear",
-        "eye", "eyeLine", "eyebrow", "nose", "mouth",
-        "smileLine", "miscLine", "facialHair", "glasses",
-        "hair", "accessories"
+        "hairBg", "body", "jersey", "ear", "head",
+        "eyeLine", "smileLine", "miscLine", "facialHair",
+        "eye", "eyebrow", "mouth", "nose",
+        "hair", "glasses", "accessories"
     };
 
     /**
@@ -1085,21 +1085,44 @@ public class SvgEditorPanel extends JPanel {
             if (frag.isEmpty()) continue;
 
             int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
-            if (positions != null && !SvgPreviewPanel.hasCanvasCoordinates(frag)) {
-                // ORIGIN-relative fragment: wrap with translate so it appears at the
-                // correct face position.  Bilateral features (ear, eye, eyebrow,
-                // smileLine) are drawn twice; the second (right) instance is mirrored
-                // with scale(-1 1).
-                for (int i = 0; i < positions.length; i++) {
-                    int px = positions[i][0];
-                    int py = positions[i][1];
-                    String t = "translate(" + px + " " + py + ")"
-                             + (i == 1 ? " scale(-1 1)" : "");
-                    fragments.add("<g transform=\"" + t + "\">" + frag + "</g>");
-                }
-            } else {
-                // CANVAS-absolute (already positioned) or full-canvas feature: draw as-is.
+            if (positions == null) {
+                // Full-canvas feature (head, hair, etc.): draw as-is.
                 fragments.add(frag);
+                continue;
+            }
+
+            // Compute the original bounding-box center of the fragment in its local
+            // coordinate space (mirrors how getBBox() works in a browser — the element's
+            // own transform attribute is NOT included, only shape coordinates).
+            java.awt.geom.Rectangle2D bounds = SvgPreviewPanel.computeFragmentBounds(frag);
+            double cx = 0, cy = 0;
+            if (bounds != null) {
+                cx = bounds.getCenterX();
+                cy = bounds.getCenterY();
+            }
+
+            for (int i = 0; i < positions.length; i++) {
+                double px = positions[i][0];
+                double py = positions[i][1];
+                double tx = px - cx;
+                double ty = py - cy;
+
+                String transform;
+                if (i == 0) {
+                    // Left / single instance: translate center to target position.
+                    transform = String.format("translate(%.2f %.2f)", tx, ty);
+                } else {
+                    // Right bilateral: translate center to target, then mirror about
+                    // that center.  Matches facesjs scaleCentered(-1, 1) which uses
+                    // getBBox() in the LOCAL coordinate space (i.e. the original bbox
+                    // center (cx, cy), not the post-translate center).
+                    // Scale transform: scale(-1 1) translate(-2*cx 0)
+                    double txMirror = -2.0 * cx;
+                    transform = String.format(
+                            "translate(%.2f %.2f) scale(-1 1) translate(%.2f 0)",
+                            tx, ty, txMirror);
+                }
+                fragments.add("<g transform=\"" + transform + "\">" + frag + "</g>");
             }
         }
         faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
