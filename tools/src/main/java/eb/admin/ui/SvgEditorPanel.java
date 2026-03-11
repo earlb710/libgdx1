@@ -142,48 +142,66 @@ public class SvgEditorPanel extends JPanel {
     }
 
     /**
-     * Features that expose two colour pickers in the face maker UI.
-     * Each entry maps to: [placeholder1, placeholder2], [default1, default2], [tooltip1, tooltip2].
+     * Features that expose color pickers in the face maker UI.
+     * Each entry maps to: [placeholders…], [defaults…], [tooltips…].
+     * The three inner arrays must all have the same length (1, 2, or 3).
      */
     private static final Map<String, String[][]> FEATURE_COLOR_DEFS = new LinkedHashMap<>();
     static {
-        // head:       color1 = skin fill ($[skinColor]),  color2 = shave stub ($[faceShave]/$[headShave])
+        // hairBg:     1 color – hair fill ($[hairColor])
+        FEATURE_COLOR_DEFS.put("hairBg",
+                new String[][]{{"$[hairColor]"},
+                                {"#272421"},
+                                {"Hair"}});
+        // head:       2 colors – skin fill ($[skinColor]),  shave stub ($[faceShave]/$[headShave])
         FEATURE_COLOR_DEFS.put("head",
                 new String[][]{{"$[skinColor]",  "$[faceShave]"},
                                 {"#f2d6cb",      "#ffffff"},
                                 {"Skin",         "Shave"}});
-        // hair:       color1 = main hair ($[hairColor]),  color2 = secondary ($[hairColor2])
+        // ear:        1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("ear",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // nose:       1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("nose",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // hair:       2 colors – main ($[hairColor]),  secondary ($[hairColor2])
         FEATURE_COLOR_DEFS.put("hair",
                 new String[][]{{"$[hairColor]",  "$[hairColor2]"},
                                 {"#272421",      "#272421"},
                                 {"Color 1",      "Color 2"}});
-        // facialHair: color1 = hair ($[hairColor]),       color2 = accent ($[primary])
+        // facialHair: 2 colors – hair ($[hairColor]),  accent ($[primary])
         FEATURE_COLOR_DEFS.put("facialHair",
                 new String[][]{{"$[hairColor]",  "$[primary]"},
                                 {"#272421",      "#89bfd3"},
                                 {"Hair",         "Accent"}});
-        // jersey:     color1 = primary ($[primary]),      color2 = secondary ($[secondary])
+        // jersey:     3 colors – primary, secondary, accent
         FEATURE_COLOR_DEFS.put("jersey",
-                new String[][]{{"$[primary]",    "$[secondary]"},
-                                {"#89bfd3",      "#7a1319"},
-                                {"Primary",      "Secondary"}});
-        // eyebrow:    color1 = main ($[hairColor]),       color2 = secondary ($[hairColor2])
+                new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
+                                {"#89bfd3",      "#7a1319",       "#07364f"},
+                                {"Primary",      "Secondary",     "Accent"}});
+        // eyebrow:    2 colors – main ($[hairColor]),  secondary ($[hairColor2])
         FEATURE_COLOR_DEFS.put("eyebrow",
                 new String[][]{{"$[hairColor]",  "$[hairColor2]"},
                                 {"#272421",      "#272421"},
                                 {"Color 1",      "Color 2"}});
+        // accessories: 3 colors – primary, secondary, accent
+        FEATURE_COLOR_DEFS.put("accessories",
+                new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
+                                {"#89bfd3",      "#7a1319",       "#07364f"},
+                                {"Primary",      "Secondary",     "Accent"}});
     }
-
-    /** Number of colour picker buttons shown per colour-enabled feature in the face maker. */
-    private static final int COLORS_PER_FEATURE = 2;
 
     /** One combo box per feature, keyed by feature name, in draw order. */
     private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
 
     /**
-     * Two colour-picker buttons per colour-enabled feature (head, hair, facialHair,
-     * jersey, eyebrow). Each button shows the current colour as its background; clicking
-     * opens a {@link JColorChooser}.
+     * Color-picker buttons per color-enabled feature (1, 2, or 3 buttons depending on the
+     * feature).  Each button shows the current color as a solid fill; clicking opens a
+     * {@link JColorChooser}.
      */
     private final Map<String, JButton[]> faceMakerColorBtns = new LinkedHashMap<>();
 
@@ -1010,11 +1028,11 @@ public class SvgEditorPanel extends JPanel {
     /**
      * Builds the Face Maker sub-tab.
      *
-     * <p>Left side: a scrollable panel of (feature-label, combobox, [colour buttons]) rows in
+     * <p>Left side: a scrollable panel of (feature-label, combobox, [color buttons]) rows in
      * back-to-front draw order, plus Randomize and Clear All buttons.
      * The five features {@code head}, {@code hair}, {@code facialHair}, {@code jersey}, and
-     * {@code eyebrow} additionally show two colour-picker buttons that let the user override
-     * the colours used when rendering those features in the preview.
+     * {@code eyebrow} additionally show two color-picker buttons that let the user override
+     * the colors used when rendering those features in the preview.
      * Right side: a composite {@link SvgPreviewPanel} that renders all selected
      * fragments stacked on the shared 400×600 canvas.
      */
@@ -1044,38 +1062,34 @@ public class SvgEditorPanel extends JPanel {
             gbc.gridx = 1; gbc.weightx = 1.0;
             selectorsPanel.add(combo, gbc);
 
-            // Colour pickers for the five colour-enabled features
+            // Colour pickers for color-enabled features (1, 2, or 3 buttons depending on feature)
             String[][] colorDef = FEATURE_COLOR_DEFS.get(feature);
             if (colorDef != null) {
-                String[] defaults  = colorDef[1]; // [default1, default2]
-                String[] tooltips  = colorDef[2]; // [tooltip1, tooltip2]
-                JButton btn1 = createColorButton(defaults[0], tooltips[0]);
-                JButton btn2 = createColorButton(defaults[1], tooltips[1]);
-                final String feat = feature;
-                btn1.addActionListener((ActionEvent e) -> {
-                    Color chosen = JColorChooser.showDialog(
-                            SvgEditorPanel.this, "Color 1 – " + feat, btn1.getBackground());
-                    if (chosen != null) {
-                        btn1.setBackground(chosen);
-                        btn1.setToolTipText(colorToHex(chosen));
-                        updateFaceMakerPreview();
-                    }
-                });
-                btn2.addActionListener((ActionEvent e) -> {
-                    Color chosen = JColorChooser.showDialog(
-                            SvgEditorPanel.this, "Color 2 – " + feat, btn2.getBackground());
-                    if (chosen != null) {
-                        btn2.setBackground(chosen);
-                        btn2.setToolTipText(colorToHex(chosen));
-                        updateFaceMakerPreview();
-                    }
-                });
-                faceMakerColorBtns.put(feature, new JButton[]{btn1, btn2});
+                String[] placeholders = colorDef[0];
+                String[] defaults     = colorDef[1];
+                String[] tooltips     = colorDef[2];
+                int numColors = placeholders.length;
+                JButton[] btns = new JButton[numColors];
+                for (int ci = 0; ci < numColors; ci++) {
+                    btns[ci] = createColorButton(defaults[ci], tooltips[ci]);
+                    final int idx = ci;
+                    final JButton btn = btns[ci];
+                    final String feat = feature;
+                    btn.addActionListener((ActionEvent e) -> {
+                        Color chosen = JColorChooser.showDialog(
+                                SvgEditorPanel.this, tooltips[idx] + " – " + feat, btn.getBackground());
+                        if (chosen != null) {
+                            btn.setBackground(chosen);
+                            btn.setToolTipText(colorToHex(chosen));
+                            updateFaceMakerPreview();
+                        }
+                    });
+                }
+                faceMakerColorBtns.put(feature, btns);
 
                 JPanel colorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
                 colorPanel.setOpaque(false);
-                colorPanel.add(btn1);
-                colorPanel.add(btn2);
+                for (JButton btn : btns) colorPanel.add(btn);
                 gbc.gridx = 2; gbc.weightx = 0;
                 selectorsPanel.add(colorPanel, gbc);
             }
@@ -1179,7 +1193,7 @@ public class SvgEditorPanel extends JPanel {
             String frag = featureObj.get(selected).getAsString();
             if (frag.isEmpty()) continue;
 
-            // Apply per-feature colour substitutions from the colour-picker buttons,
+            // Apply per-feature color substitutions from the color-picker buttons,
             // then fall back to global defaults for any remaining placeholders.
             frag = applyFaceMakerColors(frag, feature);
             frag = applyDefaultColorSubstitutions(frag);
@@ -1246,9 +1260,8 @@ public class SvgEditorPanel extends JPanel {
     }
 
     /**
-     * Applies the per-feature colour substitutions driven by the two colour-picker
-     * buttons for the given {@code feature}.  Only the five colour-enabled features
-     * (head, hair, facialHair, jersey, eyebrow) have buttons; all other features are
+     * Applies the per-feature color substitutions driven by the color-picker buttons for
+     * the given {@code feature}.  Only color-enabled features have buttons; all others are
      * returned unchanged.
      *
      * <p>For {@code head}, both {@code $[faceShave]} and {@code $[headShave]} are
@@ -1259,21 +1272,21 @@ public class SvgEditorPanel extends JPanel {
         String[][] colDef = FEATURE_COLOR_DEFS.get(feature);
         if (btns == null || colDef == null) return frag;
         String[] placeholders = colDef[0];
-        for (int i = 0; i < COLORS_PER_FEATURE; i++) {
-            if (btns[i] != null && placeholders[i] != null) {
+        for (int i = 0; i < btns.length; i++) {
+            if (btns[i] != null && i < placeholders.length && placeholders[i] != null) {
                 frag = frag.replace(placeholders[i], colorToHex(btns[i].getBackground()));
             }
         }
-        // head: $[faceShave] and $[headShave] are two spellings for the same concept
-        if ("head".equals(feature) && btns[1] != null) {
+        // head: $[faceShave] and $[headShave] are two spellings for the same concept (shave color)
+        if ("head".equals(feature) && btns.length >= 2 && btns[1] != null) {
             frag = frag.replace("$[headShave]", colorToHex(btns[1].getBackground()));
         }
         return frag;
     }
 
     /**
-     * Replaces any remaining {@code $[...]} colour placeholders with sensible defaults
-     * so that all SVG fragments render with valid colour values.
+     * Replaces any remaining {@code $[...]} color placeholders with sensible defaults
+     * so that all SVG fragments render with valid color values.
      */
     private static String applyDefaultColorSubstitutions(String frag) {
         frag = frag.replace("$[skinColor]",   "#f2d6cb");
@@ -1306,23 +1319,36 @@ public class SvgEditorPanel extends JPanel {
         }
     }
 
-    // ── Colour-picker helpers ─────────────────────────────────────────────────
+    // ── Color-picker helpers ─────────────────────────────────────────────────
 
     /**
-     * Creates a small square button whose background reflects the current colour.
-     * Clicking the button should open a {@link JColorChooser} (wired up by the caller).
+     * Creates a small square color-swatch button.  The button paints itself as a solid
+     * filled rectangle in its background color, which is reliable across all Swing
+     * look-and-feels (including macOS Aqua, which ignores {@code setBackground()} in
+     * the default button UI).  Clicking the button opens a {@link JColorChooser} (wired
+     * up by the caller).
      *
-     * @param hexDefault default hex colour string, e.g. {@code "#f2d6cb"}
-     * @param tooltip    tooltip text describing what the colour controls
+     * @param hexDefault default hex color string, e.g. {@code "#f2d6cb"}
+     * @param tooltip    tooltip text describing what the color controls
      */
     private static JButton createColorButton(String hexDefault, String tooltip) {
-        JButton btn = new JButton();
+        JButton btn = new JButton() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+            @Override
+            protected void paintBorder(java.awt.Graphics g) {
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+            }
+        };
         btn.setPreferredSize(new Dimension(28, 22));
         btn.setMinimumSize(new Dimension(28, 22));
         btn.setMaximumSize(new Dimension(28, 22));
         btn.setBackground(hexToColor(hexDefault));
         btn.setOpaque(true);
-        btn.setBorderPainted(true);
         btn.setFocusPainted(false);
         btn.setToolTipText(tooltip + " – " + hexDefault);
         return btn;
@@ -1334,7 +1360,7 @@ public class SvgEditorPanel extends JPanel {
     }
 
     /**
-     * Parses a 6-digit hex colour string (with or without leading {@code #}) into a
+     * Parses a 6-digit hex color string (with or without leading {@code #}) into a
      * {@link Color}.  Returns {@link Color#LIGHT_GRAY} on any parse error.
      */
     private static Color hexToColor(String hex) {
@@ -1345,7 +1371,7 @@ public class SvgEditorPanel extends JPanel {
             int b = Integer.parseInt(s.substring(4, 6), 16);
             return new Color(r, g, b);
         } catch (Exception e) {
-            System.err.println("[SvgEditorPanel] Invalid hex colour string: '" + hex + "' – " + e.getMessage());
+            System.err.println("[SvgEditorPanel] Invalid hex color string: '" + hex + "' – " + e.getMessage());
             return Color.LIGHT_GRAY;
         }
     }
