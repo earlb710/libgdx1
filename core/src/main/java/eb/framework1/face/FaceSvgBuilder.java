@@ -444,8 +444,6 @@ public final class FaceSvgBuilder {
         return new double[]{minX, maxX, minY, maxY, cx, cy};
     }
 
-
-
     // -------------------------------------------------------------------------
     // Transform helpers (emit space-separated transform list)
     // -------------------------------------------------------------------------
