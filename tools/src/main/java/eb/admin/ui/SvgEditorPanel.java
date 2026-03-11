@@ -40,9 +40,10 @@ import java.util.Random;
  */
 public class SvgEditorPanel extends JPanel {
 
-    private static final String DEFAULT_RESOURCE_PATH = "assets/text/svg_resource.json";
-    private static final String DEFAULT_INDEX_PATH    = "assets/face/svgs-index.json";
-    private static final String DEFAULT_SVG_DATA_PATH = "assets/face/svgs.json";
+    private static final String DEFAULT_RESOURCE_PATH   = "assets/text/svg_resource.json";
+    private static final String DEFAULT_INDEX_PATH      = "assets/face/svgs-index.json";
+    private static final String DEFAULT_SVG_DATA_PATH   = "assets/face/svgs.json";
+    private static final String DEFAULT_FACE_RULES_PATH = "assets/face/facerules.json";
 
     private final JLabel statusLabel;
 
@@ -237,6 +238,45 @@ public class SvgEditorPanel extends JPanel {
      */
     private final JColorChooser sharedColorChooser = new JColorChooser();
 
+    // ── Face Rules tab fields ─────────────────────────────────────────────────
+
+    /** Valid gender values offered as combo presets in the Face Rules table. */
+    private static final String[] FACE_RULE_GENDER_PRESETS =
+            {"male,female", "male", "female"};
+
+    /** Valid emotion values for face rules. */
+    private static final String[] FACE_RULE_EMOTIONS =
+            {"normal", "sad", "anxious", "angry"};
+
+    /** Valid clothes-type values for face rules. */
+    private static final String[] FACE_RULE_CLOTHES_TYPES =
+            {"normal", "work", "sport", "gym"};
+
+    private final JTextField faceRulesFileField = new JTextField();
+    private File faceRulesFile;
+
+    /**
+     * Table model for face rules.
+     * <p>Columns: Feature (0), ID (1), Genders (2), Emotions (3), MinWealth (4),
+     * ClothesTypes (5), Mode (6).
+     * <ul>
+     *   <li>Genders – comma-separated subset of {@code "male"}, {@code "female"}.
+     *   <li>Emotions – comma-separated subset of {@code "normal"}, {@code "sad"},
+     *       {@code "anxious"}, {@code "angry"}.
+     *   <li>MinWealth – non-negative integer; 0 = no minimum.
+     *   <li>ClothesTypes – comma-separated subset of {@code "normal"}, {@code "work"},
+     *       {@code "sport"}, {@code "gym"}.
+     *   <li>Mode – {@code "include"} (part is allowed) or {@code "exclude"} (part is forbidden).
+     * </ul>
+     */
+    private final DefaultTableModel faceRulesModel =
+            new DefaultTableModel(
+                    new String[]{"Feature", "ID", "Genders", "Emotions", "MinWealth", "ClothesTypes", "Mode"}, 0) {
+                @Override public boolean isCellEditable(int row, int col) { return true; }
+            };
+
+    private final JTable faceRulesTable = new JTable(faceRulesModel);
+
     // ─────────────────────────────────────────────────────────────────────────
 
     public SvgEditorPanel(JLabel statusLabel) {
@@ -254,6 +294,7 @@ public class SvgEditorPanel extends JPanel {
         subTabs.addTab("SVG Resource", buildSvgResourceTab());
         subTabs.addTab("SVG Index",    buildSvgIndexTab());
         subTabs.addTab("Face Maker",   buildFaceMakerTab());
+        subTabs.addTab("Face Rules",   buildFaceRulesTab());
 
         add(subTabs, BorderLayout.CENTER);
     }
@@ -691,6 +732,8 @@ public class SvgEditorPanel extends JPanel {
         if (indexDefault.exists()) loadSvgIndexFromFile(indexDefault);
         File svgsDataDefault = new File(DEFAULT_SVG_DATA_PATH);
         if (svgsDataDefault.exists()) loadSvgsDataFromFile(svgsDataDefault);
+        File faceRulesDefault = new File(DEFAULT_FACE_RULES_PATH);
+        if (faceRulesDefault.exists()) loadFaceRulesFromFile(faceRulesDefault);
     }
 
     // ── File operations: svgs.json (detail data) ──────────────────────────────
@@ -1380,7 +1423,289 @@ public class SvgEditorPanel extends JPanel {
         }
     }
 
-    // ── Color-picker helpers ─────────────────────────────────────────────────
+    // ── Face Rules tab ────────────────────────────────────────────────────────
+
+    /**
+     * Builds the Face Rules sub-tab.
+     *
+     * <p>The tab presents a table where each row defines a single rule that the
+     * face generator should consult when selecting parts.  A rule pins a specific
+     * {@code feature/id} part to a set of conditions:
+     * <ul>
+     *   <li><b>Genders</b> – comma-separated list of genders the rule applies to
+     *       ({@code "male"}, {@code "female"}, or both).
+     *   <li><b>Emotions</b> – comma-separated list of emotions ({@code "normal"},
+     *       {@code "sad"}, {@code "anxious"}, {@code "angry"}).
+     *   <li><b>MinWealth</b> – minimum wealth integer threshold (0 = unrestricted).
+     *   <li><b>ClothesTypes</b> – comma-separated clothes-type values
+     *       ({@code "normal"}, {@code "work"}, {@code "sport"}, {@code "gym"}).
+     *   <li><b>Mode</b> – {@code "include"} (part is eligible) or
+     *       {@code "exclude"} (part is forbidden).
+     * </ul>
+     * Rows are serialised to / loaded from {@code assets/face/facerules.json}.
+     */
+    private JPanel buildFaceRulesTab() {
+        faceRulesFileField.setEditable(false);
+
+        // ── Configure table ───────────────────────────────────────────────────
+
+        configureTable(faceRulesTable);
+        faceRulesTable.getColumnModel().getColumn(0).setPreferredWidth(100); // Feature
+        faceRulesTable.getColumnModel().getColumn(1).setPreferredWidth(110); // ID
+        faceRulesTable.getColumnModel().getColumn(2).setPreferredWidth(110); // Genders
+        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(200); // Emotions
+        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // MinWealth
+        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(180); // ClothesTypes
+        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(80);  // Mode
+
+        // Feature column – combo populated from FACE_DRAW_ORDER
+        JComboBox<String> featureCombo = new JComboBox<>();
+        featureCombo.setEditable(true);
+        for (String f : FACE_DRAW_ORDER) featureCombo.addItem(f);
+        faceRulesTable.getColumnModel().getColumn(0)
+                .setCellEditor(new DefaultCellEditor(featureCombo));
+
+        // Genders column – preset combo (editable for custom values)
+        JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
+        gendersCombo.setEditable(true);
+        faceRulesTable.getColumnModel().getColumn(2)
+                .setCellEditor(new DefaultCellEditor(gendersCombo));
+
+        // Emotions column – all combinations as presets plus "all" shorthand
+        String allEmotions = String.join(",", FACE_RULE_EMOTIONS);
+        JComboBox<String> emotionsCombo = new JComboBox<>();
+        emotionsCombo.setEditable(true);
+        emotionsCombo.addItem(allEmotions);
+        for (String e : FACE_RULE_EMOTIONS) emotionsCombo.addItem(e);
+        faceRulesTable.getColumnModel().getColumn(3)
+                .setCellEditor(new DefaultCellEditor(emotionsCombo));
+
+        // ClothesTypes column – all combinations as presets
+        String allClothes = String.join(",", FACE_RULE_CLOTHES_TYPES);
+        JComboBox<String> clothesCombo = new JComboBox<>();
+        clothesCombo.setEditable(true);
+        clothesCombo.addItem(allClothes);
+        for (String c : FACE_RULE_CLOTHES_TYPES) clothesCombo.addItem(c);
+        faceRulesTable.getColumnModel().getColumn(5)
+                .setCellEditor(new DefaultCellEditor(clothesCombo));
+
+        // Mode column – fixed choice
+        JComboBox<String> modeCombo = new JComboBox<>(new String[]{"include", "exclude"});
+        faceRulesTable.getColumnModel().getColumn(6)
+                .setCellEditor(new DefaultCellEditor(modeCombo));
+
+        // ── Row toolbar ───────────────────────────────────────────────────────
+
+        JButton addBtn    = new JButton("Add Rule");
+        JButton deleteBtn = new JButton("Delete Rule");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            String allEmotionsVal  = String.join(",", FACE_RULE_EMOTIONS);
+            String allClothesVal   = String.join(",", FACE_RULE_CLOTHES_TYPES);
+            // Seed Feature from the selected row for convenience
+            String seedFeature = "";
+            int selected = faceRulesTable.getSelectedRow();
+            if (selected >= 0) {
+                Object val = faceRulesModel.getValueAt(selected, 0);
+                seedFeature = val != null ? val.toString() : "";
+            }
+            faceRulesModel.addRow(new Object[]{seedFeature, "", "male,female",
+                    allEmotionsVal, 0, allClothesVal, "include"});
+            int last = faceRulesModel.getRowCount() - 1;
+            faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
+            faceRulesTable.setRowSelectionInterval(last, last);
+            faceRulesTable.editCellAt(last, 0);
+        });
+        deleteBtn.addActionListener((ActionEvent e) -> deleteSelectedRow(faceRulesTable, faceRulesModel));
+
+        JPanel rowToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        rowToolbar.add(addBtn);
+        rowToolbar.add(deleteBtn);
+
+        // ── File toolbar ──────────────────────────────────────────────────────
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(faceRulesFileField, BorderLayout.CENTER);
+
+        JPanel fileMeta = new JPanel(new BorderLayout());
+        fileMeta.setBorder(BorderFactory.createTitledBorder("File"));
+        fileMeta.add(fileRow, BorderLayout.CENTER);
+
+        JButton openBtn   = new JButton("Open\u2026");
+        JButton saveBtn   = new JButton("Save");
+        JButton saveAsBtn = new JButton("Save As\u2026");
+        openBtn.addActionListener((ActionEvent e) -> openFaceRules());
+        saveBtn.addActionListener((ActionEvent e) -> saveFaceRules(false));
+        saveAsBtn.addActionListener((ActionEvent e) -> saveFaceRules(true));
+
+        JPanel fileToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        fileToolbar.add(openBtn);
+        fileToolbar.add(saveBtn);
+        fileToolbar.add(saveAsBtn);
+
+        JPanel north = new JPanel(new BorderLayout());
+        north.add(fileMeta,    BorderLayout.CENTER);
+        north.add(fileToolbar, BorderLayout.SOUTH);
+
+        // ── Assemble ──────────────────────────────────────────────────────────
+
+        JPanel south = new JPanel(new BorderLayout());
+        south.add(rowToolbar, BorderLayout.WEST);
+
+        JPanel tab = new JPanel(new BorderLayout());
+        tab.add(north,                          BorderLayout.NORTH);
+        tab.add(new JScrollPane(faceRulesTable), BorderLayout.CENTER);
+        tab.add(south,                          BorderLayout.SOUTH);
+        return tab;
+    }
+
+    // ── File operations: facerules.json ───────────────────────────────────────
+
+    private void openFaceRules() {
+        File chosen = chooseOpenFile(faceRulesFile, "assets/face");
+        if (chosen != null) loadFaceRulesFromFile(chosen);
+    }
+
+    /**
+     * Parses {@code facerules.json} and populates the face-rules table.
+     *
+     * <p>The JSON structure is:
+     * <pre>
+     * {
+     *   "rules": [
+     *     {
+     *       "feature":     "hair",
+     *       "id":          "female1",
+     *       "genders":     ["male", "female"],
+     *       "emotions":    ["normal", "sad", "anxious", "angry"],
+     *       "minWealth":   0,
+     *       "clothesTypes":["normal", "work", "sport", "gym"],
+     *       "mode":        "include"
+     *     },
+     *     ...
+     *   ]
+     * }
+     * </pre>
+     */
+    private void loadFaceRulesFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+            faceRulesModel.setRowCount(0);
+
+            JsonArray rules = root.has("rules") ? root.getAsJsonArray("rules") : new JsonArray();
+            for (JsonElement ruleEl : rules) {
+                JsonObject rule = ruleEl.getAsJsonObject();
+                String feature    = rule.has("feature")   ? rule.get("feature").getAsString()  : "";
+                String id         = rule.has("id")        ? rule.get("id").getAsString()        : "";
+                int    minWealth  = rule.has("minWealth") ? rule.get("minWealth").getAsInt()    : 0;
+                String mode       = rule.has("mode")      ? rule.get("mode").getAsString()      : "include";
+
+                String genders     = jsonArrayToString(rule, "genders");
+                String emotions    = jsonArrayToString(rule, "emotions");
+                String clothesTypes = jsonArrayToString(rule, "clothesTypes");
+
+                faceRulesModel.addRow(new Object[]{feature, id, genders, emotions, minWealth, clothesTypes, mode});
+            }
+
+            faceRulesFile = file;
+            faceRulesFileField.setText(file.getAbsolutePath());
+            statusLabel.setText("Face rules loaded: " + file.getAbsolutePath()
+                    + "  (" + faceRulesModel.getRowCount() + " rules)");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading file:\n" + ex.getMessage(),
+                    "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Serialises the face-rules table back to {@code facerules.json} format.
+     * Rows with an empty Feature or ID are skipped with a warning dialog.
+     */
+    private void saveFaceRules(boolean saveAs) {
+        faceRulesFile = resolveTargetFile(faceRulesFile, saveAs);
+        if (faceRulesFile == null) return;
+
+        JsonArray rules   = new JsonArray();
+        List<String> skipped = new ArrayList<>();
+
+        for (int r = 0; r < faceRulesModel.getRowCount(); r++) {
+            String feature     = cellStr(faceRulesModel, r, 0).trim();
+            String id          = cellStr(faceRulesModel, r, 1).trim();
+            String genders     = cellStr(faceRulesModel, r, 2).trim();
+            String emotions    = cellStr(faceRulesModel, r, 3).trim();
+            int    minWealth   = intVal(faceRulesModel.getValueAt(r, 4));
+            String clothesTypes = cellStr(faceRulesModel, r, 5).trim();
+            String mode        = cellStr(faceRulesModel, r, 6).trim();
+
+            if (feature.isEmpty() || id.isEmpty()) {
+                skipped.add("row " + (r + 1) + " (feature='" + feature + "', id='" + id + "')");
+                continue;
+            }
+
+            JsonObject rule = new JsonObject();
+            rule.addProperty("feature",   feature);
+            rule.addProperty("id",        id);
+            rule.add("genders",      stringToJsonArray(genders));
+            rule.add("emotions",     stringToJsonArray(emotions));
+            rule.addProperty("minWealth", minWealth);
+            rule.add("clothesTypes", stringToJsonArray(clothesTypes));
+            rule.addProperty("mode", mode.isEmpty() ? "include" : mode);
+            rules.add(rule);
+        }
+
+        if (!skipped.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "The following rows were skipped because Feature or ID is empty:\n"
+                            + String.join("\n", skipped),
+                    "Save Warning", JOptionPane.WARNING_MESSAGE);
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("rules", rules);
+
+        try (Writer writer = new FileWriter(faceRulesFile)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(root, writer);
+            faceRulesFileField.setText(faceRulesFile.getAbsolutePath());
+            statusLabel.setText("Face rules saved: " + faceRulesFile.getAbsolutePath()
+                    + "  (" + rules.size() + " rules)");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Converts a JSON array of strings under {@code key} in {@code obj} to a
+     * comma-separated string.  Returns an empty string when the key is absent.
+     */
+    private static String jsonArrayToString(JsonObject obj, String key) {
+        if (!obj.has(key)) return "";
+        JsonArray arr = obj.getAsJsonArray(key);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arr.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(arr.get(i).getAsString());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Splits a comma-separated string into a {@link JsonArray} of trimmed strings,
+     * omitting blank elements.
+     */
+    private static JsonArray stringToJsonArray(String csv) {
+        JsonArray arr = new JsonArray();
+        if (csv == null || csv.isBlank()) return arr;
+        for (String part : csv.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) arr.add(trimmed);
+        }
+        return arr;
+    }
 
     /**
      * Shows the shared {@link JColorChooser} dialog.  Because the same instance is reused
