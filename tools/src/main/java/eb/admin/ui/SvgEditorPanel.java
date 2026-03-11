@@ -183,11 +183,26 @@ public class SvgEditorPanel extends JPanel {
                 new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
                                 {"#89bfd3",      "#7a1319",       "#07364f"},
                                 {"Primary",      "Secondary",     "Accent"}});
-        // eyebrow:    2 colors – main ($[hairColor]),  secondary ($[hairColor2])
+        // body:       1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("body",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // glasses:    2 colors – primary frame ($[primary]),  secondary ($[secondary])
+        FEATURE_COLOR_DEFS.put("glasses",
+                new String[][]{{"$[primary]",    "$[secondary]"},
+                                {"#89bfd3",      "#7a1319"},
+                                {"Primary",      "Secondary"}});
+        // eyebrow:    1 color  – main ($[hairColor])
         FEATURE_COLOR_DEFS.put("eyebrow",
-                new String[][]{{"$[hairColor]",  "$[hairColor2]"},
-                                {"#272421",      "#272421"},
-                                {"Color 1",      "Color 2"}});
+                new String[][]{{"$[hairColor]"},
+                                {"#272421"},
+                                {"Hair"}});
+        // miscLine:   1 color  – line/accent ($[primary])
+        FEATURE_COLOR_DEFS.put("miscLine",
+                new String[][]{{"$[primary]"},
+                                {"#000000"},
+                                {"Color"}});
         // accessories: 3 colors – primary, secondary, accent
         FEATURE_COLOR_DEFS.put("accessories",
                 new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
@@ -1030,9 +1045,8 @@ public class SvgEditorPanel extends JPanel {
      *
      * <p>Left side: a scrollable panel of (feature-label, combobox, [color buttons]) rows in
      * back-to-front draw order, plus Randomize and Clear All buttons.
-     * The five features {@code head}, {@code hair}, {@code facialHair}, {@code jersey}, and
-     * {@code eyebrow} additionally show two color-picker buttons that let the user override
-     * the colors used when rendering those features in the preview.
+     * Color-enabled features show 1–3 color-picker buttons (depending on the feature) that
+     * let the user override the colors used when rendering those features in the preview.
      * Right side: a composite {@link SvgPreviewPanel} that renders all selected
      * fragments stacked on the shared 400×600 canvas.
      */
@@ -1062,7 +1076,7 @@ public class SvgEditorPanel extends JPanel {
             gbc.gridx = 1; gbc.weightx = 1.0;
             selectorsPanel.add(combo, gbc);
 
-            // Colour pickers for color-enabled features (1, 2, or 3 buttons depending on feature)
+            // Color pickers for color-enabled features (1, 2, or 3 buttons depending on feature)
             String[][] colorDef = FEATURE_COLOR_DEFS.get(feature);
             if (colorDef != null) {
                 String[] placeholders = colorDef[0];
