@@ -360,6 +360,25 @@ public class SvgPreviewPanel extends JPanel {
         SvgState st = parentState.copy();
         applyPresentationAttrs(el, st);
 
+        // Apply any SVG transform attribute by wrapping rendering in a transformed g2 clone.
+        String transformAttr = el.getAttribute("transform");
+        if (!transformAttr.isEmpty()) {
+            AffineTransform tx = parseTransform(transformAttr);
+            if (tx != null && !tx.isIdentity()) {
+                Graphics2D g2t = (Graphics2D) g2.create();
+                try {
+                    g2t.transform(tx);
+                    renderElementInternal(g2t, tag, el, st);
+                } finally {
+                    g2t.dispose();
+                }
+                return;
+            }
+        }
+        renderElementInternal(g2, tag, el, st);
+    }
+
+    private void renderElementInternal(Graphics2D g2, String tag, Element el, SvgState st) {
         switch (tag.toLowerCase()) {
             case "svg":
             case "g":
@@ -388,6 +407,64 @@ public class SvgPreviewPanel extends JPanel {
             default:
                 break;
         }
+    }
+
+    /**
+     * Parses an SVG {@code transform} attribute string and returns the
+     * equivalent {@link AffineTransform}.
+     *
+     * <p>Supports {@code translate}, {@code scale}, {@code rotate}, and
+     * {@code matrix} functions, including compound transforms such as
+     * {@code "translate(10 20) scale(-1 1) translate(-30 0)"}.
+     * Transforms are applied in left-to-right order (SVG convention).
+     */
+    static AffineTransform parseTransform(String transformStr) {
+        if (transformStr == null || transformStr.trim().isEmpty()) return null;
+        AffineTransform result = new AffineTransform();
+        Pattern funcPat = Pattern.compile(
+                "(translate|scale|rotate|matrix|skewX|skewY)\\s*\\(([^)]+)\\)",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = funcPat.matcher(transformStr);
+        while (m.find()) {
+            String func = m.group(1).toLowerCase();
+            double[] v = parseTxArgs(m.group(2));
+            AffineTransform ti = new AffineTransform();
+            switch (func) {
+                case "translate":
+                    ti.translate(v.length > 0 ? v[0] : 0, v.length > 1 ? v[1] : 0);
+                    break;
+                case "scale":
+                    ti.scale(v.length > 0 ? v[0] : 1,
+                             v.length > 1 ? v[1] : (v.length > 0 ? v[0] : 1));
+                    break;
+                case "rotate":
+                    double rad = v.length > 0 ? Math.toRadians(v[0]) : 0;
+                    if (v.length >= 3) {
+                        ti.rotate(rad, v[1], v[2]);
+                    } else {
+                        ti.rotate(rad);
+                    }
+                    break;
+                case "matrix":
+                    if (v.length == 6) {
+                        ti = new AffineTransform(v[0], v[1], v[2], v[3], v[4], v[5]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            result.concatenate(ti);
+        }
+        return result;
+    }
+
+    private static double[] parseTxArgs(String args) {
+        String[] parts = args.trim().split("[,\\s]+");
+        double[] vals = new double[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            try { vals[i] = Double.parseDouble(parts[i]); } catch (NumberFormatException e) { vals[i] = 0; }
+        }
+        return vals;
     }
 
     private void renderChildren(Graphics2D g2, Element el, SvgState st) {
