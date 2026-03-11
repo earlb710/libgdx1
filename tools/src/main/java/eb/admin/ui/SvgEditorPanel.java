@@ -146,6 +146,9 @@ public class SvgEditorPanel extends JPanel {
     /** Composite preview panel for the face maker. */
     private final SvgPreviewPanel faceMakerPreview = new SvgPreviewPanel();
 
+    /** Debug text area showing bbox center and translate for eye and nose. */
+    private final JTextArea faceMakerDebugArea = new JTextArea(4, 40);
+
     // ─────────────────────────────────────────────────────────────────────────
 
     public SvgEditorPanel(JLabel statusLabel) {
@@ -1027,8 +1030,15 @@ public class SvgEditorPanel extends JPanel {
         split.setDividerLocation(270);
         split.setOneTouchExpandable(true);
 
+        faceMakerDebugArea.setEditable(false);
+        faceMakerDebugArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        faceMakerDebugArea.setText("(select eye or nose to see position debug)");
+        JScrollPane debugScroll = new JScrollPane(faceMakerDebugArea);
+        debugScroll.setBorder(BorderFactory.createTitledBorder("Eye / Nose position debug"));
+
         JPanel tab = new JPanel(new BorderLayout());
         tab.add(split, BorderLayout.CENTER);
+        tab.add(debugScroll, BorderLayout.SOUTH);
         return tab;
     }
 
@@ -1073,6 +1083,8 @@ public class SvgEditorPanel extends JPanel {
             return;
         }
         List<String> fragments = new ArrayList<>();
+        StringBuilder debugSb = new StringBuilder();
+
         for (String feature : FACE_DRAW_ORDER) {
             JComboBox<String> combo = faceMakerCombos.get(feature);
             if (combo == null) continue;
@@ -1101,11 +1113,23 @@ public class SvgEditorPanel extends JPanel {
                 cy = bounds.getCenterY();
             }
 
+            // Debug output for eye and nose
+            boolean isDebugFeature = "eye".equals(feature) || "nose".equals(feature);
+            if (isDebugFeature) {
+                debugSb.append(String.format("%s (%s): bbox_center=(%.2f, %.2f)%n",
+                        feature, selected, cx, cy));
+            }
+
             for (int i = 0; i < positions.length; i++) {
                 double px = positions[i][0];
                 double py = positions[i][1];
                 double tx = px - cx;
                 double ty = py - cy;
+
+                if (isDebugFeature) {
+                    debugSb.append(String.format("  instance[%d]: target=(%.0f, %.0f)  translate=(%.2f, %.2f)%n",
+                            i, px, py, tx, ty));
+                }
 
                 String transform;
                 if (i == 0) {
@@ -1125,6 +1149,10 @@ public class SvgEditorPanel extends JPanel {
                 fragments.add("<g transform=\"" + transform + "\">" + frag + "</g>");
             }
         }
+
+        String debugText = debugSb.toString().trim();
+        faceMakerDebugArea.setText(debugText.isEmpty() ? "(select eye or nose to see position debug)" : debugText);
+
         faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
     }
 
