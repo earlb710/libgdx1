@@ -320,6 +320,16 @@ public final class FaceSvgBuilder {
             Pattern.compile("\\bd=[\"']([^\"']+)[\"']");
 
     /**
+     * Matches any SVG drawing command character (not M/m or Z/z).
+     * A path {@code d} string that contains none of these draws nothing
+     * and should be excluded from the bounding-box calculation.
+     * Example: {@code d="M0,0"} is a bare moveto artifact that would
+     * otherwise pull the bbox to the origin.
+     */
+    private static final Pattern DRAWING_CMD =
+            Pattern.compile("[LlHhVvCcSsQqTtAa]");
+
+    /**
      * Tokeniser for SVG path data: matches either a single letter command or a
      * floating-point number (optionally signed, scientific notation allowed).
      */
@@ -367,6 +377,8 @@ public final class FaceSvgBuilder {
      * derivative, matching browser {@code getBBox()} accuracy.
      */
     private static double[] pathBbox(String d) {
+        // Skip paths that have no actual drawing commands (e.g. bare "M0,0" artifacts).
+        if (!DRAWING_CMD.matcher(d).find()) return null;
         double minX = Double.MAX_VALUE,  maxX = Double.NEGATIVE_INFINITY;
         double minY = Double.MAX_VALUE,  maxY = Double.NEGATIVE_INFINITY;
         double curX = 0, curY = 0;

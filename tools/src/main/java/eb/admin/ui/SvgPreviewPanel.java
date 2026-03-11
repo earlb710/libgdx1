@@ -321,8 +321,14 @@ public class SvgPreviewPanel extends JPanel {
             "[MmLlHhVvCcSsQqTtAaZz]"
             + "|[-+]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][-+]?[0-9]+)?");
 
+    /** Matches any actual drawing command (not M/m or Z/z). */
+    private static final java.util.regex.Pattern BBOX_DRAWING_CMD =
+            java.util.regex.Pattern.compile("[LlHhVvCcSsQqTtAa]");
+
     /** Returns [minX, maxX, minY, maxY] for one SVG path d string, or null. */
     private static double[] tightPathBbox(String d) {
+        // Skip paths with no actual drawing commands (e.g. bare "M0,0" artifacts).
+        if (!BBOX_DRAWING_CMD.matcher(d).find()) return null;
         double minX = Double.MAX_VALUE, maxX = Double.NEGATIVE_INFINITY;
         double minY = Double.MAX_VALUE, maxY = Double.NEGATIVE_INFINITY;
         double curX = 0, curY = 0;

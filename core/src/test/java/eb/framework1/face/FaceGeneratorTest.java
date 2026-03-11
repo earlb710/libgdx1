@@ -574,4 +574,23 @@ public class FaceGeneratorTest {
         assertEquals("arc center X must use start+end, not endpoint±radii", 2.0, c[0], 0.5);
         assertEquals("arc center Y must use start+end, not endpoint±radii", 1.5, c[1], 0.5);
     }
+
+    @Test
+    public void computeCenter_bareMoveto_ignored() throws Exception {
+        // Regression for eye3/female3: their SVG contains a degenerate path "M0,0"
+        // (a bare moveto with no drawing commands — an SVG editor artifact).
+        // This was inflating the bbox to include origin (0,0), pushing the
+        // computed center to (145, 180) instead of the correct (265, 335).
+        //
+        // The fix: pathBbox() returns null for paths with no drawing commands,
+        // so "M0,0" is excluded from the bounding-box union.
+        String eye3Like =
+            "<path d=\"M265,360c-13.8,0-25-11.2-25-25c0-13.8,11.2-25,25-25c13.8,0,25,11.2,25,25C290,348.8,278.8,360,265,360z\"/>"
+            + "<path d=\"M0,0\"/>"
+            + "<path d=\"M265,330c-10,0-10,15,0,15S275,330,265,330z\"/>";
+        double[] c = computeCenter(eye3Like);
+        // With M0,0 ignored, center should be near (265, 335), not (145, 180).
+        assertEquals("eye3 bbox center X must not be pulled to 0 by bare M0,0", 265.0, c[0], 5.0);
+        assertEquals("eye3 bbox center Y must not be pulled to 0 by bare M0,0", 335.0, c[1], 5.0);
+    }
 }
