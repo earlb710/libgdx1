@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -1116,7 +1117,7 @@ public class SvgEditorPanel extends JPanel {
             // Debug output for eye and nose
             boolean isDebugFeature = "eye".equals(feature) || "nose".equals(feature);
             if (isDebugFeature) {
-                debugSb.append(String.format("%s (%s): bbox_center=(%.2f, %.2f)%n",
+                debugSb.append(String.format(Locale.US, "%s (%s): bbox_center=(%.2f, %.2f)%n",
                         feature, selected, cx, cy));
             }
 
@@ -1127,14 +1128,15 @@ public class SvgEditorPanel extends JPanel {
                 double ty = py - cy;
 
                 if (isDebugFeature) {
-                    debugSb.append(String.format("  instance[%d]: target=(%.0f, %.0f)  translate=(%.2f, %.2f)%n",
+                    debugSb.append(String.format(Locale.US,
+                            "  instance[%d]: target=(%.0f, %.0f)  translate=(%.2f, %.2f)%n",
                             i, px, py, tx, ty));
                 }
 
                 String transform;
                 if (i == 0) {
                     // Left / single instance: translate center to target position.
-                    transform = String.format("translate(%.2f %.2f)", tx, ty);
+                    transform = String.format(Locale.US, "translate(%.2f %.2f)", tx, ty);
                 } else {
                     // Right bilateral: translate center to target, then mirror about
                     // that center.  Matches facesjs scaleCentered(-1, 1) which uses
@@ -1142,7 +1144,7 @@ public class SvgEditorPanel extends JPanel {
                     // center (cx, cy), not the post-translate center).
                     // Scale transform: scale(-1 1) translate(-2*cx 0)
                     double txMirror = -2.0 * cx;
-                    transform = String.format(
+                    transform = String.format(Locale.US,
                             "translate(%.2f %.2f) scale(-1 1) translate(%.2f 0)",
                             tx, ty, txMirror);
                 }
