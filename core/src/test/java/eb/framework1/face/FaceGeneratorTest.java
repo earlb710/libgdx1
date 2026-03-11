@@ -410,4 +410,87 @@ public class FaceGeneratorTest {
         assertNotNull("body/body template should be present in svgs.json", bodyTemplate);
         assertFalse("body/body template should not be empty", bodyTemplate.isEmpty());
     }
+
+    // =========================================================================
+    // FaceSvgBuilder.computeCenter — bbox centering
+    // =========================================================================
+
+    /**
+     * Helper that calls the package-private {@code computeCenter} via reflection.
+     */
+    private static double[] computeCenter(String svgFragment) throws Exception {
+        java.lang.reflect.Method m = FaceSvgBuilder.class
+                .getDeclaredMethod("computeCenter", String.class);
+        m.setAccessible(true);
+        return (double[]) m.invoke(null, svgFragment);
+    }
+
+    @Test
+    public void computeCenter_ear1_correctBbox() throws Exception {
+        // ear1 path: x 3-43 (cx=23), y 3-73 (cy=38)
+        double[] c = computeCenter(
+                "<path d=\"M43 13C43 13 23 3 13 3C3 3 3 23 3 33C3 43 6 53 16 63C26 73 43 53 43 53L43 13Z\"/>");
+        assertEquals("ear1 cx", 23.0, c[0], 0.5);
+        assertEquals("ear1 cy", 38.0, c[1], 0.5);
+    }
+
+    @Test
+    public void computeCenter_eye1_correctBbox() throws Exception {
+        // eye1: two paths, x -2 to 63 (cx≈30.5), y 3-53 (cy≈28)
+        double[] c = computeCenter(
+                "<path d=\"M63 43C63 43 58 53 28 53C-2 53 3 43 3 43C3 43 3 3 33 3C63 3 63 43 63 43Z\"/>"
+                + "<path d=\"M33 38C23 38 23 18 33 18C43 18 43 38 33 38Z\"/>");
+        assertEquals("eye1 cx", 30.5, c[0], 1.0);
+        assertEquals("eye1 cy", 28.0, c[1], 1.0);
+    }
+
+    @Test
+    public void computeCenter_eyebrow1_correctBbox() throws Exception {
+        // eyebrow1: x 3-83 (cx=43), y -2 to 23 (cy≈10.5)
+        double[] c = computeCenter(
+                "<path d=\"M83 13C83 3 73 3 73 3C48 -2 17.46 8.36 3 18C43 13 53 23 78 23C78 23 83 23 83 13Z\"/>");
+        assertEquals("eyebrow1 cx", 43.0, c[0], 0.5);
+        assertEquals("eyebrow1 cy", 10.5, c[1], 0.5);
+    }
+
+    @Test
+    public void computeCenter_horizontalCommand_correctBbox() throws Exception {
+        // M10 10 H80 V50 H10 Z → x 10-80 (cx=45), y 10-50 (cy=30)
+        double[] c = computeCenter("<path d=\"M10 10H80V50H10Z\"/>");
+        assertEquals("H/V cx", 45.0, c[0], 0.1);
+        assertEquals("H/V cy", 30.0, c[1], 0.1);
+    }
+
+    @Test
+    public void computeCenter_relativeCommand_correctBbox() throws Exception {
+        // M10 10 h20 v30 h-20 z → x 10-30 (cx=20), y 10-40 (cy=25)
+        double[] c = computeCenter("<path d=\"M10 10h20v30h-20z\"/>");
+        assertEquals("relative h cx", 20.0, c[0], 0.1);
+        assertEquals("relative h cy", 25.0, c[1], 0.1);
+    }
+
+    @Test
+    public void computeCenter_noPath_returnsZeroZero() throws Exception {
+        double[] c = computeCenter("<g><style>.foo { fill: red }</style></g>");
+        assertEquals("no path cx", 0.0, c[0], 0.001);
+        assertEquals("no path cy", 0.0, c[1], 0.001);
+    }
+
+    @Test
+    public void svgBuilder_positioning_centerAtTarget() {
+        // Verify that a feature with a known bbox center ends up at the target position.
+        // Use a simple path that has bbox center at (5, 5).
+        // For left eye target (140, 310): effective translate should be (140-5, 310-5)=(135, 305)
+        final String pathWith5x5Center = "<path d=\"M0 0 L10 10\"/>";  // bbox (0-10, 0-10), cx=cy=5
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> pathWith5x5Center);
+
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("eye1", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // The left eye transform should contain translate(140.00 310.00) and translate(-5.00 -5.00)
+        assertTrue("left eye position translate", svg.contains("translate(140.00 310.00)"));
+        assertTrue("left eye bbox offset translate", svg.contains("translate(-5.00 -5.00)"));
+    }
 }
