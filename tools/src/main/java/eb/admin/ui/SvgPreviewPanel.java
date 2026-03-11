@@ -438,11 +438,15 @@ public class SvgPreviewPanel extends JPanel {
             }
             case 'A': {
                 for (int i = 0; i + 6 < n; i += 7) {
-                    double rx = nums.get(i), ry = nums.get(i+1);
                     double ex = nums.get(i+5) + (rel ? cx : 0);
                     double ey = nums.get(i+6) + (rel ? cy : 0);
-                    if (ex - rx < minX) minX = ex - rx; if (ex + rx > maxX) maxX = ex + rx;
-                    if (ey - ry < minY) minY = ey - ry; if (ey + ry > maxY) maxY = ey + ry;
+                    // Include both the arc's start point and its endpoint.
+                    // Using endpoint ± radii wildly overestimates the bbox for small arcs
+                    // with large radii (e.g. smile4 has r=67 arcs spanning only ~11 px).
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
                     cx = ex; cy = ey;
                 }
                 break;

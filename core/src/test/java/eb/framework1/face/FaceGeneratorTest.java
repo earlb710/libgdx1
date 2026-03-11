@@ -559,4 +559,19 @@ public class FaceGeneratorTest {
         assertTrue("right eye compound transform must have correct bbox-offset translate",
                 svg.contains("translate(-197.00 -270.00)"));
     }
+
+    @Test
+    public void computeCenter_arcPath_notInflatedByRadius() throws Exception {
+        // Regression test for the arc bbox overestimation bug.
+        // smile4 has a67,67 arcs that only span ~11 px. The old code used
+        // endpoint ± radii which expanded the bbox by ±67 px, giving a wrong center.
+        //
+        // Verify with: M0,0 a50,50,0,0,1,4,3 Z
+        //   start=(0,0); arc endpoint=(4,3); radius=50 but chord=5.
+        //   Fixed code: includes start+end only → bbox [0,4]x[0,3] → center=(2, 1.5).
+        //   Old (broken) code: endpoint ± radii → bbox [-46,54]x[-47,53] → center=(4, 3).
+        double[] c = computeCenter("<path d=\"M0 0 a50,50,0,0,1,4,3 Z\"/>");
+        assertEquals("arc center X must use start+end, not endpoint±radii", 2.0, c[0], 0.5);
+        assertEquals("arc center Y must use start+end, not endpoint±radii", 1.5, c[1], 0.5);
+    }
 }

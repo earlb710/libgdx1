@@ -503,15 +503,15 @@ public final class FaceSvgBuilder {
             case 'A': {
                 // args: rx ry x-rot large-arc sweep x y (7 per arc)
                 for (int i = 0; i + 6 < n; i += 7) {
-                    double rx = nums.get(i);
-                    double ry = nums.get(i+1);
                     double ex = nums.get(i+5) + (rel ? cx : 0);
                     double ey = nums.get(i+6) + (rel ? cy : 0);
-                    // Approximate arc extents using the endpoint ± radii
-                    double ax1 = ex - rx, ax2 = ex + rx;
-                    double ay1 = ey - ry, ay2 = ey + ry;
-                    if (ax1 < minX) minX = ax1; if (ax2 > maxX) maxX = ax2;
-                    if (ay1 < minY) minY = ay1; if (ay2 > maxY) maxY = ay2;
+                    // Include both the arc's start point and its endpoint.
+                    // Using endpoint ± radii wildly overestimates the bbox for small arcs
+                    // with large radii (e.g. smile4 has r=67 arcs spanning only ~11 px).
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
                     cx = ex; cy = ey;
                 }
                 break;
