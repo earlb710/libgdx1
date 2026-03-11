@@ -230,6 +230,13 @@ public class SvgEditorPanel extends JPanel {
     /** Debug text area showing bbox center and translate for eye and nose. */
     private final JTextArea faceMakerDebugArea = new JTextArea(4, 40);
 
+    /**
+     * Shared {@link JColorChooser} instance reused across all color-picker invocations so
+     * that the built-in "Recent Colors" swatch panel accumulates a history across picks.
+     * A new instance would start with an empty recent-colors list each time.
+     */
+    private final JColorChooser sharedColorChooser = new JColorChooser();
+
     // ─────────────────────────────────────────────────────────────────────────
 
     public SvgEditorPanel(JLabel statusLabel) {
@@ -1104,7 +1111,7 @@ public class SvgEditorPanel extends JPanel {
                     final JButton btn = btns[ci];
                     final String feat = feature;
                     btn.addActionListener((ActionEvent e) -> {
-                        Color chosen = JColorChooser.showDialog(
+                        Color chosen = showColorPickerDialog(
                                 SvgEditorPanel.this, tooltips[idx] + " – " + feat, btn.getBackground());
                         if (chosen != null) {
                             btn.setBackground(chosen);
@@ -1362,6 +1369,36 @@ public class SvgEditorPanel extends JPanel {
     }
 
     // ── Color-picker helpers ─────────────────────────────────────────────────
+
+    /**
+     * Shows the shared {@link JColorChooser} dialog.  Because the same instance is reused
+     * on every invocation, the built-in "Recent Colors" swatch panel accumulates a history
+     * of previously confirmed picks so the user can quickly return to earlier colors.
+     *
+     * <p>The {@code initialColor} is pre-loaded as the chooser's current selection before
+     * the dialog opens.  This means the button's <em>current</em> color always appears as
+     * the selected swatch, making it easy to click OK without changing anything to revert
+     * to the previous value.
+     *
+     * @param parent       parent component for dialog placement
+     * @param title        dialog title bar text
+     * @param initialColor the color to pre-select (typically the button's current color)
+     * @return the confirmed {@link Color}, or {@code null} if the dialog was cancelled
+     */
+    private Color showColorPickerDialog(Component parent, String title, Color initialColor) {
+        sharedColorChooser.setColor(initialColor);
+        final Color[] result = {null};
+        JDialog dialog = JColorChooser.createDialog(
+                parent, title, true, sharedColorChooser,
+                e -> result[0] = sharedColorChooser.getColor(),  // OK
+                null);                                           // Cancel
+        try {
+            dialog.setVisible(true);
+        } finally {
+            dialog.dispose();
+        }
+        return result[0];
+    }
 
     /**
      * Creates a small square color-swatch button.  The button paints itself as a solid
