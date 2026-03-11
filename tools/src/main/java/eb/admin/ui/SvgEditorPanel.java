@@ -924,6 +924,7 @@ public class SvgEditorPanel extends JPanel {
                     "Error loading file:\n" + ex.getMessage(),
                     "Load Error", JOptionPane.ERROR_MESSAGE);
         }
+        refreshFaceMakerCombos();
     }
 
     /**
@@ -985,6 +986,7 @@ public class SvgEditorPanel extends JPanel {
                     "Error saving file:\n" + ex.getMessage(),
                     "Save Error", JOptionPane.ERROR_MESSAGE);
         }
+        refreshFaceMakerCombos();
     }
 
     // ── Shared helpers ────────────────────────────────────────────────────────
@@ -1176,10 +1178,22 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Repopulates all face-maker combo boxes from the currently loaded
-     * {@link #svgsData}.  Previously selected values are preserved when still
-     * available.
+     * {@link #svgIndexModel} (i.e. the contents of {@code svgs-index.json}).
+     * Using the index as the source means that only registered/curated parts
+     * are offered, in exactly the order they appear in the index file.
+     * Previously selected values are preserved when still available.
      */
     private void refreshFaceMakerCombos() {
+        // Build feature → ordered IDs from the index table
+        Map<String, List<String>> indexedIds = new LinkedHashMap<>();
+        for (int r = 0; r < svgIndexModel.getRowCount(); r++) {
+            String feature = cellStr(svgIndexModel, r, 0).trim();
+            String id      = cellStr(svgIndexModel, r, 1).trim();
+            if (!feature.isEmpty() && !id.isEmpty()) {
+                indexedIds.computeIfAbsent(feature, k -> new ArrayList<>()).add(id);
+            }
+        }
+
         for (String feature : FACE_DRAW_ORDER) {
             JComboBox<String> combo = faceMakerCombos.get(feature);
             if (combo == null) continue;
@@ -1188,11 +1202,9 @@ public class SvgEditorPanel extends JPanel {
             combo.removeAllItems();
             combo.addItem("(none)");
 
-            if (svgsData != null && svgsData.has(feature)) {
-                for (Map.Entry<String, JsonElement> entry :
-                        svgsData.getAsJsonObject(feature).entrySet()) {
-                    combo.addItem(entry.getKey());
-                }
+            List<String> ids = indexedIds.get(feature);
+            if (ids != null) {
+                for (String id : ids) combo.addItem(id);
             }
 
             // Restore previous selection if still present in the new list
