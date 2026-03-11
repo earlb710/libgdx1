@@ -15,38 +15,43 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
 
 /**
- * Panel that displays and edits the contents of {@code svg_resource.json}.
+ * Top-level panel for the <b>SVG</b> tab in the Game Admin tool.
  *
- * <p>The JSON is structured as a two-level hierarchy:
+ * <p>Contains two inner sub-tabs:
  * <ul>
- *   <li><b>File parts</b> – top table (File, Path), always showing 5 visible rows.</li>
- *   <li><b>Items</b>      – bottom table (ID, Pathname, Type, W, H, X, Y), showing
- *       the sub-records that belong to the currently selected file part.</li>
+ *   <li><b>SVG Resource</b> – {@code assets/text/svg_resource.json}
+ *       (File Parts + Items two-level hierarchy)</li>
+ *   <li><b>SVG Index</b>    – {@code assets/face/svgs-index.json}
+ *       (Feature, ID, Gender columns).  Selecting a row shows the
+ *       corresponding SVG fragment from {@code assets/face/svgs.json}
+ *       in a text area and renders it in a live preview panel.</li>
  * </ul>
- *
- * <p>Selecting a row in the file-parts table populates the items table.
- * Both tables support Add/Delete Row operations.  A single Save button
- * writes the complete two-level structure back to disk.
  */
 public class SvgEditorPanel extends JPanel {
 
-    private static final String DEFAULT_JSON_PATH = "assets/text/svg_resource.json";
+    private static final String DEFAULT_RESOURCE_PATH = "assets/text/svg_resource.json";
+    private static final String DEFAULT_INDEX_PATH    = "assets/face/svgs-index.json";
+    private static final String DEFAULT_SVG_DATA_PATH = "assets/face/svgs.json";
 
-    // -------------------------------------------------------------------------
-    // File-parts table  (top table)
-    // -------------------------------------------------------------------------
+    private final JLabel statusLabel;
+
+    // ── SVG Resource (svg_resource.json) fields ───────────────────────────────
 
     private final DefaultTableModel filePartsModel = new DefaultTableModel(
             new String[]{"File", "Path"}, 0) {
         @Override public boolean isCellEditable(int row, int col) { return true; }
     };
-
     private final JTable filePartsTable = new JTable(filePartsModel);
 
     /**
@@ -56,113 +61,100 @@ public class SvgEditorPanel extends JPanel {
      */
     private final List<List<Object[]>> allItems = new ArrayList<>();
 
-    // -------------------------------------------------------------------------
-    // Items table  (bottom table)
-    // -------------------------------------------------------------------------
-
     private final DefaultTableModel itemsModel = new DefaultTableModel(
             new String[]{"ID", "Pathname", "Type", "W", "H", "X", "Y"}, 0) {
         @Override public boolean isCellEditable(int row, int col) { return true; }
     };
-
     private final JTable itemsTable = new JTable(itemsModel);
 
     /** Row index currently shown in the items table; -1 when none. */
     private int selectedFilePartRow = -1;
 
-    // -------------------------------------------------------------------------
-    // Metadata / file state
-    // -------------------------------------------------------------------------
+    private final JTextField versionField      = new JTextField(8);
+    private final JTextField resourceFileField = new JTextField();
+    private File resourceFile;
 
-    private final JTextField versionField = new JTextField(8);
-    private final JTextField fileField    = new JTextField();
-    private File currentFile;
-    private final JLabel statusLabel;
-
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Top-level panel for the <b>SVG</b> tab in the Game Admin tool.
- *
- * <p>Contains one inner sub-tab:
- * <ul>
- *   <li><b>SVG Resource</b> – {@code assets/face/svgs-index.json}
- *       (Feature, ID, Gender columns)</li>
- * </ul>
- *
- * <p>The SVG Resource table flattens the nested JSON structure of
- * {@code svgs-index.json} into rows of {@code [Feature, ID, Gender]}:
- * <ul>
- *   <li>{@code Feature} – the feature category (e.g. {@code accessories},
- *       {@code eye}); editable so entirely new categories can be added</li>
- *   <li>{@code ID}      – the variant ID (e.g. {@code eye1},
- *       {@code hat})</li>
- *   <li>{@code Gender}  – gender compatibility: {@code both},
- *       {@code male}, or {@code female}</li>
- * </ul>
- *
- * <p>Open / Save / Save&nbsp;As buttons allow editing and persisting the
- * resource index file.
- */
-public class SvgEditorPanel extends JPanel {
-
-    private static final String DEFAULT_INDEX_PATH = "assets/face/svgs-index.json";
-
-    private final JLabel statusLabel;
-
-    // ── SVG Resource fields ───────────────────────────────────────────────────
+    // ── SVG Index (svgs-index.json) fields ────────────────────────────────────
 
     private final JTextField svgIndexFileField = new JTextField();
 
     /**
-     * Table model for the SVG Resource table.
+     * Table model for the SVG Index table.
      * Columns: Feature (col 0), ID (col 1), Gender (col 2).
-     * All columns are editable so users can add entirely new feature categories.
      */
     private final DefaultTableModel svgIndexModel =
             new DefaultTableModel(new String[]{"Feature", "ID", "Gender"}, 0) {
                 @Override
-                public boolean isCellEditable(int row, int col) {
-                    return true;
-                }
+                public boolean isCellEditable(int row, int col) { return true; }
             };
 
     private final JTable svgIndexTable = new JTable(svgIndexModel);
     private File svgIndexFile;
+
+    // ── svgs.json (detail data) fields ────────────────────────────────────────
+
+    /** Root object of svgs.json – keyed by feature → id → SVG fragment string. */
+    private JsonObject svgsData;
+    /** File from which {@link #svgsData} was loaded; used by the Save Fragment button. */
+    private File svgsDataFile;
+
+    private final JTextArea      svgDetailArea    = new JTextArea();
+    private final SvgPreviewPanel svgPreviewPanel  = new SvgPreviewPanel();
+
+    /**
+     * Info label shown below the detail panel.
+     * Its text changes based on the selected feature – a highlighted warning is
+     * shown for {@code head} and {@code hair} features where position matters.
+     */
+    private final JLabel canvasNoteLabel = new JLabel();
+
+    /** Features for which SVG position on the 400×600 canvas is significant. */
+    private static final java.util.Set<String> POSITION_SENSITIVE_FEATURES =
+            new java.util.HashSet<>(java.util.Arrays.asList("head", "hair", "hairBg", "body", "jersey"));
+
+    // ── Face Maker tab fields ──────────────────────────────────────────────────
+
+    /**
+     * Feature draw order for the face maker preview (back → front).
+     * Mirrors the exact facesjs {@code featureInfos} layering convention.
+     */
+    private static final String[] FACE_DRAW_ORDER = {
+        "hairBg", "body", "jersey", "ear", "head",
+        "eyeLine", "smileLine", "miscLine", "facialHair",
+        "eye", "eyebrow", "mouth", "nose",
+        "hair", "glasses", "accessories"
+    };
+
+    /**
+     * Pixel positions [x, y] for features that must be translated on the 400×600
+     * canvas, mirroring {@code FaceSvgBuilder.FEATURE_INFOS}.
+     * Bilateral features have two position pairs: index 0 = left, index 1 = right.
+     * The right instance is also mirrored via {@code scale(-1 1)}.
+     */
+    private static final Map<String, int[][]> FACE_FEATURE_POSITIONS = new LinkedHashMap<>();
+    static {
+        FACE_FEATURE_POSITIONS.put("ear",       new int[][]{{55, 325}, {345, 325}});
+        FACE_FEATURE_POSITIONS.put("eye",       new int[][]{{140, 310}, {260, 310}});
+        FACE_FEATURE_POSITIONS.put("eyebrow",   new int[][]{{140, 270}, {260, 270}});
+        FACE_FEATURE_POSITIONS.put("mouth",     new int[][]{{200, 440}});
+        FACE_FEATURE_POSITIONS.put("nose",      new int[][]{{200, 370}});
+        FACE_FEATURE_POSITIONS.put("smileLine", new int[][]{{150, 435}, {250, 435}});
+    }
+
+    /** One combo box per feature, keyed by feature name, in draw order. */
+    private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
+
+    /** Composite preview panel for the face maker. */
+    private final SvgPreviewPanel faceMakerPreview = new SvgPreviewPanel();
+
+    /** Debug text area showing bbox center and translate for eye and nose. */
+    private final JTextArea faceMakerDebugArea = new JTextArea(4, 40);
 
     // ─────────────────────────────────────────────────────────────────────────
 
     public SvgEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
         buildUI();
-        tryLoadDefaultFile();
-    }
-
-    // -------------------------------------------------------------------------
-    // UI construction
-    // -------------------------------------------------------------------------
-
-    private void buildUI() {
-        setLayout(new BorderLayout(0, 4));
-        add(buildNorthPanel(), BorderLayout.NORTH);
-        add(buildCenterPanel(), BorderLayout.CENTER);
-    }
-
-    private JPanel buildNorthPanel() {
-        fileField.setEditable(false);
-
-        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
-        metaTop.add(new JLabel("Version:"));
-        metaTop.add(versionField);
         tryLoadDefaults();
     }
 
@@ -173,83 +165,40 @@ public class SvgEditorPanel extends JPanel {
 
         JTabbedPane subTabs = new JTabbedPane();
         subTabs.addTab("SVG Resource", buildSvgResourceTab());
+        subTabs.addTab("SVG Index",    buildSvgIndexTab());
+        subTabs.addTab("Face Maker",   buildFaceMakerTab());
 
         add(subTabs, BorderLayout.CENTER);
     }
 
+    // ── SVG Resource tab ──────────────────────────────────────────────────────
+
     private JPanel buildSvgResourceTab() {
-        svgIndexFileField.setEditable(false);
+        resourceFileField.setEditable(false);
 
-        configureTable(svgIndexTable);
-        svgIndexTable.getColumnModel().getColumn(0).setPreferredWidth(120);
-        svgIndexTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-        svgIndexTable.getColumnModel().getColumn(2).setPreferredWidth(80);
-
-        // Gender column – use a JComboBox editor for convenience
-        JComboBox<String> genderCombo = new JComboBox<>(new String[]{"both", "male", "female"});
-        svgIndexTable.getColumnModel().getColumn(2)
-                .setCellEditor(new DefaultCellEditor(genderCombo));
-
-        JButton addBtn    = new JButton("Add Row");
-        JButton deleteBtn = new JButton("Delete Row");
-        JButton saveBtn   = new JButton("Save");
-
-        addBtn.addActionListener((ActionEvent e) -> {
-            // Seed the Feature cell from the selected row for convenience; a new
-            // feature name can also be typed directly since the column is editable.
-            String feature = "";
-            int selected = svgIndexTable.getSelectedRow();
-            if (selected >= 0) {
-                Object val = svgIndexModel.getValueAt(selected, 0);
-                feature = val != null ? val.toString() : "";
-            }
-            svgIndexModel.addRow(new Object[]{feature, "", "both"});
-            int last = svgIndexModel.getRowCount() - 1;
-            svgIndexTable.scrollRectToVisible(svgIndexTable.getCellRect(last, 0, true));
-            svgIndexTable.setRowSelectionInterval(last, last);
-            // Start editing the Feature cell so the user can set it immediately
-            svgIndexTable.editCellAt(last, 0);
-        });
-        deleteBtn.addActionListener((ActionEvent e) -> deleteSelectedRow(svgIndexTable, svgIndexModel));
-        saveBtn.addActionListener((ActionEvent e) -> saveSvgIndex(false));
-
-        return buildTabLayout(svgIndexFileField,
-                svgIndexTable,
-                addBtn, deleteBtn, saveBtn,
-                this::openSvgIndex,
-                () -> saveSvgIndex(false),
-                () -> saveSvgIndex(true));
-    }
-
-    // ── Generic layout builder ────────────────────────────────────────────────
-
-    /**
-     * Assembles the common BorderLayout panel structure:
-     * a file-path strip at the top, a scrollable table in the centre, and
-     * Add / Delete / Save buttons along the bottom.
-     */
-    private JPanel buildTabLayout(JTextField fileField,
-                                   JTable table,
-                                   JButton addBtn, JButton deleteBtn, JButton saveRowBtn,
-                                   Runnable openAction, Runnable saveAction, Runnable saveAsAction) {
+        // North panel: version field + file path + Open/Save/Save-As buttons
+        JPanel metaTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        metaTop.add(new JLabel("Version:"));
+        metaTop.add(versionField);
 
         JPanel fileRow = new JPanel(new BorderLayout(4, 0));
         fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
         fileRow.add(new JLabel("File:"), BorderLayout.WEST);
-        fileRow.add(fileField, BorderLayout.CENTER);
+        fileRow.add(resourceFileField, BorderLayout.CENTER);
 
         JPanel meta = new JPanel(new BorderLayout());
         meta.setBorder(BorderFactory.createTitledBorder("File Metadata"));
         meta.add(metaTop,  BorderLayout.NORTH);
         meta.add(fileRow,  BorderLayout.CENTER);
 
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-        JButton openBtn   = new JButton("Open…");
+        JButton openBtn   = new JButton("Open\u2026");
         JButton saveBtn   = new JButton("Save");
-        JButton saveAsBtn = new JButton("Save As…");
-        openBtn.addActionListener((ActionEvent e) -> openFile());
-        saveBtn.addActionListener((ActionEvent e) -> saveFile(false));
-        saveAsBtn.addActionListener((ActionEvent e) -> saveFile(true));
+        JButton saveAsBtn = new JButton("Save As\u2026");
+        openBtn.addActionListener((ActionEvent e) -> openSvgResource());
+        saveBtn.addActionListener((ActionEvent e) -> saveSvgResource(false));
+        saveAsBtn.addActionListener((ActionEvent e) -> saveSvgResource(true));
+
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
         toolbar.add(openBtn);
         toolbar.add(saveBtn);
         toolbar.add(saveAsBtn);
@@ -257,10 +206,14 @@ public class SvgEditorPanel extends JPanel {
         JPanel north = new JPanel(new BorderLayout());
         north.add(meta,    BorderLayout.CENTER);
         north.add(toolbar, BorderLayout.SOUTH);
-        return north;
+
+        JPanel tab = new JPanel(new BorderLayout(0, 4));
+        tab.add(north,                  BorderLayout.NORTH);
+        tab.add(buildSvgResourceCenter(), BorderLayout.CENTER);
+        return tab;
     }
 
-    private JPanel buildCenterPanel() {
+    private JPanel buildSvgResourceCenter() {
         // ---- file-parts table (top) ----
         filePartsTable.setRowHeight(26);
         filePartsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -298,7 +251,6 @@ public class SvgEditorPanel extends JPanel {
                 allItems.remove(row);
                 selectedFilePartRow = -1;
                 itemsModel.setRowCount(0);
-                // re-select nearest row
                 if (filePartsModel.getRowCount() > 0) {
                     int next = Math.min(row, filePartsModel.getRowCount() - 1);
                     filePartsTable.setRowSelectionInterval(next, next);
@@ -384,9 +336,222 @@ public class SvgEditorPanel extends JPanel {
         return center;
     }
 
-    // -------------------------------------------------------------------------
-    // Selection handler
-    // -------------------------------------------------------------------------
+    // ── SVG Index tab ─────────────────────────────────────────────────────────
+
+    private JPanel buildSvgIndexTab() {
+        svgIndexFileField.setEditable(false);
+
+        configureTable(svgIndexTable);
+        svgIndexTable.getColumnModel().getColumn(0).setPreferredWidth(120);
+        svgIndexTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        svgIndexTable.getColumnModel().getColumn(2).setPreferredWidth(80);
+
+        // Gender column – use a JComboBox editor for convenience
+        JComboBox<String> genderCombo = new JComboBox<>(new String[]{"both", "male", "female"});
+        svgIndexTable.getColumnModel().getColumn(2)
+                .setCellEditor(new DefaultCellEditor(genderCombo));
+
+        // Wire up row-selection → detail / preview update
+        svgIndexTable.getSelectionModel().addListSelectionListener(
+                (ListSelectionEvent e) -> {
+                    if (!e.getValueIsAdjusting()) onSvgIndexRowSelected();
+                });
+
+        JButton addBtn    = new JButton("Add Row");
+        JButton deleteBtn = new JButton("Delete Row");
+        JButton saveBtn   = new JButton("Save");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            // Seed the Feature cell from the selected row for convenience
+            String feature = "";
+            int selected = svgIndexTable.getSelectedRow();
+            if (selected >= 0) {
+                Object val = svgIndexModel.getValueAt(selected, 0);
+                feature = val != null ? val.toString() : "";
+            }
+            svgIndexModel.addRow(new Object[]{feature, "", "both"});
+            int last = svgIndexModel.getRowCount() - 1;
+            svgIndexTable.scrollRectToVisible(svgIndexTable.getCellRect(last, 0, true));
+            svgIndexTable.setRowSelectionInterval(last, last);
+            // Start editing the Feature cell so the user can set it immediately
+            svgIndexTable.editCellAt(last, 0);
+        });
+        deleteBtn.addActionListener((ActionEvent e) -> deleteSelectedRow(svgIndexTable, svgIndexModel));
+        saveBtn.addActionListener((ActionEvent e) -> saveSvgIndex(false));
+
+        // ── North: file path + Open/Save/Save-As toolbar ──────────────────────
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(svgIndexFileField, BorderLayout.CENTER);
+
+        JPanel fileMeta = new JPanel(new BorderLayout());
+        fileMeta.setBorder(BorderFactory.createTitledBorder("File"));
+        fileMeta.add(fileRow, BorderLayout.CENTER);
+
+        JButton openBtn   = new JButton("Open\u2026");
+        JButton saveBtn2  = new JButton("Save");
+        JButton saveAsBtn = new JButton("Save As\u2026");
+        openBtn.addActionListener((ActionEvent e) -> openSvgIndex());
+        saveBtn2.addActionListener((ActionEvent e) -> saveSvgIndex(false));
+        saveAsBtn.addActionListener((ActionEvent e) -> saveSvgIndex(true));
+
+        JPanel fileToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        fileToolbar.add(openBtn);
+        fileToolbar.add(saveBtn2);
+        fileToolbar.add(saveAsBtn);
+
+        JPanel north = new JPanel(new BorderLayout());
+        north.add(fileMeta,    BorderLayout.CENTER);
+        north.add(fileToolbar, BorderLayout.SOUTH);
+
+        // ── Row toolbar ───────────────────────────────────────────────────────
+
+        JPanel rowToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        rowToolbar.add(addBtn);
+        rowToolbar.add(deleteBtn);
+        rowToolbar.add(Box.createHorizontalStrut(12));
+        rowToolbar.add(saveBtn);
+
+        // ── Table panel (index) ───────────────────────────────────────────────
+
+        JScrollPane indexScroll = new JScrollPane(svgIndexTable,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        JPanel tablePanel = new JPanel(new BorderLayout(0, 2));
+        tablePanel.add(indexScroll, BorderLayout.CENTER);
+        tablePanel.add(rowToolbar,  BorderLayout.SOUTH);
+
+        // ── Detail area: text + SVG preview ──────────────────────────────────
+
+        svgDetailArea.setEditable(true);
+        svgDetailArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        svgDetailArea.setLineWrap(true);
+        svgDetailArea.setWrapStyleWord(false);
+        svgDetailArea.setText("(select a row to see the svgs.json fragment)");
+
+        JScrollPane detailScroll = new JScrollPane(svgDetailArea,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("svgs.json fragment"));
+
+        svgPreviewPanel.setBorder(BorderFactory.createTitledBorder(
+                "Preview (canvas: " + SvgPreviewPanel.SVG_W
+                        + "\u00d7" + SvgPreviewPanel.SVG_H + ")"));
+        svgPreviewPanel.setPreferredSize(new Dimension(200, 200));
+        svgPreviewPanel.setMinimumSize(new Dimension(100, 100));
+
+        JSplitPane detailSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                detailScroll, svgPreviewPanel);
+        detailSplit.setResizeWeight(0.6);
+        detailSplit.setOneTouchExpandable(true);
+
+        // ── Canvas note label ─────────────────────────────────────────────────
+        initCanvasNoteLabel();
+
+        // ── Save Fragment button ──────────────────────────────────────────────
+        JButton saveFragmentBtn = new JButton("Save Fragment");
+        saveFragmentBtn.setToolTipText("Save the edited SVG fragment back to svgs.json");
+        saveFragmentBtn.addActionListener((ActionEvent e) -> saveSvgFragment());
+
+        JPanel detailSouth = new JPanel(new BorderLayout(4, 2));
+        detailSouth.add(saveFragmentBtn, BorderLayout.WEST);
+        detailSouth.add(canvasNoteLabel, BorderLayout.CENTER);
+
+        JPanel detailPanel = new JPanel(new BorderLayout(0, 2));
+        detailPanel.setBorder(BorderFactory.createTitledBorder("SVG Detail"));
+        detailPanel.add(detailSplit,  BorderLayout.CENTER);
+        detailPanel.add(detailSouth, BorderLayout.SOUTH);
+
+        // ── Outer split: index table on top, detail on bottom ─────────────────
+
+        JSplitPane mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                tablePanel, detailPanel);
+        mainSplit.setResizeWeight(0.6);
+        mainSplit.setOneTouchExpandable(true);
+
+        JPanel tab = new JPanel(new BorderLayout(0, 4));
+        tab.add(north,     BorderLayout.NORTH);
+        tab.add(mainSplit, BorderLayout.CENTER);
+        return tab;
+    }
+
+    /**
+     * Initialises the {@link #canvasNoteLabel} with the default (no-selection) text.
+     */
+    private void initCanvasNoteLabel() {
+        canvasNoteLabel.setOpaque(true);
+        canvasNoteLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+        canvasNoteLabel.setFont(canvasNoteLabel.getFont().deriveFont(Font.PLAIN, 11f));
+        updateCanvasNoteLabel("");
+    }
+
+    /**
+     * Updates the canvas-note label for the given feature.
+     *
+     * <p>For position-sensitive features ({@code head}, {@code hair},
+     * {@code hairBg}, {@code body}, {@code jersey}) a highlighted warning is
+     * shown; all other features get a brief informational note.
+     *
+     * @param feature the selected feature name, or empty string when none selected
+     */
+    private void updateCanvasNoteLabel(String feature) {
+        if (POSITION_SENSITIVE_FEATURES.contains(feature)) {
+            canvasNoteLabel.setBackground(new Color(255, 243, 205));
+            canvasNoteLabel.setForeground(new Color(120, 80, 0));
+            canvasNoteLabel.setText(
+                    "\u26a0  Position matters for \u2018" + feature + "\u2019 SVGs: "
+                    + "draw on the full 400\u00d7600 canvas, matching the existing "
+                    + feature + " SVGs so facial features align correctly.");
+        } else {
+            canvasNoteLabel.setBackground(new Color(235, 244, 255));
+            canvasNoteLabel.setForeground(new Color(50, 80, 130));
+            String posFeatures = new java.util.TreeSet<>(POSITION_SENSITIVE_FEATURES)
+                    .stream().collect(java.util.stream.Collectors.joining(", "));
+            canvasNoteLabel.setText(
+                    "\u2139  Canvas: 400\u00d7600.  "
+                    + "For most features position is ignored (auto-placed). "
+                    + "Position is only critical for: " + posFeatures + ".");
+        }
+    }
+
+    /** Called whenever the SVG Index table selection changes. */
+    private void onSvgIndexRowSelected() {
+        int row = svgIndexTable.getSelectedRow();
+        if (row < 0 || svgsData == null) {
+            svgDetailArea.setText("(no selection)");
+            svgPreviewPanel.setFeatureName("");
+            svgPreviewPanel.setSvgFragment("");
+            updateCanvasNoteLabel("");
+            return;
+        }
+        String feature = cellStr(svgIndexModel, row, 0);
+        String id      = cellStr(svgIndexModel, row, 1);
+
+        updateCanvasNoteLabel(feature);
+        svgPreviewPanel.setFeatureName(feature);
+
+        if (feature.isEmpty() || id.isEmpty()) {
+            svgDetailArea.setText("(feature or id is empty)");
+            svgPreviewPanel.setSvgFragment("");
+            return;
+        }
+
+        if (svgsData.has(feature) && svgsData.getAsJsonObject(feature).has(id)) {
+            String fragment = svgsData.getAsJsonObject(feature).get(id).getAsString();
+            svgDetailArea.setText(fragment);
+            svgDetailArea.setCaretPosition(0);
+            svgPreviewPanel.setSvgFragment(fragment);
+        } else {
+            svgDetailArea.setText("(no entry found in svgs.json for "
+                    + feature + "/" + id + ")");
+            svgPreviewPanel.setSvgFragment("");
+        }
+    }
+
+    // ── Selection handler (SVG Resource) ─────────────────────────────────────
 
     private void onFilePartSelectionChanged() {
         int newRow = filePartsTable.getSelectedRow();
@@ -412,7 +577,6 @@ public class SvgEditorPanel extends JPanel {
      */
     private void flushItemsToCurrentPart() {
         if (selectedFilePartRow < 0 || selectedFilePartRow >= allItems.size()) return;
-        // Stop any active editor first
         if (itemsTable.isEditing()) {
             itemsTable.getCellEditor().stopCellEditing();
         }
@@ -431,32 +595,93 @@ public class SvgEditorPanel extends JPanel {
         allItems.set(selectedFilePartRow, rows);
     }
 
-    // -------------------------------------------------------------------------
-    // File operations
-    // -------------------------------------------------------------------------
+    // ── Default file auto-loading ─────────────────────────────────────────────
 
-    private void tryLoadDefaultFile() {
-        File defaultFile = new File(DEFAULT_JSON_PATH);
-        if (defaultFile.exists()) {
-            loadFromFile(defaultFile);
+    private void tryLoadDefaults() {
+        File resourceDefault = new File(DEFAULT_RESOURCE_PATH);
+        if (resourceDefault.exists()) loadSvgResourceFromFile(resourceDefault);
+        File indexDefault = new File(DEFAULT_INDEX_PATH);
+        if (indexDefault.exists()) loadSvgIndexFromFile(indexDefault);
+        File svgsDataDefault = new File(DEFAULT_SVG_DATA_PATH);
+        if (svgsDataDefault.exists()) loadSvgsDataFromFile(svgsDataDefault);
+    }
+
+    // ── File operations: svgs.json (detail data) ──────────────────────────────
+
+    private void loadSvgsDataFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            svgsData     = new Gson().fromJson(reader, JsonObject.class);
+            svgsDataFile = file;
+        } catch (Exception ex) {
+            svgsData     = null;
+            svgsDataFile = null;
+        }
+        refreshFaceMakerCombos();
+    }
+
+    /**
+     * Saves the currently edited SVG fragment (from {@link #svgDetailArea}) back
+     * into {@link #svgsData} for the selected feature/id row, updates the live
+     * preview, and writes the updated {@code svgs.json} file to disk.
+     */
+    private void saveSvgFragment() {
+        int row = svgIndexTable.getSelectedRow();
+        if (row < 0 || svgsData == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No row selected or svgs.json not loaded.",
+                    "Save Fragment", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String feature  = cellStr(svgIndexModel, row, 0).trim();
+        String id       = cellStr(svgIndexModel, row, 1).trim();
+        if (feature.isEmpty() || id.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "The selected row has no Feature or ID.",
+                    "Save Fragment", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String newFragment = svgDetailArea.getText();
+
+        // Update in-memory svgsData
+        if (!svgsData.has(feature)) {
+            svgsData.add(feature, new JsonObject());
+        }
+        svgsData.getAsJsonObject(feature).addProperty(id, newFragment);
+
+        // Refresh live preview
+        svgPreviewPanel.setSvgFragment(newFragment);
+
+        // Persist to file (prompt for a file if none is known)
+        if (svgsDataFile == null) {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
+            File d = new File(DEFAULT_SVG_DATA_PATH);
+            chooser.setCurrentDirectory(d.getParentFile().isDirectory()
+                    ? d.getParentFile() : new File("."));
+            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+            svgsDataFile = ensureJsonExtension(chooser.getSelectedFile());
+        }
+
+        try (Writer writer = new FileWriter(svgsDataFile)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(svgsData, writer);
+            statusLabel.setText("SVG fragment saved: " + feature + "/" + id
+                    + " → " + svgsDataFile.getAbsolutePath());
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving svgs.json:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void openFile() {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
-        if (currentFile != null) {
-            chooser.setCurrentDirectory(currentFile.getParentFile());
-        } else {
-            File assetsText = new File("assets/text");
-            chooser.setCurrentDirectory(assetsText.isDirectory() ? assetsText : new File("."));
-        }
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            loadFromFile(chooser.getSelectedFile());
-        }
+    // ── File operations: SVG Resource (svg_resource.json) ────────────────────
+
+    private void openSvgResource() {
+        File chosen = chooseOpenFile(resourceFile, "assets/text");
+        if (chosen != null) loadSvgResourceFromFile(chosen);
     }
 
-    private void loadFromFile(File file) {
+    private void loadSvgResourceFromFile(File file) {
         try (Reader reader = new FileReader(file)) {
             JsonObject root = new Gson().fromJson(reader, JsonObject.class);
 
@@ -493,8 +718,8 @@ public class SvgEditorPanel extends JPanel {
                 }
             }
 
-            currentFile = file;
-            fileField.setText(file.getAbsolutePath());
+            resourceFile = file;
+            resourceFileField.setText(file.getAbsolutePath());
             statusLabel.setText("SVG resources loaded: " + file.getAbsolutePath());
 
             // Select first row automatically
@@ -502,89 +727,6 @@ public class SvgEditorPanel extends JPanel {
                 filePartsTable.setRowSelectionInterval(0, 0);
             }
 
-        meta.setBorder(BorderFactory.createTitledBorder("File"));
-        meta.add(fileRow, BorderLayout.CENTER);
-
-        // File toolbar
-        JButton openBtn   = new JButton("Open\u2026");
-        JButton saveBtn   = new JButton("Save");
-        JButton saveAsBtn = new JButton("Save As\u2026");
-        openBtn.addActionListener((ActionEvent e) -> openAction.run());
-        saveBtn.addActionListener((ActionEvent e) -> saveAction.run());
-        saveAsBtn.addActionListener((ActionEvent e) -> saveAsAction.run());
-
-        JPanel fileToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-        fileToolbar.add(openBtn);
-        fileToolbar.add(saveBtn);
-        fileToolbar.add(saveAsBtn);
-
-        JPanel north = new JPanel(new BorderLayout());
-        north.add(meta,        BorderLayout.CENTER);
-        north.add(fileToolbar, BorderLayout.SOUTH);
-
-        // Row toolbar
-        JPanel rowToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-        rowToolbar.add(addBtn);
-        rowToolbar.add(deleteBtn);
-        rowToolbar.add(Box.createHorizontalStrut(12));
-        rowToolbar.add(saveRowBtn);
-
-        JScrollPane scroll = new JScrollPane(table,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-        JPanel panel = new JPanel(new BorderLayout(0, 4));
-        panel.add(north,      BorderLayout.NORTH);
-        panel.add(scroll,     BorderLayout.CENTER);
-        panel.add(rowToolbar, BorderLayout.SOUTH);
-        return panel;
-    }
-
-    // ── File operations: SVG Resource (svgs-index.json) ──────────────────────
-
-    private void openSvgIndex() {
-        File chosen = chooseOpenFile(svgIndexFile, "assets/face");
-        if (chosen != null) loadSvgIndexFromFile(chosen);
-    }
-
-    /**
-     * Parses {@code svgs-index.json} and populates the table.
-     *
-     * <p>The JSON structure is:
-     * <pre>
-     * {
-     *   "svgsIndex":   { "feature": ["id1", "id2", ...], ... },
-     *   "svgsGenders": { "feature": ["both", "male", ...], ... }
-     * }
-     * </pre>
-     * Each (feature, id, gender) triple becomes one table row.
-     */
-    private void loadSvgIndexFromFile(File file) {
-        try (Reader reader = new FileReader(file)) {
-            JsonObject root = new Gson().fromJson(reader, JsonObject.class);
-            svgIndexModel.setRowCount(0);
-
-            JsonObject indexObj   = root.has("svgsIndex")   ? root.getAsJsonObject("svgsIndex")   : new JsonObject();
-            JsonObject gendersObj = root.has("svgsGenders") ? root.getAsJsonObject("svgsGenders") : new JsonObject();
-
-            for (Map.Entry<String, JsonElement> featureEntry : indexObj.entrySet()) {
-                String    feature   = featureEntry.getKey();
-                JsonArray ids       = featureEntry.getValue().getAsJsonArray();
-                JsonArray genders   = gendersObj.has(feature)
-                        ? gendersObj.getAsJsonArray(feature)
-                        : new JsonArray();
-
-                for (int i = 0; i < ids.size(); i++) {
-                    String id     = ids.get(i).getAsString();
-                    String gender = (i < genders.size()) ? genders.get(i).getAsString() : "both";
-                    svgIndexModel.addRow(new Object[]{feature, id, gender});
-                }
-            }
-
-            svgIndexFile = file;
-            svgIndexFileField.setText(file.getAbsolutePath());
-            statusLabel.setText("SVG index loaded: " + file.getAbsolutePath()
-                    + "  (" + svgIndexModel.getRowCount() + " entries)");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Error loading file:\n" + ex.getMessage(),
@@ -592,26 +734,14 @@ public class SvgEditorPanel extends JPanel {
         }
     }
 
-    private void saveFile(boolean saveAs) {
-        // Flush pending edits
+    private void saveSvgResource(boolean saveAs) {
         if (filePartsTable.isEditing()) {
             filePartsTable.getCellEditor().stopCellEditing();
         }
         flushItemsToCurrentPart();
 
-        if (currentFile == null || saveAs) {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
-            if (currentFile != null) {
-                chooser.setSelectedFile(currentFile);
-            }
-            if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            File chosen = chooser.getSelectedFile();
-            currentFile = chosen.getName().endsWith(".json") ? chosen
-                    : new File(chosen.getAbsolutePath() + ".json");
-        }
+        resourceFile = resolveTargetFile(resourceFile, saveAs);
+        if (resourceFile == null) return;
 
         try {
             JsonObject root = new JsonObject();
@@ -642,15 +772,73 @@ public class SvgEditorPanel extends JPanel {
             root.add("svg_resources", svgResources);
 
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            try (Writer writer = new FileWriter(currentFile)) {
+            try (Writer writer = new FileWriter(resourceFile)) {
                 gson.toJson(root, writer);
             }
-            statusLabel.setText("SVG resources saved: " + currentFile.getAbsolutePath());
-            fileField.setText(currentFile.getAbsolutePath());
+            statusLabel.setText("SVG resources saved: " + resourceFile.getAbsolutePath());
+            resourceFileField.setText(resourceFile.getAbsolutePath());
             JOptionPane.showMessageDialog(this,
                     "File saved successfully.",
                     "Saved", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ── File operations: SVG Index (svgs-index.json) ──────────────────────────
+
+    private void openSvgIndex() {
+        File chosen = chooseOpenFile(svgIndexFile, "assets/face");
+        if (chosen != null) loadSvgIndexFromFile(chosen);
+    }
+
+    /**
+     * Parses {@code svgs-index.json} and populates the table.
+     *
+     * <p>The JSON structure is:
+     * <pre>
+     * {
+     *   "svgsIndex":   { "feature": ["id1", "id2", ...], ... },
+     *   "svgsGenders": { "feature": ["both", "male", ...], ... }
+     * }
+     * </pre>
+     * Each (feature, id, gender) triple becomes one table row.
+     */
+    private void loadSvgIndexFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+            svgIndexModel.setRowCount(0);
+
+            JsonObject indexObj   = root.has("svgsIndex")   ? root.getAsJsonObject("svgsIndex")   : new JsonObject();
+            JsonObject gendersObj = root.has("svgsGenders") ? root.getAsJsonObject("svgsGenders") : new JsonObject();
+
+            for (Map.Entry<String, JsonElement> featureEntry : indexObj.entrySet()) {
+                String    feature = featureEntry.getKey();
+                JsonArray ids     = featureEntry.getValue().getAsJsonArray();
+                JsonArray genders = gendersObj.has(feature)
+                        ? gendersObj.getAsJsonArray(feature)
+                        : new JsonArray();
+
+                for (int i = 0; i < ids.size(); i++) {
+                    String id     = ids.get(i).getAsString();
+                    String gender = (i < genders.size()) ? genders.get(i).getAsString() : "both";
+                    svgIndexModel.addRow(new Object[]{feature, id, gender});
+                }
+            }
+
+            svgIndexFile = file;
+            svgIndexFileField.setText(file.getAbsolutePath());
+            statusLabel.setText("SVG index loaded: " + file.getAbsolutePath()
+                    + "  (" + svgIndexModel.getRowCount() + " entries)");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading file:\n" + ex.getMessage(),
+                    "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     /**
      * Serialises the table back to {@code svgs-index.json} format.
      *
@@ -712,29 +900,6 @@ public class SvgEditorPanel extends JPanel {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    private static String cellStr(DefaultTableModel m, int row, int col) {
-        Object v = m.getValueAt(row, col);
-        return v != null ? v.toString().trim() : "";
-    }
-
-    private static String str(Object v) {
-        return v != null ? v.toString().trim() : "";
-    }
-
-    private static int intVal(Object v) {
-        if (v == null) return 0;
-        try { return Integer.parseInt(v.toString().trim()); } catch (NumberFormatException e) { return 0; }
-    // ── Default file auto-loading ─────────────────────────────────────────────
-
-    private void tryLoadDefaults() {
-        File f = new File(DEFAULT_INDEX_PATH);
-        if (f.exists()) loadSvgIndexFromFile(f);
-    }
-
     // ── Shared helpers ────────────────────────────────────────────────────────
 
     private static void configureTable(JTable table) {
@@ -759,6 +924,15 @@ public class SvgEditorPanel extends JPanel {
         return val != null ? val.toString() : "";
     }
 
+    private static String str(Object v) {
+        return v != null ? v.toString().trim() : "";
+    }
+
+    private static int intVal(Object v) {
+        if (v == null) return 0;
+        try { return Integer.parseInt(v.toString().trim()); } catch (NumberFormatException e) { return 0; }
+    }
+
     private File chooseOpenFile(File currentFile, String defaultDirPath) {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
@@ -778,10 +952,228 @@ public class SvgEditorPanel extends JPanel {
             chooser.setFileFilter(new FileNameExtensionFilter("JSON files (*.json)", "json"));
             if (currentFile != null) chooser.setSelectedFile(currentFile);
             if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return null;
-            File chosen = chooser.getSelectedFile();
-            return chosen.getName().endsWith(".json") ? chosen
-                    : new File(chosen.getAbsolutePath() + ".json");
+            return ensureJsonExtension(chooser.getSelectedFile());
         }
         return currentFile;
+    }
+
+    private static File ensureJsonExtension(File file) {
+        return file.getName().endsWith(".json") ? file
+                : new File(file.getAbsolutePath() + ".json");
+    }
+
+    // ── Face Maker tab ────────────────────────────────────────────────────────
+
+    /**
+     * Builds the Face Maker sub-tab.
+     *
+     * <p>Left side: a scrollable panel of (feature-label, combobox) rows in
+     * back-to-front draw order, plus Randomize and Clear All buttons.
+     * Right side: a composite {@link SvgPreviewPanel} that renders all selected
+     * fragments stacked on the shared 400×600 canvas.
+     */
+    @SuppressWarnings("unchecked")
+    private JPanel buildFaceMakerTab() {
+        JPanel selectorsPanel = new JPanel(new GridBagLayout());
+        selectorsPanel.setBorder(BorderFactory.createTitledBorder("Feature Selections (back → front)"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets  = new Insets(3, 6, 3, 6);
+        gbc.fill    = GridBagConstraints.HORIZONTAL;
+        gbc.anchor  = GridBagConstraints.WEST;
+
+        for (int i = 0; i < FACE_DRAW_ORDER.length; i++) {
+            String feature = FACE_DRAW_ORDER[i];
+
+            JLabel label = new JLabel(feature + ":");
+            label.setHorizontalAlignment(SwingConstants.RIGHT);
+
+            JComboBox<String> combo = new JComboBox<>();
+            combo.addItem("(none)");
+            faceMakerCombos.put(feature, combo);
+            combo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
+
+            gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0; gbc.gridwidth = 1;
+            selectorsPanel.add(label, gbc);
+            gbc.gridx = 1; gbc.weightx = 1.0;
+            selectorsPanel.add(combo, gbc);
+        }
+
+        JButton randomizeBtn = new JButton("Randomize");
+        JButton clearBtn     = new JButton("Clear All");
+        randomizeBtn.setToolTipText("Pick a random variant for every feature");
+        clearBtn.setToolTipText("Reset all feature selections to (none)");
+        randomizeBtn.addActionListener((ActionEvent e) -> randomizeFaceMaker());
+        clearBtn.addActionListener((ActionEvent e) -> clearFaceMaker());
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttonsPanel.add(randomizeBtn);
+        buttonsPanel.add(clearBtn);
+
+        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length;
+        gbc.gridwidth = 2; gbc.weightx = 1.0;
+        selectorsPanel.add(buttonsPanel, gbc);
+
+        JScrollPane selectorsScroll = new JScrollPane(selectorsPanel,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        selectorsScroll.setPreferredSize(new Dimension(260, 100));
+        selectorsScroll.setMinimumSize(new Dimension(200, 100));
+
+        faceMakerPreview.setBorder(BorderFactory.createTitledBorder(
+                "Preview (canvas: " + SvgPreviewPanel.SVG_W
+                        + "\u00d7" + SvgPreviewPanel.SVG_H + ")"));
+        faceMakerPreview.setPreferredSize(new Dimension(320, 480));
+        faceMakerPreview.setMinimumSize(new Dimension(200, 300));
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                selectorsScroll, faceMakerPreview);
+        split.setDividerLocation(270);
+        split.setOneTouchExpandable(true);
+
+        faceMakerDebugArea.setEditable(false);
+        faceMakerDebugArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        faceMakerDebugArea.setText("(select eye or nose to see position debug)");
+        JScrollPane debugScroll = new JScrollPane(faceMakerDebugArea);
+        debugScroll.setBorder(BorderFactory.createTitledBorder("Eye / Nose position debug"));
+
+        JPanel tab = new JPanel(new BorderLayout());
+        tab.add(split, BorderLayout.CENTER);
+        tab.add(debugScroll, BorderLayout.SOUTH);
+        return tab;
+    }
+
+    /**
+     * Repopulates all face-maker combo boxes from the currently loaded
+     * {@link #svgsData}.  Previously selected values are preserved when still
+     * available.
+     */
+    private void refreshFaceMakerCombos() {
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null) continue;
+
+            String currentSelection = (String) combo.getSelectedItem();
+            combo.removeAllItems();
+            combo.addItem("(none)");
+
+            if (svgsData != null && svgsData.has(feature)) {
+                for (Map.Entry<String, JsonElement> entry :
+                        svgsData.getAsJsonObject(feature).entrySet()) {
+                    combo.addItem(entry.getKey());
+                }
+            }
+
+            // Restore previous selection if still present in the new list
+            if (currentSelection != null && !currentSelection.equals("(none)")) {
+                for (int i = 0; i < combo.getItemCount(); i++) {
+                    if (currentSelection.equals(combo.getItemAt(i))) {
+                        combo.setSelectedItem(currentSelection);
+                        break;
+                    }
+                }
+            }
+        }
+        updateFaceMakerPreview();
+    }
+
+    /** Collects the selected fragments in draw order and pushes them to the preview. */
+    private void updateFaceMakerPreview() {
+        if (svgsData == null) {
+            faceMakerPreview.setCompositeFragments(null);
+            return;
+        }
+        List<String> fragments = new ArrayList<>();
+        StringBuilder debugSb = new StringBuilder();
+
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null) continue;
+            String selected = (String) combo.getSelectedItem();
+            if (selected == null || selected.equals("(none)")) continue;
+            if (!svgsData.has(feature)) continue;
+            JsonObject featureObj = svgsData.getAsJsonObject(feature);
+            if (!featureObj.has(selected)) continue;
+            String frag = featureObj.get(selected).getAsString();
+            if (frag.isEmpty()) continue;
+
+            int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
+            if (positions == null) {
+                // Full-canvas feature (head, hair, etc.): draw as-is.
+                fragments.add(frag);
+                continue;
+            }
+
+            // Compute the original bounding-box center of the fragment in its local
+            // coordinate space (mirrors how getBBox() works in a browser — the element's
+            // own transform attribute is NOT included, only shape coordinates).
+            java.awt.geom.Rectangle2D bounds = SvgPreviewPanel.computeFragmentBounds(frag);
+            double cx = 0, cy = 0;
+            if (bounds != null) {
+                cx = bounds.getCenterX();
+                cy = bounds.getCenterY();
+            }
+
+            // Debug output for eye and nose
+            boolean isDebugFeature = "eye".equals(feature) || "nose".equals(feature);
+            if (isDebugFeature) {
+                debugSb.append(String.format(Locale.US, "%s (%s): bbox_center=(%.2f, %.2f)%n",
+                        feature, selected, cx, cy));
+            }
+
+            for (int i = 0; i < positions.length; i++) {
+                double px = positions[i][0];
+                double py = positions[i][1];
+                double tx = px - cx;
+                double ty = py - cy;
+
+                if (isDebugFeature) {
+                    debugSb.append(String.format(Locale.US,
+                            "  instance[%d]: target=(%.0f, %.0f)  translate=(%.2f, %.2f)%n",
+                            i, px, py, tx, ty));
+                }
+
+                String transform;
+                if (i == 0) {
+                    // Left / single instance: translate center to target position.
+                    transform = String.format(Locale.US, "translate(%.2f %.2f)", tx, ty);
+                } else {
+                    // Right bilateral: translate center to target, then mirror about
+                    // that center.  Matches facesjs scaleCentered(-1, 1) which uses
+                    // getBBox() in the LOCAL coordinate space (i.e. the original bbox
+                    // center (cx, cy), not the post-translate center).
+                    // Scale transform: scale(-1 1) translate(-2*cx 0)
+                    double txMirror = -2.0 * cx;
+                    transform = String.format(Locale.US,
+                            "translate(%.2f %.2f) scale(-1 1) translate(%.2f 0)",
+                            tx, ty, txMirror);
+                }
+                fragments.add("<g transform=\"" + transform + "\">" + frag + "</g>");
+            }
+        }
+
+        String debugText = debugSb.toString().trim();
+        faceMakerDebugArea.setText(debugText.isEmpty() ? "(select eye or nose to see position debug)" : debugText);
+
+        faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
+    }
+
+    /** Randomly selects one variant for every feature that has data loaded. */
+    private void randomizeFaceMaker() {
+        if (svgsData == null) return;
+        Random rnd = new Random();
+        for (String feature : FACE_DRAW_ORDER) {
+            JComboBox<String> combo = faceMakerCombos.get(feature);
+            if (combo == null || combo.getItemCount() <= 1) continue;
+            // item 0 is "(none)"; items 1+ are real variants
+            combo.setSelectedIndex(1 + rnd.nextInt(combo.getItemCount() - 1));
+        }
+    }
+
+    /** Resets all face maker combo boxes to {@code "(none)"}. */
+    private void clearFaceMaker() {
+        for (JComboBox<String> combo : faceMakerCombos.values()) {
+            combo.setSelectedIndex(0);
+        }
     }
 }

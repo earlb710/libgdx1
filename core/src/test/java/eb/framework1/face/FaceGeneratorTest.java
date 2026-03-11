@@ -410,4 +410,187 @@ public class FaceGeneratorTest {
         assertNotNull("body/body template should be present in svgs.json", bodyTemplate);
         assertFalse("body/body template should not be empty", bodyTemplate.isEmpty());
     }
+
+    // =========================================================================
+    // FaceSvgBuilder.computeCenter — bbox centering
+    // =========================================================================
+
+    /**
+     * Helper that calls the package-private {@code computeCenter} via reflection.
+     */
+    private static double[] computeCenter(String svgFragment) throws Exception {
+        java.lang.reflect.Method m = FaceSvgBuilder.class
+                .getDeclaredMethod("computeCenter", String.class);
+        m.setAccessible(true);
+        return (double[]) m.invoke(null, svgFragment);
+    }
+
+    @Test
+    public void computeCenter_ear1_correctBbox() throws Exception {
+        // ear1 path: x 3-43 (cx=23), y 3-73 (cy=38)
+        double[] c = computeCenter(
+                "<path d=\"M43 13C43 13 23 3 13 3C3 3 3 23 3 33C3 43 6 53 16 63C26 73 43 53 43 53L43 13Z\"/>");
+        assertEquals("ear1 cx", 23.0, c[0], 0.5);
+        assertEquals("ear1 cy", 38.0, c[1], 0.5);
+    }
+
+    @Test
+    public void computeCenter_eye1_correctBbox() throws Exception {
+        // eye1: two paths, x -2 to 63 (cx≈30.5), y 3-53 (cy≈28)
+        double[] c = computeCenter(
+                "<path d=\"M63 43C63 43 58 53 28 53C-2 53 3 43 3 43C3 43 3 3 33 3C63 3 63 43 63 43Z\"/>"
+                + "<path d=\"M33 38C23 38 23 18 33 18C43 18 43 38 33 38Z\"/>");
+        assertEquals("eye1 cx", 30.5, c[0], 1.0);
+        assertEquals("eye1 cy", 28.0, c[1], 1.0);
+    }
+
+    @Test
+    public void computeCenter_eyebrow1_correctBbox() throws Exception {
+        // eyebrow1: x 3-83 (cx=43), y -2 to 23 (cy≈10.5)
+        double[] c = computeCenter(
+                "<path d=\"M83 13C83 3 73 3 73 3C48 -2 17.46 8.36 3 18C43 13 53 23 78 23C78 23 83 23 83 13Z\"/>");
+        assertEquals("eyebrow1 cx", 43.0, c[0], 0.5);
+        assertEquals("eyebrow1 cy", 10.5, c[1], 0.5);
+    }
+
+    @Test
+    public void computeCenter_horizontalCommand_correctBbox() throws Exception {
+        // M10 10 H80 V50 H10 Z → x 10-80 (cx=45), y 10-50 (cy=30)
+        double[] c = computeCenter("<path d=\"M10 10H80V50H10Z\"/>");
+        assertEquals("H/V cx", 45.0, c[0], 0.1);
+        assertEquals("H/V cy", 30.0, c[1], 0.1);
+    }
+
+    @Test
+    public void computeCenter_relativeCommand_correctBbox() throws Exception {
+        // M10 10 h20 v30 h-20 z → x 10-30 (cx=20), y 10-40 (cy=25)
+        double[] c = computeCenter("<path d=\"M10 10h20v30h-20z\"/>");
+        assertEquals("relative h cx", 20.0, c[0], 0.1);
+        assertEquals("relative h cy", 25.0, c[1], 0.1);
+    }
+
+    @Test
+    public void computeCenter_noPath_returnsZeroZero() throws Exception {
+        double[] c = computeCenter("<g><style>.foo { fill: red }</style></g>");
+        assertEquals("no path cx", 0.0, c[0], 0.001);
+        assertEquals("no path cy", 0.0, c[1], 0.001);
+    }
+
+    @Test
+    public void svgBuilder_positioning_centerAtTarget() {
+        // Verify that a feature with a known bbox center ends up at the target position.
+        // Use a simple path that has bbox center at (5, 5).
+        // For left eye instance 0 (simple case): combined translate = (140-5, 310-5) = (135, 305)
+        // For right eye instance 1 (compound case): translate(260, 310) scale(-1,1) translate(-5,-5)
+        final String pathWith5x5Center = "<path d=\"M0 0 L10 10\"/>";  // bbox (0-10, 0-10), cx=cy=5
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> pathWith5x5Center);
+
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("eye1", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // Left eye (instance 0): simple combined translate(135.00 305.00)
+        assertTrue("left eye simple translate", svg.contains("translate(135.00 305.00)"));
+        // Right eye (instance 1): compound — bbox offset as last step
+        assertTrue("right eye bbox offset translate", svg.contains("translate(-5.00 -5.00)"));
+    }
+
+    @Test
+    public void svgBuilder_transforms_useDotsAsDecimalSeparator() {
+        // Verifies that transforms always use '.' as decimal separator regardless of JVM locale.
+        // This is critical for SVG validity — commas in numeric values break the SVG renderer.
+        final String eyePath = "<path d=\"M0 0 L10 10\"/>";
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> eyePath);
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("eye7", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // Every translate() value must use a decimal point, never a comma
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("translate\\(([^)]+)\\)")
+                .matcher(svg);
+        while (m.find()) {
+            String args = m.group(1);
+            assertFalse("translate args must not use comma as decimal separator: " + args,
+                    args.matches(".*\\d,\\d\\d.*"));  // e.g. "135,00" would match
+        }
+    }
+
+    @Test
+    public void svgBuilder_rightEye_compoundTransformHasCorrectTargetCoords() {
+        // Regression test for canvas-space eye templates (e.g. female13).
+        //
+        // Before the Locale.US fix, compound transforms were emitted with commas as
+        // decimal separators (e.g. "translate(260,00 310,00)").  A strict SVG renderer
+        // would parse "260,00" as two separate numbers (260 and 0), losing the Y
+        // coordinate. If the scale / second translate also failed to parse, only
+        // "translate(260, 310)" would be applied to the raw canvas-space paths.
+        // For a canvas-space template with paths at y ≈ 270, this shifts everything
+        // by +310 → y ≈ 580, placing the eye well *below the mouth* (y = 440).
+        //
+        // This test uses a synthetic path whose bbox centre is at (197, 270) —
+        // matching the real female13 bounding box — and verifies that the compound
+        // transform for the right eye (instance 1) contains the exact target
+        // coordinates as dot-decimal strings.
+        final String canvasSpacePath = "<path d=\"M100 260 L294 280\"/>";
+        // bbox: x = [100, 294] → cx = 197.0;  y = [260, 280] → cy = 270.0
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) -> canvasSpacePath);
+
+        FaceConfig face = new FaceConfig.Builder()
+                .eye(new FaceConfig.EyeFeature("female13", 0))
+                .build();
+        String svg = builder.toSvgString(face);
+
+        // Left eye (instance 0): simple combined translate(-57.00 40.00)
+        assertTrue("left eye must use simple translate with correct values",
+                svg.contains("translate(-57.00 40.00)"));
+
+        // Right eye (instance 1): compound transform.
+        // The FIRST translate must be exactly "translate(260.00 310.00)" — if the
+        // locale were wrong this would be "translate(260,00 310,00)".
+        assertTrue("right eye compound transform must have correct first translate (260, 310)",
+                svg.contains("translate(260.00 310.00)"));
+        // The scale must use dot-decimal notation
+        assertTrue("right eye compound transform must have correct scale",
+                svg.contains("scale(-1.0000 1.0000)"));
+        // The bbox-offset translate must be correct
+        assertTrue("right eye compound transform must have correct bbox-offset translate",
+                svg.contains("translate(-197.00 -270.00)"));
+    }
+
+    @Test
+    public void computeCenter_arcPath_notInflatedByRadius() throws Exception {
+        // Regression test for the arc bbox overestimation bug.
+        // smile4 has a67,67 arcs that only span ~11 px. The old code used
+        // endpoint ± radii which expanded the bbox by ±67 px, giving a wrong center.
+        //
+        // Verify with: M0,0 a50,50,0,0,1,4,3 Z
+        //   start=(0,0); arc endpoint=(4,3); radius=50 but chord=5.
+        //   Fixed code: includes start+end only → bbox [0,4]x[0,3] → center=(2, 1.5).
+        //   Old (broken) code: endpoint ± radii → bbox [-46,54]x[-47,53] → center=(4, 3).
+        double[] c = computeCenter("<path d=\"M0 0 a50,50,0,0,1,4,3 Z\"/>");
+        assertEquals("arc center X must use start+end, not endpoint±radii", 2.0, c[0], 0.5);
+        assertEquals("arc center Y must use start+end, not endpoint±radii", 1.5, c[1], 0.5);
+    }
+
+    @Test
+    public void computeCenter_bareMoveto_ignored() throws Exception {
+        // Regression for eye3/female3: their SVG contains a degenerate path "M0,0"
+        // (a bare moveto with no drawing commands — an SVG editor artifact).
+        // This was inflating the bbox to include origin (0,0), pushing the
+        // computed center to (145, 180) instead of the correct (265, 335).
+        //
+        // The fix: pathBbox() returns null for paths with no drawing commands,
+        // so "M0,0" is excluded from the bounding-box union.
+        String eye3Like =
+            "<path d=\"M265,360c-13.8,0-25-11.2-25-25c0-13.8,11.2-25,25-25c13.8,0,25,11.2,25,25C290,348.8,278.8,360,265,360z\"/>"
+            + "<path d=\"M0,0\"/>"
+            + "<path d=\"M265,330c-10,0-10,15,0,15S275,330,265,330z\"/>";
+        double[] c = computeCenter(eye3Like);
+        // With M0,0 ignored, center should be near (265, 335), not (145, 180).
+        assertEquals("eye3 bbox center X must not be pulled to 0 by bare M0,0", 265.0, c[0], 5.0);
+        assertEquals("eye3 bbox center Y must not be pulled to 0 by bare M0,0", 335.0, c[1], 5.0);
+    }
 }
