@@ -220,6 +220,26 @@ public final class FaceSvgBuilder {
 
         boolean hasPosition = (info.positions != null);
 
+        // For the simple case (no rotation, no scale/flip, single instance)
+        // we can emit a single translate(px-cx, py-cy) instead of two separate
+        // translates.  This is cleaner and avoids compound-transform parsing
+        // issues in some SVG renderers.
+        int angle = getAngle(face, info.name);
+        double scale = getSize(face, info.name);
+        boolean flip = getFlip(face, info.name);
+        boolean isBody = "body".equals(info.name) || "jersey".equals(info.name);
+        boolean needsScale = isBody || flip || instanceIdx == 1 || scale != 1.0;
+        boolean needsRotate = (angle != 0);
+
+        if (hasPosition && center != null && !needsScale && !needsRotate) {
+            // Simple case: single combined translate
+            int px = info.positions[instanceIdx][0];
+            int py = info.positions[instanceIdx][1];
+            appendTranslate(t, px - center[0], py - center[1]);
+            // Fatness scaling without position doesn't apply here
+            return t.toString().trim();
+        }
+
         // --- Translation to position ---
         if (hasPosition) {
             int px = info.positions[instanceIdx][0];
@@ -231,17 +251,13 @@ public final class FaceSvgBuilder {
         }
 
         // --- Rotation (eye, eyebrow) ---
-        int angle = getAngle(face, info.name);
-        if (angle != 0) {
+        if (needsRotate) {
             double sign = (instanceIdx == 0) ? 1.0 : -1.0;
             appendRotate(t, sign * angle);
         }
 
         // --- Scale (body/jersey, flip, size) ---
-        double scale = getSize(face, info.name);
-        boolean flip = getFlip(face, info.name);
-
-        if ("body".equals(info.name) || "jersey".equals(info.name)) {
+        if (isBody) {
             appendScale(t, bodySize, 1.0);
         } else if (flip || instanceIdx == 1) {
             appendScale(t, -scale, scale);
@@ -291,14 +307,16 @@ public final class FaceSvgBuilder {
             + "|[-+]?(?:[0-9]+\\.?[0-9]*|\\.[0-9]+)(?:[eE][-+]?[0-9]+)?");
 
     /**
-     * Computes the approximate bounding-box centre of all {@code <path>}
-     * elements in an SVG fragment.  Uses the control-point convex hull for
-     * Bézier curves, which is a good-enough approximation for centering.
+     * Computes the tight bounding-box centre of all {@code <path>} elements in
+     * an SVG fragment, matching the values returned by a browser's
+     * {@code getBBox()} call.  Cubic and quadratic Bézier extrema are found by
+     * solving the derivative equations rather than using the coarser
+     * control-point convex-hull approximation.
      *
      * <p>Does not use any {@code java.awt} classes, making it safe on Android.
      *
      * @param svgFragment raw SVG fragment (may contain colour placeholders)
-     * @return {cx, cy} centre of the bounding box, or {0, 0} if unparseable
+     * @return {cx, cy} centre of the tight bounding box, or {0, 0} if unparseable
      */
     static double[] computeCenter(String svgFragment) {
         double minX = Double.MAX_VALUE,  maxX = Double.NEGATIVE_INFINITY;
@@ -323,7 +341,8 @@ public final class FaceSvgBuilder {
      * or {@code null} if no coordinates could be parsed.
      *
      * <p>Handles absolute and relative M, L, H, V, C, S, Q, T, A, Z commands.
-     * Bézier control points are included in the bbox (convex-hull approximation).
+     * Cubic and quadratic Bézier curves use tight extrema computed from the
+     * derivative, matching browser {@code getBBox()} accuracy.
      */
     private static double[] pathBbox(String d) {
         double minX = Double.MAX_VALUE,  maxX = Double.NEGATIVE_INFINITY;
@@ -398,27 +417,64 @@ public final class FaceSvgBuilder {
             }
             case 'C': {
                 for (int i = 0; i + 5 < n; i += 6) {
-                    for (int j = 0; j < 6; j += 2) {
-                        double x = nums.get(i+j)   + (rel ? cx : 0);
-                        double y = nums.get(i+j+1) + (rel ? cy : 0);
-                        if (x < minX) minX = x; if (x > maxX) maxX = x;
-                        if (y < minY) minY = y; if (y > maxY) maxY = y;
-                    }
-                    cx = nums.get(i+4) + (rel ? cx : 0);
-                    cy = nums.get(i+5) + (rel ? cy : 0);
+                    double x1 = nums.get(i)   + (rel ? cx : 0);
+                    double y1 = nums.get(i+1) + (rel ? cy : 0);
+                    double x2 = nums.get(i+2) + (rel ? cx : 0);
+                    double y2 = nums.get(i+3) + (rel ? cy : 0);
+                    double ex = nums.get(i+4) + (rel ? cx : 0);
+                    double ey = nums.get(i+5) + (rel ? cy : 0);
+                    // Include start (cx,cy) and end (ex,ey) in bbox
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    // Add tight bezier extrema (not just control-point hull)
+                    double[] xRange = {minX, maxX};
+                    double[] yRange = {minY, maxY};
+                    cubicBezierExtrema(cx, x1, x2, ex, xRange);
+                    cubicBezierExtrema(cy, y1, y2, ey, yRange);
+                    minX = xRange[0]; maxX = xRange[1];
+                    minY = yRange[0]; maxY = yRange[1];
+                    cx = ex; cy = ey;
                 }
                 break;
             }
-            case 'S': case 'Q': {
+            case 'S': {
+                // Smooth cubic: for bbox purposes include all stated coordinates
                 for (int i = 0; i + 3 < n; i += 4) {
-                    for (int j = 0; j < 4; j += 2) {
-                        double x = nums.get(i+j)   + (rel ? cx : 0);
-                        double y = nums.get(i+j+1) + (rel ? cy : 0);
-                        if (x < minX) minX = x; if (x > maxX) maxX = x;
-                        if (y < minY) minY = y; if (y > maxY) maxY = y;
-                    }
-                    cx = nums.get(i+2) + (rel ? cx : 0);
-                    cy = nums.get(i+3) + (rel ? cy : 0);
+                    double x2 = nums.get(i)   + (rel ? cx : 0);
+                    double y2 = nums.get(i+1) + (rel ? cy : 0);
+                    double ex = nums.get(i+2) + (rel ? cx : 0);
+                    double ey = nums.get(i+3) + (rel ? cy : 0);
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (x2 < minX) minX = x2; if (x2 > maxX) maxX = x2;
+                    if (y2 < minY) minY = y2; if (y2 > maxY) maxY = y2;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    cx = ex; cy = ey;
+                }
+                break;
+            }
+            case 'Q': {
+                for (int i = 0; i + 3 < n; i += 4) {
+                    double qx = nums.get(i)   + (rel ? cx : 0);
+                    double qy = nums.get(i+1) + (rel ? cy : 0);
+                    double ex = nums.get(i+2) + (rel ? cx : 0);
+                    double ey = nums.get(i+3) + (rel ? cy : 0);
+                    // Include start and end in bbox
+                    if (cx < minX) minX = cx; if (cx > maxX) maxX = cx;
+                    if (cy < minY) minY = cy; if (cy > maxY) maxY = cy;
+                    if (ex < minX) minX = ex; if (ex > maxX) maxX = ex;
+                    if (ey < minY) minY = ey; if (ey > maxY) maxY = ey;
+                    // Add tight quadratic bezier extrema
+                    double[] xRange = {minX, maxX};
+                    double[] yRange = {minY, maxY};
+                    quadBezierExtrema(cx, qx, ex, xRange);
+                    quadBezierExtrema(cy, qy, ey, yRange);
+                    minX = xRange[0]; maxX = xRange[1];
+                    minY = yRange[0]; maxY = yRange[1];
+                    cx = ex; cy = ey;
                 }
                 break;
             }
@@ -442,6 +498,62 @@ public final class FaceSvgBuilder {
                 break;
         }
         return new double[]{minX, maxX, minY, maxY, cx, cy};
+    }
+
+    /**
+     * Expands {@code minMax[0..1]} to include any extrema of the cubic Bézier
+     * defined by the four control values along a single axis.
+     * Solves {@code B'(t)=0} (a quadratic) and evaluates {@code B(t)} at the
+     * roots that fall in the open interval (0, 1).
+     */
+    private static void cubicBezierExtrema(double p0, double p1, double p2, double p3,
+                                           double[] minMax) {
+        // B'(t) / 3 = a·t² + b·t + c  where:
+        double a = -p0 + 3*p1 - 3*p2 + p3;
+        double b = 2*(p0 - 2*p1 + p2);
+        double c = p1 - p0;
+        double[] roots = solveQuadratic(a, b, c);
+        for (double t : roots) {
+            if (t > 0 && t < 1) {
+                double u = 1 - t;
+                double v = u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3;
+                if (v < minMax[0]) minMax[0] = v;
+                if (v > minMax[1]) minMax[1] = v;
+            }
+        }
+    }
+
+    /**
+     * Expands {@code minMax[0..1]} to include any extremum of the quadratic
+     * Bézier defined by the three control values along a single axis.
+     */
+    private static void quadBezierExtrema(double p0, double p1, double p2,
+                                          double[] minMax) {
+        // B'(t) = 2·(p1 - p0 + (p0 - 2·p1 + p2)·t) = 0
+        double denom = p0 - 2*p1 + p2;
+        if (Math.abs(denom) > 1e-12) {
+            double t = (p0 - p1) / denom;
+            if (t > 0 && t < 1) {
+                double u = 1 - t;
+                double v = u*u*p0 + 2*u*t*p1 + t*t*p2;
+                if (v < minMax[0]) minMax[0] = v;
+                if (v > minMax[1]) minMax[1] = v;
+            }
+        }
+    }
+
+    /**
+     * Returns the real roots of {@code a·t² + b·t + c = 0} (up to two values).
+     */
+    private static double[] solveQuadratic(double a, double b, double c) {
+        if (Math.abs(a) < 1e-12) {
+            // Degenerate linear case
+            return (Math.abs(b) < 1e-12) ? new double[0] : new double[]{-c / b};
+        }
+        double disc = b*b - 4*a*c;
+        if (disc < 0) return new double[0];
+        double sq = Math.sqrt(disc);
+        return new double[]{(-b - sq) / (2*a), (-b + sq) / (2*a)};
     }
 
     // -------------------------------------------------------------------------

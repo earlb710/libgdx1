@@ -244,7 +244,12 @@ public class SvgPreviewPanel extends JPanel {
                 "<svg xmlns=\"http://www.w3.org/2000/svg\">" + fragment + "</svg>");
         if (doc == null) return null;
         Rectangle2D bounds = collectBounds(doc.getDocumentElement());
-        return (bounds == null || bounds.isEmpty()) ? null : bounds;
+        if (bounds == null) return null;
+        // Accept degenerate bounds (width=0 or height=0) so that features like
+        // a horizontal stroke ("straight" mouth: M180 430L220 430) still get a
+        // valid centre rather than falling back to (0,0).
+        if (bounds.getWidth() == 0 && bounds.getHeight() == 0) return null;
+        return bounds;
     }
 
     /** Recursively collects the union of all shape bounds within an element tree. */
