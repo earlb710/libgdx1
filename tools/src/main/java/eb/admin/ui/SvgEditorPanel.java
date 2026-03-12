@@ -262,9 +262,10 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Table model for face rules.
-     * <p>Columns: Gender (0), Emotion (1), MinWealth (2), MinAge (3), ClothesType (4),
-     * Percentage (5), Priority (6), Include (7), Exclude (8).
+     * <p>Columns: Name (0), Gender (1), Emotion (2), MinWealth (3), MinAge (4), ClothesType (5),
+     * Percentage (6), Priority (7), Include (8), Exclude (9).
      * <ul>
+     *   <li>Name – free-text label to identify the rule; not used during face generation.
      *   <li>Gender – one of {@code ""}, {@code "male"}, {@code "female"}; empty means any gender.
      *   <li>Emotion – one of {@code ""}, {@code "normal"}, {@code "happy"}, {@code "sad"},
      *       {@code "anxious"}, {@code "angry"}; empty means any emotion.
@@ -285,7 +286,7 @@ public class SvgEditorPanel extends JPanel {
      */
     private final DefaultTableModel faceRulesModel =
             new DefaultTableModel(
-                    new String[]{"Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Exclude"}, 0) {
+                    new String[]{"Name", "Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Exclude"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return true; }
             };
 
@@ -1476,20 +1477,21 @@ public class SvgEditorPanel extends JPanel {
         // ── Configure table ───────────────────────────────────────────────────
 
         configureTable(faceRulesTable);
-        faceRulesTable.getColumnModel().getColumn(0).setPreferredWidth(80);  // Gender
-        faceRulesTable.getColumnModel().getColumn(1).setPreferredWidth(100); // Emotion
-        faceRulesTable.getColumnModel().getColumn(2).setPreferredWidth(80);  // MinWealth
-        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(60);  // MinAge
-        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(100); // ClothesType
-        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(80);  // Percentage
-        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(70);  // Priority
-        faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(280); // Include
-        faceRulesTable.getColumnModel().getColumn(8).setPreferredWidth(280); // Exclude
+        faceRulesTable.getColumnModel().getColumn(0).setPreferredWidth(120); // Name
+        faceRulesTable.getColumnModel().getColumn(1).setPreferredWidth(80);  // Gender
+        faceRulesTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Emotion
+        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(80);  // MinWealth
+        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(60);  // MinAge
+        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(100); // ClothesType
+        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(80);  // Percentage
+        faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(70);  // Priority
+        faceRulesTable.getColumnModel().getColumn(8).setPreferredWidth(280); // Include
+        faceRulesTable.getColumnModel().getColumn(9).setPreferredWidth(280); // Exclude
 
         // Gender column – preset combo
         JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
         gendersCombo.setEditable(true);
-        faceRulesTable.getColumnModel().getColumn(0)
+        faceRulesTable.getColumnModel().getColumn(1)
                 .setCellEditor(new DefaultCellEditor(gendersCombo));
 
         // Emotion column – preset combo (single emotion or empty)
@@ -1497,7 +1499,7 @@ public class SvgEditorPanel extends JPanel {
         emotionsCombo.setEditable(true);
         emotionsCombo.addItem("");
         for (String e : FACE_RULE_EMOTIONS) emotionsCombo.addItem(e);
-        faceRulesTable.getColumnModel().getColumn(1)
+        faceRulesTable.getColumnModel().getColumn(2)
                 .setCellEditor(new DefaultCellEditor(emotionsCombo));
 
         // ClothesType column – preset combo (single type or empty)
@@ -1505,7 +1507,7 @@ public class SvgEditorPanel extends JPanel {
         clothesCombo.setEditable(true);
         clothesCombo.addItem("");
         for (String c : FACE_RULE_CLOTHES_TYPES) clothesCombo.addItem(c);
-        faceRulesTable.getColumnModel().getColumn(4)
+        faceRulesTable.getColumnModel().getColumn(5)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
         // ── Custom cell editor / renderer for Include (col 7) and Exclude (col 8) ─
@@ -1581,10 +1583,10 @@ public class SvgEditorPanel extends JPanel {
         }
 
         SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
-        faceRulesTable.getColumnModel().getColumn(7).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(8).setCellRenderer(svgRenderer);
-        faceRulesTable.getColumnModel().getColumn(7).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(9).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(8).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(9).setCellEditor(new SvgListCellEditor());
 
         // ── Row toolbar ───────────────────────────────────────────────────────
 
@@ -1592,7 +1594,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "", 100, 0, "", ""});
+            faceRulesModel.addRow(new Object[]{"", "", "normal", 0, 0, "", 100, 0, "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
@@ -1652,7 +1654,7 @@ public class SvgEditorPanel extends JPanel {
      * new comma-separated selection.
      *
      * @param row row index in {@link #faceRulesTable}
-     * @param col column index – 7 (Include) or 8 (Exclude)
+     * @param col column index – 8 (Include) or 9 (Exclude)
      */
     private void showSvgPickerDialog(int row, int col) {
         // Build a sorted map of feature → sorted list of ids from svgsData
@@ -1730,21 +1732,28 @@ public class SvgEditorPanel extends JPanel {
 
         // Build the checkbox panel, one section per feature.
         // boxKeyMap maps each checkbox to the clean "feature.id" value (used when collecting results).
+        // featureHeaderMap maps each feature header JCheckBox to the item JCheckBoxes under it.
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
         Map<JCheckBox, String> boxKeyMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, List<String>> entry : featureIds.entrySet()) {
             String feature = entry.getKey();
+            List<String> ids = entry.getValue();
 
-            // Feature header label
-            JLabel header = new JLabel(feature);
-            header.setFont(header.getFont().deriveFont(Font.BOLD));
-            header.setBorder(BorderFactory.createEmptyBorder(6, 4, 2, 4));
-            header.setAlignmentX(Component.LEFT_ALIGNMENT);
-            checkPanel.add(header);
+            // Collect item checkboxes first so the header can reference them
+            List<JCheckBox> itemBoxes = new ArrayList<>();
 
-            for (String id : entry.getValue()) {
+            // Initial state for the feature header: checked only if ALL items are already selected
+            boolean allSelected = !ids.isEmpty()
+                    && ids.stream().allMatch(id -> selected.contains(feature + "." + id));
+            JCheckBox featureHeader = new JCheckBox(feature, allSelected);
+            featureHeader.setFont(featureHeader.getFont().deriveFont(Font.BOLD));
+            featureHeader.setBorder(BorderFactory.createEmptyBorder(6, 4, 2, 4));
+            featureHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+            checkPanel.add(featureHeader);
+
+            for (String id : ids) {
                 String key = feature + "." + id;
                 // Append [male] or [female] hint; omit for "both" / unknown
                 String gender  = genderMap.getOrDefault(key, "");
@@ -1754,7 +1763,12 @@ public class SvgEditorPanel extends JPanel {
                 JCheckBox cb = new JCheckBox(label, selected.contains(key));
                 cb.setAlignmentX(Component.LEFT_ALIGNMENT);
                 // Update preview when the checkbox is clicked or hovered
-                cb.addItemListener(ie  -> updatePreview.accept(key));
+                cb.addItemListener(ie -> {
+                    // Update feature header: checked if ALL items are checked
+                    boolean all = itemBoxes.stream().allMatch(JCheckBox::isSelected);
+                    featureHeader.setSelected(all);
+                    updatePreview.accept(key);
+                });
                 cb.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override public void mouseEntered(java.awt.event.MouseEvent e) {
                         updatePreview.accept(key);
@@ -1762,7 +1776,16 @@ public class SvgEditorPanel extends JPanel {
                 });
                 checkPanel.add(cb);
                 boxKeyMap.put(cb, key);
+                itemBoxes.add(cb);
             }
+
+            // Wire header → items via ActionListener (user click only, not programmatic setSelected)
+            featureHeader.addActionListener(ae -> {
+                boolean sel = featureHeader.isSelected();
+                for (JCheckBox itemBox : itemBoxes) {
+                    itemBox.setSelected(sel);
+                }
+            });
         }
 
         JScrollPane scroll = new JScrollPane(checkPanel);
@@ -1847,7 +1870,7 @@ public class SvgEditorPanel extends JPanel {
         content.add(scroll,     BorderLayout.CENTER);
         content.add(rightPanel, BorderLayout.EAST);
 
-        String colName = col == 7 ? "Include" : "Exclude";
+        String colName = col == 8 ? "Include" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
                 this, content,
                 "Select SVG IDs for " + colName,
@@ -1881,6 +1904,7 @@ public class SvgEditorPanel extends JPanel {
      * {
      *   "rules": [
      *     {
+     *       "name":       "female-happy-lips",
      *       "gender":     "female",
      *       "emotion":    "happy",
      *       "minWealth":  0,
@@ -1907,6 +1931,7 @@ public class SvgEditorPanel extends JPanel {
             List<Object[]> rows = new ArrayList<>();
             for (JsonElement ruleEl : rules) {
                 JsonObject rule = ruleEl.getAsJsonObject();
+                String name        = rule.has("name")        ? rule.get("name").getAsString()        : "";
                 String gender      = rule.has("gender")      ? rule.get("gender").getAsString()      : "";
                 String emotion     = rule.has("emotion")     ? rule.get("emotion").getAsString()     : "";
                 int    minWealth   = rule.has("minWealth")   ? rule.get("minWealth").getAsInt()      : 0;
@@ -1918,11 +1943,11 @@ public class SvgEditorPanel extends JPanel {
                 String include = jsonArrayToString(rule, "include");
                 String exclude = jsonArrayToString(rule, "exclude");
 
-                rows.add(new Object[]{gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+                rows.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
             }
 
             // Sort ascending by priority so higher-priority rules appear later in the table
-            rows.sort((a, b) -> Integer.compare((int) a[6], (int) b[6]));
+            rows.sort((a, b) -> Integer.compare((int) a[7], (int) b[7]));
             for (Object[] row : rows) {
                 faceRulesModel.addRow(row);
             }
@@ -1952,36 +1977,38 @@ public class SvgEditorPanel extends JPanel {
         // Collect rows, then sort ascending by priority so the JSON reflects application order
         List<Object[]> rowData = new ArrayList<>();
         for (int r = 0; r < faceRulesModel.getRowCount(); r++) {
-            String gender      = cellStr(faceRulesModel, r, 0).trim();
-            String emotion     = cellStr(faceRulesModel, r, 1).trim();
-            int    minWealth   = intVal(faceRulesModel.getValueAt(r, 2));
-            int    minAge      = intVal(faceRulesModel.getValueAt(r, 3));
-            String clothesType = cellStr(faceRulesModel, r, 4).trim();
-            int    percentage  = intVal(faceRulesModel.getValueAt(r, 5));
-            int    priority    = intVal(faceRulesModel.getValueAt(r, 6));
-            String include     = cellStr(faceRulesModel, r, 7).trim();
-            String exclude     = cellStr(faceRulesModel, r, 8).trim();
+            String name        = cellStr(faceRulesModel, r, 0).trim();
+            String gender      = cellStr(faceRulesModel, r, 1).trim();
+            String emotion     = cellStr(faceRulesModel, r, 2).trim();
+            int    minWealth   = intVal(faceRulesModel.getValueAt(r, 3));
+            int    minAge      = intVal(faceRulesModel.getValueAt(r, 4));
+            String clothesType = cellStr(faceRulesModel, r, 5).trim();
+            int    percentage  = intVal(faceRulesModel.getValueAt(r, 6));
+            int    priority    = intVal(faceRulesModel.getValueAt(r, 7));
+            String include     = cellStr(faceRulesModel, r, 8).trim();
+            String exclude     = cellStr(faceRulesModel, r, 9).trim();
 
             if (include.isEmpty() && exclude.isEmpty()) {
                 skipped.add("row " + (r + 1) + " (no include or exclude entries)");
                 continue;
             }
-            rowData.add(new Object[]{gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+            rowData.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
         }
 
-        rowData.sort((a, b) -> Integer.compare((int) a[6], (int) b[6]));
+        rowData.sort((a, b) -> Integer.compare((int) a[7], (int) b[7]));
 
         for (Object[] row : rowData) {
             JsonObject rule = new JsonObject();
-            rule.addProperty("gender",      (String) row[0]);
-            rule.addProperty("emotion",     (String) row[1]);
-            rule.addProperty("minWealth",   (int)    row[2]);
-            rule.addProperty("minAge",      (int)    row[3]);
-            rule.addProperty("clothesType", (String) row[4]);
-            rule.addProperty("percentage",  Math.min(100, Math.max(1, (int) row[5])));
-            rule.addProperty("priority",    Math.max(0, (int) row[6]));
-            rule.add("include", stringToJsonArray((String) row[7]));
-            rule.add("exclude", stringToJsonArray((String) row[8]));
+            rule.addProperty("name",        (String) row[0]);
+            rule.addProperty("gender",      (String) row[1]);
+            rule.addProperty("emotion",     (String) row[2]);
+            rule.addProperty("minWealth",   (int)    row[3]);
+            rule.addProperty("minAge",      (int)    row[4]);
+            rule.addProperty("clothesType", (String) row[5]);
+            rule.addProperty("percentage",  Math.min(100, Math.max(1, (int) row[6])));
+            rule.addProperty("priority",    Math.max(0, (int) row[7]));
+            rule.add("include", stringToJsonArray((String) row[8]));
+            rule.add("exclude", stringToJsonArray((String) row[9]));
             rules.add(rule);
         }
 
