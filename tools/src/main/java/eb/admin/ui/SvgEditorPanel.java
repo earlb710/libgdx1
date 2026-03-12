@@ -263,7 +263,7 @@ public class SvgEditorPanel extends JPanel {
     /**
      * Table model for face rules.
      * <p>Columns: Name (0), Gender (1), Emotion (2), MinWealth (3), MinAge (4), ClothesType (5),
-     * Percentage (6), Priority (7), Include (8), Exclude (9).
+     * Percentage (6), Priority (7), Include (8), Additional (9), Exclude (10).
      * <ul>
      *   <li>Name – free-text label to identify the rule; not used during face generation.
      *   <li>Gender – one of {@code ""}, {@code "male"}, {@code "female"}; empty means any gender.
@@ -278,15 +278,17 @@ public class SvgEditorPanel extends JPanel {
      *   <li>Priority – non-negative integer; rules are sorted ascending by priority before being
      *       applied so that higher-priority rules are processed last and overwrite earlier ones.
      *       0 = default (lowest priority).
-     *   <li>Include – comma-separated list of {@code "feature.id"} pairs that are
+     *   <li>Include    – comma-separated list of {@code "feature.id"} pairs that are
      *       allowed when this rule's conditions are met.
+     *   <li>Additional – comma-separated list of {@code "feature.id"} pairs that are
+     *       added on top of Include (extra eligible entries for this rule).
      *   <li>Exclude – comma-separated list of {@code "feature.id"} pairs that are
      *       forbidden when this rule's conditions are met.
      * </ul>
      */
     private final DefaultTableModel faceRulesModel =
             new DefaultTableModel(
-                    new String[]{"Name", "Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Exclude"}, 0) {
+                    new String[]{"Name", "Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Additional", "Exclude"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return true; }
             };
 
@@ -1486,7 +1488,8 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(80);  // Percentage
         faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(70);  // Priority
         faceRulesTable.getColumnModel().getColumn(8).setPreferredWidth(280); // Include
-        faceRulesTable.getColumnModel().getColumn(9).setPreferredWidth(280); // Exclude
+        faceRulesTable.getColumnModel().getColumn(9).setPreferredWidth(280); // Additional
+        faceRulesTable.getColumnModel().getColumn(10).setPreferredWidth(280); // Exclude
 
         // Gender column – preset combo
         JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
@@ -1510,7 +1513,7 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(5)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
-        // ── Custom cell editor / renderer for Include (col 7) and Exclude (col 8) ─
+        // ── Custom cell editor / renderer for Include (col 8), Additional (col 9), and Exclude (col 10) ─
         //
         // Each cell renders as [  text label  ][▼].  A single click activates the
         // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
@@ -1585,8 +1588,10 @@ public class SvgEditorPanel extends JPanel {
         SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
         faceRulesTable.getColumnModel().getColumn(8).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(9).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(10).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(8).setCellEditor(new SvgListCellEditor());
         faceRulesTable.getColumnModel().getColumn(9).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(10).setCellEditor(new SvgListCellEditor());
 
         // ── Row toolbar ───────────────────────────────────────────────────────
 
@@ -1594,7 +1599,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "", "normal", 0, 0, "", 100, 0, "", ""});
+            faceRulesModel.addRow(new Object[]{"", "", "normal", 0, 0, "", 100, 0, "", "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
@@ -1654,7 +1659,7 @@ public class SvgEditorPanel extends JPanel {
      * new comma-separated selection.
      *
      * @param row row index in {@link #faceRulesTable}
-     * @param col column index – 8 (Include) or 9 (Exclude)
+     * @param col column index – 8 (Include), 9 (Additional), or 10 (Exclude)
      */
     private void showSvgPickerDialog(int row, int col) {
         // Build a sorted map of feature → sorted list of ids from svgsData
@@ -1870,7 +1875,7 @@ public class SvgEditorPanel extends JPanel {
         content.add(scroll,     BorderLayout.CENTER);
         content.add(rightPanel, BorderLayout.EAST);
 
-        String colName = col == 8 ? "Include" : "Exclude";
+        String colName = col == 8 ? "Include" : col == 9 ? "Additional" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
                 this, content,
                 "Select SVG IDs for " + colName,
@@ -1940,10 +1945,11 @@ public class SvgEditorPanel extends JPanel {
                 int    percentage  = rule.has("percentage")  ? rule.get("percentage").getAsInt()     : 100;
                 int    priority    = rule.has("priority")    ? rule.get("priority").getAsInt()       : 0;
 
-                String include = jsonArrayToString(rule, "include");
-                String exclude = jsonArrayToString(rule, "exclude");
+                String include    = jsonArrayToString(rule, "include");
+                String additional = jsonArrayToString(rule, "additional"); // optional; defaults to "" for older files
+                String exclude    = jsonArrayToString(rule, "exclude");
 
-                rows.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+                rows.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, additional, exclude});
             }
 
             // Sort ascending by name so rules are easy to find in the table
@@ -1965,7 +1971,7 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Serialises the face-rules table back to {@code facerules.json} format.
-     * Rows with both Include and Exclude empty are skipped with a warning dialog.
+     * Rows with Include, Additional, and Exclude all empty are skipped with a warning dialog.
      */
     private void saveFaceRules(boolean saveAs) {
         faceRulesFile = resolveTargetFile(faceRulesFile, saveAs);
@@ -1986,13 +1992,14 @@ public class SvgEditorPanel extends JPanel {
             int    percentage  = intVal(faceRulesModel.getValueAt(r, 6));
             int    priority    = intVal(faceRulesModel.getValueAt(r, 7));
             String include     = cellStr(faceRulesModel, r, 8).trim();
-            String exclude     = cellStr(faceRulesModel, r, 9).trim();
+            String additional  = cellStr(faceRulesModel, r, 9).trim();
+            String exclude     = cellStr(faceRulesModel, r, 10).trim();
 
-            if (include.isEmpty() && exclude.isEmpty()) {
-                skipped.add("row " + (r + 1) + " (no include or exclude entries)");
+            if (include.isEmpty() && additional.isEmpty() && exclude.isEmpty()) {
+                skipped.add("row " + (r + 1) + " (no include, additional, or exclude entries)");
                 continue;
             }
-            rowData.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+            rowData.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, additional, exclude});
         }
 
         rowData.sort((a, b) -> Integer.compare((int) a[7], (int) b[7]));
@@ -2007,14 +2014,15 @@ public class SvgEditorPanel extends JPanel {
             rule.addProperty("clothesType", (String) row[5]);
             rule.addProperty("percentage",  Math.min(100, Math.max(1, (int) row[6])));
             rule.addProperty("priority",    Math.max(0, (int) row[7]));
-            rule.add("include", stringToJsonArray((String) row[8]));
-            rule.add("exclude", stringToJsonArray((String) row[9]));
+            rule.add("include",    stringToJsonArray((String) row[8]));
+            rule.add("additional", stringToJsonArray((String) row[9]));
+            rule.add("exclude",    stringToJsonArray((String) row[10]));
             rules.add(rule);
         }
 
         if (!skipped.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "The following rows were skipped because both Include and Exclude are empty:\n"
+                    "The following rows were skipped because Include, Additional, and Exclude are all empty:\n"
                             + String.join("\n", skipped),
                     "Save Warning", JOptionPane.WARNING_MESSAGE);
         }
