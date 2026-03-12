@@ -1492,15 +1492,14 @@ public class SvgEditorPanel extends JPanel {
         // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
         // in the cell, opens the SVG-ID picker dialog.
 
-        /** Renderer: shows the cell value followed by a small drop-down button. */
+        /** Renderer: shows the cell value followed by a drop-down button. */
         class SvgListCellRenderer implements TableCellRenderer {
             private final JPanel  panel = new JPanel(new BorderLayout());
             private final JLabel  label = new JLabel();
-            private final JButton btn   = new JButton("\u25BE");
+            private final JButton btn   = new JButton("\u25BC");
             SvgListCellRenderer() {
-                btn.setPreferredSize(new Dimension(22, 0));
-                btn.setFont(btn.getFont().deriveFont(9f));
-                btn.setMargin(new Insets(0, 1, 0, 1));
+                btn.setPreferredSize(new Dimension(28, 0));
+                btn.setMargin(new Insets(0, 2, 0, 2));
                 btn.setFocusable(false);
                 label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
                 panel.add(label, BorderLayout.CENTER);
@@ -1522,13 +1521,12 @@ public class SvgEditorPanel extends JPanel {
         class SvgListCellEditor extends AbstractCellEditor implements TableCellEditor {
             private final JPanel     panel = new JPanel(new BorderLayout());
             private final JTextField field = new JTextField();
-            private final JButton    btn   = new JButton("\u25BE");
+            private final JButton    btn   = new JButton("\u25BC");
             private EventObject triggerEvent;
             private int editRow = -1, editCol = -1;
             SvgListCellEditor() {
-                btn.setPreferredSize(new Dimension(22, 0));
-                btn.setFont(btn.getFont().deriveFont(9f));
-                btn.setMargin(new Insets(0, 1, 0, 1));
+                btn.setPreferredSize(new Dimension(28, 0));
+                btn.setMargin(new Insets(0, 2, 0, 2));
                 btn.setFocusable(false);
                 field.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
                 panel.add(field, BorderLayout.CENTER);
@@ -1668,6 +1666,35 @@ public class SvgEditorPanel extends JPanel {
             }
         }
 
+        // ── Preview panel (top-right of dialog) ───────────────────────────────
+        SvgPreviewPanel pickerPreview = new SvgPreviewPanel();
+        pickerPreview.setPreferredSize(new Dimension(200, 200));
+        pickerPreview.setMinimumSize(new Dimension(160, 160));
+        pickerPreview.setBorder(BorderFactory.createTitledBorder("Preview"));
+
+        // Helper: update preview from a "feature.id" key
+        java.util.function.Consumer<String> updatePreview = key -> {
+            if (key == null || key.isEmpty() || svgsData == null) {
+                pickerPreview.setFeatureName("");
+                pickerPreview.setSvgFragment("");
+                return;
+            }
+            int dot = key.indexOf('.');
+            if (dot <= 0 || dot == key.length() - 1) return;
+            String feat = key.substring(0, dot);
+            String id   = key.substring(dot + 1);
+            pickerPreview.setFeatureName(feat);
+            if (svgsData.has(feat) && svgsData.getAsJsonObject(feat).has(id)) {
+                pickerPreview.setSvgFragment(
+                        svgsData.getAsJsonObject(feat).get(id).getAsString());
+            } else {
+                pickerPreview.setSvgFragment("");
+            }
+        };
+
+        // Seed the preview with the first already-selected item (if any)
+        updatePreview.accept(selected.isEmpty() ? null : selected.iterator().next());
+
         // Build the checkbox panel, one section per feature
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
@@ -1687,6 +1714,13 @@ public class SvgEditorPanel extends JPanel {
                 String key = feature + "." + id;
                 JCheckBox cb = new JCheckBox(key, selected.contains(key));
                 cb.setAlignmentX(Component.LEFT_ALIGNMENT);
+                // Update preview when the checkbox is clicked or hovered
+                cb.addItemListener(ie  -> updatePreview.accept(key));
+                cb.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+                        updatePreview.accept(key);
+                    }
+                });
                 checkPanel.add(cb);
                 allBoxes.add(cb);
             }
@@ -1695,9 +1729,19 @@ public class SvgEditorPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(checkPanel);
         scroll.setPreferredSize(new Dimension(380, 500));
 
+        // Top panel: preview on the right, nothing on the left (spacer)
+        JPanel topPanel = new JPanel(new BorderLayout(8, 0));
+        topPanel.add(new JPanel(), BorderLayout.CENTER);     // spacer
+        topPanel.add(pickerPreview, BorderLayout.EAST);
+
+        // Main dialog content: preview row above the checkbox scroll pane
+        JPanel content = new JPanel(new BorderLayout(0, 6));
+        content.add(topPanel, BorderLayout.NORTH);
+        content.add(scroll,   BorderLayout.CENTER);
+
         String colName = col == 4 ? "Include" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
-                this, scroll,
+                this, content,
                 "Select SVG IDs for " + colName,
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE);
