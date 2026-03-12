@@ -1946,8 +1946,8 @@ public class SvgEditorPanel extends JPanel {
                 rows.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
             }
 
-            // Sort ascending by priority so higher-priority rules appear later in the table
-            rows.sort((a, b) -> Integer.compare((int) a[7], (int) b[7]));
+            // Sort ascending by name so rules are easy to find in the table
+            rows.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare((String) a[0], (String) b[0]));
             for (Object[] row : rows) {
                 faceRulesModel.addRow(row);
             }
