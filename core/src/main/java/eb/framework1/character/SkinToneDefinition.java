@@ -8,7 +8,7 @@ package eb.framework1.character;
  * <ul>
  *   <li>{@code code} — machine-readable identifier (e.g. {@code "porcelain_very_fair"})</li>
  *   <li>{@code name} — human-readable label (e.g. {@code "Porcelain / Very Fair"})</li>
- *   <li>{@code rgb}  — RGB colour string (e.g. {@code "rgb(255, 229, 217)"})</li>
+ *   <li>{@code rgb}  — RGB colour in HTML hex format (e.g. {@code "#FFE5D9"})</li>
  * </ul>
  */
 public class SkinToneDefinition {

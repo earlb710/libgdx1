@@ -19,10 +19,10 @@ public class SkinToneDefinitionTest {
 
     @Test
     public void definition_storesCodeNameAndRgb() {
-        SkinToneDefinition def = new SkinToneDefinition("porcelain_very_fair", "Porcelain / Very Fair", "rgb(255, 229, 217)");
+        SkinToneDefinition def = new SkinToneDefinition("porcelain_very_fair", "Porcelain / Very Fair", "#FFE5D9");
         assertEquals("porcelain_very_fair",   def.getCode());
         assertEquals("Porcelain / Very Fair", def.getName());
-        assertEquals("rgb(255, 229, 217)",    def.getRgb());
+        assertEquals("#FFE5D9",               def.getRgb());
     }
 
     @Test
@@ -42,10 +42,10 @@ public class SkinToneDefinitionTest {
         SkinToneDefinition def = new SkinToneDefinition();
         def.setCode("fair_light");
         def.setName("Fair / Light");
-        def.setRgb("rgb(245, 208, 197)");
-        assertEquals("fair_light",          def.getCode());
-        assertEquals("Fair / Light",        def.getName());
-        assertEquals("rgb(245, 208, 197)", def.getRgb());
+        def.setRgb("#F5D0C5");
+        assertEquals("fair_light",   def.getCode());
+        assertEquals("Fair / Light", def.getName());
+        assertEquals("#F5D0C5",      def.getRgb());
     }
 
     // =========================================================================
@@ -54,11 +54,11 @@ public class SkinToneDefinitionTest {
 
     @Test
     public void toString_containsCodeNameAndRgb() {
-        SkinToneDefinition def = new SkinToneDefinition("medium_brown", "Medium Brown", "rgb(198, 134, 66)");
+        SkinToneDefinition def = new SkinToneDefinition("medium_brown", "Medium Brown", "#C68642");
         String str = def.toString();
         assertTrue(str.contains("medium_brown"));
         assertTrue(str.contains("Medium Brown"));
-        assertTrue(str.contains("rgb(198, 134, 66)"));
+        assertTrue(str.contains("#C68642"));
     }
 
     // =========================================================================
@@ -68,12 +68,12 @@ public class SkinToneDefinitionTest {
     @Test
     public void allSixTones_haveExpectedCodesNamesAndRgb() {
         Object[][] expected = {
-            {"porcelain_very_fair", "Porcelain / Very Fair", "rgb(255, 229, 217)"},
-            {"fair_light",          "Fair / Light",          "rgb(245, 208, 197)"},
-            {"light_medium",        "Light Medium",          "rgb(235, 196, 175)"},
-            {"medium_olive",        "Medium / Olive",        "rgb(212, 165, 116)"},
-            {"medium_brown",        "Medium Brown",          "rgb(198, 134, 66)"},
-            {"dark_brown_deep",     "Dark Brown / Deep",     "rgb(141, 85, 36)"},
+            {"porcelain_very_fair", "Porcelain / Very Fair", "#FFE5D9"},
+            {"fair_light",          "Fair / Light",          "#F5D0C5"},
+            {"light_medium",        "Light Medium",          "#EBC4AF"},
+            {"medium_olive",        "Medium / Olive",        "#D4A574"},
+            {"medium_brown",        "Medium Brown",          "#C68642"},
+            {"dark_brown_deep",     "Dark Brown / Deep",     "#8D5524"},
         };
         for (Object[] row : expected) {
             SkinToneDefinition def = new SkinToneDefinition((String) row[0], (String) row[1], (String) row[2]);
