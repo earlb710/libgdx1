@@ -13,6 +13,7 @@ public class CategoryEntry {
     private String color;
     private String actions;
     private String name;
+    private String rgb;
 
     public CategoryEntry() {
     }
@@ -55,5 +56,13 @@ public class CategoryEntry {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRgb() {
+        return rgb;
+    }
+
+    public void setRgb(String rgb) {
+        this.rgb = rgb;
     }
 }

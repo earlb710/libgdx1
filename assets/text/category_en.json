@@ -218,5 +218,47 @@
       "code": "general",
       "name": "General"
     }
+  ],
+  "gender_categories": [
+    {
+      "code": "male",
+      "name": "Male"
+    },
+    {
+      "code": "female",
+      "name": "Female"
+    }
+  ],
+  "skin_tone_categories": [
+    {
+      "code": "porcelain_very_fair",
+      "name": "Porcelain / Very Fair",
+      "rgb": "#FFE5D9"
+    },
+    {
+      "code": "fair_light",
+      "name": "Fair / Light",
+      "rgb": "#F5D0C5"
+    },
+    {
+      "code": "light_medium",
+      "name": "Light Medium",
+      "rgb": "#EBC4AF"
+    },
+    {
+      "code": "medium_olive",
+      "name": "Medium / Olive",
+      "rgb": "#D4A574"
+    },
+    {
+      "code": "medium_brown",
+      "name": "Medium Brown",
+      "rgb": "#C68642"
+    },
+    {
+      "code": "dark_brown_deep",
+      "name": "Dark Brown / Deep",
+      "rgb": "#8D5524"
+    }
   ]
 }

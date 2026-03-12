@@ -31,9 +31,13 @@ public class ProfileCreationScreen implements Screen {
     
     // Input fields
     private StringBuilder characterNameInput;
-    private int selectedGender; // 0 = Male, 1 = Female
+    private int selectedGender; // 0 = index of first gender entry, 1 = second
     private int selectedDifficulty; // 0 = Easy, 1 = Normal, 2 = Hard
     private int selectedIconIndex; // 0 = first icon, 1 = second icon
+    /** Display label for the first (male) gender button, loaded from category_en.json. */
+    private String maleLabel   = "Male";
+    /** Display label for the second (female) gender button, loaded from category_en.json. */
+    private String femaleLabel = "Female";
     
     // Character icon textures
     private Texture man1Texture;
@@ -121,6 +125,15 @@ public class ProfileCreationScreen implements Screen {
             Gdx.app.log("ProfileCreationScreen", "Center: (" + centerX + ", " + centerY + ")");
             
             Gdx.app.log("ProfileCreationScreen", "Creating buttons...");
+
+            // Load gender labels from the category file (falls back to "Male"/"Female" if not found)
+            eb.framework1.character.GenderDefinition maleDef =
+                    game.getGameDataManager().getGenderCategoryByCode("male");
+            eb.framework1.character.GenderDefinition femaleDef =
+                    game.getGameDataManager().getGenderCategoryByCode("female");
+            if (maleDef   != null) maleLabel  = maleDef.getName();
+            if (femaleDef != null) femaleLabel = femaleDef.getName();
+
             // ==============================================================
             // Flowing layout: all Y positions derived from actual font metrics
             // so the form looks correct at any screen density.
@@ -146,8 +159,8 @@ public class ProfileCreationScreen implements Screen {
             TextMeasurer.TextBounds createBounds     = TextMeasurer.measure(buttonFont, "Create",      BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds cancelBounds     = TextMeasurer.measure(buttonFont, "Cancel",      BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds randomNameBounds = TextMeasurer.measure(buttonFont, "Random Name", BTN_PAD_H, BTN_PAD_V);
-            TextMeasurer.TextBounds maleBounds       = TextMeasurer.measure(buttonFont, "Male",        BTN_PAD_H, BTN_PAD_V);
-            TextMeasurer.TextBounds femaleBounds     = TextMeasurer.measure(buttonFont, "Female",      BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds maleBounds       = TextMeasurer.measure(buttonFont, maleLabel,   BTN_PAD_H, BTN_PAD_V);
+            TextMeasurer.TextBounds femaleBounds     = TextMeasurer.measure(buttonFont, femaleLabel, BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds easyBounds       = TextMeasurer.measure(buttonFont, "Easy",        BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds normalBounds     = TextMeasurer.measure(buttonFont, "Normal",      BTN_PAD_H, BTN_PAD_V);
             TextMeasurer.TextBounds hardBounds       = TextMeasurer.measure(buttonFont, "Hard",        BTN_PAD_H, BTN_PAD_V);
@@ -424,8 +437,8 @@ public class ProfileCreationScreen implements Screen {
         int mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
         // Gender buttons
-        drawButton(genderMaleButton, "Male", mouseX, mouseY, selectedGender == 0);
-        drawButton(genderFemaleButton, "Female", mouseX, mouseY, selectedGender == 1);
+        drawButton(genderMaleButton, maleLabel, mouseX, mouseY, selectedGender == 0);
+        drawButton(genderFemaleButton, femaleLabel, mouseX, mouseY, selectedGender == 1);
         
         // Difficulty buttons
         drawButton(diffEasyButton, "Easy", mouseX, mouseY, selectedDifficulty == 0);
@@ -585,7 +598,7 @@ public class ProfileCreationScreen implements Screen {
     
     private void createProfile() {
         String characterName = characterNameInput.toString().trim();
-        String gender = selectedGender == 0 ? "Male" : "Female";
+        String gender = selectedGender == 0 ? maleLabel : femaleLabel;
         String difficulty = selectedDifficulty == 0 ? "Easy" : 
                           (selectedDifficulty == 1 ? "Normal" : "Hard");
         
