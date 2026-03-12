@@ -12,6 +12,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 /**
  * Top-level panel for the <b>SVG</b> tab in the Game Admin tool.
@@ -1481,6 +1484,22 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(3)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
+        // ── Double-click picker for Include / Exclude columns ─────────────────
+
+        faceRulesTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() != 2) return;
+                int col = faceRulesTable.columnAtPoint(e.getPoint());
+                if (col != 4 && col != 5) return;           // only Include / Exclude
+                int row = faceRulesTable.rowAtPoint(e.getPoint());
+                if (row < 0) return;
+                // Cancel any active cell editor before showing our own dialog
+                if (faceRulesTable.isEditing()) faceRulesTable.getCellEditor().cancelCellEditing();
+                showSvgPickerDialog(row, col);
+            }
+        });
+
         // ── Row toolbar ───────────────────────────────────────────────────────
 
         JButton addBtn    = new JButton("Add Rule");
@@ -1536,6 +1555,95 @@ public class SvgEditorPanel extends JPanel {
         tab.add(new JScrollPane(faceRulesTable), BorderLayout.CENTER);
         tab.add(south,                          BorderLayout.SOUTH);
         return tab;
+    }
+
+    // ── SVG ID picker dialog ──────────────────────────────────────────────────
+
+    /**
+     * Opens a scrollable checkbox dialog listing all available {@code feature.id}
+     * entries from the loaded {@code svgs.json}.  Items already present in the
+     * target cell are pre-checked.  On confirmation the cell is updated with the
+     * new comma-separated selection.
+     *
+     * @param row row index in {@link #faceRulesTable}
+     * @param col column index – 4 (Include) or 5 (Exclude)
+     */
+    private void showSvgPickerDialog(int row, int col) {
+        // Build a sorted map of feature → sorted list of ids from svgsData
+        Map<String, List<String>> featureIds = new TreeMap<>();
+        if (svgsData != null) {
+            for (Map.Entry<String, JsonElement> featureEntry : svgsData.entrySet()) {
+                String feature = featureEntry.getKey();
+                if (!featureEntry.getValue().isJsonObject()) continue;
+                List<String> ids = new ArrayList<>();
+                for (Map.Entry<String, JsonElement> idEntry :
+                        featureEntry.getValue().getAsJsonObject().entrySet()) {
+                    ids.add(idEntry.getKey());
+                }
+                java.util.Collections.sort(ids);
+                featureIds.put(feature, ids);
+            }
+        }
+
+        if (featureIds.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No SVG data loaded. Please load svgs.json first via the SVG Index tab.",
+                    "No SVG Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Parse the current cell value into a set of already-selected entries
+        String currentVal = cellStr(faceRulesModel, row, col).trim();
+        java.util.Set<String> selected = new java.util.LinkedHashSet<>();
+        if (!currentVal.isEmpty()) {
+            for (String part : currentVal.split(",")) {
+                String t = part.trim();
+                if (!t.isEmpty()) selected.add(t);
+            }
+        }
+
+        // Build the checkbox panel, one section per feature
+        JPanel checkPanel = new JPanel();
+        checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
+        List<JCheckBox> allBoxes = new ArrayList<>();
+
+        for (Map.Entry<String, List<String>> entry : featureIds.entrySet()) {
+            String feature = entry.getKey();
+
+            // Feature header label
+            JLabel header = new JLabel(feature);
+            header.setFont(header.getFont().deriveFont(Font.BOLD));
+            header.setBorder(BorderFactory.createEmptyBorder(6, 4, 2, 4));
+            header.setAlignmentX(Component.LEFT_ALIGNMENT);
+            checkPanel.add(header);
+
+            for (String id : entry.getValue()) {
+                String key = feature + "." + id;
+                JCheckBox cb = new JCheckBox(key, selected.contains(key));
+                cb.setAlignmentX(Component.LEFT_ALIGNMENT);
+                checkPanel.add(cb);
+                allBoxes.add(cb);
+            }
+        }
+
+        JScrollPane scroll = new JScrollPane(checkPanel);
+        scroll.setPreferredSize(new Dimension(380, 500));
+
+        String colName = col == 4 ? "Include" : "Exclude";
+        int result = JOptionPane.showConfirmDialog(
+                this, scroll,
+                "Select SVG IDs for " + colName,
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        // Collect checked boxes in order (feature-sorted, then id-sorted)
+        List<String> newList = new ArrayList<>();
+        for (JCheckBox cb : allBoxes) {
+            if (cb.isSelected()) newList.add(cb.getText());
+        }
+        faceRulesModel.setValueAt(String.join(",", newList), row, col);
     }
 
     // ── File operations: facerules.json ───────────────────────────────────────
