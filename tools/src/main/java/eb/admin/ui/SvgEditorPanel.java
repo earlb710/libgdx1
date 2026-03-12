@@ -1695,10 +1695,22 @@ public class SvgEditorPanel extends JPanel {
         // Seed the preview with the first already-selected item (if any)
         updatePreview.accept(selected.isEmpty() ? null : selected.iterator().next());
 
-        // Build the checkbox panel, one section per feature
+        // Build a feature.id → gender map from the SVG Index table (col 2)
+        Map<String, String> genderMap = new LinkedHashMap<>();
+        for (int r = 0; r < svgIndexModel.getRowCount(); r++) {
+            String feat   = cellStr(svgIndexModel, r, 0);
+            String id     = cellStr(svgIndexModel, r, 1);
+            String gender = cellStr(svgIndexModel, r, 2);
+            if (!feat.isEmpty() && !id.isEmpty()) {
+                genderMap.put(feat + "." + id, gender);
+            }
+        }
+
+        // Build the checkbox panel, one section per feature.
+        // boxKeyMap maps each checkbox to the clean "feature.id" value (used when collecting results).
         JPanel checkPanel = new JPanel();
         checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
-        List<JCheckBox> allBoxes = new ArrayList<>();
+        Map<JCheckBox, String> boxKeyMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, List<String>> entry : featureIds.entrySet()) {
             String feature = entry.getKey();
@@ -1712,7 +1724,12 @@ public class SvgEditorPanel extends JPanel {
 
             for (String id : entry.getValue()) {
                 String key = feature + "." + id;
-                JCheckBox cb = new JCheckBox(key, selected.contains(key));
+                // Append [male] or [female] hint; omit for "both" / unknown
+                String gender  = genderMap.getOrDefault(key, "");
+                String label   = ("male".equals(gender) || "female".equals(gender))
+                        ? key + " [" + gender + "]"
+                        : key;
+                JCheckBox cb = new JCheckBox(label, selected.contains(key));
                 cb.setAlignmentX(Component.LEFT_ALIGNMENT);
                 // Update preview when the checkbox is clicked or hovered
                 cb.addItemListener(ie  -> updatePreview.accept(key));
@@ -1722,12 +1739,12 @@ public class SvgEditorPanel extends JPanel {
                     }
                 });
                 checkPanel.add(cb);
-                allBoxes.add(cb);
+                boxKeyMap.put(cb, key);
             }
         }
 
         JScrollPane scroll = new JScrollPane(checkPanel);
-        scroll.setPreferredSize(new Dimension(380, 500));
+        scroll.setPreferredSize(new Dimension(400, 500));
 
         // Top panel: preview on the right, nothing on the left (spacer)
         JPanel topPanel = new JPanel(new BorderLayout(8, 0));
@@ -1748,10 +1765,10 @@ public class SvgEditorPanel extends JPanel {
 
         if (result != JOptionPane.OK_OPTION) return;
 
-        // Collect checked boxes in order (feature-sorted, then id-sorted)
+        // Collect checked keys in order (feature-sorted, then id-sorted)
         List<String> newList = new ArrayList<>();
-        for (JCheckBox cb : allBoxes) {
-            if (cb.isSelected()) newList.add(cb.getText());
+        for (Map.Entry<JCheckBox, String> entry : boxKeyMap.entrySet()) {
+            if (entry.getKey().isSelected()) newList.add(entry.getValue());
         }
         faceRulesModel.setValueAt(String.join(",", newList), row, col);
     }
