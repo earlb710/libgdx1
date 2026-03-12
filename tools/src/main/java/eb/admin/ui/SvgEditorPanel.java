@@ -10,11 +10,13 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.EventObject;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -1484,21 +1486,85 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(3)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
-        // ── Double-click picker for Include / Exclude columns ─────────────────
+        // ── Custom cell editor / renderer for Include (col 4) and Exclude (col 5) ─
+        //
+        // Each cell renders as [  text label  ][▼].  A single click activates the
+        // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
+        // in the cell, opens the SVG-ID picker dialog.
 
-        faceRulesTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() != 2) return;
-                int col = faceRulesTable.columnAtPoint(e.getPoint());
-                if (col != 4 && col != 5) return;           // only Include / Exclude
-                int row = faceRulesTable.rowAtPoint(e.getPoint());
-                if (row < 0) return;
-                // Cancel any active cell editor before showing our own dialog
-                if (faceRulesTable.isEditing()) faceRulesTable.getCellEditor().cancelCellEditing();
-                showSvgPickerDialog(row, col);
+        /** Renderer: shows the cell value followed by a small drop-down button. */
+        class SvgListCellRenderer implements TableCellRenderer {
+            private final JPanel  panel = new JPanel(new BorderLayout());
+            private final JLabel  label = new JLabel();
+            private final JButton btn   = new JButton("\u25BE");
+            SvgListCellRenderer() {
+                btn.setPreferredSize(new Dimension(22, 0));
+                btn.setFont(btn.getFont().deriveFont(9f));
+                btn.setMargin(new Insets(0, 1, 0, 1));
+                btn.setFocusable(false);
+                label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                panel.add(label, BorderLayout.CENTER);
+                panel.add(btn,   BorderLayout.EAST);
             }
-        });
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v,
+                    boolean sel, boolean foc, int r, int c) {
+                label.setText(v == null ? "" : v.toString());
+                Color bg = sel ? t.getSelectionBackground() : t.getBackground();
+                panel.setBackground(bg);
+                label.setForeground(sel ? t.getSelectionForeground() : t.getForeground());
+                label.setOpaque(false);
+                return panel;
+            }
+        }
+
+        /** Editor: text field + ▼ button.  ▼ and double-click open the picker. */
+        class SvgListCellEditor extends AbstractCellEditor implements TableCellEditor {
+            private final JPanel     panel = new JPanel(new BorderLayout());
+            private final JTextField field = new JTextField();
+            private final JButton    btn   = new JButton("\u25BE");
+            private EventObject triggerEvent;
+            private int editRow = -1, editCol = -1;
+            SvgListCellEditor() {
+                btn.setPreferredSize(new Dimension(22, 0));
+                btn.setFont(btn.getFont().deriveFont(9f));
+                btn.setMargin(new Insets(0, 1, 0, 1));
+                btn.setFocusable(false);
+                field.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                panel.add(field, BorderLayout.CENTER);
+                panel.add(btn,   BorderLayout.EAST);
+                btn.addActionListener(ae -> {
+                    int r = editRow, c = editCol;
+                    faceRulesModel.setValueAt(field.getText(), r, c);
+                    fireEditingCanceled();
+                    showSvgPickerDialog(r, c);
+                });
+            }
+            @Override public boolean isCellEditable(EventObject e) {
+                triggerEvent = e; return true;
+            }
+            @Override public Object getCellEditorValue() { return field.getText(); }
+            @Override public Component getTableCellEditorComponent(JTable t, Object v,
+                    boolean sel, int row, int col) {
+                editRow = row; editCol = col;
+                field.setText(v == null ? "" : v.toString());
+                if (triggerEvent instanceof MouseEvent
+                        && ((MouseEvent) triggerEvent).getClickCount() >= 2) {
+                    SwingUtilities.invokeLater(() -> {
+                        faceRulesModel.setValueAt(field.getText(), editRow, editCol);
+                        fireEditingCanceled();
+                        showSvgPickerDialog(editRow, editCol);
+                    });
+                }
+                return panel;
+            }
+        }
+
+        SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
+        faceRulesTable.getColumnModel().getColumn(4).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(5).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(4).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(5).setCellEditor(new SvgListCellEditor());
 
         // ── Row toolbar ───────────────────────────────────────────────────────
 
@@ -1506,7 +1572,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "", 0, "", "", ""});
+            faceRulesModel.addRow(new Object[]{"", "normal", 0, "normal", "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
