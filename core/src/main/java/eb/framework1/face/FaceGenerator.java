@@ -363,8 +363,10 @@ public final class FaceGenerator {
      *       (lowest priority first).  If not sorted, callers should sort before
      *       passing to this method.  Rules with equal priority are processed in
      *       list order.</li>
-     *   <li>For each rule, its conditions are evaluated (gender, minAge,
-     *       percentage).  The {@code percentage} roll is seeded with
+     *   <li>For each rule, its conditions are evaluated (gender, emotion, minAge,
+     *       percentage).  Rules with a non-empty emotion other than {@code "normal"}
+     *       are skipped because this method produces the default (normal) face.
+     *       The {@code percentage} roll is seeded with
      *       {@code seed ^ (ruleIndex * 6364136223846793005L)} so that each
      *       character always rolls the same result for each rule.</li>
      *   <li>When a rule fires:
@@ -430,6 +432,12 @@ public final class FaceGenerator {
                 continue;
             }
 
+            // Emotion filter – this method produces the "normal" (default) face.
+            // Rules scoped to a specific non-normal emotion are skipped.
+            if (!rule.emotion.isEmpty() && !rule.emotion.equalsIgnoreCase("normal")) {
+                continue;
+            }
+
             // Age filter
             if (rule.minAge > 0 && age < rule.minAge) {
                 continue;
@@ -445,15 +453,7 @@ public final class FaceGenerator {
             }
 
             // ── Apply include (unique per type) ───────────────────────────────
-            for (String entry : rule.include) {
-                int dot = entry.indexOf('.');
-                if (dot <= 0) continue;
-                String featureType = entry.substring(0, dot);
-                includedByType.computeIfAbsent(featureType, k -> new ArrayList<>())
-                              .clear();
-                // Re-compute to collect ALL include entries for this type in one pass
-            }
-            // Second pass: group include entries by type and store
+            // Group include entries by feature type and replace any previous list
             Map<String, List<String>> ruleIncludes = new HashMap<>();
             for (String entry : rule.include) {
                 int dot = entry.indexOf('.');

@@ -399,4 +399,96 @@ public class DefaultCharacterFaceTest {
         assertFalse("eye type should not appear when all IDs are excluded",
                 pool.containsKey("eye"));
     }
+
+    // =========================================================================
+    // defaultCharacterFace — emotion filter
+    // =========================================================================
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_normalRuleFires() {
+        // A rule with emotion="normal" should fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Normal\", \"gender\": \"\", \"emotion\": \"normal\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.smile\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("normal emotion rule should fire", pool.containsKey("mouth"));
+        assertTrue(pool.get("mouth").contains("smile"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_emptyEmotionRuleFires() {
+        // A rule with emotion="" (any) should also fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Any\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.closed\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("empty emotion rule should fire", pool.containsKey("mouth"));
+        assertTrue(pool.get("mouth").contains("closed"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_happyRuleSkipped() {
+        // A rule with emotion="happy" must NOT fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Happy\", \"gender\": \"\", \"emotion\": \"happy\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.smile\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertFalse("happy emotion rule should not fire for default face",
+                pool.containsKey("mouth"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_angryRuleSkipped() {
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Angry\", \"gender\": \"\", \"emotion\": \"angry\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.angry\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertFalse("angry emotion rule should not fire for default face",
+                pool.containsKey("mouth"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_caseInsensitiveNormal() {
+        // "Normal" and "NORMAL" should both be treated as the normal emotion
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"NormalUpper\", \"gender\": \"\", \"emotion\": \"NORMAL\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"eye.eye1\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("NORMAL (uppercase) emotion rule should fire", pool.containsKey("eye"));
+    }
 }
