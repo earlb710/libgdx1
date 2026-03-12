@@ -263,7 +263,7 @@ public class SvgEditorPanel extends JPanel {
     /**
      * Table model for face rules.
      * <p>Columns: Gender (0), Emotion (1), MinWealth (2), MinAge (3), ClothesType (4),
-     * Percentage (5), Include (6), Exclude (7).
+     * Percentage (5), Priority (6), Include (7), Exclude (8).
      * <ul>
      *   <li>Gender – one of {@code ""}, {@code "male"}, {@code "female"}; empty means any gender.
      *   <li>Emotion – one of {@code ""}, {@code "normal"}, {@code "happy"}, {@code "sad"},
@@ -274,6 +274,9 @@ public class SvgEditorPanel extends JPanel {
      *       {@code "sport"}, {@code "gym"}; empty means any clothes type.
      *   <li>Percentage – integer 1–100; chance (%) the rule fires when its conditions match.
      *       100 means the rule always fires (default).
+     *   <li>Priority – non-negative integer; rules are sorted ascending by priority before being
+     *       applied so that higher-priority rules are processed last and overwrite earlier ones.
+     *       0 = default (lowest priority).
      *   <li>Include – comma-separated list of {@code "feature.id"} pairs that are
      *       allowed when this rule's conditions are met.
      *   <li>Exclude – comma-separated list of {@code "feature.id"} pairs that are
@@ -282,7 +285,7 @@ public class SvgEditorPanel extends JPanel {
      */
     private final DefaultTableModel faceRulesModel =
             new DefaultTableModel(
-                    new String[]{"Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Include", "Exclude"}, 0) {
+                    new String[]{"Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Exclude"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return true; }
             };
 
@@ -1470,8 +1473,9 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(60);  // MinAge
         faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(100); // ClothesType
         faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(80);  // Percentage
-        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(280); // Include
-        faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(280); // Exclude
+        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(70);  // Priority
+        faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(280); // Include
+        faceRulesTable.getColumnModel().getColumn(8).setPreferredWidth(280); // Exclude
 
         // Gender column – preset combo
         JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
@@ -1495,7 +1499,7 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(4)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
-        // ── Custom cell editor / renderer for Include (col 6) and Exclude (col 7) ─
+        // ── Custom cell editor / renderer for Include (col 7) and Exclude (col 8) ─
         //
         // Each cell renders as [  text label  ][▼].  A single click activates the
         // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
@@ -1568,10 +1572,10 @@ public class SvgEditorPanel extends JPanel {
         }
 
         SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
-        faceRulesTable.getColumnModel().getColumn(6).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(7).setCellRenderer(svgRenderer);
-        faceRulesTable.getColumnModel().getColumn(6).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(8).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(7).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(8).setCellEditor(new SvgListCellEditor());
 
         // ── Row toolbar ───────────────────────────────────────────────────────
 
@@ -1579,7 +1583,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "", 100, "", ""});
+            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "", 100, 0, "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
@@ -1639,7 +1643,7 @@ public class SvgEditorPanel extends JPanel {
      * new comma-separated selection.
      *
      * @param row row index in {@link #faceRulesTable}
-     * @param col column index – 6 (Include) or 7 (Exclude)
+     * @param col column index – 7 (Include) or 8 (Exclude)
      */
     private void showSvgPickerDialog(int row, int col) {
         // Build a sorted map of feature → sorted list of ids from svgsData
@@ -1760,7 +1764,7 @@ public class SvgEditorPanel extends JPanel {
         content.add(scroll,        BorderLayout.CENTER);
         content.add(pickerPreview, BorderLayout.EAST);
 
-        String colName = col == 6 ? "Include" : "Exclude";
+        String colName = col == 7 ? "Include" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
                 this, content,
                 "Select SVG IDs for " + colName,
@@ -1798,6 +1802,7 @@ public class SvgEditorPanel extends JPanel {
      *       "minAge":     0,
      *       "clothesType":"",
      *       "percentage": 100,
+     *       "priority":   0,
      *       "include":    ["mouth.mouth4", "mouth.mouth5", "eyes.female5", "eyes.female6"],
      *       "exclude":    []
      *     },
@@ -1812,6 +1817,9 @@ public class SvgEditorPanel extends JPanel {
             faceRulesModel.setRowCount(0);
 
             JsonArray rules = root.has("rules") ? root.getAsJsonArray("rules") : new JsonArray();
+
+            // Collect raw row data so we can sort by priority before adding to the table
+            List<Object[]> rows = new ArrayList<>();
             for (JsonElement ruleEl : rules) {
                 JsonObject rule = ruleEl.getAsJsonObject();
                 String gender      = rule.has("gender")      ? rule.get("gender").getAsString()      : "";
@@ -1820,11 +1828,18 @@ public class SvgEditorPanel extends JPanel {
                 int    minAge      = rule.has("minAge")      ? rule.get("minAge").getAsInt()         : 0;
                 String clothesType = rule.has("clothesType") ? rule.get("clothesType").getAsString() : "";
                 int    percentage  = rule.has("percentage")  ? rule.get("percentage").getAsInt()     : 100;
+                int    priority    = rule.has("priority")    ? rule.get("priority").getAsInt()       : 0;
 
                 String include = jsonArrayToString(rule, "include");
                 String exclude = jsonArrayToString(rule, "exclude");
 
-                faceRulesModel.addRow(new Object[]{gender, emotion, minWealth, minAge, clothesType, percentage, include, exclude});
+                rows.add(new Object[]{gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+            }
+
+            // Sort ascending by priority so higher-priority rules appear later in the table
+            rows.sort((a, b) -> Integer.compare((int) a[6], (int) b[6]));
+            for (Object[] row : rows) {
+                faceRulesModel.addRow(row);
             }
 
             faceRulesFile = file;
@@ -1849,6 +1864,8 @@ public class SvgEditorPanel extends JPanel {
         JsonArray rules   = new JsonArray();
         List<String> skipped = new ArrayList<>();
 
+        // Collect rows, then sort ascending by priority so the JSON reflects application order
+        List<Object[]> rowData = new ArrayList<>();
         for (int r = 0; r < faceRulesModel.getRowCount(); r++) {
             String gender      = cellStr(faceRulesModel, r, 0).trim();
             String emotion     = cellStr(faceRulesModel, r, 1).trim();
@@ -1856,23 +1873,30 @@ public class SvgEditorPanel extends JPanel {
             int    minAge      = intVal(faceRulesModel.getValueAt(r, 3));
             String clothesType = cellStr(faceRulesModel, r, 4).trim();
             int    percentage  = intVal(faceRulesModel.getValueAt(r, 5));
-            String include     = cellStr(faceRulesModel, r, 6).trim();
-            String exclude     = cellStr(faceRulesModel, r, 7).trim();
+            int    priority    = intVal(faceRulesModel.getValueAt(r, 6));
+            String include     = cellStr(faceRulesModel, r, 7).trim();
+            String exclude     = cellStr(faceRulesModel, r, 8).trim();
 
             if (include.isEmpty() && exclude.isEmpty()) {
                 skipped.add("row " + (r + 1) + " (no include or exclude entries)");
                 continue;
             }
+            rowData.add(new Object[]{gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, exclude});
+        }
 
+        rowData.sort((a, b) -> Integer.compare((int) a[6], (int) b[6]));
+
+        for (Object[] row : rowData) {
             JsonObject rule = new JsonObject();
-            rule.addProperty("gender",      gender);
-            rule.addProperty("emotion",     emotion);
-            rule.addProperty("minWealth",   minWealth);
-            rule.addProperty("minAge",      minAge);
-            rule.addProperty("clothesType", clothesType);
-            rule.addProperty("percentage",  Math.min(100, Math.max(1, percentage)));
-            rule.add("include", stringToJsonArray(include));
-            rule.add("exclude", stringToJsonArray(exclude));
+            rule.addProperty("gender",      (String) row[0]);
+            rule.addProperty("emotion",     (String) row[1]);
+            rule.addProperty("minWealth",   (int)    row[2]);
+            rule.addProperty("minAge",      (int)    row[3]);
+            rule.addProperty("clothesType", (String) row[4]);
+            rule.addProperty("percentage",  Math.min(100, Math.max(1, (int) row[5])));
+            rule.addProperty("priority",    Math.max(0, (int) row[6]));
+            rule.add("include", stringToJsonArray((String) row[7]));
+            rule.add("exclude", stringToJsonArray((String) row[8]));
             rules.add(rule);
         }
 
