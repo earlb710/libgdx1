@@ -491,4 +491,51 @@ public class DefaultCharacterFaceTest {
                 FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
         assertTrue("NORMAL (uppercase) emotion rule should fire", pool.containsKey("eye"));
     }
+
+    // =========================================================================
+    // FaceGenerator.generate(Options, pool) — pool-based generation
+    // =========================================================================
+
+    @Test
+    public void generateWithPool_picksIdFromPool() {
+        // Given a pool with a single eye ID, generate() must use it
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye5"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("eye5", face.eye.id);
+    }
+
+    @Test
+    public void generateWithPool_nullPoolFallsBackToRandom() {
+        // Null pool → should still produce a valid face
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), null);
+        assertNotNull(face);
+        assertNotNull(face.eye.id);
+        assertFalse(face.eye.id.isEmpty());
+    }
+
+    @Test
+    public void generateWithPool_emptyPoolFallsBackToRandom() {
+        // Empty pool → standard random generation
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face1 = gen.generate(new FaceGenerator.Options().gender("male"),
+                Collections.<String, List<String>>emptyMap());
+        assertNotNull(face1);
+    }
+
+    @Test
+    public void generateWithPool_missingFeatureUsesRandom() {
+        // Pool has "eye" but no "mouth" → mouth ID is randomly chosen (not null)
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye3"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(99));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("eye3", face.eye.id);
+        assertNotNull("mouth should still be set", face.mouth.id);
+        assertFalse(face.mouth.id.isEmpty());
+    }
 }

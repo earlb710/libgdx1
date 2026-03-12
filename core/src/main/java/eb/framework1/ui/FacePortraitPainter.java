@@ -1,0 +1,729 @@
+package eb.framework1.ui;
+
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import eb.framework1.face.FaceConfig;
+import eb.framework1.face.FaceSvgBuilder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Renders face portraits for NPC characters by rasterising their
+ * {@link FaceConfig} to a cached libGDX {@link Texture}.
+ *
+ * <p>SVG path data (M, L, C, Z commands) is parsed directly from the
+ * {@link FaceSvgBuilder.SvgTemplateLoader} templates, transformed with the
+ * same affine-matrix logic as {@link FaceSvgBuilder}, and filled using a
+ * scan-line polygon algorithm on a {@link Pixmap}.  Generated textures are
+ * cached by character id to avoid redundant rasterisation.
+ *
+ * <p>This class requires a libGDX context (for {@link Pixmap} and
+ * {@link Texture}) and must be used on the OpenGL thread.
+ */
+public final class FacePortraitPainter {
+
+    /** Portrait output width in pixels. */
+    public static final int PORTRAIT_W = 100;
+    /** Portrait output height in pixels. */
+    public static final int PORTRAIT_H = 150;
+
+    /** Face SVG canonical dimensions (400 × 600). */
+    private static final float SVG_W = 400f;
+    private static final float SVG_H = 600f;
+
+    /** Maximum bezier subdivision depth to control recursion. */
+    private static final int MAX_BEZIER_DEPTH = 8;
+    /** Pixel-space flatness tolerance for bezier subdivision. */
+    private static final float BEZIER_TOL = 0.5f;
+
+    // -------------------------------------------------------------------------
+    // Feature layout (mirrors FaceSvgBuilder.FEATURE_INFOS)
+    // -------------------------------------------------------------------------
+
+    private static final String[] FEATURE_NAMES = {
+        "hairBg", "body", "jersey", "ear", "head", "eyeLine", "smileLine",
+        "miscLine", "facialHair", "eye", "eyebrow", "mouth", "nose",
+        "hair", "glasses", "accessories"
+    };
+
+    /** Pixel positions {[x,y], ...} for positioned features; null = no explicit position. */
+    private static final int[][][] FEATURE_POSITIONS = {
+        null,                            // hairBg
+        null,                            // body
+        null,                            // jersey
+        {{55, 325}, {345, 325}},         // ear (left, right)
+        null,                            // head
+        null,                            // eyeLine
+        {{150, 435}, {250, 435}},        // smileLine (left, right)
+        null,                            // miscLine
+        null,                            // facialHair
+        {{140, 310}, {260, 310}},        // eye (left, right)
+        {{140, 270}, {260, 270}},        // eyebrow (left, right)
+        {{200, 440}},                    // mouth
+        {{200, 370}},                    // nose
+        null,                            // hair
+        null,                            // glasses
+        null,                            // accessories
+    };
+
+    /** Whether the feature scales with fatness when it has no explicit position. */
+    private static final boolean[] FEATURE_SCALE_FATNESS = {
+        true,  // hairBg
+        false, // body
+        false, // jersey
+        true,  // ear
+        true,  // head
+        false, // eyeLine
+        false, // smileLine
+        false, // miscLine
+        true,  // facialHair
+        false, // eye
+        false, // eyebrow
+        false, // mouth
+        false, // nose
+        true,  // hair
+        true,  // glasses
+        true,  // accessories
+    };
+
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
+
+    private final FaceSvgBuilder.SvgTemplateLoader loader;
+    private final Map<String, Texture>             cache = new HashMap<>();
+
+    // -------------------------------------------------------------------------
+    // Construction
+    // -------------------------------------------------------------------------
+
+    /**
+     * @param loader SVG template supplier; must not be {@code null}
+     */
+    public FacePortraitPainter(FaceSvgBuilder.SvgTemplateLoader loader) {
+        if (loader == null) throw new IllegalArgumentException("loader must not be null");
+        this.loader = loader;
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns a {@link Texture} portrait for the given face config, generating
+     * and caching it on first call.
+     *
+     * @param characterId stable identifier used as the cache key
+     * @param face        face configuration to render; {@code null} → {@code null}
+     * @return a cached texture, or {@code null} if {@code face} is {@code null}
+     */
+    public Texture getPortrait(String characterId, FaceConfig face) {
+        if (face == null) return null;
+        Texture t = cache.get(characterId);
+        if (t == null) {
+            t = buildTexture(face);
+            cache.put(characterId, t);
+        }
+        return t;
+    }
+
+    /** Disposes all cached textures and clears the cache. */
+    public void dispose() {
+        for (Texture t : cache.values()) t.dispose();
+        cache.clear();
+    }
+
+    // -------------------------------------------------------------------------
+    // Portrait building
+    // -------------------------------------------------------------------------
+
+    private Texture buildTexture(FaceConfig face) {
+        Pixmap pm = new Pixmap(PORTRAIT_W, PORTRAIT_H, Pixmap.Format.RGBA8888);
+        pm.setColor(0f, 0f, 0f, 0f);
+        pm.fill();
+        renderFace(face, pm);
+        Texture tex = new Texture(pm);
+        pm.dispose();
+        return tex;
+    }
+
+    private void renderFace(FaceConfig face, Pixmap pm) {
+        float sx = PORTRAIT_W / SVG_W;
+        float sy = PORTRAIT_H / SVG_H;
+        double bodySize = face.body.size;
+        double fatness  = face.fatness;
+
+        for (int fi = 0; fi < FEATURE_NAMES.length; fi++) {
+            String name = FEATURE_NAMES[fi];
+            String id   = getFeatureId(face, name);
+            if (id == null || "none".equals(id)) continue;
+
+            String tmpl = loader.getSvgTemplate(name, id);
+            if (tmpl == null || tmpl.isEmpty()) continue;
+
+            // Apply head-shave placeholder
+            if ("head".equals(name)) {
+                tmpl = tmpl.replace("$[faceShave]", face.head.shave);
+                tmpl = tmpl.replace("$[headShave]", face.head.shave);
+            }
+
+            // Substitute colour placeholders with resolved hex values
+            tmpl = applyColors(tmpl, face);
+
+            int[][]  positions    = FEATURE_POSITIONS[fi];
+            boolean  scaleFatness = FEATURE_SCALE_FATNESS[fi];
+            boolean  isBody       = "body".equals(name) || "jersey".equals(name);
+            int      angle        = getAngle(face, name);
+            double   size         = getSize(face, name);
+            boolean  flip         = getFlip(face, name);
+
+            // Bounding-box centre for positioned features
+            double[] center = (positions != null) ? FaceSvgBuilder.computeCenter(tmpl) : null;
+
+            // CSS class → fill colour map parsed from the template's <style> block
+            Map<String, Integer> cssColors = parseCssColors(tmpl);
+
+            int posCount = (positions != null) ? positions.length : 1;
+            for (int pi = 0; pi < posCount; pi++) {
+                float[] matrix = buildMatrix(
+                        positions, pi, isBody, flip, size, angle,
+                        scaleFatness, fatness, bodySize, center, pi);
+                renderPaths(tmpl, cssColors, matrix, sx, sy, pm);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Affine transform matrix
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds a 2×3 affine matrix for the given feature instance, replicating
+     * the translate/rotate/scale logic from {@link FaceSvgBuilder}.
+     *
+     * <p>Storage convention: {@code float[6] = {m00, m10, m01, m11, m02, m12}}
+     * where {@code x' = m00·x + m01·y + m02} and {@code y' = m10·x + m11·y + m12}.
+     */
+    private static float[] buildMatrix(int[][] positions, int posIdx,
+                                       boolean isBody, boolean flip, double size,
+                                       int angle, boolean scaleFatness, double fatness,
+                                       double bodySize, double[] center, int instanceIdx) {
+        float[] m = {1, 0, 0, 1, 0, 0}; // identity
+
+        boolean hasPos    = (positions != null);
+        boolean needScale = isBody || flip || instanceIdx == 1 || size != 1.0;
+        boolean needRot   = angle != 0;
+
+        // Optimised path: single combined translate when nothing else is needed
+        if (hasPos && center != null && !needScale && !needRot) {
+            float dx = (float) (positions[posIdx][0] - center[0]);
+            float dy = (float) (positions[posIdx][1] - center[1]);
+            return new float[]{1, 0, 0, 1, dx, dy};
+        }
+
+        // Step 1: translate to target position
+        if (hasPos) {
+            float px = positions[posIdx][0];
+            float py = positions[posIdx][1];
+            m = matMul(m, new float[]{1, 0, 0, 1, px, py});
+        }
+
+        // Step 2: rotation (eye / eyebrow; mirrored for right instance)
+        if (needRot) {
+            double sign = (instanceIdx == 0) ? 1.0 : -1.0;
+            double rad  = Math.toRadians(sign * angle);
+            float  cosA = (float) Math.cos(rad);
+            float  sinA = (float) Math.sin(rad);
+            m = matMul(m, new float[]{cosA, sinA, -sinA, cosA, 0, 0});
+        }
+
+        // Step 3: scale
+        if (isBody) {
+            m = matMul(m, new float[]{(float) bodySize, 0, 0, 1, 0, 0});
+        } else if (flip || instanceIdx == 1) {
+            m = matMul(m, new float[]{-(float) size, 0, 0, (float) size, 0, 0});
+        } else if (size != 1.0) {
+            m = matMul(m, new float[]{(float) size, 0, 0, (float) size, 0, 0});
+        }
+
+        // Step 4: fatness scaling for hair / head / etc. without an explicit position
+        if (scaleFatness && !hasPos) {
+            float fs = (float) (0.8 + 0.2 * fatness);
+            m = matMul(m, new float[]{fs, 0, 0, 1, 0, 0});
+        }
+
+        // Step 5: bbox-centre offset
+        if (hasPos && center != null) {
+            m = matMul(m, new float[]{1, 0, 0, 1, -(float) center[0], -(float) center[1]});
+        }
+
+        return m;
+    }
+
+    /** Multiplies two 2×3 affine matrices: {@code result = a × b}. */
+    static float[] matMul(float[] a, float[] b) {
+        return new float[]{
+            a[0]*b[0] + a[2]*b[1],
+            a[1]*b[0] + a[3]*b[1],
+            a[0]*b[2] + a[2]*b[3],
+            a[1]*b[2] + a[3]*b[3],
+            a[0]*b[4] + a[2]*b[5] + a[4],
+            a[1]*b[4] + a[3]*b[5] + a[5]
+        };
+    }
+
+    private static float applyX(float[] m, float x, float y) { return m[0]*x + m[2]*y + m[4]; }
+    private static float applyY(float[] m, float x, float y) { return m[1]*x + m[3]*y + m[5]; }
+
+    // -------------------------------------------------------------------------
+    // SVG path element rendering
+    // -------------------------------------------------------------------------
+
+    private static final Pattern PATH_ELEM_PAT =
+            Pattern.compile("<path\\b([^>]*?)(?:/>|>)", Pattern.DOTALL);
+    private static final Pattern ATTR_PAT =
+            Pattern.compile("([\\w-]+)\\s*=\\s*\"([^\"]*)\"");
+
+    private static void renderPaths(String tmpl, Map<String, Integer> cssColors,
+                                    float[] matrix, float sx, float sy, Pixmap pm) {
+        Matcher pm2 = PATH_ELEM_PAT.matcher(tmpl);
+        while (pm2.find()) {
+            Map<String, String> attrs = extractAttrs(pm2.group(0));
+            String dStr = attrs.get("d");
+            if (dStr == null || dStr.isEmpty()) continue;
+
+            int fillColor = resolveFillColor(attrs, cssColors);
+            if ((fillColor & 0xFF) == 0) continue; // fully transparent → skip
+
+            List<List<float[]>> contours = flattenPathToContours(dStr, matrix, sx, sy);
+            for (List<float[]> contour : contours) {
+                if (contour.size() >= 3) {
+                    fillPolygon(pm, contour, fillColor);
+                }
+            }
+        }
+    }
+
+    private static Map<String, String> extractAttrs(String elem) {
+        Map<String, String> map = new LinkedHashMap<>();
+        Matcher m = ATTR_PAT.matcher(elem);
+        while (m.find()) map.put(m.group(1), m.group(2));
+        return map;
+    }
+
+    private static int resolveFillColor(Map<String, String> attrs,
+                                        Map<String, Integer> css) {
+        String fill  = attrs.get("fill");
+        String clazz = attrs.get("class");
+        if (fill != null && !fill.isEmpty() && !"none".equals(fill)) {
+            return parseCssColor(fill.trim());
+        }
+        if (clazz != null) {
+            for (String cls : clazz.split("\\s+")) {
+                Integer c = css.get(cls.trim());
+                if (c != null) return c;
+            }
+        }
+        return 0; // transparent
+    }
+
+    // -------------------------------------------------------------------------
+    // CSS style block parsing
+    // -------------------------------------------------------------------------
+
+    private static final Pattern CSS_RULE_PAT =
+            Pattern.compile("\\.([\\w-]+)\\s*\\{([^}]*)\\}", Pattern.DOTALL);
+    private static final Pattern CSS_FILL_PAT =
+            Pattern.compile("\\bfill\\s*:\\s*([^;},]+)");
+
+    private static Map<String, Integer> parseCssColors(String svg) {
+        Map<String, Integer> map = new HashMap<>();
+        Matcher rm = CSS_RULE_PAT.matcher(svg);
+        while (rm.find()) {
+            String cls   = rm.group(1);
+            String rules = rm.group(2);
+            Matcher fm   = CSS_FILL_PAT.matcher(rules);
+            if (fm.find()) {
+                String c = fm.group(1).trim();
+                if (!"none".equals(c) && !c.isEmpty()) {
+                    int color = parseCssColor(c);
+                    if (color != 0) map.put(cls, color);
+                }
+            }
+        }
+        return map;
+    }
+
+    /** Parses a CSS/SVG colour string to an RGBA8888 int (0 = transparent/unknown). */
+    static int parseCssColor(String s) {
+        s = s.trim();
+        if (s.startsWith("#")) {
+            String h = s.substring(1);
+            if (h.length() == 3) {
+                h = "" + h.charAt(0) + h.charAt(0)
+                       + h.charAt(1) + h.charAt(1)
+                       + h.charAt(2) + h.charAt(2);
+            }
+            if (h.length() == 6) {
+                try {
+                    int r = Integer.parseInt(h.substring(0, 2), 16);
+                    int g = Integer.parseInt(h.substring(2, 4), 16);
+                    int b = Integer.parseInt(h.substring(4, 6), 16);
+                    return (r << 24) | (g << 16) | (b << 8) | 0xFF;
+                } catch (NumberFormatException ignored) { /* fall through */ }
+            }
+        } else if ("black".equals(s)) {
+            return 0x000000FF;
+        } else if ("white".equals(s)) {
+            return 0xFFFFFFFF;
+        } else if (s.startsWith("rgba")) {
+            Matcher m = Pattern.compile("rgba\\s*\\(([^)]+)\\)").matcher(s);
+            if (m.find()) {
+                float[] ns = parseNums(m.group(1));
+                if (ns.length >= 4) {
+                    int r = (int) ns[0], g = (int) ns[1], b = (int) ns[2];
+                    int a = (int) (ns[3] * 255);
+                    return (r << 24) | (g << 16) | (b << 8) | (a & 0xFF);
+                }
+            }
+        } else if (s.startsWith("rgb")) {
+            Matcher m = Pattern.compile("rgb\\s*\\(([^)]+)\\)").matcher(s);
+            if (m.find()) {
+                float[] ns = parseNums(m.group(1));
+                if (ns.length >= 3) {
+                    int r = (int) ns[0], g = (int) ns[1], b = (int) ns[2];
+                    return (r << 24) | (g << 16) | (b << 8) | 0xFF;
+                }
+            }
+        }
+        return 0; // unknown / transparent
+    }
+
+    // -------------------------------------------------------------------------
+    // SVG path flattening
+    // -------------------------------------------------------------------------
+
+    /**
+     * Parses the SVG path data string {@code d}, applies the affine matrix
+     * and output scale, and returns a list of closed contours (each a list of
+     * screen-space vertex pairs).
+     */
+    private static List<List<float[]>> flattenPathToContours(
+            String d, float[] matrix, float sx, float sy) {
+
+        List<List<float[]>> contours = new ArrayList<>();
+        List<float[]> current = new ArrayList<>();
+
+        float cx = 0, cy = 0; // current point
+        float mx = 0, my = 0; // start of current subpath (for Z)
+
+        List<Object> tokens = tokenizePath(d);
+        int i = 0;
+        char cmd = 'M';
+        boolean rel = false;
+
+        while (i < tokens.size()) {
+            Object tok = tokens.get(i);
+            if (tok instanceof Character) {
+                char c = (char) (Character) tok;
+                cmd = Character.toUpperCase(c);
+                rel = Character.isLowerCase(c);
+                i++;
+                continue;
+            }
+
+            switch (cmd) {
+                case 'M': {
+                    float x = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    if (!current.isEmpty()) {
+                        contours.add(current);
+                        current = new ArrayList<>();
+                    }
+                    cx = x; cy = y; mx = x; my = y;
+                    current.add(pt(matrix, sx, sy, x, y));
+                    // Implicit L after M
+                    cmd = rel ? 'l' : 'L';
+                    rel = (cmd == 'l');
+                    break;
+                }
+                case 'L': {
+                    float x = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    cx = x; cy = y;
+                    current.add(pt(matrix, sx, sy, x, y));
+                    break;
+                }
+                case 'H': {
+                    float x = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    cx = x;
+                    current.add(pt(matrix, sx, sy, cx, cy));
+                    break;
+                }
+                case 'V': {
+                    float y = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    cy = y;
+                    current.add(pt(matrix, sx, sy, cx, cy));
+                    break;
+                }
+                case 'C': {
+                    float x1 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y1 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    float x2 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y2 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    float x3 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y3 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    flattenCubic(current, matrix, sx, sy, cx, cy, x1, y1, x2, y2, x3, y3, 0);
+                    cx = x3; cy = y3;
+                    break;
+                }
+                case 'Q': {
+                    // Quadratic bezier → convert to cubic and flatten
+                    float x1 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y1 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    float x2 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y2 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    // Convert Q(P0,P1,P2) to cubic: c1 = P0 + 2/3*(P1-P0), c2 = P2 + 2/3*(P1-P2)
+                    float cx1 = cx + 2f/3f*(x1 - cx);
+                    float cy1 = cy + 2f/3f*(y1 - cy);
+                    float cx2 = x2 + 2f/3f*(x1 - x2);
+                    float cy2 = y2 + 2f/3f*(y1 - y2);
+                    flattenCubic(current, matrix, sx, sy, cx, cy, cx1, cy1, cx2, cy2, x2, y2, 0);
+                    cx = x2; cy = y2;
+                    break;
+                }
+                case 'Z': {
+                    current.add(pt(matrix, sx, sy, mx, my));
+                    if (!current.isEmpty()) {
+                        contours.add(current);
+                        current = new ArrayList<>();
+                    }
+                    cx = mx; cy = my;
+                    break;
+                }
+                default:
+                    i++; // skip unrecognised numeric token
+                    break;
+            }
+        }
+        if (!current.isEmpty()) contours.add(current);
+        return contours;
+    }
+
+    private static float[] pt(float[] m, float sx, float sy, float x, float y) {
+        return new float[]{applyX(m, x, y) * sx, applyY(m, x, y) * sy};
+    }
+
+    private static void flattenCubic(List<float[]> verts, float[] matrix,
+                                     float sx, float sy,
+                                     float x0, float y0,
+                                     float x1, float y1,
+                                     float x2, float y2,
+                                     float x3, float y3,
+                                     int depth) {
+        if (depth >= MAX_BEZIER_DEPTH) {
+            verts.add(pt(matrix, sx, sy, x3, y3));
+            return;
+        }
+        float dx  = x3 - x0, dy = y3 - y0;
+        float len2 = dx*dx + dy*dy;
+        float d1, d2;
+        if (len2 < 0.01f) {
+            d1 = dist(x1, y1, x0, y0);
+            d2 = dist(x2, y2, x0, y0);
+        } else {
+            float sqLen = (float) Math.sqrt(len2);
+            d1 = Math.abs(dy*x1 - dx*y1 + x3*y0 - y3*x0) / sqLen;
+            d2 = Math.abs(dy*x2 - dx*y2 + x3*y0 - y3*x0) / sqLen;
+        }
+        if (Math.max(d1, d2) < BEZIER_TOL) {
+            verts.add(pt(matrix, sx, sy, x3, y3));
+            return;
+        }
+        // De Casteljau subdivision at t = 0.5
+        float m01x = (x0+x1)*.5f, m01y = (y0+y1)*.5f;
+        float m12x = (x1+x2)*.5f, m12y = (y1+y2)*.5f;
+        float m23x = (x2+x3)*.5f, m23y = (y2+y3)*.5f;
+        float m012x = (m01x+m12x)*.5f, m012y = (m01y+m12y)*.5f;
+        float m123x = (m12x+m23x)*.5f, m123y = (m12y+m23y)*.5f;
+        float midX  = (m012x+m123x)*.5f, midY = (m012y+m123y)*.5f;
+        flattenCubic(verts, matrix, sx, sy, x0, y0, m01x, m01y, m012x, m012y, midX, midY, depth+1);
+        flattenCubic(verts, matrix, sx, sy, midX, midY, m123x, m123y, m23x, m23y, x3, y3, depth+1);
+    }
+
+    private static float dist(float x1, float y1, float x2, float y2) {
+        float dx = x1-x2, dy = y1-y2;
+        return (float) Math.sqrt(dx*dx + dy*dy);
+    }
+
+    // -------------------------------------------------------------------------
+    // Scan-line polygon fill
+    // -------------------------------------------------------------------------
+
+    private static void fillPolygon(Pixmap pm, List<float[]> verts, int rgba) {
+        int W = pm.getWidth(), H = pm.getHeight();
+        float minY = Float.MAX_VALUE, maxY = Float.NEGATIVE_INFINITY;
+        for (float[] v : verts) {
+            if (v[1] < minY) minY = v[1];
+            if (v[1] > maxY) maxY = v[1];
+        }
+        int y0 = Math.max(0, (int) Math.floor(minY));
+        int y1 = Math.min(H - 1, (int) Math.ceil(maxY));
+
+        int r = (rgba >> 24) & 0xFF, g = (rgba >> 16) & 0xFF,
+            b = (rgba >> 8) & 0xFF,  a = rgba & 0xFF;
+        pm.setColor(r / 255f, g / 255f, b / 255f, a / 255f);
+
+        int n = verts.size();
+        List<Float> xs = new ArrayList<>();
+
+        for (int y = y0; y <= y1; y++) {
+            float fy = y + 0.5f;
+            xs.clear();
+            for (int i = 0; i < n; i++) {
+                float[] va = verts.get(i), vb = verts.get((i + 1) % n);
+                float ay = va[1], by = vb[1];
+                if ((ay <= fy && by > fy) || (by <= fy && ay > fy)) {
+                    xs.add(va[0] + (fy - ay) / (by - ay) * (vb[0] - va[0]));
+                }
+            }
+            if (xs.size() < 2) continue;
+            Collections.sort(xs);
+            for (int ci = 0; ci + 1 < xs.size(); ci += 2) {
+                int x0i = Math.max(0, (int) Math.ceil(xs.get(ci)));
+                int x1i = Math.min(W - 1, (int) Math.floor(xs.get(ci + 1)));
+                for (int x = x0i; x <= x1i; x++) pm.drawPixel(x, y);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // SVG path tokeniser
+    // -------------------------------------------------------------------------
+
+    private static List<Object> tokenizePath(String d) {
+        List<Object> tokens = new ArrayList<>();
+        int i = 0, n = d.length();
+        while (i < n) {
+            char c = d.charAt(i);
+            if (Character.isWhitespace(c) || c == ',') { i++; continue; }
+            if (Character.isLetter(c)) {
+                tokens.add(c);
+                i++;
+            } else {
+                int start = i;
+                if (c == '-' || c == '+') i++;
+                while (i < n && (Character.isDigit(d.charAt(i)) || d.charAt(i) == '.')) i++;
+                if (i < n && (d.charAt(i) == 'e' || d.charAt(i) == 'E')) {
+                    i++;
+                    if (i < n && (d.charAt(i) == '+' || d.charAt(i) == '-')) i++;
+                    while (i < n && Character.isDigit(d.charAt(i))) i++;
+                }
+                if (i > start) {
+                    try { tokens.add(Float.parseFloat(d.substring(start, i))); }
+                    catch (NumberFormatException ignored) { /* skip */ }
+                } else {
+                    i++;
+                }
+            }
+        }
+        return tokens;
+    }
+
+    private static float nextF(List<Object> tokens, int i) {
+        if (i >= tokens.size()) return 0f;
+        Object o = tokens.get(i);
+        return (o instanceof Float) ? (float) (Float) o : 0f;
+    }
+
+    private static float[] parseNums(String s) {
+        String[] parts = s.trim().split("[\\s,]+");
+        float[] arr = new float[parts.length];
+        int count = 0;
+        for (String p : parts) {
+            try { arr[count++] = Float.parseFloat(p); }
+            catch (NumberFormatException ignored) { /* skip */ }
+        }
+        if (count < arr.length) {
+            float[] trimmed = new float[count];
+            System.arraycopy(arr, 0, trimmed, 0, count);
+            return trimmed;
+        }
+        return arr;
+    }
+
+    // -------------------------------------------------------------------------
+    // Colour substitution (same placeholders as FaceSvgBuilder)
+    // -------------------------------------------------------------------------
+
+    private static String applyColors(String tmpl, FaceConfig face) {
+        tmpl = tmpl.replace("$[skinColor]", face.body.color);
+        tmpl = tmpl.replace("$[hairColor]", face.hair.color);
+        tmpl = tmpl.replace("$[primary]",
+                face.teamColors.length > 0 ? face.teamColors[0] : "#89bfd3");
+        tmpl = tmpl.replace("$[secondary]",
+                face.teamColors.length > 1 ? face.teamColors[1] : "#7a1319");
+        tmpl = tmpl.replace("$[accent]",
+                face.teamColors.length > 2 ? face.teamColors[2] : "#07364f");
+        return tmpl;
+    }
+
+    // -------------------------------------------------------------------------
+    // Feature property helpers (mirrors FaceSvgBuilder)
+    // -------------------------------------------------------------------------
+
+    private static String getFeatureId(FaceConfig f, String name) {
+        switch (name) {
+            case "accessories": return f.accessories.id;
+            case "body":        return f.body.id;
+            case "ear":         return f.ear.id;
+            case "eye":         return f.eye.id;
+            case "eyebrow":     return f.eyebrow.id;
+            case "eyeLine":     return f.eyeLine.id;
+            case "facialHair":  return f.facialHair.id;
+            case "glasses":     return f.glasses.id;
+            case "hair":        return f.hair.id;
+            case "hairBg":      return f.hairBg.id;
+            case "head":        return f.head.id;
+            case "jersey":      return f.jersey.id;
+            case "miscLine":    return f.miscLine.id;
+            case "mouth":       return f.mouth.id;
+            case "nose":        return f.nose.id;
+            case "smileLine":   return f.smileLine.id;
+            default:            return null;
+        }
+    }
+
+    private static int getAngle(FaceConfig f, String name) {
+        switch (name) {
+            case "eye":     return f.eye.angle;
+            case "eyebrow": return f.eyebrow.angle;
+            default:        return 0;
+        }
+    }
+
+    private static double getSize(FaceConfig f, String name) {
+        switch (name) {
+            case "ear":       return f.ear.size;
+            case "nose":      return f.nose.size;
+            case "smileLine": return f.smileLine.size;
+            default:          return 1.0;
+        }
+    }
+
+    private static boolean getFlip(FaceConfig f, String name) {
+        switch (name) {
+            case "hair":  return f.hair.flip;
+            case "mouth": return f.mouth.flip;
+            case "nose":  return f.nose.flip;
+            default:      return false;
+        }
+    }
+}

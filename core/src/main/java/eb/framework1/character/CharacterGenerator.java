@@ -2,11 +2,14 @@ package eb.framework1.character;
 
 import eb.framework1.face.FaceConfig;
 import eb.framework1.face.FaceGenerator;
+import eb.framework1.face.FaceRule;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
 
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -102,6 +105,7 @@ public class CharacterGenerator {
     private final PersonNameGenerator nameGen;
     private final Random              random;
     private final FaceGenerator       faceGen;
+    private final List<FaceRule>      faceRules;
 
     // Counter used to produce unique NPC ids within a single generator instance.
     private int npcCounter = 0;
@@ -117,7 +121,7 @@ public class CharacterGenerator {
      *                {@code null}
      */
     public CharacterGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random());
+        this(nameGen, new Random(), null);
     }
 
     /**
@@ -129,12 +133,25 @@ public class CharacterGenerator {
      *                default {@code new Random()}
      */
     public CharacterGenerator(PersonNameGenerator nameGen, Random random) {
+        this(nameGen, random, null);
+    }
+
+    /**
+     * Creates a generator with face rules for age- and gender-aware part selection.
+     *
+     * @param nameGen   name generator; must not be {@code null}
+     * @param random    random-number source; {@code null} → {@code new Random()}
+     * @param faceRules parsed face rules from {@code facerules.json};
+     *                  {@code null} or empty disables rule-based face generation
+     */
+    public CharacterGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
         if (nameGen == null) {
             throw new IllegalArgumentException("nameGen must not be null");
         }
-        this.nameGen = nameGen;
-        this.random  = random != null ? random : new Random();
-        this.faceGen = new FaceGenerator(this.random);
+        this.nameGen   = nameGen;
+        this.random    = random != null ? random : new Random();
+        this.faceGen   = new FaceGenerator(this.random);
+        this.faceRules = (faceRules != null) ? faceRules : Collections.emptyList();
     }
 
     // -------------------------------------------------------------------------
@@ -274,10 +291,19 @@ public class CharacterGenerator {
             b.visionTrait(random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED);
         }
 
-        // Generate a vector face that matches the NPC's gender.
-        FaceGenerator.Options faceOpts = new FaceGenerator.Options()
-                .gender("F".equals(gender) ? "female" : "male");
-        FaceConfig face = faceGen.generate(faceOpts);
+        // Generate a vector face that matches the NPC's gender and age.
+        String normGender = "F".equals(gender) ? "female" : "male";
+        FaceGenerator.Options faceOpts = new FaceGenerator.Options().gender(normGender);
+        FaceConfig face;
+        if (!faceRules.isEmpty()) {
+            // Use rule-based eligible pool (age- and gender-aware)
+            long faceSeed = (long) id.hashCode() * 2654435761L ^ age;
+            Map<String, List<String>> pool =
+                    FaceGenerator.defaultCharacterFace(faceSeed, normGender, age, faceRules);
+            face = faceGen.generate(faceOpts, pool);
+        } else {
+            face = faceGen.generate(faceOpts);
+        }
         b.faceConfig(face);
 
         return b;
