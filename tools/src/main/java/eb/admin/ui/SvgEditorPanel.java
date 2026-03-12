@@ -251,7 +251,7 @@ public class SvgEditorPanel extends JPanel {
 
     /** Valid emotion values for face rules. */
     private static final String[] FACE_RULE_EMOTIONS =
-            {"normal", "sad", "anxious", "angry"};
+            {"normal", "happy", "sad", "anxious", "angry"};
 
     /** Valid clothes-type values for face rules. */
     private static final String[] FACE_RULE_CLOTHES_TYPES =
@@ -262,12 +262,13 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Table model for face rules.
-     * <p>Columns: Gender (0), Emotion (1), MinWealth (2), ClothesType (3), Include (4), Exclude (5).
+     * <p>Columns: Gender (0), Emotion (1), MinWealth (2), MinAge (3), ClothesType (4), Include (5), Exclude (6).
      * <ul>
      *   <li>Gender – one of {@code ""}, {@code "male"}, {@code "female"}; empty means any gender.
-     *   <li>Emotion – one of {@code ""}, {@code "normal"}, {@code "sad"},
+     *   <li>Emotion – one of {@code ""}, {@code "normal"}, {@code "happy"}, {@code "sad"},
      *       {@code "anxious"}, {@code "angry"}; empty means any emotion.
      *   <li>MinWealth – non-negative integer; 0 = no minimum.
+     *   <li>MinAge – non-negative integer; 0 = no minimum.
      *   <li>ClothesType – one of {@code ""}, {@code "normal"}, {@code "work"},
      *       {@code "sport"}, {@code "gym"}; empty means any clothes type.
      *   <li>Include – comma-separated list of {@code "feature.id"} pairs that are
@@ -278,7 +279,7 @@ public class SvgEditorPanel extends JPanel {
      */
     private final DefaultTableModel faceRulesModel =
             new DefaultTableModel(
-                    new String[]{"Gender", "Emotion", "MinWealth", "ClothesType", "Include", "Exclude"}, 0) {
+                    new String[]{"Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Include", "Exclude"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return true; }
             };
 
@@ -1442,8 +1443,9 @@ public class SvgEditorPanel extends JPanel {
      *   <li><b>Genders</b> – comma-separated list of genders the rule applies to
      *       ({@code "male"}, {@code "female"}, or both).
      *   <li><b>Emotions</b> – comma-separated list of emotions ({@code "normal"},
-     *       {@code "sad"}, {@code "anxious"}, {@code "angry"}).
+     *       {@code "happy"}, {@code "sad"}, {@code "anxious"}, {@code "angry"}).
      *   <li><b>MinWealth</b> – minimum wealth integer threshold (0 = unrestricted).
+     *   <li><b>MinAge</b> – minimum age integer threshold (0 = unrestricted).
      *   <li><b>ClothesTypes</b> – comma-separated clothes-type values
      *       ({@code "normal"}, {@code "work"}, {@code "sport"}, {@code "gym"}).
      *   <li><b>Mode</b> – {@code "include"} (part is eligible) or
@@ -1460,9 +1462,10 @@ public class SvgEditorPanel extends JPanel {
         faceRulesTable.getColumnModel().getColumn(0).setPreferredWidth(80);  // Gender
         faceRulesTable.getColumnModel().getColumn(1).setPreferredWidth(100); // Emotion
         faceRulesTable.getColumnModel().getColumn(2).setPreferredWidth(80);  // MinWealth
-        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(100); // ClothesType
-        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(280); // Include
-        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(280); // Exclude
+        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(60);  // MinAge
+        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(100); // ClothesType
+        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(280); // Include
+        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(280); // Exclude
 
         // Gender column – preset combo
         JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
@@ -1483,10 +1486,10 @@ public class SvgEditorPanel extends JPanel {
         clothesCombo.setEditable(true);
         clothesCombo.addItem("");
         for (String c : FACE_RULE_CLOTHES_TYPES) clothesCombo.addItem(c);
-        faceRulesTable.getColumnModel().getColumn(3)
+        faceRulesTable.getColumnModel().getColumn(4)
                 .setCellEditor(new DefaultCellEditor(clothesCombo));
 
-        // ── Custom cell editor / renderer for Include (col 4) and Exclude (col 5) ─
+        // ── Custom cell editor / renderer for Include (col 5) and Exclude (col 6) ─
         //
         // Each cell renders as [  text label  ][▼].  A single click activates the
         // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
@@ -1559,10 +1562,10 @@ public class SvgEditorPanel extends JPanel {
         }
 
         SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
-        faceRulesTable.getColumnModel().getColumn(4).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(5).setCellRenderer(svgRenderer);
-        faceRulesTable.getColumnModel().getColumn(4).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(6).setCellRenderer(svgRenderer);
         faceRulesTable.getColumnModel().getColumn(5).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(6).setCellEditor(new SvgListCellEditor());
 
         // ── Row toolbar ───────────────────────────────────────────────────────
 
@@ -1570,7 +1573,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "normal", 0, "normal", "", ""});
+            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "normal", "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
@@ -1630,7 +1633,7 @@ public class SvgEditorPanel extends JPanel {
      * new comma-separated selection.
      *
      * @param row row index in {@link #faceRulesTable}
-     * @param col column index – 4 (Include) or 5 (Exclude)
+     * @param col column index – 5 (Include) or 6 (Exclude)
      */
     private void showSvgPickerDialog(int row, int col) {
         // Build a sorted map of feature → sorted list of ids from svgsData
@@ -1746,17 +1749,12 @@ public class SvgEditorPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(checkPanel);
         scroll.setPreferredSize(new Dimension(400, 500));
 
-        // Top panel: preview on the right, nothing on the left (spacer)
-        JPanel topPanel = new JPanel(new BorderLayout(8, 0));
-        topPanel.add(new JPanel(), BorderLayout.CENTER);     // spacer
-        topPanel.add(pickerPreview, BorderLayout.EAST);
+        // Main dialog content: checkbox scroll pane on the left, preview on the right
+        JPanel content = new JPanel(new BorderLayout(8, 0));
+        content.add(scroll,        BorderLayout.CENTER);
+        content.add(pickerPreview, BorderLayout.EAST);
 
-        // Main dialog content: preview row above the checkbox scroll pane
-        JPanel content = new JPanel(new BorderLayout(0, 6));
-        content.add(topPanel, BorderLayout.NORTH);
-        content.add(scroll,   BorderLayout.CENTER);
-
-        String colName = col == 4 ? "Include" : "Exclude";
+        String colName = col == 5 ? "Include" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
                 this, content,
                 "Select SVG IDs for " + colName,
@@ -1789,8 +1787,9 @@ public class SvgEditorPanel extends JPanel {
      *   "rules": [
      *     {
      *       "gender":     "female",
-     *       "emotion":    "angry",
+     *       "emotion":    "happy",
      *       "minWealth":  0,
+     *       "minAge":     0,
      *       "clothesType":"",
      *       "include":    ["mouth.mouth4", "mouth.mouth5", "eyes.female5", "eyes.female6"],
      *       "exclude":    []
@@ -1811,12 +1810,13 @@ public class SvgEditorPanel extends JPanel {
                 String gender      = rule.has("gender")      ? rule.get("gender").getAsString()      : "";
                 String emotion     = rule.has("emotion")     ? rule.get("emotion").getAsString()     : "";
                 int    minWealth   = rule.has("minWealth")   ? rule.get("minWealth").getAsInt()      : 0;
+                int    minAge      = rule.has("minAge")      ? rule.get("minAge").getAsInt()         : 0;
                 String clothesType = rule.has("clothesType") ? rule.get("clothesType").getAsString() : "";
 
                 String include = jsonArrayToString(rule, "include");
                 String exclude = jsonArrayToString(rule, "exclude");
 
-                faceRulesModel.addRow(new Object[]{gender, emotion, minWealth, clothesType, include, exclude});
+                faceRulesModel.addRow(new Object[]{gender, emotion, minWealth, minAge, clothesType, include, exclude});
             }
 
             faceRulesFile = file;
@@ -1845,9 +1845,10 @@ public class SvgEditorPanel extends JPanel {
             String gender      = cellStr(faceRulesModel, r, 0).trim();
             String emotion     = cellStr(faceRulesModel, r, 1).trim();
             int    minWealth   = intVal(faceRulesModel.getValueAt(r, 2));
-            String clothesType = cellStr(faceRulesModel, r, 3).trim();
-            String include     = cellStr(faceRulesModel, r, 4).trim();
-            String exclude     = cellStr(faceRulesModel, r, 5).trim();
+            int    minAge      = intVal(faceRulesModel.getValueAt(r, 3));
+            String clothesType = cellStr(faceRulesModel, r, 4).trim();
+            String include     = cellStr(faceRulesModel, r, 5).trim();
+            String exclude     = cellStr(faceRulesModel, r, 6).trim();
 
             if (include.isEmpty() && exclude.isEmpty()) {
                 skipped.add("row " + (r + 1) + " (no include or exclude entries)");
@@ -1858,6 +1859,7 @@ public class SvgEditorPanel extends JPanel {
             rule.addProperty("gender",      gender);
             rule.addProperty("emotion",     emotion);
             rule.addProperty("minWealth",   minWealth);
+            rule.addProperty("minAge",      minAge);
             rule.addProperty("clothesType", clothesType);
             rule.add("include", stringToJsonArray(include));
             rule.add("exclude", stringToJsonArray(exclude));
