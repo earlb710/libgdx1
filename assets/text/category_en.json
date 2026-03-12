@@ -218,5 +218,37 @@
       "code": "general",
       "name": "General"
     }
+  ],
+  "skin_tone_categories": [
+    {
+      "code": "porcelain_very_fair",
+      "name": "Porcelain / Very Fair",
+      "rgb": "rgb(255, 229, 217)"
+    },
+    {
+      "code": "fair_light",
+      "name": "Fair / Light",
+      "rgb": "rgb(245, 208, 197)"
+    },
+    {
+      "code": "light_medium",
+      "name": "Light Medium",
+      "rgb": "rgb(235, 196, 175)"
+    },
+    {
+      "code": "medium_olive",
+      "name": "Medium / Olive",
+      "rgb": "rgb(212, 165, 116)"
+    },
+    {
+      "code": "medium_brown",
+      "name": "Medium Brown",
+      "rgb": "rgb(198, 134, 66)"
+    },
+    {
+      "code": "dark_brown_deep",
+      "name": "Dark Brown / Deep",
+      "rgb": "rgb(141, 85, 36)"
+    }
   ]
 }

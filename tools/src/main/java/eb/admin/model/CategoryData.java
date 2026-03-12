@@ -15,6 +15,7 @@ public class CategoryData {
     private List<CategoryEntry> case_types = new ArrayList<>();
     private List<CategoryEntry> improvement_categories = new ArrayList<>();
     private List<CategoryEntry> skill_categories = new ArrayList<>();
+    private List<CategoryEntry> skin_tone_categories = new ArrayList<>();
 
     public String getVersion() {
         return version;
@@ -78,5 +79,13 @@ public class CategoryData {
 
     public void setSkill_categories(List<CategoryEntry> skill_categories) {
         this.skill_categories = skill_categories;
+    }
+
+    public List<CategoryEntry> getSkin_tone_categories() {
+        return skin_tone_categories;
+    }
+
+    public void setSkin_tone_categories(List<CategoryEntry> skin_tone_categories) {
+        this.skin_tone_categories = skin_tone_categories;
     }
 }

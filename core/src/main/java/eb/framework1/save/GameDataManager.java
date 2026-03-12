@@ -2,6 +2,7 @@ package eb.framework1.save;
 
 import eb.framework1.city.*;
 import eb.framework1.character.SkillCategoryDefinition;
+import eb.framework1.character.SkinToneDefinition;
 import eb.framework1.generator.*;
 import eb.framework1.ui.SvgResourceData;
 
@@ -39,6 +40,8 @@ public class GameDataManager {
     private final Map<String, CategoryDefinition> categoriesById;
     private final List<SkillCategoryDefinition> skillCategories;
     private final Map<String, SkillCategoryDefinition> skillCategoriesByCode;
+    private final List<SkinToneDefinition> skinToneCategories;
+    private final Map<String, SkinToneDefinition> skinToneCategoriesByCode;
     /** Improvement data keyed by lower-case improvement code (id). */
     private final Map<String, ImprovementData> improvementDataByCode;
     /** SVG resource data keyed by item id. */
@@ -60,6 +63,8 @@ public class GameDataManager {
         this.categoriesById = new HashMap<>();
         this.skillCategories = new ArrayList<>();
         this.skillCategoriesByCode = new HashMap<>();
+        this.skinToneCategories = new ArrayList<>();
+        this.skinToneCategoriesByCode = new HashMap<>();
         this.improvementDataByCode = new HashMap<>();
         this.svgResourcesById = new HashMap<>();
 
@@ -386,9 +391,19 @@ public class GameDataManager {
                 }
             }
 
+            JsonValue skinToneCatsArray = root.get("skin_tone_categories");
+            if (skinToneCatsArray != null) {
+                for (JsonValue stJson = skinToneCatsArray.child; stJson != null; stJson = stJson.next) {
+                    SkinToneDefinition st = parseSkinToneDefinition(stJson);
+                    skinToneCategories.add(st);
+                    skinToneCategoriesByCode.put(st.getCode(), st);
+                }
+            }
+
             Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion
-                    + " with " + categories.size() + " building categories and "
-                    + skillCategories.size() + " skill categories");
+                    + " with " + categories.size() + " building categories, "
+                    + skillCategories.size() + " skill categories and "
+                    + skinToneCategories.size() + " skin tone categories");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading categories: " + e.getMessage(), e);
         }
@@ -417,6 +432,17 @@ public class GameDataManager {
         String code = json.getString("code", "");
         String name = json.getString("name", code);
         return new SkillCategoryDefinition(code, name);
+    }
+
+    /**
+     * Parses a single skin-tone definition from the
+     * {@code skin_tone_categories} array in {@code category_en.json}.
+     */
+    private SkinToneDefinition parseSkinToneDefinition(JsonValue json) {
+        String code = json.getString("code", "");
+        String name = json.getString("name", code);
+        String rgb  = json.getString("rgb", "");
+        return new SkinToneDefinition(code, name, rgb);
     }
 
     // ===== Accessors =====
@@ -484,6 +510,24 @@ public class GameDataManager {
      */
     public SkillCategoryDefinition getSkillCategoryByCode(String code) {
         return skillCategoriesByCode.get(code);
+    }
+
+    /**
+     * Returns all skin-tone definitions loaded from the
+     * {@code skin_tone_categories} array of {@code text/category_en.json}.
+     */
+    public List<SkinToneDefinition> getSkinToneCategories() {
+        return Collections.unmodifiableList(skinToneCategories);
+    }
+
+    /**
+     * Returns a skin-tone definition by its code (e.g. {@code "porcelain_very_fair"}),
+     * or {@code null} if no match is found.
+     *
+     * @param code the code to look up (case-sensitive)
+     */
+    public SkinToneDefinition getSkinToneCategoryByCode(String code) {
+        return skinToneCategoriesByCode.get(code);
     }
 
     /**
