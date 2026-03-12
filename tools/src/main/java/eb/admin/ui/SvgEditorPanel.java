@@ -387,6 +387,9 @@ public class SvgEditorPanel extends JPanel {
             filePartsTable.setRowSelectionInterval(last, last);
         });
         fpDeleteBtn.addActionListener((ActionEvent e) -> {
+            if (filePartsTable.isEditing()) {
+                filePartsTable.getCellEditor().cancelCellEditing();
+            }
             int row = filePartsTable.getSelectedRow();
             if (row >= 0) {
                 filePartsModel.removeRow(row);
@@ -445,6 +448,9 @@ public class SvgEditorPanel extends JPanel {
             itemsTable.setRowSelectionInterval(last, last);
         });
         itemDeleteBtn.addActionListener((ActionEvent e) -> {
+            if (itemsTable.isEditing()) {
+                itemsTable.getCellEditor().cancelCellEditing();
+            }
             int row = itemsTable.getSelectedRow();
             if (row >= 0) {
                 itemsModel.removeRow(row);
@@ -1055,6 +1061,9 @@ public class SvgEditorPanel extends JPanel {
     }
 
     private static void deleteSelectedRow(JTable table, DefaultTableModel model) {
+        if (table.isEditing()) {
+            table.getCellEditor().cancelCellEditing();
+        }
         int row = table.getSelectedRow();
         if (row >= 0) {
             model.removeRow(row);
@@ -1759,10 +1768,68 @@ public class SvgEditorPanel extends JPanel {
         JScrollPane scroll = new JScrollPane(checkPanel);
         scroll.setPreferredSize(new Dimension(400, 500));
 
-        // Main dialog content: checkbox scroll pane on the left, preview on the right
+        // Full-face composite preview inside the dialog
+        SvgPreviewPanel facePreviewInDialog = new SvgPreviewPanel();
+        facePreviewInDialog.setPreferredSize(new Dimension(200, 300));
+        facePreviewInDialog.setMinimumSize(new Dimension(160, 240));
+        facePreviewInDialog.setBorder(BorderFactory.createTitledBorder("Face Preview"));
+
+        JButton randomViewBtn = new JButton("Random View");
+        randomViewBtn.setToolTipText("Generate a random face in the preview");
+        randomViewBtn.addActionListener(ae -> {
+            if (svgsData == null) return;
+            Random rndFace = new Random();
+            List<String> fragments = new ArrayList<>();
+            for (String feature : FACE_DRAW_ORDER) {
+                if (!svgsData.has(feature)) continue;
+                JsonObject featureObj = svgsData.getAsJsonObject(feature);
+                List<String> ids = new ArrayList<>();
+                for (Map.Entry<String, JsonElement> idEntry : featureObj.entrySet()) {
+                    ids.add(idEntry.getKey());
+                }
+                if (ids.isEmpty()) continue;
+                String selectedId = ids.get(rndFace.nextInt(ids.size()));
+                String frag = featureObj.get(selectedId).getAsString();
+                if (frag.isEmpty()) continue;
+                frag = applyDefaultColorSubstitutions(frag);
+                int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
+                if (positions == null) {
+                    fragments.add(frag);
+                } else {
+                    java.awt.geom.Rectangle2D bounds =
+                            SvgPreviewPanel.computeFragmentBounds(frag);
+                    double cx = bounds != null ? bounds.getCenterX() : 0;
+                    double cy = bounds != null ? bounds.getCenterY() : 0;
+                    for (int i = 0; i < positions.length; i++) {
+                        double tx = positions[i][0] - cx;
+                        double ty = positions[i][1] - cy;
+                        String transform;
+                        if (i == 0) {
+                            transform = String.format(Locale.US,
+                                    "translate(%.2f %.2f)", tx, ty);
+                        } else {
+                            double txMirror = -2.0 * cx;
+                            transform = String.format(Locale.US,
+                                    "translate(%.2f %.2f) scale(-1 1) translate(%.2f 0)",
+                                    tx, ty, txMirror);
+                        }
+                        fragments.add("<g transform=\"" + transform + "\">" + frag + "</g>");
+                    }
+                }
+            }
+            facePreviewInDialog.setCompositeFragments(fragments.isEmpty() ? null : fragments);
+        });
+
+        // Right panel: individual feature preview on top, full-face preview below, button at bottom
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 4));
+        rightPanel.add(pickerPreview,     BorderLayout.NORTH);
+        rightPanel.add(facePreviewInDialog, BorderLayout.CENTER);
+        rightPanel.add(randomViewBtn,     BorderLayout.SOUTH);
+
+        // Main dialog content: checkbox scroll pane on the left, previews on the right
         JPanel content = new JPanel(new BorderLayout(8, 0));
-        content.add(scroll,        BorderLayout.CENTER);
-        content.add(pickerPreview, BorderLayout.EAST);
+        content.add(scroll,     BorderLayout.CENTER);
+        content.add(rightPanel, BorderLayout.EAST);
 
         String colName = col == 7 ? "Include" : "Exclude";
         int result = JOptionPane.showConfirmDialog(
@@ -1778,7 +1845,9 @@ public class SvgEditorPanel extends JPanel {
         for (Map.Entry<JCheckBox, String> entry : boxKeyMap.entrySet()) {
             if (entry.getKey().isSelected()) newList.add(entry.getValue());
         }
-        faceRulesModel.setValueAt(String.join(",", newList), row, col);
+        if (row < faceRulesModel.getRowCount() && col < faceRulesModel.getColumnCount()) {
+            faceRulesModel.setValueAt(String.join(",", newList), row, col);
+        }
     }
 
     // ── File operations: facerules.json ───────────────────────────────────────

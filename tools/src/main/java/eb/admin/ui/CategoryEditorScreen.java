@@ -284,6 +284,9 @@ public class CategoryEditorScreen extends JFrame {
         });
 
         deleteBtn.addActionListener((ActionEvent e) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().cancelCellEditing();
+            }
             int row = table.getSelectedRow();
             if (row >= 0) {
                 model.removeRow(row);
@@ -374,6 +377,9 @@ public class CategoryEditorScreen extends JFrame {
         });
 
         deleteBtn.addActionListener((ActionEvent e) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().cancelCellEditing();
+            }
             int row = table.getSelectedRow();
             if (row >= 0) {
                 skillCategoryModel.removeRow(row);
