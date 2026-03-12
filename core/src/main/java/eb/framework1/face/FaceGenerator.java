@@ -1,8 +1,13 @@
 package eb.framework1.face;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Generates random {@link FaceConfig} objects, ported from the
@@ -342,6 +347,171 @@ public final class FaceGenerator {
             .accessories(new FaceConfig.SimpleFeature(accessoriesId));
 
         return b.build();
+    }
+
+    // -------------------------------------------------------------------------
+    // Rule-based character face computation
+    // -------------------------------------------------------------------------
+
+    /**
+     * Computes a map of eligible SVG part IDs per feature type for a character
+     * using the supplied face rules.
+     *
+     * <h3>Algorithm</h3>
+     * <ol>
+     *   <li>Rules are assumed to arrive already sorted ascending by priority
+     *       (lowest priority first).  If not sorted, callers should sort before
+     *       passing to this method.  Rules with equal priority are processed in
+     *       list order.</li>
+     *   <li>For each rule, its conditions are evaluated (gender, minAge,
+     *       percentage).  The {@code percentage} roll is seeded with
+     *       {@code seed ^ (ruleIndex * 6364136223846793005L)} so that each
+     *       character always rolls the same result for each rule.</li>
+     *   <li>When a rule fires:
+     *       <ul>
+     *         <li><strong>include</strong> entries are "unique per type": the
+     *             eligible set for each feature type in {@code include} is
+     *             <em>replaced</em> with the entries from this rule.</li>
+     *         <li><strong>additional</strong> entries are "not unique per type":
+     *             entries are <em>added</em> to the current eligible set for
+     *             each feature type without replacing existing entries.</li>
+     *         <li><strong>exclude</strong> entries are removed from every
+     *             feature type's final eligible set.</li>
+     *       </ul>
+     *   </li>
+     * </ol>
+     *
+     * <h3>Return value</h3>
+     * The returned map contains only feature types for which at least one
+     * eligible ID survived after exclusions.  The value lists preserve the
+     * insertion order of eligible IDs but are unmodifiable.
+     *
+     * <h3>Usage</h3>
+     * <pre>
+     *   List&lt;FaceRule&gt; rules = FaceRuleLoader.fromJson(json);
+     *   Map&lt;String, List&lt;String&gt;&gt; pool =
+     *       FaceGenerator.defaultCharacterFace(npcId, "female", 35, rules);
+     *   // pool.get("eye") → ["eye.female1", "eye.female2", ...]
+     * </pre>
+     *
+     * @param seed    per-character seed for deterministic percentage rolls
+     * @param gender  {@code "male"} or {@code "female"} (case-insensitive);
+     *                {@code null} treated as {@code "male"}
+     * @param age     character age; rules with {@code minAge > age} are skipped
+     * @param rules   face rules already sorted ascending by priority; must not
+     *                be {@code null}
+     * @return unmodifiable map of feature type → ordered list of eligible IDs
+     */
+    public static Map<String, List<String>> defaultCharacterFace(
+            long seed, String gender, int age, List<FaceRule> rules) {
+
+        if (rules == null) throw new IllegalArgumentException("rules must not be null");
+
+        final String normGender = (gender != null) ? gender.toLowerCase() : "male";
+
+        // include: unique per type – only the last (highest-priority) fired rule's
+        //   include list for a given type is kept.
+        Map<String, List<String>> includedByType = new HashMap<>();
+
+        // additional: accumulates across all fired rules for each type.
+        Map<String, Set<String>> additionalByType = new HashMap<>();
+
+        // exclude: global set of IDs removed from the final eligible set.
+        Set<String> globalExclude = new LinkedHashSet<>();
+
+        for (int i = 0; i < rules.size(); i++) {
+            FaceRule rule = rules.get(i);
+
+            // ── Condition checks ─────────────────────────────────────────────
+
+            // Gender filter
+            if (!rule.gender.isEmpty()
+                    && !rule.gender.equalsIgnoreCase(normGender)) {
+                continue;
+            }
+
+            // Age filter
+            if (rule.minAge > 0 && age < rule.minAge) {
+                continue;
+            }
+
+            // Percentage roll – seeded per (character × rule) for determinism
+            if (rule.percentage < 100) {
+                long rollSeed = seed ^ (long) i * 6364136223846793005L;
+                Random rollRng = new Random(rollSeed);
+                if (rollRng.nextInt(100) >= rule.percentage) {
+                    continue;
+                }
+            }
+
+            // ── Apply include (unique per type) ───────────────────────────────
+            for (String entry : rule.include) {
+                int dot = entry.indexOf('.');
+                if (dot <= 0) continue;
+                String featureType = entry.substring(0, dot);
+                includedByType.computeIfAbsent(featureType, k -> new ArrayList<>())
+                              .clear();
+                // Re-compute to collect ALL include entries for this type in one pass
+            }
+            // Second pass: group include entries by type and store
+            Map<String, List<String>> ruleIncludes = new HashMap<>();
+            for (String entry : rule.include) {
+                int dot = entry.indexOf('.');
+                if (dot <= 0) continue;
+                String featureType = entry.substring(0, dot);
+                String id          = entry.substring(dot + 1);
+                ruleIncludes.computeIfAbsent(featureType, k -> new ArrayList<>()).add(id);
+            }
+            for (Map.Entry<String, List<String>> e : ruleIncludes.entrySet()) {
+                includedByType.put(e.getKey(), new ArrayList<>(e.getValue()));
+            }
+
+            // ── Apply additional (accumulates) ────────────────────────────────
+            for (String entry : rule.additional) {
+                int dot = entry.indexOf('.');
+                if (dot <= 0) continue;
+                String featureType = entry.substring(0, dot);
+                String id          = entry.substring(dot + 1);
+                additionalByType.computeIfAbsent(featureType, k -> new LinkedHashSet<>()).add(id);
+            }
+
+            // ── Collect exclude entries ────────────────────────────────────────
+            for (String entry : rule.exclude) {
+                int dot = entry.indexOf('.');
+                if (dot <= 0) continue;
+                // store the full "feature.id" form so we can match against the maps
+                globalExclude.add(entry);
+            }
+        }
+
+        // ── Build final eligible map ──────────────────────────────────────────
+        // Gather all feature types from both include and additional maps
+        Set<String> allTypes = new LinkedHashSet<>();
+        allTypes.addAll(includedByType.keySet());
+        allTypes.addAll(additionalByType.keySet());
+
+        Map<String, List<String>> result = new HashMap<>();
+
+        for (String featureType : allTypes) {
+            // Start with include IDs for this type (if any)
+            Set<String> eligible = new LinkedHashSet<>();
+            List<String> inc = includedByType.get(featureType);
+            if (inc != null) eligible.addAll(inc);
+
+            // Add additional IDs
+            Set<String> add = additionalByType.get(featureType);
+            if (add != null) eligible.addAll(add);
+
+            // Remove excluded
+            eligible.removeIf(id -> globalExclude.contains(featureType + "." + id));
+
+            if (!eligible.isEmpty()) {
+                result.put(featureType, Collections.unmodifiableList(
+                        new ArrayList<>(eligible)));
+            }
+        }
+
+        return Collections.unmodifiableMap(result);
     }
 
     // -------------------------------------------------------------------------
