@@ -772,6 +772,9 @@ public class NamesEditorPanel extends JPanel {
     }
 
     private static void deleteSelectedRow(JTable table, DefaultTableModel model) {
+        if (table.isEditing()) {
+            table.getCellEditor().cancelCellEditing();
+        }
         int row = table.getSelectedRow();
         if (row >= 0) {
             model.removeRow(row);

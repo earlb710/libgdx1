@@ -129,6 +129,9 @@ public class DescriptionEditorPanel extends JPanel {
         });
 
         deleteBtn.addActionListener((ActionEvent e) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().cancelCellEditing();
+            }
             int row = table.getSelectedRow();
             if (row >= 0) {
                 tableModel.removeRow(row);

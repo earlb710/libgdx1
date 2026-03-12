@@ -10,9 +10,13 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.EventObject;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 /**
  * Top-level panel for the <b>SVG</b> tab in the Game Admin tool.
@@ -40,9 +45,10 @@ import java.util.Random;
  */
 public class SvgEditorPanel extends JPanel {
 
-    private static final String DEFAULT_RESOURCE_PATH = "assets/text/svg_resource.json";
-    private static final String DEFAULT_INDEX_PATH    = "assets/face/svgs-index.json";
-    private static final String DEFAULT_SVG_DATA_PATH = "assets/face/svgs.json";
+    private static final String DEFAULT_RESOURCE_PATH   = "assets/text/svg_resource.json";
+    private static final String DEFAULT_INDEX_PATH      = "assets/face/svgs-index.json";
+    private static final String DEFAULT_SVG_DATA_PATH   = "assets/face/svgs.json";
+    private static final String DEFAULT_FACE_RULES_PATH = "assets/face/facerules.json";
 
     private final JLabel statusLabel;
 
@@ -141,14 +147,152 @@ public class SvgEditorPanel extends JPanel {
         FACE_FEATURE_POSITIONS.put("smileLine", new int[][]{{150, 435}, {250, 435}});
     }
 
+    /**
+     * Features that expose color pickers in the face maker UI.
+     * Each entry maps to: [placeholders…], [defaults…], [tooltips…].
+     * The three inner arrays must all have the same length (1, 2, or 3).
+     */
+    private static final Map<String, String[][]> FEATURE_COLOR_DEFS = new LinkedHashMap<>();
+    static {
+        // hairBg:     1 color – hair fill ($[hairColor])
+        FEATURE_COLOR_DEFS.put("hairBg",
+                new String[][]{{"$[hairColor]"},
+                                {"#272421"},
+                                {"Hair"}});
+        // head:       2 colors – skin fill ($[skinColor]),  shave stub ($[faceShave]/$[headShave])
+        FEATURE_COLOR_DEFS.put("head",
+                new String[][]{{"$[skinColor]",  "$[faceShave]"},
+                                {"#f2d6cb",      "#ffffff"},
+                                {"Skin",         "Shave"}});
+        // ear:        1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("ear",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // nose:       1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("nose",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // hair:       2 colors – main ($[hairColor]),  secondary ($[hairColor2])
+        FEATURE_COLOR_DEFS.put("hair",
+                new String[][]{{"$[hairColor]",  "$[hairColor2]"},
+                                {"#272421",      "#272421"},
+                                {"Color 1",      "Color 2"}});
+        // facialHair: 2 colors – hair ($[hairColor]),  accent ($[primary])
+        FEATURE_COLOR_DEFS.put("facialHair",
+                new String[][]{{"$[hairColor]",  "$[primary]"},
+                                {"#272421",      "#89bfd3"},
+                                {"Hair",         "Accent"}});
+        // jersey:     3 colors – primary, secondary, accent
+        FEATURE_COLOR_DEFS.put("jersey",
+                new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
+                                {"#89bfd3",      "#7a1319",       "#07364f"},
+                                {"Primary",      "Secondary",     "Accent"}});
+        // body:       1 color  – skin fill ($[skinColor])
+        FEATURE_COLOR_DEFS.put("body",
+                new String[][]{{"$[skinColor]"},
+                                {"#f2d6cb"},
+                                {"Skin"}});
+        // glasses:    2 colors – lens/straps ($[primary]),  frame ($[secondary])
+        FEATURE_COLOR_DEFS.put("glasses",
+                new String[][]{{"$[primary]",    "$[secondary]"},
+                                {"#89bfd3",      "#333333"},
+                                {"Lens",         "Frame"}});
+        // eyebrow:    1 color  – main ($[hairColor])
+        FEATURE_COLOR_DEFS.put("eyebrow",
+                new String[][]{{"$[hairColor]"},
+                                {"#272421"},
+                                {"Hair"}});
+        // miscLine:   1 color  – line/accent ($[primary])
+        FEATURE_COLOR_DEFS.put("miscLine",
+                new String[][]{{"$[primary]"},
+                                {"#000000"},
+                                {"Color"}});
+        // accessories: 3 colors – primary, secondary, accent
+        FEATURE_COLOR_DEFS.put("accessories",
+                new String[][]{{"$[primary]",    "$[secondary]",  "$[accent]"},
+                                {"#89bfd3",      "#7a1319",       "#07364f"},
+                                {"Primary",      "Secondary",     "Accent"}});
+    }
+
+    /** Body-width selector for the face maker (thin = −15%, normal = 0%, thick = +15%). */
+    private final JComboBox<String> faceMakerBuildCombo =
+            new JComboBox<>(new String[]{"normal", "thin", "thick"});
+
     /** One combo box per feature, keyed by feature name, in draw order. */
     private final Map<String, JComboBox<String>> faceMakerCombos = new LinkedHashMap<>();
+
+    /**
+     * Color-picker buttons per color-enabled feature (1, 2, or 3 buttons depending on the
+     * feature).  Each button shows the current color as a solid fill; clicking opens a
+     * {@link JColorChooser}.
+     */
+    private final Map<String, JButton[]> faceMakerColorBtns = new LinkedHashMap<>();
 
     /** Composite preview panel for the face maker. */
     private final SvgPreviewPanel faceMakerPreview = new SvgPreviewPanel();
 
     /** Debug text area showing bbox center and translate for eye and nose. */
     private final JTextArea faceMakerDebugArea = new JTextArea(4, 40);
+
+    /**
+     * Shared {@link JColorChooser} instance reused across all color-picker invocations so
+     * that the built-in "Recent Colors" swatch panel accumulates a history across picks.
+     * A new instance would start with an empty recent-colors list each time.
+     */
+    private final JColorChooser sharedColorChooser = new JColorChooser();
+
+    // ── Face Rules tab fields ─────────────────────────────────────────────────
+
+    /** Valid gender values offered as combo presets in the Face Rules table. */
+    private static final String[] FACE_RULE_GENDER_PRESETS =
+            {"", "male", "female"};
+
+    /** Valid emotion values for face rules. */
+    private static final String[] FACE_RULE_EMOTIONS =
+            {"normal", "happy", "sad", "anxious", "angry"};
+
+    /** Valid clothes-type values for face rules. */
+    private static final String[] FACE_RULE_CLOTHES_TYPES =
+            {"normal", "work", "sport", "gym"};
+
+    private final JTextField faceRulesFileField = new JTextField();
+    private File faceRulesFile;
+
+    /**
+     * Table model for face rules.
+     * <p>Columns: Name (0), Gender (1), Emotion (2), MinWealth (3), MinAge (4), ClothesType (5),
+     * Percentage (6), Priority (7), Include (8), Additional (9), Exclude (10).
+     * <ul>
+     *   <li>Name – free-text label to identify the rule; not used during face generation.
+     *   <li>Gender – one of {@code ""}, {@code "male"}, {@code "female"}; empty means any gender.
+     *   <li>Emotion – one of {@code ""}, {@code "normal"}, {@code "happy"}, {@code "sad"},
+     *       {@code "anxious"}, {@code "angry"}; empty means any emotion.
+     *   <li>MinWealth – non-negative integer; 0 = no minimum.
+     *   <li>MinAge – non-negative integer; 0 = no minimum.
+     *   <li>ClothesType – one of {@code ""}, {@code "normal"}, {@code "work"},
+     *       {@code "sport"}, {@code "gym"}; empty means any clothes type.
+     *   <li>Percentage – integer 1–100; chance (%) the rule fires when its conditions match.
+     *       100 means the rule always fires (default).
+     *   <li>Priority – non-negative integer; rules are sorted ascending by priority before being
+     *       applied so that higher-priority rules are processed last and overwrite earlier ones.
+     *       0 = default (lowest priority).
+     *   <li>Include    – comma-separated list of {@code "feature.id"} pairs that are
+     *       allowed when this rule's conditions are met.
+     *   <li>Additional – comma-separated list of {@code "feature.id"} pairs that are
+     *       added on top of Include (extra eligible entries for this rule).
+     *   <li>Exclude – comma-separated list of {@code "feature.id"} pairs that are
+     *       forbidden when this rule's conditions are met.
+     * </ul>
+     */
+    private final DefaultTableModel faceRulesModel =
+            new DefaultTableModel(
+                    new String[]{"Name", "Gender", "Emotion", "MinWealth", "MinAge", "ClothesType", "Percentage", "Priority", "Include", "Additional", "Exclude"}, 0) {
+                @Override public boolean isCellEditable(int row, int col) { return true; }
+            };
+
+    private final JTable faceRulesTable = new JTable(faceRulesModel);
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -167,6 +311,7 @@ public class SvgEditorPanel extends JPanel {
         subTabs.addTab("SVG Resource", buildSvgResourceTab());
         subTabs.addTab("SVG Index",    buildSvgIndexTab());
         subTabs.addTab("Face Maker",   buildFaceMakerTab());
+        subTabs.addTab("Face Rules",   buildFaceRulesTab());
 
         add(subTabs, BorderLayout.CENTER);
     }
@@ -245,6 +390,9 @@ public class SvgEditorPanel extends JPanel {
             filePartsTable.setRowSelectionInterval(last, last);
         });
         fpDeleteBtn.addActionListener((ActionEvent e) -> {
+            if (filePartsTable.isEditing()) {
+                filePartsTable.getCellEditor().cancelCellEditing();
+            }
             int row = filePartsTable.getSelectedRow();
             if (row >= 0) {
                 filePartsModel.removeRow(row);
@@ -303,6 +451,9 @@ public class SvgEditorPanel extends JPanel {
             itemsTable.setRowSelectionInterval(last, last);
         });
         itemDeleteBtn.addActionListener((ActionEvent e) -> {
+            if (itemsTable.isEditing()) {
+                itemsTable.getCellEditor().cancelCellEditing();
+            }
             int row = itemsTable.getSelectedRow();
             if (row >= 0) {
                 itemsModel.removeRow(row);
@@ -604,6 +755,8 @@ public class SvgEditorPanel extends JPanel {
         if (indexDefault.exists()) loadSvgIndexFromFile(indexDefault);
         File svgsDataDefault = new File(DEFAULT_SVG_DATA_PATH);
         if (svgsDataDefault.exists()) loadSvgsDataFromFile(svgsDataDefault);
+        File faceRulesDefault = new File(DEFAULT_FACE_RULES_PATH);
+        if (faceRulesDefault.exists()) loadFaceRulesFromFile(faceRulesDefault);
     }
 
     // ── File operations: svgs.json (detail data) ──────────────────────────────
@@ -837,6 +990,7 @@ public class SvgEditorPanel extends JPanel {
                     "Error loading file:\n" + ex.getMessage(),
                     "Load Error", JOptionPane.ERROR_MESSAGE);
         }
+        refreshFaceMakerCombos();
     }
 
     /**
@@ -898,6 +1052,7 @@ public class SvgEditorPanel extends JPanel {
                     "Error saving file:\n" + ex.getMessage(),
                     "Save Error", JOptionPane.ERROR_MESSAGE);
         }
+        refreshFaceMakerCombos();
     }
 
     // ── Shared helpers ────────────────────────────────────────────────────────
@@ -909,6 +1064,9 @@ public class SvgEditorPanel extends JPanel {
     }
 
     private static void deleteSelectedRow(JTable table, DefaultTableModel model) {
+        if (table.isEditing()) {
+            table.getCellEditor().cancelCellEditing();
+        }
         int row = table.getSelectedRow();
         if (row >= 0) {
             model.removeRow(row);
@@ -967,8 +1125,10 @@ public class SvgEditorPanel extends JPanel {
     /**
      * Builds the Face Maker sub-tab.
      *
-     * <p>Left side: a scrollable panel of (feature-label, combobox) rows in
+     * <p>Left side: a scrollable panel of (feature-label, combobox, [color buttons]) rows in
      * back-to-front draw order, plus Randomize and Clear All buttons.
+     * Color-enabled features show 1–3 color-picker buttons (depending on the feature) that
+     * let the user override the colors used when rendering those features in the preview.
      * Right side: a composite {@link SvgPreviewPanel} that renders all selected
      * fragments stacked on the shared 400×600 canvas.
      */
@@ -978,9 +1138,19 @@ public class SvgEditorPanel extends JPanel {
         selectorsPanel.setBorder(BorderFactory.createTitledBorder("Feature Selections (back → front)"));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets  = new Insets(3, 6, 3, 6);
+        gbc.insets  = new Insets(3, 4, 3, 4);
         gbc.fill    = GridBagConstraints.HORIZONTAL;
         gbc.anchor  = GridBagConstraints.WEST;
+
+        // Row 0: build (body-width) selector
+        JLabel buildLabel = new JLabel("build:");
+        buildLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        faceMakerBuildCombo.setToolTipText("thin = 15% narrower  |  normal = standard width  |  thick = 15% wider");
+        faceMakerBuildCombo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; gbc.gridwidth = 1;
+        selectorsPanel.add(buildLabel, gbc);
+        gbc.gridx = 1; gbc.weightx = 1.0;
+        selectorsPanel.add(faceMakerBuildCombo, gbc);
 
         for (int i = 0; i < FACE_DRAW_ORDER.length; i++) {
             String feature = FACE_DRAW_ORDER[i];
@@ -993,10 +1163,42 @@ public class SvgEditorPanel extends JPanel {
             faceMakerCombos.put(feature, combo);
             combo.addActionListener((ActionEvent e) -> updateFaceMakerPreview());
 
-            gbc.gridx = 0; gbc.gridy = i; gbc.weightx = 0; gbc.gridwidth = 1;
+            gbc.gridx = 0; gbc.gridy = 1 + i; gbc.weightx = 0; gbc.gridwidth = 1;
             selectorsPanel.add(label, gbc);
             gbc.gridx = 1; gbc.weightx = 1.0;
             selectorsPanel.add(combo, gbc);
+
+            // Color pickers for color-enabled features (1, 2, or 3 buttons depending on feature)
+            String[][] colorDef = FEATURE_COLOR_DEFS.get(feature);
+            if (colorDef != null) {
+                String[] placeholders = colorDef[0];
+                String[] defaults     = colorDef[1];
+                String[] tooltips     = colorDef[2];
+                int numColors = placeholders.length;
+                JButton[] btns = new JButton[numColors];
+                for (int ci = 0; ci < numColors; ci++) {
+                    btns[ci] = createColorButton(defaults[ci], tooltips[ci]);
+                    final int idx = ci;
+                    final JButton btn = btns[ci];
+                    final String feat = feature;
+                    btn.addActionListener((ActionEvent e) -> {
+                        Color chosen = showColorPickerDialog(
+                                SvgEditorPanel.this, tooltips[idx] + " – " + feat, btn.getBackground());
+                        if (chosen != null) {
+                            btn.setBackground(chosen);
+                            btn.setToolTipText(colorToHex(chosen));
+                            updateFaceMakerPreview();
+                        }
+                    });
+                }
+                faceMakerColorBtns.put(feature, btns);
+
+                JPanel colorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+                colorPanel.setOpaque(false);
+                for (JButton btn : btns) colorPanel.add(btn);
+                gbc.gridx = 2; gbc.weightx = 0;
+                selectorsPanel.add(colorPanel, gbc);
+            }
         }
 
         JButton randomizeBtn = new JButton("Randomize");
@@ -1010,15 +1212,15 @@ public class SvgEditorPanel extends JPanel {
         buttonsPanel.add(randomizeBtn);
         buttonsPanel.add(clearBtn);
 
-        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length;
-        gbc.gridwidth = 2; gbc.weightx = 1.0;
+        gbc.gridx = 0; gbc.gridy = FACE_DRAW_ORDER.length + 1;
+        gbc.gridwidth = 3; gbc.weightx = 1.0;
         selectorsPanel.add(buttonsPanel, gbc);
 
         JScrollPane selectorsScroll = new JScrollPane(selectorsPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        selectorsScroll.setPreferredSize(new Dimension(260, 100));
-        selectorsScroll.setMinimumSize(new Dimension(200, 100));
+        selectorsScroll.setPreferredSize(new Dimension(340, 100));
+        selectorsScroll.setMinimumSize(new Dimension(260, 100));
 
         faceMakerPreview.setBorder(BorderFactory.createTitledBorder(
                 "Preview (canvas: " + SvgPreviewPanel.SVG_W
@@ -1028,7 +1230,7 @@ public class SvgEditorPanel extends JPanel {
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 selectorsScroll, faceMakerPreview);
-        split.setDividerLocation(270);
+        split.setDividerLocation(350);
         split.setOneTouchExpandable(true);
 
         faceMakerDebugArea.setEditable(false);
@@ -1045,10 +1247,22 @@ public class SvgEditorPanel extends JPanel {
 
     /**
      * Repopulates all face-maker combo boxes from the currently loaded
-     * {@link #svgsData}.  Previously selected values are preserved when still
-     * available.
+     * {@link #svgIndexModel} (i.e. the contents of {@code svgs-index.json}).
+     * Using the index as the source means that only registered/curated parts
+     * are offered, in exactly the order they appear in the index file.
+     * Previously selected values are preserved when still available.
      */
     private void refreshFaceMakerCombos() {
+        // Build feature → ordered IDs from the index table
+        Map<String, List<String>> indexedIds = new LinkedHashMap<>();
+        for (int r = 0; r < svgIndexModel.getRowCount(); r++) {
+            String feature = cellStr(svgIndexModel, r, 0).trim();
+            String id      = cellStr(svgIndexModel, r, 1).trim();
+            if (!feature.isEmpty() && !id.isEmpty()) {
+                indexedIds.computeIfAbsent(feature, k -> new ArrayList<>()).add(id);
+            }
+        }
+
         for (String feature : FACE_DRAW_ORDER) {
             JComboBox<String> combo = faceMakerCombos.get(feature);
             if (combo == null) continue;
@@ -1057,11 +1271,9 @@ public class SvgEditorPanel extends JPanel {
             combo.removeAllItems();
             combo.addItem("(none)");
 
-            if (svgsData != null && svgsData.has(feature)) {
-                for (Map.Entry<String, JsonElement> entry :
-                        svgsData.getAsJsonObject(feature).entrySet()) {
-                    combo.addItem(entry.getKey());
-                }
+            List<String> ids = indexedIds.get(feature);
+            if (ids != null) {
+                for (String id : ids) combo.addItem(id);
             }
 
             // Restore previous selection if still present in the new list
@@ -1096,6 +1308,11 @@ public class SvgEditorPanel extends JPanel {
             if (!featureObj.has(selected)) continue;
             String frag = featureObj.get(selected).getAsString();
             if (frag.isEmpty()) continue;
+
+            // Apply per-feature color substitutions from the color-picker buttons,
+            // then fall back to global defaults for any remaining placeholders.
+            frag = applyFaceMakerColors(frag, feature);
+            frag = applyDefaultColorSubstitutions(frag);
 
             int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
             if (positions == null) {
@@ -1155,7 +1372,62 @@ public class SvgEditorPanel extends JPanel {
         String debugText = debugSb.toString().trim();
         faceMakerDebugArea.setText(debugText.isEmpty() ? "(select eye or nose to see position debug)" : debugText);
 
+        // Apply horizontal width scale (build: thin=0.85, normal=1.0, thick=1.15).
+        // Scale is about canvas center-x (200) so the face stays centred.
+        String buildVal = (String) faceMakerBuildCombo.getSelectedItem();
+        double widthScale = "thin".equals(buildVal) ? 0.85 : "thick".equals(buildVal) ? 1.15 : 1.0;
+        if (widthScale != 1.0) {
+            String wrapTransform = String.format(Locale.US,
+                    "translate(200 0) scale(%.4f 1) translate(-200 0)", widthScale);
+            List<String> scaled = new ArrayList<>(fragments.size());
+            for (String frag : fragments) {
+                scaled.add("<g transform=\"" + wrapTransform + "\">" + frag + "</g>");
+            }
+            fragments = scaled;
+        }
+
         faceMakerPreview.setCompositeFragments(fragments.isEmpty() ? null : fragments);
+    }
+
+    /**
+     * Applies the per-feature color substitutions driven by the color-picker buttons for
+     * the given {@code feature}.  Only color-enabled features have buttons; all others are
+     * returned unchanged.
+     *
+     * <p>For {@code head}, both {@code $[faceShave]} and {@code $[headShave]} are
+     * replaced with color 2, since the SVG templates use either spelling.
+     */
+    private String applyFaceMakerColors(String frag, String feature) {
+        JButton[] btns    = faceMakerColorBtns.get(feature);
+        String[][] colDef = FEATURE_COLOR_DEFS.get(feature);
+        if (btns == null || colDef == null) return frag;
+        String[] placeholders = colDef[0];
+        for (int i = 0; i < btns.length; i++) {
+            if (btns[i] != null && i < placeholders.length && placeholders[i] != null) {
+                frag = frag.replace(placeholders[i], colorToHex(btns[i].getBackground()));
+            }
+        }
+        // head: $[faceShave] and $[headShave] are two spellings for the same concept (shave color)
+        if ("head".equals(feature) && btns.length >= 2 && btns[1] != null) {
+            frag = frag.replace("$[headShave]", colorToHex(btns[1].getBackground()));
+        }
+        return frag;
+    }
+
+    /**
+     * Replaces any remaining {@code $[...]} color placeholders with sensible defaults
+     * so that all SVG fragments render with valid color values.
+     */
+    private static String applyDefaultColorSubstitutions(String frag) {
+        frag = frag.replace("$[skinColor]",   "#f2d6cb");
+        frag = frag.replace("$[hairColor]",   "#272421");
+        frag = frag.replace("$[hairColor2]",  "#272421");
+        frag = frag.replace("$[primary]",     "#89bfd3");
+        frag = frag.replace("$[secondary]",   "#7a1319");
+        frag = frag.replace("$[accent]",      "#07364f");
+        frag = frag.replace("$[faceShave]",   "rgba(0,0,0,0)");
+        frag = frag.replace("$[headShave]",   "rgba(0,0,0,0)");
+        return frag;
     }
 
     /** Randomly selects one variant for every feature that has data loaded. */
@@ -1174,6 +1446,713 @@ public class SvgEditorPanel extends JPanel {
     private void clearFaceMaker() {
         for (JComboBox<String> combo : faceMakerCombos.values()) {
             combo.setSelectedIndex(0);
+        }
+    }
+
+    // ── Face Rules tab ────────────────────────────────────────────────────────
+
+    /**
+     * Builds the Face Rules sub-tab.
+     *
+     * <p>The tab presents a table where each row defines a single rule that the
+     * face generator should consult when selecting parts.  A rule pins a specific
+     * {@code feature/id} part to a set of conditions:
+     * <ul>
+     *   <li><b>Genders</b> – comma-separated list of genders the rule applies to
+     *       ({@code "male"}, {@code "female"}, or both).
+     *   <li><b>Emotions</b> – comma-separated list of emotions ({@code "normal"},
+     *       {@code "happy"}, {@code "sad"}, {@code "anxious"}, {@code "angry"}).
+     *   <li><b>MinWealth</b> – minimum wealth integer threshold (0 = unrestricted).
+     *   <li><b>MinAge</b> – minimum age integer threshold (0 = unrestricted).
+     *   <li><b>ClothesTypes</b> – comma-separated clothes-type values
+     *       ({@code "normal"}, {@code "work"}, {@code "sport"}, {@code "gym"}).
+     *   <li><b>Percentage</b> – integer 1–100; chance the rule fires when conditions match
+     *       (100 = always; omitted/0 in JSON is treated as 100).
+     *   <li><b>Mode</b> – {@code "include"} (part is eligible) or
+     *       {@code "exclude"} (part is forbidden).
+     * </ul>
+     * Rows are serialised to / loaded from {@code assets/face/facerules.json}.
+     */
+    private JPanel buildFaceRulesTab() {
+        faceRulesFileField.setEditable(false);
+
+        // ── Configure table ───────────────────────────────────────────────────
+
+        configureTable(faceRulesTable);
+        faceRulesTable.getColumnModel().getColumn(0).setPreferredWidth(120); // Name
+        faceRulesTable.getColumnModel().getColumn(1).setPreferredWidth(80);  // Gender
+        faceRulesTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Emotion
+        faceRulesTable.getColumnModel().getColumn(3).setPreferredWidth(80);  // MinWealth
+        faceRulesTable.getColumnModel().getColumn(4).setPreferredWidth(60);  // MinAge
+        faceRulesTable.getColumnModel().getColumn(5).setPreferredWidth(100); // ClothesType
+        faceRulesTable.getColumnModel().getColumn(6).setPreferredWidth(80);  // Percentage
+        faceRulesTable.getColumnModel().getColumn(7).setPreferredWidth(70);  // Priority
+        faceRulesTable.getColumnModel().getColumn(8).setPreferredWidth(280); // Include
+        faceRulesTable.getColumnModel().getColumn(9).setPreferredWidth(280); // Additional
+        faceRulesTable.getColumnModel().getColumn(10).setPreferredWidth(280); // Exclude
+
+        // Gender column – preset combo
+        JComboBox<String> gendersCombo = new JComboBox<>(FACE_RULE_GENDER_PRESETS);
+        gendersCombo.setEditable(true);
+        faceRulesTable.getColumnModel().getColumn(1)
+                .setCellEditor(new DefaultCellEditor(gendersCombo));
+
+        // Emotion column – preset combo (single emotion or empty)
+        JComboBox<String> emotionsCombo = new JComboBox<>();
+        emotionsCombo.setEditable(true);
+        emotionsCombo.addItem("");
+        for (String e : FACE_RULE_EMOTIONS) emotionsCombo.addItem(e);
+        faceRulesTable.getColumnModel().getColumn(2)
+                .setCellEditor(new DefaultCellEditor(emotionsCombo));
+
+        // ClothesType column – preset combo (single type or empty)
+        JComboBox<String> clothesCombo = new JComboBox<>();
+        clothesCombo.setEditable(true);
+        clothesCombo.addItem("");
+        for (String c : FACE_RULE_CLOTHES_TYPES) clothesCombo.addItem(c);
+        faceRulesTable.getColumnModel().getColumn(5)
+                .setCellEditor(new DefaultCellEditor(clothesCombo));
+
+        // ── Custom cell editor / renderer for Include (col 8), Additional (col 9), and Exclude (col 10) ─
+        //
+        // Each cell renders as [  text label  ][▼].  A single click activates the
+        // editor (text field + ▼ button).  Clicking ▼, or double-clicking anywhere
+        // in the cell, opens the SVG-ID picker dialog.
+
+        /** Renderer: shows the cell value followed by a drop-down button. */
+        class SvgListCellRenderer implements TableCellRenderer {
+            private final JPanel  panel = new JPanel(new BorderLayout());
+            private final JLabel  label = new JLabel();
+            private final JButton btn   = new JButton("\u25BC");
+            SvgListCellRenderer() {
+                btn.setPreferredSize(new Dimension(28, 0));
+                btn.setMargin(new Insets(0, 2, 0, 2));
+                btn.setFocusable(false);
+                label.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                panel.add(label, BorderLayout.CENTER);
+                panel.add(btn,   BorderLayout.EAST);
+            }
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object v,
+                    boolean sel, boolean foc, int r, int c) {
+                label.setText(v == null ? "" : v.toString());
+                Color bg = sel ? t.getSelectionBackground() : t.getBackground();
+                panel.setBackground(bg);
+                label.setForeground(sel ? t.getSelectionForeground() : t.getForeground());
+                label.setOpaque(false);
+                return panel;
+            }
+        }
+
+        /** Editor: text field + ▼ button.  ▼ and double-click open the picker. */
+        class SvgListCellEditor extends AbstractCellEditor implements TableCellEditor {
+            private final JPanel     panel = new JPanel(new BorderLayout());
+            private final JTextField field = new JTextField();
+            private final JButton    btn   = new JButton("\u25BC");
+            private EventObject triggerEvent;
+            private int editRow = -1, editCol = -1;
+            SvgListCellEditor() {
+                btn.setPreferredSize(new Dimension(28, 0));
+                btn.setMargin(new Insets(0, 2, 0, 2));
+                btn.setFocusable(false);
+                field.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0));
+                panel.add(field, BorderLayout.CENTER);
+                panel.add(btn,   BorderLayout.EAST);
+                btn.addActionListener(ae -> {
+                    int r = editRow, c = editCol;
+                    faceRulesModel.setValueAt(field.getText(), r, c);
+                    fireEditingCanceled();
+                    showSvgPickerDialog(r, c);
+                });
+            }
+            @Override public boolean isCellEditable(EventObject e) {
+                triggerEvent = e; return true;
+            }
+            @Override public Object getCellEditorValue() { return field.getText(); }
+            @Override public Component getTableCellEditorComponent(JTable t, Object v,
+                    boolean sel, int row, int col) {
+                editRow = row; editCol = col;
+                field.setText(v == null ? "" : v.toString());
+                if (triggerEvent instanceof MouseEvent
+                        && ((MouseEvent) triggerEvent).getClickCount() >= 2) {
+                    SwingUtilities.invokeLater(() -> {
+                        faceRulesModel.setValueAt(field.getText(), editRow, editCol);
+                        fireEditingCanceled();
+                        showSvgPickerDialog(editRow, editCol);
+                    });
+                }
+                return panel;
+            }
+        }
+
+        SvgListCellRenderer svgRenderer = new SvgListCellRenderer();
+        faceRulesTable.getColumnModel().getColumn(8).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(9).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(10).setCellRenderer(svgRenderer);
+        faceRulesTable.getColumnModel().getColumn(8).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(9).setCellEditor(new SvgListCellEditor());
+        faceRulesTable.getColumnModel().getColumn(10).setCellEditor(new SvgListCellEditor());
+
+        // ── Row toolbar ───────────────────────────────────────────────────────
+
+        JButton addBtn    = new JButton("Add Rule");
+        JButton deleteBtn = new JButton("Delete Rule");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            faceRulesModel.addRow(new Object[]{"", "", "normal", 0, 0, "", 100, 0, "", "", ""});
+            int last = faceRulesModel.getRowCount() - 1;
+            faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
+            faceRulesTable.setRowSelectionInterval(last, last);
+            faceRulesTable.editCellAt(last, 0);
+        });
+        deleteBtn.addActionListener((ActionEvent e) -> deleteSelectedRow(faceRulesTable, faceRulesModel));
+
+        JPanel rowToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        rowToolbar.add(addBtn);
+        rowToolbar.add(deleteBtn);
+
+        // ── File toolbar ──────────────────────────────────────────────────────
+
+        JPanel fileRow = new JPanel(new BorderLayout(4, 0));
+        fileRow.setBorder(BorderFactory.createEmptyBorder(0, 8, 2, 8));
+        fileRow.add(new JLabel("File:"), BorderLayout.WEST);
+        fileRow.add(faceRulesFileField, BorderLayout.CENTER);
+
+        JPanel fileMeta = new JPanel(new BorderLayout());
+        fileMeta.setBorder(BorderFactory.createTitledBorder("File"));
+        fileMeta.add(fileRow, BorderLayout.CENTER);
+
+        JButton openBtn   = new JButton("Open\u2026");
+        JButton saveBtn   = new JButton("Save");
+        JButton saveAsBtn = new JButton("Save As\u2026");
+        openBtn.addActionListener((ActionEvent e) -> openFaceRules());
+        saveBtn.addActionListener((ActionEvent e) -> saveFaceRules(false));
+        saveAsBtn.addActionListener((ActionEvent e) -> saveFaceRules(true));
+
+        JPanel fileToolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        fileToolbar.add(openBtn);
+        fileToolbar.add(saveBtn);
+        fileToolbar.add(saveAsBtn);
+
+        JPanel north = new JPanel(new BorderLayout());
+        north.add(fileMeta,    BorderLayout.CENTER);
+        north.add(fileToolbar, BorderLayout.SOUTH);
+
+        // ── Assemble ──────────────────────────────────────────────────────────
+
+        JPanel south = new JPanel(new BorderLayout());
+        south.add(rowToolbar, BorderLayout.WEST);
+
+        JPanel tab = new JPanel(new BorderLayout());
+        tab.add(north,                          BorderLayout.NORTH);
+        tab.add(new JScrollPane(faceRulesTable), BorderLayout.CENTER);
+        tab.add(south,                          BorderLayout.SOUTH);
+        return tab;
+    }
+
+    // ── SVG ID picker dialog ──────────────────────────────────────────────────
+
+    /**
+     * Opens a scrollable checkbox dialog listing all available {@code feature.id}
+     * entries from the loaded {@code svgs.json}.  Items already present in the
+     * target cell are pre-checked.  On confirmation the cell is updated with the
+     * new comma-separated selection.
+     *
+     * @param row row index in {@link #faceRulesTable}
+     * @param col column index – 8 (Include), 9 (Additional), or 10 (Exclude)
+     */
+    private void showSvgPickerDialog(int row, int col) {
+        // Build a sorted map of feature → sorted list of ids from svgsData
+        Map<String, List<String>> featureIds = new TreeMap<>();
+        if (svgsData != null) {
+            for (Map.Entry<String, JsonElement> featureEntry : svgsData.entrySet()) {
+                String feature = featureEntry.getKey();
+                if (!featureEntry.getValue().isJsonObject()) continue;
+                List<String> ids = new ArrayList<>();
+                for (Map.Entry<String, JsonElement> idEntry :
+                        featureEntry.getValue().getAsJsonObject().entrySet()) {
+                    ids.add(idEntry.getKey());
+                }
+                java.util.Collections.sort(ids);
+                featureIds.put(feature, ids);
+            }
+        }
+
+        if (featureIds.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No SVG data loaded. Please load svgs.json first via the SVG Index tab.",
+                    "No SVG Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Parse the current cell value into a set of already-selected entries
+        String currentVal = cellStr(faceRulesModel, row, col).trim();
+        java.util.Set<String> selected = new java.util.LinkedHashSet<>();
+        if (!currentVal.isEmpty()) {
+            for (String part : currentVal.split(",")) {
+                String t = part.trim();
+                if (!t.isEmpty()) selected.add(t);
+            }
+        }
+
+        // ── Preview panel (top-right of dialog) ───────────────────────────────
+        SvgPreviewPanel pickerPreview = new SvgPreviewPanel();
+        pickerPreview.setPreferredSize(new Dimension(200, 200));
+        pickerPreview.setMinimumSize(new Dimension(160, 160));
+        pickerPreview.setBorder(BorderFactory.createTitledBorder("Preview"));
+
+        // Helper: update preview from a "feature.id" key
+        java.util.function.Consumer<String> updatePreview = key -> {
+            if (key == null || key.isEmpty() || svgsData == null) {
+                pickerPreview.setFeatureName("");
+                pickerPreview.setSvgFragment("");
+                return;
+            }
+            int dot = key.indexOf('.');
+            if (dot <= 0 || dot == key.length() - 1) return;
+            String feat = key.substring(0, dot);
+            String id   = key.substring(dot + 1);
+            pickerPreview.setFeatureName(feat);
+            if (svgsData.has(feat) && svgsData.getAsJsonObject(feat).has(id)) {
+                pickerPreview.setSvgFragment(
+                        svgsData.getAsJsonObject(feat).get(id).getAsString());
+            } else {
+                pickerPreview.setSvgFragment("");
+            }
+        };
+
+        // Seed the preview with the first already-selected item (if any)
+        updatePreview.accept(selected.isEmpty() ? null : selected.iterator().next());
+
+        // Build a feature.id → gender map from the SVG Index table (col 2)
+        Map<String, String> genderMap = new LinkedHashMap<>();
+        for (int r = 0; r < svgIndexModel.getRowCount(); r++) {
+            String feat   = cellStr(svgIndexModel, r, 0);
+            String id     = cellStr(svgIndexModel, r, 1);
+            String gender = cellStr(svgIndexModel, r, 2);
+            if (!feat.isEmpty() && !id.isEmpty()) {
+                genderMap.put(feat + "." + id, gender);
+            }
+        }
+
+        // Build the checkbox panel, one section per feature.
+        // boxKeyMap maps each checkbox to the clean "feature.id" value (used when collecting results).
+        // featureHeaderMap maps each feature header JCheckBox to the item JCheckBoxes under it.
+        JPanel checkPanel = new JPanel();
+        checkPanel.setLayout(new BoxLayout(checkPanel, BoxLayout.Y_AXIS));
+        Map<JCheckBox, String> boxKeyMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : featureIds.entrySet()) {
+            String feature = entry.getKey();
+            List<String> ids = entry.getValue();
+
+            // Collect item checkboxes first so the header can reference them
+            List<JCheckBox> itemBoxes = new ArrayList<>();
+
+            // Initial state for the feature header: checked only if ALL items are already selected
+            boolean allSelected = !ids.isEmpty()
+                    && ids.stream().allMatch(id -> selected.contains(feature + "." + id));
+            JCheckBox featureHeader = new JCheckBox(feature, allSelected);
+            featureHeader.setFont(featureHeader.getFont().deriveFont(Font.BOLD));
+            featureHeader.setBorder(BorderFactory.createEmptyBorder(6, 4, 2, 4));
+            featureHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+            checkPanel.add(featureHeader);
+
+            for (String id : ids) {
+                String key = feature + "." + id;
+                // Append [male] or [female] hint; omit for "both" / unknown
+                String gender  = genderMap.getOrDefault(key, "");
+                String label   = ("male".equals(gender) || "female".equals(gender))
+                        ? key + " [" + gender + "]"
+                        : key;
+                JCheckBox cb = new JCheckBox(label, selected.contains(key));
+                cb.setAlignmentX(Component.LEFT_ALIGNMENT);
+                // Update preview when the checkbox is clicked or hovered
+                cb.addItemListener(ie -> {
+                    // Update feature header: checked if ALL items are checked
+                    boolean all = itemBoxes.stream().allMatch(JCheckBox::isSelected);
+                    featureHeader.setSelected(all);
+                    updatePreview.accept(key);
+                });
+                cb.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override public void mouseEntered(java.awt.event.MouseEvent e) {
+                        updatePreview.accept(key);
+                    }
+                });
+                checkPanel.add(cb);
+                boxKeyMap.put(cb, key);
+                itemBoxes.add(cb);
+            }
+
+            // Wire header → items via ActionListener (user click only, not programmatic setSelected)
+            featureHeader.addActionListener(ae -> {
+                boolean sel = featureHeader.isSelected();
+                for (JCheckBox itemBox : itemBoxes) {
+                    itemBox.setSelected(sel);
+                }
+            });
+        }
+
+        JScrollPane scroll = new JScrollPane(checkPanel);
+        scroll.setPreferredSize(new Dimension(400, 500));
+
+        // Full-face composite preview inside the dialog
+        SvgPreviewPanel facePreviewInDialog = new SvgPreviewPanel();
+        facePreviewInDialog.setPreferredSize(new Dimension(200, 300));
+        facePreviewInDialog.setMinimumSize(new Dimension(160, 240));
+        facePreviewInDialog.setBorder(BorderFactory.createTitledBorder("Face Preview"));
+
+        JButton randomViewBtn = new JButton("Random View");
+        randomViewBtn.setToolTipText("Generate a random face using only the checked items");
+        randomViewBtn.addActionListener(ae -> {
+            if (svgsData == null) return;
+
+            // Build a feature → [checkedId…] map from the current checkbox state
+            Map<String, List<String>> checkedByFeature = new LinkedHashMap<>();
+            for (Map.Entry<JCheckBox, String> entry : boxKeyMap.entrySet()) {
+                if (!entry.getKey().isSelected()) continue;
+                String key = entry.getValue();          // "feature.id"
+                int dot = key.indexOf('.');
+                if (dot <= 0 || dot == key.length() - 1) continue;
+                String feat = key.substring(0, dot);
+                String id   = key.substring(dot + 1);
+                checkedByFeature.computeIfAbsent(feat, k -> new ArrayList<>()).add(id);
+            }
+
+            if (checkedByFeature.isEmpty()) {
+                facePreviewInDialog.setCompositeFragments(null);
+                return;
+            }
+
+            Random rndFace = new Random();
+            List<String> fragments = new ArrayList<>();
+            for (String feature : FACE_DRAW_ORDER) {
+                List<String> ids = checkedByFeature.get(feature);
+                if (ids == null || ids.isEmpty()) continue;
+                if (!svgsData.has(feature)) continue;
+                JsonObject featureObj = svgsData.getAsJsonObject(feature);
+                String selectedId = ids.get(rndFace.nextInt(ids.size()));
+                if (!featureObj.has(selectedId)) continue;
+                String frag = featureObj.get(selectedId).getAsString();
+                if (frag.isEmpty()) continue;
+                frag = applyDefaultColorSubstitutions(frag);
+                int[][] positions = FACE_FEATURE_POSITIONS.get(feature);
+                if (positions == null) {
+                    fragments.add(frag);
+                } else {
+                    java.awt.geom.Rectangle2D bounds =
+                            SvgPreviewPanel.computeFragmentBounds(frag);
+                    double cx = bounds != null ? bounds.getCenterX() : 0;
+                    double cy = bounds != null ? bounds.getCenterY() : 0;
+                    for (int i = 0; i < positions.length; i++) {
+                        double tx = positions[i][0] - cx;
+                        double ty = positions[i][1] - cy;
+                        String transform;
+                        if (i == 0) {
+                            transform = String.format(Locale.US,
+                                    "translate(%.2f %.2f)", tx, ty);
+                        } else {
+                            double txMirror = -2.0 * cx;
+                            transform = String.format(Locale.US,
+                                    "translate(%.2f %.2f) scale(-1 1) translate(%.2f 0)",
+                                    tx, ty, txMirror);
+                        }
+                        fragments.add("<g transform=\"" + transform + "\">" + frag + "</g>");
+                    }
+                }
+            }
+            facePreviewInDialog.setCompositeFragments(fragments.isEmpty() ? null : fragments);
+        });
+
+        // Right panel: individual feature preview on top, full-face preview below, button at bottom
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 4));
+        rightPanel.add(pickerPreview,     BorderLayout.NORTH);
+        rightPanel.add(facePreviewInDialog, BorderLayout.CENTER);
+        rightPanel.add(randomViewBtn,     BorderLayout.SOUTH);
+
+        // Main dialog content: checkbox scroll pane on the left, previews on the right
+        JPanel content = new JPanel(new BorderLayout(8, 0));
+        content.add(scroll,     BorderLayout.CENTER);
+        content.add(rightPanel, BorderLayout.EAST);
+
+        String colName = col == 8 ? "Include" : col == 9 ? "Additional" : "Exclude";
+        int result = JOptionPane.showConfirmDialog(
+                this, content,
+                "Select SVG IDs for " + colName,
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+
+        if (result != JOptionPane.OK_OPTION) return;
+
+        // Collect checked keys in order (feature-sorted, then id-sorted)
+        List<String> newList = new ArrayList<>();
+        for (Map.Entry<JCheckBox, String> entry : boxKeyMap.entrySet()) {
+            if (entry.getKey().isSelected()) newList.add(entry.getValue());
+        }
+        if (row < faceRulesModel.getRowCount() && col < faceRulesModel.getColumnCount()) {
+            faceRulesModel.setValueAt(String.join(",", newList), row, col);
+        }
+    }
+
+    // ── File operations: facerules.json ───────────────────────────────────────
+
+    private void openFaceRules() {
+        File chosen = chooseOpenFile(faceRulesFile, "assets/face");
+        if (chosen != null) loadFaceRulesFromFile(chosen);
+    }
+
+    /**
+     * Parses {@code facerules.json} and populates the face-rules table.
+     *
+     * <p>The JSON structure is:
+     * <pre>
+     * {
+     *   "rules": [
+     *     {
+     *       "name":       "female-happy-lips",
+     *       "gender":     "female",
+     *       "emotion":    "happy",
+     *       "minWealth":  0,
+     *       "minAge":     0,
+     *       "clothesType":"",
+     *       "percentage": 100,
+     *       "priority":   0,
+     *       "include":    ["mouth.mouth4", "mouth.mouth5", "eyes.female5", "eyes.female6"],
+     *       "exclude":    []
+     *     },
+     *     ...
+     *   ]
+     * }
+     * </pre>
+     */
+    private void loadFaceRulesFromFile(File file) {
+        try (Reader reader = new FileReader(file)) {
+            JsonObject root = new Gson().fromJson(reader, JsonObject.class);
+            faceRulesModel.setRowCount(0);
+
+            JsonArray rules = root.has("rules") ? root.getAsJsonArray("rules") : new JsonArray();
+
+            // Collect raw row data so we can sort by priority before adding to the table
+            List<Object[]> rows = new ArrayList<>();
+            for (JsonElement ruleEl : rules) {
+                JsonObject rule = ruleEl.getAsJsonObject();
+                String name        = rule.has("name")        ? rule.get("name").getAsString()        : "";
+                String gender      = rule.has("gender")      ? rule.get("gender").getAsString()      : "";
+                String emotion     = rule.has("emotion")     ? rule.get("emotion").getAsString()     : "";
+                int    minWealth   = rule.has("minWealth")   ? rule.get("minWealth").getAsInt()      : 0;
+                int    minAge      = rule.has("minAge")      ? rule.get("minAge").getAsInt()         : 0;
+                String clothesType = rule.has("clothesType") ? rule.get("clothesType").getAsString() : "";
+                int    percentage  = rule.has("percentage")  ? rule.get("percentage").getAsInt()     : 100;
+                int    priority    = rule.has("priority")    ? rule.get("priority").getAsInt()       : 0;
+
+                String include    = jsonArrayToString(rule, "include");
+                String additional = jsonArrayToString(rule, "additional"); // optional; defaults to "" for older files
+                String exclude    = jsonArrayToString(rule, "exclude");
+
+                rows.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, additional, exclude});
+            }
+
+            // Sort ascending by name so rules are easy to find in the table
+            rows.sort((a, b) -> String.CASE_INSENSITIVE_ORDER.compare((String) a[0], (String) b[0]));
+            for (Object[] row : rows) {
+                faceRulesModel.addRow(row);
+            }
+
+            faceRulesFile = file;
+            faceRulesFileField.setText(file.getAbsolutePath());
+            statusLabel.setText("Face rules loaded: " + file.getAbsolutePath()
+                    + "  (" + faceRulesModel.getRowCount() + " rules)");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading file:\n" + ex.getMessage(),
+                    "Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Serialises the face-rules table back to {@code facerules.json} format.
+     * Rows with Include, Additional, and Exclude all empty are skipped with a warning dialog.
+     */
+    private void saveFaceRules(boolean saveAs) {
+        faceRulesFile = resolveTargetFile(faceRulesFile, saveAs);
+        if (faceRulesFile == null) return;
+
+        JsonArray rules   = new JsonArray();
+        List<String> skipped = new ArrayList<>();
+
+        // Collect rows, then sort ascending by priority so the JSON reflects application order
+        List<Object[]> rowData = new ArrayList<>();
+        for (int r = 0; r < faceRulesModel.getRowCount(); r++) {
+            String name        = cellStr(faceRulesModel, r, 0).trim();
+            String gender      = cellStr(faceRulesModel, r, 1).trim();
+            String emotion     = cellStr(faceRulesModel, r, 2).trim();
+            int    minWealth   = intVal(faceRulesModel.getValueAt(r, 3));
+            int    minAge      = intVal(faceRulesModel.getValueAt(r, 4));
+            String clothesType = cellStr(faceRulesModel, r, 5).trim();
+            int    percentage  = intVal(faceRulesModel.getValueAt(r, 6));
+            int    priority    = intVal(faceRulesModel.getValueAt(r, 7));
+            String include     = cellStr(faceRulesModel, r, 8).trim();
+            String additional  = cellStr(faceRulesModel, r, 9).trim();
+            String exclude     = cellStr(faceRulesModel, r, 10).trim();
+
+            if (include.isEmpty() && additional.isEmpty() && exclude.isEmpty()) {
+                skipped.add("row " + (r + 1) + " (no include, additional, or exclude entries)");
+                continue;
+            }
+            rowData.add(new Object[]{name, gender, emotion, minWealth, minAge, clothesType, percentage, priority, include, additional, exclude});
+        }
+
+        rowData.sort((a, b) -> Integer.compare((int) a[7], (int) b[7]));
+
+        for (Object[] row : rowData) {
+            JsonObject rule = new JsonObject();
+            rule.addProperty("name",        (String) row[0]);
+            rule.addProperty("gender",      (String) row[1]);
+            rule.addProperty("emotion",     (String) row[2]);
+            rule.addProperty("minWealth",   (int)    row[3]);
+            rule.addProperty("minAge",      (int)    row[4]);
+            rule.addProperty("clothesType", (String) row[5]);
+            rule.addProperty("percentage",  Math.min(100, Math.max(1, (int) row[6])));
+            rule.addProperty("priority",    Math.max(0, (int) row[7]));
+            rule.add("include",    stringToJsonArray((String) row[8]));
+            rule.add("additional", stringToJsonArray((String) row[9]));
+            rule.add("exclude",    stringToJsonArray((String) row[10]));
+            rules.add(rule);
+        }
+
+        if (!skipped.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "The following rows were skipped because Include, Additional, and Exclude are all empty:\n"
+                            + String.join("\n", skipped),
+                    "Save Warning", JOptionPane.WARNING_MESSAGE);
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("rules", rules);
+
+        try (Writer writer = new FileWriter(faceRulesFile)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(root, writer);
+            faceRulesFileField.setText(faceRulesFile.getAbsolutePath());
+            statusLabel.setText("Face rules saved: " + faceRulesFile.getAbsolutePath()
+                    + "  (" + rules.size() + " rules)");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file:\n" + ex.getMessage(),
+                    "Save Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Converts a JSON array of strings under {@code key} in {@code obj} to a
+     * comma-separated string.  Returns an empty string when the key is absent.
+     */
+    private static String jsonArrayToString(JsonObject obj, String key) {
+        if (!obj.has(key)) return "";
+        JsonArray arr = obj.getAsJsonArray(key);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arr.size(); i++) {
+            if (i > 0) sb.append(',');
+            sb.append(arr.get(i).getAsString());
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Splits a comma-separated string into a {@link JsonArray} of trimmed strings,
+     * omitting blank elements.
+     */
+    private static JsonArray stringToJsonArray(String csv) {
+        JsonArray arr = new JsonArray();
+        if (csv == null || csv.isBlank()) return arr;
+        for (String part : csv.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) arr.add(trimmed);
+        }
+        return arr;
+    }
+
+    /**
+     * Shows the shared {@link JColorChooser} dialog.  Because the same instance is reused
+     * on every invocation, the built-in "Recent Colors" swatch panel accumulates a history
+     * of previously confirmed picks so the user can quickly return to earlier colors.
+     *
+     * <p>The {@code initialColor} is pre-loaded as the chooser's current selection before
+     * the dialog opens.  This means the button's <em>current</em> color always appears as
+     * the selected swatch, making it easy to click OK without changing anything to revert
+     * to the previous value.
+     *
+     * @param parent       parent component for dialog placement
+     * @param title        dialog title bar text
+     * @param initialColor the color to pre-select (typically the button's current color)
+     * @return the confirmed {@link Color}, or {@code null} if the dialog was cancelled
+     */
+    private Color showColorPickerDialog(Component parent, String title, Color initialColor) {
+        sharedColorChooser.setColor(initialColor);
+        final Color[] result = {null};
+        JDialog dialog = JColorChooser.createDialog(
+                parent, title, true, sharedColorChooser,
+                e -> result[0] = sharedColorChooser.getColor(),  // OK
+                null);                                           // Cancel
+        try {
+            dialog.setVisible(true);
+        } finally {
+            dialog.dispose();
+        }
+        return result[0];
+    }
+
+    /**
+     * Creates a small square color-swatch button.  The button paints itself as a solid
+     * filled rectangle in its background color, which is reliable across all Swing
+     * look-and-feels (including macOS Aqua, which ignores {@code setBackground()} in
+     * the default button UI).  Clicking the button opens a {@link JColorChooser} (wired
+     * up by the caller).
+     *
+     * @param hexDefault default hex color string, e.g. {@code "#f2d6cb"}
+     * @param tooltip    tooltip text describing what the color controls
+     */
+    private static JButton createColorButton(String hexDefault, String tooltip) {
+        JButton btn = new JButton() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+            @Override
+            protected void paintBorder(java.awt.Graphics g) {
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+            }
+        };
+        btn.setPreferredSize(new Dimension(28, 22));
+        btn.setMinimumSize(new Dimension(28, 22));
+        btn.setMaximumSize(new Dimension(28, 22));
+        btn.setBackground(hexToColor(hexDefault));
+        btn.setOpaque(true);
+        btn.setFocusPainted(false);
+        btn.setToolTipText(tooltip + " – " + hexDefault);
+        return btn;
+    }
+
+    /** Converts a {@link Color} to a lowercase 6-digit hex string, e.g. {@code "#f2d6cb"}. */
+    private static String colorToHex(Color c) {
+        return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+    }
+
+    /**
+     * Parses a 6-digit hex color string (with or without leading {@code #}) into a
+     * {@link Color}.  Returns {@link Color#LIGHT_GRAY} on any parse error.
+     */
+    private static Color hexToColor(String hex) {
+        try {
+            String s = hex.startsWith("#") ? hex.substring(1) : hex;
+            int r = Integer.parseInt(s.substring(0, 2), 16);
+            int g = Integer.parseInt(s.substring(2, 4), 16);
+            int b = Integer.parseInt(s.substring(4, 6), 16);
+            return new Color(r, g, b);
+        } catch (Exception e) {
+            System.err.println("[SvgEditorPanel] Invalid hex color string: '" + hex + "' – " + e.getMessage());
+            return Color.LIGHT_GRAY;
         }
     }
 }
