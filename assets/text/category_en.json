@@ -219,6 +219,16 @@
       "name": "General"
     }
   ],
+  "gender_categories": [
+    {
+      "code": "male",
+      "name": "Male"
+    },
+    {
+      "code": "female",
+      "name": "Female"
+    }
+  ],
   "skin_tone_categories": [
     {
       "code": "porcelain_very_fair",

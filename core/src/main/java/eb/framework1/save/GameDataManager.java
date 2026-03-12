@@ -3,6 +3,7 @@ package eb.framework1.save;
 import eb.framework1.city.*;
 import eb.framework1.character.SkillCategoryDefinition;
 import eb.framework1.character.SkinToneDefinition;
+import eb.framework1.character.GenderDefinition;
 import eb.framework1.generator.*;
 import eb.framework1.ui.SvgResourceData;
 
@@ -42,6 +43,8 @@ public class GameDataManager {
     private final Map<String, SkillCategoryDefinition> skillCategoriesByCode;
     private final List<SkinToneDefinition> skinToneCategories;
     private final Map<String, SkinToneDefinition> skinToneCategoriesByCode;
+    private final List<GenderDefinition> genderCategories;
+    private final Map<String, GenderDefinition> genderCategoriesByCode;
     /** Improvement data keyed by lower-case improvement code (id). */
     private final Map<String, ImprovementData> improvementDataByCode;
     /** SVG resource data keyed by item id. */
@@ -65,6 +68,8 @@ public class GameDataManager {
         this.skillCategoriesByCode = new HashMap<>();
         this.skinToneCategories = new ArrayList<>();
         this.skinToneCategoriesByCode = new HashMap<>();
+        this.genderCategories = new ArrayList<>();
+        this.genderCategoriesByCode = new HashMap<>();
         this.improvementDataByCode = new HashMap<>();
         this.svgResourcesById = new HashMap<>();
 
@@ -400,10 +405,20 @@ public class GameDataManager {
                 }
             }
 
+            JsonValue genderCatsArray = root.get("gender_categories");
+            if (genderCatsArray != null) {
+                for (JsonValue gJson = genderCatsArray.child; gJson != null; gJson = gJson.next) {
+                    GenderDefinition g = parseGenderDefinition(gJson);
+                    genderCategories.add(g);
+                    genderCategoriesByCode.put(g.getCode(), g);
+                }
+            }
+
             Gdx.app.log("GameDataManager", "Loaded " + CATEGORIES_FILE + " v" + categoriesVersion
                     + " with " + categories.size() + " building categories, "
-                    + skillCategories.size() + " skill categories and "
-                    + skinToneCategories.size() + " skin tone categories");
+                    + skillCategories.size() + " skill categories, "
+                    + skinToneCategories.size() + " skin tone categories and "
+                    + genderCategories.size() + " gender categories");
         } catch (Exception e) {
             Gdx.app.error("GameDataManager", "Error loading categories: " + e.getMessage(), e);
         }
@@ -443,6 +458,16 @@ public class GameDataManager {
         String name = json.getString("name", code);
         String rgb  = json.getString("rgb", "");
         return new SkinToneDefinition(code, name, rgb);
+    }
+
+    /**
+     * Parses a single gender definition from the
+     * {@code gender_categories} array in {@code category_en.json}.
+     */
+    private GenderDefinition parseGenderDefinition(JsonValue json) {
+        String code = json.getString("code", "");
+        String name = json.getString("name", code);
+        return new GenderDefinition(code, name);
     }
 
     // ===== Accessors =====
@@ -528,6 +553,24 @@ public class GameDataManager {
      */
     public SkinToneDefinition getSkinToneCategoryByCode(String code) {
         return skinToneCategoriesByCode.get(code);
+    }
+
+    /**
+     * Returns all gender definitions loaded from the
+     * {@code gender_categories} array of {@code text/category_en.json}.
+     */
+    public List<GenderDefinition> getGenderCategories() {
+        return Collections.unmodifiableList(genderCategories);
+    }
+
+    /**
+     * Returns a gender definition by its code (e.g. {@code "male"}),
+     * or {@code null} if no match is found.
+     *
+     * @param code the code to look up (case-sensitive)
+     */
+    public GenderDefinition getGenderCategoryByCode(String code) {
+        return genderCategoriesByCode.get(code);
     }
 
     /**

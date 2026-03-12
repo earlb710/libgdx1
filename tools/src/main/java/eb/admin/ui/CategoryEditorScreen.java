@@ -40,11 +40,12 @@ import java.util.Map;
  *   5. Improvement Categories   – code, description, color, function
  *   6. Skill Categories         – code, name
  *   7. Skin Tone Categories     – code, name, rgb
- *   8. Buildings                – id, name, category, description, improvements (buildings_en.json)
- *   9. Improvements             – id, name, attribute_modifiers (improvements_en.json)
- *  10. Company Types            – id, name, description, buildings (company_types_en.json)
- *  11. Names                    – person first-names, surnames, company name templates
- *  12. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
+ *   8. Gender Categories        – code, name
+ *   9. Buildings                – id, name, category, description, improvements (buildings_en.json)
+ *  10. Improvements             – id, name, attribute_modifiers (improvements_en.json)
+ *  11. Company Types            – id, name, description, buildings (company_types_en.json)
+ *  12. Names                    – person first-names, surnames, company name templates
+ *  13. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -71,6 +72,8 @@ public class CategoryEditorScreen extends JFrame {
             createModel(new String[]{"Code", "Name"});
     private final DefaultTableModel skinToneCategoryModel =
             createModel(new String[]{"Code", "Name", "RGB"});
+    private final DefaultTableModel genderCategoryModel =
+            createModel(new String[]{"Code", "Name"});
 
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
@@ -122,6 +125,7 @@ public class CategoryEditorScreen extends JFrame {
         categoryTabs.addTab("Improvement Categories",  buildTabPanel(improvementCategoryModel,  true,  true));
         categoryTabs.addTab("Skill Categories",        buildSkillCategoryTabPanel());
         categoryTabs.addTab("Skin Tone Categories",    buildSkinToneCategoryTabPanel());
+        categoryTabs.addTab("Gender Categories",       buildGenderCategoryTabPanel());
 
         // "Categories" top-level panel: meta (version/lang) + inner sub-tabs
         JPanel categoriesPanel = new JPanel(new BorderLayout(0, 4));
@@ -535,6 +539,7 @@ public class CategoryEditorScreen extends JFrame {
             populateModel(improvementCategoryModel, data.getImprovement_categories(),   true,  true);
             populateSkillCategoryModel(skillCategoryModel, data.getSkill_categories());
             populateSkinToneCategoryModel(skinToneCategoryModel, data.getSkin_tone_categories());
+            populateGenderCategoryModel(genderCategoryModel, data.getGender_categories());
 
             currentFile = file;
             fileField.setText(file.getAbsolutePath());
@@ -600,6 +605,7 @@ public class CategoryEditorScreen extends JFrame {
             improvementCategoryModel.setRowCount(0);
             skillCategoryModel.setRowCount(0);
             skinToneCategoryModel.setRowCount(0);
+            genderCategoryModel.setRowCount(0);
             versionField.setText("");
             currentFile = newFile;
             fileField.setText(newFile.getAbsolutePath());
@@ -708,6 +714,126 @@ public class CategoryEditorScreen extends JFrame {
         return list;
     }
 
+    /**
+     * Builds the tab panel for the Gender Categories table.
+     * Gender categories use {@code code} and {@code name} columns.
+     */
+    private JPanel buildGenderCategoryTabPanel() {
+        JTable table = new JTable(genderCategoryModel) {
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+                Component c = super.prepareRenderer(renderer, row, col);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
+                if (bg != null) {
+                    c.setBackground(bg);
+                    c.setForeground(ANNOTATION_FOREGROUND);
+                } else if (!isRowSelected(row)) {
+                    c.setBackground(getBackground());
+                    c.setForeground(getForeground());
+                }
+                return c;
+            }
+
+            @Override
+            public javax.swing.table.TableCellEditor getCellEditor(int row, int column) {
+                javax.swing.table.TableCellEditor editor = super.getCellEditor(row, column);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
+                if (bg != null && editor instanceof DefaultCellEditor) {
+                    ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                }
+                return editor;
+            }
+        };
+        categoryTables.add(table);
+        table.setRowHeight(26);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(0).setPreferredWidth(180);
+        table.getColumnModel().getColumn(1).setPreferredWidth(540);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    JTable src = (JTable) e.getSource();
+                    int row = src.rowAtPoint(e.getPoint());
+                    int col = src.columnAtPoint(e.getPoint());
+                    if (row >= 0 && col >= 0 && src.getModel().isCellEditable(row, col)) {
+                        src.setRowSelectionInterval(row, row);
+                        showAnnotationMenu(src, row, col, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        JButton addBtn    = new JButton("Add Row");
+        JButton deleteBtn = new JButton("Delete Row");
+        JButton saveBtn   = new JButton("Save");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            genderCategoryModel.addRow(new Object[]{"", ""});
+            int last = genderCategoryModel.getRowCount() - 1;
+            table.scrollRectToVisible(table.getCellRect(last, 0, true));
+            table.setRowSelectionInterval(last, last);
+        });
+
+        deleteBtn.addActionListener((ActionEvent e) -> {
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                genderCategoryModel.removeRow(row);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Please select a row to delete.",
+                        "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        saveBtn.addActionListener((ActionEvent e) -> saveFile(false));
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(addBtn);
+        buttons.add(deleteBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(saveBtn);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttons,    BorderLayout.SOUTH);
+        return panel;
+    }
+
+    /**
+     * Populates the gender category model from a list of {@link CategoryEntry} objects.
+     * Gender categories use {@code code} and {@code name} fields.
+     */
+    private static void populateGenderCategoryModel(DefaultTableModel model,
+                                                     List<CategoryEntry> entries) {
+        model.setRowCount(0);
+        if (entries == null) return;
+        List<CategoryEntry> sorted = new ArrayList<>(entries);
+        sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
+        for (CategoryEntry e : sorted) {
+            model.addRow(new Object[]{nvl(e.getCode()), nvl(e.getName())});
+        }
+    }
+
+    /**
+     * Converts the gender category table model back to a list of {@link CategoryEntry} objects.
+     * Gender categories use {@code code} and {@code name} fields.
+     */
+    private static List<CategoryEntry> genderCategoryModelToEntries(DefaultTableModel model) {
+        List<CategoryEntry> list = new ArrayList<>();
+        for (int r = 0; r < model.getRowCount(); r++) {
+            CategoryEntry entry = new CategoryEntry();
+            entry.setCode(cellStr(model, r, 0));
+            entry.setName(cellStr(model, r, 1));
+            list.add(entry);
+        }
+        return list;
+    }
+
     private CategoryData buildCategoryData() {
         CategoryData data = new CategoryData();
         data.setVersion(versionField.getText().trim());
@@ -719,6 +845,7 @@ public class CategoryEditorScreen extends JFrame {
         data.setImprovement_categories(modelToEntries(improvementCategoryModel, true, true));
         data.setSkill_categories(skillCategoryModelToEntries(skillCategoryModel));
         data.setSkin_tone_categories(skinToneCategoryModelToEntries(skinToneCategoryModel));
+        data.setGender_categories(genderCategoryModelToEntries(genderCategoryModel));
         return data;
     }
 
