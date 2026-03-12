@@ -1775,20 +1775,36 @@ public class SvgEditorPanel extends JPanel {
         facePreviewInDialog.setBorder(BorderFactory.createTitledBorder("Face Preview"));
 
         JButton randomViewBtn = new JButton("Random View");
-        randomViewBtn.setToolTipText("Generate a random face in the preview");
+        randomViewBtn.setToolTipText("Generate a random face using only the checked items");
         randomViewBtn.addActionListener(ae -> {
             if (svgsData == null) return;
+
+            // Build a feature → [checkedId…] map from the current checkbox state
+            Map<String, List<String>> checkedByFeature = new LinkedHashMap<>();
+            for (Map.Entry<JCheckBox, String> entry : boxKeyMap.entrySet()) {
+                if (!entry.getKey().isSelected()) continue;
+                String key = entry.getValue();          // "feature.id"
+                int dot = key.indexOf('.');
+                if (dot <= 0 || dot == key.length() - 1) continue;
+                String feat = key.substring(0, dot);
+                String id   = key.substring(dot + 1);
+                checkedByFeature.computeIfAbsent(feat, k -> new ArrayList<>()).add(id);
+            }
+
+            if (checkedByFeature.isEmpty()) {
+                facePreviewInDialog.setCompositeFragments(null);
+                return;
+            }
+
             Random rndFace = new Random();
             List<String> fragments = new ArrayList<>();
             for (String feature : FACE_DRAW_ORDER) {
+                List<String> ids = checkedByFeature.get(feature);
+                if (ids == null || ids.isEmpty()) continue;
                 if (!svgsData.has(feature)) continue;
                 JsonObject featureObj = svgsData.getAsJsonObject(feature);
-                List<String> ids = new ArrayList<>();
-                for (Map.Entry<String, JsonElement> idEntry : featureObj.entrySet()) {
-                    ids.add(idEntry.getKey());
-                }
-                if (ids.isEmpty()) continue;
                 String selectedId = ids.get(rndFace.nextInt(ids.size()));
+                if (!featureObj.has(selectedId)) continue;
                 String frag = featureObj.get(selectedId).getAsString();
                 if (frag.isEmpty()) continue;
                 frag = applyDefaultColorSubstitutions(frag);
