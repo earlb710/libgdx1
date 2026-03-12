@@ -1579,7 +1579,7 @@ public class SvgEditorPanel extends JPanel {
         JButton deleteBtn = new JButton("Delete Rule");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "normal", 100, "", ""});
+            faceRulesModel.addRow(new Object[]{"", "normal", 0, 0, "", 100, "", ""});
             int last = faceRulesModel.getRowCount() - 1;
             faceRulesTable.scrollRectToVisible(faceRulesTable.getCellRect(last, 0, true));
             faceRulesTable.setRowSelectionInterval(last, last);
