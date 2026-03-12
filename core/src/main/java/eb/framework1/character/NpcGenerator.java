@@ -116,8 +116,8 @@ public class NpcGenerator {
      *                  {@code null} disables rule-based face generation
      */
     public NpcGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
-        this.charGen = new CharacterGenerator(nameGen, random, faceRules);
         Random r = random != null ? random : new Random();
+        this.charGen = new CharacterGenerator(nameGen, r, faceRules);
         this.random  = r;
     }
 

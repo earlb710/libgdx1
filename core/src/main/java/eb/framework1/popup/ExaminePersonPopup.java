@@ -2,6 +2,7 @@ package eb.framework1.popup;
 
 import eb.framework1.character.NpcCharacter;
 import eb.framework1.character.PersonDescriptionEngine;
+import eb.framework1.ui.FacePortraitPainter;
 import eb.framework1.ui.WordWrapper;
 import eb.framework1.ui.InfoPanelRenderer;
 import eb.framework1.ui.TextMeasurer;
@@ -9,6 +10,7 @@ import eb.framework1.ui.TextMeasurer;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -54,11 +56,13 @@ public class ExaminePersonPopup {
     // Rendering resources
     // -------------------------------------------------------------------------
 
-    private final SpriteBatch   batch;
-    private final ShapeRenderer sr;
-    private final BitmapFont    font;
-    private final BitmapFont    smallFont;
-    private final GlyphLayout   glyph;
+    private final SpriteBatch       batch;
+    private final ShapeRenderer     sr;
+    private final BitmapFont        font;
+    private final BitmapFont        smallFont;
+    private final GlyphLayout       glyph;
+    /** Optional face portrait painter; {@code null} → no portrait displayed. */
+    private final FacePortraitPainter portraitPainter;
 
     // -------------------------------------------------------------------------
     // State
@@ -78,11 +82,18 @@ public class ExaminePersonPopup {
 
     public ExaminePersonPopup(SpriteBatch batch, ShapeRenderer sr,
                                BitmapFont font, BitmapFont smallFont, GlyphLayout glyph) {
-        this.batch     = batch;
-        this.sr        = sr;
-        this.font      = font;
-        this.smallFont = smallFont;
-        this.glyph     = glyph;
+        this(batch, sr, font, smallFont, glyph, null);
+    }
+
+    public ExaminePersonPopup(SpriteBatch batch, ShapeRenderer sr,
+                               BitmapFont font, BitmapFont smallFont, GlyphLayout glyph,
+                               FacePortraitPainter portraitPainter) {
+        this.batch          = batch;
+        this.sr             = sr;
+        this.font           = font;
+        this.smallFont      = smallFont;
+        this.glyph          = glyph;
+        this.portraitPainter = portraitPainter;
     }
 
     // -------------------------------------------------------------------------
@@ -143,6 +154,10 @@ public class ExaminePersonPopup {
         final float BTN_PAD_H = 28f;
         final float BTN_PAD_V = 10f;
 
+        // Portrait dimensions (shown when a painter is available)
+        final float PORTRAIT_DISPLAY_W = 60f;
+        final float PORTRAIT_DISPLAY_H = 90f;
+
         // ── Font metrics ──────────────────────────────────────────────────────
         glyph.setText(font, "Hg");
         float fontCapH  = glyph.height;
@@ -171,10 +186,15 @@ public class ExaminePersonPopup {
         float cBtnW = closeBounds.width;
         float cBtnH = closeBounds.height;
 
+        // Include portrait height in dialog size when portrait is available
+        boolean hasPortrait = portraitPainter != null && npc.getFaceConfig() != null;
+        float portraitBlockH = hasPortrait ? PORTRAIT_DISPLAY_H + GAP : 0f;
+
         float descH = descLines.size() * smallLineH;
         float dialogH = PAD
                 + fontLineH            // title
-                + GAP + descH          // description lines
+                + GAP + portraitBlockH // portrait (optional)
+                + descH                // description lines
                 + GAP + cBtnH          // Close button
                 + PAD;
 
@@ -203,6 +223,18 @@ public class ExaminePersonPopup {
         sr.rect(closeBtnX + 1, closeBtnY + 1, closeBtnW - 2, closeBtnH - 2);
         sr.end();
 
+        // ── Portrait (drawn before SpriteBatch text) ──────────────────────────
+        if (hasPortrait) {
+            Texture portrait = portraitPainter.getPortrait(npc.getId(), npc.getFaceConfig());
+            if (portrait != null) {
+                float portraitX = dialogX + (dialogW - PORTRAIT_DISPLAY_W) / 2f;
+                float portraitY = dialogY + dialogH - PAD - fontLineH - GAP - PORTRAIT_DISPLAY_H;
+                batch.begin();
+                batch.draw(portrait, portraitX, portraitY, PORTRAIT_DISPLAY_W, PORTRAIT_DISPLAY_H);
+                batch.end();
+            }
+        }
+
         // ── SpriteBatch: text ─────────────────────────────────────────────────
         batch.begin();
 
@@ -218,9 +250,9 @@ public class ExaminePersonPopup {
         float textAreaBottom = closeBtnY_ + cBtnH + GAP;
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor((int) dialogX, (int) textAreaBottom,
-                         (int) dialogW, (int)(dialogH - PAD - fontLineH - GAP));
+                         (int) dialogW, (int)(dialogH - PAD - fontLineH - GAP - portraitBlockH));
 
-        float ty = dialogY + dialogH - PAD - fontLineH - GAP;
+        float ty = dialogY + dialogH - PAD - fontLineH - GAP - portraitBlockH;
         smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
         for (String line : descLines) {
             smallFont.draw(batch, line, dialogX + PAD, ty);

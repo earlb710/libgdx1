@@ -152,9 +152,7 @@ public class InfoPanelRenderer {
             eyeIconTexture.dispose();
             eyeIconTexture = null;
         }
-        if (portraitPainter != null) {
-            portraitPainter.dispose();
-        }
+        // portraitPainter lifecycle is managed externally (by MainScreen)
     }
 
     // -------------------------------------------------------------------------

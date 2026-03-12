@@ -75,6 +75,7 @@ public class MainScreen implements Screen {
     // Rendering helpers
     private MapRenderer       mapRenderer;
     private InfoPanelRenderer infoPanelRenderer;
+    private FacePortraitPainter portraitPainter;
     LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     TirednessPopup    tirednessPopup;
@@ -296,7 +297,6 @@ public class MainScreen implements Screen {
         }
 
         // Create face portrait painter from SVG templates
-        FacePortraitPainter portraitPainter = null;
         try {
             String svgsJson = Gdx.files.internal("face/svgs.json").readString();
             FaceSvgBuilder.SvgTemplateLoader templateLoader = JsonSvgTemplateLoader.fromJson(svgsJson);
@@ -344,7 +344,7 @@ public class MainScreen implements Screen {
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
-        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout, portraitPainter);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -527,6 +527,7 @@ public class MainScreen implements Screen {
         if (shapeRenderer      != null) shapeRenderer.dispose();
         if (mapRenderer        != null) mapRenderer.dispose();
         if (infoPanelRenderer  != null) infoPanelRenderer.dispose();
+        if (portraitPainter    != null) portraitPainter.dispose();
         if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
     }
