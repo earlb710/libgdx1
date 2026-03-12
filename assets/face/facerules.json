@@ -1,6 +1,57 @@
 {
   "rules": [
     {
+      "name": "Clothes",
+      "gender": "",
+      "emotion": "",
+      "minWealth": 0,
+      "minAge": 0,
+      "clothesType": "normal",
+      "percentage": 100,
+      "priority": 0,
+      "include": [
+        "jersey.baseball"
+      ],
+      "additional": [],
+      "exclude": []
+    },
+    {
+      "name": "faceExtraFemale",
+      "gender": "female",
+      "emotion": "normal",
+      "minWealth": 0,
+      "minAge": 0,
+      "clothesType": "",
+      "percentage": 100,
+      "priority": 0,
+      "include": [
+        "miscLine.blush",
+        "miscLine.chin2",
+        "miscLine.forehead1",
+        "miscLine.freckles1"
+      ],
+      "additional": [],
+      "exclude": []
+    },
+    {
+      "name": "faceExtraMale",
+      "gender": "male",
+      "emotion": "normal",
+      "minWealth": 0,
+      "minAge": 0,
+      "clothesType": "",
+      "percentage": 10,
+      "priority": 0,
+      "include": [
+        "miscLine.chin1",
+        "miscLine.chin2",
+        "miscLine.freckles1",
+        "miscLine.freckles2"
+      ],
+      "additional": [],
+      "exclude": []
+    },
+    {
       "name": "Female",
       "gender": "female",
       "emotion": "",
@@ -97,6 +148,45 @@
         "nose.nose9",
         "nose.small"
       ],
+      "additional": [],
+      "exclude": []
+    },
+    {
+      "name": "glassesFemale",
+      "gender": "female",
+      "emotion": "normal",
+      "minWealth": 0,
+      "minAge": 0,
+      "clothesType": "",
+      "percentage": 100,
+      "priority": 0,
+      "include": [
+        "glasses.glasses1-primary",
+        "glasses.glasses1-secondary",
+        "glasses.glasses2-black",
+        "glasses.glasses2-primary",
+        "glasses.glasses2-secondary"
+      ],
+      "additional": [],
+      "exclude": []
+    },
+    {
+      "name": "glassesMale",
+      "gender": "male",
+      "emotion": "normal",
+      "minWealth": 0,
+      "minAge": 0,
+      "clothesType": "",
+      "percentage": 100,
+      "priority": 0,
+      "include": [
+        "glasses.glasses1-primary",
+        "glasses.glasses1-secondary",
+        "glasses.glasses2-black",
+        "glasses.glasses2-primary",
+        "glasses.glasses2-secondary"
+      ],
+      "additional": [],
       "exclude": []
     },
     {
@@ -230,90 +320,72 @@
         "nose.nose9",
         "nose.small"
       ],
+      "additional": [],
       "exclude": []
     },
     {
-      "name": "Clothes",
+      "name": "faceAngry",
       "gender": "",
-      "emotion": "",
-      "minWealth": 0,
-      "minAge": 0,
-      "clothesType": "normal",
-      "percentage": 100,
-      "priority": 0,
-      "include": [
-        "jersey.baseball"
-      ],
-      "exclude": []
-    },
-    {
-      "name": "faceExtraMale",
-      "gender": "male",
-      "emotion": "normal",
-      "minWealth": 0,
-      "minAge": 0,
-      "clothesType": "",
-      "percentage": 10,
-      "priority": 0,
-      "include": [
-        "miscLine.chin1",
-        "miscLine.chin2",
-        "miscLine.freckles1",
-        "miscLine.freckles2"
-      ],
-      "exclude": []
-    },
-    {
-      "name": "faceExtraFemale",
-      "gender": "female",
-      "emotion": "normal",
+      "emotion": "angry",
       "minWealth": 0,
       "minAge": 0,
       "clothesType": "",
       "percentage": 100,
-      "priority": 0,
+      "priority": 1,
       "include": [
-        "miscLine.blush",
-        "miscLine.chin2",
+        "eyeLine.line1",
         "miscLine.forehead1",
-        "miscLine.freckles1"
+        "miscLine.forehead2",
+        "miscLine.forehead3",
+        "miscLine.forehead4",
+        "miscLine.forehead5",
+        "miscLine.none",
+        "mouth.angry",
+        "mouth.closed",
+        "smileLine.line1",
+        "smileLine.line4",
+        "smileLine.none"
       ],
+      "additional": [],
       "exclude": []
     },
     {
-      "name": "glassesMale",
-      "gender": "male",
-      "emotion": "normal",
+      "name": "faceAnxious",
+      "gender": "",
+      "emotion": "anxious",
       "minWealth": 0,
       "minAge": 0,
       "clothesType": "",
       "percentage": 100,
-      "priority": 0,
+      "priority": 1,
       "include": [
-        "glasses.glasses1-primary",
-        "glasses.glasses1-secondary",
-        "glasses.glasses2-black",
-        "glasses.glasses2-primary",
-        "glasses.glasses2-secondary"
+        "eyeLine.line6",
+        "eyeLine.none",
+        "mouth.closed",
+        "mouth.side",
+        "mouth.straight"
       ],
+      "additional": [],
       "exclude": []
     },
     {
-      "name": "glassesFemale",
-      "gender": "female",
-      "emotion": "normal",
+      "name": "faceSad",
+      "gender": "",
+      "emotion": "sad",
       "minWealth": 0,
       "minAge": 0,
       "clothesType": "",
       "percentage": 100,
-      "priority": 0,
+      "priority": 1,
       "include": [
-        "glasses.glasses1-primary",
-        "glasses.glasses1-secondary",
-        "glasses.glasses2-black",
-        "glasses.glasses2-primary",
-        "glasses.glasses2-secondary"
+        "eyeLine.line1",
+        "eyeLine.line4",
+        "eyeLine.none",
+        "mouth.closed",
+        "mouth.mouth",
+        "mouth.straight"
       ],
+      "additional": [],
       "exclude": []
     },
     {
@@ -340,67 +412,25 @@
         "smileLine.line4",
         "smileLine.none"
       ],
+      "additional": [],
       "exclude": []
     },
     {
-      "name": "faceAngry",
+      "name": "Old",
       "gender": "",
-      "emotion": "angry",
+      "emotion": "",
       "minWealth": 0,
-      "minAge": 0,
+      "minAge": 50,
       "clothesType": "",
-      "percentage": 100,
+      "percentage": 80,
       "priority": 1,
-      "include": [
-        "eyeLine.line1",
-        "miscLine.forehead1",
+      "include": [],
+      "additional": [
+        "eyeLine.line2",
+        "miscLine.chin1",
+        "miscLine.chin2",
         "miscLine.forehead2",
-        "miscLine.forehead3",
-        "miscLine.forehead4",
-        "miscLine.forehead5",
-        "miscLine.none",
-        "mouth.angry",
-        "mouth.closed",
-        "smileLine.line1",
-        "smileLine.line4",
-        "smileLine.none"
-      ],
-      "exclude": []
-    },
-    {
-      "name": "faceAnxious",
-      "gender": "",
-      "emotion": "anxious",
-      "minWealth": 0,
-      "minAge": 0,
-      "clothesType": "",
-      "percentage": 100,
-      "priority": 1,
-      "include": [
-        "eyeLine.line6",
-        "eyeLine.none",
-        "mouth.closed",
-        "mouth.side",
-        "mouth.straight"
-      ],
-      "exclude": []
-    },
-    {
-      "name": "faceSad",
-      "gender": "",
-      "emotion": "sad",
-      "minWealth": 0,
-      "minAge": 0,
-      "clothesType": "",
-      "percentage": 100,
-      "priority": 1,
-      "include": [
-        "eyeLine.line1",
-        "eyeLine.line4",
-        "eyeLine.none",
-        "mouth.closed",
-        "mouth.mouth",
-        "mouth.straight"
+        "miscLine.forehead5"
       ],
       "exclude": []
     },
@@ -498,6 +528,7 @@
         "facialHair.wilt-sideburns-long",
         "facialHair.wilt-sideburns-short"
       ],
+      "additional": [],
       "exclude": []
     },
     {
@@ -505,7 +536,7 @@
       "gender": "male",
       "emotion": "",
       "minWealth": 0,
-      "minAge": 0,
+      "minAge": 30,
       "clothesType": "",
       "percentage": 10,
       "priority": 2,
@@ -514,6 +545,7 @@
         "hair.short-bald",
         "hairBg.none"
       ],
+      "additional": [],
       "exclude": []
     }
   ]
