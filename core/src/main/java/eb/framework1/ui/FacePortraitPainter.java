@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 public final class FacePortraitPainter {
 
     /** Portrait output width in pixels. */
-    public static final int PORTRAIT_W = 100;
+    public static final int PORTRAIT_W = 180;
     /** Portrait output height in pixels. */
-    public static final int PORTRAIT_H = 150;
+    public static final int PORTRAIT_H = 270;
 
     /** Face SVG canonical dimensions (400 × 600). */
     private static final float SVG_W = 400f;
@@ -423,6 +423,8 @@ public final class FacePortraitPainter {
 
         float cx = 0, cy = 0; // current point
         float mx = 0, my = 0; // start of current subpath (for Z)
+        float lcpx = 0, lcpy = 0; // last cubic control point (for S command)
+        boolean lastWasCubic = false;
 
         List<Object> tokens = tokenizePath(d);
         int i = 0;
@@ -435,6 +437,7 @@ public final class FacePortraitPainter {
                 char c = (char) (Character) tok;
                 cmd = Character.toUpperCase(c);
                 rel = Character.isLowerCase(c);
+                if (cmd != 'C' && cmd != 'S') lastWasCubic = false;
                 i++;
                 continue;
             }
@@ -449,6 +452,7 @@ public final class FacePortraitPainter {
                     }
                     cx = x; cy = y; mx = x; my = y;
                     current.add(pt(matrix, sx, sy, x, y));
+                    lastWasCubic = false;
                     // Implicit L after M
                     cmd = rel ? 'l' : 'L';
                     rel = (cmd == 'l');
@@ -459,18 +463,21 @@ public final class FacePortraitPainter {
                     float y = nextF(tokens, i) + (rel ? cy : 0); i++;
                     cx = x; cy = y;
                     current.add(pt(matrix, sx, sy, x, y));
+                    lastWasCubic = false;
                     break;
                 }
                 case 'H': {
                     float x = nextF(tokens, i) + (rel ? cx : 0); i++;
                     cx = x;
                     current.add(pt(matrix, sx, sy, cx, cy));
+                    lastWasCubic = false;
                     break;
                 }
                 case 'V': {
                     float y = nextF(tokens, i) + (rel ? cy : 0); i++;
                     cy = y;
                     current.add(pt(matrix, sx, sy, cx, cy));
+                    lastWasCubic = false;
                     break;
                 }
                 case 'C': {
@@ -481,6 +488,22 @@ public final class FacePortraitPainter {
                     float x3 = nextF(tokens, i) + (rel ? cx : 0); i++;
                     float y3 = nextF(tokens, i) + (rel ? cy : 0); i++;
                     flattenCubic(current, matrix, sx, sy, cx, cy, x1, y1, x2, y2, x3, y3, 0);
+                    lcpx = x2; lcpy = y2;
+                    lastWasCubic = true;
+                    cx = x3; cy = y3;
+                    break;
+                }
+                case 'S': {
+                    // Smooth cubic bezier: first control point is reflection of last
+                    float x2 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y2 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    float x3 = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float y3 = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    float x1 = lastWasCubic ? 2 * cx - lcpx : cx;
+                    float y1 = lastWasCubic ? 2 * cy - lcpy : cy;
+                    flattenCubic(current, matrix, sx, sy, cx, cy, x1, y1, x2, y2, x3, y3, 0);
+                    lcpx = x2; lcpy = y2;
+                    lastWasCubic = true;
                     cx = x3; cy = y3;
                     break;
                 }
@@ -496,7 +519,28 @@ public final class FacePortraitPainter {
                     float cx2 = x2 + 2f/3f*(x1 - x2);
                     float cy2 = y2 + 2f/3f*(y1 - y2);
                     flattenCubic(current, matrix, sx, sy, cx, cy, cx1, cy1, cx2, cy2, x2, y2, 0);
+                    lastWasCubic = false;
                     cx = x2; cy = y2;
+                    break;
+                }
+                case 'A': {
+                    // Elliptical arc: convert to cubic bezier curves
+                    float arx  = nextF(tokens, i); i++;
+                    float ary  = nextF(tokens, i); i++;
+                    float xRot = nextF(tokens, i); i++;
+                    float laF  = nextF(tokens, i); i++;
+                    float sweF = nextF(tokens, i); i++;
+                    float ax   = nextF(tokens, i) + (rel ? cx : 0); i++;
+                    float ay   = nextF(tokens, i) + (rel ? cy : 0); i++;
+                    if (arx < 0.01f || ary < 0.01f || (cx == ax && cy == ay)) {
+                        cx = ax; cy = ay;
+                        current.add(pt(matrix, sx, sy, cx, cy));
+                    } else {
+                        arcToBezier(current, matrix, sx, sy, cx, cy, arx, ary,
+                                xRot, (int) laF, (int) sweF, ax, ay);
+                        cx = ax; cy = ay;
+                    }
+                    lastWasCubic = false;
                     break;
                 }
                 case 'Z': {
@@ -506,6 +550,7 @@ public final class FacePortraitPainter {
                         current = new ArrayList<>();
                     }
                     cx = mx; cy = my;
+                    lastWasCubic = false;
                     break;
                 }
                 default:
@@ -725,5 +770,106 @@ public final class FacePortraitPainter {
             case "nose":  return f.nose.flip;
             default:      return false;
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // SVG arc → cubic bezier conversion
+    // -------------------------------------------------------------------------
+
+    /**
+     * Converts an SVG arc segment to one or more cubic bezier curves and
+     * appends the flattened vertices to {@code verts}.
+     *
+     * <p>Implements the endpoint-to-center-parameterization algorithm from the
+     * W3C SVG specification (appendix F.6).
+     */
+    private static void arcToBezier(List<float[]> verts, float[] matrix,
+                                     float sx, float sy,
+                                     float x1, float y1,
+                                     float rx, float ry,
+                                     float xRotDeg, int largeArc, int sweep,
+                                     float x2, float y2) {
+        double phi    = Math.toRadians(xRotDeg);
+        double cosPhi = Math.cos(phi), sinPhi = Math.sin(phi);
+
+        // Step 1 – compute (x1', y1')
+        double dx  = (x1 - x2) / 2.0;
+        double dy  = (y1 - y2) / 2.0;
+        double x1p =  cosPhi * dx + sinPhi * dy;
+        double y1p = -sinPhi * dx + cosPhi * dy;
+
+        // Ensure radii are large enough
+        double rxSq  = (double) rx * rx, rySq = (double) ry * ry;
+        double x1pSq = x1p * x1p,        y1pSq = y1p * y1p;
+        double lambda = x1pSq / rxSq + y1pSq / rySq;
+        if (lambda > 1.0) {
+            double sqL = Math.sqrt(lambda);
+            rx    = (float)(rx * sqL);   ry    = (float)(ry * sqL);
+            rxSq  = (double) rx * rx;    rySq  = (double) ry * ry;
+        }
+
+        // Step 2 – compute (cx', cy')
+        double num = rxSq * rySq - rxSq * y1pSq - rySq * x1pSq;
+        double den = rxSq * y1pSq + rySq * x1pSq;
+        double sq  = (den < 1e-10) ? 0 : Math.sqrt(Math.max(0, num / den));
+        if (largeArc == sweep) sq = -sq;
+        double cxp =  sq * rx * y1p / ry;
+        double cyp = -sq * ry * x1p / rx;
+
+        // Step 3 – compute centre
+        double midX = (x1 + x2) / 2.0, midY = (y1 + y2) / 2.0;
+        double cxc  = cosPhi * cxp - sinPhi * cyp + midX;
+        double cyc  = sinPhi * cxp + cosPhi * cyp + midY;
+
+        // Step 4 – compute angles
+        double ux = (x1p - cxp) / rx, uy = (y1p - cyp) / ry;
+        double vx = -(x1p + cxp) / rx, vy = -(y1p + cyp) / ry;
+        double theta1 = svgAngle(1, 0, ux, uy);
+        double dtheta = svgAngle(ux, uy, vx, vy);
+        if (sweep == 0 && dtheta > 0) dtheta -= 2 * Math.PI;
+        if (sweep == 1 && dtheta < 0) dtheta += 2 * Math.PI;
+
+        // Split into segments of at most π/2 and approximate each with a cubic
+        int    nSegs = Math.max(1, (int) Math.ceil(Math.abs(dtheta) / (Math.PI / 2)));
+        double dSeg  = dtheta / nSegs;
+        double halfD = dSeg / 2.0;
+        double tHalf = Math.tan(halfD);
+        double alpha = (Math.abs(dSeg) > 1e-10)
+                ? Math.sin(dSeg) * (Math.sqrt(4 + 3 * tHalf * tHalf) - 1) / 3
+                : 0;
+
+        double cosT = Math.cos(theta1), sinT = Math.sin(theta1);
+        double pdx   = -rx * cosPhi * sinT - ry * sinPhi * cosT;
+        double pdy   = -rx * sinPhi * sinT + ry * cosPhi * cosT;
+        double px = x1, py = y1;
+
+        for (int seg = 0; seg < nSegs; seg++) {
+            double theta2 = theta1 + dSeg;
+            double cosT2  = Math.cos(theta2), sinT2 = Math.sin(theta2);
+            double qdx    = -rx * cosPhi * sinT2 - ry * sinPhi * cosT2;
+            double qdy    = -rx * sinPhi * sinT2 + ry * cosPhi * cosT2;
+            double qx     = cxc + rx * cosPhi * cosT2 - ry * sinPhi * sinT2;
+            double qy     = cyc + rx * sinPhi * cosT2 + ry * cosPhi * sinT2;
+
+            flattenCubic(verts, matrix, sx, sy,
+                    (float) px,  (float) py,
+                    (float)(px + alpha * pdx), (float)(py + alpha * pdy),
+                    (float)(qx - alpha * qdx), (float)(qy - alpha * qdy),
+                    (float) qx,  (float) qy, 0);
+
+            theta1 = theta2;
+            cosT = cosT2; sinT = sinT2;
+            pdx  = qdx;   pdy  = qdy;
+            px   = qx;    py   = qy;
+        }
+    }
+
+    /** Signed angle (radians) between vectors (ux,uy) and (vx,vy). */
+    private static double svgAngle(double ux, double uy, double vx, double vy) {
+        double dot = ux * vx + uy * vy;
+        double len = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+        if (len < 1e-10) return 0;
+        double a = Math.acos(Math.max(-1.0, Math.min(1.0, dot / len)));
+        return (ux * vy - uy * vx < 0) ? -a : a;
     }
 }
