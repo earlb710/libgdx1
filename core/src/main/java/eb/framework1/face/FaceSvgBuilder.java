@@ -293,7 +293,18 @@ public final class FaceSvgBuilder {
             appendTranslate(t, 200.0 * (1.0 - bodySize), 0);
             appendScale(t, bodySize, 1.0);
         } else if (flip || instanceIdx == 1) {
-            appendScale(t, -scale, scale);
+            if (!hasPosition) {
+                // Non-positioned feature (e.g. hair): mirror around the SVG canvas
+                // centre (x = 200) instead of around x = 0.
+                // SVG applies transforms right-to-left, so writing
+                //   translate(200*(1+scale), 0) scale(−scale, scale)
+                // means scale(−scale, scale) runs first, then the translate.
+                // x' = −scale·x + 200·(1 + scale)
+                appendTranslate(t, 200.0 * (1.0 + scale), 0);
+                appendScale(t, -scale, scale);
+            } else {
+                appendScale(t, -scale, scale);
+            }
         } else if (scale != 1.0) {
             appendScale(t, scale, scale);
         }

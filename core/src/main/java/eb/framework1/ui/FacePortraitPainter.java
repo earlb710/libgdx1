@@ -50,7 +50,7 @@ public final class FacePortraitPainter {
      * rendering. Useful for diagnosing which templates contribute to a
      * portrait. Set to {@code false} in production to avoid log noise.
      */
-    static boolean DEBUG_PARTS = true;
+    static boolean DEBUG_PARTS = false;
 
     // -------------------------------------------------------------------------
     // Feature layout (mirrors FaceSvgBuilder.FEATURE_INFOS)
@@ -286,7 +286,18 @@ public final class FacePortraitPainter {
             m = matMul(m, new float[]{1, 0, 0, 1, (float)(SVG_CX * (1 - bodySize)), 0});
             m = matMul(m, new float[]{(float) bodySize, 0, 0, 1, 0, 0});
         } else if (flip || instanceIdx == 1) {
-            m = matMul(m, new float[]{-(float) size, 0, 0, (float) size, 0, 0});
+            if (!hasPos) {
+                // Non-positioned feature (e.g. hair): mirror around the SVG canvas
+                // centre (x = SVG_CX = 200) instead of around x = 0.
+                // Desired: x' = −size·x + SVG_CX·(1 + size)
+                // Build order (last added = first applied to points):
+                //   (1) translate(SVG_CX*(1+size), 0) — applied last
+                //   (2) scale(−size, size)            — applied first
+                m = matMul(m, new float[]{1f, 0f, 0f, 1f, SVG_CX * (1f + (float) size), 0f});
+                m = matMul(m, new float[]{-(float) size, 0f, 0f, (float) size, 0f, 0f});
+            } else {
+                m = matMul(m, new float[]{-(float) size, 0, 0, (float) size, 0, 0});
+            }
         } else if (size != 1.0) {
             m = matMul(m, new float[]{(float) size, 0, 0, (float) size, 0, 0});
         }
