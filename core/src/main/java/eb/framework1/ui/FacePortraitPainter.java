@@ -310,30 +310,46 @@ public final class FacePortraitPainter {
 
     private static void renderPaths(String tmpl, Map<String, Integer> cssColors,
                                     float[] matrix, float sx, float sy, Pixmap pm) {
+        Map<String, Integer> cssStrokes      = parseCssStrokes(tmpl);
+        Map<String, Float>   cssStrokeWidths = parseCssStrokeWidths(tmpl);
+
         Matcher pm2 = PATH_ELEM_PAT.matcher(tmpl);
         while (pm2.find()) {
             Map<String, String> attrs = extractAttrs(pm2.group(0));
             String dStr = attrs.get("d");
             if (dStr == null || dStr.isEmpty()) continue;
 
-            int fillColor = resolveFillColor(attrs, cssColors);
-            if ((fillColor & 0xFF) == 0) continue; // fully transparent → skip
-
             List<List<float[]>> contours = flattenPathToContours(dStr, matrix, sx, sy);
-            String fillRule = attrs.get("fill-rule");
-            if ("evenodd".equals(fillRule)) {
-                // Evenodd: combine all sub-paths and fill with alternating scan-line pairs.
-                // This correctly punches holes for paths like beards that use two sub-paths
-                // (outer shape + inner cutout) with fill-rule="evenodd".
-                List<List<float[]>> valid = new ArrayList<>();
-                for (List<float[]> c : contours) {
-                    if (c.size() >= 3) valid.add(c);
+
+            // ── Fill ──────────────────────────────────────────────────────────
+            int fillColor = resolveFillColor(attrs, cssColors);
+            if ((fillColor & 0xFF) != 0) {
+                String fillRule = attrs.get("fill-rule");
+                if ("evenodd".equals(fillRule)) {
+                    List<List<float[]>> valid = new ArrayList<>();
+                    for (List<float[]> c : contours) {
+                        if (c.size() >= 3) valid.add(c);
+                    }
+                    if (!valid.isEmpty()) fillPolygonEvenOdd(pm, valid, fillColor);
+                } else {
+                    for (List<float[]> contour : contours) {
+                        if (contour.size() >= 3) {
+                            fillPolygon(pm, contour, fillColor);
+                        }
+                    }
                 }
-                if (!valid.isEmpty()) fillPolygonEvenOdd(pm, valid, fillColor);
-            } else {
+            }
+
+            // ── Stroke ────────────────────────────────────────────────────────
+            int strokeColor = resolveStrokeColor(attrs, cssStrokes);
+            if ((strokeColor & 0xFF) != 0) {
+                float swSvg = resolveStrokeWidth(attrs, cssStrokeWidths);
+                // Convert stroke-width from SVG units to portrait pixels (use
+                // the horizontal scale factor; clamp to 1–8 px for readability).
+                float swPx = Math.max(1f, Math.min(8f, swSvg * sx));
                 for (List<float[]> contour : contours) {
-                    if (contour.size() >= 3) {
-                        fillPolygon(pm, contour, fillColor);
+                    if (contour.size() >= 2) {
+                        drawStroke(pm, contour, strokeColor, swPx);
                     }
                 }
             }
@@ -387,6 +403,10 @@ public final class FacePortraitPainter {
             Pattern.compile("\\.([\\w-]+)\\s*\\{([^}]*)\\}", Pattern.DOTALL);
     private static final Pattern CSS_FILL_PAT =
             Pattern.compile("\\bfill\\s*:\\s*([^;},]+)");
+    private static final Pattern CSS_STROKE_PAT =
+            Pattern.compile("\\bstroke\\s*:\\s*([^;},]+)");
+    private static final Pattern CSS_STROKE_W_PAT =
+            Pattern.compile("\\bstroke-width\\s*:\\s*([\\d.]+)");
 
     private static Map<String, Integer> parseCssColors(String svg) {
         Map<String, Integer> map = new HashMap<>();
@@ -406,6 +426,123 @@ public final class FacePortraitPainter {
             }
         }
         return map;
+    }
+
+    /**
+     * Parses the {@code <style>} block for per-class stroke colour values.
+     * Keys are CSS class names (without leading {@code .}).
+     * A value of 0 means {@code stroke:none}.
+     */
+    private static Map<String, Integer> parseCssStrokes(String svg) {
+        Map<String, Integer> map = new HashMap<>();
+        Matcher rm = CSS_RULE_PAT.matcher(svg);
+        while (rm.find()) {
+            String cls   = rm.group(1);
+            String rules = rm.group(2);
+            Matcher sm   = CSS_STROKE_PAT.matcher(rules);
+            if (sm.find()) {
+                String c = sm.group(1).trim();
+                if ("none".equals(c)) {
+                    map.put(cls, 0);
+                } else if (!c.isEmpty()) {
+                    int color = parseCssColor(c);
+                    map.put(cls, color);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Parses the {@code <style>} block for per-class stroke-width values.
+     * Returns a map of class name → stroke-width (in SVG units, &gt; 0).
+     */
+    private static Map<String, Float> parseCssStrokeWidths(String svg) {
+        Map<String, Float> map = new HashMap<>();
+        Matcher rm = CSS_RULE_PAT.matcher(svg);
+        while (rm.find()) {
+            String cls   = rm.group(1);
+            String rules = rm.group(2);
+            Matcher wm   = CSS_STROKE_W_PAT.matcher(rules);
+            if (wm.find()) {
+                try {
+                    map.put(cls, Float.parseFloat(wm.group(1).trim()));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Resolves the effective stroke colour for a {@code <path>} element.
+     *
+     * <p>Priority order (matching browsers):
+     * inline {@code stroke=} attribute &gt; inline {@code style=} stroke &gt;
+     * CSS class stroke &gt; SVG default (transparent/none).
+     *
+     * @return RGBA8888 colour int, or 0 if stroke is {@code none} / absent.
+     */
+    private static int resolveStrokeColor(Map<String, String> attrs,
+                                          Map<String, Integer> cssStrokes) {
+        String stroke = attrs.get("stroke");
+        String clazz  = attrs.get("class");
+        String style  = attrs.get("style");
+        // Inline stroke attribute
+        if (stroke != null && !stroke.isEmpty()) {
+            if ("none".equals(stroke)) return 0;
+            int c = parseCssColor(stroke.trim());
+            if (c != 0) return c;
+        }
+        // Inline style attribute
+        if (style != null && !style.isEmpty()) {
+            java.util.regex.Matcher sm = CSS_STROKE_PAT.matcher(style);
+            if (sm.find()) {
+                String c = sm.group(1).trim();
+                if ("none".equals(c)) return 0;
+                int col = parseCssColor(c);
+                if (col != 0) return col;
+            }
+        }
+        // CSS class
+        if (clazz != null) {
+            for (String cls : clazz.split("\\s+")) {
+                Integer c = cssStrokes.get(cls.trim());
+                if (c != null) return c;
+            }
+        }
+        return 0; // SVG default: no stroke
+    }
+
+    /**
+     * Resolves the effective stroke-width (in SVG units) for a {@code <path>}.
+     * Falls back to 1.0 if none specified but a visible stroke color is present.
+     */
+    private static float resolveStrokeWidth(Map<String, String> attrs,
+                                            Map<String, Float> cssStrokeWidths) {
+        String sw    = attrs.get("stroke-width");
+        String clazz = attrs.get("class");
+        String style = attrs.get("style");
+        // Inline attribute
+        if (sw != null && !sw.isEmpty()) {
+            try { return Float.parseFloat(sw.trim().replaceAll("[^0-9.]", "")); }
+            catch (NumberFormatException ignored) {}
+        }
+        // Inline style attribute
+        if (style != null && !style.isEmpty()) {
+            java.util.regex.Matcher wm = CSS_STROKE_W_PAT.matcher(style);
+            if (wm.find()) {
+                try { return Float.parseFloat(wm.group(1).trim()); }
+                catch (NumberFormatException ignored) {}
+            }
+        }
+        // CSS class
+        if (clazz != null) {
+            for (String cls : clazz.split("\\s+")) {
+                Float w = cssStrokeWidths.get(cls.trim());
+                if (w != null) return w;
+            }
+        }
+        return 1.0f;
     }
 
     /** Parses a CSS/SVG colour string to an RGBA8888 int (0 = transparent/unknown). */
@@ -747,6 +884,39 @@ public final class FacePortraitPainter {
     }
 
     // -------------------------------------------------------------------------
+    // Stroke rendering (thick polyline via perpendicular rectangles)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Draws each segment of {@code contour} as a filled rectangle perpendicular
+     * to the segment direction, producing a thick-line stroke effect.
+     *
+     * <p>This implements the most common SVG stroke cases (solid colour, round
+     * or square line-join/cap are approximated).  {@code strokeWidthPx} is the
+     * half-width in portrait-pixel space.
+     */
+    private static void drawStroke(Pixmap pm, List<float[]> contour,
+                                   int rgba, float strokeWidthPx) {
+        float half = strokeWidthPx / 2f;
+        int   n    = contour.size();
+        for (int i = 0; i < n - 1; i++) {
+            float[] a = contour.get(i), b = contour.get(i + 1);
+            float dx = b[0] - a[0], dy = b[1] - a[1];
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len < 0.01f) continue;
+            float nx = -dy / len * half;
+            float ny =  dx / len * half;
+            // Four corners of the thick-line rectangle
+            List<float[]> rect = new ArrayList<>(4);
+            rect.add(new float[]{a[0] + nx, a[1] + ny});
+            rect.add(new float[]{a[0] - nx, a[1] - ny});
+            rect.add(new float[]{b[0] - nx, b[1] - ny});
+            rect.add(new float[]{b[0] + nx, b[1] + ny});
+            fillPolygon(pm, rect, rgba);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // SVG path tokeniser
     // -------------------------------------------------------------------------
 
@@ -762,7 +932,16 @@ public final class FacePortraitPainter {
             } else {
                 int start = i;
                 if (c == '-' || c == '+') i++;
-                while (i < n && (Character.isDigit(d.charAt(i)) || d.charAt(i) == '.')) i++;
+                // Integer part
+                while (i < n && Character.isDigit(d.charAt(i))) i++;
+                // Fractional part — consume at most ONE decimal point so that
+                // concatenated numbers like "1.6.3" are split into "1.6" and ".3"
+                // rather than being swallowed as one unparseable token.
+                if (i < n && d.charAt(i) == '.') {
+                    i++;
+                    while (i < n && Character.isDigit(d.charAt(i))) i++;
+                }
+                // Exponent part
                 if (i < n && (d.charAt(i) == 'e' || d.charAt(i) == 'E')) {
                     i++;
                     if (i < n && (d.charAt(i) == '+' || d.charAt(i) == '-')) i++;

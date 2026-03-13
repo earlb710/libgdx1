@@ -206,7 +206,7 @@ public class ExaminePersonPopup {
         FaceConfig effectiveFace = npc.getFaceConfig();
         if (effectiveFace == null && portraitPainter != null) {
             effectiveFace = fallbackFaces.computeIfAbsent(npc.getId(), id -> {
-                long seed = (long) id.hashCode() * FACE_SEED_MUL ^ npc.getAge();
+                long seed = ((long) id.hashCode() * FACE_SEED_MUL) ^ npc.getAge();
                 FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
                 String normGender = "F".equals(npc.getGender()) ? "female" : "male";
                 return gen.generate(new FaceGenerator.Options().gender(normGender));
