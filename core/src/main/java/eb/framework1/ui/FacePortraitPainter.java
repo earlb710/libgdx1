@@ -149,7 +149,7 @@ public final class FacePortraitPainter {
 
     private Texture buildTexture(FaceConfig face) {
         Pixmap pm = new Pixmap(PORTRAIT_W, PORTRAIT_H, Pixmap.Format.RGBA8888);
-        pm.setColor(0f, 0f, 0f, 0f);
+        pm.setColor(1f, 1f, 1f, 1f); // white background
         pm.fill();
         renderFace(face, pm);
         Texture tex = new Texture(pm);
@@ -320,9 +320,21 @@ public final class FacePortraitPainter {
             if ((fillColor & 0xFF) == 0) continue; // fully transparent → skip
 
             List<List<float[]>> contours = flattenPathToContours(dStr, matrix, sx, sy);
-            for (List<float[]> contour : contours) {
-                if (contour.size() >= 3) {
-                    fillPolygon(pm, contour, fillColor);
+            String fillRule = attrs.get("fill-rule");
+            if ("evenodd".equals(fillRule)) {
+                // Evenodd: combine all sub-paths and fill with alternating scan-line pairs.
+                // This correctly punches holes for paths like beards that use two sub-paths
+                // (outer shape + inner cutout) with fill-rule="evenodd".
+                List<List<float[]>> valid = new ArrayList<>();
+                for (List<float[]> c : contours) {
+                    if (c.size() >= 3) valid.add(c);
+                }
+                if (!valid.isEmpty()) fillPolygonEvenOdd(pm, valid, fillColor);
+            } else {
+                for (List<float[]> contour : contours) {
+                    if (contour.size() >= 3) {
+                        fillPolygon(pm, contour, fillColor);
+                    }
                 }
             }
         }
@@ -339,10 +351,22 @@ public final class FacePortraitPainter {
                                         Map<String, Integer> css) {
         String fill  = attrs.get("fill");
         String clazz = attrs.get("class");
+        String style = attrs.get("style");
         // Inline fill attribute takes highest priority
         if (fill != null && !fill.isEmpty()) {
             if ("none".equals(fill)) return 0;
             return parseCssColor(fill.trim());
+        }
+        // Inline style attribute: parse fill: ... declarations
+        if (style != null && !style.isEmpty()) {
+            java.util.regex.Matcher sm = Pattern.compile(
+                    "\\bfill\\s*:\\s*([^;,}]+)").matcher(style);
+            if (sm.find()) {
+                String c = sm.group(1).trim();
+                if ("none".equals(c)) return 0;
+                int color = parseCssColor(c);
+                if (color != 0) return color;
+            }
         }
         // CSS class fill (includes explicit fill:none stored as 0)
         if (clazz != null) {
@@ -672,6 +696,56 @@ public final class FacePortraitPainter {
         }
     }
 
+    /**
+     * Fills multiple sub-path contours using the SVG even-odd fill rule.
+     * All contours are processed together: for each scan-line the intersections
+     * from every contour are merged, sorted, and filled between alternating pairs
+     * (0→1 fill, 1→2 skip, 2→3 fill, …).  This correctly creates "holes" where
+     * inner contours overlap the outer contour, as required by paths with
+     * {@code fill-rule="evenodd"} (e.g. beards, goatees).
+     */
+    private static void fillPolygonEvenOdd(Pixmap pm,
+                                           List<List<float[]>> contours,
+                                           int rgba) {
+        int W = pm.getWidth(), H = pm.getHeight();
+        float minY = Float.MAX_VALUE, maxY = Float.NEGATIVE_INFINITY;
+        for (List<float[]> c : contours) {
+            for (float[] v : c) {
+                if (v[1] < minY) minY = v[1];
+                if (v[1] > maxY) maxY = v[1];
+            }
+        }
+        int y0 = Math.max(0, (int) Math.floor(minY));
+        int y1 = Math.min(H - 1, (int) Math.ceil(maxY));
+
+        int r = (rgba >> 24) & 0xFF, g = (rgba >> 16) & 0xFF,
+            b = (rgba >> 8) & 0xFF,  a = rgba & 0xFF;
+        pm.setColor(r / 255f, g / 255f, b / 255f, a / 255f);
+
+        List<Float> xs = new ArrayList<>();
+        for (int y = y0; y <= y1; y++) {
+            float fy = y + 0.5f;
+            xs.clear();
+            for (List<float[]> contour : contours) {
+                int n = contour.size();
+                for (int i = 0; i < n; i++) {
+                    float[] va = contour.get(i), vb = contour.get((i + 1) % n);
+                    float ay = va[1], by = vb[1];
+                    if ((ay <= fy && by > fy) || (by <= fy && ay > fy)) {
+                        xs.add(va[0] + (fy - ay) / (by - ay) * (vb[0] - va[0]));
+                    }
+                }
+            }
+            if (xs.size() < 2) continue;
+            Collections.sort(xs);
+            for (int ci = 0; ci + 1 < xs.size(); ci += 2) {
+                int x0i = Math.max(0, (int) Math.ceil(xs.get(ci)));
+                int x1i = Math.min(W - 1, (int) Math.floor(xs.get(ci + 1)));
+                for (int x = x0i; x <= x1i; x++) pm.drawPixel(x, y);
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // SVG path tokeniser
     // -------------------------------------------------------------------------
@@ -740,6 +814,13 @@ public final class FacePortraitPainter {
                 face.teamColors.length > 1 ? face.teamColors[1] : "#7a1319");
         tmpl = tmpl.replace("$[accent]",
                 face.teamColors.length > 2 ? face.teamColors[2] : "#07364f");
+
+        // If the template uses the shp0 class but has no <style> block defining it,
+        // inject a style that maps shp0 → hairColor. This handles facialHair (beard,
+        // goatee, etc.) templates that use shp0 as a placeholder for the hair colour.
+        if (tmpl.contains("shp0") && !tmpl.toLowerCase().contains("<style")) {
+            tmpl = "<style>.shp0{fill:" + face.hair.color + ";}</style>\n" + tmpl;
+        }
         return tmpl;
     }
 
