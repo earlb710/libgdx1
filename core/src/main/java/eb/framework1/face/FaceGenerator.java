@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -581,6 +582,13 @@ public final class FaceGenerator {
                 }
             }
 
+            // ── Debug: log which rule fired ───────────────────────────────────
+            System.err.printf(Locale.US,
+                    "[FaceGenerator] rule fired: \"%s\" (priority=%d, gender=\"%s\", minAge=%d)"
+                    + " include=%d additional=%d exclude=%d%n",
+                    rule.name, rule.priority, rule.gender, rule.minAge,
+                    rule.include.size(), rule.additional.size(), rule.exclude.size());
+
             // ── Apply include (unique per type) ───────────────────────────────
             // Group include entries by feature type and replace any previous list
             Map<String, List<String>> ruleIncludes = new HashMap<>();
@@ -638,6 +646,12 @@ public final class FaceGenerator {
                 result.put(featureType, Collections.unmodifiableList(
                         new ArrayList<>(eligible)));
             }
+        }
+
+        // ── Debug: log final eligible pool per feature type ──────────────────
+        for (Map.Entry<String, List<String>> e : result.entrySet()) {
+            System.err.printf(Locale.US, "[FaceGenerator] pool: %s → %s%n",
+                    e.getKey(), e.getValue());
         }
 
         return Collections.unmodifiableMap(result);
