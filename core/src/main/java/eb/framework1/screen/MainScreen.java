@@ -272,7 +272,8 @@ public class MainScreen implements Screen {
                 } catch (Exception e) {
                     Gdx.app.log("MainScreen", "Could not load facerules.json: " + e.getMessage());
                 }
-                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31), faceRules);
+                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31),
+                        faceRules, gameData.getSkinToneCategories());
                 for (int i = 0; i < 20; i++) {
                     NpcCharacter npc = npcGen.generateWorldNpc(cityMap);
                     profile.addWorldNpc(npc);

@@ -143,6 +143,7 @@ public final class FaceSvgBuilder {
 
         double bodySize = face.body.size;
         double fatness  = face.fatness;
+        double fs       = fatScale(fatness);   // 0.8 – 1.0
 
         StringBuilder sb = new StringBuilder(8192);
         sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\"")
@@ -151,10 +152,17 @@ public final class FaceSvgBuilder {
           .append(" viewBox=\"0 0 400 600\"")
           .append(" preserveAspectRatio=\"xMinYMin meet\">\n");
 
+        // Wrap ALL features in a single group that applies the global fatness
+        // transform, centred at x=200 so that the face stays horizontally centred
+        // regardless of how wide or narrow the fatness makes it.
+        // x' = (x - 200) * fs + 200 = translate(200,0) scale(fs,1) translate(-200,0)
+        sb.append("<g transform=\"translate(200,0) scale(").append(fs).append(",1) translate(-200,0)\">\n");
+
         for (FeatureInfo info : FEATURE_INFOS) {
             drawFeature(sb, face, info, bodySize, fatness);
         }
 
+        sb.append("</g>\n");
         sb.append("</svg>");
         return sb.toString();
     }
@@ -286,11 +294,7 @@ public final class FaceSvgBuilder {
             appendScale(t, scale, scale);
         }
 
-        // --- Fatness scaling for scaleFatness features without position ---
-        if (info.scaleFatness && !hasPosition) {
-            double fs = fatScale(fatness);
-            appendScale(t, fs, 1.0);
-        }
+        // --- Fatness scaling: now applied globally in toSvgString(); no per-feature scale needed ---
 
         // --- Bbox-centre offset (mirrors getBBox() centring from facesjs) ---
         // Appending translate(-cx, -cy) ensures the feature's geometric centre

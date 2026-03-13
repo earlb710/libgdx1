@@ -102,10 +102,12 @@ public class CharacterGenerator {
     private static final float BMI_MIN = 17f;
     private static final float BMI_MAX = 34f;
 
-    private final PersonNameGenerator nameGen;
-    private final Random              random;
-    private final FaceGenerator       faceGen;
-    private final List<FaceRule>      faceRules;
+    private final PersonNameGenerator   nameGen;
+    private final Random                random;
+    private final FaceGenerator         faceGen;
+    private final List<FaceRule>        faceRules;
+    /** Skin-tone definitions used for weighted random assignment; may be empty. */
+    private final List<SkinToneDefinition> skinTones;
 
     // Counter used to produce unique NPC ids within a single generator instance.
     private int npcCounter = 0;
@@ -121,7 +123,7 @@ public class CharacterGenerator {
      *                {@code null}
      */
     public CharacterGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random(), null);
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -133,7 +135,7 @@ public class CharacterGenerator {
      *                default {@code new Random()}
      */
     public CharacterGenerator(PersonNameGenerator nameGen, Random random) {
-        this(nameGen, random, null);
+        this(nameGen, random, null, null);
     }
 
     /**
@@ -145,13 +147,29 @@ public class CharacterGenerator {
      *                  {@code null} or empty disables rule-based face generation
      */
     public CharacterGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
+        this(nameGen, random, faceRules, null);
+    }
+
+    /**
+     * Creates a generator with face rules and weighted skin-tone definitions.
+     *
+     * @param nameGen    name generator; must not be {@code null}
+     * @param random     random-number source; {@code null} → {@code new Random()}
+     * @param faceRules  parsed face rules; {@code null} or empty → no rules
+     * @param skinTones  skin-tone definitions with percentage weights;
+     *                   {@code null} or empty → no skin-tone assignment
+     */
+    public CharacterGenerator(PersonNameGenerator nameGen, Random random,
+                               List<FaceRule> faceRules,
+                               List<SkinToneDefinition> skinTones) {
         if (nameGen == null) {
             throw new IllegalArgumentException("nameGen must not be null");
         }
-        this.nameGen   = nameGen;
-        this.random    = random != null ? random : new Random();
-        this.faceGen   = new FaceGenerator(this.random);
-        this.faceRules = (faceRules != null) ? faceRules : Collections.emptyList();
+        this.nameGen    = nameGen;
+        this.random     = random != null ? random : new Random();
+        this.faceGen    = new FaceGenerator(this.random);
+        this.faceRules  = (faceRules  != null) ? faceRules  : Collections.emptyList();
+        this.skinTones  = (skinTones  != null) ? skinTones  : Collections.emptyList();
     }
 
     // -------------------------------------------------------------------------
@@ -304,9 +322,36 @@ public class CharacterGenerator {
         } else {
             face = faceGen.generate(faceOpts);
         }
-        b.faceConfig(face);
 
+        // Assign a skin tone based on weighted random selection.
+        if (!skinTones.isEmpty()) {
+            SkinToneDefinition chosen = pickWeightedSkinTone();
+            if (chosen != null) {
+                face = face.withSkinColor(chosen.getRgb());
+                b.skinToneCode(chosen.getCode());
+            }
+        }
+
+        b.faceConfig(face);
         return b;
+    }
+
+    /**
+     * Picks a skin tone using weighted random selection based on each
+     * definition's {@code percentage} value.  Returns {@code null} if the
+     * list is empty or all weights are zero.
+     */
+    private SkinToneDefinition pickWeightedSkinTone() {
+        int total = 0;
+        for (SkinToneDefinition st : skinTones) total += Math.max(0, st.getPercentage());
+        if (total <= 0) return null;
+        int roll = random.nextInt(total);
+        int cum  = 0;
+        for (SkinToneDefinition st : skinTones) {
+            cum += Math.max(0, st.getPercentage());
+            if (roll < cum) return st;
+        }
+        return skinTones.get(skinTones.size() - 1);
     }
 
     /** Convenience overload using {@link PersonalityProfile#DEFAULT}. */

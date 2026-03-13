@@ -163,6 +163,12 @@ public final class NpcCharacter {
     private final FaceConfig faceConfig;
 
     /**
+     * Skin-tone category code for this NPC (e.g. {@code "fair_light"}).
+     * May be {@code null} for NPCs created before skin-tone assignment was added.
+     */
+    private final String skinToneCode;
+
+    /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
      * gameplay without rebuilding the NPC object.
@@ -208,6 +214,7 @@ public final class NpcCharacter {
                 new ArrayList<>(b.carriedItems));
         this.visionTrait          = b.visionTrait;
         this.faceConfig           = b.faceConfig;
+        this.skinToneCode         = b.skinToneCode;
     }
 
     // -------------------------------------------------------------------------
@@ -447,6 +454,12 @@ public final class NpcCharacter {
      */
     public FaceConfig getFaceConfig() { return faceConfig; }
 
+    /**
+     * Returns the skin-tone category code assigned to this NPC (e.g.
+     * {@code "fair_light"}), or {@code null} if no skin tone was assigned.
+     */
+    public String getSkinToneCode() { return skinToneCode; }
+
     // -------------------------------------------------------------------------
     // Convenience — current map position (derived from schedule)
     // -------------------------------------------------------------------------
@@ -591,7 +604,8 @@ public final class NpcCharacter {
         private VisionTrait visionTrait = VisionTrait.NONE;
 
         // Face configuration
-        private FaceConfig faceConfig = null;
+        private FaceConfig faceConfig   = null;
+        private String     skinToneCode = null;
 
         /**
          * Sets the mandatory unique identifier.
@@ -932,6 +946,16 @@ public final class NpcCharacter {
          */
         public Builder faceConfig(FaceConfig faceConfig) {
             this.faceConfig = faceConfig;
+            return this;
+        }
+
+        /**
+         * Sets the skin-tone category code for this NPC.
+         *
+         * @param skinToneCode code matching a {@link SkinToneDefinition}, or {@code null}
+         */
+        public Builder skinToneCode(String skinToneCode) {
+            this.skinToneCode = skinToneCode;
             return this;
         }
 

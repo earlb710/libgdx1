@@ -559,6 +559,8 @@ public class SaveGameManager {
         public String visionTrait;
         // Face configuration (added later; null in older saves → no face)
         public FaceConfigData faceConfig;
+        // Skin tone code (added later; null in older saves → not set)
+        public String skinToneCode;
     }
 
     /**
@@ -671,6 +673,7 @@ public class SaveGameManager {
             d.carriedItems.add(itemData);
         }
         d.visionTrait   = npc.getVisionTrait().name();
+        d.skinToneCode  = npc.getSkinToneCode();
         if (npc.getFaceConfig() != null) {
             d.faceConfig = toFaceConfigData(npc.getFaceConfig());
         }
@@ -823,6 +826,7 @@ public class SaveGameManager {
             FaceConfig fc = fromFaceConfigData(d.faceConfig);
             if (fc != null) b.faceConfig(fc);
         }
+        if (d.skinToneCode != null) b.skinToneCode(d.skinToneCode);
         return b.build();
     }
 }

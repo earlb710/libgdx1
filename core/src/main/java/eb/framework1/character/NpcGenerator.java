@@ -93,7 +93,7 @@ public class NpcGenerator {
      * @param nameGen name generator used to produce NPC names; must not be {@code null}
      */
     public NpcGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random(), null);
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -104,7 +104,7 @@ public class NpcGenerator {
      * @param random  random source; {@code null} is replaced by {@code new Random()}
      */
     public NpcGenerator(PersonNameGenerator nameGen, Random random) {
-        this(nameGen, random, null);
+        this(nameGen, random, null, null);
     }
 
     /**
@@ -116,8 +116,21 @@ public class NpcGenerator {
      *                  {@code null} disables rule-based face generation
      */
     public NpcGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
+        this(nameGen, random, faceRules, null);
+    }
+
+    /**
+     * Creates a generator with face rules and weighted skin-tone definitions.
+     *
+     * @param nameGen   name generator; must not be {@code null}
+     * @param random    random source; {@code null} → {@code new Random()}
+     * @param faceRules parsed face rules; {@code null} → none
+     * @param skinTones skin-tone definitions with percentage weights; {@code null} → none
+     */
+    public NpcGenerator(PersonNameGenerator nameGen, Random random,
+                        List<FaceRule> faceRules, List<SkinToneDefinition> skinTones) {
         Random r = random != null ? random : new Random();
-        this.charGen = new CharacterGenerator(nameGen, r, faceRules);
+        this.charGen = new CharacterGenerator(nameGen, r, faceRules, skinTones);
         this.random  = r;
     }
 

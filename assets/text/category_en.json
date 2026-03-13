@@ -233,32 +233,38 @@
     {
       "code": "porcelain_very_fair",
       "name": "Porcelain / Very Fair",
-      "rgb": "#FFE5D9"
+      "rgb": "#FFE5D9",
+      "percentage": 15
     },
     {
       "code": "fair_light",
       "name": "Fair / Light",
-      "rgb": "#F5D0C5"
+      "rgb": "#F5D0C5",
+      "percentage": 20
     },
     {
       "code": "light_medium",
       "name": "Light Medium",
-      "rgb": "#EBC4AF"
+      "rgb": "#EBC4AF",
+      "percentage": 20
     },
     {
       "code": "medium_olive",
       "name": "Medium / Olive",
-      "rgb": "#D4A574"
+      "rgb": "#D4A574",
+      "percentage": 20
     },
     {
       "code": "medium_brown",
       "name": "Medium Brown",
-      "rgb": "#C68642"
+      "rgb": "#C68642",
+      "percentage": 15
     },
     {
       "code": "dark_brown_deep",
       "name": "Dark Brown / Deep",
-      "rgb": "#8D5524"
+      "rgb": "#8D5524",
+      "percentage": 10
     }
   ]
 }

@@ -74,6 +74,9 @@ public final class FacePortraitPainter {
     };
 
     /** Whether the feature scales with fatness when it has no explicit position. */
+    // Note: fatness is now applied as a global x-centred transform in renderFace()
+    // rather than per-feature, so this array is retained only for documentation.
+    @SuppressWarnings("unused")
     private static final boolean[] FEATURE_SCALE_FATNESS = {
         true,  // hairBg
         false, // body
@@ -154,11 +157,22 @@ public final class FacePortraitPainter {
         return tex;
     }
 
+    /** Face canonical horizontal centre in SVG space (400 px canvas). */
+    private static final float SVG_CX = 200f;
+
     private void renderFace(FaceConfig face, Pixmap pm) {
         float sx = PORTRAIT_W / SVG_W;
         float sy = PORTRAIT_H / SVG_H;
         double bodySize = face.body.size;
         double fatness  = face.fatness;
+
+        // Global fatness transform: scale all x coordinates around the face
+        // centre (SVG_CX = 200) to keep the head and features aligned.
+        // fs = 0.8 + 0.2 * fatness  (range 0.8 – 1.0)
+        // x' = (x - SVG_CX) * fs + SVG_CX  = x*fs + SVG_CX*(1-fs)
+        // As a 2×3 matrix: {fs, 0,  0, 1,  SVG_CX*(1-fs), 0}
+        float fs = (float) (0.8 + 0.2 * fatness);
+        float[] fatMat = {fs, 0f, 0f, 1f, SVG_CX * (1f - fs), 0f};
 
         for (int fi = 0; fi < FEATURE_NAMES.length; fi++) {
             String name = FEATURE_NAMES[fi];
@@ -177,12 +191,11 @@ public final class FacePortraitPainter {
             // Substitute colour placeholders with resolved hex values
             tmpl = applyColors(tmpl, face);
 
-            int[][]  positions    = FEATURE_POSITIONS[fi];
-            boolean  scaleFatness = FEATURE_SCALE_FATNESS[fi];
-            boolean  isBody       = "body".equals(name) || "jersey".equals(name);
-            int      angle        = getAngle(face, name);
-            double   size         = getSize(face, name);
-            boolean  flip         = getFlip(face, name);
+            int[][]  positions = FEATURE_POSITIONS[fi];
+            boolean  isBody    = "body".equals(name) || "jersey".equals(name);
+            int      angle     = getAngle(face, name);
+            double   size      = getSize(face, name);
+            boolean  flip      = getFlip(face, name);
 
             // Bounding-box centre for positioned features
             double[] center = (positions != null) ? FaceSvgBuilder.computeCenter(tmpl) : null;
@@ -192,9 +205,11 @@ public final class FacePortraitPainter {
 
             int posCount = (positions != null) ? positions.length : 1;
             for (int pi = 0; pi < posCount; pi++) {
-                float[] matrix = buildMatrix(
+                float[] featureMat = buildMatrix(
                         positions, pi, isBody, flip, size, angle,
-                        scaleFatness, fatness, bodySize, center, pi);
+                        bodySize, center, pi);
+                // Compose: fatness transform applied after the feature transform
+                float[] matrix = matMul(fatMat, featureMat);
                 renderPaths(tmpl, cssColors, matrix, sx, sy, pm);
             }
         }
@@ -210,11 +225,15 @@ public final class FacePortraitPainter {
      *
      * <p>Storage convention: {@code float[6] = {m00, m10, m01, m11, m02, m12}}
      * where {@code x' = m00·x + m01·y + m02} and {@code y' = m10·x + m11·y + m12}.
+     *
+     * <p>Fatness scaling is NOT applied here; the caller composes a global
+     * fatness matrix afterwards so that ALL features are scaled symmetrically
+     * around {@link #SVG_CX}.
      */
     private static float[] buildMatrix(int[][] positions, int posIdx,
                                        boolean isBody, boolean flip, double size,
-                                       int angle, boolean scaleFatness, double fatness,
-                                       double bodySize, double[] center, int instanceIdx) {
+                                       int angle, double bodySize,
+                                       double[] center, int instanceIdx) {
         float[] m = {1, 0, 0, 1, 0, 0}; // identity
 
         boolean hasPos    = (positions != null);
@@ -253,13 +272,7 @@ public final class FacePortraitPainter {
             m = matMul(m, new float[]{(float) size, 0, 0, (float) size, 0, 0});
         }
 
-        // Step 4: fatness scaling for hair / head / etc. without an explicit position
-        if (scaleFatness && !hasPos) {
-            float fs = (float) (0.8 + 0.2 * fatness);
-            m = matMul(m, new float[]{fs, 0, 0, 1, 0, 0});
-        }
-
-        // Step 5: bbox-centre offset
+        // Step 4: bbox-centre offset
         if (hasPos && center != null) {
             m = matMul(m, new float[]{1, 0, 0, 1, -(float) center[0], -(float) center[1]});
         }
