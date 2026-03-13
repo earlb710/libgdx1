@@ -1,5 +1,6 @@
 package eb.framework1.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import eb.framework1.face.FaceConfig;
@@ -10,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +44,13 @@ public final class FacePortraitPainter {
     private static final int MAX_BEZIER_DEPTH = 8;
     /** Pixel-space flatness tolerance for bezier subdivision. */
     private static final float BEZIER_TOL = 0.5f;
+
+    /**
+     * When {@code true}, logs one line per SVG part used during portrait
+     * rendering. Useful for diagnosing which templates contribute to a
+     * portrait. Set to {@code false} in production to avoid log noise.
+     */
+    static boolean DEBUG_PARTS = true;
 
     // -------------------------------------------------------------------------
     // Feature layout (mirrors FaceSvgBuilder.FEATURE_INFOS)
@@ -191,6 +200,10 @@ public final class FacePortraitPainter {
             // Substitute colour placeholders with resolved hex values
             tmpl = applyColors(tmpl, face);
 
+            // Convert <ellipse> / <circle> to <path> so the scan-line
+            // renderer can handle them (pupils, nostrils, blush ellipses etc.)
+            tmpl = expandShapes(tmpl);
+
             int[][]  positions = FEATURE_POSITIONS[fi];
             boolean  isBody    = "body".equals(name) || "jersey".equals(name);
             int      angle     = getAngle(face, name);
@@ -212,6 +225,8 @@ public final class FacePortraitPainter {
                 float[] matrix = matMul(fatMat, featureMat);
                 renderPaths(tmpl, cssColors, matrix, sx, sy, pm);
             }
+
+            if (DEBUG_PARTS) Gdx.app.log("FacePortrait", name + ": " + id);
         }
     }
 
@@ -914,6 +929,103 @@ public final class FacePortraitPainter {
             rect.add(new float[]{b[0] + nx, b[1] + ny});
             fillPolygon(pm, rect, rgba);
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // <ellipse> / <circle> → <path> expansion
+    // -------------------------------------------------------------------------
+
+    /** SVG κ constant for approximating a quarter-ellipse with a cubic bezier. */
+    private static final double KAPPA = 0.5522847498;
+
+    private static final Pattern ELLIPSE_TAG_PAT = Pattern.compile(
+            "<ellipse\\b([^>]*?)/>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    private static final Pattern CIRCLE_TAG_PAT = Pattern.compile(
+            "<circle\\b([^>]*?)/>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+    /**
+     * Converts {@code <ellipse>} and {@code <circle>} elements to equivalent
+     * {@code <path>} elements using 4-cubic-bezier approximation (κ≈0.552).
+     *
+     * <p>All other attributes (class, fill, stroke, style, …) are preserved
+     * on the generated {@code <path>} element so that CSS fill/stroke rules
+     * continue to apply.
+     */
+    static String expandShapes(String tmpl) {
+        // --- ellipses ---
+        Matcher em = ELLIPSE_TAG_PAT.matcher(tmpl);
+        StringBuffer sb = new StringBuffer();
+        while (em.find()) {
+            String attrs = em.group(1);
+            Float cx = parseFloatAttr(attrs, "cx");
+            Float cy = parseFloatAttr(attrs, "cy");
+            Float rx = parseFloatAttr(attrs, "rx");
+            Float ry = parseFloatAttr(attrs, "ry");
+            if (cx != null && cy != null && rx != null && ry != null) {
+                String rest = removeShapeAttrs(attrs, "cx", "cy", "rx", "ry");
+                em.appendReplacement(sb, Matcher.quoteReplacement(
+                        "<path d=\"" + ellipseToPathD(cx, cy, rx, ry) + "\" " + rest + "/>"));
+            } else {
+                em.appendReplacement(sb, Matcher.quoteReplacement(em.group(0)));
+            }
+        }
+        em.appendTail(sb);
+        tmpl = sb.toString();
+
+        // --- circles ---
+        Matcher cm = CIRCLE_TAG_PAT.matcher(tmpl);
+        sb = new StringBuffer();
+        while (cm.find()) {
+            String attrs = cm.group(1);
+            Float cx = parseFloatAttr(attrs, "cx");
+            Float cy = parseFloatAttr(attrs, "cy");
+            Float r  = parseFloatAttr(attrs, "r");
+            if (cx != null && cy != null && r != null) {
+                String rest = removeShapeAttrs(attrs, "cx", "cy", "r");
+                cm.appendReplacement(sb, Matcher.quoteReplacement(
+                        "<path d=\"" + ellipseToPathD(cx, cy, r, r) + "\" " + rest + "/>"));
+            } else {
+                cm.appendReplacement(sb, Matcher.quoteReplacement(cm.group(0)));
+            }
+        }
+        cm.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Returns an SVG path {@code d} string for an ellipse centred at
+     * ({@code cx},{@code cy}) with radii {@code rx} and {@code ry}, built
+     * from four cubic Bézier curves.
+     */
+    private static String ellipseToPathD(float cx, float cy, float rx, float ry) {
+        float k  = (float) KAPPA;
+        float krx = k * rx, kry = k * ry;
+        return String.format(Locale.US,
+                "M%.4f,%.4f " +
+                "C%.4f,%.4f,%.4f,%.4f,%.4f,%.4f " +
+                "C%.4f,%.4f,%.4f,%.4f,%.4f,%.4f " +
+                "C%.4f,%.4f,%.4f,%.4f,%.4f,%.4f " +
+                "C%.4f,%.4f,%.4f,%.4f,%.4f,%.4f Z",
+                cx + rx, cy,
+                cx + rx,  cy - kry,  cx + krx, cy - ry,  cx,      cy - ry,
+                cx - krx, cy - ry,   cx - rx,  cy - kry, cx - rx, cy,
+                cx - rx,  cy + kry,  cx - krx, cy + ry,  cx,      cy + ry,
+                cx + krx, cy + ry,   cx + rx,  cy + kry, cx + rx, cy);
+    }
+
+    private static Float parseFloatAttr(String attrs, String attrName) {
+        Matcher m = Pattern.compile(
+                "\\b" + attrName + "\\s*=\\s*[\"']([^\"']*)[\"']").matcher(attrs);
+        if (!m.find()) return null;
+        try { return Float.parseFloat(m.group(1).trim()); }
+        catch (NumberFormatException e) { return null; }
+    }
+
+    private static String removeShapeAttrs(String attrs, String... names) {
+        for (String n : names) {
+            attrs = attrs.replaceAll("\\b" + n + "\\s*=\\s*[\"'][^\"']*[\"']", "");
+        }
+        return attrs.trim();
     }
 
     // -------------------------------------------------------------------------
