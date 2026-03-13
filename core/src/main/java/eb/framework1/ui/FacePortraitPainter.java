@@ -314,6 +314,55 @@ public final class FacePortraitPainter {
     private static float applyX(float[] m, float x, float y) { return m[0]*x + m[2]*y + m[4]; }
     private static float applyY(float[] m, float x, float y) { return m[1]*x + m[3]*y + m[5]; }
 
+    /**
+     * Parses a single-function SVG {@code transform=} attribute string and
+     * composes it with the given base matrix so that the element transform is
+     * applied first, then the feature matrix.  Supports {@code matrix()},
+     * {@code translate()}, {@code scale()}, and {@code rotate()}.
+     *
+     * @return {@code matMul(base, local)} or {@code base} if unparseable.
+     */
+    private static float[] parseSvgTransform(String transform, float[] base) {
+        Matcher m = Pattern.compile("matrix\\(([^)]+)\\)").matcher(transform);
+        if (m.find()) {
+            float[] ns = parseNums(m.group(1));
+            if (ns.length >= 6) {
+                return matMul(base, new float[]{ns[0], ns[1], ns[2], ns[3], ns[4], ns[5]});
+            }
+        }
+        m = Pattern.compile("translate\\(([^)]+)\\)").matcher(transform);
+        if (m.find()) {
+            float[] ns = parseNums(m.group(1));
+            if (ns.length >= 2) return matMul(base, new float[]{1, 0, 0, 1, ns[0], ns[1]});
+            if (ns.length == 1) return matMul(base, new float[]{1, 0, 0, 1, ns[0], 0});
+        }
+        m = Pattern.compile("scale\\(([^)]+)\\)").matcher(transform);
+        if (m.find()) {
+            float[] ns = parseNums(m.group(1));
+            if (ns.length >= 2) return matMul(base, new float[]{ns[0], 0, 0, ns[1], 0, 0});
+            if (ns.length == 1) return matMul(base, new float[]{ns[0], 0, 0, ns[0], 0, 0});
+        }
+        m = Pattern.compile("rotate\\(([^)]+)\\)").matcher(transform);
+        if (m.find()) {
+            float[] ns = parseNums(m.group(1));
+            if (ns.length >= 1) {
+                double rad = Math.toRadians(ns[0]);
+                float cosA = (float) Math.cos(rad), sinA = (float) Math.sin(rad);
+                float[] rot;
+                if (ns.length >= 3) {
+                    float rcx = ns[1], rcy = ns[2];
+                    rot = matMul(matMul(new float[]{1, 0, 0, 1,  rcx,  rcy},
+                                       new float[]{cosA, sinA, -sinA, cosA, 0, 0}),
+                                 new float[]{1, 0, 0, 1, -rcx, -rcy});
+                } else {
+                    rot = new float[]{cosA, sinA, -sinA, cosA, 0, 0};
+                }
+                return matMul(base, rot);
+            }
+        }
+        return base;
+    }
+
     // -------------------------------------------------------------------------
     // SVG path element rendering
     // -------------------------------------------------------------------------
@@ -334,7 +383,15 @@ public final class FacePortraitPainter {
             String dStr = attrs.get("d");
             if (dStr == null || dStr.isEmpty()) continue;
 
-            List<List<float[]>> contours = flattenPathToContours(dStr, matrix, sx, sy);
+            // Compose any element-level transform= with the feature matrix so that
+            // paths produced by expandShapes() (e.g. ellipses with a rotation) are
+            // placed correctly. parseSvgTransform() returns base unchanged on failure.
+            String transformStr = attrs.get("transform");
+            float[] effectiveMatrix = (transformStr != null && !transformStr.isEmpty())
+                    ? parseSvgTransform(transformStr, matrix)
+                    : matrix;
+
+            List<List<float[]>> contours = flattenPathToContours(dStr, effectiveMatrix, sx, sy);
 
             // ── Fill ──────────────────────────────────────────────────────────
             int fillColor = resolveFillColor(attrs, cssColors);
