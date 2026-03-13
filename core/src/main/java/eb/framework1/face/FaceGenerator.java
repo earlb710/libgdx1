@@ -1,8 +1,10 @@
 package eb.framework1.face;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -484,6 +486,15 @@ public final class FaceGenerator {
     // -------------------------------------------------------------------------
 
     /**
+     * Rule names that {@link #defaultCharacterFace} is permitted to fire.
+     *
+     * <p>Only gender/age/beard rules are applied here. Clothes and emotion
+     * rules will be handled by dedicated generators added later.
+     */
+    private static final Set<String> ALLOWED_RULE_NAMES = new HashSet<>(
+            Arrays.asList("Male", "Female", "Beard", "Bold", "Old"));
+
+    /**
      * Computes a map of eligible SVG part IDs per feature type for a character
      * using the supplied face rules.
      *
@@ -555,6 +566,15 @@ public final class FaceGenerator {
             FaceRule rule = rules.get(i);
 
             // ── Condition checks ─────────────────────────────────────────────
+
+            // Name whitelist: only the core character rules fire here.
+            // Clothes and emotion rules are handled by separate generators.
+            if (!ALLOWED_RULE_NAMES.contains(rule.name)) {
+                System.err.printf(Locale.US,
+                        "[FaceGenerator] rule skipped (not in whitelist): \"%s\"%n",
+                        rule.name);
+                continue;
+            }
 
             // Gender filter
             if (!rule.gender.isEmpty()
