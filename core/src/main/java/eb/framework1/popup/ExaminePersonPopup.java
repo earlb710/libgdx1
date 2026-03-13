@@ -168,8 +168,8 @@ public class ExaminePersonPopup {
         final float BTN_PAD_V = 10f;
 
         // Portrait dimensions (shown when a painter is available)
-        final float PORTRAIT_DISPLAY_W = 180f;
-        final float PORTRAIT_DISPLAY_H = 270f;
+        final float PORTRAIT_DISPLAY_W = 270f;
+        final float PORTRAIT_DISPLAY_H = 405f;
 
         // ── Font metrics ──────────────────────────────────────────────────────
         glyph.setText(font, "Hg");

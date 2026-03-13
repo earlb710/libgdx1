@@ -287,6 +287,10 @@ public final class FaceSvgBuilder {
 
         // --- Scale (body/jersey, flip, size) ---
         if (isBody) {
+            // Center the bodySize x-scale at x=200 so the jersey remains horizontally
+            // centred regardless of bodySize.  Equivalent SVG transform:
+            //   translate(200*(1-bodySize), 0) scale(bodySize, 1)
+            appendTranslate(t, 200.0 * (1.0 - bodySize), 0);
             appendScale(t, bodySize, 1.0);
         } else if (flip || instanceIdx == 1) {
             appendScale(t, -scale, scale);

@@ -102,9 +102,9 @@ public class InfoPanelRenderer {
     private final FacePortraitPainter portraitPainter;
 
     /** Height of a portrait thumbnail shown inline with an NPC entry (pixels). */
-    private static final float PORTRAIT_H = 45f;
+    private static final float PORTRAIT_H = 68f;
     /** Width of a portrait thumbnail (proportional to {@link FacePortraitPainter} aspect). */
-    private static final float PORTRAIT_W = 30f;
+    private static final float PORTRAIT_W = 45f;
 
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;

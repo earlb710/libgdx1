@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 public final class FacePortraitPainter {
 
     /** Portrait output width in pixels. */
-    public static final int PORTRAIT_W = 180;
+    public static final int PORTRAIT_W = 270;
     /** Portrait output height in pixels. */
-    public static final int PORTRAIT_H = 270;
+    public static final int PORTRAIT_H = 405;
 
     /** Face SVG canonical dimensions (400 × 600). */
     private static final float SVG_W = 400f;
@@ -265,6 +265,10 @@ public final class FacePortraitPainter {
 
         // Step 3: scale
         if (isBody) {
+            // Center the bodySize scale at SVG_CX (x=200) so the jersey stays
+            // horizontally centred regardless of the bodySize value.
+            // Equivalent to: translate(200*(1-bodySize), 0) then scale(bodySize, 1)
+            m = matMul(m, new float[]{1, 0, 0, 1, (float)(SVG_CX * (1 - bodySize)), 0});
             m = matMul(m, new float[]{(float) bodySize, 0, 0, 1, 0, 0});
         } else if (flip || instanceIdx == 1) {
             m = matMul(m, new float[]{-(float) size, 0, 0, (float) size, 0, 0});
@@ -335,16 +339,20 @@ public final class FacePortraitPainter {
                                         Map<String, Integer> css) {
         String fill  = attrs.get("fill");
         String clazz = attrs.get("class");
-        if (fill != null && !fill.isEmpty() && !"none".equals(fill)) {
+        // Inline fill attribute takes highest priority
+        if (fill != null && !fill.isEmpty()) {
+            if ("none".equals(fill)) return 0;
             return parseCssColor(fill.trim());
         }
+        // CSS class fill (includes explicit fill:none stored as 0)
         if (clazz != null) {
             for (String cls : clazz.split("\\s+")) {
                 Integer c = css.get(cls.trim());
                 if (c != null) return c;
             }
         }
-        return 0; // transparent
+        // SVG default: black (matches browser rendering when no fill is specified)
+        return 0x000000FF;
     }
 
     // -------------------------------------------------------------------------
@@ -365,7 +373,9 @@ public final class FacePortraitPainter {
             Matcher fm   = CSS_FILL_PAT.matcher(rules);
             if (fm.find()) {
                 String c = fm.group(1).trim();
-                if (!"none".equals(c) && !c.isEmpty()) {
+                if ("none".equals(c)) {
+                    map.put(cls, 0); // explicit fill:none → transparent
+                } else if (!c.isEmpty()) {
                     int color = parseCssColor(c);
                     if (color != 0) map.put(cls, color);
                 }
