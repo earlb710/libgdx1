@@ -3,267 +3,315 @@
   "language": "en",
   "building_categories": [
     {
-      "code": "residential",
-      "description": "Housing buildings including apartments, condos, townhouses, and senior living facilities",
-      "color": "#4CAF50"
-    },
-    {
       "code": "commercial",
       "description": "Retail stores, restaurants, shopping centers, and consumer-facing businesses",
-      "color": "#2196F3"
-    },
-    {
-      "code": "office",
-      "description": "Professional workspaces including office buildings, corporate headquarters, and coworking spaces",
-      "color": "#9C27B0"
-    },
-    {
-      "code": "industrial",
-      "description": "Warehouses, manufacturing facilities, data centers, and storage facilities",
-      "color": "#FFC107"
-    },
-    {
-      "code": "infrastructure",
-      "description": "Essential city infrastructure including parking, transit stations, and transportation hubs",
-      "color": "#607D8B"
-    },
-    {
-      "code": "medical",
-      "description": "Healthcare facilities including hospitals, clinics, dental offices, and veterinary clinics",
-      "color": "#F44336"
+      "color": "#2196F3",
+      "percentage": 10
     },
     {
       "code": "education",
       "description": "Schools, colleges, daycares, and other educational institutions",
-      "color": "#FF9800"
-    },
-    {
-      "code": "public_services",
-      "description": "Government services including libraries, community centers, fire stations, and police stations",
-      "color": "#00BCD4"
-    },
-    {
-      "code": "government",
-      "description": "Municipal and county government buildings including city hall and courthouses",
-      "color": "#3F51B5"
-    },
-    {
-      "code": "hospitality",
-      "description": "Hotels, motels, and lodging establishments from budget to luxury",
-      "color": "#E91E63"
+      "color": "#FF9800",
+      "percentage": 10
     },
     {
       "code": "entertainment",
       "description": "Venues for recreation and entertainment including theaters, sports arenas, and nightclubs",
-      "color": "#FFEB3B"
+      "color": "#FFEB3B",
+      "percentage": 10
+    },
+    {
+      "code": "government",
+      "description": "Municipal and county government buildings including city hall and courthouses",
+      "color": "#3F51B5",
+      "percentage": 10
+    },
+    {
+      "code": "hospitality",
+      "description": "Hotels, motels, and lodging establishments from budget to luxury",
+      "color": "#E91E63",
+      "percentage": 10
+    },
+    {
+      "code": "industrial",
+      "description": "Warehouses, manufacturing facilities, data centers, and storage facilities",
+      "color": "#FFC107",
+      "percentage": 10
+    },
+    {
+      "code": "infrastructure",
+      "description": "Essential city infrastructure including parking, transit stations, and transportation hubs",
+      "color": "#607D8B",
+      "percentage": 10
+    },
+    {
+      "code": "medical",
+      "description": "Healthcare facilities including hospitals, clinics, dental offices, and veterinary clinics",
+      "color": "#F44336",
+      "percentage": 10
+    },
+    {
+      "code": "office",
+      "description": "Professional workspaces including office buildings, corporate headquarters, and coworking spaces",
+      "color": "#9C27B0",
+      "percentage": 10
+    },
+    {
+      "code": "public_services",
+      "description": "Government services including libraries, community centers, fire stations, and police stations",
+      "color": "#00BCD4",
+      "percentage": 10
     },
     {
       "code": "religious",
       "description": "Places of worship including churches, mosques, synagogues, and temples",
-      "color": "#9E9E9E"
+      "color": "#9E9E9E",
+      "percentage": 10
+    },
+    {
+      "code": "residential",
+      "description": "Housing buildings including apartments, condos, townhouses, and senior living facilities",
+      "color": "#4CAF50",
+      "percentage": 10
     }
   ],
   "item_categories": [
     {
-      "code": "weapon",
-      "description": "Objects that can be used to cause harm"
-    },
-    {
-      "code": "tool",
-      "description": "Instruments or devices used to perform tasks"
-    },
-    {
-      "code": "document",
-      "description": "Written or printed records and paperwork"
-    },
-    {
-      "code": "electronic",
-      "description": "Electronic devices and digital media"
-    },
-    {
-      "code": "personal",
-      "description": "Personal belongings and effects"
+      "code": "clues",
+      "description": "Hints or pieces of information that help solve a case",
+      "percentage": 10
     },
     {
       "code": "consumable",
-      "description": "Items that are used up or consumed"
+      "description": "Items that are used up or consumed",
+      "percentage": 10
     },
     {
-      "code": "key_item",
-      "description": "Critical items required to advance the story"
+      "code": "document",
+      "description": "Written or printed records and paperwork",
+      "percentage": 10
     },
     {
-      "code": "clues",
-      "description": "Hints or pieces of information that help solve a case"
+      "code": "electronic",
+      "description": "Electronic devices and digital media",
+      "percentage": 10
     },
     {
       "code": "evidence",
-      "description": "Material or information that establishes facts in a case"
+      "description": "Material or information that establishes facts in a case",
+      "percentage": 10
     },
     {
       "code": "investigation",
-      "description": "Systematic inquiry or examination to uncover facts"
+      "description": "Systematic inquiry or examination to uncover facts",
+      "percentage": 10
     },
     {
-      "code": "surveillance",
-      "description": "Close observation of a person, place, or activity"
+      "code": "key_item",
+      "description": "Critical items required to advance the story",
+      "percentage": 10
     },
     {
       "code": "other",
-      "description": "Miscellaneous items that do not fit other categories"
+      "description": "Miscellaneous items that do not fit other categories",
+      "percentage": 10
+    },
+    {
+      "code": "personal",
+      "description": "Personal belongings and effects",
+      "percentage": 10
+    },
+    {
+      "code": "surveillance",
+      "description": "Close observation of a person, place, or activity",
+      "percentage": 10
+    },
+    {
+      "code": "tool",
+      "description": "Instruments or devices used to perform tasks",
+      "percentage": 10
+    },
+    {
+      "code": "weapon",
+      "description": "Objects that can be used to cause harm",
+      "percentage": 10
     }
   ],
   "evidence_categories": [
     {
-      "code": "physical",
-      "description": "Tangible objects or materials collected from a scene"
+      "code": "digital",
+      "description": "Electronic data, files, emails, or digital media",
+      "percentage": 10
     },
     {
       "code": "documentary",
-      "description": "Written records, contracts, letters, or printed documents"
-    },
-    {
-      "code": "digital",
-      "description": "Electronic data, files, emails, or digital media"
-    },
-    {
-      "code": "testimonial",
-      "description": "Statements or accounts provided by witnesses or persons of interest"
+      "description": "Written records, contracts, letters, or printed documents",
+      "percentage": 10
     },
     {
       "code": "forensic",
-      "description": "Scientific analysis results such as fingerprints, DNA, or ballistics"
+      "description": "Scientific analysis results such as fingerprints, DNA, or ballistics",
+      "percentage": 10
     },
     {
       "code": "photographic",
-      "description": "Photographs, images, and visual documentation of scenes, persons, or objects"
+      "description": "Photographs, images, and visual documentation of scenes, persons, or objects",
+      "percentage": 10
+    },
+    {
+      "code": "physical",
+      "description": "Tangible objects or materials collected from a scene",
+      "percentage": 10
+    },
+    {
+      "code": "testimonial",
+      "description": "Statements or accounts provided by witnesses or persons of interest",
+      "percentage": 10
     }
   ],
   "case_types": [
     {
-      "code": "MISSING_PERSON",
-      "description": "Locate a person who has disappeared and determine what happened to them"
-    },
-    {
-      "code": "INFIDELITY",
-      "description": "Gather evidence of a partner's unfaithful behaviour"
-    },
-    {
-      "code": "THEFT",
-      "description": "Identify who stole property and, if possible, recover it"
-    },
-    {
-      "code": "FRAUD",
-      "description": "Uncover deliberate financial deception or identity misrepresentation"
-    },
-    {
       "code": "BLACKMAIL",
-      "description": "Identify the source of a blackmail threat and neutralise it"
-    },
-    {
-      "code": "MURDER",
-      "description": "Reinvestigate a suspicious death the authorities closed too quickly"
-    },
-    {
-      "code": "STALKING",
-      "description": "Identify and document a stalker threatening the client or their family"
+      "description": "Identify the source of a blackmail threat and neutralise it",
+      "percentage": 10
     },
     {
       "code": "CORPORATE_ESPIONAGE",
-      "description": "Uncover an internal information leak damaging a business"
+      "description": "Uncover an internal information leak damaging a business",
+      "percentage": 10
+    },
+    {
+      "code": "FRAUD",
+      "description": "Uncover deliberate financial deception or identity misrepresentation",
+      "percentage": 10
+    },
+    {
+      "code": "INFIDELITY",
+      "description": "Gather evidence of a partner\u0027s unfaithful behaviour",
+      "percentage": 10
+    },
+    {
+      "code": "MISSING_PERSON",
+      "description": "Locate a person who has disappeared and determine what happened to them",
+      "percentage": 10
+    },
+    {
+      "code": "MURDER",
+      "description": "Reinvestigate a suspicious death the authorities closed too quickly",
+      "percentage": 10
+    },
+    {
+      "code": "STALKING",
+      "description": "Identify and document a stalker threatening the client or their family",
+      "percentage": 10
+    },
+    {
+      "code": "THEFT",
+      "description": "Identify who stole property and, if possible, recover it",
+      "percentage": 10
     }
   ],
   "improvement_categories": [
     {
+      "code": "creative",
+      "description": "Creative expression and artistic skill improvements",
+      "color": "#AB47BC",
+      "actions": "draw, write, compose",
+      "percentage": 10
+    },
+    {
       "code": "mental",
       "description": "Cognitive and mental skill improvements such as memory, focus, and deduction",
       "color": "#5C6BC0",
-      "actions": "rest, meditate, study"
+      "actions": "rest, meditate, study",
+      "percentage": 10
     },
     {
       "code": "physical",
       "description": "Physical fitness and body conditioning improvements",
       "color": "#EF5350",
-      "actions": "exercise, train, practice"
+      "actions": "exercise, train, practice",
+      "percentage": 10
     },
     {
       "code": "social",
       "description": "Interpersonal and communication skill improvements",
       "color": "#26A69A",
-      "actions": "converse, network, observe"
+      "actions": "converse, network, observe",
+      "percentage": 10
     },
     {
       "code": "technical",
       "description": "Technical and analytical skill improvements",
       "color": "#FFA726",
-      "actions": "repair, hack, analyze"
-    },
-    {
-      "code": "creative",
-      "description": "Creative expression and artistic skill improvements",
-      "color": "#AB47BC",
-      "actions": "draw, write, compose"
+      "actions": "repair, hack, analyze",
+      "percentage": 10
     }
   ],
   "skill_categories": [
     {
-      "code": "work",
-      "name": "Work"
+      "code": "general",
+      "name": "General",
+      "percentage": 10
     },
     {
       "code": "hobbies",
-      "name": "Hobbies"
+      "name": "Hobbies",
+      "percentage": 10
     },
     {
-      "code": "general",
-      "name": "General"
-    }
-  ],
-  "gender_categories": [
-    {
-      "code": "male",
-      "name": "Male"
-    },
-    {
-      "code": "female",
-      "name": "Female"
+      "code": "work",
+      "name": "Work",
+      "percentage": 10
     }
   ],
   "skin_tone_categories": [
     {
-      "code": "porcelain_very_fair",
-      "name": "Porcelain / Very Fair",
-      "rgb": "#FFE5D9",
-      "percentage": 15
+      "code": "dark_brown_deep",
+      "name": "Dark Brown / Deep",
+      "rgb": "#8D5524",
+      "percentage": 5
     },
     {
       "code": "fair_light",
       "name": "Fair / Light",
       "rgb": "#F5D0C5",
-      "percentage": 20
+      "percentage": 30
     },
     {
       "code": "light_medium",
       "name": "Light Medium",
       "rgb": "#EBC4AF",
-      "percentage": 20
-    },
-    {
-      "code": "medium_olive",
-      "name": "Medium / Olive",
-      "rgb": "#D4A574",
-      "percentage": 20
+      "percentage": 30
     },
     {
       "code": "medium_brown",
       "name": "Medium Brown",
       "rgb": "#C68642",
-      "percentage": 15
+      "percentage": 10
     },
     {
-      "code": "dark_brown_deep",
-      "name": "Dark Brown / Deep",
-      "rgb": "#8D5524",
+      "code": "medium_olive",
+      "name": "Medium / Olive",
+      "rgb": "#D4A574",
+      "percentage": 10
+    },
+    {
+      "code": "porcelain_very_fair",
+      "name": "Porcelain / Very Fair",
+      "rgb": "#FFE5D9",
+      "percentage": 15
+    }
+  ],
+  "gender_categories": [
+    {
+      "code": "female",
+      "name": "Female",
+      "percentage": 10
+    },
+    {
+      "code": "male",
+      "name": "Male",
       "percentage": 10
     }
   ]
