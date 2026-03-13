@@ -154,10 +154,10 @@
     {
       "name": "glassesFemale",
       "gender": "female",
-      "emotion": "normal",
+      "emotion": "",
       "minWealth": 0,
       "minAge": 0,
-      "clothesType": "",
+      "clothesType": "normal",
       "percentage": 100,
       "priority": 0,
       "include": [
@@ -173,10 +173,10 @@
     {
       "name": "glassesMale",
       "gender": "male",
-      "emotion": "normal",
+      "emotion": "",
       "minWealth": 0,
       "minAge": 0,
-      "clothesType": "",
+      "clothesType": "normal",
       "percentage": 100,
       "priority": 0,
       "include": [
