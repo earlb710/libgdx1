@@ -411,9 +411,8 @@ public final class FaceGenerator {
         String glassesId = pickFromPool(pool, "glasses",
                 rng.nextDouble() < 0.1 ? randGenderedId(F_GLASSES, isMale) : "none");
 
-        // accessories (20%)
-        String accessoriesId = pickFromPool(pool, "accessories",
-                rng.nextDouble() < 0.2 ? randGenderedId(F_ACCESSORIES, isMale) : "none");
+        // accessories: only use pool entry; default to none so clothes-rules control this
+        String accessoriesId = pickFromPool(pool, "accessories", "none");
 
         // hair (with hat override)
         String hairId = pickFromPool(pool, "hair", randGenderedId(F_HAIR, isMale));
@@ -432,7 +431,7 @@ public final class FaceGenerator {
                     randUniform(isMale ? RANGE_BODY_SIZE[2] : RANGE_BODY_SIZE[0],
                                 isMale ? RANGE_BODY_SIZE[3] : RANGE_BODY_SIZE[1])))
             .jersey(new FaceConfig.SimpleFeature(
-                    pickFromPool(pool, "jersey", randGenderedId(F_JERSEY, isMale))))
+                    pickFromPool(pool, "jersey", "none")))
             .ear(new FaceConfig.EarFeature(
                     pickFromPool(pool, "ear", randGenderedId(F_EAR, isMale)),
                     randUniform(isMale ? RANGE_EAR_SIZE[2] : RANGE_EAR_SIZE[0],

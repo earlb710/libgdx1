@@ -538,4 +538,32 @@ public class DefaultCharacterFaceTest {
         assertNotNull("mouth should still be set", face.mouth.id);
         assertFalse(face.mouth.id.isEmpty());
     }
+
+    @Test
+    public void generateWithPool_jerseyAndAccessoriesDefaultToNone() {
+        // When pool contains no "jersey" or "accessories" entries, both must be "none".
+        // This ensures clothes/headbands are never rendered without an explicit rule.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        // Run many seeds to make sure the fallback is always "none"
+        for (int seed = 0; seed < 50; seed++) {
+            gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("jersey must be 'none' when not in pool", "none", face.jersey.id);
+            assertEquals("accessories must be 'none' when not in pool", "none", face.accessories.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_jerseyFromPoolIsUsed() {
+        // When pool explicitly provides "jersey", that ID is used.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("jersey", Collections.singletonList("jersey3"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("jersey3", face.jersey.id);
+    }
 }
