@@ -407,9 +407,8 @@ public final class FaceGenerator {
         String facialHairId = pickFromPool(pool, "facialHair",
                 (!isMale || rng.nextDouble() < 0.5) ? "none" : randGenderedId(F_FACIALHAIR, true));
 
-        // glasses (10%)
-        String glassesId = pickFromPool(pool, "glasses",
-                rng.nextDouble() < 0.1 ? randGenderedId(F_GLASSES, isMale) : "none");
+        // glasses: only use pool entry; default to none so glasses-rules control this
+        String glassesId = pickFromPool(pool, "glasses", "none");
 
         // accessories: only use pool entry; default to none so clothes-rules control this
         String accessoriesId = pickFromPool(pool, "accessories", "none");

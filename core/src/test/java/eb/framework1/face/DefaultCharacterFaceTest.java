@@ -541,18 +541,18 @@ public class DefaultCharacterFaceTest {
 
     @Test
     public void generateWithPool_jerseyAndAccessoriesDefaultToNone() {
-        // When pool contains no "jersey" or "accessories" entries, both must be "none".
-        // This ensures clothes/headbands are never rendered without an explicit rule.
+        // When pool contains no "jersey", "accessories", or "glasses" entries, all must be "none".
+        // This ensures clothes/headbands/glasses are never rendered without an explicit rule.
         Map<String, List<String>> pool = new java.util.HashMap<>();
         pool.put("eye", Collections.singletonList("eye1"));
 
-        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
         // Run many seeds to make sure the fallback is always "none"
         for (int seed = 0; seed < 50; seed++) {
-            gen = new FaceGenerator(new java.util.Random(seed));
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
             FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
             assertEquals("jersey must be 'none' when not in pool", "none", face.jersey.id);
             assertEquals("accessories must be 'none' when not in pool", "none", face.accessories.id);
+            assertEquals("glasses must be 'none' when not in pool", "none", face.glasses.id);
         }
     }
 
@@ -565,5 +565,16 @@ public class DefaultCharacterFaceTest {
         FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
         FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
         assertEquals("jersey3", face.jersey.id);
+    }
+
+    @Test
+    public void generateWithPool_glassesFromPoolIsUsed() {
+        // When pool explicitly provides "glasses", that ID is used.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("glasses", Collections.singletonList("glasses1"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("glasses1", face.glasses.id);
     }
 }
