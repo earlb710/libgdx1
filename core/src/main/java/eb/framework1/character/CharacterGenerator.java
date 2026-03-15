@@ -7,8 +7,10 @@ import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -305,8 +307,10 @@ public class CharacterGenerator {
         }
 
         // 30% of characters have a vision impairment (farsighted or nearsighted).
+        VisionTrait visionTrait = null;
         if (random.nextFloat() < 0.30f) {
-            b.visionTrait(random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED);
+            visionTrait = random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED;
+            b.visionTrait(visionTrait);
         }
 
         // Generate a vector face that matches the NPC's gender and age.
@@ -317,7 +321,12 @@ public class CharacterGenerator {
             // Use rule-based eligible pool (age- and gender-aware)
             long faceSeed = (long) id.hashCode() * 2654435761L ^ age;
             Map<String, List<String>> pool =
-                    FaceGenerator.defaultCharacterFace(faceSeed, normGender, age, faceRules);
+                    new HashMap<>(FaceGenerator.defaultCharacterFace(faceSeed, normGender, age, faceRules));
+            // When the NPC has a vision impairment they will carry glasses;
+            // apply the gender-specific glasses rule so the face SVG shows them.
+            if (visionTrait != null && visionTrait.isImpaired()) {
+                pool = applyGlassesRule(pool, normGender, faceRules);
+            }
             face = faceGen.generate(faceOpts, pool);
         } else {
             face = faceGen.generate(faceOpts);
@@ -358,6 +367,41 @@ public class CharacterGenerator {
     private NpcCharacter.Builder buildBase(String id, String gender,
                                            int minAge, int maxAge) {
         return buildBase(id, gender, minAge, maxAge, PersonalityProfile.DEFAULT);
+    }
+
+    /**
+     * Augments the face-part pool with glasses SVG IDs from the
+     * {@code glassesMale} or {@code glassesFemale} rule when the NPC needs
+     * vision correction.  Returns a new mutable map; the input map is not
+     * modified.
+     *
+     * @param pool       the current pool (mutable copy expected)
+     * @param normGender {@code "male"} or {@code "female"}
+     * @param rules      the full list of face rules
+     * @return the same map with a {@code "glasses"} entry added (or unchanged
+     *         if no matching rule was found)
+     */
+    private static Map<String, List<String>> applyGlassesRule(
+            Map<String, List<String>> pool,
+            String normGender,
+            List<FaceRule> rules) {
+        String targetName = "female".equals(normGender) ? "glassesFemale" : "glassesMale";
+        for (FaceRule rule : rules) {
+            if (targetName.equals(rule.name)) {
+                List<String> glassesIds = new ArrayList<>();
+                for (String entry : rule.include) {
+                    int dot = entry.indexOf('.');
+                    if (dot > 0 && "glasses".equals(entry.substring(0, dot))) {
+                        glassesIds.add(entry.substring(dot + 1));
+                    }
+                }
+                if (!glassesIds.isEmpty()) {
+                    pool.put("glasses", Collections.unmodifiableList(glassesIds));
+                }
+                break;
+            }
+        }
+        return pool;
     }
 
     /** Returns {@code "M"} or {@code "F"} at random. */

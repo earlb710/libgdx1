@@ -1,5 +1,7 @@
 package eb.framework1.character;
 
+import eb.framework1.face.FaceConfig;
+import eb.framework1.face.FaceRule;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
@@ -7,6 +9,7 @@ import eb.framework1.investigation.*;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -765,5 +768,153 @@ public class CharacterGeneratorTest {
         for (CharacterAttribute attr : CharacterGenerator.INVESTIGATIVE_ATTRIBUTES) {
             assertEquals("Mismatch for " + attr, a1.get(attr), a2.get(attr));
         }
+    }
+
+    // =========================================================================
+    // CharacterGenerator — glassesMale / glassesFemale face rules
+    // =========================================================================
+
+    /** Creates a minimal set of face rules containing only the glasses rules. */
+    private static List<FaceRule> makeGlassesRules() {
+        FaceRule glassesMale = new FaceRule.Builder()
+                .name("glassesMale")
+                .gender("male")
+                .percentage(100)
+                .priority(0)
+                .include(Arrays.asList(
+                        "glasses.glasses1-primary",
+                        "glasses.glasses2-black",
+                        "glasses.glasses2-primary"))
+                .build();
+        FaceRule glassesFemale = new FaceRule.Builder()
+                .name("glassesFemale")
+                .gender("female")
+                .percentage(100)
+                .priority(0)
+                .include(Arrays.asList(
+                        "glasses.glasses1-primary",
+                        "glasses.glasses1-secondary",
+                        "glasses.glasses2-secondary"))
+                .build();
+        return Arrays.asList(glassesMale, glassesFemale);
+    }
+
+    private static CharacterGenerator makeGeneratorWithGlassesRules(long seed) {
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M"),
+                new PersonNameGenerator.NameEntry("Carol", "F"),
+                new PersonNameGenerator.NameEntry("Dave",  "M")
+        );
+        List<String> surnames = Arrays.asList("Smith", "Jones");
+        PersonNameGenerator nameGen = new PersonNameGenerator(firstNames, surnames, new Random(seed));
+        return new CharacterGenerator(nameGen, new Random(seed), makeGlassesRules());
+    }
+
+    private static final Set<String> VALID_GLASSES_IDS = new HashSet<>(Arrays.asList(
+            "glasses1-primary", "glasses1-secondary",
+            "glasses2-black", "glasses2-primary", "glasses2-secondary"));
+
+    @Test
+    public void glassesRule_impairedVision_faceHasGlasses() {
+        // Run enough iterations to encounter at least one vision-impaired NPC
+        // (30% probability each time).
+        boolean foundImpaired = false;
+        for (long seed = 0; seed < 200; seed++) {
+            CharacterGenerator gen = makeGeneratorWithGlassesRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            VisionTrait vt = npc.getVisionTrait();
+            if (vt != null && vt.isImpaired()) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull("FaceConfig must not be null for impaired NPC", face);
+                String glassesId = face.glasses.id;
+                assertFalse("Impaired NPC must have glasses SVG (not 'none'), was: " + glassesId,
+                        "none".equals(glassesId));
+                assertTrue("glasses id must be a known SVG id, was: " + glassesId,
+                        VALID_GLASSES_IDS.contains(glassesId));
+                foundImpaired = true;
+                break;
+            }
+        }
+        assertTrue("Expected at least one vision-impaired NPC in 200 seeds", foundImpaired);
+    }
+
+    @Test
+    public void glassesRule_normalVision_faceHasNoGlasses() {
+        // A character without vision impairment must not get glasses from the face rules.
+        boolean foundNormal = false;
+        for (long seed = 0; seed < 200; seed++) {
+            CharacterGenerator gen = makeGeneratorWithGlassesRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            VisionTrait vt = npc.getVisionTrait();
+            if (vt == null || !vt.isImpaired()) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull("FaceConfig must not be null", face);
+                assertEquals("Non-impaired NPC must not have glasses in face SVG",
+                        "none", face.glasses.id);
+                foundNormal = true;
+                break;
+            }
+        }
+        assertTrue("Expected at least one non-impaired NPC in 200 seeds", foundNormal);
+    }
+
+    @Test
+    public void glassesRule_maleImpairedVision_usesMaleGlassesIds() {
+        Set<String> maleGlassesIds = new HashSet<>(Arrays.asList(
+                "glasses1-primary", "glasses2-black", "glasses2-primary"));
+        for (long seed = 0; seed < 300; seed++) {
+            CharacterGenerator gen = makeGeneratorWithGlassesRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            if ("M".equals(npc.getGender())
+                    && npc.getVisionTrait() != null
+                    && npc.getVisionTrait().isImpaired()) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                assertTrue("Male impaired NPC must use a male glasses ID, was: " + face.glasses.id,
+                        maleGlassesIds.contains(face.glasses.id));
+                return;
+            }
+        }
+        // It's possible (but very unlikely) to not find a male impaired NPC in 300 seeds;
+        // in that case just skip silently.
+    }
+
+    @Test
+    public void glassesRule_femaleImpairedVision_usesFemaleGlassesIds() {
+        Set<String> femaleGlassesIds = new HashSet<>(Arrays.asList(
+                "glasses1-primary", "glasses1-secondary", "glasses2-secondary"));
+        for (long seed = 0; seed < 300; seed++) {
+            CharacterGenerator gen = makeGeneratorWithGlassesRules(seed);
+            NpcCharacter npc = gen.generateVictim(CaseType.MURDER);
+            if ("F".equals(npc.getGender())
+                    && npc.getVisionTrait() != null
+                    && npc.getVisionTrait().isImpaired()) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                assertTrue("Female impaired NPC must use a female glasses ID, was: " + face.glasses.id,
+                        femaleGlassesIds.contains(face.glasses.id));
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void glassesRule_noFaceRules_impairedNpcStillGetsNoGlassesSvg() {
+        // Without face rules the glasses SVG stays "none" (behaviour unchanged).
+        CharacterGenerator gen = makeGenerator(42); // no face rules
+        boolean foundImpaired = false;
+        for (int i = 0; i < 20; i++) {
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            if (npc.getVisionTrait() != null && npc.getVisionTrait().isImpaired()) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                assertEquals("Without face rules, glasses SVG must stay 'none'",
+                        "none", face.glasses.id);
+                foundImpaired = true;
+                break;
+            }
+        }
+        // Acceptable if no impaired NPC appeared in the first 20 NPCs.
     }
 }
