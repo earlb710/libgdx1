@@ -213,7 +213,7 @@ public final class FaceConfig {
         private String[] teamColors = {"#89bfd3", "#7a1319", "#07364f"};
         private SimpleFeature    hairBg     = new SimpleFeature("none");
         private BodyFeature      body       = new BodyFeature("body", "#f2d6cb", 1.0);
-        private SimpleFeature    jersey     = new SimpleFeature("jersey");
+        private SimpleFeature    jersey     = new SimpleFeature("none");
         private EarFeature       ear        = new EarFeature("ear1", 1.0);
         private HeadFeature      head       = new HeadFeature("head1", "rgba(0,0,0,0)");
         private SimpleFeature    eyeLine    = new SimpleFeature("none");

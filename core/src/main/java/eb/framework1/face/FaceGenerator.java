@@ -291,15 +291,11 @@ public final class FaceGenerator {
                               ? "none"
                               : randGenderedId(F_FACIALHAIR, true);
 
-        // glasses: 10% chance
-        String glassesId = rng.nextDouble() < 0.1
-                           ? randGenderedId(F_GLASSES, isMale)
-                           : "none";
+        // glasses: only from rules – default to none
+        String glassesId = "none";
 
-        // accessories: 20% chance
-        String accessoriesId = rng.nextDouble() < 0.2
-                               ? randGenderedId(F_ACCESSORIES, isMale)
-                               : "none";
+        // accessories: only from rules – default to none
+        String accessoriesId = "none";
 
         // hair: if wearing certain hats, override specific hair styles
         String hairId = randGenderedId(F_HAIR, isMale);
@@ -317,7 +313,7 @@ public final class FaceGenerator {
                     randGenderedId(F_BODY, isMale), skinColor,
                     randUniform(isMale ? RANGE_BODY_SIZE[2] : RANGE_BODY_SIZE[0],
                                 isMale ? RANGE_BODY_SIZE[3] : RANGE_BODY_SIZE[1])))
-            .jersey(new FaceConfig.SimpleFeature(randGenderedId(F_JERSEY, isMale)))
+            .jersey(new FaceConfig.SimpleFeature("none"))
             .ear(new FaceConfig.EarFeature(
                     randGenderedId(F_EAR, isMale),
                     randUniform(isMale ? RANGE_EAR_SIZE[2] : RANGE_EAR_SIZE[0],

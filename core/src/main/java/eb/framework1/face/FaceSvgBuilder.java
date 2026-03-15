@@ -654,10 +654,11 @@ public final class FaceSvgBuilder {
 
     private static boolean getFlip(FaceConfig face, String name) {
         switch (name) {
-            case "hair":  return face.hair.flip;
-            case "mouth": return face.mouth.flip;
-            case "nose":  return face.nose.flip;
-            default:      return false;
+            case "hair":
+            case "hairBg": return face.hair.flip;
+            case "mouth":  return face.mouth.flip;
+            case "nose":   return face.nose.flip;
+            default:       return false;
         }
     }
 

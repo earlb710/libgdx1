@@ -1228,10 +1228,11 @@ public final class FacePortraitPainter {
 
     private static boolean getFlip(FaceConfig f, String name) {
         switch (name) {
-            case "hair":  return f.hair.flip;
-            case "mouth": return f.mouth.flip;
-            case "nose":  return f.nose.flip;
-            default:      return false;
+            case "hair":
+            case "hairBg": return f.hair.flip;
+            case "mouth":  return f.mouth.flip;
+            case "nose":   return f.nose.flip;
+            default:       return false;
         }
     }
 
