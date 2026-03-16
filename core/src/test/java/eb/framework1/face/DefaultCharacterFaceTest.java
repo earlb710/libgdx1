@@ -528,14 +528,14 @@ public class DefaultCharacterFaceTest {
 
     @Test
     public void generateWithPool_missingFeatureUsesRandom() {
-        // Pool has "eye" but no "mouth" → mouth ID is randomly chosen (not null)
+        // Pool has "eye" but no "mouth" → mouth defaults to "none" (pool-only constraint).
         Map<String, List<String>> pool = new java.util.HashMap<>();
         pool.put("eye", Collections.singletonList("eye3"));
 
         FaceGenerator gen = new FaceGenerator(new java.util.Random(99));
         FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
         assertEquals("eye3", face.eye.id);
-        assertNotNull("mouth should still be set", face.mouth.id);
+        assertNotNull("mouth id should not be null", face.mouth.id);
         assertFalse(face.mouth.id.isEmpty());
     }
 
@@ -576,5 +576,70 @@ public class DefaultCharacterFaceTest {
         FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
         FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
         assertEquals("glasses1", face.glasses.id);
+    }
+
+    // =========================================================================
+    // FaceGenerator.generate(Options, pool) — mouth and miscLine pool-only
+    // =========================================================================
+
+    @Test
+    public void generateWithPool_mouthNotInPool_defaultsToNone() {
+        // When the pool has no "mouth" entry, mouth must be "none" (not a random
+        // pick from the full catalogue).  This ensures only rules can supply mouths.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("mouth must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.mouth.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_mouthFromPoolIsUsed() {
+        // When pool explicitly provides "mouth", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("mouth", Arrays.asList("mouth2", "mouth3", "mouth4"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertTrue("mouth id must come from pool, was: " + face.mouth.id,
+                    face.mouth.id.equals("mouth2")
+                    || face.mouth.id.equals("mouth3")
+                    || face.mouth.id.equals("mouth4"));
+        }
+    }
+
+    @Test
+    public void generateWithPool_miscLineNotInPool_defaultsToNone() {
+        // When the pool has no "miscLine" entry, miscLine must be "none" (not a
+        // random pick from the full catalogue).
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), pool);
+            assertEquals("miscLine must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.miscLine.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_miscLineFromPoolIsUsed() {
+        // When pool explicitly provides "miscLine", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("miscLine", Arrays.asList("freckles1", "freckles2"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), pool);
+            assertTrue("miscLine id must come from pool, was: " + face.miscLine.id,
+                    face.miscLine.id.equals("freckles1")
+                    || face.miscLine.id.equals("freckles2"));
+        }
     }
 }

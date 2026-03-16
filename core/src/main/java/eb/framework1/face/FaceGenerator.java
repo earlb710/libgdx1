@@ -395,9 +395,9 @@ public final class FaceGenerator {
         String smileId = pickFromPool(pool, "smileLine",
                 rng.nextDouble() < smileChance ? randGenderedId(F_SMILELINE, isMale) : "none");
 
-        // miscLine (50%)
-        String miscLineId = pickFromPool(pool, "miscLine",
-                rng.nextDouble() < 0.5 ? randGenderedId(F_MISCLINE, isMale) : "none");
+        // miscLine: only use pool entry; default to none so rules control which
+        // miscLine IDs are eligible (random fallback would allow any catalogue ID).
+        String miscLineId = pickFromPool(pool, "miscLine", "none");
 
         // facialHair (male 50%, female always none)
         String facialHairId = pickFromPool(pool, "facialHair",
@@ -450,7 +450,7 @@ public final class FaceGenerator {
                             isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
             .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
             .mouth(new FaceConfig.MouthFeature(
-                    pickFromPool(pool, "mouth", randGenderedId(F_MOUTH, isMale)), rng.nextBoolean()))
+                    pickFromPool(pool, "mouth", "none"), rng.nextBoolean()))
             .nose(new FaceConfig.NoseFeature(
                     pickFromPool(pool, "nose", randGenderedId(F_NOSE, isMale)),
                     rng.nextBoolean(),
