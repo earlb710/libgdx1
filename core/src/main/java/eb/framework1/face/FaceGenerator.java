@@ -482,11 +482,11 @@ public final class FaceGenerator {
     /**
      * Rule names that {@link #defaultCharacterFace} is permitted to fire.
      *
-     * <p>Only gender/age/beard rules are applied here. Clothes and emotion
-     * rules will be handled by dedicated generators added later.
+     * <p>Only the core gender rules are applied here. Beard, age, clothes and
+     * emotion rules will be handled by dedicated generators added later.
      */
     private static final Set<String> ALLOWED_RULE_NAMES = new HashSet<>(
-            Arrays.asList("Male", "Female", "Beard", "Bold", "Old"));
+            Arrays.asList("Male", "Female"));
 
     /**
      * Computes a map of eligible SVG part IDs per feature type for a character

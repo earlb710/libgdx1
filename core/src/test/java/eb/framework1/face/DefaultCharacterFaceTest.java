@@ -199,10 +199,11 @@ public class DefaultCharacterFaceTest {
     }
 
     @Test
-    public void defaultCharacterFace_minAgeFilter_youngCharacterSkipsOldRule() {
+    public void defaultCharacterFace_minAgeFilter_youngCharacterSkipsMinAgeRule() {
+        // Use the allowed "Male" rule name to test minAge filtering logic.
         String json = "{\n"
                 + "  \"rules\": [{\n"
-                + "    \"name\": \"Old\",\n"
+                + "    \"name\": \"Male\",\n"
                 + "    \"gender\": \"\",\n"
                 + "    \"emotion\": \"\",\n"
                 + "    \"minWealth\": 0,\n"
