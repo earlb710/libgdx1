@@ -173,6 +173,16 @@ public final class FaceGenerator {
     private static final int F_NOSE        = 14;
     private static final int F_SMILELINE   = 15;
 
+    /**
+     * Mouth IDs used when no rule pool is available. Emotion-specific entries
+     * ("angry", "closed", "side") are excluded so that default/fallback faces
+     * never show emotion expressions.
+     */
+    private static final String[] F_MOUTH_NORMAL = {
+        "mouth","mouth2","mouth3","mouth4","mouth5","mouth6","mouth7","mouth8",
+        "smile-closed","smile","smile2","smile3","smile4","straight"
+    };
+
     // -------------------------------------------------------------------------
     // Skin and hair colour palettes (from generate.ts)
     // -------------------------------------------------------------------------
@@ -336,7 +346,7 @@ public final class FaceGenerator {
                             isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
             .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
             .mouth(new FaceConfig.MouthFeature(
-                    randGenderedId(F_MOUTH, isMale), rng.nextBoolean()))
+                    randChoice(F_MOUTH_NORMAL), rng.nextBoolean()))
             .nose(new FaceConfig.NoseFeature(
                     randGenderedId(F_NOSE, isMale),
                     rng.nextBoolean(),
