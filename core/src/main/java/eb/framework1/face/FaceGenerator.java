@@ -409,9 +409,10 @@ public final class FaceGenerator {
         // miscLine IDs are eligible (random fallback would allow any catalogue ID).
         String miscLineId = pickFromPool(pool, "miscLine", "none");
 
-        // facialHair (male 50%, female always none)
-        String facialHairId = pickFromPool(pool, "facialHair",
-                (!isMale || rng.nextDouble() < 0.5) ? "none" : randGenderedId(F_FACIALHAIR, true));
+        // facialHair: only use pool entry; default to none so beard/facial-hair
+        // rules control this. The Male and Female rules do not include facial
+        // hair, so characters generated with those rules will never have a beard.
+        String facialHairId = pickFromPool(pool, "facialHair", "none");
 
         // glasses: only use pool entry; default to none so glasses-rules control this
         String glassesId = pickFromPool(pool, "glasses", "none");

@@ -643,4 +643,35 @@ public class DefaultCharacterFaceTest {
                     || face.miscLine.id.equals("freckles2"));
         }
     }
+
+    @Test
+    public void generateWithPool_facialHairDefaultsToNone_whenNotInPool() {
+        // Male/Female rules do not include facialHair entries; the pool will
+        // therefore have no "facialHair" key. The generator must default to
+        // "none" (not use a random fallback that produces a beard).
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("facialHair must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.facialHair.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_facialHairFromPoolIsUsed() {
+        // When pool explicitly provides "facialHair", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("facialHair", Arrays.asList("beard1", "beard2"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertTrue("facialHair id must come from pool, was: " + face.facialHair.id,
+                    face.facialHair.id.equals("beard1")
+                    || face.facialHair.id.equals("beard2"));
+        }
+    }
 }
