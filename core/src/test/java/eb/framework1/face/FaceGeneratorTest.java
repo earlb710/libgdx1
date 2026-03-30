@@ -593,4 +593,78 @@ public class FaceGeneratorTest {
         assertEquals("eye3 bbox center X must not be pulled to 0 by bare M0,0", 265.0, c[0], 5.0);
         assertEquals("eye3 bbox center Y must not be pulled to 0 by bare M0,0", 335.0, c[1], 5.0);
     }
+
+    // =========================================================================
+    // FaceGenerator.generate(Options) — no-pool defaults
+    // =========================================================================
+
+    @Test
+    public void generate_noPool_jerseyIsNone() {
+        // jersey must never appear unless an explicit pool/rule specifies it.
+        for (int seed = 0; seed < 50; seed++) {
+            FaceConfig f = new FaceGenerator(new java.util.Random(seed)).generate();
+            assertEquals("jersey must be 'none' with no pool", "none", f.jersey.id);
+        }
+    }
+
+    @Test
+    public void generate_noPool_glassesIsNone() {
+        // glasses must never appear unless an explicit pool/rule specifies it.
+        for (int seed = 0; seed < 50; seed++) {
+            FaceConfig f = new FaceGenerator(new java.util.Random(seed)).generate();
+            assertEquals("glasses must be 'none' with no pool", "none", f.glasses.id);
+        }
+    }
+
+    @Test
+    public void generate_noPool_accessoriesIsNone() {
+        // accessories must never appear unless an explicit pool/rule specifies it.
+        for (int seed = 0; seed < 50; seed++) {
+            FaceConfig f = new FaceGenerator(new java.util.Random(seed)).generate();
+            assertEquals("accessories must be 'none' with no pool", "none", f.accessories.id);
+        }
+    }
+
+    // =========================================================================
+    // FaceConfig.Builder — jersey default
+    // =========================================================================
+
+    @Test
+    public void faceConfigBuilder_jerseyDefault_isNone() {
+        FaceConfig f = new FaceConfig.Builder().build();
+        assertEquals("Builder default jersey must be 'none'", "none", f.jersey.id);
+    }
+
+    // =========================================================================
+    // FaceSvgBuilder.getFlip — hairBg mirrors with hair
+    // =========================================================================
+
+    @Test
+    public void svgBuilder_hairBg_flipMatchesHair() {
+        // When hair.flip=true the hairBg transform must include a negative x-scale.
+        // When hair.flip=false hairBg must use only identity/positive scales.
+        // Use a loader that only returns templates for hairBg (null for others),
+        // so the SVG output only contains hairBg — making the assertion unambiguous.
+        final String simplePath = "<path d=\"M0 0 L100 100\"/>";
+        FaceSvgBuilder builder = new FaceSvgBuilder((feature, id) ->
+                "hairBg".equals(feature) ? simplePath : null);
+
+        // flip=true: hairBg SVG must contain a negative x-scale (mirror)
+        FaceConfig flipFace = new FaceConfig.Builder()
+                .hair(new FaceConfig.HairFeature("female2", "#000000", true))
+                .hairBg(new FaceConfig.SimpleFeature("female1"))
+                .build();
+        String svgFlip = builder.toSvgString(flipFace);
+        assertTrue("hairBg with flip=true must contain negative x-scale",
+                svgFlip.contains("scale(-"));
+
+        // flip=false: hairBg SVG must NOT contain a negative x-scale
+        FaceConfig noFlipFace = new FaceConfig.Builder()
+                .hair(new FaceConfig.HairFeature("female2", "#000000", false))
+                .hairBg(new FaceConfig.SimpleFeature("female1"))
+                .build();
+        String svgNoFlip = builder.toSvgString(noFlipFace);
+        assertFalse("hairBg with flip=false must not contain negative x-scale",
+                svgNoFlip.contains("scale(-"));
+    }
 }

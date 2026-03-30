@@ -454,10 +454,11 @@ public class GameDataManager {
      * {@code skin_tone_categories} array in {@code category_en.json}.
      */
     private SkinToneDefinition parseSkinToneDefinition(JsonValue json) {
-        String code = json.getString("code", "");
-        String name = json.getString("name", code);
-        String rgb  = json.getString("rgb", "");
-        return new SkinToneDefinition(code, name, rgb);
+        String code       = json.getString("code", "");
+        String name       = json.getString("name", code);
+        String rgb        = json.getString("rgb", "");
+        int    percentage = json.getInt("percentage", 10);
+        return new SkinToneDefinition(code, name, rgb, percentage);
     }
 
     /**

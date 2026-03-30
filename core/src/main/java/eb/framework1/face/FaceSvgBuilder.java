@@ -143,6 +143,7 @@ public final class FaceSvgBuilder {
 
         double bodySize = face.body.size;
         double fatness  = face.fatness;
+        double fs       = fatScale(fatness);   // 0.8 – 1.0
 
         StringBuilder sb = new StringBuilder(8192);
         sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\"")
@@ -151,10 +152,17 @@ public final class FaceSvgBuilder {
           .append(" viewBox=\"0 0 400 600\"")
           .append(" preserveAspectRatio=\"xMinYMin meet\">\n");
 
+        // Wrap ALL features in a single group that applies the global fatness
+        // transform, centred at x=200 so that the face stays horizontally centred
+        // regardless of how wide or narrow the fatness makes it.
+        // x' = (x - 200) * fs + 200 = translate(200,0) scale(fs,1) translate(-200,0)
+        sb.append("<g transform=\"translate(200,0) scale(").append(fs).append(",1) translate(-200,0)\">\n");
+
         for (FeatureInfo info : FEATURE_INFOS) {
             drawFeature(sb, face, info, bodySize, fatness);
         }
 
+        sb.append("</g>\n");
         sb.append("</svg>");
         return sb.toString();
     }
@@ -279,18 +287,29 @@ public final class FaceSvgBuilder {
 
         // --- Scale (body/jersey, flip, size) ---
         if (isBody) {
+            // Center the bodySize x-scale at x=200 so the jersey remains horizontally
+            // centred regardless of bodySize.  Equivalent SVG transform:
+            //   translate(200*(1-bodySize), 0) scale(bodySize, 1)
+            appendTranslate(t, 200.0 * (1.0 - bodySize), 0);
             appendScale(t, bodySize, 1.0);
         } else if (flip || instanceIdx == 1) {
-            appendScale(t, -scale, scale);
+            if (!hasPosition) {
+                // Non-positioned feature (e.g. hair): mirror around the SVG canvas
+                // centre (x = 200) instead of around x = 0.
+                // SVG applies transforms right-to-left, so writing
+                //   translate(200*(1+scale), 0) scale(−scale, scale)
+                // means scale(−scale, scale) runs first, then the translate.
+                // x' = −scale·x + 200·(1 + scale)
+                appendTranslate(t, 200.0 * (1.0 + scale), 0);
+                appendScale(t, -scale, scale);
+            } else {
+                appendScale(t, -scale, scale);
+            }
         } else if (scale != 1.0) {
             appendScale(t, scale, scale);
         }
 
-        // --- Fatness scaling for scaleFatness features without position ---
-        if (info.scaleFatness && !hasPosition) {
-            double fs = fatScale(fatness);
-            appendScale(t, fs, 1.0);
-        }
+        // --- Fatness scaling: now applied globally in toSvgString(); no per-feature scale needed ---
 
         // --- Bbox-centre offset (mirrors getBBox() centring from facesjs) ---
         // Appending translate(-cx, -cy) ensures the feature's geometric centre
@@ -635,10 +654,11 @@ public final class FaceSvgBuilder {
 
     private static boolean getFlip(FaceConfig face, String name) {
         switch (name) {
-            case "hair":  return face.hair.flip;
-            case "mouth": return face.mouth.flip;
-            case "nose":  return face.nose.flip;
-            default:      return false;
+            case "hair":
+            case "hairBg": return face.hair.flip;
+            case "mouth":  return face.mouth.flip;
+            case "nose":   return face.nose.flip;
+            default:       return false;
         }
     }
 

@@ -98,6 +98,14 @@ public class InfoPanelRenderer {
     private Texture eyeIconTexture;
     private int     eyeIconTexW, eyeIconTexH;
 
+    /** Portrait painter used to render NPC face thumbnails; may be {@code null}. */
+    private final FacePortraitPainter portraitPainter;
+
+    /** Height of a portrait thumbnail shown inline with an NPC entry (pixels). */
+    private static final float PORTRAIT_H = 68f;
+    /** Width of a portrait thumbnail (proportional to {@link FacePortraitPainter} aspect). */
+    private static final float PORTRAIT_W = 45f;
+
     // Active scroll offsets during the clipped content draw pass (reset to 0 outside it)
     private float drawScrollX, drawScrollY;
 
@@ -106,6 +114,16 @@ public class InfoPanelRenderer {
                       BitmapFont tinyFont, BitmapFont noteFont,
                       GlyphLayout glyphLayout,
                       CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine) {
+        this(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont, noteFont,
+             glyphLayout, cityMap, profile, novelTextEngine, null);
+    }
+
+    public InfoPanelRenderer(SpriteBatch batch, ShapeRenderer shapeRenderer,
+                      BitmapFont font, BitmapFont smallFont, BitmapFont boldSmallFont,
+                      BitmapFont tinyFont, BitmapFont noteFont,
+                      GlyphLayout glyphLayout,
+                      CityMap cityMap, Profile profile, NovelTextEngine novelTextEngine,
+                      FacePortraitPainter portraitPainter) {
         this.batch           = batch;
         this.shapeRenderer   = shapeRenderer;
         this.font            = font;
@@ -117,6 +135,7 @@ public class InfoPanelRenderer {
         this.cityMap         = cityMap;
         this.profile         = profile;
         this.novelTextEngine = novelTextEngine;
+        this.portraitPainter = portraitPainter;
         try {
             eyeIconTexture = new Texture(Gdx.files.internal("icons/eye.png"));
             eyeIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -133,6 +152,7 @@ public class InfoPanelRenderer {
             eyeIconTexture.dispose();
             eyeIconTexture = null;
         }
+        // portraitPainter lifecycle is managed externally (by MainScreen)
     }
 
     // -------------------------------------------------------------------------
@@ -849,6 +869,18 @@ public class InfoPanelRenderer {
                                 : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
                         font.setColor(Color.WHITE);
                         font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+
+                        // Face portrait: shown to the right of the name for known NPCs
+                        if (hasMet && portraitPainter != null && npc.getFaceConfig() != null) {
+                            Texture portrait = portraitPainter.getPortrait(
+                                    npc.getId(), npc.getFaceConfig());
+                            if (portrait != null) {
+                                glyphLayout.setText(font, displayName);
+                                float px = textX - drawScrollX + glyphLayout.width + 8f;
+                                float py = textY + drawScrollY - PORTRAIT_H;
+                                batch.draw(portrait, px, py, PORTRAIT_W, PORTRAIT_H);
+                            }
+                        }
 
                         // Eye icon: only for unknown NPCs when the player is at the same cell
                         int nx = npc.getCurrentCellX(s.currentHour);

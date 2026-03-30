@@ -1,11 +1,13 @@
 package eb.framework1.character;
 
 import eb.framework1.city.*;
+import eb.framework1.face.FaceRule;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -91,7 +93,7 @@ public class NpcGenerator {
      * @param nameGen name generator used to produce NPC names; must not be {@code null}
      */
     public NpcGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random());
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -102,8 +104,34 @@ public class NpcGenerator {
      * @param random  random source; {@code null} is replaced by {@code new Random()}
      */
     public NpcGenerator(PersonNameGenerator nameGen, Random random) {
-        this.charGen = new CharacterGenerator(nameGen, random);
-        this.random  = random != null ? random : new Random();
+        this(nameGen, random, null, null);
+    }
+
+    /**
+     * Creates a generator with face rules for age- and gender-aware part selection.
+     *
+     * @param nameGen   name generator; must not be {@code null}
+     * @param random    random source; {@code null} → {@code new Random()}
+     * @param faceRules parsed face rules from {@code facerules.json};
+     *                  {@code null} disables rule-based face generation
+     */
+    public NpcGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
+        this(nameGen, random, faceRules, null);
+    }
+
+    /**
+     * Creates a generator with face rules and weighted skin-tone definitions.
+     *
+     * @param nameGen   name generator; must not be {@code null}
+     * @param random    random source; {@code null} → {@code new Random()}
+     * @param faceRules parsed face rules; {@code null} → none
+     * @param skinTones skin-tone definitions with percentage weights; {@code null} → none
+     */
+    public NpcGenerator(PersonNameGenerator nameGen, Random random,
+                        List<FaceRule> faceRules, List<SkinToneDefinition> skinTones) {
+        Random r = random != null ? random : new Random();
+        this.charGen = new CharacterGenerator(nameGen, r, faceRules, skinTones);
+        this.random  = r;
     }
 
     // -------------------------------------------------------------------------

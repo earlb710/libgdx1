@@ -2,6 +2,9 @@ package eb.framework1.popup;
 
 import eb.framework1.character.NpcCharacter;
 import eb.framework1.character.PersonDescriptionEngine;
+import eb.framework1.face.FaceConfig;
+import eb.framework1.face.FaceGenerator;
+import eb.framework1.ui.FacePortraitPainter;
 import eb.framework1.ui.WordWrapper;
 import eb.framework1.ui.InfoPanelRenderer;
 import eb.framework1.ui.TextMeasurer;
@@ -9,13 +12,16 @@ import eb.framework1.ui.TextMeasurer;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.Gdx;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Modal popup that shows the result of examining an unknown person from afar.
@@ -50,15 +56,20 @@ public class ExaminePersonPopup {
     private static final Color TITLE_COLOR    = new Color(0.85f, 0.92f, 1.00f, 1f);
     private static final Color CLOSE_BTN_COLOR = new Color(0.25f, 0.10f, 0.35f, 1f);
 
+    /** Knuth multiplicative hash constant — used to derive a face seed from NPC id + age. */
+    private static final long FACE_SEED_MUL = 2654435761L;
+
     // -------------------------------------------------------------------------
     // Rendering resources
     // -------------------------------------------------------------------------
 
-    private final SpriteBatch   batch;
-    private final ShapeRenderer sr;
-    private final BitmapFont    font;
-    private final BitmapFont    smallFont;
-    private final GlyphLayout   glyph;
+    private final SpriteBatch       batch;
+    private final ShapeRenderer     sr;
+    private final BitmapFont        font;
+    private final BitmapFont        smallFont;
+    private final GlyphLayout       glyph;
+    /** Optional face portrait painter; {@code null} → no portrait displayed. */
+    private final FacePortraitPainter portraitPainter;
 
     // -------------------------------------------------------------------------
     // State
@@ -68,6 +79,11 @@ public class ExaminePersonPopup {
     private NpcCharacter npc     = null;
     /** Pre-generated description lines for the current NPC. */
     private List<String> descLines = java.util.Collections.emptyList();
+    /**
+     * Fallback face configs generated on-the-fly for NPCs without a stored
+     * {@link FaceConfig} (keyed by NPC ID to avoid redundant generation).
+     */
+    private final Map<String, FaceConfig> fallbackFaces = new HashMap<>();
 
     // Hit areas — written during draw(), read by onTap()
     private float closeBtnX, closeBtnY, closeBtnW, closeBtnH;
@@ -78,11 +94,18 @@ public class ExaminePersonPopup {
 
     public ExaminePersonPopup(SpriteBatch batch, ShapeRenderer sr,
                                BitmapFont font, BitmapFont smallFont, GlyphLayout glyph) {
-        this.batch     = batch;
-        this.sr        = sr;
-        this.font      = font;
-        this.smallFont = smallFont;
-        this.glyph     = glyph;
+        this(batch, sr, font, smallFont, glyph, null);
+    }
+
+    public ExaminePersonPopup(SpriteBatch batch, ShapeRenderer sr,
+                               BitmapFont font, BitmapFont smallFont, GlyphLayout glyph,
+                               FacePortraitPainter portraitPainter) {
+        this.batch          = batch;
+        this.sr             = sr;
+        this.font           = font;
+        this.smallFont      = smallFont;
+        this.glyph          = glyph;
+        this.portraitPainter = portraitPainter;
     }
 
     // -------------------------------------------------------------------------
@@ -102,6 +125,7 @@ public class ExaminePersonPopup {
         this.npc     = npc;
         this.visible = true;
         this.closeBtnW = 0f;
+        this.descLines = java.util.Collections.emptyList();
         Gdx.app.log("ExaminePersonPopup", "Showing examination for NPC " + npc.getId());
     }
 
@@ -143,6 +167,10 @@ public class ExaminePersonPopup {
         final float BTN_PAD_H = 28f;
         final float BTN_PAD_V = 10f;
 
+        // Portrait dimensions (shown when a painter is available)
+        final float PORTRAIT_DISPLAY_W = 270f;
+        final float PORTRAIT_DISPLAY_H = 405f;
+
         // ── Font metrics ──────────────────────────────────────────────────────
         glyph.setText(font, "Hg");
         float fontCapH  = glyph.height;
@@ -171,10 +199,27 @@ public class ExaminePersonPopup {
         float cBtnW = closeBounds.width;
         float cBtnH = closeBounds.height;
 
+        // Include portrait height in dialog size when portrait is available.
+        // For NPCs without a stored face config (e.g. from old saves), generate
+        // one on the fly using a deterministic seed so the same NPC always gets
+        // the same fallback face.
+        FaceConfig effectiveFace = npc.getFaceConfig();
+        if (effectiveFace == null && portraitPainter != null) {
+            effectiveFace = fallbackFaces.computeIfAbsent(npc.getId(), id -> {
+                long seed = ((long) id.hashCode() * FACE_SEED_MUL) ^ npc.getAge();
+                FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+                String normGender = "F".equals(npc.getGender()) ? "female" : "male";
+                return gen.generate(new FaceGenerator.Options().gender(normGender));
+            });
+        }
+        boolean hasPortrait = portraitPainter != null && effectiveFace != null;
+        float portraitBlockH = hasPortrait ? PORTRAIT_DISPLAY_H + GAP : 0f;
+
         float descH = descLines.size() * smallLineH;
         float dialogH = PAD
                 + fontLineH            // title
-                + GAP + descH          // description lines
+                + GAP + portraitBlockH // portrait (optional)
+                + descH                // description lines
                 + GAP + cBtnH          // Close button
                 + PAD;
 
@@ -203,6 +248,22 @@ public class ExaminePersonPopup {
         sr.rect(closeBtnX + 1, closeBtnY + 1, closeBtnW - 2, closeBtnH - 2);
         sr.end();
 
+        // ── Portrait (drawn before SpriteBatch text) ──────────────────────────
+        if (hasPortrait) {
+            try {
+                Texture portrait = portraitPainter.getPortrait(npc.getId(), effectiveFace);
+                if (portrait != null) {
+                    float portraitX = dialogX + (dialogW - PORTRAIT_DISPLAY_W) / 2f;
+                    float portraitY = dialogY + dialogH - PAD - fontLineH - GAP - PORTRAIT_DISPLAY_H;
+                    batch.begin();
+                    batch.draw(portrait, portraitX, portraitY, PORTRAIT_DISPLAY_W, PORTRAIT_DISPLAY_H);
+                    batch.end();
+                }
+            } catch (Exception e) {
+                Gdx.app.log("ExaminePersonPopup", "Portrait render failed: " + e.getMessage());
+            }
+        }
+
         // ── SpriteBatch: text ─────────────────────────────────────────────────
         batch.begin();
 
@@ -218,9 +279,9 @@ public class ExaminePersonPopup {
         float textAreaBottom = closeBtnY_ + cBtnH + GAP;
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
         Gdx.gl.glScissor((int) dialogX, (int) textAreaBottom,
-                         (int) dialogW, (int)(dialogH - PAD - fontLineH - GAP));
+                         (int) dialogW, (int)(dialogH - PAD - fontLineH - GAP - portraitBlockH));
 
-        float ty = dialogY + dialogH - PAD - fontLineH - GAP;
+        float ty = dialogY + dialogH - PAD - fontLineH - GAP - portraitBlockH;
         smallFont.setColor(InfoPanelRenderer.NOVEL_COLOR);
         for (String line : descLines) {
             smallFont.draw(batch, line, dialogX + PAD, ty);

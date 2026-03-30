@@ -28,6 +28,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import eb.framework1.face.FaceRule;
+import eb.framework1.face.FaceRuleLoader;
+import eb.framework1.face.JsonSvgTemplateLoader;
+import eb.framework1.face.FaceSvgBuilder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,6 +75,7 @@ public class MainScreen implements Screen {
     // Rendering helpers
     private MapRenderer       mapRenderer;
     private InfoPanelRenderer infoPanelRenderer;
+    private FacePortraitPainter portraitPainter;
     LookAroundPopup   lookAroundPopup;
     private UnitInteriorPopup unitInteriorPopup;
     TirednessPopup    tirednessPopup;
@@ -258,7 +264,16 @@ public class MainScreen implements Screen {
             // Generate world-population NPCs for a fresh game
             PersonNameGenerator png = (gameData != null) ? gameData.getPersonNameGenerator() : null;
             if (png != null) {
-                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31));
+                // Load face rules for age/gender-aware part selection
+                List<FaceRule> faceRules = Collections.emptyList();
+                try {
+                    String rulesJson = Gdx.files.internal("face/facerules.json").readString();
+                    faceRules = FaceRuleLoader.fromJson(rulesJson);
+                } catch (Exception e) {
+                    Gdx.app.log("MainScreen", "Could not load facerules.json: " + e.getMessage());
+                }
+                NpcGenerator npcGen = new NpcGenerator(png, new Random(profile.getRandSeed() + 31),
+                        faceRules, gameData.getSkinToneCategories());
                 for (int i = 0; i < 20; i++) {
                     NpcCharacter npc = npcGen.generateWorldNpc(cityMap);
                     profile.addWorldNpc(npc);
@@ -282,8 +297,17 @@ public class MainScreen implements Screen {
             mapRenderer.setCharacterIconTexture(charTex);
         }
 
+        // Create face portrait painter from SVG templates
+        try {
+            String svgsJson = Gdx.files.internal("face/svgs.json").readString();
+            FaceSvgBuilder.SvgTemplateLoader templateLoader = JsonSvgTemplateLoader.fromJson(svgsJson);
+            portraitPainter = new FacePortraitPainter(templateLoader);
+        } catch (Exception e) {
+            Gdx.app.log("MainScreen", "Could not load face SVG templates: " + e.getMessage());
+        }
+
         infoPanelRenderer = new InfoPanelRenderer(batch, shapeRenderer, font, smallFont, boldSmallFont, tinyFont, noteFont,
-                glyphLayout, cityMap, profile, novelTextEngine);
+                glyphLayout, cityMap, profile, novelTextEngine, portraitPainter);
 
         lookAroundPopup = new LookAroundPopup(batch, shapeRenderer, font, smallFont,
                 glyphLayout, cityMap, profile, novelTextEngine);
@@ -321,7 +345,7 @@ public class MainScreen implements Screen {
 
         meetPopup = new MeetPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
 
-        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+        examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout, portraitPainter);
 
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
@@ -504,6 +528,7 @@ public class MainScreen implements Screen {
         if (shapeRenderer      != null) shapeRenderer.dispose();
         if (mapRenderer        != null) mapRenderer.dispose();
         if (infoPanelRenderer  != null) infoPanelRenderer.dispose();
+        if (portraitPainter    != null) portraitPainter.dispose();
         if (previousInputProcessor != null)
             Gdx.input.setInputProcessor(previousInputProcessor);
     }

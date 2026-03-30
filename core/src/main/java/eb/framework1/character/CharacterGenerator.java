@@ -2,11 +2,16 @@ package eb.framework1.character;
 
 import eb.framework1.face.FaceConfig;
 import eb.framework1.face.FaceGenerator;
+import eb.framework1.face.FaceRule;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -99,9 +104,12 @@ public class CharacterGenerator {
     private static final float BMI_MIN = 17f;
     private static final float BMI_MAX = 34f;
 
-    private final PersonNameGenerator nameGen;
-    private final Random              random;
-    private final FaceGenerator       faceGen;
+    private final PersonNameGenerator   nameGen;
+    private final Random                random;
+    private final FaceGenerator         faceGen;
+    private final List<FaceRule>        faceRules;
+    /** Skin-tone definitions used for weighted random assignment; may be empty. */
+    private final List<SkinToneDefinition> skinTones;
 
     // Counter used to produce unique NPC ids within a single generator instance.
     private int npcCounter = 0;
@@ -117,7 +125,7 @@ public class CharacterGenerator {
      *                {@code null}
      */
     public CharacterGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random());
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -129,12 +137,41 @@ public class CharacterGenerator {
      *                default {@code new Random()}
      */
     public CharacterGenerator(PersonNameGenerator nameGen, Random random) {
+        this(nameGen, random, null, null);
+    }
+
+    /**
+     * Creates a generator with face rules for age- and gender-aware part selection.
+     *
+     * @param nameGen   name generator; must not be {@code null}
+     * @param random    random-number source; {@code null} → {@code new Random()}
+     * @param faceRules parsed face rules from {@code facerules.json};
+     *                  {@code null} or empty disables rule-based face generation
+     */
+    public CharacterGenerator(PersonNameGenerator nameGen, Random random, List<FaceRule> faceRules) {
+        this(nameGen, random, faceRules, null);
+    }
+
+    /**
+     * Creates a generator with face rules and weighted skin-tone definitions.
+     *
+     * @param nameGen    name generator; must not be {@code null}
+     * @param random     random-number source; {@code null} → {@code new Random()}
+     * @param faceRules  parsed face rules; {@code null} or empty → no rules
+     * @param skinTones  skin-tone definitions with percentage weights;
+     *                   {@code null} or empty → no skin-tone assignment
+     */
+    public CharacterGenerator(PersonNameGenerator nameGen, Random random,
+                               List<FaceRule> faceRules,
+                               List<SkinToneDefinition> skinTones) {
         if (nameGen == null) {
             throw new IllegalArgumentException("nameGen must not be null");
         }
-        this.nameGen = nameGen;
-        this.random  = random != null ? random : new Random();
-        this.faceGen = new FaceGenerator(this.random);
+        this.nameGen    = nameGen;
+        this.random     = random != null ? random : new Random();
+        this.faceGen    = new FaceGenerator(this.random);
+        this.faceRules  = (faceRules  != null) ? faceRules  : Collections.emptyList();
+        this.skinTones  = (skinTones  != null) ? skinTones  : Collections.emptyList();
     }
 
     // -------------------------------------------------------------------------
@@ -270,23 +307,101 @@ public class CharacterGenerator {
         }
 
         // 30% of characters have a vision impairment (farsighted or nearsighted).
+        VisionTrait visionTrait = null;
         if (random.nextFloat() < 0.30f) {
-            b.visionTrait(random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED);
+            visionTrait = random.nextBoolean() ? VisionTrait.FARSIGHTED : VisionTrait.NEARSIGHTED;
+            b.visionTrait(visionTrait);
         }
 
-        // Generate a vector face that matches the NPC's gender.
-        FaceGenerator.Options faceOpts = new FaceGenerator.Options()
-                .gender("F".equals(gender) ? "female" : "male");
-        FaceConfig face = faceGen.generate(faceOpts);
-        b.faceConfig(face);
+        // Generate a vector face that matches the NPC's gender and age.
+        String normGender = "F".equals(gender) ? "female" : "male";
+        FaceGenerator.Options faceOpts = new FaceGenerator.Options().gender(normGender);
+        FaceConfig face;
+        if (!faceRules.isEmpty()) {
+            // Use rule-based eligible pool (age- and gender-aware)
+            long faceSeed = (long) id.hashCode() * 2654435761L ^ age;
+            Map<String, List<String>> pool =
+                    new HashMap<>(FaceGenerator.defaultCharacterFace(faceSeed, normGender, age, faceRules));
+            // When the NPC has a vision impairment they will carry glasses;
+            // apply the gender-specific glasses rule so the face SVG shows them.
+            if (visionTrait != null && visionTrait.isImpaired()) {
+                pool = applyGlassesRule(pool, normGender, faceRules);
+            }
+            face = faceGen.generate(faceOpts, pool);
+        } else {
+            face = faceGen.generate(faceOpts);
+        }
 
+        // Assign a skin tone based on weighted random selection.
+        if (!skinTones.isEmpty()) {
+            SkinToneDefinition chosen = pickWeightedSkinTone();
+            if (chosen != null) {
+                face = face.withSkinColor(chosen.getRgb());
+                b.skinToneCode(chosen.getCode());
+            }
+        }
+
+        b.faceConfig(face);
         return b;
+    }
+
+    /**
+     * Picks a skin tone using weighted random selection based on each
+     * definition's {@code percentage} value.  Returns {@code null} if the
+     * list is empty or all weights are zero.
+     */
+    private SkinToneDefinition pickWeightedSkinTone() {
+        int total = 0;
+        for (SkinToneDefinition st : skinTones) total += Math.max(0, st.getPercentage());
+        if (total <= 0) return null;
+        int roll = random.nextInt(total);
+        int cum  = 0;
+        for (SkinToneDefinition st : skinTones) {
+            cum += Math.max(0, st.getPercentage());
+            if (roll < cum) return st;
+        }
+        return skinTones.get(skinTones.size() - 1);
     }
 
     /** Convenience overload using {@link PersonalityProfile#DEFAULT}. */
     private NpcCharacter.Builder buildBase(String id, String gender,
                                            int minAge, int maxAge) {
         return buildBase(id, gender, minAge, maxAge, PersonalityProfile.DEFAULT);
+    }
+
+    /**
+     * Augments the face-part pool with glasses SVG IDs from the
+     * {@code glassesMale} or {@code glassesFemale} rule when the NPC needs
+     * vision correction.  Returns a new mutable map; the input map is not
+     * modified.
+     *
+     * @param pool       the current pool (mutable copy expected)
+     * @param normGender {@code "male"} or {@code "female"}
+     * @param rules      the full list of face rules
+     * @return the same map with a {@code "glasses"} entry added (or unchanged
+     *         if no matching rule was found)
+     */
+    private static Map<String, List<String>> applyGlassesRule(
+            Map<String, List<String>> pool,
+            String normGender,
+            List<FaceRule> rules) {
+        String targetName = "female".equals(normGender) ? "glassesFemale" : "glassesMale";
+        for (FaceRule rule : rules) {
+            if (targetName.equals(rule.name)) {
+                List<String> glassesIds = new ArrayList<>();
+                for (String entry : rule.include) {
+                    int dot = entry.indexOf('.');
+                    if (dot > 0 && "glasses".equals(entry.substring(0, dot))) {
+                        glassesIds.add(entry.substring(dot + 1));
+                    }
+                }
+                if (!glassesIds.isEmpty()) {
+                    pool.put("glasses", Collections.unmodifiableList(glassesIds));
+                }
+                break;
+            }
+        }
+        return pool;
     }
 
     /** Returns {@code "M"} or {@code "F"} at random. */

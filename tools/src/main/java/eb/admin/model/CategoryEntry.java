@@ -6,6 +6,7 @@ package eb.admin.model;
  * The {@code actions} field is only used by improvement categories and holds a
  * comma-separated list of action button labels (e.g. "rest, read, practice").
  * The {@code name} field is used by skill categories in place of {@code description}.
+ * The {@code percentage} field is used by skin tone categories as a spawn weight (0–100).
  */
 public class CategoryEntry {
     private String code;
@@ -14,6 +15,8 @@ public class CategoryEntry {
     private String actions;
     private String name;
     private String rgb;
+    /** Relative spawn weight for skin tone categories. Defaults to 10 if absent. */
+    private int percentage = 10;
 
     public CategoryEntry() {
     }
@@ -64,5 +67,13 @@ public class CategoryEntry {
 
     public void setRgb(String rgb) {
         this.rgb = rgb;
+    }
+
+    public int getPercentage() {
+        return percentage;
+    }
+
+    public void setPercentage(int percentage) {
+        this.percentage = percentage;
     }
 }

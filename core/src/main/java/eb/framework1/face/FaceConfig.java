@@ -172,6 +172,37 @@ public final class FaceConfig {
         this.accessories = b.accessories;
     }
 
+    /**
+     * Returns a copy of this {@code FaceConfig} with the body skin colour
+     * replaced by {@code newColor}.  All other fields are shared (safe because
+     * they are immutable).
+     *
+     * @param newColor hex colour string, e.g. {@code "#F5D0C5"}
+     * @return a new {@code FaceConfig} with the given skin colour
+     */
+    public FaceConfig withSkinColor(String newColor) {
+        return new Builder()
+                .fatness(this.fatness)
+                .teamColors(this.teamColors)
+                .hairBg(this.hairBg)
+                .body(new BodyFeature(this.body.id, newColor, this.body.size))
+                .jersey(this.jersey)
+                .ear(this.ear)
+                .head(this.head)
+                .eyeLine(this.eyeLine)
+                .smileLine(this.smileLine)
+                .miscLine(this.miscLine)
+                .facialHair(this.facialHair)
+                .eye(this.eye)
+                .eyebrow(this.eyebrow)
+                .hair(this.hair)
+                .mouth(this.mouth)
+                .nose(this.nose)
+                .glasses(this.glasses)
+                .accessories(this.accessories)
+                .build();
+    }
+
     // -------------------------------------------------------------------------
     // Builder
     // -------------------------------------------------------------------------
@@ -182,7 +213,7 @@ public final class FaceConfig {
         private String[] teamColors = {"#89bfd3", "#7a1319", "#07364f"};
         private SimpleFeature    hairBg     = new SimpleFeature("none");
         private BodyFeature      body       = new BodyFeature("body", "#f2d6cb", 1.0);
-        private SimpleFeature    jersey     = new SimpleFeature("jersey");
+        private SimpleFeature    jersey     = new SimpleFeature("none");
         private EarFeature       ear        = new EarFeature("ear1", 1.0);
         private HeadFeature      head       = new HeadFeature("head1", "rgba(0,0,0,0)");
         private SimpleFeature    eyeLine    = new SimpleFeature("none");

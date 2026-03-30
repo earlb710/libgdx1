@@ -199,10 +199,11 @@ public class DefaultCharacterFaceTest {
     }
 
     @Test
-    public void defaultCharacterFace_minAgeFilter_youngCharacterSkipsOldRule() {
+    public void defaultCharacterFace_minAgeFilter_youngCharacterSkipsMinAgeRule() {
+        // Use the allowed "Male" rule name to test minAge filtering logic.
         String json = "{\n"
                 + "  \"rules\": [{\n"
-                + "    \"name\": \"Elder\",\n"
+                + "    \"name\": \"Male\",\n"
                 + "    \"gender\": \"\",\n"
                 + "    \"emotion\": \"\",\n"
                 + "    \"minWealth\": 0,\n"
@@ -239,13 +240,13 @@ public class DefaultCharacterFaceTest {
         String json = "{\n"
                 + "  \"rules\": [\n"
                 + "    {\n"
-                + "      \"name\": \"Low\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 1,\n"
                 + "      \"include\": [\"eye.eye1\"], \"additional\": [], \"exclude\": []\n"
                 + "    },\n"
                 + "    {\n"
-                + "      \"name\": \"High\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Female\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 2,\n"
                 + "      \"include\": [\"eye.eye2\"], \"additional\": [], \"exclude\": []\n"
@@ -270,13 +271,13 @@ public class DefaultCharacterFaceTest {
         String json = "{\n"
                 + "  \"rules\": [\n"
                 + "    {\n"
-                + "      \"name\": \"A\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 1,\n"
                 + "      \"include\": [], \"additional\": [\"eye.eye1\"], \"exclude\": []\n"
                 + "    },\n"
                 + "    {\n"
-                + "      \"name\": \"B\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Female\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 2,\n"
                 + "      \"include\": [], \"additional\": [\"eye.eye2\"], \"exclude\": []\n"
@@ -298,7 +299,7 @@ public class DefaultCharacterFaceTest {
         String json = "{\n"
                 + "  \"rules\": [\n"
                 + "    {\n"
-                + "      \"name\": \"Base\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 1,\n"
                 + "      \"include\": [\"hair.short\", \"hair.bald\"],\n"
@@ -306,7 +307,7 @@ public class DefaultCharacterFaceTest {
                 + "      \"exclude\": []\n"
                 + "    },\n"
                 + "    {\n"
-                + "      \"name\": \"NoBald\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "      \"name\": \"Female\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "      \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "      \"percentage\": 100, \"priority\": 2,\n"
                 + "      \"include\": [], \"additional\": [],\n"
@@ -340,7 +341,7 @@ public class DefaultCharacterFaceTest {
         // A rule with percentage=50 should fire for some seeds and not others.
         String json = "{\n"
                 + "  \"rules\": [{\n"
-                + "    \"name\": \"Rare\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "    \"percentage\": 50, \"priority\": 0,\n"
                 + "    \"include\": [\"eye.eye99\"], \"additional\": [], \"exclude\": []\n"
@@ -385,7 +386,7 @@ public class DefaultCharacterFaceTest {
     public void defaultCharacterFace_allExcluded_typeNotInResult() {
         String json = "{\n"
                 + "  \"rules\": [{\n"
-                + "    \"name\": \"Test\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
                 + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
                 + "    \"percentage\": 100, \"priority\": 0,\n"
                 + "    \"include\": [\"eye.eye1\"],\n"
@@ -398,5 +399,279 @@ public class DefaultCharacterFaceTest {
                 FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
         assertFalse("eye type should not appear when all IDs are excluded",
                 pool.containsKey("eye"));
+    }
+
+    // =========================================================================
+    // defaultCharacterFace — emotion filter
+    // =========================================================================
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_normalRuleFires() {
+        // A rule with emotion="normal" should fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"normal\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.smile\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("normal emotion rule should fire", pool.containsKey("mouth"));
+        assertTrue(pool.get("mouth").contains("smile"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_emptyEmotionRuleFires() {
+        // A rule with emotion="" (any) should also fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.closed\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("empty emotion rule should fire", pool.containsKey("mouth"));
+        assertTrue(pool.get("mouth").contains("closed"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_happyRuleSkipped() {
+        // A rule with emotion="happy" must NOT fire for defaultCharacterFace
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"happy\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.smile\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertFalse("happy emotion rule should not fire for default face",
+                pool.containsKey("mouth"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_angryRuleSkipped() {
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"angry\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"mouth.angry\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertFalse("angry emotion rule should not fire for default face",
+                pool.containsKey("mouth"));
+    }
+
+    @Test
+    public void defaultCharacterFace_emotionFilter_caseInsensitiveNormal() {
+        // "Normal" and "NORMAL" should both be treated as the normal emotion
+        String json = "{\n"
+                + "  \"rules\": [{\n"
+                + "    \"name\": \"Male\", \"gender\": \"\", \"emotion\": \"NORMAL\",\n"
+                + "    \"minWealth\": 0, \"minAge\": 0, \"clothesType\": \"\",\n"
+                + "    \"percentage\": 100, \"priority\": 0,\n"
+                + "    \"include\": [\"eye.eye1\"], \"additional\": [], \"exclude\": []\n"
+                + "  }]\n"
+                + "}";
+        List<FaceRule> rules = FaceRuleLoader.fromJson(json);
+        Map<String, List<String>> pool =
+                FaceGenerator.defaultCharacterFace(1L, "male", 30, rules);
+        assertTrue("NORMAL (uppercase) emotion rule should fire", pool.containsKey("eye"));
+    }
+
+    // =========================================================================
+    // FaceGenerator.generate(Options, pool) — pool-based generation
+    // =========================================================================
+
+    @Test
+    public void generateWithPool_picksIdFromPool() {
+        // Given a pool with a single eye ID, generate() must use it
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye5"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("eye5", face.eye.id);
+    }
+
+    @Test
+    public void generateWithPool_nullPoolFallsBackToRandom() {
+        // Null pool → should still produce a valid face
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), null);
+        assertNotNull(face);
+        assertNotNull(face.eye.id);
+        assertFalse(face.eye.id.isEmpty());
+    }
+
+    @Test
+    public void generateWithPool_emptyPoolFallsBackToRandom() {
+        // Empty pool → standard random generation
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face1 = gen.generate(new FaceGenerator.Options().gender("male"),
+                Collections.<String, List<String>>emptyMap());
+        assertNotNull(face1);
+    }
+
+    @Test
+    public void generateWithPool_missingFeatureUsesRandom() {
+        // Pool has "eye" but no "mouth" → mouth defaults to "none" (pool-only constraint).
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye3"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(99));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("eye3", face.eye.id);
+        assertNotNull("mouth id should not be null", face.mouth.id);
+        assertFalse(face.mouth.id.isEmpty());
+    }
+
+    @Test
+    public void generateWithPool_jerseyAndAccessoriesDefaultToNone() {
+        // When pool contains no "jersey", "accessories", or "glasses" entries, all must be "none".
+        // This ensures clothes/headbands/glasses are never rendered without an explicit rule.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        // Run many seeds to make sure the fallback is always "none"
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("jersey must be 'none' when not in pool", "none", face.jersey.id);
+            assertEquals("accessories must be 'none' when not in pool", "none", face.accessories.id);
+            assertEquals("glasses must be 'none' when not in pool", "none", face.glasses.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_jerseyFromPoolIsUsed() {
+        // When pool explicitly provides "jersey", that ID is used.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("jersey", Collections.singletonList("jersey3"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("jersey3", face.jersey.id);
+    }
+
+    @Test
+    public void generateWithPool_glassesFromPoolIsUsed() {
+        // When pool explicitly provides "glasses", that ID is used.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("glasses", Collections.singletonList("glasses1"));
+
+        FaceGenerator gen = new FaceGenerator(new java.util.Random(42));
+        FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+        assertEquals("glasses1", face.glasses.id);
+    }
+
+    // =========================================================================
+    // FaceGenerator.generate(Options, pool) — mouth and miscLine pool-only
+    // =========================================================================
+
+    @Test
+    public void generateWithPool_mouthNotInPool_defaultsToNone() {
+        // When the pool has no "mouth" entry, mouth must be "none" (not a random
+        // pick from the full catalogue).  This ensures only rules can supply mouths.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("mouth must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.mouth.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_mouthFromPoolIsUsed() {
+        // When pool explicitly provides "mouth", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("mouth", Arrays.asList("mouth2", "mouth3", "mouth4"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertTrue("mouth id must come from pool, was: " + face.mouth.id,
+                    face.mouth.id.equals("mouth2")
+                    || face.mouth.id.equals("mouth3")
+                    || face.mouth.id.equals("mouth4"));
+        }
+    }
+
+    @Test
+    public void generateWithPool_miscLineNotInPool_defaultsToNone() {
+        // When the pool has no "miscLine" entry, miscLine must be "none" (not a
+        // random pick from the full catalogue).
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), pool);
+            assertEquals("miscLine must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.miscLine.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_miscLineFromPoolIsUsed() {
+        // When pool explicitly provides "miscLine", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("miscLine", Arrays.asList("freckles1", "freckles2"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("female"), pool);
+            assertTrue("miscLine id must come from pool, was: " + face.miscLine.id,
+                    face.miscLine.id.equals("freckles1")
+                    || face.miscLine.id.equals("freckles2"));
+        }
+    }
+
+    @Test
+    public void generateWithPool_facialHairDefaultsToNone_whenNotInPool() {
+        // Male/Female rules do not include facialHair entries; the pool will
+        // therefore have no "facialHair" key. The generator must default to
+        // "none" (not use a random fallback that produces a beard).
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("eye", Collections.singletonList("eye1"));
+
+        for (int seed = 0; seed < 50; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertEquals("facialHair must be 'none' when not in pool (seed=" + seed + ")",
+                    "none", face.facialHair.id);
+        }
+    }
+
+    @Test
+    public void generateWithPool_facialHairFromPoolIsUsed() {
+        // When pool explicitly provides "facialHair", only those IDs should appear.
+        Map<String, List<String>> pool = new java.util.HashMap<>();
+        pool.put("facialHair", Arrays.asList("beard1", "beard2"));
+
+        for (int seed = 0; seed < 30; seed++) {
+            FaceGenerator gen = new FaceGenerator(new java.util.Random(seed));
+            FaceConfig face = gen.generate(new FaceGenerator.Options().gender("male"), pool);
+            assertTrue("facialHair id must come from pool, was: " + face.facialHair.id,
+                    face.facialHair.id.equals("beard1")
+                    || face.facialHair.id.equals("beard2"));
+        }
     }
 }

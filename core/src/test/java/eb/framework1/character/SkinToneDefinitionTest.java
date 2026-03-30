@@ -23,6 +23,20 @@ public class SkinToneDefinitionTest {
         assertEquals("porcelain_very_fair",   def.getCode());
         assertEquals("Porcelain / Very Fair", def.getName());
         assertEquals("#FFE5D9",               def.getRgb());
+        assertEquals(10,                      def.getPercentage()); // default
+    }
+
+    @Test
+    public void fourArgConstructor_storesPercentage() {
+        SkinToneDefinition def = new SkinToneDefinition("fair_light", "Fair / Light", "#F5D0C5", 20);
+        assertEquals(20, def.getPercentage());
+    }
+
+    @Test
+    public void setPercentage_updatesField() {
+        SkinToneDefinition def = new SkinToneDefinition();
+        def.setPercentage(15);
+        assertEquals(15, def.getPercentage());
     }
 
     @Test
@@ -53,12 +67,13 @@ public class SkinToneDefinitionTest {
     // =========================================================================
 
     @Test
-    public void toString_containsCodeNameAndRgb() {
-        SkinToneDefinition def = new SkinToneDefinition("medium_brown", "Medium Brown", "#C68642");
+    public void toString_containsCodeNameRgbAndPercentage() {
+        SkinToneDefinition def = new SkinToneDefinition("medium_brown", "Medium Brown", "#C68642", 15);
         String str = def.toString();
         assertTrue(str.contains("medium_brown"));
         assertTrue(str.contains("Medium Brown"));
         assertTrue(str.contains("#C68642"));
+        assertTrue(str.contains("15"));
     }
 
     // =========================================================================

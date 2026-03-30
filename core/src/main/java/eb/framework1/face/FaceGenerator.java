@@ -1,10 +1,13 @@
 package eb.framework1.face;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -170,6 +173,16 @@ public final class FaceGenerator {
     private static final int F_NOSE        = 14;
     private static final int F_SMILELINE   = 15;
 
+    /**
+     * Mouth IDs used when no rule pool is available. Emotion-specific entries
+     * ("angry", "closed", "side") are excluded so that default/fallback faces
+     * never show emotion expressions.
+     */
+    private static final String[] F_MOUTH_NORMAL = {
+        "mouth","mouth2","mouth3","mouth4","mouth5","mouth6","mouth7","mouth8",
+        "smile-closed","smile","smile2","smile3","smile4","straight"
+    };
+
     // -------------------------------------------------------------------------
     // Skin and hair colour palettes (from generate.ts)
     // -------------------------------------------------------------------------
@@ -288,15 +301,11 @@ public final class FaceGenerator {
                               ? "none"
                               : randGenderedId(F_FACIALHAIR, true);
 
-        // glasses: 10% chance
-        String glassesId = rng.nextDouble() < 0.1
-                           ? randGenderedId(F_GLASSES, isMale)
-                           : "none";
+        // glasses: only from rules – default to none
+        String glassesId = "none";
 
-        // accessories: 20% chance
-        String accessoriesId = rng.nextDouble() < 0.2
-                               ? randGenderedId(F_ACCESSORIES, isMale)
-                               : "none";
+        // accessories: only from rules – default to none
+        String accessoriesId = "none";
 
         // hair: if wearing certain hats, override specific hair styles
         String hairId = randGenderedId(F_HAIR, isMale);
@@ -314,7 +323,7 @@ public final class FaceGenerator {
                     randGenderedId(F_BODY, isMale), skinColor,
                     randUniform(isMale ? RANGE_BODY_SIZE[2] : RANGE_BODY_SIZE[0],
                                 isMale ? RANGE_BODY_SIZE[3] : RANGE_BODY_SIZE[1])))
-            .jersey(new FaceConfig.SimpleFeature(randGenderedId(F_JERSEY, isMale)))
+            .jersey(new FaceConfig.SimpleFeature("none"))
             .ear(new FaceConfig.EarFeature(
                     randGenderedId(F_EAR, isMale),
                     randUniform(isMale ? RANGE_EAR_SIZE[2] : RANGE_EAR_SIZE[0],
@@ -337,7 +346,7 @@ public final class FaceGenerator {
                             isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
             .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
             .mouth(new FaceConfig.MouthFeature(
-                    randGenderedId(F_MOUTH, isMale), rng.nextBoolean()))
+                    randChoice(F_MOUTH_NORMAL), rng.nextBoolean()))
             .nose(new FaceConfig.NoseFeature(
                     randGenderedId(F_NOSE, isMale),
                     rng.nextBoolean(),
@@ -349,9 +358,146 @@ public final class FaceGenerator {
         return b.build();
     }
 
+    /**
+     * Generates a face using eligible part IDs from the supplied pool, with
+     * standard random numeric parameters (angles, sizes, colours).
+     *
+     * <p>For each feature type present in {@code pool}, a random ID is chosen
+     * from the eligible list.  For feature types absent from the pool, the
+     * standard {@link #generate(Options)} random selection applies as a
+     * fallback.
+     *
+     * @param options generation options (gender, race); {@code null} → defaults
+     * @param pool    eligible ID map returned by {@link #defaultCharacterFace};
+     *                {@code null} or empty → falls back to {@link #generate(Options)}
+     * @return a new {@link FaceConfig} respecting the pool constraints
+     */
+    public FaceConfig generate(Options options, Map<String, List<String>> pool) {
+        if (pool == null || pool.isEmpty()) return generate(options);
+        if (options == null) options = new Options();
+
+        boolean isMale = !"female".equalsIgnoreCase(options.gender);
+        String  race   = options.race != null ? options.race : randChoice(RACES);
+
+        String[] skinPalette = skinPalette(race);
+        String[] hairPalette = hairPalette(race);
+        String skinColor = randChoice(skinPalette);
+        String hairColor = randChoice(hairPalette);
+
+        // hairBg
+        double hairBgChance = isMale ? 0.1 : 0.9;
+        String hairBgId = pickFromPool(pool, "hairBg",
+                rng.nextDouble() < hairBgChance ? randGenderedId(F_HAIRBG, isMale) : "none");
+
+        // head shave (male only, 25%)
+        double shaveVal = 0.0;
+        if (isMale && rng.nextDouble() < 0.25) {
+            shaveVal = randUniform(RANGE_HEAD_SHAVE[2], RANGE_HEAD_SHAVE[3]);
+        }
+        String shaveColor = "rgba(0,0,0," + round2(shaveVal) + ")";
+
+        // eyeLine (75%)
+        String eyeLineId = pickFromPool(pool, "eyeLine",
+                rng.nextDouble() < 0.75 ? randGenderedId(F_EYELINE, isMale) : "none");
+
+        // smileLine (male 75%, female 10%)
+        double smileChance = isMale ? 0.75 : 0.1;
+        String smileId = pickFromPool(pool, "smileLine",
+                rng.nextDouble() < smileChance ? randGenderedId(F_SMILELINE, isMale) : "none");
+
+        // miscLine: only use pool entry; default to none so rules control which
+        // miscLine IDs are eligible (random fallback would allow any catalogue ID).
+        String miscLineId = pickFromPool(pool, "miscLine", "none");
+
+        // facialHair: only use pool entry; default to none so beard/facial-hair
+        // rules control this. The Male and Female rules do not include facial
+        // hair, so characters generated with those rules will never have a beard.
+        String facialHairId = pickFromPool(pool, "facialHair", "none");
+
+        // glasses: only use pool entry; default to none so glasses-rules control this
+        String glassesId = pickFromPool(pool, "glasses", "none");
+
+        // accessories: only use pool entry; default to none so clothes-rules control this
+        String accessoriesId = pickFromPool(pool, "accessories", "none");
+
+        // hair (with hat override)
+        String hairId = pickFromPool(pool, "hair", randGenderedId(F_HAIR, isMale));
+        if ("hat".equals(accessoriesId) || "hat2".equals(accessoriesId)
+                || "hat3".equals(accessoriesId)) {
+            hairId = applyHatHairOverride(hairId);
+        }
+
+        FaceConfig.Builder b = new FaceConfig.Builder()
+            .fatness(randUniform(isMale ? RANGE_FATNESS[2] : RANGE_FATNESS[0],
+                                 isMale ? RANGE_FATNESS[3] : RANGE_FATNESS[1]))
+            .teamColors(DEFAULT_TEAM_COLORS.clone())
+            .hairBg(new FaceConfig.SimpleFeature(hairBgId))
+            .body(new FaceConfig.BodyFeature(
+                    pickFromPool(pool, "body", randGenderedId(F_BODY, isMale)), skinColor,
+                    randUniform(isMale ? RANGE_BODY_SIZE[2] : RANGE_BODY_SIZE[0],
+                                isMale ? RANGE_BODY_SIZE[3] : RANGE_BODY_SIZE[1])))
+            .jersey(new FaceConfig.SimpleFeature(
+                    pickFromPool(pool, "jersey", "none")))
+            .ear(new FaceConfig.EarFeature(
+                    pickFromPool(pool, "ear", randGenderedId(F_EAR, isMale)),
+                    randUniform(isMale ? RANGE_EAR_SIZE[2] : RANGE_EAR_SIZE[0],
+                                isMale ? RANGE_EAR_SIZE[3] : RANGE_EAR_SIZE[1])))
+            .head(new FaceConfig.HeadFeature(
+                    pickFromPool(pool, "head", randGenderedId(F_HEAD, isMale)), shaveColor))
+            .eyeLine(new FaceConfig.SimpleFeature(eyeLineId))
+            .smileLine(new FaceConfig.SmileLineFeature(
+                    smileId,
+                    randUniform(isMale ? RANGE_SMILELINE_SIZE[2] : RANGE_SMILELINE_SIZE[0],
+                                isMale ? RANGE_SMILELINE_SIZE[3] : RANGE_SMILELINE_SIZE[1])))
+            .miscLine(new FaceConfig.SimpleFeature(miscLineId))
+            .facialHair(new FaceConfig.SimpleFeature(facialHairId))
+            .eye(new FaceConfig.EyeFeature(
+                    pickFromPool(pool, "eye", randGenderedId(F_EYE, isMale)),
+                    randInt(isMale ? RANGE_EYE_ANGLE[2] : RANGE_EYE_ANGLE[0],
+                            isMale ? RANGE_EYE_ANGLE[3] : RANGE_EYE_ANGLE[1])))
+            .eyebrow(new FaceConfig.EyebrowFeature(
+                    pickFromPool(pool, "eyebrow", randGenderedId(F_EYEBROW, isMale)),
+                    randInt(isMale ? RANGE_EYEBROW_ANGLE[2] : RANGE_EYEBROW_ANGLE[0],
+                            isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
+            .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
+            .mouth(new FaceConfig.MouthFeature(
+                    pickFromPool(pool, "mouth", "none"), rng.nextBoolean()))
+            .nose(new FaceConfig.NoseFeature(
+                    pickFromPool(pool, "nose", randGenderedId(F_NOSE, isMale)),
+                    rng.nextBoolean(),
+                    randUniform(isMale ? RANGE_NOSE_SIZE[2] : RANGE_NOSE_SIZE[0],
+                                isMale ? RANGE_NOSE_SIZE[3] : RANGE_NOSE_SIZE[1])))
+            .glasses(new FaceConfig.SimpleFeature(glassesId))
+            .accessories(new FaceConfig.SimpleFeature(accessoriesId));
+
+        return b.build();
+    }
+
+    /**
+     * Picks a random ID from the pool entry for {@code feature} using the
+     * generator's own RNG.  Returns {@code fallback} when the pool has no
+     * entry for the feature.
+     */
+    private String pickFromPool(Map<String, List<String>> pool, String feature, String fallback) {
+        List<String> ids = pool.get(feature);
+        if (ids != null && !ids.isEmpty()) {
+            return ids.get(rng.nextInt(ids.size()));
+        }
+        return fallback;
+    }
+
     // -------------------------------------------------------------------------
     // Rule-based character face computation
     // -------------------------------------------------------------------------
+
+    /**
+     * Rule names that {@link #defaultCharacterFace} is permitted to fire.
+     *
+     * <p>Only the core gender rules are applied here. Beard, age, clothes and
+     * emotion rules will be handled by dedicated generators added later.
+     */
+    private static final Set<String> ALLOWED_RULE_NAMES = new HashSet<>(
+            Arrays.asList("Male", "Female"));
 
     /**
      * Computes a map of eligible SVG part IDs per feature type for a character
@@ -363,8 +509,10 @@ public final class FaceGenerator {
      *       (lowest priority first).  If not sorted, callers should sort before
      *       passing to this method.  Rules with equal priority are processed in
      *       list order.</li>
-     *   <li>For each rule, its conditions are evaluated (gender, minAge,
-     *       percentage).  The {@code percentage} roll is seeded with
+     *   <li>For each rule, its conditions are evaluated (gender, emotion, minAge,
+     *       percentage).  Rules with a non-empty emotion other than {@code "normal"}
+     *       are skipped because this method produces the default (normal) face.
+     *       The {@code percentage} roll is seeded with
      *       {@code seed ^ (ruleIndex * 6364136223846793005L)} so that each
      *       character always rolls the same result for each rule.</li>
      *   <li>When a rule fires:
@@ -424,9 +572,24 @@ public final class FaceGenerator {
 
             // ── Condition checks ─────────────────────────────────────────────
 
+            // Name whitelist: only the core character rules fire here.
+            // Clothes and emotion rules are handled by separate generators.
+            if (!ALLOWED_RULE_NAMES.contains(rule.name)) {
+                System.err.printf(Locale.US,
+                        "[FaceGenerator] rule skipped (not in whitelist): \"%s\"%n",
+                        rule.name);
+                continue;
+            }
+
             // Gender filter
             if (!rule.gender.isEmpty()
                     && !rule.gender.equalsIgnoreCase(normGender)) {
+                continue;
+            }
+
+            // Emotion filter – this method produces the "normal" (default) face.
+            // Rules scoped to a specific non-normal emotion are skipped.
+            if (!rule.emotion.isEmpty() && !rule.emotion.equalsIgnoreCase("normal")) {
                 continue;
             }
 
@@ -444,16 +607,15 @@ public final class FaceGenerator {
                 }
             }
 
+            // ── Debug: log which rule fired ───────────────────────────────────
+            System.err.printf(Locale.US,
+                    "[FaceGenerator] rule fired: \"%s\" (priority=%d, gender=\"%s\", minAge=%d)"
+                    + " include=%d additional=%d exclude=%d%n",
+                    rule.name, rule.priority, rule.gender, rule.minAge,
+                    rule.include.size(), rule.additional.size(), rule.exclude.size());
+
             // ── Apply include (unique per type) ───────────────────────────────
-            for (String entry : rule.include) {
-                int dot = entry.indexOf('.');
-                if (dot <= 0) continue;
-                String featureType = entry.substring(0, dot);
-                includedByType.computeIfAbsent(featureType, k -> new ArrayList<>())
-                              .clear();
-                // Re-compute to collect ALL include entries for this type in one pass
-            }
-            // Second pass: group include entries by type and store
+            // Group include entries by feature type and replace any previous list
             Map<String, List<String>> ruleIncludes = new HashMap<>();
             for (String entry : rule.include) {
                 int dot = entry.indexOf('.');
@@ -509,6 +671,12 @@ public final class FaceGenerator {
                 result.put(featureType, Collections.unmodifiableList(
                         new ArrayList<>(eligible)));
             }
+        }
+
+        // ── Debug: log final eligible pool per feature type ──────────────────
+        for (Map.Entry<String, List<String>> e : result.entrySet()) {
+            System.err.printf(Locale.US, "[FaceGenerator] pool: %s → %s%n",
+                    e.getKey(), e.getValue());
         }
 
         return Collections.unmodifiableMap(result);

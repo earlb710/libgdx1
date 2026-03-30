@@ -71,7 +71,7 @@ public class CategoryEditorScreen extends JFrame {
     private final DefaultTableModel skillCategoryModel =
             createModel(new String[]{"Code", "Name"});
     private final DefaultTableModel skinToneCategoryModel =
-            createModel(new String[]{"Code", "Name", "RGB"});
+            createModel(new String[]{"Code", "Name", "RGB", "Percentage"});
     private final DefaultTableModel genderCategoryModel =
             createModel(new String[]{"Code", "Name"});
 
@@ -447,8 +447,9 @@ public class CategoryEditorScreen extends JFrame {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         table.getColumnModel().getColumn(0).setPreferredWidth(180);
-        table.getColumnModel().getColumn(1).setPreferredWidth(300);
-        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(1).setPreferredWidth(260);
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);
+        table.getColumnModel().getColumn(3).setPreferredWidth(90);
 
         JScrollPane scrollPane = new JScrollPane(table);
 
@@ -472,7 +473,7 @@ public class CategoryEditorScreen extends JFrame {
         JButton saveBtn   = new JButton("Save");
 
         addBtn.addActionListener((ActionEvent e) -> {
-            skinToneCategoryModel.addRow(new Object[]{"", "", ""});
+            skinToneCategoryModel.addRow(new Object[]{"", "", "", 10});
             int last = skinToneCategoryModel.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
             table.setRowSelectionInterval(last, last);
@@ -691,7 +692,7 @@ public class CategoryEditorScreen extends JFrame {
 
     /**
      * Populates the skin tone category model from a list of {@link CategoryEntry} objects.
-     * Skin tone categories use {@code code}, {@code name}, and {@code rgb} fields.
+     * Skin tone categories use {@code code}, {@code name}, {@code rgb}, and {@code percentage} fields.
      */
     private static void populateSkinToneCategoryModel(DefaultTableModel model,
                                                        List<CategoryEntry> entries) {
@@ -700,13 +701,13 @@ public class CategoryEditorScreen extends JFrame {
         List<CategoryEntry> sorted = new ArrayList<>(entries);
         sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
         for (CategoryEntry e : sorted) {
-            model.addRow(new Object[]{nvl(e.getCode()), nvl(e.getName()), nvl(e.getRgb())});
+            model.addRow(new Object[]{nvl(e.getCode()), nvl(e.getName()), nvl(e.getRgb()), e.getPercentage()});
         }
     }
 
     /**
      * Converts the skin tone category table model back to a list of {@link CategoryEntry} objects.
-     * Skin tone categories use {@code code}, {@code name}, and {@code rgb} fields.
+     * Skin tone categories use {@code code}, {@code name}, {@code rgb}, and {@code percentage} fields.
      */
     private static List<CategoryEntry> skinToneCategoryModelToEntries(DefaultTableModel model) {
         List<CategoryEntry> list = new ArrayList<>();
@@ -715,6 +716,16 @@ public class CategoryEditorScreen extends JFrame {
             entry.setCode(cellStr(model, r, 0));
             entry.setName(cellStr(model, r, 1));
             entry.setRgb(cellStr(model, r, 2));
+            Object pctVal = model.getValueAt(r, 3);
+            if (pctVal != null) {
+                try {
+                    entry.setPercentage(Integer.parseInt(pctVal.toString().trim()));
+                } catch (NumberFormatException ignored) {
+                    entry.setPercentage(10);
+                }
+            } else {
+                entry.setPercentage(10);
+            }
             list.add(entry);
         }
         return list;
