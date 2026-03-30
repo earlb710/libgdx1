@@ -1445,8 +1445,8 @@ public class MainScreen implements Screen {
         java.util.List<float[]> expandedPath = new java.util.ArrayList<>();
         expandedPath.add(new float[]{path.get(0)[0], path.get(0)[1]});
         for (int i = 1; i < path.size(); i++) {
-            float[] prev = path.get(i - 1);
-            float px = prev[0], py = prev[1];
+            int[] prevSrc = path.get(i - 1);
+            float px = prevSrc[0], py = prevSrc[1];
             float cx = path.get(i)[0], cy = path.get(i)[1];
             float dx = cx - px, dy = cy - py;
             expandedPath.add(new float[]{px + dx * 0.25f, py + dy * 0.25f}); // 1/4
