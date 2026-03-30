@@ -68,6 +68,14 @@ public class RestingPopup {
     private String   resultMsg      = null;   // null → skip RESULT phase
     private Runnable perDotAction   = null;   // called once per new dot (may be null)
 
+    /**
+     * Maximum number of dots shown visually. Callbacks still fire for every step up to
+     * {@code maxDots}; this only caps what is drawn. Defaults to {@link Integer#MAX_VALUE}
+     * (no visual cap). Set this after calling {@link #start} when a display limit is needed
+     * (e.g. 10 dots during the "Traveling" animation).
+     */
+    public int visibleDotsLimit = Integer.MAX_VALUE;
+
     // OK button bounds (RESULT phase only)
     private float okX, okY, okW, okH;
 
@@ -149,6 +157,7 @@ public class RestingPopup {
         this.state          = State.ANIMATING;
         this.verticalCenterFraction = 0.5f;
         this.dialogBottomY  = -1f;
+        this.visibleDotsLimit = Integer.MAX_VALUE;
     }
 
     /**
@@ -210,8 +219,9 @@ public class RestingPopup {
 
         String mainText;
         if (state == State.ANIMATING) {
+            int displayDots = Math.min(dots, visibleDotsLimit);
             StringBuilder sb = new StringBuilder(label);
-            for (int i = 0; i < dots; i++) sb.append('.');
+            for (int i = 0; i < displayDots; i++) sb.append('.');
             mainText = sb.toString();
         } else {
             mainText = resultMsg;
@@ -221,8 +231,9 @@ public class RestingPopup {
         float textW = glyph.width;
         // Also measure the widest possible animated text to prevent dialog resizing mid-animation
         if (state == State.ANIMATING) {
+            int maxVisual = Math.min(maxDots, visibleDotsLimit);
             StringBuilder maxSb = new StringBuilder(label);
-            for (int i = 0; i < maxDots; i++) maxSb.append('.');
+            for (int i = 0; i < maxVisual; i++) maxSb.append('.');
             glyph.setText(font, maxSb.toString());
             textW = Math.max(textW, glyph.width);
         }

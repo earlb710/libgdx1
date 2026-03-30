@@ -1504,7 +1504,9 @@ public class MainScreen implements Screen {
             advanceOneWalkStep();
         });
         // Position the traveling dialog just above the info tabs (8px gap above tab bar).
-        restingPopup.dialogBottomY = state.infoAreaHeight + 8f;
+        restingPopup.dialogBottomY    = state.infoAreaHeight + 8f;
+        // Cap the displayed dot count at 10; callbacks still fire for every step.
+        restingPopup.visibleDotsLimit = 10;
     }
 
     /**
