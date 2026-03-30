@@ -1482,6 +1482,8 @@ public class MainScreen implements Screen {
 
         // Drive the walk animation through the restingPopup time animation.
         // Halve the interval so the total visual duration stays the same as before.
+        // Position the traveling dialog in the lower portion of the screen.
+        restingPopup.verticalCenterFraction = 0.25f;
         restingPopup.start(resultMsg, expandedWalkSteps, "Traveling",
                 MapViewState.WALK_STEP_SECONDS / 2f, () -> {
             stepCounter[0]++;

@@ -71,6 +71,13 @@ public class RestingPopup {
     // OK button bounds (RESULT phase only)
     private float okX, okY, okW, okH;
 
+    /**
+     * Vertical centre position of the dialog as a fraction of screen height (0 = bottom,
+     * 1 = top).  Default is 0.5 (centred).  Set before calling {@link #start} to
+     * position the dialog elsewhere; it is reset to 0.5 each time {@link #start} is called.
+     */
+    public float verticalCenterFraction = 0.5f;
+
     // -------------------------------------------------------------------------
 
     public RestingPopup(SpriteBatch batch, ShapeRenderer sr, BitmapFont font, GlyphLayout glyph) {
@@ -132,6 +139,7 @@ public class RestingPopup {
         this.lastDots       = 0;
         this.okW            = 0f;
         this.state          = State.ANIMATING;
+        this.verticalCenterFraction = 0.5f;
     }
 
     /**
@@ -219,7 +227,7 @@ public class RestingPopup {
         }
 
         float dialogX = (screenW - dialogW) / 2f;
-        float dialogY = (screenH - dialogH) / 2f;
+        float dialogY = screenH * verticalCenterFraction - dialogH / 2f;
 
         // --- Shapes ---
         sr.begin(ShapeRenderer.ShapeType.Filled);
