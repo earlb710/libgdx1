@@ -344,7 +344,7 @@ public final class FaceGenerator {
                     randGenderedId(F_EYEBROW, isMale),
                     randInt(isMale ? RANGE_EYEBROW_ANGLE[2] : RANGE_EYEBROW_ANGLE[0],
                             isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
-            .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
+            .hair(new FaceConfig.HairFeature(hairId, hairColor, false))
             .mouth(new FaceConfig.MouthFeature(
                     randChoice(F_MOUTH_NORMAL), rng.nextBoolean()))
             .nose(new FaceConfig.NoseFeature(
@@ -459,7 +459,7 @@ public final class FaceGenerator {
                     pickFromPool(pool, "eyebrow", randGenderedId(F_EYEBROW, isMale)),
                     randInt(isMale ? RANGE_EYEBROW_ANGLE[2] : RANGE_EYEBROW_ANGLE[0],
                             isMale ? RANGE_EYEBROW_ANGLE[3] : RANGE_EYEBROW_ANGLE[1])))
-            .hair(new FaceConfig.HairFeature(hairId, hairColor, rng.nextBoolean()))
+            .hair(new FaceConfig.HairFeature(hairId, hairColor, false))
             .mouth(new FaceConfig.MouthFeature(
                     pickFromPool(pool, "mouth", "none"), rng.nextBoolean()))
             .nose(new FaceConfig.NoseFeature(

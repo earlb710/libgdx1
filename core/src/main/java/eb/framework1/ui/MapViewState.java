@@ -101,7 +101,7 @@ public class MapViewState {
 
     // --- Walk animation ---
     public boolean isWalking   = false;
-    public java.util.List<int[]> walkPath = null;
+    public java.util.List<float[]> walkPath = null;
     public int   walkStepIdx   = 0;
     public float walkTimer     = 0f;
     public static final float WALK_STEP_SECONDS = 0.4f;
