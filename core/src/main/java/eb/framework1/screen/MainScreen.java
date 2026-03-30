@@ -1439,15 +1439,20 @@ public class MainScreen implements Screen {
         state.walkDestCellX = state.selectedCellX;
         state.walkDestCellY = state.selectedCellY;
 
-        // Build an expanded path that inserts a midpoint between every pair of consecutive
-        // junctions.  This doubles the number of visual steps, making movement smoother.
+        // Build an expanded path that inserts 3 intermediate points between every pair of
+        // consecutive junctions (at 1/4, 2/4, 3/4 of the way), giving 4 visual sub-steps
+        // per cell for smoother movement.
         java.util.List<float[]> expandedPath = new java.util.ArrayList<>();
         expandedPath.add(new float[]{path.get(0)[0], path.get(0)[1]});
         for (int i = 1; i < path.size(); i++) {
-            float[] prev = expandedPath.get(expandedPath.size() - 1);
+            float[] prev = path.get(i - 1);
+            float px = prev[0], py = prev[1];
             float cx = path.get(i)[0], cy = path.get(i)[1];
-            expandedPath.add(new float[]{(prev[0] + cx) / 2f, (prev[1] + cy) / 2f}); // midpoint
-            expandedPath.add(new float[]{cx, cy});                                      // real junction
+            float dx = cx - px, dy = cy - py;
+            expandedPath.add(new float[]{px + dx * 0.25f, py + dy * 0.25f}); // 1/4
+            expandedPath.add(new float[]{px + dx * 0.50f, py + dy * 0.50f}); // 2/4
+            expandedPath.add(new float[]{px + dx * 0.75f, py + dy * 0.75f}); // 3/4
+            expandedPath.add(new float[]{cx, cy});                             // real junction
         }
         int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
 
@@ -1475,7 +1480,7 @@ public class MainScreen implements Screen {
         }
 
         // Calculate per-step time advance (remainder goes to the last real-junction step).
-        // Game time is only advanced at real-junction steps (every other expanded step).
+        // Game time is only advanced at real-junction steps (every 4th expanded step).
         final int minutesPerStep   = totalMinutes / originalWalkSteps;
         final int remainderMinutes = totalMinutes % originalWalkSteps;
         final int[] stepCounter    = {0};
@@ -1485,13 +1490,13 @@ public class MainScreen implements Screen {
                 + " (expanded=" + expandedWalkSteps + "), totalMinutes=" + totalMinutes);
 
         // Drive the walk animation through the restingPopup time animation.
-        // Halve the interval so the total visual duration stays the same as before.
+        // Quarter the interval so the total visual duration stays the same as before.
         restingPopup.start(resultMsg, expandedWalkSteps, "Traveling",
-                MapViewState.WALK_STEP_SECONDS / 2f, () -> {
+                MapViewState.WALK_STEP_SECONDS / 4f, () -> {
             stepCounter[0]++;
-            // Advance game time only at real-junction steps (even-numbered expanded steps).
-            if (stepCounter[0] % 2 == 0) {
-                int realJuncNum = stepCounter[0] / 2;
+            // Advance game time only at real-junction steps (every 4th expanded step).
+            if (stepCounter[0] % 4 == 0) {
+                int realJuncNum = stepCounter[0] / 4;
                 int minutes = minutesPerStep;
                 if (realJuncNum == origStepsTotal) minutes += remainderMinutes;
                 profile.advanceGameTime(minutes);
@@ -2096,11 +2101,11 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         // Discover the two cells on either side of the current road segment (10% each),
-        // but only at real junctions (not midpoints) and not the final junction.
-        // The previous real junction is 2 positions back in the expanded path (skipping the
-        // midpoint that sits between them).
-        if (isRealJunction && state.walkStepIdx < state.walkPath.size() && state.walkStepIdx >= 3) {
-            float[] prevJunc = state.walkPath.get(state.walkStepIdx - 3);
+        // but only at real junctions (not intermediate points) and not the final junction.
+        // The previous real junction is 4 positions back in the expanded path (skipping the
+        // 3 intermediate points that sit between them).
+        if (isRealJunction && state.walkStepIdx < state.walkPath.size() && state.walkStepIdx >= 5) {
+            float[] prevJunc = state.walkPath.get(state.walkStepIdx - 5);
             int djx = (int) (jx - prevJunc[0]);
             int djy = (int) (jy - prevJunc[1]);
             int side1CX, side1CY, side2CX, side2CY;
