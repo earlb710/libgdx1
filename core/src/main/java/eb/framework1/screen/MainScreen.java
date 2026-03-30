@@ -1415,8 +1415,8 @@ public class MainScreen implements Screen {
 
         int totalMinutes = state.currentRoute.totalMinutes;
         java.util.List<int[]> path = state.currentRoute.path;
-        int walkSteps = path.size() - 1; // number of junctions to animate (skip start)
-        if (walkSteps <= 0) return;
+        int originalWalkSteps = path.size() - 1; // number of junctions to animate (skip start)
+        if (originalWalkSteps <= 0) return;
 
         profile.useStamina(2);
 
@@ -1435,8 +1435,20 @@ public class MainScreen implements Screen {
         state.walkDestCellX = state.selectedCellX;
         state.walkDestCellY = state.selectedCellY;
 
+        // Build an expanded path that inserts a midpoint between every pair of consecutive
+        // junctions.  This doubles the number of visual steps, making movement smoother.
+        java.util.List<float[]> expandedPath = new java.util.ArrayList<>();
+        expandedPath.add(new float[]{path.get(0)[0], path.get(0)[1]});
+        for (int i = 1; i < path.size(); i++) {
+            float[] prev = expandedPath.get(expandedPath.size() - 1);
+            float cx = path.get(i)[0], cy = path.get(i)[1];
+            expandedPath.add(new float[]{(prev[0] + cx) / 2f, (prev[1] + cy) / 2f}); // midpoint
+            expandedPath.add(new float[]{cx, cy});                                      // real junction
+        }
+        int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
+
         // Set up walk state (animation is driven by restingPopup callbacks)
-        state.walkPath     = path;
+        state.walkPath     = expandedPath;
         state.walkStepIdx  = 1;  // index 0 is the start junction – skip it
         state.isWalking    = true;
         state.currentRoute = null;
@@ -1458,22 +1470,28 @@ public class MainScreen implements Screen {
             resultMsg = "It became morning.";
         }
 
-        // Calculate per-step time advance (remainder goes to the last step)
-        final int minutesPerStep   = totalMinutes / walkSteps;
-        final int remainderMinutes = totalMinutes % walkSteps;
+        // Calculate per-step time advance (remainder goes to the last real-junction step).
+        // Game time is only advanced at real-junction steps (every other expanded step).
+        final int minutesPerStep   = totalMinutes / originalWalkSteps;
+        final int remainderMinutes = totalMinutes % originalWalkSteps;
         final int[] stepCounter    = {0};
-        final int stepsTotal       = walkSteps;
+        final int origStepsTotal   = originalWalkSteps;
 
-        Gdx.app.log("MainScreen", "Walk started, steps=" + walkSteps
-                + ", totalMinutes=" + totalMinutes);
+        Gdx.app.log("MainScreen", "Walk started, steps=" + originalWalkSteps
+                + " (expanded=" + expandedWalkSteps + "), totalMinutes=" + totalMinutes);
 
-        // Drive the walk animation through the restingPopup time animation
-        restingPopup.start(resultMsg, walkSteps, "Traveling",
-                MapViewState.WALK_STEP_SECONDS, () -> {
+        // Drive the walk animation through the restingPopup time animation.
+        // Halve the interval so the total visual duration stays the same as before.
+        restingPopup.start(resultMsg, expandedWalkSteps, "Traveling",
+                MapViewState.WALK_STEP_SECONDS / 2f, () -> {
             stepCounter[0]++;
-            int minutes = minutesPerStep;
-            if (stepCounter[0] == stepsTotal) minutes += remainderMinutes;
-            profile.advanceGameTime(minutes);
+            // Advance game time only at real-junction steps (even-numbered expanded steps).
+            if (stepCounter[0] % 2 == 0) {
+                int realJuncNum = stepCounter[0] / 2;
+                int minutes = minutesPerStep;
+                if (realJuncNum == origStepsTotal) minutes += remainderMinutes;
+                profile.advanceGameTime(minutes);
+            }
             advanceOneWalkStep();
         });
     }
@@ -2044,20 +2062,25 @@ public class MainScreen implements Screen {
     private void advanceOneWalkStep() {
         if (state.walkPath == null || state.walkStepIdx >= state.walkPath.size()) return;
 
-        int[] junc = state.walkPath.get(state.walkStepIdx);
-        int jx = junc[0], jy = junc[1];
+        float[] junc = state.walkPath.get(state.walkStepIdx);
+        float jx = junc[0], jy = junc[1];
 
-        // Accumulate this junction into the persistent traveled path
-        if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
-        state.traveledPath.add(new int[]{jx, jy});
+        // Determine whether this is a real junction (integer coords) or an interpolated midpoint
+        boolean isRealJunction = (jx == (int) jx && jy == (int) jy);
 
-        // Place character icon on the road (junction coordinates)
+        // Accumulate real junctions into the persistent traveled path
+        if (isRealJunction) {
+            if (state.traveledPath == null) state.traveledPath = new java.util.ArrayList<>();
+            state.traveledPath.add(new int[]{(int) jx, (int) jy});
+        }
+
+        // Place character icon on the road (junction or midpoint coordinates)
         state.charJuncX = jx;
         state.charJuncY = jy;
 
         // Keep charCellX/Y roughly tracking position for other game logic
-        state.charCellX = Math.min(jx, CityMap.MAP_SIZE - 1);
-        state.charCellY = Math.min(jy, CityMap.MAP_SIZE - 1);
+        state.charCellX = Math.min((int) jx, CityMap.MAP_SIZE - 1);
+        state.charCellY = Math.min((int) jy, CityMap.MAP_SIZE - 1);
 
         // Centre the map on the current junction position
         state.mapOffsetX = jx - state.getVisibleCellsX() / 2.0f;
@@ -2067,24 +2090,26 @@ public class MainScreen implements Screen {
         state.walkStepIdx++;
 
         // Discover the two cells on either side of the current road segment (10% each),
-        // but only for intermediate steps (not the final junction).
-        if (state.walkStepIdx < state.walkPath.size() && state.walkStepIdx >= 2) {
-            int[] prevJunc = state.walkPath.get(state.walkStepIdx - 2);
-            int djx = jx - prevJunc[0];
-            int djy = jy - prevJunc[1];
+        // but only at real junctions (not midpoints) and not the final junction.
+        // The previous real junction is 2 positions back in the expanded path (skipping the
+        // midpoint that sits between them).
+        if (isRealJunction && state.walkStepIdx < state.walkPath.size() && state.walkStepIdx >= 3) {
+            float[] prevJunc = state.walkPath.get(state.walkStepIdx - 3);
+            int djx = (int) (jx - prevJunc[0]);
+            int djy = (int) (jy - prevJunc[1]);
             int side1CX, side1CY, side2CX, side2CY;
             if (djy == 0) {
                 // Horizontal movement: side cells are above and below junction row jy
-                side1CX = Math.min(jx, CityMap.MAP_SIZE - 1);
-                side1CY = Math.min(jy, CityMap.MAP_SIZE - 1);      // cell above road
-                side2CX = Math.min(jx, CityMap.MAP_SIZE - 1);
-                side2CY = Math.max(jy - 1, 0);                     // cell below road
+                side1CX = Math.min((int) jx, CityMap.MAP_SIZE - 1);
+                side1CY = Math.min((int) jy, CityMap.MAP_SIZE - 1);      // cell above road
+                side2CX = Math.min((int) jx, CityMap.MAP_SIZE - 1);
+                side2CY = Math.max((int) jy - 1, 0);                     // cell below road
             } else {
                 // Vertical movement: side cells are left and right of junction column jx
-                side1CX = Math.min(jx, CityMap.MAP_SIZE - 1);      // cell to the right
-                side1CY = Math.min(jy, CityMap.MAP_SIZE - 1);
-                side2CX = Math.max(jx - 1, 0);                     // cell to the left
-                side2CY = Math.min(jy, CityMap.MAP_SIZE - 1);
+                side1CX = Math.min((int) jx, CityMap.MAP_SIZE - 1);      // cell to the right
+                side1CY = Math.min((int) jy, CityMap.MAP_SIZE - 1);
+                side2CX = Math.max((int) jx - 1, 0);                     // cell to the left
+                side2CY = Math.min((int) jy, CityMap.MAP_SIZE - 1);
             }
             if (side1CX >= 0 && side1CX < CityMap.MAP_SIZE
                     && side1CY >= 0 && side1CY < CityMap.MAP_SIZE) {
