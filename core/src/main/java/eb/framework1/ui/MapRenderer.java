@@ -32,7 +32,9 @@ public class MapRenderer {
     private static final Color BEVEL_LIGHT_COLOR     = new Color(0.85f, 0.85f, 0.85f, 0.7f);
     private static final Color BEVEL_DARK_COLOR      = new Color(0.15f, 0.15f, 0.15f, 0.55f);
     /** Bevel thickness as a fraction of cell size (clamped to a minimum of 2 px). */
-    private static final float BEVEL_SIZE_RATIO      = 0.09f;
+    private static final float BEVEL_SIZE_RATIO      = 0.03f;
+    /** Minimum bevel thickness in screen pixels regardless of zoom level. */
+    private static final float MIN_BEVEL_SIZE_PX     = 2f;
 
     public static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -198,7 +200,7 @@ public class MapRenderer {
 
         // Gray beveled rectangle overlay on building squares (raised 3-D look)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        float bevelSize = Math.max(2f, cellSize * BEVEL_SIZE_RATIO);
+        float bevelSize = bevelSize(cellSize);
         for (int cx = startCellX; cx < endCellX; cx++) {
             for (int cy = startCellY; cy < endCellY; cy++) {
                 if (!cityMap.getCell(cx, cy).hasBuilding()) continue;
@@ -466,11 +468,13 @@ public class MapRenderer {
             Texture icon = isFemale ? npcWomanTexture : npcManTexture;
             if (icon == null) continue;
 
-            // Pin icon to the lower-left of the building rectangle at native size
+            // Pin icon to the lower-left of the building rectangle at native size,
+            // inset past the bevel so the icon sits fully inside the building area.
             float iconW = isFemale ? npcWomanTexW : npcManTexW;
             float iconH = isFemale ? npcWomanTexH : npcManTexH;
-            float npcIconX = cellX + li;
-            float npcIconY = cellY + bi;
+            float bevelInset = bevelSize(cellSize);
+            float npcIconX = cellX + li + bevelInset;
+            float npcIconY = cellY + bi + bevelInset;
             batch.draw(icon, npcIconX, npcIconY, iconW, iconH);
         }
 
@@ -583,6 +587,13 @@ public class MapRenderer {
                 sr.rect(barX - borderSize, barY, roadW, cellSize);
             }
         }
+    }
+
+    /**
+     * Returns the bevel thickness in screen pixels for the given cell size.
+     */
+    private static float bevelSize(float cellSize) {
+        return Math.max(MIN_BEVEL_SIZE_PX, cellSize * BEVEL_SIZE_RATIO);
     }
 
     /**
