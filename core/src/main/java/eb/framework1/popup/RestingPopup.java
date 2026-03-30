@@ -73,10 +73,18 @@ public class RestingPopup {
 
     /**
      * Vertical centre position of the dialog as a fraction of screen height (0 = bottom,
-     * 1 = top).  Default is 0.5 (centred).  Set before calling {@link #start} to
-     * position the dialog elsewhere; it is reset to 0.5 each time {@link #start} is called.
+     * 1 = top).  Default is 0.5 (centred).  Used only when {@link #dialogBottomY} is
+     * negative.
      */
     public float verticalCenterFraction = 0.5f;
+
+    /**
+     * When ≥ 0, the dialog's bottom edge is placed at this absolute Y coordinate
+     * (screen pixels, Y-up).  Set this after calling {@link #start} so the popup
+     * appears at a specific screen location; it is reset to −1 each time
+     * {@link #start} is called.  When negative the fraction-based centering is used.
+     */
+    public float dialogBottomY = -1f;
 
     // -------------------------------------------------------------------------
 
@@ -140,6 +148,7 @@ public class RestingPopup {
         this.okW            = 0f;
         this.state          = State.ANIMATING;
         this.verticalCenterFraction = 0.5f;
+        this.dialogBottomY  = -1f;
     }
 
     /**
@@ -227,7 +236,8 @@ public class RestingPopup {
         }
 
         float dialogX = (screenW - dialogW) / 2f;
-        float dialogY = screenH * verticalCenterFraction - dialogH / 2f;
+        float dialogY = dialogBottomY >= 0 ? dialogBottomY
+                      : screenH * verticalCenterFraction - dialogH / 2f;
 
         // --- Shapes ---
         sr.begin(ShapeRenderer.ShapeType.Filled);

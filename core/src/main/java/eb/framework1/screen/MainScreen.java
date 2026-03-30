@@ -423,6 +423,10 @@ public class MainScreen implements Screen {
 
         if (restingPopup.isVisible()) {
             restingPopup.update(delta);
+            // Keep the traveling dialog anchored just above the info tabs, even after resize.
+            if (restingPopup.dialogBottomY >= 0) {
+                restingPopup.dialogBottomY = state.infoAreaHeight + 8f; // 8px gap above tab bar
+            }
             restingPopup.draw(state.screenWidth, state.screenHeight);
         }
 
@@ -1482,8 +1486,6 @@ public class MainScreen implements Screen {
 
         // Drive the walk animation through the restingPopup time animation.
         // Halve the interval so the total visual duration stays the same as before.
-        // Position the traveling dialog in the lower portion of the screen.
-        restingPopup.verticalCenterFraction = 0.25f;
         restingPopup.start(resultMsg, expandedWalkSteps, "Traveling",
                 MapViewState.WALK_STEP_SECONDS / 2f, () -> {
             stepCounter[0]++;
@@ -1496,6 +1498,8 @@ public class MainScreen implements Screen {
             }
             advanceOneWalkStep();
         });
+        // Position the traveling dialog just above the info tabs (8px gap above tab bar).
+        restingPopup.dialogBottomY = state.infoAreaHeight + 8f;
     }
 
     /**
