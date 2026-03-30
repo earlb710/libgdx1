@@ -168,3 +168,5 @@ Thumbs.db
 **/resource-config.json
 *.args
 test_output.log
+*.png
+*.html
