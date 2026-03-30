@@ -29,6 +29,10 @@ public class MapRenderer {
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
     private static final Color TRAVELED_ROAD_COLOR   = new Color(0.3f,  0.75f, 1f,    1f);
+    private static final Color BEVEL_LIGHT_COLOR     = new Color(0.85f, 0.85f, 0.85f, 0.7f);
+    private static final Color BEVEL_DARK_COLOR      = new Color(0.15f, 0.15f, 0.15f, 0.55f);
+    /** Bevel thickness as a fraction of cell size (clamped to a minimum of 2 px). */
+    private static final float BEVEL_SIZE_RATIO      = 0.09f;
 
     public static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -188,6 +192,27 @@ public class MapRenderer {
                 float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
                 float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
                 shapeRenderer.rect(drawX + li, drawY + bi, cellSize - li - ri, cellSize - bi - ti);
+            }
+        }
+        shapeRenderer.end();
+
+        // Gray beveled rectangle overlay on building squares (raised 3-D look)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        float bevelSize = Math.max(2f, cellSize * BEVEL_SIZE_RATIO);
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                if (!cityMap.getCell(cx, cy).hasBuilding()) continue;
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                drawBeveledRect(shapeRenderer,
+                        drawX + li, drawY + bi,
+                        cellSize - li - ri, cellSize - bi - ti,
+                        bevelSize);
             }
         }
         shapeRenderer.end();
@@ -558,6 +583,36 @@ public class MapRenderer {
                 sr.rect(barX - borderSize, barY, roadW, cellSize);
             }
         }
+    }
+
+    /**
+     * Draws a beveled rectangle to give a raised 3-D appearance.
+     * Light-gray triangles are drawn on the top and left edges (highlight),
+     * and dark-gray triangles are drawn on the bottom and right edges (shadow).
+     * The ShapeRenderer must already be in {@link ShapeRenderer.ShapeType#Filled} mode.
+     *
+     * @param sr  ShapeRenderer in Filled mode
+     * @param x   left edge of the rectangle
+     * @param y   bottom edge of the rectangle (LibGDX Y-up)
+     * @param w   width of the rectangle
+     * @param h   height of the rectangle
+     * @param b   bevel thickness in pixels
+     */
+    private void drawBeveledRect(ShapeRenderer sr, float x, float y, float w, float h, float b) {
+        // Top edge highlight (light gray)
+        sr.setColor(BEVEL_LIGHT_COLOR);
+        sr.triangle(x,       y + h,     x + w,     y + h,     x + w - b, y + h - b);
+        sr.triangle(x,       y + h,     x + w - b, y + h - b, x + b,     y + h - b);
+        // Left edge highlight (light gray)
+        sr.triangle(x,       y,         x,         y + h,     x + b,     y + h - b);
+        sr.triangle(x,       y,         x + b,     y + h - b, x + b,     y + b);
+        // Bottom edge shadow (dark gray)
+        sr.setColor(BEVEL_DARK_COLOR);
+        sr.triangle(x,       y,         x + w,     y,         x + w - b, y + b);
+        sr.triangle(x,       y,         x + w - b, y + b,     x + b,     y + b);
+        // Right edge shadow (dark gray)
+        sr.triangle(x + w,   y,         x + w,     y + h,     x + w - b, y + h - b);
+        sr.triangle(x + w,   y,         x + w - b, y + h - b, x + w - b, y + b);
     }
 
     /**
