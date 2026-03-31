@@ -300,6 +300,7 @@ public class CharacterGenerator {
         String name      = nameGen.generateFull(gender);
         int    age       = minAge + random.nextInt(maxAge - minAge + 1);
         String spriteKey = pickSprite(gender);
+        String hairColor = pick(HAIR_COLORS);
 
         NpcCharacter.Builder b = new NpcCharacter.Builder()
                 .id(id)
@@ -315,7 +316,7 @@ public class CharacterGenerator {
                 .nervousness(randomInRange(profile.getMinNervousness(),
                                            profile.getMaxNervousness()))
                 .hairType(pick(HAIR_TYPES))
-                .hairColor(pick(HAIR_COLORS))
+                .hairColor(hairColor)
                 .wealthyLevel(ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1))
                 .favColor(pick(FAV_COLORS));
 
@@ -363,7 +364,7 @@ public class CharacterGenerator {
 
         // Sync the portrait hair colour with the NpcCharacter hair colour name so
         // that the rendered face matches the text description.
-        String hairColorHex = HAIR_COLOR_HEX.get(b.hairColor);
+        String hairColorHex = HAIR_COLOR_HEX.get(hairColor);
         if (hairColorHex != null) {
             face = face.withHairColor(hairColorHex);
         }
