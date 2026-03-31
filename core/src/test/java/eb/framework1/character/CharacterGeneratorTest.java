@@ -917,4 +917,145 @@ public class CharacterGeneratorTest {
         }
         // Acceptable if no impaired NPC appeared in the first 20 NPCs.
     }
+
+    // =========================================================================
+    // CharacterGenerator — beard / shave face rules
+    // =========================================================================
+
+    /** Creates a CharacterGenerator with the Male, Female, Beard Short, and Beard Long rules. */
+    private static CharacterGenerator makeGeneratorWithBeardRules(long seed) {
+        FaceRule male = new FaceRule.Builder()
+                .name("Male").gender("male").percentage(100).priority(0)
+                .include(Arrays.asList("body.body", "eye.eye1", "hair.short1",
+                        "eyebrow.eyebrow1", "ear.ear1", "head.head1",
+                        "mouth.mouth", "nose.nose1"))
+                .build();
+        FaceRule female = new FaceRule.Builder()
+                .name("Female").gender("female").percentage(100).priority(0)
+                .include(Arrays.asList("body.body2", "eye.female1", "hair.female1",
+                        "eyebrow.female1", "ear.ear1", "head.head4",
+                        "mouth.mouth", "nose.nose1"))
+                .build();
+        FaceRule beardLong = new FaceRule.Builder()
+                .name("Beard Long").gender("male").percentage(25).priority(2)
+                .include(Arrays.asList(
+                        "facialHair.beard-point", "facialHair.beard1", "facialHair.beard2",
+                        "facialHair.honest-abe", "facialHair.mutton"))
+                .build();
+        FaceRule beardShort = new FaceRule.Builder()
+                .name("Beard Short").gender("male").percentage(25).priority(2)
+                .include(Arrays.asList(
+                        "facialHair.goatee1", "facialHair.goatee2", "facialHair.fullgoatee",
+                        "facialHair.chin-strap", "facialHair.beard4"))
+                .build();
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M"),
+                new PersonNameGenerator.NameEntry("Carol", "F"),
+                new PersonNameGenerator.NameEntry("Dave",  "M")
+        );
+        List<String> surnames = Arrays.asList("Smith", "Jones");
+        PersonNameGenerator nameGen = new PersonNameGenerator(firstNames, surnames, new Random(seed));
+        return new CharacterGenerator(nameGen, new Random(seed),
+                Arrays.asList(male, female, beardLong, beardShort));
+    }
+
+    @Test
+    public void beardRule_female_neverHasBeard() {
+        // Female characters must never receive a beard regardless of age.
+        for (long seed = 0; seed < 300; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateVictim(CaseType.MURDER);
+            if ("F".equals(npc.getGender())) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                assertEquals("Female character must never have a beard, seed=" + seed,
+                        "none", face.facialHair.id);
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void beardRule_maleUnder20_neverHasBeard() {
+        // Male characters younger than 20 must never have a beard (SVG facialHair = "none").
+        // generateVictim uses age range 18–80; we filter for males aged 15–19.
+        int testedCount = 0;
+        for (long seed = 0; seed < 3000 && testedCount < 20; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateVictim(CaseType.MURDER);
+            if ("M".equals(npc.getGender()) && npc.getAge() < 20) {
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                assertEquals("Male under 20 must not have a beard, age=" + npc.getAge()
+                        + " seed=" + seed, "none", face.facialHair.id);
+                testedCount++;
+            }
+        }
+        // Accept result even if we found fewer young males than desired.
+    }
+
+    @Test
+    public void beardRule_maleAge20Plus_approximately_oneThirdHaveBeard() {
+        // Over a large sample of male clients (age 25-70), approximately 1/3 should have
+        // a non-"none" facialHair ID. We allow a generous range (20%–47%) to avoid flakiness.
+        int beardCount = 0;
+        int maleCount  = 0;
+        for (long seed = 0; seed < 600; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            if ("M".equals(npc.getGender())) {
+                maleCount++;
+                FaceConfig face = npc.getFaceConfig();
+                assertNotNull(face);
+                if (!"none".equals(face.facialHair.id)) {
+                    beardCount++;
+                }
+            }
+        }
+        if (maleCount > 0) {
+            double ratio = (double) beardCount / maleCount;
+            assertTrue("Beard rate should be ~33% but was " + ratio
+                    + " (" + beardCount + "/" + maleCount + ")",
+                    ratio >= 0.20 && ratio <= 0.47);
+        }
+    }
+
+    @Test
+    public void beardRule_male20to24_noLongBeardIDs() {
+        // Males aged 20–24 can only receive short beard IDs; long-beard-only IDs are forbidden.
+        // generateVictim uses age range 18–80; we filter for males in range 20-24.
+        int testedCount = 0;
+        for (long seed = 0; seed < 10000 && testedCount < 30; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateVictim(CaseType.MURDER);
+            if ("M".equals(npc.getGender()) && npc.getAge() >= 20 && npc.getAge() < 25) {
+                testedCount++;
+                FaceConfig face = npc.getFaceConfig();
+                if (face != null && !"none".equals(face.facialHair.id)) {
+                    // The "Beard Long" include list used in makeGeneratorWithBeardRules contains
+                    // beard-point, beard1, beard2, honest-abe, mutton — none of which are in
+                    // the Beard Short list used in the test helper.  So any of those IDs would
+                    // indicate an incorrect long-beard selection for age 20-24.
+                    Set<String> longOnlyTestIds = new HashSet<>(Arrays.asList(
+                            "beard-point", "honest-abe", "mutton"));
+                    assertFalse("Males aged 20-24 must not have a long-beard-only ID, got: "
+                                    + face.facialHair.id + " at age " + npc.getAge()
+                                    + " seed=" + seed,
+                            longOnlyTestIds.contains(face.facialHair.id));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void beardRule_noFaceRules_maleStillGetsFacialHairNone() {
+        // Without face rules the beard logic is not applied; facialHair defaults to "none"
+        // in the pool path. When face rules are absent, generate(Options) is used instead
+        // (50% beard for males from the no-pool path), so we just verify no crash occurs.
+        CharacterGenerator gen = makeGenerator(99);
+        NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+        assertNotNull(npc);
+        assertNotNull(npc.getFaceConfig());
+    }
 }

@@ -389,12 +389,17 @@ public final class FaceGenerator {
         String hairBgId = pickFromPool(pool, "hairBg",
                 rng.nextDouble() < hairBgChance ? randGenderedId(F_HAIRBG, isMale) : "none");
 
-        // head shave (male only, 25%)
-        double shaveVal = 0.0;
-        if (isMale && rng.nextDouble() < 0.25) {
-            shaveVal = randUniform(RANGE_HEAD_SHAVE[2], RANGE_HEAD_SHAVE[3]);
+        // head shave: use caller-supplied colour when provided; otherwise male-only random
+        String shaveColor;
+        if (options.shaveColor != null) {
+            shaveColor = options.shaveColor;
+        } else {
+            double shaveVal = 0.0;
+            if (isMale && rng.nextDouble() < 0.25) {
+                shaveVal = randUniform(RANGE_HEAD_SHAVE[2], RANGE_HEAD_SHAVE[3]);
+            }
+            shaveColor = "rgba(0,0,0," + round2(shaveVal) + ")";
         }
-        String shaveColor = "rgba(0,0,0," + round2(shaveVal) + ")";
 
         // eyeLine (75%)
         String eyeLineId = pickFromPool(pool, "eyeLine",
@@ -697,6 +702,14 @@ public final class FaceGenerator {
         /** {@code "white"}, {@code "black"}, {@code "brown"}, or {@code "asian"};
          *  {@code null} picks at random. */
         public String race   = null;
+        /**
+         * Optional shave-shadow colour for the head SVG, e.g.
+         * {@code "rgba(0,0,0,0.06)"}.  When non-null this value overrides the
+         * built-in random shave calculation in
+         * {@link FaceGenerator#generate(Options, java.util.Map)}.
+         * {@code null} means "use the default random logic".
+         */
+        public String shaveColor = null;
 
         public Options() {}
 
@@ -704,6 +717,8 @@ public final class FaceGenerator {
         public Options gender(String g) { this.gender = g; return this; }
         /** Sets the race and returns {@code this} for chaining. */
         public Options race(String r)   { this.race = r;   return this; }
+        /** Sets the shave-shadow colour override and returns {@code this} for chaining. */
+        public Options shaveColor(String c) { this.shaveColor = c; return this; }
     }
 
     // -------------------------------------------------------------------------

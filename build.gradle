@@ -21,7 +21,7 @@ allprojects {
   }
 }
 
-configure(subprojects - project(':android')) {
+configure(subprojects.findAll { it.name != 'android' }) {
   apply plugin: 'java-library'
   java.sourceCompatibility = 8
 

@@ -80,6 +80,9 @@ public class CharacterGenerator {
     private static final int ATTR_MIN = 1;
     private static final int ATTR_MAX = 10;
 
+    /** Probability (≈ 33%) that an age-eligible male character receives a beard. */
+    private static final double BEARD_PROBABILITY = 1.0 / 3.0;
+
     // Sprite key pools indexed by gender
     private static final String[] MALE_SPRITES   = { "man1", "man2" };
     private static final String[] FEMALE_SPRITES = { "woman1", "woman2" };
@@ -327,6 +330,10 @@ public class CharacterGenerator {
             if (visionTrait != null && visionTrait.isImpaired()) {
                 pool = applyGlassesRule(pool, normGender, faceRules);
             }
+            // For male characters assign a beard/shave style based on age.
+            if ("male".equals(normGender)) {
+                pool = applyBeardRule(pool, faceOpts, age, faceRules);
+            }
             face = faceGen.generate(faceOpts, pool);
         } else {
             face = faceGen.generate(faceOpts);
@@ -402,6 +409,80 @@ public class CharacterGenerator {
             }
         }
         return pool;
+    }
+
+    /**
+     * Assigns a beard/shave style to a male character based on {@code age} and
+     * a random roll, encoding the result in the pool and/or {@code faceOpts}.
+     *
+     * <p>Approximately 1/3 of age-eligible men receive a short or long beard
+     * (drawn from the {@code "Beard Short"} or {@code "Beard Long"} face rules).
+     * The remaining men receive a non-beard shave style whose intensity is set
+     * as a {@code shaveColor} override on {@code faceOpts}.
+     *
+     * <table border="1" summary="Beard eligibility by age">
+     *   <tr><th>Age</th><th>Eligible styles</th></tr>
+     *   <tr><td>&lt; 20</td><td>clean shaven, shaven (no beards)</td></tr>
+     *   <tr><td>20–24</td><td>shaven, stubbles, short beard (1/3 chance)</td></tr>
+     *   <tr><td>25+</td><td>shaven, stubbles, short beard or long beard (1/3 chance)</td></tr>
+     * </table>
+     *
+     * @param pool     mutable pool to augment with facial-hair IDs when a beard style is chosen
+     * @param faceOpts options object whose {@code shaveColor} is set for non-beard styles
+     * @param age      character age
+     * @param rules    full list of face rules
+     * @return the same {@code pool} (possibly augmented with a {@code "facialHair"} entry)
+     */
+    private Map<String, List<String>> applyBeardRule(
+            Map<String, List<String>> pool,
+            FaceGenerator.Options faceOpts,
+            int age,
+            List<FaceRule> rules) {
+        if (age >= 20 && random.nextDouble() < BEARD_PROBABILITY) {
+            // 1/3 of men aged 20+ get a beard.
+            // Under 25, only short beard is available; 25+ split evenly between short and long.
+            boolean longBeard = age >= 25 && random.nextBoolean();
+            addFacialHairFromRule(pool, longBeard ? "Beard Long" : "Beard Short", rules);
+            faceOpts.shaveColor("rgba(0,0,0,0.0)");
+        } else {
+            // Non-beard shave style.
+            // Under 20: clean shaven (alpha 0) or shaven (alpha 0.06) with equal probability.
+            // 20+: shaven or stubbles (alpha 0.15) with equal probability.
+            final String shaveColor;
+            if (age < 20) {
+                shaveColor = random.nextBoolean() ? "rgba(0,0,0,0.0)" : "rgba(0,0,0,0.06)";
+            } else {
+                shaveColor = random.nextBoolean() ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
+            }
+            faceOpts.shaveColor(shaveColor);
+        }
+        return pool;
+    }
+
+    /**
+     * Adds {@code facialHair} IDs from the named rule's {@code include} list to
+     * {@code pool}.  If the rule is not found or has no facial-hair entries the
+     * pool is left unchanged.
+     */
+    private static void addFacialHairFromRule(
+            Map<String, List<String>> pool,
+            String ruleName,
+            List<FaceRule> rules) {
+        for (FaceRule rule : rules) {
+            if (ruleName.equals(rule.name)) {
+                List<String> ids = new ArrayList<>();
+                for (String entry : rule.include) {
+                    int dot = entry.indexOf('.');
+                    if (dot > 0 && "facialHair".equals(entry.substring(0, dot))) {
+                        ids.add(entry.substring(dot + 1));
+                    }
+                }
+                if (!ids.isEmpty()) {
+                    pool.put("facialHair", Collections.unmodifiableList(ids));
+                }
+                break;
+            }
+        }
     }
 
     /** Returns {@code "M"} or {@code "F"} at random. */
