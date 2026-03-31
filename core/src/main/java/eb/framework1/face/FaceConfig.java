@@ -173,6 +173,36 @@ public final class FaceConfig {
     }
 
     /**
+     * Returns a copy of this {@code FaceConfig} with the hair colour replaced by
+     * {@code newColor}.  All other fields are shared (safe because they are immutable).
+     *
+     * @param newColor hex colour string, e.g. {@code "#CC9966"}
+     * @return a new {@code FaceConfig} with the given hair colour
+     */
+    public FaceConfig withHairColor(String newColor) {
+        return new Builder()
+                .fatness(this.fatness)
+                .teamColors(this.teamColors)
+                .hairBg(this.hairBg)
+                .body(this.body)
+                .jersey(this.jersey)
+                .ear(this.ear)
+                .head(this.head)
+                .eyeLine(this.eyeLine)
+                .smileLine(this.smileLine)
+                .miscLine(this.miscLine)
+                .facialHair(this.facialHair)
+                .eye(this.eye)
+                .eyebrow(this.eyebrow)
+                .hair(new HairFeature(this.hair.id, newColor, this.hair.flip))
+                .mouth(this.mouth)
+                .nose(this.nose)
+                .glasses(this.glasses)
+                .accessories(this.accessories)
+                .build();
+    }
+
+    /**
      * Returns a copy of this {@code FaceConfig} with the body skin colour
      * replaced by {@code newColor}.  All other fields are shared (safe because
      * they are immutable).

@@ -62,6 +62,12 @@ public final class PersonDescriptionEngine {
         }
         sb.append('.');
 
+        // ── Sentence 1b (optional): beard ────────────────────────────────────
+        String beardStyle = npc.getBeardStyle();
+        if (!beardStyle.isEmpty()) {
+            sb.append(" They have ").append(beardStylePhrase(beardStyle)).append('.');
+        }
+
         // ── Sentence 2 (optional): height and build ───────────────────────────
         int h = npc.getHeightCm();
         int w = npc.getWeightKg();
@@ -189,5 +195,25 @@ public final class PersonDescriptionEngine {
         if (level <= 6)  return "They appear comfortably dressed";
         if (level <= 8)  return "Their attire looks polished and expensive";
         return "They are dressed in an ostentatiously wealthy manner";
+    }
+
+    /**
+     * Returns the natural-language phrase used in a beard sentence for the given
+     * {@code beardStyle} value.
+     *
+     * <ul>
+     *   <li>{@code "short beard"} → {@code "a short beard"}</li>
+     *   <li>{@code "long beard"}  → {@code "a long beard"}</li>
+     *   <li>{@code "stubble"}     → {@code "stubble"}</li>
+     *   <li>anything else        → the raw style string</li>
+     * </ul>
+     */
+    static String beardStylePhrase(String beardStyle) {
+        switch (beardStyle) {
+            case "short beard": return "a short beard";
+            case "long beard":  return "a long beard";
+            case "stubble":     return "stubble";
+            default:            return beardStyle;
+        }
     }
 }
