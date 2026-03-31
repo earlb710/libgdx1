@@ -1058,4 +1058,56 @@ public class CharacterGeneratorTest {
         assertNotNull(npc);
         assertNotNull(npc.getFaceConfig());
     }
+
+    // =========================================================================
+    // CharacterGenerator — beardStyle text on NpcCharacter
+    // =========================================================================
+
+    @Test
+    public void beardStyle_female_alwaysEmpty() {
+        // Female characters must never have a non-empty beardStyle.
+        for (long seed = 0; seed < 300; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateVictim(CaseType.MURDER);
+            if ("F".equals(npc.getGender())) {
+                assertEquals("Female must have empty beardStyle, seed=" + seed,
+                        "", npc.getBeardStyle());
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void beardStyle_maleWithBeard_hasNonEmptyStyle() {
+        // Males who get a facial hair ID should also have a non-empty beardStyle text.
+        for (long seed = 0; seed < 600; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            if ("M".equals(npc.getGender())) {
+                FaceConfig face = npc.getFaceConfig();
+                if (face != null && !"none".equals(face.facialHair.id)) {
+                    String bs = npc.getBeardStyle();
+                    assertNotNull("beardStyle should not be null", bs);
+                    assertFalse("beardStyle should not be empty for a bearded male, seed=" + seed,
+                            bs.isEmpty());
+                    assertTrue("beardStyle should be 'short beard' or 'long beard', was: " + bs,
+                            "short beard".equals(bs) || "long beard".equals(bs));
+                    return;
+                }
+            }
+        }
+    }
+
+    @Test
+    public void beardStyle_values_areExpected() {
+        // Over many seeds, all beardStyle values should be one of the expected values.
+        Set<String> allowed = new HashSet<>(Arrays.asList("", "short beard", "long beard", "stubble"));
+        for (long seed = 0; seed < 200; seed++) {
+            CharacterGenerator gen = makeGeneratorWithBeardRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD);
+            assertTrue("beardStyle must be one of " + allowed + " but was: '"
+                    + npc.getBeardStyle() + "' seed=" + seed,
+                    allowed.contains(npc.getBeardStyle()));
+        }
+    }
 }

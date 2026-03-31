@@ -585,4 +585,119 @@ public class PersonDescriptionEngineTest {
         assertTrue("Should mention glasses", desc.contains("glasses"));
         assertTrue("Should mention sun glasses", desc.contains("sun glasses"));
     }
+
+    // =========================================================================
+    // NpcCharacter.Builder — beardStyle field
+    // =========================================================================
+
+    @Test
+    public void builder_beardStyleDefaultsEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M").build();
+        assertEquals("", npc.getBeardStyle());
+    }
+
+    @Test
+    public void builder_setsBeardStyle() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M")
+                .beardStyle("short beard").build();
+        assertEquals("short beard", npc.getBeardStyle());
+    }
+
+    @Test
+    public void builder_nullBeardStyle_storedAsEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M")
+                .beardStyle(null).build();
+        assertEquals("", npc.getBeardStyle());
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.beardStylePhrase
+    // =========================================================================
+
+    @Test
+    public void beardStylePhrase_shortBeard() {
+        assertEquals("a short beard",
+                PersonDescriptionEngine.beardStylePhrase("short beard"));
+    }
+
+    @Test
+    public void beardStylePhrase_longBeard() {
+        assertEquals("a long beard",
+                PersonDescriptionEngine.beardStylePhrase("long beard"));
+    }
+
+    @Test
+    public void beardStylePhrase_stubble() {
+        assertEquals("stubble",
+                PersonDescriptionEngine.beardStylePhrase("stubble"));
+    }
+
+    @Test
+    public void beardStylePhrase_unknownStyle_passedThrough() {
+        assertEquals("mutton chops",
+                PersonDescriptionEngine.beardStylePhrase("mutton chops"));
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.describe — beard sentences
+    // =========================================================================
+
+    @Test
+    public void describe_withShortBeard_mentionsBeard() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b1").fullName("Bearded Man").gender("M")
+                .age(35).wealthyLevel(5)
+                .beardStyle("short beard").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'a short beard'",
+                desc.contains("a short beard"));
+    }
+
+    @Test
+    public void describe_withLongBeard_mentionsBeard() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b2").fullName("Long Beard Man").gender("M")
+                .age(45).wealthyLevel(5)
+                .beardStyle("long beard").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'a long beard'",
+                desc.contains("a long beard"));
+    }
+
+    @Test
+    public void describe_withStubble_mentionsStubble() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b3").fullName("Stubble Man").gender("M")
+                .age(25).wealthyLevel(5)
+                .beardStyle("stubble").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'stubble'",
+                desc.contains("stubble"));
+    }
+
+    @Test
+    public void describe_noBeardStyle_omitsBeardSentence() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b4").fullName("Clean Man").gender("M")
+                .age(30).wealthyLevel(5).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("No beard → should not mention beard",
+                desc.contains("beard"));
+        assertFalse("No beard → should not mention stubble",
+                desc.contains("stubble"));
+    }
+
+    @Test
+    public void describe_emptyBeardStyle_omitsBeardSentence() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b5").fullName("Shaved Man").gender("M")
+                .age(30).wealthyLevel(5)
+                .beardStyle("").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("Empty beard → should not say 'They have'",
+                desc.contains("They have"));
+    }
 }
