@@ -1454,6 +1454,33 @@ public class MainScreen implements Screen {
             expandedPath.add(new float[]{px + dx * 0.75f, py + dy * 0.75f}); // 3/4
             expandedPath.add(new float[]{cx, cy});                             // real junction
         }
+        // Extend the path by 2 sub-steps so the character stops at the midpoint of a
+        // road-connected side of the destination cell rather than at a corner junction.
+        {
+            int[] lastJunc = path.get(path.size() - 1);
+            int   lx = lastJunc[0], ly = lastJunc[1];
+            int   toX = state.walkDestCellX, toY = state.walkDestCellY;
+            RoadAccess ra = cityMap.getRoadAccessMap().getAccess(toX, toY);
+            int   otherX = lx, otherY = ly;
+            boolean found = false;
+            // South side: (toX,toY) ↔ (toX+1,toY)
+            if (!found && lx == toX   && ly == toY   && ra.hasSouth()) { otherX = toX+1; otherY = toY;   found = true; }
+            if (!found && lx == toX+1 && ly == toY   && ra.hasSouth()) { otherX = toX;   otherY = toY;   found = true; }
+            // North side: (toX,toY+1) ↔ (toX+1,toY+1)
+            if (!found && lx == toX   && ly == toY+1 && ra.hasNorth()) { otherX = toX+1; otherY = toY+1; found = true; }
+            if (!found && lx == toX+1 && ly == toY+1 && ra.hasNorth()) { otherX = toX;   otherY = toY+1; found = true; }
+            // West side: (toX,toY) ↔ (toX,toY+1)
+            if (!found && lx == toX   && ly == toY   && ra.hasWest())  { otherX = toX;   otherY = toY+1; found = true; }
+            if (!found && lx == toX   && ly == toY+1 && ra.hasWest())  { otherX = toX;   otherY = toY;   found = true; }
+            // East side: (toX+1,toY) ↔ (toX+1,toY+1)
+            if (!found && lx == toX+1 && ly == toY   && ra.hasEast())  { otherX = toX+1; otherY = toY+1; found = true; }
+            if (!found && lx == toX+1 && ly == toY+1 && ra.hasEast())  { otherX = toX+1; otherY = toY;   found = true; }
+            if (found) {
+                float dx = otherX - lx, dy = otherY - ly;
+                expandedPath.add(new float[]{lx + dx * 0.25f, ly + dy * 0.25f}); // 1st extra step
+                expandedPath.add(new float[]{lx + dx * 0.50f, ly + dy * 0.50f}); // midpoint of side (2nd extra step)
+            }
+        }
         int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
 
         // Set up walk state (animation is driven by restingPopup callbacks)
