@@ -35,6 +35,8 @@ public class MapRenderer {
     private static final float BEVEL_SIZE_RATIO      = 0.03f;
     /** Minimum bevel thickness in screen pixels regardless of zoom level. */
     private static final float MIN_BEVEL_SIZE_PX     = 2f;
+    /** Extra inset applied to building cells on every side to make roads appear wider. */
+    private static final float BUILDING_EXTRA_INSET  = 1f;
 
     public static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -193,7 +195,10 @@ public class MapRenderer {
                 float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
                 float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
                 float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
-                shapeRenderer.rect(drawX + li, drawY + bi, cellSize - li - ri, cellSize - bi - ti);
+                // Extra contraction on building cells widens the visible road gap
+                float extra = cityMap.getCell(cx, cy).hasBuilding() ? BUILDING_EXTRA_INSET : 0f;
+                shapeRenderer.rect(drawX + li + extra, drawY + bi + extra,
+                        cellSize - li - ri - extra * 2, cellSize - bi - ti - extra * 2);
             }
         }
         shapeRenderer.end();
@@ -212,8 +217,9 @@ public class MapRenderer {
                 float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
                 float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
                 drawBeveledRect(shapeRenderer,
-                        drawX + li, drawY + bi,
-                        cellSize - li - ri, cellSize - bi - ti,
+                        drawX + li + BUILDING_EXTRA_INSET, drawY + bi + BUILDING_EXTRA_INSET,
+                        cellSize - li - ri - BUILDING_EXTRA_INSET * 2,
+                        cellSize - bi - ti - BUILDING_EXTRA_INSET * 2,
                         bevelSize);
             }
         }
@@ -473,8 +479,8 @@ public class MapRenderer {
             float iconW = isFemale ? npcWomanTexW : npcManTexW;
             float iconH = isFemale ? npcWomanTexH : npcManTexH;
             float bevelInset = bevelSize(cellSize);
-            float npcIconX = cellX + li + bevelInset;
-            float npcIconY = cellY + bi + bevelInset;
+            float npcIconX = cellX + li + BUILDING_EXTRA_INSET + bevelInset;
+            float npcIconY = cellY + bi + BUILDING_EXTRA_INSET + bevelInset;
             batch.draw(icon, npcIconX, npcIconY, iconW, iconH);
         }
 
