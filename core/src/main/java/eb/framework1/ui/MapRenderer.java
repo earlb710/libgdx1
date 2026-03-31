@@ -406,13 +406,25 @@ public class MapRenderer {
             batch.begin();
             smallFont.setColor(Color.WHITE);
             smallFont.getData().setScale(0.7f);
+            float bevelInset = bevelSize(cellSize);
             for (int cx = startCellX; cx < endCellX; cx++) {
                 for (int cy = startCellY; cy < endCellY; cy++) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                     String coords = Integer.toHexString(cx).toUpperCase() + Integer.toHexString(cy).toUpperCase();
                     glyphLayout.setText(smallFont, coords);
-                    smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
+                    float textX, textY;
+                    if (cityMap.getCell(cx, cy).hasBuilding()) {
+                        CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                        float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                        float si = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                        textX = drawX + li + BUILDING_EXTRA_INSET + bevelInset + 2;
+                        textY = drawY + cellSize - si - BUILDING_EXTRA_INSET - bevelInset - 2;
+                    } else {
+                        textX = drawX + borderSize + 2;
+                        textY = drawY + cellSize - borderSize - 2;
+                    }
+                    smallFont.draw(batch, coords, textX, textY);
                 }
             }
             smallFont.getData().setScale(1.0f);
