@@ -163,6 +163,8 @@
         "glasses.glasses1-primary",
         "glasses.glasses1-secondary",
         "glasses.glasses2-black",
+        "glasses.glasses2-black",
+        "glasses.glasses2-black",
         "glasses.glasses2-primary",
         "glasses.glasses2-secondary"
       ],
@@ -181,6 +183,8 @@
       "include": [
         "glasses.glasses1-primary",
         "glasses.glasses1-secondary",
+        "glasses.glasses2-black",
+        "glasses.glasses2-black",
         "glasses.glasses2-black",
         "glasses.glasses2-primary",
         "glasses.glasses2-secondary"
