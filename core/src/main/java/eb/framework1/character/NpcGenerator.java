@@ -261,6 +261,15 @@ public class NpcGenerator {
                 .skills(skills)
                 .schedule(schedule)
                 .birthdate(birthdate)
+                .hairType(base.getHairType())
+                .hairColor(base.getHairColor())
+                .beardStyle(base.getBeardStyle())
+                .heightCm(base.getHeightCm())
+                .weightKg(base.getWeightKg())
+                .wealthyLevel(base.getWealthyLevel())
+                .favColor(base.getFavColor())
+                .faceConfig(base.getFaceConfig())
+                .skinToneCode(base.getSkinToneCode())
                 .visionTrait(base.getVisionTrait())
                 .carriedItems(assignCarriedItemsWithVision(base.getVisionTrait(), skills));
         // tracked defaults to false; callers can set it explicitly after generation
