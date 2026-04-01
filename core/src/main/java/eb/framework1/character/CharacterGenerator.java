@@ -105,7 +105,7 @@ public class CharacterGenerator {
         m.put("black",  "#272421");
         m.put("brown",  "#3D2314");
         m.put("blonde", "#CC9966");
-        m.put("red",    "#8B2500");
+        m.put("red",    "#B55239");
         m.put("gray",   "#909090");
         m.put("white",  "#E8E4E0");
         HAIR_COLOR_HEX = java.util.Collections.unmodifiableMap(m);
