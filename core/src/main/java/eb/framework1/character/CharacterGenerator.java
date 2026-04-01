@@ -88,7 +88,7 @@ public class CharacterGenerator {
     private static final String[] FEMALE_SPRITES = { "woman1", "woman2" };
 
     // Appearance attribute pools
-    private static final String[] HAIR_TYPES  = { "straight", "wavy", "curly", "bald", "buzzed" };
+    private static final String[] HAIR_TYPES  = { "straight", "wavy", "curly", "buzzed" };
     private static final String[] HAIR_COLORS = { "black", "brown", "blonde", "red", "gray", "white" };
     private static final String[] FAV_COLORS  = { "", "", "", "red", "blue", "green",
                                                    "yellow", "purple", "orange", "black", "white" };
@@ -301,6 +301,7 @@ public class CharacterGenerator {
         int    age       = minAge + random.nextInt(maxAge - minAge + 1);
         String spriteKey = pickSprite(gender);
         String hairColor = pick(HAIR_COLORS);
+        String hairType  = pick(HAIR_TYPES);
 
         NpcCharacter.Builder b = new NpcCharacter.Builder()
                 .id(id)
@@ -315,7 +316,7 @@ public class CharacterGenerator {
                                        profile.getMaxHonesty()))
                 .nervousness(randomInRange(profile.getMinNervousness(),
                                            profile.getMaxNervousness()))
-                .hairType(pick(HAIR_TYPES))
+                .hairType(hairType)
                 .hairColor(hairColor)
                 .wealthyLevel(ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1))
                 .favColor(pick(FAV_COLORS));
@@ -351,8 +352,14 @@ public class CharacterGenerator {
             if (visionTrait != null && visionTrait.isImpaired()) {
                 pool = applyGlassesRule(pool, normGender, faceRules);
             }
-            // For male characters assign a beard/shave style based on age.
+            // For male characters apply the Bold rule to decide baldness, then
+            // assign a beard/shave style based on age.
             if ("male".equals(normGender)) {
+                boolean[] baldOut = {false};
+                pool = applyBoldRule(pool, faceSeed, age, faceRules, baldOut);
+                if (baldOut[0]) {
+                    b.hairType("bald");
+                }
                 pool = applyBeardRule(pool, faceOpts, age, faceRules, beardStyleOut);
             }
             face = faceGen.generate(faceOpts, pool);
@@ -492,6 +499,68 @@ public class CharacterGenerator {
             faceOpts.shaveColor(shaveColor);
             // Only "stubble" is visibly noteworthy; shaven/clean-shaven are left as "".
             beardStyleOut[0] = "rgba(0,0,0,0.15)".equals(shaveColor) ? "stubble" : "";
+        }
+        return pool;
+    }
+
+    /**
+     * Applies the {@code "Bold"} face rule to decide whether a male character
+     * should be bald.  The rule's {@code minAge} and {@code percentage} conditions
+     * are evaluated with a seeded RNG so the result is deterministic per character.
+     *
+     * <p>When the rule fires:
+     * <ul>
+     *   <li>The {@code "hair"} and {@code "hairBg"} entries in {@code pool} are
+     *       replaced with the IDs supplied by the Bold rule's {@code include} list.</li>
+     *   <li>{@code baldOut[0]} is set to {@code true}.</li>
+     * </ul>
+     *
+     * <p>When the rule does not fire (character too young, percentage roll fails, or
+     * no "Bold" rule exists) the pool is left unchanged and {@code baldOut[0]}
+     * remains {@code false}.
+     *
+     * @param pool     mutable pool to augment when Bold fires
+     * @param seed     per-character seed for deterministic percentage rolls
+     * @param age      character age
+     * @param rules    full list of face rules
+     * @param baldOut  single-element array; set to {@code true} when Bold fires
+     * @return the same {@code pool} (possibly updated with bald hair IDs)
+     */
+    private static Map<String, List<String>> applyBoldRule(
+            Map<String, List<String>> pool,
+            long seed,
+            int age,
+            List<FaceRule> rules,
+            boolean[] baldOut) {
+        for (int i = 0; i < rules.size(); i++) {
+            FaceRule rule = rules.get(i);
+            if (!"Bold".equals(rule.name)) continue;
+
+            // Age gate
+            if (rule.minAge > 0 && age < rule.minAge) break;
+
+            // Percentage roll — seeded identically to defaultCharacterFace rolls
+            if (rule.percentage < 100) {
+                long rollSeed = seed ^ (long) i * 6364136223846793005L;
+                Random rollRng = new Random(rollSeed);
+                if (rollRng.nextInt(100) >= rule.percentage) break;
+            }
+
+            // Rule fires — inject hair IDs from the Bold rule's include list
+            Map<String, List<String>> hairEntries = new HashMap<>();
+            for (String entry : rule.include) {
+                int dot = entry.indexOf('.');
+                if (dot > 0) {
+                    String featureType = entry.substring(0, dot);
+                    String featureId   = entry.substring(dot + 1);
+                    hairEntries.computeIfAbsent(featureType, k -> new ArrayList<>()).add(featureId);
+                }
+            }
+            for (Map.Entry<String, List<String>> e : hairEntries.entrySet()) {
+                pool.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+            baldOut[0] = true;
+            break;
         }
         return pool;
     }
