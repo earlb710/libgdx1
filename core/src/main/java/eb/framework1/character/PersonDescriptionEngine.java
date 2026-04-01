@@ -18,9 +18,9 @@ import java.util.List;
  * <pre>
  *   String desc = PersonDescriptionEngine.describe(npc);
  *   // → "A middle-aged man with wavy brown hair.
- *   //    They are tall and of average build.
- *   //    They appear comfortably dressed.
- *   //    They seem to favour the colour blue."
+ *   //    He is tall and of average build.
+ *   //    He appears comfortably dressed.
+ *   //    He seems to favour the colour blue."
  * </pre>
  */
 public final class PersonDescriptionEngine {
@@ -43,9 +43,13 @@ public final class PersonDescriptionEngine {
 
         StringBuilder sb = new StringBuilder();
 
+        boolean isFemale = "F".equalsIgnoreCase(npc.getGender());
+        // Gendered subject pronoun: "He" for male, "She" for female
+        String subj = isFemale ? "She" : "He";
+
         // ── Sentence 1: physical silhouette ──────────────────────────────────
         String ageTerm    = ageTerm(npc.getAge());
-        String genderNoun = "F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man";
+        String genderNoun = isFemale ? "woman" : "man";
         sb.append("A ").append(ageTerm).append(' ').append(genderNoun);
 
         String hairType  = npc.getHairType();
@@ -65,7 +69,7 @@ public final class PersonDescriptionEngine {
         // ── Sentence 1b (optional): beard ────────────────────────────────────
         String beardStyle = npc.getBeardStyle();
         if (!beardStyle.isEmpty()) {
-            sb.append(" They have ").append(beardStylePhrase(beardStyle)).append('.');
+            sb.append(' ').append(subj).append(" has ").append(beardStylePhrase(beardStyle)).append('.');
         }
 
         // ── Sentence 2 (optional): height and build ───────────────────────────
@@ -75,21 +79,21 @@ public final class PersonDescriptionEngine {
             String heightWord = heightDesc(h);
             if (w > 0) {
                 String buildWord = buildDesc(h, w);
-                sb.append(" They are ").append(heightWord)
+                sb.append(' ').append(subj).append(" is ").append(heightWord)
                   .append(" and of ").append(buildWord).append(" build.");
             } else {
-                sb.append(" They are ").append(heightWord).append('.');
+                sb.append(' ').append(subj).append(" is ").append(heightWord).append('.');
             }
         }
 
         // ── Sentence 3: apparent wealth ───────────────────────────────────────
         int wealth = npc.getWealthyLevel();
-        sb.append(' ').append(wealthDesc(wealth)).append('.');
+        sb.append(' ').append(wealthDesc(wealth, isFemale)).append('.');
 
         // ── Sentence 4 (optional): favourite colour ───────────────────────────
         String fc = npc.getFavColor();
         if (fc != null && !fc.isEmpty()) {
-            sb.append(" They seem to favour the colour ").append(fc).append('.');
+            sb.append(' ').append(subj).append(" seems to favour the colour ").append(fc).append('.');
         }
 
         // ── Sentence 5 (optional): glasses / sun glasses (worn, not "carried") ─
@@ -104,19 +108,19 @@ public final class PersonDescriptionEngine {
             else otherItems.add(item);
         }
         if (hasGlasses && hasSunGlasses) {
-            sb.append(" They wear glasses and sun glasses.");
+            sb.append(' ').append(subj).append(" wears glasses and sun glasses.");
         } else if (hasSunGlasses) {
-            sb.append(" They wear sun glasses.");
+            sb.append(' ').append(subj).append(" wears sun glasses.");
         } else if (hasGlasses) {
-            sb.append(" They wear glasses.");
+            sb.append(' ').append(subj).append(" wears glasses.");
         }
         if (!otherItems.isEmpty()) {
             if (otherItems.size() == 1) {
-                sb.append(" They appear to be carrying ")
+                sb.append(' ').append(subj).append(" appears to be carrying ")
                   .append(article(otherItems.get(0).getName())).append(' ')
                   .append(otherItems.get(0).getName().toLowerCase()).append('.');
             } else {
-                sb.append(" They appear to be carrying ");
+                sb.append(' ').append(subj).append(" appears to be carrying ");
                 for (int i = 0; i < otherItems.size(); i++) {
                     if (i > 0) sb.append(i == otherItems.size() - 1 ? " and " : ", ");
                     String name = otherItems.get(i).getName();
@@ -189,12 +193,14 @@ public final class PersonDescriptionEngine {
     }
 
     /** Maps a 1–10 wealth level to a clothing/appearance description sentence. */
-    static String wealthDesc(int level) {
-        if (level <= 2)  return "Their clothing looks worn and threadbare";
-        if (level <= 4)  return "They dress in a modest, practical style";
-        if (level <= 6)  return "They appear comfortably dressed";
-        if (level <= 8)  return "Their attire looks polished and expensive";
-        return "They are dressed in an ostentatiously wealthy manner";
+    static String wealthDesc(int level, boolean isFemale) {
+        String poss = isFemale ? "Her" : "His";
+        String subj = isFemale ? "She" : "He";
+        if (level <= 2)  return poss + " clothing looks worn and threadbare";
+        if (level <= 4)  return subj + " dresses in a modest, practical style";
+        if (level <= 6)  return subj + " appears comfortably dressed";
+        if (level <= 8)  return poss + " attire looks polished and expensive";
+        return subj + " is dressed in an ostentatiously wealthy manner";
     }
 
     /**
