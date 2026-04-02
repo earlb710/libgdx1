@@ -1340,9 +1340,70 @@ public class MainScreen implements Screen {
             state.currentRoute = null;
             return;
         }
+        // For adjacent cells, bypass Dijkstra: use the single shared road segment if one exists.
+        int adx = state.selectedCellX - state.charCellX;
+        int ady = state.selectedCellY - state.charCellY;
+        if (Math.abs(adx) + Math.abs(ady) == 1) {
+            CityMap.RouteResult direct = tryDirectRoadRoute(
+                    state.charCellX, state.charCellY,
+                    state.selectedCellX, state.selectedCellY);
+            if (direct != null) {
+                state.currentRoute = direct;
+                return;
+            }
+        }
         state.currentRoute = cityMap.findFastestRoute(
                 state.charCellX, state.charCellY,
                 state.selectedCellX, state.selectedCellY);
+    }
+
+    /**
+     * If there is a direct road or pathway on the shared border between two adjacent cells,
+     * returns a synthetic {@link CityMap.RouteResult} whose 2-junction path is that single
+     * border segment.  The route highlight and walk animation will then show only that one
+     * road rather than a multi-junction Dijkstra path.
+     * Returns {@code null} if there is no direct connection (fall back to Dijkstra).
+     */
+    private CityMap.RouteResult tryDirectRoadRoute(int fromX, int fromY, int toX, int toY) {
+        int dx = toX - fromX, dy = toY - fromY;
+        RoadAccessMap ram = cityMap.getRoadAccessMap();
+        RoadType type;
+        java.util.List<int[]> junctions = new java.util.ArrayList<>();
+        if (dx == 1 && dy == 0) {
+            // Moving East: east border of (fromX,fromY) = vertical segment at jx=toX
+            RoadAccess ra = ram.getAccess(fromX, fromY);
+            if (!ra.hasEast()) return null;
+            type = ra.getEastType();
+            junctions.add(new int[]{toX, fromY});
+            junctions.add(new int[]{toX, fromY + 1});
+        } else if (dx == -1 && dy == 0) {
+            // Moving West: west border = east border of (toX,fromY) = vertical segment at jx=fromX
+            RoadAccess ra = ram.getAccess(toX, fromY);
+            if (!ra.hasEast()) return null;
+            type = ra.getEastType();
+            junctions.add(new int[]{fromX, fromY});
+            junctions.add(new int[]{fromX, fromY + 1});
+        } else if (dx == 0 && dy == 1) {
+            // Moving North: north border of (fromX,fromY) = horizontal segment at jy=toY
+            RoadAccess ra = ram.getAccess(fromX, fromY);
+            if (!ra.hasNorth()) return null;
+            type = ra.getNorthType();
+            junctions.add(new int[]{fromX, toY});
+            junctions.add(new int[]{fromX + 1, toY});
+        } else if (dx == 0 && dy == -1) {
+            // Moving South: south border = north border of (toX,toY) = horizontal segment at jy=fromY
+            RoadAccess ra = ram.getAccess(toX, toY);
+            if (!ra.hasNorth()) return null;
+            type = ra.getNorthType();
+            junctions.add(new int[]{fromX, fromY});
+            junctions.add(new int[]{fromX + 1, fromY});
+        } else {
+            return null;
+        }
+        int minutes = (type == RoadType.ROAD)
+                ? CityMap.RouteResult.ROAD_MINUTES_PER_CELL
+                : CityMap.RouteResult.PATH_MINUTES_PER_CELL;
+        return new CityMap.RouteResult(junctions, minutes);
     }
 
     private void handleRestClick() {
@@ -1439,20 +1500,21 @@ public class MainScreen implements Screen {
         state.walkDestCellX = state.selectedCellX;
         state.walkDestCellY = state.selectedCellY;
 
-        // Build an expanded path that inserts 3 intermediate points between every pair of
-        // consecutive junctions (at 1/4, 2/4, 3/4 of the way), giving 4 visual sub-steps
-        // per cell for smoother movement.
+        // Build an expanded path: for each road segment, place the player icon at the
+        // road midpoint (between the two cell-edge junctions) for 3 ticks, then jump
+        // to the next junction.  This gives the visual effect of crossing the road
+        // before arriving at the new cell.
         java.util.List<float[]> expandedPath = new java.util.ArrayList<>();
         expandedPath.add(new float[]{path.get(0)[0], path.get(0)[1]});
         for (int i = 1; i < path.size(); i++) {
             int[] prevSrc = path.get(i - 1);
             float px = prevSrc[0], py = prevSrc[1];
             float cx = path.get(i)[0], cy = path.get(i)[1];
-            float dx = cx - px, dy = cy - py;
-            expandedPath.add(new float[]{px + dx * 0.25f, py + dy * 0.25f}); // 1/4
-            expandedPath.add(new float[]{px + dx * 0.50f, py + dy * 0.50f}); // 2/4
-            expandedPath.add(new float[]{px + dx * 0.75f, py + dy * 0.75f}); // 3/4
-            expandedPath.add(new float[]{cx, cy});                             // real junction
+            float mx = px + (cx - px) * 0.50f, my = py + (cy - py) * 0.50f; // road midpoint
+            expandedPath.add(new float[]{mx, my}); // tick 1: on road
+            expandedPath.add(new float[]{mx, my}); // tick 2: on road
+            expandedPath.add(new float[]{mx, my}); // tick 3: on road
+            expandedPath.add(new float[]{cx, cy}); // jump to next cell
         }
         int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
 
