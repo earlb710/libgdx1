@@ -1340,9 +1340,70 @@ public class MainScreen implements Screen {
             state.currentRoute = null;
             return;
         }
+        // For adjacent cells, bypass Dijkstra: use the single shared road segment if one exists.
+        int adx = state.selectedCellX - state.charCellX;
+        int ady = state.selectedCellY - state.charCellY;
+        if (Math.abs(adx) + Math.abs(ady) == 1) {
+            CityMap.RouteResult direct = tryDirectRoadRoute(
+                    state.charCellX, state.charCellY,
+                    state.selectedCellX, state.selectedCellY);
+            if (direct != null) {
+                state.currentRoute = direct;
+                return;
+            }
+        }
         state.currentRoute = cityMap.findFastestRoute(
                 state.charCellX, state.charCellY,
                 state.selectedCellX, state.selectedCellY);
+    }
+
+    /**
+     * If there is a direct road or pathway on the shared border between two adjacent cells,
+     * returns a synthetic {@link CityMap.RouteResult} whose 2-junction path is that single
+     * border segment.  The route highlight and walk animation will then show only that one
+     * road rather than a multi-junction Dijkstra path.
+     * Returns {@code null} if there is no direct connection (fall back to Dijkstra).
+     */
+    private CityMap.RouteResult tryDirectRoadRoute(int fromX, int fromY, int toX, int toY) {
+        int dx = toX - fromX, dy = toY - fromY;
+        RoadAccessMap ram = cityMap.getRoadAccessMap();
+        RoadType type;
+        java.util.List<int[]> junctions = new java.util.ArrayList<>();
+        if (dx == 1 && dy == 0) {
+            // Moving East: east border of (fromX,fromY) = vertical segment at jx=toX
+            RoadAccess ra = ram.getAccess(fromX, fromY);
+            if (!ra.hasEast()) return null;
+            type = ra.getEastType();
+            junctions.add(new int[]{toX, fromY});
+            junctions.add(new int[]{toX, fromY + 1});
+        } else if (dx == -1 && dy == 0) {
+            // Moving West: west border = east border of (toX,fromY) = vertical segment at jx=fromX
+            RoadAccess ra = ram.getAccess(toX, fromY);
+            if (!ra.hasEast()) return null;
+            type = ra.getEastType();
+            junctions.add(new int[]{fromX, fromY});
+            junctions.add(new int[]{fromX, fromY + 1});
+        } else if (dx == 0 && dy == 1) {
+            // Moving North: north border of (fromX,fromY) = horizontal segment at jy=toY
+            RoadAccess ra = ram.getAccess(fromX, fromY);
+            if (!ra.hasNorth()) return null;
+            type = ra.getNorthType();
+            junctions.add(new int[]{fromX, toY});
+            junctions.add(new int[]{fromX + 1, toY});
+        } else if (dx == 0 && dy == -1) {
+            // Moving South: south border = north border of (toX,toY) = horizontal segment at jy=fromY
+            RoadAccess ra = ram.getAccess(toX, toY);
+            if (!ra.hasNorth()) return null;
+            type = ra.getNorthType();
+            junctions.add(new int[]{fromX, fromY});
+            junctions.add(new int[]{fromX + 1, fromY});
+        } else {
+            return null;
+        }
+        int minutes = (type == RoadType.ROAD)
+                ? CityMap.RouteResult.ROAD_MINUTES_PER_CELL
+                : CityMap.RouteResult.PATH_MINUTES_PER_CELL;
+        return new CityMap.RouteResult(junctions, minutes);
     }
 
     private void handleRestClick() {
