@@ -7,9 +7,9 @@ import java.util.List;
  *
  * <p>The description is built from the appearance attributes on
  * {@link NpcCharacter}: hair type and colour, apparent wealth level,
- * height, weight/build, and favourite colour.  Only externally visible
- * traits are included — this class intentionally omits private information
- * such as personality or investigative attributes.
+ * height, and weight/build.  Only externally visible traits are included —
+ * this class intentionally omits private information such as personality,
+ * favourite colour, or investigative attributes.
  *
  * <p>This class has <strong>no libGDX dependency</strong> and can be unit-tested
  * with plain JUnit.
@@ -19,8 +19,7 @@ import java.util.List;
  *   String desc = PersonDescriptionEngine.describe(npc);
  *   // → "A middle-aged man with wavy brown hair.
  *   //    He is tall and of average build.
- *   //    He appears comfortably dressed.
- *   //    He seems to favour the colour blue."
+ *   //    He appears comfortably dressed."
  * </pre>
  */
 public final class PersonDescriptionEngine {
@@ -90,14 +89,8 @@ public final class PersonDescriptionEngine {
         int wealth = npc.getWealthyLevel();
         sb.append(' ').append(wealthDesc(wealth, isFemale)).append('.');
 
-        // ── Sentence 4 (optional): favourite colour ───────────────────────────
-        String fc = npc.getFavColor();
-        if (fc != null && !fc.isEmpty()) {
-            sb.append(' ').append(subj).append(" seems to favour the colour ").append(fc).append('.');
-        }
-
-        // ── Sentence 5 (optional): glasses / sun glasses (worn, not "carried") ─
-        // ── Sentence 6 (optional): other visible carried items ─────────────────
+        // ── Sentence 4 (optional): glasses / sun glasses (worn, not "carried") ─
+        // ── Sentence 5 (optional): other visible carried items ─────────────────
         List<EquipItem> items = npc.getCarriedItems();
         boolean hasGlasses    = false;
         boolean hasSunGlasses = false;

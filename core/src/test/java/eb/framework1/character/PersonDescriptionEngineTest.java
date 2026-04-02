@@ -91,10 +91,11 @@ public class PersonDescriptionEngineTest {
     }
 
     @Test
-    public void describe_favColorIncluded() {
+    public void describe_favColorNotIncluded() {
         NpcCharacter npc = makeNpc("M", 40, "wavy", "gray", 6, "blue");
         String desc = PersonDescriptionEngine.describe(npc);
-        assertTrue(desc.contains("blue"));
+        assertFalse("Favourite colour should never appear in description", desc.contains("blue"));
+        assertFalse("Favourite colour should never appear in description", desc.contains("favour the colour"));
     }
 
     @Test
