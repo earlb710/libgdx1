@@ -150,7 +150,7 @@ public class ChatPopup {
 
             eb.framework1.ui.WordWrapper.WidthMeasurer measurer =
                     new eb.framework1.ui.WordWrapper.WidthMeasurer() {
-                @Override public float measureWidth(String text) {
+                @Override public float measure(String text) {
                     glyph.setText(smallFont, text);
                     return glyph.width;
                 }
