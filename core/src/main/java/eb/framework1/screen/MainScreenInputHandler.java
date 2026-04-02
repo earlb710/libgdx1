@@ -62,6 +62,7 @@ class MainScreenInputHandler extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (pointer != 0) return false; // multi-touch handled by GestureDetector
         int flippedY = screen.state.screenHeight - screenY;
 
         // Resting popup blocks all normal interaction while visible
@@ -600,6 +601,7 @@ class MainScreenInputHandler extends InputAdapter {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
+        if (pointer != 0) return false; // multi-touch handled by GestureDetector
         if (screen.contextMenu.isVisible()) {
             // Only dismiss if the finger has moved far enough to be a real drag.
             // Tiny jitter during a tap should not cancel the menu before touchUp fires.

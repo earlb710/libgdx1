@@ -15,8 +15,10 @@ import eb.framework1.ui.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -719,7 +721,46 @@ public class MainScreen implements Screen {
     // -------------------------------------------------------------------------
 
     private void setupInput() {
-        Gdx.input.setInputProcessor(new MainScreenInputHandler(this));
+        MainScreenInputHandler handler = new MainScreenInputHandler(this);
+        GestureDetector gestureDetector = new GestureDetector(new PinchZoomListener(handler));
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(gestureDetector);
+        multiplexer.addProcessor(handler);
+        Gdx.input.setInputProcessor(multiplexer);
+    }
+
+    /** Handles two-finger pinch-to-zoom on touch screens. */
+    private class PinchZoomListener extends GestureDetector.GestureAdapter {
+        private final MainScreenInputHandler handler;
+        private float pinchStartZoom = -1f;
+
+        PinchZoomListener(MainScreenInputHandler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
+                             Vector2 pointer1, Vector2 pointer2) {
+            if (pinchStartZoom < 0f) {
+                pinchStartZoom = state.zoomLevel;
+                handler.isDragging = false; // cancel any single-finger drag
+            }
+            float initialDist = initialPointer1.dst(initialPointer2);
+            if (initialDist < 1f) return false;
+            float currentDist = pointer1.dst(pointer2);
+            float newZoom = MathUtils.clamp(
+                    pinchStartZoom * (currentDist / initialDist), MIN_ZOOM, MAX_ZOOM);
+            if (newZoom != state.zoomLevel) {
+                state.zoomLevel = newZoom;
+                state.clampMapOffset();
+            }
+            return true;
+        }
+
+        @Override
+        public void pinchStop() {
+            pinchStartZoom = -1f;
+        }
     }
 
     private void handleKeyboardInput() {
