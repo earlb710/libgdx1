@@ -25,9 +25,9 @@ public class MapViewState {
     // --- Map pan / zoom ---
     public float mapOffsetX = 0f;
     public float mapOffsetY = 0f;
-    public float zoomLevel  = 2.0f;
-    public float lastZoomLevel = 2.0f;
-    public String cachedZoomText = "Zoom: 2.0x";
+    public float zoomLevel  = 2.5f;
+    public float lastZoomLevel = 2.5f;
+    public String cachedZoomText = "Zoom: 2.5x";
 
     // --- Screen layout (set by resize) ---
     public int screenWidth;
