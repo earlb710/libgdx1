@@ -474,6 +474,17 @@ class MainScreenInputHandler extends InputAdapter {
             return true;
         }
 
+        // Chat popup: Close button
+        if (screen.chatPopup.isVisible()) {
+            float d = Vector2.len(screenX - dragStartX, screenY - dragStartY);
+            if (d < MainScreen.TAP_THRESHOLD_PIXELS) {
+                screen.chatPopup.onTap(screenX, flippedY);
+            }
+            isDragging = false;
+            infoAreaPressed = false;
+            return true;
+        }
+
         // Check eye-icon taps on the info panel (examine unknown NPC at current cell)
         {
             float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
@@ -484,6 +495,24 @@ class MainScreenInputHandler extends InputAdapter {
                             && flippedY >= s.eyeIconY[i]
                             && flippedY <= s.eyeIconY[i] + s.eyeIconH) {
                         screen.examinePersonPopup.show(s.eyeIconNpc[i]);
+                        isDragging = false;
+                        infoAreaPressed = false;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Check chat-icon taps on the info panel (converse with unknown NPC at current cell)
+        {
+            float d = Vector2.len(screenX - infoTouchStartX, screenY - infoTouchStartY);
+            if (infoAreaPressed && d < MainScreen.TAP_THRESHOLD_PIXELS) {
+                eb.framework1.ui.MapViewState s = screen.state;
+                for (int i = 0; i < s.chatIconCount; i++) {
+                    if (screenX >= s.chatIconX[i] && screenX <= s.chatIconX[i] + s.chatIconW[i]
+                            && flippedY >= s.chatIconY[i]
+                            && flippedY <= s.chatIconY[i] + s.chatIconH) {
+                        screen.chatPopup.show(s.chatIconNpc[i]);
                         isDragging = false;
                         infoAreaPressed = false;
                         return true;

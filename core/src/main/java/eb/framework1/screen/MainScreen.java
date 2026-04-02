@@ -95,6 +95,7 @@ public class MainScreen implements Screen {
     NotePopup            notePopup;
     MeetPopup            meetPopup;
     ExaminePersonPopup   examinePersonPopup;
+    ChatPopup            chatPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -347,6 +348,8 @@ public class MainScreen implements Screen {
 
         examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout, portraitPainter);
 
+        chatPopup = new ChatPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -483,6 +486,10 @@ public class MainScreen implements Screen {
             examinePersonPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (chatPopup.isVisible()) {
+            chatPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -574,6 +581,7 @@ public class MainScreen implements Screen {
             || notePopup.isVisible()
             || meetPopup.isVisible()
             || examinePersonPopup.isVisible()
+            || chatPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;

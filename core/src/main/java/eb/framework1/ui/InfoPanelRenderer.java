@@ -81,6 +81,7 @@ public class InfoPanelRenderer {
     private static final Color EXPAND_BTN_BORDER       = new Color(0.45f, 0.55f, 0.70f, 1f);
     private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
     private static final Color EYE_ICON_BG_COLOR        = new Color(0.05f, 0.20f, 0.35f, 1f);
+    private static final Color CHAT_ICON_BG_COLOR       = new Color(0.05f, 0.30f, 0.20f, 1f);
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -97,6 +98,9 @@ public class InfoPanelRenderer {
     /** Eye icon shown next to unknown-NPC entries in the info panel. */
     private Texture eyeIconTexture;
     private int     eyeIconTexW, eyeIconTexH;
+    /** Chat icon shown next to the eye icon for unknown NPCs at the player's cell. */
+    private Texture chatIconTexture;
+    private int     chatIconTexW, chatIconTexH;
 
     /** Portrait painter used to render NPC face thumbnails; may be {@code null}. */
     private final FacePortraitPainter portraitPainter;
@@ -144,6 +148,14 @@ public class InfoPanelRenderer {
         } catch (Exception e) {
             Gdx.app.log("InfoPanelRenderer", "Could not load eye icon: " + e.getMessage());
         }
+        try {
+            chatIconTexture = new Texture(Gdx.files.internal("icons/chat.png"));
+            chatIconTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            chatIconTexW = chatIconTexture.getWidth();
+            chatIconTexH = chatIconTexture.getHeight();
+        } catch (Exception e) {
+            Gdx.app.log("InfoPanelRenderer", "Could not load chat icon: " + e.getMessage());
+        }
     }
 
     /** Releases GPU resources owned by this renderer. */
@@ -151,6 +163,10 @@ public class InfoPanelRenderer {
         if (eyeIconTexture != null) {
             eyeIconTexture.dispose();
             eyeIconTexture = null;
+        }
+        if (chatIconTexture != null) {
+            chatIconTexture.dispose();
+            chatIconTexture = null;
         }
         // portraitPainter lifecycle is managed externally (by MainScreen)
     }
@@ -413,6 +429,8 @@ public class InfoPanelRenderer {
         s.noteLocCbW  = 0f;
         // Reset eye-icon hit areas — repopulated when NPCs are drawn below
         s.eyeIconCount = 0;
+        // Reset chat-icon hit areas — repopulated when NPCs are drawn below
+        s.chatIconCount = 0;
         boolean showMoveToButton = s.selectedCellX >= 0 && s.selectedCellY >= 0
                 && (s.selectedCellX != s.charCellX || s.selectedCellY != s.charCellY);
         boolean canMove = showMoveToButton && s.currentRoute != null && s.currentRoute.isReachable();
@@ -900,6 +918,21 @@ public class InfoPanelRenderer {
                             s.eyeIconW[idx]   = iconW;
                             s.eyeIconH        = iconH;
                             s.eyeIconNpc[idx] = npc;
+
+                            // Chat icon: placed immediately to the right of the eye icon
+                            if (chatIconTexture != null
+                                    && s.chatIconCount < MapViewState.MAX_CHAT_ICONS) {
+                                float chatH = Math.min(chatIconTexH, fontCapH);
+                                float chatW = (chatIconTexW > 0 && chatIconTexH > 0)
+                                        ? chatIconTexW * chatH / chatIconTexH : chatH;
+                                float cx = ex + iconW + 4f;
+                                int ci = s.chatIconCount++;
+                                s.chatIconX[ci]   = cx;
+                                s.chatIconY[ci]   = ey;
+                                s.chatIconW[ci]   = chatW;
+                                s.chatIconH       = chatH;
+                                s.chatIconNpc[ci] = npc;
+                            }
                         }
 
                         textY -= fontLineH;
@@ -917,6 +950,11 @@ public class InfoPanelRenderer {
         for (int i = 0; i < s.eyeIconCount; i++) {
             drawIconWithBackground(eyeIconTexture, EYE_ICON_BG_COLOR,
                     s.eyeIconX[i], s.eyeIconY[i], s.eyeIconW[i], s.eyeIconH);
+        }
+        // Draw chat icons: filled background + icon on top, right next to the eye icons
+        for (int i = 0; i < s.chatIconCount; i++) {
+            drawIconWithBackground(chatIconTexture, CHAT_ICON_BG_COLOR,
+                    s.chatIconX[i], s.chatIconY[i], s.chatIconW[i], s.chatIconH);
         }
         Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
         drawScrollX = 0f;
