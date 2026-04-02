@@ -1439,20 +1439,21 @@ public class MainScreen implements Screen {
         state.walkDestCellX = state.selectedCellX;
         state.walkDestCellY = state.selectedCellY;
 
-        // Build an expanded path that inserts 3 intermediate points between every pair of
-        // consecutive junctions (at 1/4, 2/4, 3/4 of the way), giving 4 visual sub-steps
-        // per cell for smoother movement.
+        // Build an expanded path: for each road segment, place the player icon at the
+        // road midpoint (between the two cell-edge junctions) for 3 ticks, then jump
+        // to the next junction.  This gives the visual effect of crossing the road
+        // before arriving at the new cell.
         java.util.List<float[]> expandedPath = new java.util.ArrayList<>();
         expandedPath.add(new float[]{path.get(0)[0], path.get(0)[1]});
         for (int i = 1; i < path.size(); i++) {
             int[] prevSrc = path.get(i - 1);
             float px = prevSrc[0], py = prevSrc[1];
             float cx = path.get(i)[0], cy = path.get(i)[1];
-            float dx = cx - px, dy = cy - py;
-            expandedPath.add(new float[]{px + dx * 0.25f, py + dy * 0.25f}); // 1/4
-            expandedPath.add(new float[]{px + dx * 0.50f, py + dy * 0.50f}); // 2/4
-            expandedPath.add(new float[]{px + dx * 0.75f, py + dy * 0.75f}); // 3/4
-            expandedPath.add(new float[]{cx, cy});                             // real junction
+            float mx = px + (cx - px) * 0.50f, my = py + (cy - py) * 0.50f; // road midpoint
+            expandedPath.add(new float[]{mx, my}); // tick 1: on road
+            expandedPath.add(new float[]{mx, my}); // tick 2: on road
+            expandedPath.add(new float[]{mx, my}); // tick 3: on road
+            expandedPath.add(new float[]{cx, cy}); // jump to next cell
         }
         int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
 
