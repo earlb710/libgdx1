@@ -120,6 +120,13 @@ public final class NpcCharacter {
     private final String hairColor;
 
     /**
+     * Beard/facial-hair style for male characters.
+     * Examples: {@code "short beard"}, {@code "long beard"}, {@code "stubble"}.
+     * Empty string for female characters or clean-shaven men.
+     */
+    private final String beardStyle;
+
+    /**
      * Apparent wealth level on a 1–10 scale.
      * 1 = visibly destitute; 10 = ostentatiously wealthy.
      */
@@ -206,6 +213,7 @@ public final class NpcCharacter {
         this.tracked              = b.tracked;
         this.hairType             = b.hairType  != null ? b.hairType  : "";
         this.hairColor            = b.hairColor != null ? b.hairColor : "";
+        this.beardStyle           = b.beardStyle != null ? b.beardStyle : "";
         this.wealthyLevel         = b.wealthyLevel;
         this.favColor             = b.favColor  != null ? b.favColor  : "";
         this.heightCm             = b.heightCm;
@@ -410,6 +418,13 @@ public final class NpcCharacter {
     public String getHairColor() { return hairColor; }
 
     /**
+     * Beard/facial-hair style for male characters, e.g. {@code "short beard"},
+     * {@code "long beard"}, {@code "stubble"}.  Empty string for females or
+     * clean-shaven men.
+     */
+    public String getBeardStyle() { return beardStyle; }
+
+    /**
      * Apparent wealth level on a 1–10 scale.
      * 1 = visibly destitute; 10 = ostentatiously wealthy.
      */
@@ -592,6 +607,7 @@ public final class NpcCharacter {
         // Appearance attributes
         private String hairType    = "";
         private String hairColor   = "";
+        private String beardStyle  = "";
         private int    wealthyLevel = 5;
         private String favColor    = "";
         private int    heightCm    = 0;
@@ -866,6 +882,15 @@ public final class NpcCharacter {
         /** Sets the hair colour (e.g. {@code "black"}, {@code "brown"}, {@code "blonde"}). */
         public Builder hairColor(String hairColor) {
             this.hairColor = hairColor != null ? hairColor : "";
+            return this;
+        }
+
+        /**
+         * Sets the beard/facial-hair style (e.g. {@code "short beard"}, {@code "stubble"}).
+         * Pass an empty string or {@code null} for clean-shaven / female characters.
+         */
+        public Builder beardStyle(String beardStyle) {
+            this.beardStyle = beardStyle != null ? beardStyle : "";
             return this;
         }
 

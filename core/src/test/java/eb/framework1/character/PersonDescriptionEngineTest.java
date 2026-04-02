@@ -91,10 +91,11 @@ public class PersonDescriptionEngineTest {
     }
 
     @Test
-    public void describe_favColorIncluded() {
+    public void describe_favColorNotIncluded() {
         NpcCharacter npc = makeNpc("M", 40, "wavy", "gray", 6, "blue");
         String desc = PersonDescriptionEngine.describe(npc);
-        assertTrue(desc.contains("blue"));
+        assertFalse("Favourite colour should never appear in description", desc.contains("blue"));
+        assertFalse("Favourite colour should never appear in description", desc.contains("favour the colour"));
     }
 
     @Test
@@ -407,7 +408,7 @@ public class PersonDescriptionEngineTest {
                 .id("h4").fullName("No Body").gender("F")
                 .age(50).wealthyLevel(5).build();
         String desc = PersonDescriptionEngine.describe(npc);
-        assertFalse("Height sentence should be absent", desc.contains(" They are "));
+        assertFalse("Height sentence should be absent", desc.contains(" She is "));
     }
 
     // =========================================================================
@@ -515,7 +516,7 @@ public class PersonDescriptionEngineTest {
                 .addCarriedItem(EquipItem.GLASSES)
                 .build();
         String desc = PersonDescriptionEngine.describe(npc);
-        assertTrue("Should say 'wear glasses'", desc.contains("wear glasses"));
+        assertTrue("Should say 'wears glasses'", desc.contains("wears glasses"));
         assertFalse("Should not say 'carrying a glasses'", desc.contains("carrying a glasses"));
     }
 
@@ -528,7 +529,7 @@ public class PersonDescriptionEngineTest {
                 .addCarriedItem(EquipItem.PISTOL)
                 .build();
         String desc = PersonDescriptionEngine.describe(npc);
-        assertTrue("Should mention glasses as 'wear glasses'", desc.contains("wear glasses"));
+        assertTrue("Should mention glasses as 'wears glasses'", desc.contains("wears glasses"));
         assertTrue("Should mention pistol as carrying", desc.contains("carrying"));
         assertTrue("Should mention pistol", desc.contains("pistol"));
     }
@@ -540,7 +541,7 @@ public class PersonDescriptionEngineTest {
                 .age(25).wealthyLevel(5)
                 .build();
         String desc = PersonDescriptionEngine.describe(npc);
-        assertFalse("No glasses → should not say wear glasses", desc.contains("wear glasses"));
+        assertFalse("No glasses → should not say wears glasses", desc.contains("wears glasses"));
     }
 
     // =========================================================================
@@ -584,5 +585,239 @@ public class PersonDescriptionEngineTest {
         String desc = PersonDescriptionEngine.describe(npc);
         assertTrue("Should mention glasses", desc.contains("glasses"));
         assertTrue("Should mention sun glasses", desc.contains("sun glasses"));
+    }
+
+    // =========================================================================
+    // NpcCharacter.Builder — beardStyle field
+    // =========================================================================
+
+    @Test
+    public void builder_beardStyleDefaultsEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M").build();
+        assertEquals("", npc.getBeardStyle());
+    }
+
+    @Test
+    public void builder_setsBeardStyle() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M")
+                .beardStyle("short beard").build();
+        assertEquals("short beard", npc.getBeardStyle());
+    }
+
+    @Test
+    public void builder_nullBeardStyle_storedAsEmpty() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("x").fullName("X").gender("M")
+                .beardStyle(null).build();
+        assertEquals("", npc.getBeardStyle());
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.beardStylePhrase
+    // =========================================================================
+
+    @Test
+    public void beardStylePhrase_shortBeard() {
+        assertEquals("a short beard",
+                PersonDescriptionEngine.beardStylePhrase("short beard"));
+    }
+
+    @Test
+    public void beardStylePhrase_longBeard() {
+        assertEquals("a long beard",
+                PersonDescriptionEngine.beardStylePhrase("long beard"));
+    }
+
+    @Test
+    public void beardStylePhrase_stubble() {
+        assertEquals("stubble",
+                PersonDescriptionEngine.beardStylePhrase("stubble"));
+    }
+
+    @Test
+    public void beardStylePhrase_unknownStyle_passedThrough() {
+        assertEquals("mutton chops",
+                PersonDescriptionEngine.beardStylePhrase("mutton chops"));
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine.describe — beard sentences
+    // =========================================================================
+
+    @Test
+    public void describe_withShortBeard_mentionsBeard() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b1").fullName("Bearded Man").gender("M")
+                .age(35).wealthyLevel(5)
+                .beardStyle("short beard").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'a short beard'",
+                desc.contains("a short beard"));
+    }
+
+    @Test
+    public void describe_withLongBeard_mentionsBeard() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b2").fullName("Long Beard Man").gender("M")
+                .age(45).wealthyLevel(5)
+                .beardStyle("long beard").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'a long beard'",
+                desc.contains("a long beard"));
+    }
+
+    @Test
+    public void describe_withStubble_mentionsStubble() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b3").fullName("Stubble Man").gender("M")
+                .age(25).wealthyLevel(5)
+                .beardStyle("stubble").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Should mention 'stubble'",
+                desc.contains("stubble"));
+    }
+
+    @Test
+    public void describe_noBeardStyle_omitsBeardSentence() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b4").fullName("Clean Man").gender("M")
+                .age(30).wealthyLevel(5).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("No beard → should not mention beard",
+                desc.contains("beard"));
+        assertFalse("No beard → should not mention stubble",
+                desc.contains("stubble"));
+    }
+
+    @Test
+    public void describe_emptyBeardStyle_omitsBeardSentence() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("b5").fullName("Shaved Man").gender("M")
+                .age(30).wealthyLevel(5)
+                .beardStyle("").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertFalse("Empty beard → should not say 'He has'",
+                desc.contains("He has"));
+    }
+
+    // =========================================================================
+    // PersonDescriptionEngine — gendered pronouns
+    // =========================================================================
+
+    @Test
+    public void describe_male_usesHePronouns() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p1").fullName("John Doe").gender("M")
+                .age(35).wealthyLevel(5).heightCm(180).weightKg(80)
+                .favColor("blue").beardStyle("short beard")
+                .addCarriedItem(EquipItem.GLASSES)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Male → should use 'He'",   desc.contains("He "));
+        assertFalse("Male → should not use 'She'", desc.contains("She "));
+        assertFalse("Male → should not use 'They'", desc.contains("They "));
+    }
+
+    @Test
+    public void describe_female_usesShePronouns() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p2").fullName("Jane Doe").gender("F")
+                .age(35).wealthyLevel(5).heightCm(165).weightKg(60)
+                .favColor("red")
+                .addCarriedItem(EquipItem.GLASSES)
+                .build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Female → should use 'She'", desc.contains("She "));
+        assertFalse("Female → should not use 'He '",  desc.contains("He "));
+        assertFalse("Female → should not use 'They'", desc.contains("They "));
+    }
+
+    @Test
+    public void describe_male_heightUsesHe() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p3").fullName("Tall Guy").gender("M")
+                .age(30).wealthyLevel(5).heightCm(190).weightKg(90).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Male height sentence should start with 'He is'", desc.contains("He is tall"));
+    }
+
+    @Test
+    public void describe_female_heightUsesShe() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p4").fullName("Short Lady").gender("F")
+                .age(28).wealthyLevel(5).heightCm(155).weightKg(50).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Female height sentence should start with 'She is'", desc.contains("She is short"));
+    }
+
+    @Test
+    public void describe_male_wealthyUsesHisPossessive() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p5").fullName("Rich Man").gender("M")
+                .age(50).wealthyLevel(8).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Male high wealth should use 'His attire'", desc.contains("His attire"));
+    }
+
+    @Test
+    public void describe_female_wealthyUsesHerPossessive() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p6").fullName("Rich Woman").gender("F")
+                .age(45).wealthyLevel(8).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Female high wealth should use 'Her attire'", desc.contains("Her attire"));
+    }
+
+    @Test
+    public void describe_male_beard_usesHeHas() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p7").fullName("Bearded Man").gender("M")
+                .age(40).wealthyLevel(5).beardStyle("long beard").build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Male beard → 'He has a long beard'", desc.contains("He has a long beard"));
+    }
+
+    @Test
+    public void describe_male_glassesUsesHe() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p8").fullName("Spectacled Man").gender("M")
+                .age(40).wealthyLevel(5).addCarriedItem(EquipItem.GLASSES).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Male glasses → 'He wears glasses'", desc.contains("He wears glasses"));
+    }
+
+    @Test
+    public void describe_female_glassesUsesShe() {
+        NpcCharacter npc = new NpcCharacter.Builder()
+                .id("p9").fullName("Spectacled Woman").gender("F")
+                .age(35).wealthyLevel(5).addCarriedItem(EquipItem.GLASSES).build();
+        String desc = PersonDescriptionEngine.describe(npc);
+        assertTrue("Female glasses → 'She wears glasses'", desc.contains("She wears glasses"));
+    }
+
+    @Test
+    public void wealthDesc_male_worn() {
+        String desc = PersonDescriptionEngine.wealthDesc(1, false);
+        assertTrue("Male low wealth → 'His clothing'", desc.contains("His clothing"));
+    }
+
+    @Test
+    public void wealthDesc_female_worn() {
+        String desc = PersonDescriptionEngine.wealthDesc(1, true);
+        assertTrue("Female low wealth → 'Her clothing'", desc.contains("Her clothing"));
+    }
+
+    @Test
+    public void wealthDesc_male_comfortable() {
+        String desc = PersonDescriptionEngine.wealthDesc(5, false);
+        assertTrue("Male comfortable → 'He appears'", desc.contains("He appears"));
+    }
+
+    @Test
+    public void wealthDesc_female_comfortable() {
+        String desc = PersonDescriptionEngine.wealthDesc(5, true);
+        assertTrue("Female comfortable → 'She appears'", desc.contains("She appears"));
     }
 }

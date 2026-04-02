@@ -1,6 +1,7 @@
 package eb.framework1.character;
 
 import eb.framework1.city.*;
+import eb.framework1.face.FaceRule;
 import eb.framework1.generator.*;
 import eb.framework1.investigation.*;
 
@@ -798,6 +799,164 @@ public class NpcGeneratorTest {
                 .visionTrait(null)
                 .build();
         assertEquals(VisionTrait.NONE, npc.getVisionTrait());
+    }
+
+    // =========================================================================
+    // NpcGenerator.enrich() — physical/face fields forwarded from base
+    // =========================================================================
+
+    private static NpcGenerator makeGeneratorWithFaceRules(long seed) {
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M"),
+                new PersonNameGenerator.NameEntry("Carol", "F"),
+                new PersonNameGenerator.NameEntry("Dave",  "M")
+        );
+        List<String> surnames = Arrays.asList("Smith", "Jones");
+        PersonNameGenerator nameGen = new PersonNameGenerator(firstNames, surnames, new Random(seed));
+
+        // Minimal face rules: Male and Female so defaultCharacterFace() fires.
+        FaceRule male = new FaceRule.Builder()
+                .name("Male").gender("male").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair1", "eye.eye1", "eyebrow.eyebrow1",
+                        "nose.nose1", "mouth.mouth1", "body.body1"))
+                .build();
+        FaceRule female = new FaceRule.Builder()
+                .name("Female").gender("female").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair2", "eye.eye2", "eyebrow.eyebrow2",
+                        "nose.nose2", "mouth.mouth2", "body.body2"))
+                .build();
+        return new NpcGenerator(nameGen, new Random(seed), Arrays.asList(male, female));
+    }
+
+    @Test
+    public void enrich_preservesHairTypeAndColor() {
+        // With face rules the base character gets hair type/color from CharacterGenerator.
+        // The enriched NPC must carry those through.
+        for (long seed = 0; seed < 20; seed++) {
+            NpcGenerator gen = makeGeneratorWithFaceRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD, null);
+            // hair type and color are non-empty strings when CharacterGenerator runs
+            assertFalse("hairType must not be empty after enrich()", npc.getHairType().isEmpty());
+            assertFalse("hairColor must not be empty after enrich()", npc.getHairColor().isEmpty());
+        }
+    }
+
+    @Test
+    public void enrich_preservesHeightAndWeight() {
+        for (long seed = 0; seed < 20; seed++) {
+            NpcGenerator gen = makeGeneratorWithFaceRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD, null);
+            assertTrue("heightCm must be > 0 after enrich()", npc.getHeightCm() > 0);
+            assertTrue("weightKg must be > 0 after enrich()", npc.getWeightKg() > 0);
+        }
+    }
+
+    @Test
+    public void enrich_preservesFaceConfig() {
+        // With face rules the base gets a non-null FaceConfig; enrich() must copy it.
+        for (long seed = 0; seed < 20; seed++) {
+            NpcGenerator gen = makeGeneratorWithFaceRules(seed);
+            NpcCharacter npc = gen.generateClient(CaseType.FRAUD, null);
+            assertNotNull("FaceConfig must not be null after enrich()", npc.getFaceConfig());
+        }
+    }
+
+    @Test
+    public void enrich_impairedVision_faceConfigHasGlasses() {
+        // Build a generator that has glassesMale/glassesFemale rules so that
+        // impaired NPCs get glasses injected into their FaceConfig.
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M")
+        );
+        List<String> surnames = Arrays.asList("Smith");
+        PersonNameGenerator nameGen = new PersonNameGenerator(
+                firstNames, surnames, new Random(0));
+
+        FaceRule male = new FaceRule.Builder()
+                .name("Male").gender("male").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair1", "eye.eye1", "eyebrow.eyebrow1",
+                        "nose.nose1", "mouth.mouth1", "body.body1"))
+                .build();
+        FaceRule female = new FaceRule.Builder()
+                .name("Female").gender("female").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair2", "eye.eye2", "eyebrow.eyebrow2",
+                        "nose.nose2", "mouth.mouth2", "body.body2"))
+                .build();
+        FaceRule glassesMale = new FaceRule.Builder()
+                .name("glassesMale").gender("male").percentage(100).priority(0)
+                .include(Arrays.asList("glasses.glasses1-primary", "glasses.glasses2-black"))
+                .build();
+        FaceRule glassesFemale = new FaceRule.Builder()
+                .name("glassesFemale").gender("female").percentage(100).priority(0)
+                .include(Arrays.asList("glasses.glasses1-secondary"))
+                .build();
+        NpcGenerator gen = new NpcGenerator(nameGen, new Random(0),
+                Arrays.asList(male, female, glassesMale, glassesFemale));
+
+        boolean foundImpairedWithGlasses = false;
+        for (long seed = 0; seed < 300; seed++) {
+            NpcGenerator g = new NpcGenerator(
+                    new PersonNameGenerator(firstNames, surnames, new Random(seed)),
+                    new Random(seed),
+                    Arrays.asList(male, female, glassesMale, glassesFemale));
+            NpcCharacter npc = g.generateClient(CaseType.FRAUD, null);
+            if (npc.getVisionTrait() != null && npc.getVisionTrait().isImpaired()) {
+                assertNotNull("FaceConfig must not be null for impaired NPC", npc.getFaceConfig());
+                assertFalse("Impaired NPC face must have glasses (not 'none') after enrich()",
+                        "none".equals(npc.getFaceConfig().glasses.id));
+                foundImpairedWithGlasses = true;
+                break;
+            }
+        }
+        assertTrue("Expected at least one vision-impaired NPC in 300 seeds", foundImpairedWithGlasses);
+    }
+
+    @Test
+    public void enrich_preservesBeardStyle_whenMaleHasBeard() {
+        // Generate enough male NPCs until we find one with a non-empty beardStyle;
+        // verify it survives enrichment.
+        List<PersonNameGenerator.NameEntry> maleNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Bob",  "M"),
+                new PersonNameGenerator.NameEntry("Dave", "M")
+        );
+        List<String> surnames = Arrays.asList("Smith");
+        FaceRule male = new FaceRule.Builder()
+                .name("Male").gender("male").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair1", "eye.eye1", "eyebrow.eyebrow1",
+                        "nose.nose1", "mouth.mouth1", "body.body1"))
+                .build();
+        FaceRule female = new FaceRule.Builder()
+                .name("Female").gender("female").percentage(100).priority(0)
+                .include(Arrays.asList("hair.hair2", "eye.eye2", "eyebrow.eyebrow2",
+                        "nose.nose2", "mouth.mouth2", "body.body2"))
+                .build();
+        FaceRule beardShort = new FaceRule.Builder()
+                .name("Beard Short").gender("male").percentage(50).priority(0)
+                .include(Arrays.asList("facialHair.beard1-short"))
+                .build();
+        FaceRule beardLong = new FaceRule.Builder()
+                .name("Beard Long").gender("male").percentage(50).priority(0)
+                .include(Arrays.asList("facialHair.beard1-long"))
+                .build();
+
+        boolean foundBearded = false;
+        for (long seed = 0; seed < 500; seed++) {
+            NpcGenerator g = new NpcGenerator(
+                    new PersonNameGenerator(maleNames, surnames, new Random(seed)),
+                    new Random(seed),
+                    Arrays.asList(male, female, beardShort, beardLong));
+            NpcCharacter npc = g.generateClient(CaseType.FRAUD, null);
+            if ("M".equals(npc.getGender()) && !npc.getBeardStyle().isEmpty()) {
+                // beardStyle survived enrich()
+                assertFalse("beardStyle must not be empty after enrich()",
+                        npc.getBeardStyle().isEmpty());
+                foundBearded = true;
+                break;
+            }
+        }
+        assertTrue("Expected at least one bearded male NPC in 500 seeds", foundBearded);
     }
 
     /**

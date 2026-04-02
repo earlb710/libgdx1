@@ -29,6 +29,14 @@ public class MapRenderer {
     private static final Color REST_INDICATOR_COLOR  = new Color(0f,   0.8f,  0.2f,  1f);
     private static final Color SLEEP_INDICATOR_COLOR = new Color(0.2f, 0.3f,  0.9f,  1f);
     private static final Color TRAVELED_ROAD_COLOR   = new Color(0.3f,  0.75f, 1f,    1f);
+    private static final Color BEVEL_LIGHT_COLOR     = new Color(0.85f, 0.85f, 0.85f, 0.7f);
+    private static final Color BEVEL_DARK_COLOR      = new Color(0.15f, 0.15f, 0.15f, 0.55f);
+    /** Bevel thickness as a fraction of cell size (clamped to a minimum of 2 px). */
+    private static final float BEVEL_SIZE_RATIO      = 0.03f;
+    /** Minimum bevel thickness in screen pixels regardless of zoom level. */
+    private static final float MIN_BEVEL_SIZE_PX     = 2f;
+    /** Extra inset applied to building cells on every side to make roads appear wider. */
+    private static final float BUILDING_EXTRA_INSET  = 1f;
 
     public static final String[] HEX_DIGITS = {
         "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
@@ -187,7 +195,32 @@ public class MapRenderer {
                 float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
                 float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
                 float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
-                shapeRenderer.rect(drawX + li, drawY + bi, cellSize - li - ri, cellSize - bi - ti);
+                // Extra contraction on building cells widens the visible road gap
+                float extra = cityMap.getCell(cx, cy).hasBuilding() ? BUILDING_EXTRA_INSET : 0f;
+                shapeRenderer.rect(drawX + li + extra, drawY + bi + extra,
+                        cellSize - li - ri - extra * 2, cellSize - bi - ti - extra * 2);
+            }
+        }
+        shapeRenderer.end();
+
+        // Gray beveled rectangle overlay on building squares (raised 3-D look)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        float bevelSize = bevelSize(cellSize);
+        for (int cx = startCellX; cx < endCellX; cx++) {
+            for (int cy = startCellY; cy < endCellY; cy++) {
+                if (!cityMap.getCell(cx, cy).hasBuilding()) continue;
+                float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
+                float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
+                CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                float ri = borderInset(rd.getBorderTypeEast(),  borderSize, pathwaySize);
+                float bi = borderInset(rd.getBorderTypeNorth(), borderSize, pathwaySize);
+                float ti = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                drawBeveledRect(shapeRenderer,
+                        drawX + li + BUILDING_EXTRA_INSET, drawY + bi + BUILDING_EXTRA_INSET,
+                        cellSize - li - ri - BUILDING_EXTRA_INSET * 2,
+                        cellSize - bi - ti - BUILDING_EXTRA_INSET * 2,
+                        bevelSize);
             }
         }
         shapeRenderer.end();
@@ -373,13 +406,25 @@ public class MapRenderer {
             batch.begin();
             smallFont.setColor(Color.WHITE);
             smallFont.getData().setScale(0.7f);
+            float bevelInset = bevelSize(cellSize);
             for (int cx = startCellX; cx < endCellX; cx++) {
                 for (int cy = startCellY; cy < endCellY; cy++) {
                     float drawX = mapStartX + (cx - startCellX - fracOffsetX) * cellSize;
                     float drawY = mapStartY + (visibleCellsY - 1 - (cy - startCellY - fracOffsetY)) * cellSize;
                     String coords = Integer.toHexString(cx).toUpperCase() + Integer.toHexString(cy).toUpperCase();
                     glyphLayout.setText(smallFont, coords);
-                    smallFont.draw(batch, coords, drawX + borderSize + 2, drawY + cellSize - borderSize - 2);
+                    float textX, textY;
+                    if (cityMap.getCell(cx, cy).hasBuilding()) {
+                        CellRenderData rd = cityMap.getCellRenderData(cx, cy);
+                        float li = borderInset(rd.getBorderTypeWest(),  borderSize, pathwaySize);
+                        float si = borderInset(rd.getBorderTypeSouth(), borderSize, pathwaySize);
+                        textX = drawX + li + BUILDING_EXTRA_INSET + bevelInset + 2;
+                        textY = drawY + cellSize - si - BUILDING_EXTRA_INSET - bevelInset - 2;
+                    } else {
+                        textX = drawX + borderSize + 2;
+                        textY = drawY + cellSize - borderSize - 2;
+                    }
+                    smallFont.draw(batch, coords, textX, textY);
                 }
             }
             smallFont.getData().setScale(1.0f);
@@ -441,11 +486,13 @@ public class MapRenderer {
             Texture icon = isFemale ? npcWomanTexture : npcManTexture;
             if (icon == null) continue;
 
-            // Pin icon to the lower-left of the building rectangle at native size
+            // Pin icon to the lower-left of the building rectangle at native size,
+            // inset past the bevel so the icon sits fully inside the building area.
             float iconW = isFemale ? npcWomanTexW : npcManTexW;
             float iconH = isFemale ? npcWomanTexH : npcManTexH;
-            float npcIconX = cellX + li;
-            float npcIconY = cellY + bi;
+            float bevelInset = bevelSize(cellSize);
+            float npcIconX = cellX + li + BUILDING_EXTRA_INSET + bevelInset;
+            float npcIconY = cellY + bi + BUILDING_EXTRA_INSET + bevelInset;
             batch.draw(icon, npcIconX, npcIconY, iconW, iconH);
         }
 
@@ -558,6 +605,43 @@ public class MapRenderer {
                 sr.rect(barX - borderSize, barY, roadW, cellSize);
             }
         }
+    }
+
+    /**
+     * Returns the bevel thickness in screen pixels for the given cell size.
+     */
+    private static float bevelSize(float cellSize) {
+        return Math.max(MIN_BEVEL_SIZE_PX, cellSize * BEVEL_SIZE_RATIO);
+    }
+
+    /**
+     * Draws a beveled rectangle to give a raised 3-D appearance.
+     * Light-gray triangles are drawn on the top and left edges (highlight),
+     * and dark-gray triangles are drawn on the bottom and right edges (shadow).
+     * The ShapeRenderer must already be in {@link ShapeRenderer.ShapeType#Filled} mode.
+     *
+     * @param sr  ShapeRenderer in Filled mode
+     * @param x   left edge of the rectangle
+     * @param y   bottom edge of the rectangle (LibGDX Y-up)
+     * @param w   width of the rectangle
+     * @param h   height of the rectangle
+     * @param b   bevel thickness in pixels
+     */
+    private void drawBeveledRect(ShapeRenderer sr, float x, float y, float w, float h, float b) {
+        // Top edge highlight (light gray)
+        sr.setColor(BEVEL_LIGHT_COLOR);
+        sr.triangle(x,       y + h,     x + w,     y + h,     x + w - b, y + h - b);
+        sr.triangle(x,       y + h,     x + w - b, y + h - b, x + b,     y + h - b);
+        // Left edge highlight (light gray)
+        sr.triangle(x,       y,         x,         y + h,     x + b,     y + h - b);
+        sr.triangle(x,       y,         x + b,     y + h - b, x + b,     y + b);
+        // Bottom edge shadow (dark gray)
+        sr.setColor(BEVEL_DARK_COLOR);
+        sr.triangle(x,       y,         x + w,     y,         x + w - b, y + b);
+        sr.triangle(x,       y,         x + w - b, y + b,     x + b,     y + b);
+        // Right edge shadow (dark gray)
+        sr.triangle(x + w,   y,         x + w,     y + h,     x + w - b, y + h - b);
+        sr.triangle(x + w,   y,         x + w - b, y + h - b, x + w - b, y + b);
     }
 
     /**

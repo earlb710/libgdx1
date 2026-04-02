@@ -15,8 +15,10 @@ import eb.framework1.ui.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -95,6 +97,7 @@ public class MainScreen implements Screen {
     NotePopup            notePopup;
     MeetPopup            meetPopup;
     ExaminePersonPopup   examinePersonPopup;
+    ChatPopup            chatPopup;
     /** The appointment currently shown in meetPopup; null when no meeting is open. */
     private CalendarEntry        currentMeetAppt;
     /**
@@ -347,6 +350,8 @@ public class MainScreen implements Screen {
 
         examinePersonPopup = new ExaminePersonPopup(batch, shapeRenderer, font, smallFont, glyphLayout, portraitPainter);
 
+        chatPopup = new ChatPopup(batch, shapeRenderer, font, smallFont, glyphLayout);
+
         // Input + layout
         previousInputProcessor = Gdx.input.getInputProcessor();
         setupInput();
@@ -483,6 +488,10 @@ public class MainScreen implements Screen {
             examinePersonPopup.draw(state.screenWidth, state.screenHeight);
         }
 
+        if (chatPopup.isVisible()) {
+            chatPopup.draw(state.screenWidth, state.screenHeight);
+        }
+
         if (contextMenu.isVisible()) {
             contextMenu.draw(batch, shapeRenderer, font, glyphLayout);
         }
@@ -574,6 +583,7 @@ public class MainScreen implements Screen {
             || notePopup.isVisible()
             || meetPopup.isVisible()
             || examinePersonPopup.isVisible()
+            || chatPopup.isVisible()
             || contextMenu.isVisible()
             || state.helpVisible
             || quitConfirming;
@@ -711,7 +721,46 @@ public class MainScreen implements Screen {
     // -------------------------------------------------------------------------
 
     private void setupInput() {
-        Gdx.input.setInputProcessor(new MainScreenInputHandler(this));
+        MainScreenInputHandler handler = new MainScreenInputHandler(this);
+        GestureDetector gestureDetector = new GestureDetector(new PinchZoomListener(handler));
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(gestureDetector);
+        multiplexer.addProcessor(handler);
+        Gdx.input.setInputProcessor(multiplexer);
+    }
+
+    /** Handles two-finger pinch-to-zoom on touch screens. */
+    private class PinchZoomListener extends GestureDetector.GestureAdapter {
+        private final MainScreenInputHandler handler;
+        private float pinchStartZoom = -1f;
+
+        PinchZoomListener(MainScreenInputHandler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
+                             Vector2 pointer1, Vector2 pointer2) {
+            if (pinchStartZoom < 0f) {
+                pinchStartZoom = state.zoomLevel;
+                handler.isDragging = false; // cancel any single-finger drag
+            }
+            float initialDist = initialPointer1.dst(initialPointer2);
+            if (initialDist < 1f) return false;
+            float currentDist = pointer1.dst(pointer2);
+            float newZoom = MathUtils.clamp(
+                    pinchStartZoom * (currentDist / initialDist), MIN_ZOOM, MAX_ZOOM);
+            if (newZoom != state.zoomLevel) {
+                state.zoomLevel = newZoom;
+                state.clampMapOffset();
+            }
+            return true;
+        }
+
+        @Override
+        public void pinchStop() {
+            pinchStartZoom = -1f;
+        }
     }
 
     private void handleKeyboardInput() {
@@ -1515,6 +1564,33 @@ public class MainScreen implements Screen {
             expandedPath.add(new float[]{mx, my}); // tick 2: on road
             expandedPath.add(new float[]{mx, my}); // tick 3: on road
             expandedPath.add(new float[]{cx, cy}); // jump to next cell
+        }
+        // Extend the path by 2 sub-steps so the character stops at the midpoint of a
+        // road-connected side of the destination cell rather than at a corner junction.
+        {
+            int[] lastJunc = path.get(path.size() - 1);
+            int   lx = lastJunc[0], ly = lastJunc[1];
+            int   toX = state.walkDestCellX, toY = state.walkDestCellY;
+            RoadAccess ra = cityMap.getRoadAccessMap().getAccess(toX, toY);
+            int   otherX = lx, otherY = ly;
+            boolean found = false;
+            // South side: (toX,toY) ↔ (toX+1,toY)
+            if (!found && lx == toX   && ly == toY   && ra.hasSouth()) { otherX = toX+1; otherY = toY;   found = true; }
+            if (!found && lx == toX+1 && ly == toY   && ra.hasSouth()) { otherX = toX;   otherY = toY;   found = true; }
+            // North side: (toX,toY+1) ↔ (toX+1,toY+1)
+            if (!found && lx == toX   && ly == toY+1 && ra.hasNorth()) { otherX = toX+1; otherY = toY+1; found = true; }
+            if (!found && lx == toX+1 && ly == toY+1 && ra.hasNorth()) { otherX = toX;   otherY = toY+1; found = true; }
+            // West side: (toX,toY) ↔ (toX,toY+1)
+            if (!found && lx == toX   && ly == toY   && ra.hasWest())  { otherX = toX;   otherY = toY+1; found = true; }
+            if (!found && lx == toX   && ly == toY+1 && ra.hasWest())  { otherX = toX;   otherY = toY;   found = true; }
+            // East side: (toX+1,toY) ↔ (toX+1,toY+1)
+            if (!found && lx == toX+1 && ly == toY   && ra.hasEast())  { otherX = toX+1; otherY = toY+1; found = true; }
+            if (!found && lx == toX+1 && ly == toY+1 && ra.hasEast())  { otherX = toX+1; otherY = toY;   found = true; }
+            if (found) {
+                float dx = otherX - lx, dy = otherY - ly;
+                expandedPath.add(new float[]{lx + dx * 0.25f, ly + dy * 0.25f}); // 1st extra step
+                expandedPath.add(new float[]{lx + dx * 0.50f, ly + dy * 0.50f}); // midpoint of side (2nd extra step)
+            }
         }
         int expandedWalkSteps = expandedPath.size() - 1; // index 0 is start – skip it
 

@@ -80,15 +80,36 @@ public class CharacterGenerator {
     private static final int ATTR_MIN = 1;
     private static final int ATTR_MAX = 10;
 
+    /** Probability (≈ 33%) that an age-eligible male character receives a beard. */
+    private static final double BEARD_PROBABILITY = 1.0 / 3.0;
+
     // Sprite key pools indexed by gender
     private static final String[] MALE_SPRITES   = { "man1", "man2" };
     private static final String[] FEMALE_SPRITES = { "woman1", "woman2" };
 
     // Appearance attribute pools
-    private static final String[] HAIR_TYPES  = { "straight", "wavy", "curly", "bald", "buzzed" };
+    private static final String[] HAIR_TYPES  = { "straight", "wavy", "curly", "buzzed" };
     private static final String[] HAIR_COLORS = { "black", "brown", "blonde", "red", "gray", "white" };
     private static final String[] FAV_COLORS  = { "", "", "", "red", "blue", "green",
                                                    "yellow", "purple", "orange", "black", "white" };
+
+    /**
+     * Maps hair colour names (as stored on {@link NpcCharacter}) to representative
+     * hex values used in the face SVG portrait.  These colours are chosen to match
+     * the shades produced by {@link eb.framework1.face.FaceGenerator}'s own palettes
+     * so the text description is consistent with the rendered portrait.
+     */
+    private static final java.util.Map<String, String> HAIR_COLOR_HEX;
+    static {
+        java.util.Map<String, String> m = new java.util.HashMap<>();
+        m.put("black",  "#272421");
+        m.put("brown",  "#3D2314");
+        m.put("blonde", "#CC9966");
+        m.put("red",    "#B55239");
+        m.put("gray",   "#909090");
+        m.put("white",  "#E8E4E0");
+        HAIR_COLOR_HEX = java.util.Collections.unmodifiableMap(m);
+    }
 
     // Height ranges (cm) and weight ranges (kg) per gender
     /** Male height range: 160–195 cm. */
@@ -279,6 +300,8 @@ public class CharacterGenerator {
         String name      = nameGen.generateFull(gender);
         int    age       = minAge + random.nextInt(maxAge - minAge + 1);
         String spriteKey = pickSprite(gender);
+        String hairColor = pick(HAIR_COLORS);
+        String hairType  = pick(HAIR_TYPES);
 
         NpcCharacter.Builder b = new NpcCharacter.Builder()
                 .id(id)
@@ -293,8 +316,8 @@ public class CharacterGenerator {
                                        profile.getMaxHonesty()))
                 .nervousness(randomInRange(profile.getMinNervousness(),
                                            profile.getMaxNervousness()))
-                .hairType(pick(HAIR_TYPES))
-                .hairColor(pick(HAIR_COLORS))
+                .hairType(hairType)
+                .hairColor(hairColor)
                 .wealthyLevel(ATTR_MIN + random.nextInt(ATTR_MAX - ATTR_MIN + 1))
                 .favColor(pick(FAV_COLORS));
 
@@ -317,6 +340,8 @@ public class CharacterGenerator {
         String normGender = "F".equals(gender) ? "female" : "male";
         FaceGenerator.Options faceOpts = new FaceGenerator.Options().gender(normGender);
         FaceConfig face;
+        // beard style text ("short beard", "long beard", "stubble", or "")
+        String[] beardStyleOut = {""};
         if (!faceRules.isEmpty()) {
             // Use rule-based eligible pool (age- and gender-aware)
             long faceSeed = (long) id.hashCode() * 2654435761L ^ age;
@@ -327,9 +352,28 @@ public class CharacterGenerator {
             if (visionTrait != null && visionTrait.isImpaired()) {
                 pool = applyGlassesRule(pool, normGender, faceRules);
             }
+            // For male characters apply the Bold rule to decide baldness, then
+            // assign a beard/shave style based on age.
+            if ("male".equals(normGender)) {
+                boolean[] baldOut = {false};
+                pool = applyBoldRule(pool, faceSeed, age, faceRules, baldOut);
+                if (baldOut[0]) {
+                    b.hairType("bald");
+                }
+                pool = applyBeardRule(pool, faceOpts, age, faceRules, beardStyleOut);
+            }
             face = faceGen.generate(faceOpts, pool);
         } else {
             face = faceGen.generate(faceOpts);
+        }
+
+        b.beardStyle(beardStyleOut[0]);
+
+        // Sync the portrait hair colour with the NpcCharacter hair colour name so
+        // that the rendered face matches the text description.
+        String hairColorHex = HAIR_COLOR_HEX.get(hairColor);
+        if (hairColorHex != null) {
+            face = face.withHairColor(hairColorHex);
         }
 
         // Assign a skin tone based on weighted random selection.
@@ -402,6 +446,149 @@ public class CharacterGenerator {
             }
         }
         return pool;
+    }
+
+    /**
+     * Assigns a beard/shave style to a male character based on {@code age} and
+     * a random roll, encoding the result in the pool and/or {@code faceOpts}.
+     *
+     * <p>Approximately 1/3 of age-eligible men receive a short or long beard
+     * (drawn from the {@code "Beard Short"} or {@code "Beard Long"} face rules).
+     * The remaining men receive a non-beard shave style whose intensity is set
+     * as a {@code shaveColor} override on {@code faceOpts}.
+     *
+     * <table border="1" summary="Beard eligibility by age">
+     *   <tr><th>Age</th><th>Eligible styles</th></tr>
+     *   <tr><td>&lt; 20</td><td>clean shaven, shaven (no beards)</td></tr>
+     *   <tr><td>20–24</td><td>shaven, stubbles, short beard (1/3 chance)</td></tr>
+     *   <tr><td>25+</td><td>shaven, stubbles, short beard or long beard (1/3 chance)</td></tr>
+     * </table>
+     *
+     * @param pool         mutable pool to augment with facial-hair IDs when a beard style is chosen
+     * @param faceOpts     options object whose {@code shaveColor} is set for non-beard styles
+     * @param age          character age
+     * @param rules        full list of face rules
+     * @param beardStyleOut single-element array; set to a descriptive beard label on return.
+     *                     Possible values: {@code "short beard"}, {@code "long beard"},
+     *                     {@code "stubble"}, or {@code ""} (clean-shaven / shaven).
+     * @return the same {@code pool} (possibly augmented with a {@code "facialHair"} entry)
+     */
+    private Map<String, List<String>> applyBeardRule(
+            Map<String, List<String>> pool,
+            FaceGenerator.Options faceOpts,
+            int age,
+            List<FaceRule> rules,
+            String[] beardStyleOut) {
+        if (age >= 20 && random.nextDouble() < BEARD_PROBABILITY) {
+            // 1/3 of men aged 20+ get a beard.
+            // Under 25, only short beard is available; 25+ split evenly between short and long.
+            boolean longBeard = age >= 25 && random.nextBoolean();
+            addFacialHairFromRule(pool, longBeard ? "Beard Long" : "Beard Short", rules);
+            faceOpts.shaveColor("rgba(0,0,0,0.0)");
+            beardStyleOut[0] = longBeard ? "long beard" : "short beard";
+        } else {
+            // Non-beard shave style.
+            // Under 20: clean shaven (alpha 0) or shaven (alpha 0.06) with equal probability.
+            // 20+: shaven or stubbles (alpha 0.15) with equal probability.
+            final String shaveColor;
+            if (age < 20) {
+                shaveColor = random.nextBoolean() ? "rgba(0,0,0,0.0)" : "rgba(0,0,0,0.06)";
+            } else {
+                shaveColor = random.nextBoolean() ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.15)";
+            }
+            faceOpts.shaveColor(shaveColor);
+            // Only "stubble" is visibly noteworthy; shaven/clean-shaven are left as "".
+            beardStyleOut[0] = "rgba(0,0,0,0.15)".equals(shaveColor) ? "stubble" : "";
+        }
+        return pool;
+    }
+
+    /**
+     * Applies the {@code "Bold"} face rule to decide whether a male character
+     * should be bald.  The rule's {@code minAge} and {@code percentage} conditions
+     * are evaluated with a seeded RNG so the result is deterministic per character.
+     *
+     * <p>When the rule fires:
+     * <ul>
+     *   <li>The {@code "hair"} and {@code "hairBg"} entries in {@code pool} are
+     *       replaced with the IDs supplied by the Bold rule's {@code include} list.</li>
+     *   <li>{@code baldOut[0]} is set to {@code true}.</li>
+     * </ul>
+     *
+     * <p>When the rule does not fire (character too young, percentage roll fails, or
+     * no "Bold" rule exists) the pool is left unchanged and {@code baldOut[0]}
+     * remains {@code false}.
+     *
+     * @param pool     mutable pool to augment when Bold fires
+     * @param seed     per-character seed for deterministic percentage rolls
+     * @param age      character age
+     * @param rules    full list of face rules
+     * @param baldOut  single-element array; set to {@code true} when Bold fires
+     * @return the same {@code pool} (possibly updated with bald hair IDs)
+     */
+    private static Map<String, List<String>> applyBoldRule(
+            Map<String, List<String>> pool,
+            long seed,
+            int age,
+            List<FaceRule> rules,
+            boolean[] baldOut) {
+        for (int i = 0; i < rules.size(); i++) {
+            FaceRule rule = rules.get(i);
+            if (!"Bold".equals(rule.name)) continue;
+
+            // Age gate
+            if (rule.minAge > 0 && age < rule.minAge) break;
+
+            // Percentage roll — seeded identically to defaultCharacterFace rolls
+            if (rule.percentage < 100) {
+                long rollSeed = seed ^ (long) i * 6364136223846793005L;
+                Random rollRng = new Random(rollSeed);
+                if (rollRng.nextInt(100) >= rule.percentage) break;
+            }
+
+            // Rule fires — inject hair IDs from the Bold rule's include list
+            Map<String, List<String>> hairEntries = new HashMap<>();
+            for (String entry : rule.include) {
+                int dot = entry.indexOf('.');
+                if (dot > 0) {
+                    String featureType = entry.substring(0, dot);
+                    String featureId   = entry.substring(dot + 1);
+                    hairEntries.computeIfAbsent(featureType, k -> new ArrayList<>()).add(featureId);
+                }
+            }
+            for (Map.Entry<String, List<String>> e : hairEntries.entrySet()) {
+                pool.put(e.getKey(), Collections.unmodifiableList(e.getValue()));
+            }
+            baldOut[0] = true;
+            break;
+        }
+        return pool;
+    }
+
+    /**
+     * Adds {@code facialHair} IDs from the named rule's {@code include} list to
+     * {@code pool}.  If the rule is not found or has no facial-hair entries the
+     * pool is left unchanged.
+     */
+    private static void addFacialHairFromRule(
+            Map<String, List<String>> pool,
+            String ruleName,
+            List<FaceRule> rules) {
+        for (FaceRule rule : rules) {
+            if (ruleName.equals(rule.name)) {
+                List<String> ids = new ArrayList<>();
+                for (String entry : rule.include) {
+                    int dot = entry.indexOf('.');
+                    if (dot > 0 && "facialHair".equals(entry.substring(0, dot))) {
+                        ids.add(entry.substring(dot + 1));
+                    }
+                }
+                if (!ids.isEmpty()) {
+                    pool.put("facialHair", Collections.unmodifiableList(ids));
+                }
+                break;
+            }
+        }
     }
 
     /** Returns {@code "M"} or {@code "F"} at random. */

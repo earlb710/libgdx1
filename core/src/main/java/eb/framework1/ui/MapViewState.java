@@ -25,9 +25,9 @@ public class MapViewState {
     // --- Map pan / zoom ---
     public float mapOffsetX = 0f;
     public float mapOffsetY = 0f;
-    public float zoomLevel  = 2.0f;
-    public float lastZoomLevel = 2.0f;
-    public String cachedZoomText = "Zoom: 2.0x";
+    public float zoomLevel  = 2.5f;
+    public float lastZoomLevel = 2.5f;
+    public String cachedZoomText = "Zoom: 2.5x";
 
     // --- Screen layout (set by resize) ---
     public int screenWidth;
@@ -154,6 +154,17 @@ public class MapViewState {
     /** NPC corresponding to each eye icon (parallel array). */
     public eb.framework1.character.NpcCharacter[] eyeIconNpc =
             new eb.framework1.character.NpcCharacter[MAX_EYE_ICONS];
+
+    // Chat-icon hit areas in the info panel (one per visible unknown NPC at the player's cell)
+    public static final int MAX_CHAT_ICONS = 50;
+    public float[] chatIconX   = new float[MAX_CHAT_ICONS];
+    public float[] chatIconY   = new float[MAX_CHAT_ICONS];
+    public float[] chatIconW   = new float[MAX_CHAT_ICONS];
+    public float   chatIconH   = 0f;
+    public int     chatIconCount = 0;
+    /** NPC corresponding to each chat icon (parallel array). */
+    public eb.framework1.character.NpcCharacter[] chatIconNpc =
+            new eb.framework1.character.NpcCharacter[MAX_CHAT_ICONS];
 
     /**
      * Current in-game hour (0–23).  Used by {@code MapRenderer} to determine
