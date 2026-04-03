@@ -82,6 +82,8 @@ public class InfoPanelRenderer {
     private static final Color EXPAND_BTN_TEXT         = new Color(0.75f, 0.85f, 1.00f, 1f);
     private static final Color EYE_ICON_BG_COLOR        = new Color(0.05f, 0.20f, 0.35f, 1f);
     private static final Color CHAT_ICON_BG_COLOR       = new Color(0.05f, 0.30f, 0.20f, 1f);
+    /** Scale factor applied to eye / chat icons so they are large enough for finger taps. */
+    private static final float ICON_TOUCH_SCALE          = 2.5f;
 
     // --- Rendering resources ---
     private final SpriteBatch   batch;
@@ -907,11 +909,11 @@ public class InfoPanelRenderer {
                         if (!hasMet && playerHere && eyeIconTexture != null
                                 && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
                             glyphLayout.setText(font, displayName);
-                            float iconH = Math.min(eyeIconTexH, fontCapH);
+                            float iconH = Math.min(eyeIconTexH, fontCapH) * ICON_TOUCH_SCALE;
                             float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
                                     ? eyeIconTexW * iconH / eyeIconTexH : iconH;
                             float ex = textX - drawScrollX + glyphLayout.width + 12f;
-                            float ey = textY + drawScrollY - fontCapH;
+                            float ey = textY + drawScrollY - (fontCapH + iconH) / 2f;
                             int idx = s.eyeIconCount++;
                             s.eyeIconX[idx]   = ex;
                             s.eyeIconY[idx]   = ey;
@@ -922,10 +924,10 @@ public class InfoPanelRenderer {
                             // Chat icon: placed immediately to the right of the eye icon
                             if (chatIconTexture != null
                                     && s.chatIconCount < MapViewState.MAX_CHAT_ICONS) {
-                                float chatH = Math.min(chatIconTexH, fontCapH);
+                                float chatH = Math.min(chatIconTexH, fontCapH) * ICON_TOUCH_SCALE;
                                 float chatW = (chatIconTexW > 0 && chatIconTexH > 0)
                                         ? chatIconTexW * chatH / chatIconTexH : chatH;
-                                float cx = ex + iconW + 4f;
+                                float cx = ex + iconW + 8f;
                                 int ci = s.chatIconCount++;
                                 s.chatIconX[ci]   = cx;
                                 s.chatIconY[ci]   = ey;
