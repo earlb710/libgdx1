@@ -291,10 +291,10 @@ public final class FaceGenerator {
                              ? randGenderedId(F_SMILELINE, isMale)
                              : "none";
 
-        // miscLine: 50% chance
-        String miscLineId = rng.nextDouble() < 0.5
-                            ? randGenderedId(F_MISCLINE, isMale)
-                            : "none";
+        // miscLine: only from rules – default to none so rules control which
+        // IDs are eligible (random fallback would allow any catalogue ID,
+        // e.g. blush appearing on females with no rule using it).
+        String miscLineId = "none";
 
         // facialHair: male 50% chance (female always none)
         String facialHairId = (!isMale || rng.nextDouble() < 0.5)
@@ -498,11 +498,13 @@ public final class FaceGenerator {
     /**
      * Rule names that {@link #defaultCharacterFace} is permitted to fire.
      *
-     * <p>Only the core gender rules are applied here. Beard, age, clothes and
-     * emotion rules will be handled by dedicated generators added later.
+     * <p>The core gender rules ("Male", "Female") set the base eligible parts.
+     * The extra-feature rules ("faceExtraFemale", "faceExtraMale") add
+     * gender-specific miscLine variety (e.g. blush, freckles, chin lines).
+     * Beard, age, clothes and emotion rules are handled by dedicated generators.
      */
     private static final Set<String> ALLOWED_RULE_NAMES = new HashSet<>(
-            Arrays.asList("Male", "Female"));
+            Arrays.asList("Male", "Female", "faceExtraFemale", "faceExtraMale"));
 
     /**
      * Computes a map of eligible SVG part IDs per feature type for a character

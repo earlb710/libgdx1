@@ -625,6 +625,27 @@ public class FaceGeneratorTest {
         }
     }
 
+    @Test
+    public void generate_noPool_miscLineIsNone() {
+        // miscLine must never appear unless an explicit pool/rule specifies it.
+        // blush (female-only) must not appear on faces generated without a rule.
+        for (int seed = 0; seed < 50; seed++) {
+            FaceConfig f = new FaceGenerator(new java.util.Random(seed)).generate();
+            assertEquals("miscLine must be 'none' with no pool", "none", f.miscLine.id);
+        }
+    }
+
+    @Test
+    public void generate_noPool_miscLineIsNone_female() {
+        // blush must never appear on female faces generated without a rule pool.
+        for (int seed = 0; seed < 50; seed++) {
+            FaceConfig f = new FaceGenerator(new java.util.Random(seed))
+                    .generate(new FaceGenerator.Options().gender("female"));
+            assertEquals("miscLine must be 'none' for females with no pool (seed=" + seed + ")",
+                    "none", f.miscLine.id);
+        }
+    }
+
     // =========================================================================
     // FaceConfig.Builder — jersey default
     // =========================================================================
