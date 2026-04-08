@@ -172,43 +172,167 @@
   "case_types": [
     {
       "code": "BLACKMAIL",
+      "name": "Blackmail",
       "description": "Identify the source of a blackmail threat and neutralise it",
       "percentage": 10
     },
     {
       "code": "CORPORATE_ESPIONAGE",
+      "name": "Corporate Espionage",
       "description": "Uncover an internal information leak damaging a business",
       "percentage": 10
     },
     {
       "code": "FRAUD",
+      "name": "Fraud",
       "description": "Uncover deliberate financial deception or identity misrepresentation",
       "percentage": 10
     },
     {
       "code": "INFIDELITY",
+      "name": "Infidelity",
       "description": "Gather evidence of a partner\u0027s unfaithful behaviour",
       "percentage": 10
     },
     {
       "code": "MISSING_PERSON",
+      "name": "Missing Person",
       "description": "Locate a person who has disappeared and determine what happened to them",
       "percentage": 10
     },
     {
       "code": "MURDER",
+      "name": "Murder",
       "description": "Reinvestigate a suspicious death the authorities closed too quickly",
       "percentage": 10
     },
     {
       "code": "STALKING",
+      "name": "Stalking",
       "description": "Identify and document a stalker threatening the client or their family",
       "percentage": 10
     },
     {
       "code": "THEFT",
+      "name": "Theft",
       "description": "Identify who stole property and, if possible, recover it",
       "percentage": 10
+    }
+  ],
+  "discovery_methods": [
+    {
+      "code": "BACKGROUND_CHECK",
+      "name": "Background Check",
+      "description": "Research the subject\u0027s history, associates, and prior activities"
+    },
+    {
+      "code": "DOCUMENTS",
+      "name": "Documents",
+      "description": "Obtain and review financial records, contracts, or correspondence"
+    },
+    {
+      "code": "FORENSICS",
+      "name": "Forensics",
+      "description": "Submit physical evidence to a laboratory for scientific analysis"
+    },
+    {
+      "code": "INTERVIEW",
+      "name": "Interview",
+      "description": "Speak to a witness, suspect, or contact to obtain information"
+    },
+    {
+      "code": "PHYSICAL_SEARCH",
+      "name": "Physical Search",
+      "description": "Search a building or outdoor location for hidden objects or signs"
+    },
+    {
+      "code": "SURVEILLANCE",
+      "name": "Surveillance",
+      "description": "Observe the subject at a location over a period of time"
+    }
+  ],
+  "evidence_modifiers": [
+    {
+      "code": "BLOOD",
+      "name": "Blood",
+      "description": "Serological test for the presence, type, and source of blood"
+    },
+    {
+      "code": "DNA",
+      "name": "DNA",
+      "description": "DNA profile analysis for positive identification"
+    },
+    {
+      "code": "FIBER",
+      "name": "Fiber",
+      "description": "Textile fiber analysis to match clothing or fabrics at the scene"
+    },
+    {
+      "code": "FINGERPRINTS",
+      "name": "Fingerprints",
+      "description": "Latent fingerprint analysis to identify who handled the item"
+    },
+    {
+      "code": "GLASS_FRAGMENTS",
+      "name": "Glass Fragments",
+      "description": "Glass origin and breakage-pattern analysis"
+    },
+    {
+      "code": "HAIR",
+      "name": "Hair",
+      "description": "Hair follicle and shaft analysis for identification or contact transfer"
+    },
+    {
+      "code": "SOIL",
+      "name": "Soil",
+      "description": "Soil composition analysis to link a suspect or item to a location"
+    },
+    {
+      "code": "TOOL_MARKS",
+      "name": "Tool Marks",
+      "description": "Impression analysis of marks left by tools, weapons, or forced entry"
+    }
+  ],
+  "evidence_items": [
+    {
+      "code": "BULLET_CASING",
+      "name": "Bullet Casing",
+      "description": "A spent cartridge case that can be linked to a specific firearm"
+    },
+    {
+      "code": "CIGARETTE",
+      "name": "Cigarette",
+      "description": "A used cigarette that may carry saliva DNA or fingerprints"
+    },
+    {
+      "code": "CLOTH",
+      "name": "Cloth",
+      "description": "A torn or discarded piece of fabric found at the scene"
+    },
+    {
+      "code": "DOCUMENT",
+      "name": "Document",
+      "description": "A note, letter, or printed page found at or near the scene"
+    },
+    {
+      "code": "DRINKING_GLASS",
+      "name": "Drinking Glass",
+      "description": "A common glass that may have been handled or used by a suspect"
+    },
+    {
+      "code": "HAIR_SAMPLE",
+      "name": "Hair Sample",
+      "description": "One or more hairs collected from the scene"
+    },
+    {
+      "code": "KITCHEN_KNIFE",
+      "name": "Kitchen Knife",
+      "description": "A bladed kitchen utensil that could be a weapon or was near one"
+    },
+    {
+      "code": "SHOE_PRINT",
+      "name": "Shoe Print",
+      "description": "A cast or photograph of a shoe impression left at the scene"
     }
   ],
   "improvement_categories": [

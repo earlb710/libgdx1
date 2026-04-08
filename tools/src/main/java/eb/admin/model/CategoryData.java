@@ -13,6 +13,9 @@ public class CategoryData {
     private List<CategoryEntry> item_categories = new ArrayList<>();
     private List<CategoryEntry> evidence_categories = new ArrayList<>();
     private List<CategoryEntry> case_types = new ArrayList<>();
+    private List<CategoryEntry> discovery_methods = new ArrayList<>();
+    private List<CategoryEntry> evidence_modifiers = new ArrayList<>();
+    private List<CategoryEntry> evidence_items = new ArrayList<>();
     private List<CategoryEntry> improvement_categories = new ArrayList<>();
     private List<CategoryEntry> skill_categories = new ArrayList<>();
     private List<CategoryEntry> skin_tone_categories = new ArrayList<>();
@@ -64,6 +67,30 @@ public class CategoryData {
 
     public void setCase_types(List<CategoryEntry> case_types) {
         this.case_types = case_types;
+    }
+
+    public List<CategoryEntry> getDiscovery_methods() {
+        return discovery_methods;
+    }
+
+    public void setDiscovery_methods(List<CategoryEntry> discovery_methods) {
+        this.discovery_methods = discovery_methods;
+    }
+
+    public List<CategoryEntry> getEvidence_modifiers() {
+        return evidence_modifiers;
+    }
+
+    public void setEvidence_modifiers(List<CategoryEntry> evidence_modifiers) {
+        this.evidence_modifiers = evidence_modifiers;
+    }
+
+    public List<CategoryEntry> getEvidence_items() {
+        return evidence_items;
+    }
+
+    public void setEvidence_items(List<CategoryEntry> evidence_items) {
+        this.evidence_items = evidence_items;
     }
 
     public List<CategoryEntry> getImprovement_categories() {

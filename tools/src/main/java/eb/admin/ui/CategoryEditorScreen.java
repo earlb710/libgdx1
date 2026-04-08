@@ -36,16 +36,19 @@ import java.util.Map;
  *   1. Building Categories      – code, description, color
  *   2. Item Categories          – code, description
  *   3. Evidence Categories      – code, description
- *   4. Case Types               – code, description
- *   5. Improvement Categories   – code, description, color, function
- *   6. Skill Categories         – code, name
- *   7. Skin Tone Categories     – code, name, rgb
- *   8. Gender Categories        – code, name
- *   9. Buildings                – id, name, category, description, improvements (buildings_en.json)
- *  10. Improvements             – id, name, attribute_modifiers (improvements_en.json)
- *  11. Company Types            – id, name, description, buildings (company_types_en.json)
- *  12. Names                    – person first-names, surnames, company name templates
- *  13. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
+ *   4. Case Types               – code, name, description
+ *   5. Discovery Methods        – code, name, description
+ *   6. Evidence Modifiers       – code, name, description
+ *   7. Evidence Items           – code, name, description
+ *   8. Improvement Categories   – code, description, color, function
+ *   9. Skill Categories         – code, name
+ *  10. Skin Tone Categories     – code, name, rgb
+ *  11. Gender Categories        – code, name
+ *  12. Buildings                – id, name, category, description, improvements (buildings_en.json)
+ *  13. Improvements             – id, name, attribute_modifiers (improvements_en.json)
+ *  14. Company Types            – id, name, description, buildings (company_types_en.json)
+ *  15. Names                    – person first-names, surnames, company name templates
+ *  16. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -65,7 +68,13 @@ public class CategoryEditorScreen extends JFrame {
     private final DefaultTableModel buildingModel     = createModel(new String[]{"Code", "Description", "Color"});
     private final DefaultTableModel itemModel         = createModel(new String[]{"Code", "Description"});
     private final DefaultTableModel evidenceModel     = createModel(new String[]{"Code", "Description"});
-    private final DefaultTableModel caseModel         = createModel(new String[]{"Code", "Description"});
+    private final DefaultTableModel caseModel         = createModel(new String[]{"Code", "Name", "Description"});
+    private final DefaultTableModel discoveryMethodModel =
+            createModel(new String[]{"Code", "Name", "Description"});
+    private final DefaultTableModel evidenceModifierModel =
+            createModel(new String[]{"Code", "Name", "Description"});
+    private final DefaultTableModel evidenceItemModel =
+            createModel(new String[]{"Code", "Name", "Description"});
     private final DefaultTableModel improvementCategoryModel =
             createModel(new String[]{"Code", "Description", "Color", "Actions"});
     private final DefaultTableModel skillCategoryModel =
@@ -121,7 +130,10 @@ public class CategoryEditorScreen extends JFrame {
         categoryTabs.addTab("Building Categories",     buildTabPanel(buildingModel,             true,  false));
         categoryTabs.addTab("Item Categories",         buildTabPanel(itemModel,                 false, false));
         categoryTabs.addTab("Evidence Categories",     buildTabPanel(evidenceModel,             false, false));
-        categoryTabs.addTab("Case Types",              buildTabPanel(caseModel,                 false, false));
+        categoryTabs.addTab("Case Types",              buildCodeNameDescTabPanel(caseModel));
+        categoryTabs.addTab("Discovery Methods",      buildCodeNameDescTabPanel(discoveryMethodModel));
+        categoryTabs.addTab("Evidence Modifiers",     buildCodeNameDescTabPanel(evidenceModifierModel));
+        categoryTabs.addTab("Evidence Items",         buildCodeNameDescTabPanel(evidenceItemModel));
         categoryTabs.addTab("Improvement Categories",  buildTabPanel(improvementCategoryModel,  true,  true));
         categoryTabs.addTab("Skill Categories",        buildSkillCategoryTabPanel());
         categoryTabs.addTab("Skin Tone Categories",    buildSkinToneCategoryTabPanel());
@@ -286,6 +298,100 @@ public class CategoryEditorScreen extends JFrame {
             } else {
                 model.addRow(new Object[]{"", ""});
             }
+            int last = model.getRowCount() - 1;
+            table.scrollRectToVisible(table.getCellRect(last, 0, true));
+            table.setRowSelectionInterval(last, last);
+        });
+
+        deleteBtn.addActionListener((ActionEvent e) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().cancelCellEditing();
+            }
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                model.removeRow(row);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Please select a row to delete.",
+                        "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        saveBtn.addActionListener((ActionEvent e) -> saveFile(false));
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(addBtn);
+        buttons.add(deleteBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(saveBtn);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttons,    BorderLayout.SOUTH);
+        return panel;
+    }
+
+    /**
+     * Builds a tab panel for a three-column table: Code, Name, Description.
+     * Used by Case Types, Discovery Methods, Evidence Modifiers, and Evidence Items.
+     */
+    private JPanel buildCodeNameDescTabPanel(DefaultTableModel model) {
+        JTable table = new JTable(model) {
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+                Component c = super.prepareRenderer(renderer, row, col);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
+                if (bg != null) {
+                    c.setBackground(bg);
+                    c.setForeground(ANNOTATION_FOREGROUND);
+                } else if (!isRowSelected(row)) {
+                    c.setBackground(getBackground());
+                    c.setForeground(getForeground());
+                }
+                return c;
+            }
+
+            @Override
+            public javax.swing.table.TableCellEditor getCellEditor(int row, int column) {
+                javax.swing.table.TableCellEditor editor = super.getCellEditor(row, column);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
+                if (bg != null && editor instanceof DefaultCellEditor) {
+                    ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                }
+                return editor;
+            }
+        };
+        categoryTables.add(table);
+        table.setRowHeight(26);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(0).setPreferredWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(160);
+        table.getColumnModel().getColumn(2).setPreferredWidth(500);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    JTable src = (JTable) e.getSource();
+                    int row = src.rowAtPoint(e.getPoint());
+                    int col = src.columnAtPoint(e.getPoint());
+                    if (row >= 0 && col >= 0 && src.getModel().isCellEditable(row, col)) {
+                        src.setRowSelectionInterval(row, row);
+                        showAnnotationMenu(src, row, col, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        JButton addBtn    = new JButton("Add Row");
+        JButton deleteBtn = new JButton("Delete Row");
+        JButton saveBtn   = new JButton("Save");
+
+        addBtn.addActionListener((ActionEvent e) -> {
+            model.addRow(new Object[]{"", "", ""});
             int last = model.getRowCount() - 1;
             table.scrollRectToVisible(table.getCellRect(last, 0, true));
             table.setRowSelectionInterval(last, last);
@@ -542,7 +648,10 @@ public class CategoryEditorScreen extends JFrame {
             populateModel(buildingModel,            data.getBuilding_categories(),     true,  false);
             populateModel(itemModel,                data.getItem_categories(),          false, false);
             populateModel(evidenceModel,            data.getEvidence_categories(),      false, false);
-            populateModel(caseModel,                data.getCase_types(),               false, false);
+            populateCodeNameDescModel(caseModel,         data.getCase_types());
+            populateCodeNameDescModel(discoveryMethodModel, data.getDiscovery_methods());
+            populateCodeNameDescModel(evidenceModifierModel, data.getEvidence_modifiers());
+            populateCodeNameDescModel(evidenceItemModel,    data.getEvidence_items());
             populateModel(improvementCategoryModel, data.getImprovement_categories(),   true,  true);
             populateSkillCategoryModel(skillCategoryModel, data.getSkill_categories());
             populateSkinToneCategoryModel(skinToneCategoryModel, data.getSkin_tone_categories());
@@ -609,6 +718,9 @@ public class CategoryEditorScreen extends JFrame {
             itemModel.setRowCount(0);
             evidenceModel.setRowCount(0);
             caseModel.setRowCount(0);
+            discoveryMethodModel.setRowCount(0);
+            evidenceModifierModel.setRowCount(0);
+            evidenceItemModel.setRowCount(0);
             improvementCategoryModel.setRowCount(0);
             skillCategoryModel.setRowCount(0);
             skinToneCategoryModel.setRowCount(0);
@@ -658,6 +770,42 @@ public class CategoryEditorScreen extends JFrame {
                 });
             }
         }
+    }
+
+    /**
+     * Populates a three-column (Code, Name, Description) table model from a list
+     * of {@link CategoryEntry} objects.  Used for case types, discovery methods,
+     * evidence modifiers, and evidence items.
+     */
+    private static void populateCodeNameDescModel(DefaultTableModel model,
+                                                   List<CategoryEntry> entries) {
+        model.setRowCount(0);
+        if (entries == null) return;
+        List<CategoryEntry> sorted = new ArrayList<>(entries);
+        sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
+        for (CategoryEntry e : sorted) {
+            model.addRow(new Object[]{
+                    nvl(e.getCode()),
+                    nvl(e.getName()),
+                    nvl(e.getDescription())
+            });
+        }
+    }
+
+    /**
+     * Converts a three-column (Code, Name, Description) table model back to a list
+     * of {@link CategoryEntry} objects.
+     */
+    private static List<CategoryEntry> codeNameDescModelToEntries(DefaultTableModel model) {
+        List<CategoryEntry> list = new ArrayList<>();
+        for (int r = 0; r < model.getRowCount(); r++) {
+            CategoryEntry entry = new CategoryEntry();
+            entry.setCode(cellStr(model, r, 0));
+            entry.setName(cellStr(model, r, 1));
+            entry.setDescription(cellStr(model, r, 2));
+            list.add(entry);
+        }
+        return list;
     }
 
     /**
@@ -858,7 +1006,10 @@ public class CategoryEditorScreen extends JFrame {
         data.setBuilding_categories(modelToEntries(buildingModel,            true,  false));
         data.setItem_categories(modelToEntries(itemModel,                    false, false));
         data.setEvidence_categories(modelToEntries(evidenceModel,            false, false));
-        data.setCase_types(modelToEntries(caseModel,                         false, false));
+        data.setCase_types(codeNameDescModelToEntries(caseModel));
+        data.setDiscovery_methods(codeNameDescModelToEntries(discoveryMethodModel));
+        data.setEvidence_modifiers(codeNameDescModelToEntries(evidenceModifierModel));
+        data.setEvidence_items(codeNameDescModelToEntries(evidenceItemModel));
         data.setImprovement_categories(modelToEntries(improvementCategoryModel, true, true));
         data.setSkill_categories(skillCategoryModelToEntries(skillCategoryModel));
         data.setSkin_tone_categories(skinToneCategoryModelToEntries(skinToneCategoryModel));
