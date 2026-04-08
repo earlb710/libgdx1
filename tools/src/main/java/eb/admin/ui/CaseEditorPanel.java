@@ -26,6 +26,7 @@ import java.util.Random;
  * <ol>
  *   <li><b>Case Type</b> — choose a type from the case_types table</li>
  *   <li><b>Client &amp; Subject</b> — enter or generate names</li>
+ *   <li><b>NPC Characters</b> — generate case-specific NPCs with roles and relationships</li>
  *   <li><b>Description &amp; Objective</b> — view generated narrative text</li>
  *   <li><b>Leads</b> — add hidden leads with discovery methods</li>
  *   <li><b>Story Tree</b> — build and inspect the four-level story tree</li>
@@ -46,15 +47,24 @@ public class CaseEditorPanel extends JPanel {
     private final JTextField clientNameField  = new JTextField(20);
     private final JTextField subjectNameField = new JTextField(20);
 
-    // Step 3 – Description & Objective
+    // Step 3 – NPC Characters
+    private final DefaultTableModel npcModel =
+            new DefaultTableModel(new String[]{
+                    "Role", "Name", "Gender", "Age", "Occupation",
+                    "Cooperativeness", "Honesty", "Nervousness"}, 0);
+    private final DefaultTableModel relationshipModel =
+            new DefaultTableModel(new String[]{
+                    "From", "To", "Type", "Opinion"}, 0);
+
+    // Step 4 – Description & Objective
     private final JTextArea descriptionArea = new JTextArea(4, 60);
     private final JTextArea objectiveArea   = new JTextArea(2, 60);
 
-    // Step 4 – Leads
+    // Step 5 – Leads
     private final DefaultTableModel leadsModel =
             new DefaultTableModel(new String[]{"ID", "Hint", "Discovery Method", "Description"}, 0);
 
-    // Step 5 – Story Tree
+    // Step 6 – Story Tree
     private final DefaultMutableTreeNode storyRoot = new DefaultMutableTreeNode("Story Root");
     private final DefaultTreeModel       treeModel = new DefaultTreeModel(storyRoot);
     private final JTree                  storyTree = new JTree(treeModel);
@@ -93,6 +103,8 @@ public class CaseEditorPanel extends JPanel {
         complexitySpinner.setValue(1);
         clientNameField.setText("");
         subjectNameField.setText("");
+        npcModel.setRowCount(0);
+        relationshipModel.setRowCount(0);
         descriptionArea.setText("");
         objectiveArea.setText("");
         leadsModel.setRowCount(0);
@@ -108,12 +120,13 @@ public class CaseEditorPanel extends JPanel {
 
     private JTabbedPane buildSteps() {
         JTabbedPane steps = new JTabbedPane();
-        steps.addTab("1. Case Type",             buildCaseTypeStep());
-        steps.addTab("2. Client & Subject",      buildNamesStep());
-        steps.addTab("3. Description & Objective", buildDescriptionStep());
-        steps.addTab("4. Leads",                 buildLeadsStep());
-        steps.addTab("5. Story Tree",            buildStoryTreeStep());
-        steps.addTab("Summary",                  buildSummaryStep());
+        steps.addTab("1. Case Type",              buildCaseTypeStep());
+        steps.addTab("2. Client & Subject",       buildNamesStep());
+        steps.addTab("3. NPC Characters",         buildNpcStep());
+        steps.addTab("4. Description & Objective", buildDescriptionStep());
+        steps.addTab("5. Leads",                  buildLeadsStep());
+        steps.addTab("6. Story Tree",             buildStoryTreeStep());
+        steps.addTab("Summary",                   buildSummaryStep());
         return steps;
     }
 
@@ -191,7 +204,82 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 3 ---------------------------------------------------------------
+    // -- Step 3: NPC Characters ------------------------------------------------
+
+    private JPanel buildNpcStep() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        // --- NPC table (top half) ---
+        JTable npcTable = new JTable(npcModel);
+        npcTable.setRowHeight(26);
+        npcTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        npcTable.getTableHeader().setReorderingAllowed(false);
+        npcTable.getColumnModel().getColumn(0).setPreferredWidth(120);  // Role
+        npcTable.getColumnModel().getColumn(1).setPreferredWidth(160);  // Name
+        npcTable.getColumnModel().getColumn(2).setPreferredWidth(60);   // Gender
+        npcTable.getColumnModel().getColumn(3).setPreferredWidth(50);   // Age
+        npcTable.getColumnModel().getColumn(4).setPreferredWidth(140);  // Occupation
+        npcTable.getColumnModel().getColumn(5).setPreferredWidth(80);   // Cooperativeness
+        npcTable.getColumnModel().getColumn(6).setPreferredWidth(60);   // Honesty
+        npcTable.getColumnModel().getColumn(7).setPreferredWidth(70);   // Nervousness
+
+        // --- Relationship table (bottom half) ---
+        JTable relTable = new JTable(relationshipModel);
+        relTable.setRowHeight(26);
+        relTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        relTable.getTableHeader().setReorderingAllowed(false);
+        relTable.getColumnModel().getColumn(0).setPreferredWidth(160);  // From
+        relTable.getColumnModel().getColumn(1).setPreferredWidth(160);  // To
+        relTable.getColumnModel().getColumn(2).setPreferredWidth(140);  // Type
+        relTable.getColumnModel().getColumn(3).setPreferredWidth(80);   // Opinion
+
+        // Split pane with NPC table above, relationships below
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(npcTable), new JScrollPane(relTable));
+        split.setDividerLocation(250);
+        split.setResizeWeight(0.6);
+
+        // --- Buttons ---
+        JButton genNpcsBtn  = new JButton("Generate NPCs");
+        JButton addNpcBtn   = new JButton("Add NPC");
+        JButton delNpcBtn   = new JButton("Delete NPC");
+        JButton genRelsBtn  = new JButton("Generate Relationships");
+        JButton addRelBtn   = new JButton("Add Relationship");
+        JButton delRelBtn   = new JButton("Delete Relationship");
+
+        genNpcsBtn.addActionListener(e -> generateNpcs());
+        addNpcBtn.addActionListener(e -> {
+            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5});
+        });
+        delNpcBtn.addActionListener(e -> {
+            int row = npcTable.getSelectedRow();
+            if (row >= 0) npcModel.removeRow(row);
+        });
+        genRelsBtn.addActionListener(e -> generateRelationships());
+        addRelBtn.addActionListener(e -> {
+            relationshipModel.addRow(new Object[]{"", "", "", 0});
+        });
+        delRelBtn.addActionListener(e -> {
+            int row = relTable.getSelectedRow();
+            if (row >= 0) relationshipModel.removeRow(row);
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(genNpcsBtn);
+        buttons.add(addNpcBtn);
+        buttons.add(delNpcBtn);
+        buttons.add(Box.createHorizontalStrut(18));
+        buttons.add(genRelsBtn);
+        buttons.add(addRelBtn);
+        buttons.add(delRelBtn);
+
+        panel.add(split,   BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // -- Step 4 ---------------------------------------------------------------
 
     private JPanel buildDescriptionStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -226,7 +314,7 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 4 ---------------------------------------------------------------
+    // -- Step 5 ---------------------------------------------------------------
 
     private JPanel buildLeadsStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -270,7 +358,7 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 5 ---------------------------------------------------------------
+    // -- Step 6 ---------------------------------------------------------------
 
     private JPanel buildStoryTreeStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -382,6 +470,245 @@ public class CaseEditorPanel extends JPanel {
             complexitySpinner.setValue(1 + random.nextInt(3));
             statusLabel.setText("Randomly selected case type: " + caseTypeCombo.getSelectedItem());
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // NPC generation helpers
+    // -------------------------------------------------------------------------
+
+    /** Typical first names per gender, used by the admin panel for quick NPC generation. */
+    private static final String[] MALE_NAMES = {
+        "James", "Robert", "William", "Thomas", "Michael", "David", "Richard",
+        "Daniel", "Edward", "George", "Henry", "Samuel", "Arthur", "Frank",
+        "Peter", "Joseph", "Patrick", "Marcus", "Leon", "Vincent"
+    };
+    private static final String[] FEMALE_NAMES = {
+        "Mary", "Elizabeth", "Sarah", "Catherine", "Margaret", "Alice", "Helen",
+        "Dorothy", "Grace", "Victoria", "Claire", "Emma", "Sophie", "Hannah",
+        "Olivia", "Laura", "Diana", "Angela", "Rose", "Julia"
+    };
+    private static final String[] SURNAMES = {
+        "Smith", "Johnson", "Brown", "Williams", "Jones", "Davis", "Miller",
+        "Wilson", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris",
+        "Clark", "Lewis", "Hall", "Walker", "Young", "King", "Wright", "Green",
+        "Baker", "Adams", "Nelson", "Carter", "Mitchell", "Roberts", "Turner",
+        "Phillips", "Campbell", "Parker", "Evans", "Collins", "Stewart", "Morris"
+    };
+
+    /** Relationship type labels used in the relationship table. */
+    private static final String[] RELATIONSHIP_TYPES = {
+        "Family", "Friend", "Colleague", "Acquaintance", "Rival",
+        "Employer", "Employee", "Neighbour", "Partner", "Ex-Partner",
+        "Business Associate"
+    };
+
+    /**
+     * Returns case-type-specific NPC roles.  The first two roles are always
+     * "Client" and "Subject/Victim"; additional roles depend on the case type.
+     */
+    private String[] rolesForCaseType(String caseType) {
+        switch (caseType) {
+            case "Missing Person":
+                return new String[]{"Client", "Subject (Missing)", "Witness",
+                        "Last-Known Contact", "Neighbour"};
+            case "Infidelity":
+                return new String[]{"Client", "Subject (Partner)", "Other Party",
+                        "Mutual Friend", "Witness"};
+            case "Theft":
+                return new String[]{"Client (Victim)", "Subject (Suspect)",
+                        "Witness", "Insurance Adjuster", "Fence/Dealer"};
+            case "Fraud":
+                return new String[]{"Client (Victim)", "Subject (Perpetrator)",
+                        "Accountant", "Business Associate", "Insider Witness"};
+            case "Blackmail":
+                return new String[]{"Client (Victim)", "Subject (Blackmailer)",
+                        "Witness", "Intermediary", "Confidant"};
+            case "Murder":
+                return new String[]{"Client", "Subject (Suspect)",
+                        "Key Witness", "Victim's Associate", "Police Contact"};
+            case "Stalking":
+                return new String[]{"Client (Victim)", "Subject (Stalker)",
+                        "Neighbour Witness", "Ex-Partner", "Friend of Client"};
+            case "Corporate Espionage":
+                return new String[]{"Client (Employer)", "Subject (Leak)",
+                        "Rival Contact", "Trusted Colleague", "IT Specialist"};
+            default:
+                return new String[]{"Client", "Subject", "Witness"};
+        }
+    }
+
+    /** Typical occupations per NPC role, to add flavour. */
+    private String occupationForRole(String role) {
+        if (role.startsWith("Client"))           return "—";
+        if (role.startsWith("Subject"))          return "—";
+        if (role.contains("Witness"))            return pick("Shop Owner", "Bartender", "Office Worker", "Retired Teacher");
+        if (role.contains("Neighbour"))          return pick("Retired", "Freelancer", "Nurse", "Electrician");
+        if (role.contains("Accountant"))         return "Accountant";
+        if (role.contains("Insurance"))          return "Insurance Assessor";
+        if (role.contains("Fence") || role.contains("Dealer")) return "Second-Hand Dealer";
+        if (role.contains("Police"))             return "Police Detective";
+        if (role.contains("IT"))                 return "IT Security Analyst";
+        if (role.contains("Friend"))             return pick("Teacher", "Architect", "Journalist", "Consultant");
+        if (role.contains("Associate"))          return pick("Manager", "Solicitor", "Accountant", "Director");
+        if (role.contains("Other Party"))        return pick("Personal Trainer", "Colleague", "Artist", "Manager");
+        if (role.contains("Contact"))            return pick("Receptionist", "Driver", "Office Manager", "Barista");
+        if (role.contains("Intermediary"))       return pick("Courier", "Solicitor", "Assistant", "Broker");
+        if (role.contains("Confidant"))          return pick("Therapist", "Old Friend", "Sibling", "Clergy");
+        if (role.contains("Insider"))            return pick("Junior Accountant", "Office Clerk", "Administrator");
+        if (role.contains("Rival"))              return pick("Business Analyst", "Sales Director", "Consultant");
+        if (role.contains("Colleague"))          return pick("Software Developer", "Office Manager", "HR Officer");
+        if (role.contains("Ex-Partner"))         return pick("Teacher", "Nurse", "Graphic Designer", "Writer");
+        return pick("Office Worker", "Shop Assistant", "Driver", "Freelancer");
+    }
+
+    private String pick(String... options) {
+        return options[random.nextInt(options.length)];
+    }
+
+    private String randomName(String gender) {
+        String first = "F".equals(gender)
+                ? FEMALE_NAMES[random.nextInt(FEMALE_NAMES.length)]
+                : MALE_NAMES[random.nextInt(MALE_NAMES.length)];
+        String last = SURNAMES[random.nextInt(SURNAMES.length)];
+        return first + " " + last;
+    }
+
+    private void generateNpcs() {
+        String caseType = (String) caseTypeCombo.getSelectedItem();
+        if (caseType == null || caseType.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a case type first.",
+                    "Missing Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        npcModel.setRowCount(0);
+        relationshipModel.setRowCount(0);
+
+        String[] roles = rolesForCaseType(caseType);
+        String client  = clientNameField.getText().trim();
+        String subject = subjectNameField.getText().trim();
+
+        for (int i = 0; i < roles.length; i++) {
+            String role   = roles[i];
+            String gender = random.nextBoolean() ? "M" : "F";
+            String name;
+            // Use the names from Step 2 for the first two NPCs
+            if (i == 0 && !client.isEmpty()) {
+                name = client;
+            } else if (i == 1 && !subject.isEmpty()) {
+                name = subject;
+            } else {
+                name = randomName(gender);
+            }
+            int age  = 22 + random.nextInt(43); // 22–64
+            String occupation = occupationForRole(role);
+            int cooperativeness = 2 + random.nextInt(8); // 2–9
+            int honesty         = 2 + random.nextInt(8);
+            int nervousness     = 1 + random.nextInt(9); // 1–9
+
+            // Special personality tweaks per role
+            if (role.startsWith("Client")) {
+                cooperativeness = 6 + random.nextInt(4); // 6–9 (cooperative)
+                honesty         = 5 + random.nextInt(5); // 5–9
+            } else if (role.startsWith("Subject")) {
+                cooperativeness = 1 + random.nextInt(5); // 1–5 (less cooperative)
+                nervousness     = 4 + random.nextInt(6); // 4–9 (more nervous)
+            }
+
+            npcModel.addRow(new Object[]{
+                    role, name, gender, age, occupation,
+                    cooperativeness, honesty, nervousness
+            });
+        }
+        statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
+    }
+
+    private void generateRelationships() {
+        if (npcModel.getRowCount() < 2) {
+            JOptionPane.showMessageDialog(this, "Generate NPCs first.",
+                    "Missing Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        relationshipModel.setRowCount(0);
+
+        // Collect NPC names
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < npcModel.getRowCount(); i++) {
+            names.add((String) npcModel.getValueAt(i, 1));
+        }
+        // Collect roles for context
+        List<String> roles = new ArrayList<>();
+        for (int i = 0; i < npcModel.getRowCount(); i++) {
+            roles.add((String) npcModel.getValueAt(i, 0));
+        }
+
+        // Always create client ↔ subject relationship
+        String relType = inferRelationshipType(roles.get(0), roles.get(1),
+                (String) caseTypeCombo.getSelectedItem());
+        int opinion1 = -20 + random.nextInt(41); // -20 to +20
+        relationshipModel.addRow(new Object[]{
+                names.get(0), names.get(1), relType, opinion1});
+        // Reverse relationship
+        int opinion2 = -20 + random.nextInt(41);
+        relationshipModel.addRow(new Object[]{
+                names.get(1), names.get(0), relType, opinion2});
+
+        // Create relationships between additional NPCs and client or subject
+        for (int i = 2; i < names.size(); i++) {
+            // Link to either client (index 0) or subject (index 1)
+            int target = (i % 2 == 0) ? 0 : 1;
+            String type = inferRelationshipType(roles.get(i), roles.get(target),
+                    (String) caseTypeCombo.getSelectedItem());
+            int op = -10 + random.nextInt(51); // -10 to +40
+            relationshipModel.addRow(new Object[]{
+                    names.get(i), names.get(target), type, op});
+        }
+
+        // Add one or two inter-NPC relationships for depth
+        if (names.size() >= 4) {
+            String type = RELATIONSHIP_TYPES[random.nextInt(RELATIONSHIP_TYPES.length)];
+            int op = -20 + random.nextInt(61); // -20 to +40
+            int a = 2 + random.nextInt(names.size() - 2);
+            int b = 2 + random.nextInt(names.size() - 2);
+            if (a != b) {
+                relationshipModel.addRow(new Object[]{
+                        names.get(a), names.get(b), type, op});
+            }
+        }
+
+        statusLabel.setText("Generated " + relationshipModel.getRowCount() + " relationships.");
+    }
+
+    /**
+     * Infers a sensible relationship type label based on the roles of the two
+     * NPCs and the case type.
+     */
+    private String inferRelationshipType(String role1, String role2, String caseType) {
+        // Client–Subject relationship depends on case type
+        if ((role1.startsWith("Client") && role2.startsWith("Subject"))
+                || (role2.startsWith("Client") && role1.startsWith("Subject"))) {
+            switch (caseType != null ? caseType : "") {
+                case "Missing Person":  return "Family";
+                case "Infidelity":      return "Partner";
+                case "Theft":           return "Acquaintance";
+                case "Fraud":           return "Business Associate";
+                case "Blackmail":       return "Acquaintance";
+                case "Murder":          return "Acquaintance";
+                case "Stalking":        return "Ex-Partner";
+                case "Corporate Espionage": return "Employer";
+                default: return "Acquaintance";
+            }
+        }
+        // Witness/neighbour roles
+        if (role1.contains("Witness") || role2.contains("Witness"))   return "Acquaintance";
+        if (role1.contains("Neighbour") || role2.contains("Neighbour")) return "Neighbour";
+        if (role1.contains("Friend") || role2.contains("Friend"))     return "Friend";
+        if (role1.contains("Colleague") || role2.contains("Colleague")) return "Colleague";
+        if (role1.contains("Partner") || role2.contains("Partner"))    return "Partner";
+        if (role1.contains("Associate") || role2.contains("Associate")) return "Business Associate";
+        if (role1.contains("Police") || role2.contains("Police"))     return "Acquaintance";
+        return RELATIONSHIP_TYPES[random.nextInt(RELATIONSHIP_TYPES.length)];
     }
 
     // -------------------------------------------------------------------------
@@ -621,6 +948,30 @@ public class CaseEditorPanel extends JPanel {
 
         sb.append("--- Objective ---\n");
         sb.append(nullSafe(objectiveArea.getText())).append("\n\n");
+
+        sb.append("--- NPC Characters (").append(npcModel.getRowCount()).append(") ---\n");
+        for (int i = 0; i < npcModel.getRowCount(); i++) {
+            sb.append("  [").append(npcModel.getValueAt(i, 0)).append("] ")
+              .append(npcModel.getValueAt(i, 1))
+              .append(" (").append(npcModel.getValueAt(i, 2))
+              .append(", age ").append(npcModel.getValueAt(i, 3))
+              .append(", ").append(npcModel.getValueAt(i, 4)).append(")")
+              .append("  coop=").append(npcModel.getValueAt(i, 5))
+              .append(" hon=").append(npcModel.getValueAt(i, 6))
+              .append(" nerv=").append(npcModel.getValueAt(i, 7))
+              .append('\n');
+        }
+        sb.append('\n');
+
+        sb.append("--- Relationships (").append(relationshipModel.getRowCount()).append(") ---\n");
+        for (int i = 0; i < relationshipModel.getRowCount(); i++) {
+            sb.append("  ").append(relationshipModel.getValueAt(i, 0))
+              .append(" → ").append(relationshipModel.getValueAt(i, 1))
+              .append("  [").append(relationshipModel.getValueAt(i, 2)).append("]")
+              .append("  opinion=").append(relationshipModel.getValueAt(i, 3))
+              .append('\n');
+        }
+        sb.append('\n');
 
         sb.append("--- Leads (").append(leadsModel.getRowCount()).append(") ---\n");
         for (int i = 0; i < leadsModel.getRowCount(); i++) {
