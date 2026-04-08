@@ -358,16 +358,8 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private void refreshDiscoveryMethodColumn() {
-        // Set up a JComboBox cell editor for the "Discovery Method" column
-        if (categoryData == null) return;
-        JComboBox<String> methodCombo = new JComboBox<>();
-        for (CategoryEntry e : categoryData.getDiscovery_methods()) {
-            String name = e.getName() != null ? e.getName() : e.getCode();
-            methodCombo.addItem(name);
-        }
-        // Column index 2 is "Discovery Method"
-        // We need to access the JTable's column model, but we only have the model.
-        // This is handled lazily via the combo when leads are added.
+        // Discovery method names are used when generating leads; no column
+        // editor is needed because leads are generated programmatically.
     }
 
     private void updateCaseTypeDescription() {
