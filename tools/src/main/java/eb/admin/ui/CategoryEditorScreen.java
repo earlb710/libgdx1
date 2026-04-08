@@ -49,6 +49,7 @@ import java.util.Map;
  *  14. Company Types            – id, name, description, buildings (company_types_en.json)
  *  15. Names                    – person first-names, surnames, company name templates
  *  16. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
+ *  17. Case                     – step-by-step case generation testing (case type, leads, story tree)
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -92,6 +93,7 @@ public class CategoryEditorScreen extends JFrame {
     private final CompanyTypesEditorPanel   companyTypesPanel  = new CompanyTypesEditorPanel(statusLabel);
     private final NamesEditorPanel          namesPanel         = new NamesEditorPanel(statusLabel);
     private final SvgEditorPanel            svgPanel           = new SvgEditorPanel(statusLabel);
+    private final CaseEditorPanel           casePanel          = new CaseEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -144,13 +146,14 @@ public class CategoryEditorScreen extends JFrame {
         categoriesPanel.add(buildMetaPanel(), BorderLayout.NORTH);
         categoriesPanel.add(categoryTabs,     BorderLayout.CENTER);
 
-        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", "Names", and "SVG"
+        // Outer tabs: "Categories", "Buildings", "Improvements", "Company Types", "Names", "SVG", and "Case"
         tabbedPane.addTab("Categories",    categoriesPanel);
         tabbedPane.addTab("Buildings",     buildingsPanel);
         tabbedPane.addTab("Improvements",  improvementsPanel);
         tabbedPane.addTab("Company Types", companyTypesPanel);
         tabbedPane.addTab("Names",         namesPanel);
         tabbedPane.addTab("SVG",           svgPanel);
+        tabbedPane.addTab("Case",          casePanel);
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(
@@ -657,6 +660,8 @@ public class CategoryEditorScreen extends JFrame {
             populateSkinToneCategoryModel(skinToneCategoryModel, data.getSkin_tone_categories());
             populateGenderCategoryModel(genderCategoryModel, data.getGender_categories());
 
+            casePanel.loadData(data);
+
             currentFile = file;
             fileField.setText(file.getAbsolutePath());
             setTitle(WINDOW_TITLE + " – " + file.getName());
@@ -725,6 +730,7 @@ public class CategoryEditorScreen extends JFrame {
             skillCategoryModel.setRowCount(0);
             skinToneCategoryModel.setRowCount(0);
             genderCategoryModel.setRowCount(0);
+            casePanel.clearAll();
             versionField.setText("");
             currentFile = newFile;
             fileField.setText(newFile.getAbsolutePath());
