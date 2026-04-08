@@ -55,7 +55,25 @@ public enum EvidenceModifier {
             "Handwriting comparison and document authenticity analysis"),
 
     PAINT_TRANSFER("Paint Transfer",
-            "Paint chip and transfer analysis to link vehicles or surfaces");
+            "Paint chip and transfer analysis to link vehicles or surfaces"),
+
+    TIRE_TRACKS("Tire Tracks",
+            "Tire tread pattern and wear analysis to identify a vehicle"),
+
+    GUNSHOT_RESIDUE("Gunshot Residue",
+            "Detection of primer and propellant residue on hands, clothing, or surfaces"),
+
+    TOXICOLOGY("Toxicology",
+            "Analysis of body fluids or substances for drugs, poisons, or alcohol"),
+
+    BITE_MARKS("Bite Marks",
+            "Dental impression comparison to identify an individual from bite wounds"),
+
+    INK_ANALYSIS("Ink Analysis",
+            "Ink composition and age analysis for document dating or authenticity"),
+
+    EXPLOSIVE_RESIDUE("Explosive Residue",
+            "Detection and identification of explosive compounds or detonator fragments");
 
     private final String displayName;
     private final String description;

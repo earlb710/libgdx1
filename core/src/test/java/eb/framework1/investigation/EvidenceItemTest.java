@@ -48,6 +48,12 @@ public class EvidenceItemTest {
         assertNotNull(EvidenceModifier.DIGITAL_DATA);
         assertNotNull(EvidenceModifier.HANDWRITING);
         assertNotNull(EvidenceModifier.PAINT_TRANSFER);
+        assertNotNull(EvidenceModifier.TIRE_TRACKS);
+        assertNotNull(EvidenceModifier.GUNSHOT_RESIDUE);
+        assertNotNull(EvidenceModifier.TOXICOLOGY);
+        assertNotNull(EvidenceModifier.BITE_MARKS);
+        assertNotNull(EvidenceModifier.INK_ANALYSIS);
+        assertNotNull(EvidenceModifier.EXPLOSIVE_RESIDUE);
     }
 
     // -------------------------------------------------------------------------
@@ -188,6 +194,10 @@ public class EvidenceItemTest {
         assertTrue(names.contains("Paint Chip"));
         assertTrue(names.contains("Burned Material"));
         assertTrue(names.contains("Envelope"));
+        assertTrue(names.contains("Tire Impression"));
+        assertTrue(names.contains("Syringe"));
+        assertTrue(names.contains("Letter"));
+        assertTrue(names.contains("Firearm"));
     }
 
     @Test
@@ -276,6 +286,39 @@ public class EvidenceItemTest {
         assertTrue(env.getPossibleModifiers().contains(EvidenceModifier.FINGERPRINTS));
         assertTrue(env.getPossibleModifiers().contains(EvidenceModifier.DNA));
         assertTrue(env.getPossibleModifiers().contains(EvidenceModifier.HANDWRITING));
+    }
+
+    @Test
+    public void tireImpression_possibleModifiers() {
+        EvidenceItem tire = EvidenceItem.TIRE_IMPRESSION;
+        assertTrue(tire.getPossibleModifiers().contains(EvidenceModifier.TIRE_TRACKS));
+        assertTrue(tire.getPossibleModifiers().contains(EvidenceModifier.SOIL));
+    }
+
+    @Test
+    public void syringe_possibleModifiers() {
+        EvidenceItem syringe = EvidenceItem.SYRINGE;
+        assertTrue(syringe.getPossibleModifiers().contains(EvidenceModifier.FINGERPRINTS));
+        assertTrue(syringe.getPossibleModifiers().contains(EvidenceModifier.DNA));
+        assertTrue(syringe.getPossibleModifiers().contains(EvidenceModifier.TOXICOLOGY));
+        assertTrue(syringe.getPossibleModifiers().contains(EvidenceModifier.CHEMICAL_RESIDUE));
+    }
+
+    @Test
+    public void letter_possibleModifiers() {
+        EvidenceItem letter = EvidenceItem.LETTER;
+        assertTrue(letter.getPossibleModifiers().contains(EvidenceModifier.FINGERPRINTS));
+        assertTrue(letter.getPossibleModifiers().contains(EvidenceModifier.DNA));
+        assertTrue(letter.getPossibleModifiers().contains(EvidenceModifier.HANDWRITING));
+        assertTrue(letter.getPossibleModifiers().contains(EvidenceModifier.INK_ANALYSIS));
+    }
+
+    @Test
+    public void firearm_possibleModifiers() {
+        EvidenceItem gun = EvidenceItem.FIREARM;
+        assertTrue(gun.getPossibleModifiers().contains(EvidenceModifier.FINGERPRINTS));
+        assertTrue(gun.getPossibleModifiers().contains(EvidenceModifier.BALLISTICS));
+        assertTrue(gun.getPossibleModifiers().contains(EvidenceModifier.GUNSHOT_RESIDUE));
     }
 
     // -------------------------------------------------------------------------

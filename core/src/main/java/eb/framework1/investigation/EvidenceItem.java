@@ -253,11 +253,45 @@ public final class EvidenceItem {
             .possibleModifier(EvidenceModifier.HANDWRITING)
             .build();
 
+    /** A tire impression or skid mark — yields tread pattern and soil evidence. */
+    public static final EvidenceItem TIRE_IMPRESSION = new Builder("Tire Impression")
+            .description("A cast or photograph of a tire mark left at or near the scene.")
+            .possibleModifier(EvidenceModifier.TIRE_TRACKS)
+            .possibleModifier(EvidenceModifier.SOIL)
+            .build();
+
+    /** A discarded syringe — may carry DNA, fingerprints, and drug residue. */
+    public static final EvidenceItem SYRINGE = new Builder("Syringe")
+            .description("A used syringe found at the scene that may contain drug traces.")
+            .possibleModifier(EvidenceModifier.FINGERPRINTS)
+            .possibleModifier(EvidenceModifier.DNA)
+            .possibleModifier(EvidenceModifier.TOXICOLOGY)
+            .possibleModifier(EvidenceModifier.CHEMICAL_RESIDUE)
+            .build();
+
+    /** A handwritten or printed letter — may yield handwriting, ink, fingerprints, and DNA. */
+    public static final EvidenceItem LETTER = new Builder("Letter")
+            .description("A personal letter found at or sent to the scene.")
+            .possibleModifier(EvidenceModifier.FINGERPRINTS)
+            .possibleModifier(EvidenceModifier.DNA)
+            .possibleModifier(EvidenceModifier.HANDWRITING)
+            .possibleModifier(EvidenceModifier.INK_ANALYSIS)
+            .build();
+
+    /** A firearm — may carry fingerprints, ballistics markings, and gunshot residue. */
+    public static final EvidenceItem FIREARM = new Builder("Firearm")
+            .description("A gun recovered from the scene or linked to the investigation.")
+            .possibleModifier(EvidenceModifier.FINGERPRINTS)
+            .possibleModifier(EvidenceModifier.BALLISTICS)
+            .possibleModifier(EvidenceModifier.GUNSHOT_RESIDUE)
+            .build();
+
     /** All catalogue entries, in declaration order. */
     private static final EvidenceItem[] CATALOGUE = {
         DRINKING_GLASS, KITCHEN_KNIFE, CLOTH, BULLET_CASING,
         CIGARETTE, HAIR_SAMPLE, SHOE_PRINT, DOCUMENT,
-        MOBILE_PHONE, PAINT_CHIP, BURNED_MATERIAL, ENVELOPE
+        MOBILE_PHONE, PAINT_CHIP, BURNED_MATERIAL, ENVELOPE,
+        TIRE_IMPRESSION, SYRINGE, LETTER, FIREARM
     };
 
     /**
