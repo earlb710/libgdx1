@@ -186,11 +186,12 @@ public final class EvidenceItem {
             .possibleModifier(EvidenceModifier.HAIR)
             .build();
 
-    /** A spent bullet casing — can be matched by tool marks and may have fingerprints. */
+    /** A spent bullet casing — can be matched by tool marks, ballistics, and may have fingerprints. */
     public static final EvidenceItem BULLET_CASING = new Builder("Bullet Casing")
             .description("A spent cartridge case that can be linked to a specific firearm.")
             .possibleModifier(EvidenceModifier.FINGERPRINTS)
             .possibleModifier(EvidenceModifier.TOOL_MARKS)
+            .possibleModifier(EvidenceModifier.BALLISTICS)
             .build();
 
     /** A cigarette butt — strong DNA and potential fingerprint source. */
@@ -214,17 +215,49 @@ public final class EvidenceItem {
             .possibleModifier(EvidenceModifier.SOIL)
             .build();
 
-    /** A printed or handwritten document — potential fingerprint and DNA source. */
+    /** A printed or handwritten document — potential fingerprint, DNA, and handwriting source. */
     public static final EvidenceItem DOCUMENT = new Builder("Document")
             .description("A note, letter, or printed page found at or near the scene.")
             .possibleModifier(EvidenceModifier.FINGERPRINTS)
             .possibleModifier(EvidenceModifier.DNA)
+            .possibleModifier(EvidenceModifier.HANDWRITING)
+            .build();
+
+    /** A mobile phone — may contain digital data, fingerprints, and DNA. */
+    public static final EvidenceItem MOBILE_PHONE = new Builder("Mobile Phone")
+            .description("A smartphone or mobile device found at or linked to the scene.")
+            .possibleModifier(EvidenceModifier.FINGERPRINTS)
+            .possibleModifier(EvidenceModifier.DNA)
+            .possibleModifier(EvidenceModifier.DIGITAL_DATA)
+            .build();
+
+    /** A paint chip or scraping — can reveal paint transfer and chemical composition. */
+    public static final EvidenceItem PAINT_CHIP = new Builder("Paint Chip")
+            .description("A chip or scraping of paint collected from a surface or vehicle.")
+            .possibleModifier(EvidenceModifier.PAINT_TRANSFER)
+            .possibleModifier(EvidenceModifier.CHEMICAL_RESIDUE)
+            .build();
+
+    /** Burned or charred material — may carry accelerant residue. */
+    public static final EvidenceItem BURNED_MATERIAL = new Builder("Burned Material")
+            .description("Charred debris or material collected from a fire scene.")
+            .possibleModifier(EvidenceModifier.ACCELERANT)
+            .possibleModifier(EvidenceModifier.CHEMICAL_RESIDUE)
+            .build();
+
+    /** A sealed or opened envelope — may carry fingerprints, DNA, and handwriting. */
+    public static final EvidenceItem ENVELOPE = new Builder("Envelope")
+            .description("A postal envelope that may have been licked, sealed, or addressed by hand.")
+            .possibleModifier(EvidenceModifier.FINGERPRINTS)
+            .possibleModifier(EvidenceModifier.DNA)
+            .possibleModifier(EvidenceModifier.HANDWRITING)
             .build();
 
     /** All catalogue entries, in declaration order. */
     private static final EvidenceItem[] CATALOGUE = {
         DRINKING_GLASS, KITCHEN_KNIFE, CLOTH, BULLET_CASING,
-        CIGARETTE, HAIR_SAMPLE, SHOE_PRINT, DOCUMENT
+        CIGARETTE, HAIR_SAMPLE, SHOE_PRINT, DOCUMENT,
+        MOBILE_PHONE, PAINT_CHIP, BURNED_MATERIAL, ENVELOPE
     };
 
     /**

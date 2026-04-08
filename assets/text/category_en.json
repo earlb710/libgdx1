@@ -291,6 +291,36 @@
       "code": "TOOL_MARKS",
       "name": "Tool Marks",
       "description": "Impression analysis of marks left by tools, weapons, or forced entry"
+    },
+    {
+      "code": "ACCELERANT",
+      "name": "Accelerant",
+      "description": "Detection of fire accelerants such as petrol, paraffin, or solvents"
+    },
+    {
+      "code": "BALLISTICS",
+      "name": "Ballistics",
+      "description": "Firearm and projectile analysis to match bullets or casings to a weapon"
+    },
+    {
+      "code": "CHEMICAL_RESIDUE",
+      "name": "Chemical Residue",
+      "description": "Detection and identification of chemical or drug residue on surfaces"
+    },
+    {
+      "code": "DIGITAL_DATA",
+      "name": "Digital Data",
+      "description": "Data recovery and analysis from electronic devices or storage media"
+    },
+    {
+      "code": "HANDWRITING",
+      "name": "Handwriting",
+      "description": "Handwriting comparison and document authenticity analysis"
+    },
+    {
+      "code": "PAINT_TRANSFER",
+      "name": "Paint Transfer",
+      "description": "Paint chip and transfer analysis to link vehicles or surfaces"
     }
   ],
   "evidence_items": [
@@ -333,6 +363,26 @@
       "code": "SHOE_PRINT",
       "name": "Shoe Print",
       "description": "A cast or photograph of a shoe impression left at the scene"
+    },
+    {
+      "code": "MOBILE_PHONE",
+      "name": "Mobile Phone",
+      "description": "A smartphone or mobile device found at or linked to the scene"
+    },
+    {
+      "code": "PAINT_CHIP",
+      "name": "Paint Chip",
+      "description": "A chip or scraping of paint collected from a surface or vehicle"
+    },
+    {
+      "code": "BURNED_MATERIAL",
+      "name": "Burned Material",
+      "description": "Charred debris or material collected from a fire scene"
+    },
+    {
+      "code": "ENVELOPE",
+      "name": "Envelope",
+      "description": "A postal envelope that may have been licked, sealed, or addressed by hand"
     }
   ],
   "improvement_categories": [
