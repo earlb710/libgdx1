@@ -25,8 +25,8 @@ import java.util.Random;
  * <h3>Steps</h3>
  * <ol>
  *   <li><b>Case Type</b> — choose a type from the case_types table</li>
- *   <li><b>Client &amp; Subject</b> — enter or generate names</li>
- *   <li><b>NPC Characters</b> — generate case-specific NPCs with roles and relationships</li>
+ *   <li><b>NPC Characters</b> — enter client/subject names, generate
+ *       case-specific NPCs with roles and relationships</li>
  *   <li><b>Description &amp; Objective</b> — view generated narrative text</li>
  *   <li><b>Leads</b> — add hidden leads with discovery methods</li>
  *   <li><b>Story Tree</b> — build and inspect the four-level story tree</li>
@@ -43,11 +43,9 @@ public class CaseEditorPanel extends JPanel {
     private final JSpinner complexitySpinner =
             new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
 
-    // Step 2 – Client & Subject
+    // Step 2 – NPC Characters (includes Client & Subject names)
     private final JTextField clientNameField  = new JTextField(20);
     private final JTextField subjectNameField = new JTextField(20);
-
-    // Step 3 – NPC Characters
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
@@ -56,15 +54,15 @@ public class CaseEditorPanel extends JPanel {
             new DefaultTableModel(new String[]{
                     "From", "To", "Type", "Opinion"}, 0);
 
-    // Step 4 – Description & Objective
+    // Step 3 – Description & Objective
     private final JTextArea descriptionArea = new JTextArea(4, 60);
     private final JTextArea objectiveArea   = new JTextArea(2, 60);
 
-    // Step 5 – Leads
+    // Step 4 – Leads
     private final DefaultTableModel leadsModel =
             new DefaultTableModel(new String[]{"ID", "Hint", "Discovery Method", "Description"}, 0);
 
-    // Step 6 – Story Tree
+    // Step 5 – Story Tree
     private final DefaultMutableTreeNode storyRoot = new DefaultMutableTreeNode("Story Root");
     private final DefaultTreeModel       treeModel = new DefaultTreeModel(storyRoot);
     private final JTree                  storyTree = new JTree(treeModel);
@@ -121,11 +119,10 @@ public class CaseEditorPanel extends JPanel {
     private JTabbedPane buildSteps() {
         JTabbedPane steps = new JTabbedPane();
         steps.addTab("1. Case Type",              buildCaseTypeStep());
-        steps.addTab("2. Client & Subject",       buildNamesStep());
-        steps.addTab("3. NPC Characters",         buildNpcStep());
-        steps.addTab("4. Description & Objective", buildDescriptionStep());
-        steps.addTab("5. Leads",                  buildLeadsStep());
-        steps.addTab("6. Story Tree",             buildStoryTreeStep());
+        steps.addTab("2. NPC Characters",         buildNpcStep());
+        steps.addTab("3. Description & Objective", buildDescriptionStep());
+        steps.addTab("4. Leads",                  buildLeadsStep());
+        steps.addTab("5. Story Tree",             buildStoryTreeStep());
         steps.addTab("Summary",                   buildSummaryStep());
         return steps;
     }
@@ -173,44 +170,29 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 2 ---------------------------------------------------------------
-
-    private JPanel buildNamesStep() {
-        JPanel panel = new JPanel(new BorderLayout(8, 8));
-        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-
-        JPanel form = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 4, 4, 4);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        gbc.gridx = 0; gbc.gridy = 0;
-        form.add(new JLabel("Client Name:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
-        form.add(clientNameField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
-        form.add(new JLabel("Subject Name:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
-        form.add(subjectNameField, gbc);
-
-        JButton generateBtn = new JButton("Generate Description & Objective");
-        generateBtn.addActionListener(e -> generateDescriptionAndObjective());
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.CENTER;
-        form.add(generateBtn, gbc);
-
-        panel.add(form, BorderLayout.NORTH);
-        return panel;
-    }
-
-    // -- Step 3: NPC Characters ------------------------------------------------
+    // -- Step 2: NPC Characters (includes Client & Subject name fields) ------
 
     private JPanel buildNpcStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        // --- NPC table (top half) ---
+        // --- Client & Subject name fields (top) ---
+        JPanel nameForm = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        nameForm.add(new JLabel("Client Name:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        nameForm.add(clientNameField, gbc);
+
+        gbc.gridx = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        nameForm.add(new JLabel("  Subject Name:"), gbc);
+        gbc.gridx = 3; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        nameForm.add(subjectNameField, gbc);
+
+        // --- NPC table ---
         JTable npcTable = new JTable(npcModel);
         npcTable.setRowHeight(26);
         npcTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -224,7 +206,7 @@ public class CaseEditorPanel extends JPanel {
         npcTable.getColumnModel().getColumn(6).setPreferredWidth(60);   // Honesty
         npcTable.getColumnModel().getColumn(7).setPreferredWidth(70);   // Nervousness
 
-        // --- Relationship table (bottom half) ---
+        // --- Relationship table ---
         JTable relTable = new JTable(relationshipModel);
         relTable.setRowHeight(26);
         relTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -274,12 +256,13 @@ public class CaseEditorPanel extends JPanel {
         buttons.add(addRelBtn);
         buttons.add(delRelBtn);
 
-        panel.add(split,   BorderLayout.CENTER);
-        panel.add(buttons, BorderLayout.SOUTH);
+        panel.add(nameForm, BorderLayout.NORTH);
+        panel.add(split,    BorderLayout.CENTER);
+        panel.add(buttons,  BorderLayout.SOUTH);
         return panel;
     }
 
-    // -- Step 4 ---------------------------------------------------------------
+    // -- Step 3 ---------------------------------------------------------------
 
     private JPanel buildDescriptionStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -310,11 +293,17 @@ public class CaseEditorPanel extends JPanel {
         gbc.weighty = 0.5;
         form.add(new JScrollPane(objectiveArea), gbc);
 
+        JButton generateBtn = new JButton("Generate Description & Objective");
+        generateBtn.addActionListener(e -> generateDescriptionAndObjective());
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        btnPanel.add(generateBtn);
+
         panel.add(form, BorderLayout.CENTER);
+        panel.add(btnPanel, BorderLayout.SOUTH);
         return panel;
     }
 
-    // -- Step 5 ---------------------------------------------------------------
+    // -- Step 4 ---------------------------------------------------------------
 
     private JPanel buildLeadsStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -358,7 +347,7 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 6 ---------------------------------------------------------------
+    // -- Step 5 ---------------------------------------------------------------
 
     private JPanel buildStoryTreeStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
