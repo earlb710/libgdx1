@@ -198,6 +198,7 @@ public class CaseGeneratorTest {
         assertNull(cf.getCaseType());
         assertEquals("", cf.getClientName());
         assertEquals("", cf.getSubjectName());
+        assertEquals("", cf.getVictimName());
         assertEquals("", cf.getObjective());
         assertTrue(cf.getLeads().isEmpty());
         assertNull("storyRoot should be null for manually created cases", cf.getStoryRoot());
@@ -222,9 +223,11 @@ public class CaseGeneratorTest {
         CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
         cf.setClientName(null);
         cf.setSubjectName(null);
+        cf.setVictimName(null);
         cf.setObjective(null);
         assertEquals("", cf.getClientName());
         assertEquals("", cf.getSubjectName());
+        assertEquals("", cf.getVictimName());
         assertEquals("", cf.getObjective());
     }
 
@@ -715,10 +718,12 @@ public class CaseGeneratorTest {
     // -------------------------------------------------------------------------
 
     @Test
-    public void murderCase_hasFiveLeads() {
+    public void murderCase_hasAtLeastFiveBaseLeads() {
         CaseGenerator gen = makeGenerator(200L);
         CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
-        assertEquals("Murder case should have 5 leads", 5, cf.getLeads().size());
+        // 5 base leads + (complexity-1) red herring leads
+        assertTrue("Murder case should have at least 5 leads",
+                cf.getLeads().size() >= 5);
     }
 
     @Test
@@ -735,5 +740,111 @@ public class CaseGeneratorTest {
         }
         assertTrue("Murder leads must include a FORENSICS lead about determining time of death",
                 found);
+    }
+
+    // -------------------------------------------------------------------------
+    // Victim name
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void murderCase_hasVictimName() {
+        CaseGenerator gen = makeGenerator(300L);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
+        assertFalse("Murder case should have a victim name",
+                cf.getVictimName().isEmpty());
+    }
+
+    @Test
+    public void murderCase_victimNameInDescription() {
+        CaseGenerator gen = makeGenerator(301L);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
+        assertTrue("Murder description should mention victim name",
+                cf.getDescription().contains(cf.getVictimName()));
+    }
+
+    @Test
+    public void murderCase_victimNameInObjective() {
+        CaseGenerator gen = makeGenerator(302L);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
+        assertTrue("Murder objective should mention victim name",
+                cf.getObjective().contains(cf.getVictimName()));
+    }
+
+    @Test
+    public void nonMurderCase_victimNameIsEmpty() {
+        for (CaseType type : CaseType.values()) {
+            if (type == CaseType.MURDER) continue;
+            CaseGenerator gen = makeGenerator(type.ordinal() + 400);
+            CaseFile cf = gen.generate(type, "2050-01-05 09:00");
+            assertEquals("Victim name should be empty for " + type, "", cf.getVictimName());
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Description capitalization
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void generate_descriptionStartsWithCapitalLetter() {
+        for (CaseType type : CaseType.values()) {
+            CaseGenerator gen = makeGenerator(type.ordinal() + 500);
+            CaseFile cf = gen.generate(type, "2050-05-20 09:00");
+            String desc = cf.getDescription();
+            assertFalse("Description must not be empty for " + type, desc.isEmpty());
+            assertTrue("Description must start with a capital letter for " + type,
+                    Character.isUpperCase(desc.charAt(0)));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Red herring leads scale with complexity
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void generate_higherComplexityHasMoreLeads() {
+        // Generate many cases and group by complexity; higher complexity
+        // should have at least as many leads as lower complexity (on average).
+        for (CaseType type : CaseType.values()) {
+            int minLeadsForComplexity1 = Integer.MAX_VALUE;
+            int maxLeadsForComplexity3 = 0;
+            // Try many seeds to get a range of complexities
+            for (long seed = 0; seed < 50; seed++) {
+                CaseGenerator gen = makeGenerator(seed * 1000 + type.ordinal());
+                CaseFile cf = gen.generate(type, "2050-05-21 09:00");
+                int c = cf.getComplexity();
+                int n = cf.getLeads().size();
+                if (c == 1 && n < minLeadsForComplexity1) minLeadsForComplexity1 = n;
+                if (c == 3 && n > maxLeadsForComplexity3)  maxLeadsForComplexity3 = n;
+            }
+            if (maxLeadsForComplexity3 > 0 && minLeadsForComplexity1 < Integer.MAX_VALUE) {
+                assertTrue("Complexity 3 should have more leads than complexity 1 for " + type,
+                        maxLeadsForComplexity3 > minLeadsForComplexity1);
+            }
+        }
+    }
+
+    @Test
+    public void generate_complexity1HasNoRedHerringLeads() {
+        // With many seeds we should eventually see complexity 1;
+        // for complexity 1, no red herring leads are added, so count equals base leads.
+        boolean testedAtLeastOne = false;
+        for (CaseType type : CaseType.values()) {
+            for (long seed = 0; seed < 100; seed++) {
+                CaseGenerator gen = makeGenerator(seed * 100 + type.ordinal());
+                CaseFile cf = gen.generate(type, "2050-05-22 09:00");
+                if (cf.getComplexity() == 1) {
+                    int baseLeads = cf.getLeads().size();
+                    // Complexity 1: no red herrings added, so leads == base lead count
+                    // Base count per type: missing_person=3, infidelity=3, theft=3,
+                    // fraud=3, blackmail=3, murder=5, stalking=3, corporate_espionage=3
+                    int expected = (type == CaseType.MURDER) ? 5 : 3;
+                    assertEquals("Complexity 1 should have exactly " + expected
+                            + " leads for " + type, expected, baseLeads);
+                    testedAtLeastOne = true;
+                    break;
+                }
+            }
+        }
+        assertTrue("Should have found at least one complexity-1 case", testedAtLeastOne);
     }
 }

@@ -252,6 +252,7 @@ public class SaveGameManager {
         d.caseType    = cf.getCaseType() != null ? cf.getCaseType().name() : null;
         d.clientName  = cf.getClientName();
         d.subjectName = cf.getSubjectName();
+        d.victimName  = cf.getVictimName();
         d.objective   = cf.getObjective();
         d.leads = new ArrayList<>();
         for (CaseLead lead : cf.getLeads()) {
@@ -290,6 +291,7 @@ public class SaveGameManager {
         }
         cf.setClientName(d.clientName);
         cf.setSubjectName(d.subjectName);
+        cf.setVictimName(d.victimName);
         cf.setObjective(d.objective);
         if (d.complexity >= 1 && d.complexity <= 3) cf.setComplexity(d.complexity);
         if (d.leads != null) {
@@ -490,6 +492,7 @@ public class SaveGameManager {
         public String caseType;
         public String clientName;
         public String subjectName;
+        public String victimName;
         public String objective;
         public java.util.List<CaseLeadData> leads;
         public int complexity;
