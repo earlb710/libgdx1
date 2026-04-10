@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation project(':core')
 }
 
 // Use the project root as working directory so the app can auto-load

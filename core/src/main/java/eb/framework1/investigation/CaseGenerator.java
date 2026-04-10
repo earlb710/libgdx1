@@ -274,7 +274,22 @@ public class CaseGenerator {
     // Description templates
     // -------------------------------------------------------------------------
 
-    private String buildDescription(CaseType type, String client, String subject,
+    /**
+     * Generates a narrative case description for the given type and parties.
+     *
+     * <p>This method is also used by the admin tool to preview generated text
+     * without constructing a full {@link CaseFile}.
+     *
+     * @param type          the case type
+     * @param client        client (hiring party) name
+     * @param subject       subject (investigated party) name
+     * @param victim        victim name (used only for {@link CaseType#MURDER};
+     *                      may be empty for other types)
+     * @param clientGender  {@code "M"} or {@code "F"}
+     * @param subjectGender {@code "M"} or {@code "F"}
+     * @return a multi-sentence narrative description
+     */
+    public static String buildDescription(CaseType type, String client, String subject,
                                     String victim, String clientGender,
                                     String subjectGender) {
         String pronoun = "F".equals(subjectGender) ? "She" : "He";
@@ -327,7 +342,19 @@ public class CaseGenerator {
     // Objective templates
     // -------------------------------------------------------------------------
 
-    private String buildObjective(CaseType type, String client, String subject, String victim) {
+    /**
+     * Generates the case objective for the given type and parties.
+     *
+     * <p>This method is also used by the admin tool to preview generated text
+     * without constructing a full {@link CaseFile}.
+     *
+     * @param type    the case type
+     * @param client  client name
+     * @param subject subject name
+     * @param victim  victim name (used only for {@link CaseType#MURDER})
+     * @return the objective sentence(s)
+     */
+    public static String buildObjective(CaseType type, String client, String subject, String victim) {
         switch (type) {
             case MISSING_PERSON:
                 return "Locate " + subject + " and determine whether they left voluntarily"
@@ -604,7 +631,7 @@ public class CaseGenerator {
      * Returns the text unchanged if it is {@code null}, empty, or already
      * starts with a capital letter.
      */
-    private static String capitalize(String text) {
+    public static String capitalize(String text) {
         if (text == null || text.isEmpty()) return text;
         char first = text.charAt(0);
         if (Character.isUpperCase(first)) return text;

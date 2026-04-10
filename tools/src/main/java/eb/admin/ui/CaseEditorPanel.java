@@ -2,6 +2,8 @@ package eb.admin.ui;
 
 import eb.admin.model.CategoryData;
 import eb.admin.model.CategoryEntry;
+import eb.framework1.investigation.CaseGenerator;
+import eb.framework1.investigation.CaseType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -46,6 +48,10 @@ public class CaseEditorPanel extends JPanel {
     // Step 2 – NPC Characters (includes Client & Subject names)
     private final JTextField clientNameField  = new JTextField(20);
     private final JTextField subjectNameField = new JTextField(20);
+    private final JTextField victimNameField  = new JTextField(20);
+    private final JLabel     victimNameLabel  = new JLabel("  Victim Name:");
+    private final JComboBox<String> clientGenderCombo  = new JComboBox<>(new String[]{"M", "F"});
+    private final JComboBox<String> subjectGenderCombo = new JComboBox<>(new String[]{"M", "F"});
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
@@ -110,6 +116,7 @@ public class CaseEditorPanel extends JPanel {
         complexitySpinner.setValue(1);
         clientNameField.setText("");
         subjectNameField.setText("");
+        victimNameField.setText("");
         npcModel.setRowCount(0);
         relationshipModel.setRowCount(0);
         descriptionArea.setText("");
@@ -195,11 +202,27 @@ public class CaseEditorPanel extends JPanel {
         nameForm.add(new JLabel("Client Name:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
         nameForm.add(clientNameField, gbc);
-
         gbc.gridx = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
-        nameForm.add(new JLabel("  Subject Name:"), gbc);
-        gbc.gridx = 3; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        nameForm.add(new JLabel(" Gender:"), gbc);
+        gbc.gridx = 3;
+        nameForm.add(clientGenderCombo, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        nameForm.add(new JLabel("Subject Name:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
         nameForm.add(subjectNameField, gbc);
+        gbc.gridx = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        nameForm.add(new JLabel(" Gender:"), gbc);
+        gbc.gridx = 3;
+        nameForm.add(subjectGenderCombo, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        nameForm.add(victimNameLabel, gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        nameForm.add(victimNameField, gbc);
+        // Victim name only shown for Murder — visibility toggled in updateVictimNameVisibility()
+        victimNameLabel.setVisible(false);
+        victimNameField.setVisible(false);
 
         // --- NPC table ---
         JTable npcTable = new JTable(npcModel);
@@ -480,6 +503,7 @@ public class CaseEditorPanel extends JPanel {
     private void updateCaseTypeDescription() {
         if (categoryData == null || caseTypeCombo.getSelectedIndex() < 0) {
             caseTypeDesc.setText(" ");
+            updateVictimNameVisibility();
             return;
         }
         int idx = caseTypeCombo.getSelectedIndex();
@@ -488,6 +512,15 @@ public class CaseEditorPanel extends JPanel {
             String desc = types.get(idx).getDescription();
             caseTypeDesc.setText(desc != null ? desc : " ");
         }
+        updateVictimNameVisibility();
+    }
+
+    /** Shows the victim name field only when the selected case type is Murder. */
+    private void updateVictimNameVisibility() {
+        String caseType = (String) caseTypeCombo.getSelectedItem();
+        boolean isMurder = "Murder".equals(caseType);
+        victimNameLabel.setVisible(isMurder);
+        victimNameField.setVisible(isMurder);
     }
 
     private void pickRandomCaseType() {
@@ -774,80 +807,44 @@ public class CaseEditorPanel extends JPanel {
     // -------------------------------------------------------------------------
 
     private void generateDescriptionAndObjective() {
-        String caseType = (String) caseTypeCombo.getSelectedItem();
-        String client   = clientNameField.getText().trim();
-        String subject  = subjectNameField.getText().trim();
+        String caseTypeName = (String) caseTypeCombo.getSelectedItem();
+        String client       = clientNameField.getText().trim();
+        String subject      = subjectNameField.getText().trim();
 
-        if (caseType == null || caseType.isEmpty()) {
+        if (caseTypeName == null || caseTypeName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a case type first.",
                     "Missing Data", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (client.isEmpty()) client = "the client";
+        if (client.isEmpty())  client  = "the client";
         if (subject.isEmpty()) subject = "the subject";
 
-        String desc = buildDescription(caseType, client, subject);
-        String obj  = buildObjective(caseType, subject);
+        CaseType type          = caseTypeFromDisplayName(caseTypeName);
+        String clientGender    = (String) clientGenderCombo.getSelectedItem();
+        String subjectGender   = (String) subjectGenderCombo.getSelectedItem();
+        String victim          = victimNameField.getText().trim();
+        if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
+
+        String desc = CaseGenerator.capitalize(
+                CaseGenerator.buildDescription(type, client, subject, victim,
+                        clientGender, subjectGender));
+        String obj  = CaseGenerator.buildObjective(type, client, subject, victim);
 
         descriptionArea.setText(desc);
         objectiveArea.setText(obj);
-        statusLabel.setText("Generated description and objective for " + caseType + " case.");
+        statusLabel.setText("Generated description and objective for " + caseTypeName + " case.");
     }
 
-    private String buildDescription(String caseType, String client, String subject) {
-        switch (caseType) {
-            case "Missing Person":
-                return client + " has hired you to find " + subject
-                        + ", who went missing several days ago. The family is desperate for answers. "
-                        + "The police filed a report but seem to have moved on to other cases.";
-            case "Infidelity":
-                return client + " suspects that " + subject
-                        + " has been unfaithful and wants concrete proof. "
-                        + "There have been late nights, unexplained absences, and secretive phone calls.";
-            case "Theft":
-                return client + " reported that valuable property was stolen and believes "
-                        + subject + " is responsible. The police have not made an arrest.";
-            case "Fraud":
-                return client + " has uncovered financial irregularities pointing to "
-                        + subject + ". The discrepancies may go back months.";
-            case "Blackmail":
-                return client + " is being blackmailed and believes " + subject
-                        + " is behind the threats. The messages have been escalating.";
-            case "Murder":
-                return client + " believes the death linked to " + subject
-                        + " was not accidental. The official investigation was closed too quickly.";
-            case "Stalking":
-                return client + " has been followed and watched by " + subject
-                        + " for weeks. The behaviour is becoming more aggressive.";
-            case "Corporate Espionage":
-                return client + " suspects " + subject
-                        + " of leaking confidential information to a competitor.";
-            default:
-                return client + " has hired you to investigate " + subject + ".";
+    /**
+     * Maps a case-type display name (e.g. "Missing Person") to the core
+     * {@link CaseType} enum.  Returns {@code null} if no match is found.
+     */
+    private static CaseType caseTypeFromDisplayName(String displayName) {
+        if (displayName == null) return null;
+        for (CaseType ct : CaseType.values()) {
+            if (ct.getDisplayName().equals(displayName)) return ct;
         }
-    }
-
-    private String buildObjective(String caseType, String subject) {
-        switch (caseType) {
-            case "Missing Person":
-                return "Locate " + subject + " and determine what happened to them.";
-            case "Infidelity":
-                return "Gather conclusive evidence of " + subject + "'s infidelity.";
-            case "Theft":
-                return "Identify who stole the property and recover it if possible.";
-            case "Fraud":
-                return "Prove that " + subject + " committed fraud and document the extent.";
-            case "Blackmail":
-                return "Identify the blackmailer and obtain evidence to stop the threats.";
-            case "Murder":
-                return "Prove that " + subject + "'s death was not accidental and identify the killer.";
-            case "Stalking":
-                return "Identify and document " + subject + "'s stalking behaviour for a restraining order.";
-            case "Corporate Espionage":
-                return "Prove that " + subject + " is leaking information and identify the recipient.";
-            default:
-                return "Investigate " + subject + " and report what you find.";
-        }
+        return null;
     }
 
     private void generateLeads() {
@@ -999,6 +996,7 @@ public class CaseEditorPanel extends JPanel {
         sb.append("Complexity:   ").append(complexitySpinner.getValue()).append('\n');
         sb.append("Client:       ").append(nullSafe(clientNameField.getText())).append('\n');
         sb.append("Subject:      ").append(nullSafe(subjectNameField.getText())).append('\n');
+        sb.append("Victim:       ").append(nullSafe(victimNameField.getText())).append('\n');
         sb.append('\n');
 
         sb.append("--- Description ---\n");
