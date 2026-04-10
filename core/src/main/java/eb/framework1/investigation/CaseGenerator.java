@@ -599,6 +599,98 @@ public class CaseGenerator {
         return random.nextBoolean() ? "M" : "F";
     }
 
+    /**
+     * Ensures the first character of the text is upper-case.
+     * Returns the text unchanged if it is {@code null}, empty, or already
+     * starts with a capital letter.
+     */
+    private static String capitalize(String text) {
+        if (text == null || text.isEmpty()) return text;
+        char first = text.charAt(0);
+        if (Character.isUpperCase(first)) return text;
+        return Character.toUpperCase(first) + text.substring(1);
+    }
+
+    // ---- Red herring lead pool (misleading but plausible) -------------------
+
+    /** Pool of generic red-herring leads that can apply to any case type. */
+    private static final String[][] RED_HERRING_POOL = {
+            // { description, hint, discoveryMethod name }
+            {"A former associate of {s} was seen in the area around the time of the incident,"
+                    + " but further investigation reveals they were there for unrelated reasons.",
+             "A known associate of the subject was reportedly nearby.",
+             "INTERVIEW"},
+
+            {"Financial records show {s} made a large cash withdrawal recently,"
+                    + " but it turns out to be an unrelated personal expense.",
+             "Unusual financial activity by the subject warrants closer inspection.",
+             "DOCUMENTS"},
+
+            {"A witness claims to have seen {s} acting suspiciously near the scene,"
+                    + " but their account does not hold up under scrutiny.",
+             "An eyewitness may have information about the subject's movements.",
+             "INTERVIEW"},
+
+            {"Anonymous tip suggests {s} has connections to organised crime,"
+                    + " but the source proves unreliable and the link is fabricated.",
+             "An anonymous source has provided information linking the subject to criminal activity.",
+             "BACKGROUND_CHECK"},
+
+            {"A surveillance camera captured someone resembling {s} at a key location,"
+                    + " but enhanced footage confirms it was a different person.",
+             "CCTV footage from the area may show the subject at a relevant time.",
+             "SURVEILLANCE"},
+
+            {"Phone records reveal {s} called an unlisted number repeatedly,"
+                    + " but the number belongs to an innocent party with no connection to the case.",
+             "The subject's phone records contain calls to an unidentified number.",
+             "DOCUMENTS"},
+
+            {"Forensic traces found at a secondary location initially point to {s},"
+                    + " but lab analysis rules them out as a match.",
+             "Physical evidence recovered from a second site may tie the subject to the case.",
+             "FORENSICS"},
+
+            {"A neighbour reports hearing a heated argument involving {s} the night before,"
+                    + " but the argument was about an entirely different matter.",
+             "Neighbours may have overheard something relevant.",
+             "INTERVIEW"},
+    };
+
+    /**
+     * Appends the specified number of red-herring leads to the given list.
+     * Each red herring looks plausible but ultimately leads nowhere.
+     *
+     * @param leads   mutable list to append to
+     * @param subject the subject name (substituted for {@code {s}})
+     * @param count   how many red herrings to add (should be &gt; 0)
+     */
+    private void addRedHerringLeads(List<CaseLead> leads, String subject, int count) {
+        // Start lead numbering after existing leads
+        int nextIndex = leads.size() + 1;
+
+        // Build a shuffled index array so we don't repeat
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < RED_HERRING_POOL.length; i++) indices.add(i);
+        for (int i = indices.size() - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            int tmp = indices.get(i);
+            indices.set(i, indices.get(j));
+            indices.set(j, tmp);
+        }
+
+        int added = 0;
+        for (int idx : indices) {
+            if (added >= count) break;
+            String[] entry = RED_HERRING_POOL[idx];
+            String desc = entry[0].replace("{s}", subject);
+            String hint = entry[1].replace("{s}", subject);
+            DiscoveryMethod method = DiscoveryMethod.valueOf(entry[2]);
+            leads.add(lead(nextIndex++, desc, hint, method));
+            added++;
+        }
+    }
+
     // =========================================================================
     // Story tree generation
     // =========================================================================
