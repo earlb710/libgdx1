@@ -49,7 +49,15 @@ public class CaseEditorPanel extends JPanel {
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
-                    "Cooperativeness", "Honesty", "Nervousness"}, 0);
+                    "Cooperativeness", "Honesty", "Nervousness",
+                    "Dead", "Death Date/Time", "Variance (min)"}, 0) {
+                @Override
+                public Class<?> getColumnClass(int col) {
+                    if (col == 8) return Boolean.class;   // Dead checkbox
+                    if (col == 3 || col == 5 || col == 6 || col == 7 || col == 10) return Integer.class;
+                    return String.class;
+                }
+            };
     private final DefaultTableModel relationshipModel =
             new DefaultTableModel(new String[]{
                     "From", "To", "Type", "Opinion"}, 0);
@@ -205,6 +213,9 @@ public class CaseEditorPanel extends JPanel {
         npcTable.getColumnModel().getColumn(5).setPreferredWidth(80);   // Cooperativeness
         npcTable.getColumnModel().getColumn(6).setPreferredWidth(60);   // Honesty
         npcTable.getColumnModel().getColumn(7).setPreferredWidth(70);   // Nervousness
+        npcTable.getColumnModel().getColumn(8).setPreferredWidth(40);   // Dead
+        npcTable.getColumnModel().getColumn(9).setPreferredWidth(120);  // Death Date/Time
+        npcTable.getColumnModel().getColumn(10).setPreferredWidth(80);  // Variance
 
         // --- Relationship table ---
         JTable relTable = new JTable(relationshipModel);
@@ -232,7 +243,7 @@ public class CaseEditorPanel extends JPanel {
 
         genNpcsBtn.addActionListener(e -> generateNpcs());
         addNpcBtn.addActionListener(e -> {
-            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5});
+            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, "", 0});
         });
         delNpcBtn.addActionListener(e -> {
             int row = npcTable.getSelectedRow();
@@ -513,7 +524,7 @@ public class CaseEditorPanel extends JPanel {
                 return new String[]{"Client (Victim)", "Subject (Blackmailer)",
                         "Witness", "Intermediary", "Confidant"};
             case "Murder":
-                return new String[]{"Client", "Subject (Suspect)",
+                return new String[]{"Client", "Subject (Suspect)", "Victim",
                         "Key Witness", "Victim's Associate", "Police Contact"};
             case "Stalking":
                 return new String[]{"Client (Victim)", "Subject (Stalker)",
@@ -581,7 +592,7 @@ public class CaseEditorPanel extends JPanel {
             String role   = roles[i];
             String gender = random.nextBoolean() ? "M" : "F";
             String name;
-            // Use the names from Step 2 for the first two NPCs
+            // Use the names from the name fields for the first two NPCs
             if (i == 0 && !client.isEmpty()) {
                 name = client;
             } else if (i == 1 && !subject.isEmpty()) {
@@ -604,9 +615,34 @@ public class CaseEditorPanel extends JPanel {
                 nervousness     = 4 + random.nextInt(6); // 4–9 (more nervous)
             }
 
+            // Death state — only Victim roles in Murder cases are dead
+            boolean dead            = false;
+            String  deathDateTime   = "";
+            int     deathVariance   = 0;
+            if (role.equals("Victim") && "Murder".equals(caseType)) {
+                dead = true;
+                // Generate a plausible death date/time: 1–14 days ago, random hour
+                int daysAgo = 1 + random.nextInt(14);
+                int hour    = random.nextInt(24);
+                int minute  = random.nextInt(60);
+                deathDateTime = String.format("2050-%02d-%02d %02d:%02d",
+                        1 + (daysAgo / 28), 1 + (daysAgo % 28), hour, minute);
+                // Variance: 0 = precise, up to 180 min, or -1 = unknown (body missing)
+                int roll = random.nextInt(10);
+                if (roll < 3) {
+                    deathVariance = 0;            // 30% chance: precise
+                } else if (roll < 9) {
+                    deathVariance = 15 + random.nextInt(166); // 60%: 15–180 min
+                } else {
+                    deathVariance = -1;           // 10% chance: unknown (body missing)
+                    deathDateTime = "";
+                }
+            }
+
             npcModel.addRow(new Object[]{
                     role, name, gender, age, occupation,
-                    cooperativeness, honesty, nervousness
+                    cooperativeness, honesty, nervousness,
+                    dead, deathDateTime, deathVariance
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -947,8 +983,21 @@ public class CaseEditorPanel extends JPanel {
               .append(", ").append(npcModel.getValueAt(i, 4)).append(")")
               .append("  coop=").append(npcModel.getValueAt(i, 5))
               .append(" hon=").append(npcModel.getValueAt(i, 6))
-              .append(" nerv=").append(npcModel.getValueAt(i, 7))
-              .append('\n');
+              .append(" nerv=").append(npcModel.getValueAt(i, 7));
+            Object deadVal = npcModel.getValueAt(i, 8);
+            if (Boolean.TRUE.equals(deadVal)) {
+                sb.append("  [DEAD]");
+                Object deathDt = npcModel.getValueAt(i, 9);
+                Object variance = npcModel.getValueAt(i, 10);
+                int var = (variance instanceof Number) ? ((Number) variance).intValue() : 0;
+                if (var == -1) {
+                    sb.append(" death=UNKNOWN (body missing)");
+                } else if (deathDt != null && !deathDt.toString().isEmpty()) {
+                    sb.append(" death=").append(deathDt);
+                    if (var > 0) sb.append(" ±").append(var).append("min");
+                }
+            }
+            sb.append('\n');
         }
         sb.append('\n');
 

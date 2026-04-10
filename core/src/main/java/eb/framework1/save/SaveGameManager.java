@@ -545,6 +545,10 @@ public class SaveGameManager {
         public java.util.List<NpcScheduleEntryData> scheduleEntries;
         public String birthdate;
         public boolean tracked;
+        // Death state (added later; false/empty/0 in older saves → alive)
+        public boolean dead;
+        public String  deathDateTime;
+        public int     deathTimeVarianceMinutes;
         // Appearance attributes (added later; null/0 in older saves → use defaults)
         public String hairType;
         public String hairColor;
@@ -659,6 +663,9 @@ public class SaveGameManager {
         }
         d.birthdate     = npc.getBirthdate();
         d.tracked       = npc.isTracked();
+        d.dead          = npc.isDead();
+        d.deathDateTime = npc.getDeathDateTime();
+        d.deathTimeVarianceMinutes = npc.getDeathTimeVarianceMinutes();
         d.hairType      = npc.getHairType();
         d.hairColor     = npc.getHairColor();
         d.wealthyLevel  = npc.getWealthyLevel();
@@ -768,6 +775,9 @@ public class SaveGameManager {
                 .nervousness(clampTrait(d.nervousness))
                 .birthdate(d.birthdate)
                 .tracked(d.tracked)
+                .dead(d.dead)
+                .deathDateTime(d.deathDateTime)
+                .deathTimeVarianceMinutes(d.deathTimeVarianceMinutes)
                 .hairType(d.hairType != null ? d.hairType : "")
                 .hairColor(d.hairColor != null ? d.hairColor : "")
                 .wealthyLevel(d.wealthyLevel < 1 ? 5 : d.wealthyLevel)

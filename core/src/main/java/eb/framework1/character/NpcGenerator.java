@@ -271,7 +271,10 @@ public class NpcGenerator {
                 .faceConfig(base.getFaceConfig())
                 .skinToneCode(base.getSkinToneCode())
                 .visionTrait(base.getVisionTrait())
-                .carriedItems(assignCarriedItemsWithVision(base.getVisionTrait(), skills));
+                .carriedItems(assignCarriedItemsWithVision(base.getVisionTrait(), skills))
+                .dead(base.isDead())
+                .deathDateTime(base.getDeathDateTime())
+                .deathTimeVarianceMinutes(base.getDeathTimeVarianceMinutes());
         // tracked defaults to false; callers can set it explicitly after generation
 
         // Add the evening leisure/shopping location as a frequent location

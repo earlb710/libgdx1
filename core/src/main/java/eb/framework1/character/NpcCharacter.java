@@ -108,6 +108,36 @@ public final class NpcCharacter {
      */
     private final boolean tracked;
 
+    /**
+     * {@code true} if this NPC is deceased (e.g. a murder victim).
+     * A dead NPC will not appear on the city map or respond to interviews.
+     */
+    private final boolean dead;
+
+    /**
+     * Date and time of death in {@code "YYYY-MM-DD HH:mm"} format (using the
+     * in-game calendar).  Empty string when the NPC is alive or the death
+     * date/time is unknown (e.g. body missing in a possible-murder case).
+     *
+     * <p>When non-empty this is the <em>best-estimate</em> time of death as
+     * determined by a coroner or detective.  The actual time may differ by up
+     * to ±{@link #deathTimeVarianceMinutes} minutes.
+     */
+    private final String deathDateTime;
+
+    /**
+     * Error variance on the estimated time of death, in minutes.
+     * <ul>
+     *   <li>{@code 0} — the time of death is known precisely</li>
+     *   <li>{@code > 0} — the true time of death falls within
+     *       ±{@code deathTimeVarianceMinutes} of {@link #deathDateTime}</li>
+     *   <li>{@code -1} — the time of death is completely unknown (e.g. body
+     *       is missing; "possible murder")</li>
+     * </ul>
+     * Only meaningful when {@link #dead} is {@code true}.
+     */
+    private final int deathTimeVarianceMinutes;
+
     // -------------------------------------------------------------------------
     // Appearance attributes
     // -------------------------------------------------------------------------
@@ -211,6 +241,9 @@ public final class NpcCharacter {
         this.schedule             = b.schedule;
         this.birthdate            = b.birthdate != null ? b.birthdate : "";
         this.tracked              = b.tracked;
+        this.dead                 = b.dead;
+        this.deathDateTime        = b.deathDateTime != null ? b.deathDateTime : "";
+        this.deathTimeVarianceMinutes = b.deathTimeVarianceMinutes;
         this.hairType             = b.hairType  != null ? b.hairType  : "";
         this.hairColor            = b.hairColor != null ? b.hairColor : "";
         this.beardStyle           = b.beardStyle != null ? b.beardStyle : "";
@@ -399,6 +432,37 @@ public final class NpcCharacter {
      */
     public boolean isTracked() {
         return tracked;
+    }
+
+    /**
+     * Returns {@code true} if this NPC is deceased (e.g. a murder victim).
+     * A dead NPC does not appear on the city map and cannot be interviewed.
+     */
+    public boolean isDead() {
+        return dead;
+    }
+
+    /**
+     * Returns the estimated date and time of death in
+     * {@code "YYYY-MM-DD HH:mm"} format, or an empty string if this NPC is
+     * alive or the death date/time is unknown.
+     */
+    public String getDeathDateTime() {
+        return deathDateTime;
+    }
+
+    /**
+     * Returns the error variance on the estimated time of death, in minutes.
+     * <ul>
+     *   <li>{@code 0} — time of death is known precisely</li>
+     *   <li>{@code > 0} — true time of death is within
+     *       ±this many minutes of {@link #getDeathDateTime()}</li>
+     *   <li>{@code -1} — time of death is completely unknown (body missing)</li>
+     * </ul>
+     * Only meaningful when {@link #isDead()} is {@code true}.
+     */
+    public int getDeathTimeVarianceMinutes() {
+        return deathTimeVarianceMinutes;
     }
 
     // -------------------------------------------------------------------------
@@ -603,6 +667,9 @@ public final class NpcCharacter {
         private NpcSchedule schedule = null;
         private String      birthdate = "";
         private boolean     tracked   = false;
+        private boolean     dead      = false;
+        private String      deathDateTime = "";
+        private int         deathTimeVarianceMinutes = 0;
 
         // Appearance attributes
         private String hairType    = "";
@@ -870,6 +937,43 @@ public final class NpcCharacter {
          */
         public Builder tracked(boolean tracked) {
             this.tracked = tracked;
+            return this;
+        }
+
+        /**
+         * Marks this NPC as dead (e.g. a murder victim).
+         *
+         * @param dead {@code true} if the NPC is deceased
+         */
+        public Builder dead(boolean dead) {
+            this.dead = dead;
+            return this;
+        }
+
+        /**
+         * Sets the estimated date and time of death.
+         * Use {@code "YYYY-MM-DD HH:mm"} format for a known estimate, or
+         * pass {@code null}/empty for unknown.
+         *
+         * @param deathDateTime date-time string, or {@code null}
+         */
+        public Builder deathDateTime(String deathDateTime) {
+            this.deathDateTime = (deathDateTime != null) ? deathDateTime.trim() : "";
+            return this;
+        }
+
+        /**
+         * Sets the error variance on the estimated time of death, in minutes.
+         * <ul>
+         *   <li>{@code 0} — known precisely</li>
+         *   <li>{@code > 0} — ± this many minutes</li>
+         *   <li>{@code -1} — completely unknown (body missing)</li>
+         * </ul>
+         *
+         * @param minutes the variance in minutes
+         */
+        public Builder deathTimeVarianceMinutes(int minutes) {
+            this.deathTimeVarianceMinutes = minutes;
             return this;
         }
 
