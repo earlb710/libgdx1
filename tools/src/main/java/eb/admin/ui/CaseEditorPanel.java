@@ -607,6 +607,25 @@ public class CaseEditorPanel extends JPanel {
                         + "This phase represents a key turning point in the investigation. "
                         + "Completing it unlocks the next chapter and may change the direction "
                         + "of the case based on what has been discovered.";
+            case "KNOWN_FACTS":
+                return "Known Facts & Leads\n\n"
+                        + "These are the facts and leads available to the investigator at the "
+                        + "start of the case. Known facts come from the initial briefing and "
+                        + "public information. Leads point to avenues of inquiry — but beware, "
+                        + "some may be red herrings that waste time without advancing the case.";
+            case "FACT":
+                return "Known fact: " + title + "\n\n"
+                        + "This fact is available from the start of the investigation. "
+                        + "It may provide context or constrain the investigator's theories.";
+            case "LEAD":
+                return "Lead: " + title + "\n\n"
+                        + "This lead is available from the start. Following it may uncover "
+                        + "new hidden facts or advance the investigation.";
+            case "LEAD:RED_HERRING":
+                return "Lead (RED HERRING): " + title + "\n\n"
+                        + "⚠ This lead is a red herring! Following it will consume time and "
+                        + "resources without producing useful results. The investigator won't "
+                        + "know this in advance — it appears identical to a genuine lead.";
             default:
                 return title;
         }
@@ -1390,6 +1409,32 @@ public class CaseEditorPanel extends JPanel {
 
         String subject = subjectNameField.getText().trim();
         if (subject.isEmpty()) subject = "the subject";
+
+        // ---- Known Facts & Leads section ----
+        DefaultMutableTreeNode knownSection = new DefaultMutableTreeNode(
+                "[KNOWN_FACTS] Known Facts & Leads");
+        // Add all KNOWN facts
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            Object status = factsModel.getValueAt(r, 3);
+            if ("KNOWN".equals(String.valueOf(status))) {
+                String fId   = String.valueOf(factsModel.getValueAt(r, 0));
+                String fCat  = String.valueOf(factsModel.getValueAt(r, 1));
+                String fText = String.valueOf(factsModel.getValueAt(r, 2));
+                knownSection.add(new DefaultMutableTreeNode(
+                        "[FACT] " + fId + " (" + fCat + "): " + fText));
+            }
+        }
+        // Add all leads – some are randomly flagged as red herrings
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            String lId   = String.valueOf(leadsModel.getValueAt(r, 0));
+            String lHint = String.valueOf(leadsModel.getValueAt(r, 1));
+            String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
+            boolean redHerring = random.nextInt(100) < 25; // ~25% chance
+            String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
+            knownSection.add(new DefaultMutableTreeNode(
+                    tag + " " + lId + " via " + lMethod + ": " + lHint));
+        }
+        storyRoot.add(knownSection);
 
         // Separate hidden facts by importance: high (>= 3) for ok-results, low (< 3) for fail-results
         java.util.List<String> highFactIds = new java.util.ArrayList<>();
