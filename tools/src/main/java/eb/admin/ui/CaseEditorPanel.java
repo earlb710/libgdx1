@@ -543,13 +543,13 @@ public class CaseEditorPanel extends JPanel {
                     + "Photos will be compared against the official report and may "
                     + "contradict the coroner's findings.\n\n"
                     + "Possible Results:\n"
-                    + "  [Perception 2+]  Notices general layout and obvious disturbances — confirms "
-                    + "the scene matches the official report.\n"
-                    + "  [Perception 4+]  Spots a detail out of place (moved furniture, disturbed "
+                    + "  [PERCEPTION: 2]      Notices general layout and obvious disturbances — "
+                    + "confirms the scene matches the official report.\n"
+                    + "  [PERCEPTION: 4]      Spots a detail out of place (moved furniture, disturbed "
                     + "dust, partial footprint) — adds a minor clue to the case file.\n"
-                    + "  [Perception 6+]  Identifies a hidden or deliberately concealed item "
+                    + "  [PERCEPTION: 6]      Identifies a hidden or deliberately concealed item "
                     + "(covered blood stain, tampered lock) — unlocks a new lead.\n"
-                    + "  [Investigation 4+]  Cross-references photos against the coroner's "
+                    + "  [INTELLIGENCE: 4]    Cross-references photos against the coroner's "
                     + "measurements — finds a discrepancy in the official timeline.";
 
         } else if ("Collect physical evidence".equals(title)) {
@@ -559,13 +559,13 @@ public class CaseEditorPanel extends JPanel {
                     + " at the location, establish a timeline, or link a third party "
                     + "to the incident. Proper chain of custody must be maintained.\n\n"
                     + "Possible Results:\n"
-                    + "  [Investigation 2+]  Recovers surface-level items (discarded items, "
+                    + "  [INTELLIGENCE: 2]    Recovers surface-level items (discarded items, "
                     + "obvious debris) — standard evidence log entry.\n"
-                    + "  [Investigation 4+]  Recovers trace evidence (fibres, hair, partial "
+                    + "  [INTELLIGENCE: 4]    Recovers trace evidence (fibres, hair, partial "
                     + "fingerprint) — provides a forensic lead linking " + subject + " or a third party.\n"
-                    + "  [Investigation 6+]  Uncovers concealed or micro-scale evidence "
+                    + "  [INTELLIGENCE: 6]    Uncovers concealed or micro-scale evidence "
                     + "(DNA under fingernails, hidden compartment) — strong physical link.\n"
-                    + "  [Perception 5+]  Notices that a specific item is missing from where "
+                    + "  [PERCEPTION: 5]      Notices that a specific item is missing from where "
                     + "it should be — suggests deliberate removal or staging.";
 
         } else if (title.startsWith("Interview a contact of")) {
@@ -576,15 +576,15 @@ public class CaseEditorPanel extends JPanel {
                     + "'s movements, relationships, and possible motive. "
                     + "The contact's cooperativeness and honesty will affect what is revealed.\n\n"
                     + "Possible Results:\n"
-                    + "  [Persuasion 2+]  Contact speaks briefly — confirms or denies a known "
+                    + "  [CHARISMA: 2]        Contact speaks briefly — confirms or denies a known "
                     + "alibi for " + subject + ".\n"
-                    + "  [Persuasion 4+]  Contact opens up — reveals a detail about " + subject
+                    + "  [CHARISMA: 4]        Contact opens up — reveals a detail about " + subject
                     + "'s recent behaviour or state of mind.\n"
-                    + "  [Persuasion 6+]  Contact confides something sensitive — exposes a "
+                    + "  [CHARISMA: 6]        Contact confides something sensitive — exposes a "
                     + "hidden relationship or secret relevant to the case.\n"
-                    + "  [Deception 4+]  Investigator spots inconsistencies in the contact's "
-                    + "story — suggests the contact is concealing information.\n"
-                    + "  [Empathy 3+]  Reads the contact's emotional state — determines "
+                    + "  [INTIMIDATION: 4]    Investigator applies pressure — contact divulges "
+                    + "information they were reluctant to share.\n"
+                    + "  [EMPATHY: 3]         Reads the contact's emotional state — determines "
                     + "whether fear, guilt, or loyalty is shaping their answers.";
 
         } else if ("Review documents or records".equals(title)) {
@@ -595,17 +595,17 @@ public class CaseEditorPanel extends JPanel {
                     + "may surface hidden connections between " + subject
                     + " and " + victim + ".\n\n"
                     + "Possible Results:\n"
-                    + "  [Investigation 2+]  Locates the requested documents and confirms "
+                    + "  [INTELLIGENCE: 2]    Locates the requested documents and confirms "
                     + "basic facts (dates, names, addresses).\n"
-                    + "  [Investigation 4+]  Spots an anomaly in the records (unusual "
+                    + "  [INTELLIGENCE: 4]    Spots an anomaly in the records (unusual "
                     + "payment, altered entry, missing period) — raises a question about "
                     + subject + "'s activities.\n"
-                    + "  [Investigation 6+]  Traces a financial or communication chain "
+                    + "  [INTELLIGENCE: 6]    Traces a financial or communication chain "
                     + "connecting " + subject + " and " + victim
                     + " — provides strong circumstantial evidence.\n"
-                    + "  [Technology 3+]  Recovers deleted or redacted digital data — "
-                    + "reveals communications the subject tried to hide.\n"
-                    + "  [Deception 4+]  Recognises forged or tampered documents — "
+                    + "  [MEMORY: 3]          Recalls a related fact from earlier in the case — "
+                    + "cross-links two previously unconnected details.\n"
+                    + "  [STEALTH: 4]         Recognises forged or tampered documents — "
                     + "proves deliberate cover-up.";
 
         } else {
@@ -615,11 +615,11 @@ public class CaseEditorPanel extends JPanel {
                     + "minor objective. Document findings carefully — any detail could "
                     + "become relevant as the case develops.\n\n"
                     + "Possible Results:\n"
-                    + "  [Perception 2+]   Basic observation — confirms surface-level details.\n"
-                    + "  [Investigation 4+] Deeper analysis — uncovers a hidden connection "
+                    + "  [PERCEPTION: 2]      Basic observation — confirms surface-level details.\n"
+                    + "  [INTELLIGENCE: 4]    Deeper analysis — uncovers a hidden connection "
                     + "or inconsistency.\n"
-                    + "  [Skill 6+]         Exceptional result — reveals a critical clue or "
-                    + "unlocks a new branch in the investigation.";
+                    + "  [INTUITION: 3]       A hunch proves correct — points toward an "
+                    + "unexpected angle in the investigation.";
         }
     }
 
