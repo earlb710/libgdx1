@@ -51,6 +51,8 @@ public class CaseFile {
     private String clientName;
     /** Name of the person or entity being investigated. */
     private String subjectName;
+    /** Name of the victim (separate person in Murder cases; empty otherwise). */
+    private String victimName;
     /**
      * One-sentence statement of what the player must find out or prove to
      * resolve the case (the client's ask).
@@ -127,6 +129,7 @@ public class CaseFile {
         this.caseType    = null;
         this.clientName  = "";
         this.subjectName = "";
+        this.victimName  = "";
         this.objective   = "";
         this.leads       = new ArrayList<>();
         this.complexity  = 1;
@@ -168,6 +171,13 @@ public class CaseFile {
     /** Sets the subject name. */
     public void setSubjectName(String subjectName) {
         this.subjectName = subjectName != null ? subjectName : "";
+    }
+
+    /** Name of the victim (empty string if not applicable). */
+    public String getVictimName() { return victimName; }
+    /** Sets the victim name. */
+    public void setVictimName(String victimName) {
+        this.victimName = victimName != null ? victimName : "";
     }
 
     /**

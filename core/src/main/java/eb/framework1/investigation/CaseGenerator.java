@@ -115,21 +115,30 @@ public class CaseGenerator {
         String clientName  = nameGen.generateFull(clientGender);
         String subjectName = nameGen.generateFull(subjectGender);
 
+        // For Murder cases, generate a distinct victim name; otherwise empty.
+        String victimName = "";
+        if (type == CaseType.MURDER) {
+            String victimGender = randomGender();
+            victimName = nameGen.generateFull(victimGender);
+        }
+
         String caseName   = type.getDisplayName() + ": " + subjectName;
-        String description = buildDescription(type, clientName, subjectName, clientGender, subjectGender);
-        String objective   = buildObjective(type, subjectName);
+        String description = capitalize(
+                buildDescription(type, clientName, subjectName, victimName, clientGender, subjectGender));
+        String objective   = buildObjective(type, clientName, subjectName, victimName);
 
         CaseFile cf = new CaseFile(caseName, description, dateOpened != null ? dateOpened : "");
         cf.setCaseType(type);
         cf.setClientName(clientName);
         cf.setSubjectName(subjectName);
+        cf.setVictimName(victimName);
         cf.setObjective(objective);
         cf.setComplexity(1 + random.nextInt(3));  // 1, 2, or 3
         cf.setStoryRoot(buildStoryTree(type, cf.getComplexity(), subjectName));
         cf.setMeetingDialogue(buildMeetingDialogue(type, subjectName, objective, description,
                 cf.getStoryRoot()));
 
-        for (CaseLead lead : buildLeads(type, subjectName)) {
+        for (CaseLead lead : buildLeads(type, subjectName, victimName, cf.getComplexity())) {
             cf.addLead(lead);
         }
         return cf;
@@ -266,7 +275,8 @@ public class CaseGenerator {
     // -------------------------------------------------------------------------
 
     private String buildDescription(CaseType type, String client, String subject,
-                                    String clientGender, String subjectGender) {
+                                    String victim, String clientGender,
+                                    String subjectGender) {
         String pronoun = "F".equals(subjectGender) ? "She" : "He";
         switch (type) {
             case MISSING_PERSON:
@@ -297,12 +307,13 @@ public class CaseGenerator {
                         + " Could be a coincidence. Probably isn't.";
             case MURDER:
                 return client + " doesn't believe the official story."
-                        + " The coroner called it an accident. The family called it murder."
-                        + " " + subject + " was the last person seen with the deceased.";
+                        + " The coroner called it an accident, but the family of "
+                        + victim + " called it murder."
+                        + " " + subject + " was the last person seen with " + victim + ".";
             case STALKING:
                 return client + " has been followed, photographed, and harassed for weeks."
                         + " " + subject + " was identified by a neighbour."
-                        + " The client is scared. They need this stopped.";
+                        + " " + client + " is scared. They need this stopped.";
             case CORPORATE_ESPIONAGE:
                 return client + "'s company has been bleeding trade secrets."
                         + " Competitor bids match their proposals almost word for word."
@@ -316,7 +327,7 @@ public class CaseGenerator {
     // Objective templates
     // -------------------------------------------------------------------------
 
-    private String buildObjective(CaseType type, String subject) {
+    private String buildObjective(CaseType type, String client, String subject, String victim) {
         switch (type) {
             case MISSING_PERSON:
                 return "Locate " + subject + " and determine whether they left voluntarily"
@@ -335,11 +346,11 @@ public class CaseGenerator {
                 return "Identify whether " + subject + " is the source of the blackmail"
                         + " and obtain evidence that can be handed to the authorities.";
             case MURDER:
-                return "Uncover what " + subject + " knows about the victim's death"
-                        + " and find evidence that contradicts the official findings.";
+                return "Uncover what " + subject + " knows about the death of "
+                        + victim + " and find evidence that contradicts the official findings.";
             case STALKING:
-                return "Document " + subject + "'s surveillance activities"
-                        + " and gather evidence for a restraining order or police report.";
+                return "Document " + subject + "'s surveillance activities against "
+                        + client + " and gather evidence for a restraining order or police report.";
             case CORPORATE_ESPIONAGE:
                 return "Prove that " + subject + " has been passing confidential information"
                         + " to a competitor and identify who they are working with.";
@@ -356,24 +367,32 @@ public class CaseGenerator {
     // Lead builders (one per case type, dispatched from buildLeads)
     // -------------------------------------------------------------------------
 
-    private List<CaseLead> buildLeads(CaseType type, String subject) {
+    private List<CaseLead> buildLeads(CaseType type, String subject,
+                                      String victim, int complexity) {
+        List<CaseLead> leads;
         switch (type) {
-            case MISSING_PERSON:      return buildMissingPersonLeads(subject);
-            case INFIDELITY:          return buildInfidelityLeads(subject);
-            case THEFT:               return buildTheftLeads(subject);
-            case FRAUD:               return buildFraudLeads(subject);
-            case BLACKMAIL:           return buildBlackmailLeads(subject);
-            case MURDER:              return buildMurderLeads(subject);
-            case STALKING:            return buildStalkingLeads(subject);
-            case CORPORATE_ESPIONAGE: return buildCorporateEspionageLeads(subject);
+            case MISSING_PERSON:      leads = buildMissingPersonLeads(subject); break;
+            case INFIDELITY:          leads = buildInfidelityLeads(subject); break;
+            case THEFT:               leads = buildTheftLeads(subject); break;
+            case FRAUD:               leads = buildFraudLeads(subject); break;
+            case BLACKMAIL:           leads = buildBlackmailLeads(subject); break;
+            case MURDER:              leads = buildMurderLeads(subject, victim); break;
+            case STALKING:            leads = buildStalkingLeads(subject); break;
+            case CORPORATE_ESPIONAGE: leads = buildCorporateEspionageLeads(subject); break;
             default:
-                List<CaseLead> fallback = new ArrayList<>();
-                fallback.add(lead(1,
+                leads = new ArrayList<>();
+                leads.add(lead(1,
                         "Information about " + subject + " has not yet been gathered.",
                         "Begin with a background check on the subject.",
                         DiscoveryMethod.BACKGROUND_CHECK));
-                return fallback;
+                break;
         }
+        // Red herring leads: complexity 1 = 0 red herrings, 2 = 1, 3 = 2
+        int redHerringCount = complexity - 1;
+        if (redHerringCount > 0) {
+            addRedHerringLeads(leads, subject, redHerringCount);
+        }
+        return leads;
     }
 
     private List<CaseLead> buildMissingPersonLeads(String subject) {
@@ -484,11 +503,11 @@ public class CaseGenerator {
         return leads;
     }
 
-    private List<CaseLead> buildMurderLeads(String subject) {
+    private List<CaseLead> buildMurderLeads(String subject, String victim) {
         List<CaseLead> leads = new ArrayList<>();
         int i = 1;
         leads.add(lead(i++,
-                "Traces of a sedative not consistent with the victim's prescription"
+                "Traces of a sedative not consistent with " + victim + "'s prescription"
                         + " were found on a glass recovered near the scene.",
                 "Physical objects at the scene may yield forensic evidence"
                         + " overlooked in the original investigation.",
@@ -500,13 +519,13 @@ public class CaseGenerator {
                         + " when speaking to those who were there.",
                 DiscoveryMethod.INTERVIEW));
         leads.add(lead(i++,
-                subject + " was observed watching the victim's residence"
+                subject + " was observed watching " + victim + "'s residence"
                         + " on three evenings in the week before the death.",
                 "Systematic observation of the subject's behaviour patterns"
                         + " may reveal prior knowledge of the victim's movements.",
                 DiscoveryMethod.SURVEILLANCE));
         leads.add(lead(i++,
-                "The victim sent a message naming " + subject
+                victim + " sent a message naming " + subject
                         + " hours before their death; the message was deleted remotely.",
                 "Reviewing digital records and correspondence"
                         + " from the days surrounding the incident may be critical.",
