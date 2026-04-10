@@ -78,9 +78,19 @@ public class CaseEditorPanel extends JPanel {
             new DefaultTableModel(new String[]{"ID", "Hint", "Discovery Method", "Description"}, 0);
 
     // Step 5 – Facts
+    // Columns: 0=ID, 1=Category, 2=Fact, 3=Status, 4=Date(epoch),
+    //          5=Char1, 6=Char2, 7=Rel Type, 8=Item ID, 9=Evidence ID, 10=Importance
     private final DefaultTableModel factsModel =
-            new DefaultTableModel(new String[]{"ID", "Category", "Fact", "Status"}, 0) {
+            new DefaultTableModel(new String[]{
+                    "ID", "Category", "Fact", "Status",
+                    "Date (epoch)", "Char1", "Char2", "Rel Type",
+                    "Item ID", "Evidence ID", "Importance"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return col != 0; }
+                @Override public Class<?> getColumnClass(int col) {
+                    if (col == 4)  return Long.class;
+                    if (col == 10) return Integer.class;
+                    return String.class;
+                }
             };
 
     // Step 6 – Story Tree
@@ -429,8 +439,15 @@ public class CaseEditorPanel extends JPanel {
         factsTable.getTableHeader().setReorderingAllowed(false);
         factsTable.getColumnModel().getColumn(0).setPreferredWidth(70);
         factsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-        factsTable.getColumnModel().getColumn(2).setPreferredWidth(420);
-        factsTable.getColumnModel().getColumn(3).setPreferredWidth(90);
+        factsTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+        factsTable.getColumnModel().getColumn(3).setPreferredWidth(80);
+        factsTable.getColumnModel().getColumn(4).setPreferredWidth(110);
+        factsTable.getColumnModel().getColumn(5).setPreferredWidth(90);
+        factsTable.getColumnModel().getColumn(6).setPreferredWidth(90);
+        factsTable.getColumnModel().getColumn(7).setPreferredWidth(100);
+        factsTable.getColumnModel().getColumn(8).setPreferredWidth(110);
+        factsTable.getColumnModel().getColumn(9).setPreferredWidth(120);
+        factsTable.getColumnModel().getColumn(10).setPreferredWidth(80);
 
         // Status column — restricted combo: KNOWN or HIDDEN
         JComboBox<String> statusCombo = new JComboBox<>(new String[]{"KNOWN", "HIDDEN"});
@@ -445,7 +462,9 @@ public class CaseEditorPanel extends JPanel {
 
         addBtn.addActionListener(e -> {
             int nextId = factsModel.getRowCount() + 1;
-            factsModel.addRow(new Object[]{"fact-" + nextId, "DATE", "", "HIDDEN"});
+            factsModel.addRow(new Object[]{
+                    "fact-" + nextId, "DATE", "", "HIDDEN",
+                    0L, "", "", "", "", "", 0});
         });
 
         deleteBtn.addActionListener(e -> {
@@ -1119,93 +1138,97 @@ public class CaseEditorPanel extends JPanel {
         int factId = 1;
 
         // --- DATE facts ---------------------------------------------------
-        // Known: victim's death date/time (from NPC table row with Dead=true)
+        long deathEpoch = 0L;
         String deathDateText = null;
         for (int r = 0; r < npcModel.getRowCount(); r++) {
             Object dead = npcModel.getValueAt(r, 8);
             if (Boolean.TRUE.equals(dead)) {
                 Object epoch = npcModel.getValueAt(r, 9);
                 if (epoch instanceof Long && (Long) epoch > 0L) {
+                    deathEpoch = (Long) epoch;
                     java.text.SimpleDateFormat sdf =
                             new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
-                    deathDateText = sdf.format(new java.util.Date((Long) epoch));
+                    deathDateText = sdf.format(new java.util.Date(deathEpoch));
                 }
                 break;
             }
         }
         if (deathDateText != null) {
+            // col: ID, Cat, Fact, Status, Date(epoch), Char1, Char2, RelType, ItemID, EvidID, Importance
             factsModel.addRow(new Object[]{
                     "fact-" + factId++, "DATE",
                     victim + " was found dead on " + deathDateText + ".",
-                    "KNOWN"});
+                    "KNOWN", deathEpoch, "", "", "", "", "", 5});
         } else {
             factsModel.addRow(new Object[]{
                     "fact-" + factId++, "DATE",
                     "Exact date and time of " + victim + "'s death is unknown.",
-                    "HIDDEN"});
+                    "HIDDEN", 0L, "", "", "", "", "", 5});
         }
+        // Last-seen date: 2 days before now as a rough epoch placeholder
+        long lastSeenEpoch = System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000;
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "DATE",
                 subject + " was last seen two days before the incident.",
-                "HIDDEN"});
+                "HIDDEN", lastSeenEpoch, "", "", "", "", "", 3});
+        // Report date: current day morning as placeholder
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "DATE",
                 client + " reported the case on the morning after the incident.",
-                "KNOWN"});
+                "KNOWN", System.currentTimeMillis(), "", "", "", "", "", 0});
 
         // --- RELATIONSHIP facts -------------------------------------------
-        // Always generate some; supplement with relationship table rows
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 client + " knew " + victim + " personally.",
-                "KNOWN"});
+                "KNOWN", 0L, client, victim, "PERSONAL", "", "", 0});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 subject + " and " + victim + " had a prior dispute.",
-                "HIDDEN"});
+                "HIDDEN", 0L, subject, victim, "DISPUTE", "", "", 4});
         for (int r = 0; r < relationshipModel.getRowCount(); r++) {
-            String from   = String.valueOf(relationshipModel.getValueAt(r, 0));
-            String to     = String.valueOf(relationshipModel.getValueAt(r, 1));
-            String type   = String.valueOf(relationshipModel.getValueAt(r, 2));
-            String status = "HIDDEN";
+            String from    = String.valueOf(relationshipModel.getValueAt(r, 0));
+            String to      = String.valueOf(relationshipModel.getValueAt(r, 1));
+            String relType = String.valueOf(relationshipModel.getValueAt(r, 2));
+            String status  = "HIDDEN";
             if ("Client".equalsIgnoreCase(from) || "Client".equalsIgnoreCase(to)) status = "KNOWN";
             factsModel.addRow(new Object[]{
                     "fact-" + factId++, "RELATIONSHIP",
-                    from + " → " + to + " (" + type + ").",
-                    status});
+                    from + " → " + to + " (" + relType + ").",
+                    status, 0L, from, to, relType, "", "", 0});
         }
 
         // --- ITEM facts ---------------------------------------------------
-        String[] knownItems   = {"Document", "Mobile Phone", "Envelope"};
-        String[] hiddenItems  = {"Kitchen Knife", "Bullet Casing", "Firearm",
-                                  "Syringe", "Burned Material", "Letter"};
-        String knownItem  = knownItems[random.nextInt(knownItems.length)];
-        String hiddenItem = hiddenItems[random.nextInt(hiddenItems.length)];
+        String[][] knownItemPairs  = {{"Document", "DOCUMENT"}, {"Mobile Phone", "MOBILE_PHONE"}, {"Envelope", "ENVELOPE"}};
+        String[][] hiddenItemPairs = {{"Kitchen Knife", "KITCHEN_KNIFE"}, {"Bullet Casing", "BULLET_CASING"},
+                                       {"Firearm", "FIREARM"}, {"Syringe", "SYRINGE"},
+                                       {"Burned Material", "BURNED_MATERIAL"}, {"Letter", "LETTER"}};
+        String[] knownItemPair  = knownItemPairs[random.nextInt(knownItemPairs.length)];
+        String[] hiddenItemPair = hiddenItemPairs[random.nextInt(hiddenItemPairs.length)];
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "ITEM",
-                "A " + knownItem.toLowerCase() + " belonging to " + victim
+                "A " + knownItemPair[0].toLowerCase() + " belonging to " + victim
                         + " was recovered at the scene.",
-                "KNOWN"});
+                "KNOWN", 0L, "", "", "", knownItemPair[1], "", 0});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "ITEM",
-                "A " + hiddenItem.toLowerCase() + " linked to " + subject
+                "A " + hiddenItemPair[0].toLowerCase() + " linked to " + subject
                         + " is hidden at an unknown location.",
-                "HIDDEN"});
+                "HIDDEN", 0L, "", "", "", hiddenItemPair[1], "", 3});
 
         // --- EVIDENCE facts -----------------------------------------------
-        String[] knownEvidence  = {"FINGERPRINTS", "BLOOD", "HAIR"};
-        String[] hiddenEvidence = {"DNA", "BALLISTICS", "TOXICOLOGY",
-                                    "DIGITAL_DATA", "GUNSHOT_RESIDUE"};
-        String knownEv  = knownEvidence[random.nextInt(knownEvidence.length)];
-        String hiddenEv = hiddenEvidence[random.nextInt(hiddenEvidence.length)];
+        String[] knownEvidenceIds  = {"FINGERPRINTS", "BLOOD", "HAIR"};
+        String[] hiddenEvidenceIds = {"DNA", "BALLISTICS", "TOXICOLOGY", "DIGITAL_DATA", "GUNSHOT_RESIDUE"};
+        String knownEvId  = knownEvidenceIds[random.nextInt(knownEvidenceIds.length)];
+        String hiddenEvId = hiddenEvidenceIds[random.nextInt(hiddenEvidenceIds.length)];
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "EVIDENCE",
-                knownEv + " evidence was collected from the scene.",
-                "KNOWN"});
+                knownEvId + " evidence was collected from the scene.",
+                "KNOWN", 0L, "", "", "", "", knownEvId, 0});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "EVIDENCE",
-                hiddenEv + " trace links " + subject + " to the incident — awaiting lab confirmation.",
-                "HIDDEN"});
+                hiddenEvId + " trace links " + subject + " to the incident — awaiting lab confirmation.",
+                "HIDDEN", 0L, "", "", "", "", hiddenEvId, 4});
 
         statusLabel.setText("Generated " + factsModel.getRowCount() + " facts.");
     }
