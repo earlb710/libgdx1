@@ -321,10 +321,10 @@ public class CaseGenerator {
                         + " A name has come up: " + subject + "."
                         + " Could be a coincidence. Probably isn't.";
             case MURDER:
-                return client + " doesn't believe the official story."
+                return "The client, " + client + ", doesn't believe the official story."
                         + " The coroner called it an accident, but the family of "
-                        + victim + " called it murder."
-                        + " " + subject + " was the last person seen with " + victim + ".";
+                        + "the victim, " + victim + ", called it murder."
+                        + " " + subject + " was the last person seen with the victim.";
             case STALKING:
                 return client + " has been followed, photographed, and harassed for weeks."
                         + " " + subject + " was identified by a neighbour."
