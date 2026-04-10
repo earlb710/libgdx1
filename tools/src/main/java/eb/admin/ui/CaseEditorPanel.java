@@ -77,7 +77,13 @@ public class CaseEditorPanel extends JPanel {
     private final DefaultTableModel leadsModel =
             new DefaultTableModel(new String[]{"ID", "Hint", "Discovery Method", "Description"}, 0);
 
-    // Step 5 – Story Tree
+    // Step 5 – Facts
+    private final DefaultTableModel factsModel =
+            new DefaultTableModel(new String[]{"ID", "Category", "Fact", "Status"}, 0) {
+                @Override public boolean isCellEditable(int row, int col) { return col != 0; }
+            };
+
+    // Step 6 – Story Tree
     private final DefaultMutableTreeNode storyRoot = new DefaultMutableTreeNode("Story Root");
     private final DefaultTreeModel       treeModel = new DefaultTreeModel(storyRoot);
     private final JTree                  storyTree = new JTree(treeModel);
@@ -123,6 +129,7 @@ public class CaseEditorPanel extends JPanel {
         descriptionArea.setText("");
         objectiveArea.setText("");
         leadsModel.setRowCount(0);
+        factsModel.setRowCount(0);
         storyRoot.removeAllChildren();
         treeModel.reload();
         summaryArea.setText("");
@@ -139,7 +146,8 @@ public class CaseEditorPanel extends JPanel {
         steps.addTab("2. NPC Characters",         buildNpcStep());
         steps.addTab("3. Description & Objective", buildDescriptionStep());
         steps.addTab("4. Leads",                  buildLeadsStep());
-        steps.addTab("5. Story Tree",             buildStoryTreeStep());
+        steps.addTab("5. Facts",                  buildFactsStep());
+        steps.addTab("6. Story Tree",             buildStoryTreeStep());
         steps.addTab("Summary",                   buildSummaryStep());
         return steps;
     }
@@ -410,6 +418,55 @@ public class CaseEditorPanel extends JPanel {
     }
 
     // -- Step 5 ---------------------------------------------------------------
+
+    private JPanel buildFactsStep() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JTable factsTable = new JTable(factsModel);
+        factsTable.setRowHeight(26);
+        factsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        factsTable.getTableHeader().setReorderingAllowed(false);
+        factsTable.getColumnModel().getColumn(0).setPreferredWidth(70);
+        factsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        factsTable.getColumnModel().getColumn(2).setPreferredWidth(420);
+        factsTable.getColumnModel().getColumn(3).setPreferredWidth(90);
+
+        // Status column — restricted combo: KNOWN or HIDDEN
+        JComboBox<String> statusCombo = new JComboBox<>(new String[]{"KNOWN", "HIDDEN"});
+        factsTable.getColumnModel().getColumn(3)
+                .setCellEditor(new DefaultCellEditor(statusCombo));
+
+        JScrollPane scroll = new JScrollPane(factsTable);
+
+        JButton addBtn    = new JButton("Add Fact");
+        JButton deleteBtn = new JButton("Delete Fact");
+        JButton genBtn    = new JButton("Generate Facts");
+
+        addBtn.addActionListener(e -> {
+            int nextId = factsModel.getRowCount() + 1;
+            factsModel.addRow(new Object[]{"fact-" + nextId, "DATE", "", "HIDDEN"});
+        });
+
+        deleteBtn.addActionListener(e -> {
+            int row = factsTable.getSelectedRow();
+            if (row >= 0) factsModel.removeRow(row);
+        });
+
+        genBtn.addActionListener(e -> generateFacts());
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(addBtn);
+        buttons.add(deleteBtn);
+        buttons.add(Box.createHorizontalStrut(12));
+        buttons.add(genBtn);
+
+        panel.add(scroll,   BorderLayout.CENTER);
+        panel.add(buttons,  BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // -- Step 6 ---------------------------------------------------------------
 
     private JPanel buildStoryTreeStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -1047,6 +1104,110 @@ public class CaseEditorPanel extends JPanel {
             leadsModel.addRow(new Object[]{"lead-" + i, hint, methodName, desc});
         }
         statusLabel.setText("Generated " + leadCount + " leads.");
+    }
+
+    private void generateFacts() {
+        factsModel.setRowCount(0);
+
+        String subject = subjectNameField.getText().trim();
+        if (subject.isEmpty()) subject = "the subject";
+        String victim  = victimNameField.getText().trim();
+        if (victim.isEmpty())  victim  = "the victim";
+        String client  = clientNameField.getText().trim();
+        if (client.isEmpty())  client  = "the client";
+
+        int factId = 1;
+
+        // --- DATE facts ---------------------------------------------------
+        // Known: victim's death date/time (from NPC table row with Dead=true)
+        String deathDateText = null;
+        for (int r = 0; r < npcModel.getRowCount(); r++) {
+            Object dead = npcModel.getValueAt(r, 8);
+            if (Boolean.TRUE.equals(dead)) {
+                Object epoch = npcModel.getValueAt(r, 9);
+                if (epoch instanceof Long && (Long) epoch > 0L) {
+                    java.text.SimpleDateFormat sdf =
+                            new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    deathDateText = sdf.format(new java.util.Date((Long) epoch));
+                }
+                break;
+            }
+        }
+        if (deathDateText != null) {
+            factsModel.addRow(new Object[]{
+                    "fact-" + factId++, "DATE",
+                    victim + " was found dead on " + deathDateText + ".",
+                    "KNOWN"});
+        } else {
+            factsModel.addRow(new Object[]{
+                    "fact-" + factId++, "DATE",
+                    "Exact date and time of " + victim + "'s death is unknown.",
+                    "HIDDEN"});
+        }
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "DATE",
+                subject + " was last seen two days before the incident.",
+                "HIDDEN"});
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "DATE",
+                client + " reported the case on the morning after the incident.",
+                "KNOWN"});
+
+        // --- RELATIONSHIP facts -------------------------------------------
+        // Always generate some; supplement with relationship table rows
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "RELATIONSHIP",
+                client + " knew " + victim + " personally.",
+                "KNOWN"});
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "RELATIONSHIP",
+                subject + " and " + victim + " had a prior dispute.",
+                "HIDDEN"});
+        for (int r = 0; r < relationshipModel.getRowCount(); r++) {
+            String from   = String.valueOf(relationshipModel.getValueAt(r, 0));
+            String to     = String.valueOf(relationshipModel.getValueAt(r, 1));
+            String type   = String.valueOf(relationshipModel.getValueAt(r, 2));
+            String status = "HIDDEN";
+            if ("Client".equalsIgnoreCase(from) || "Client".equalsIgnoreCase(to)) status = "KNOWN";
+            factsModel.addRow(new Object[]{
+                    "fact-" + factId++, "RELATIONSHIP",
+                    from + " → " + to + " (" + type + ").",
+                    status});
+        }
+
+        // --- ITEM facts ---------------------------------------------------
+        String[] knownItems   = {"Document", "Mobile Phone", "Envelope"};
+        String[] hiddenItems  = {"Kitchen Knife", "Bullet Casing", "Firearm",
+                                  "Syringe", "Burned Material", "Letter"};
+        String knownItem  = knownItems[random.nextInt(knownItems.length)];
+        String hiddenItem = hiddenItems[random.nextInt(hiddenItems.length)];
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "ITEM",
+                "A " + knownItem.toLowerCase() + " belonging to " + victim
+                        + " was recovered at the scene.",
+                "KNOWN"});
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "ITEM",
+                "A " + hiddenItem.toLowerCase() + " linked to " + subject
+                        + " is hidden at an unknown location.",
+                "HIDDEN"});
+
+        // --- EVIDENCE facts -----------------------------------------------
+        String[] knownEvidence  = {"FINGERPRINTS", "BLOOD", "HAIR"};
+        String[] hiddenEvidence = {"DNA", "BALLISTICS", "TOXICOLOGY",
+                                    "DIGITAL_DATA", "GUNSHOT_RESIDUE"};
+        String knownEv  = knownEvidence[random.nextInt(knownEvidence.length)];
+        String hiddenEv = hiddenEvidence[random.nextInt(hiddenEvidence.length)];
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "EVIDENCE",
+                knownEv + " evidence was collected from the scene.",
+                "KNOWN"});
+        factsModel.addRow(new Object[]{
+                "fact-" + factId++, "EVIDENCE",
+                hiddenEv + " trace links " + subject + " to the incident — awaiting lab confirmation.",
+                "HIDDEN"});
+
+        statusLabel.setText("Generated " + factsModel.getRowCount() + " facts.");
     }
 
     private String buildLeadHint(int index, String method, String subject) {
