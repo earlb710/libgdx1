@@ -709,4 +709,31 @@ public class CaseGeneratorTest {
                 new Random(seed));
         return new CaseGenerator(nameGen, new Random(seed));
     }
+
+    // -------------------------------------------------------------------------
+    // Murder case — death-time-determination lead
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void murderCase_hasFiveLeads() {
+        CaseGenerator gen = makeGenerator(200L);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
+        assertEquals("Murder case should have 5 leads", 5, cf.getLeads().size());
+    }
+
+    @Test
+    public void murderCase_hasTimeOfDeathLead() {
+        CaseGenerator gen = makeGenerator(201L);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-05 09:00");
+        boolean found = false;
+        for (CaseLead lead : cf.getLeads()) {
+            if (lead.getHint().contains("time of death")
+                    && lead.getDiscoveryMethod() == DiscoveryMethod.FORENSICS) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue("Murder leads must include a FORENSICS lead about determining time of death",
+                found);
+    }
 }

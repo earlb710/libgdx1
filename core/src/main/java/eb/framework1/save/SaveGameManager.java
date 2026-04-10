@@ -545,9 +545,9 @@ public class SaveGameManager {
         public java.util.List<NpcScheduleEntryData> scheduleEntries;
         public String birthdate;
         public boolean tracked;
-        // Death state (added later; false/empty/0 in older saves → alive)
+        // Death state (added later; false/0/0 in older saves → alive)
         public boolean dead;
-        public String  deathDateTime;
+        public long    deathDateTime;
         public int     deathTimeVarianceMinutes;
         // Appearance attributes (added later; null/0 in older saves → use defaults)
         public String hairType;

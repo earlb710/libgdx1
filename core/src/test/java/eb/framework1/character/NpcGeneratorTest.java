@@ -995,33 +995,50 @@ public class NpcGeneratorTest {
                 .id("test-alive").fullName("Alive Person").gender("M")
                 .build();
         assertFalse("NPC should default to alive", npc.isDead());
-        assertEquals("", npc.getDeathDateTime());
+        assertEquals(0L, npc.getDeathDateTime());
+        assertEquals("", npc.getDeathDateTimeFormatted());
         assertEquals(0, npc.getDeathTimeVarianceMinutes());
     }
 
     @Test
     public void npcCharacter_deadWithPreciseTime() {
+        // 2050-01-15 02:30 UTC
+        java.util.Calendar cal = java.util.Calendar.getInstance(
+                java.util.TimeZone.getTimeZone("UTC"));
+        cal.set(2050, 0, 15, 2, 30, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        long millis = cal.getTimeInMillis();
+
         NpcCharacter npc = new NpcCharacter.Builder()
                 .id("test-dead").fullName("Dead Person").gender("F")
                 .dead(true)
-                .deathDateTime("2050-01-15 02:30")
+                .deathDateTime(millis)
                 .deathTimeVarianceMinutes(0)
                 .build();
         assertTrue(npc.isDead());
-        assertEquals("2050-01-15 02:30", npc.getDeathDateTime());
+        assertEquals(millis, npc.getDeathDateTime());
+        assertEquals("2050-01-15 02:30", npc.getDeathDateTimeFormatted());
         assertEquals(0, npc.getDeathTimeVarianceMinutes());
     }
 
     @Test
     public void npcCharacter_deadWithVariance() {
+        // 2050-02-10 14:00 UTC
+        java.util.Calendar cal = java.util.Calendar.getInstance(
+                java.util.TimeZone.getTimeZone("UTC"));
+        cal.set(2050, 1, 10, 14, 0, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        long millis = cal.getTimeInMillis();
+
         NpcCharacter npc = new NpcCharacter.Builder()
                 .id("test-var").fullName("Victim").gender("M")
                 .dead(true)
-                .deathDateTime("2050-02-10 14:00")
+                .deathDateTime(millis)
                 .deathTimeVarianceMinutes(90)
                 .build();
         assertTrue(npc.isDead());
-        assertEquals("2050-02-10 14:00", npc.getDeathDateTime());
+        assertEquals(millis, npc.getDeathDateTime());
+        assertEquals("2050-02-10 14:00", npc.getDeathDateTimeFormatted());
         assertEquals(90, npc.getDeathTimeVarianceMinutes());
     }
 
@@ -1030,26 +1047,36 @@ public class NpcGeneratorTest {
         NpcCharacter npc = new NpcCharacter.Builder()
                 .id("test-unknown").fullName("Missing Body").gender("F")
                 .dead(true)
-                .deathDateTime("")
+                .deathDateTime(0L)
                 .deathTimeVarianceMinutes(-1)
                 .build();
         assertTrue(npc.isDead());
-        assertEquals("", npc.getDeathDateTime());
+        assertEquals(0L, npc.getDeathDateTime());
+        assertEquals("", npc.getDeathDateTimeFormatted());
         assertEquals(-1, npc.getDeathTimeVarianceMinutes());
     }
 
     @Test
     public void enrich_copiesDeadFields() {
         NpcGenerator gen = makeGenerator(100);
-        // Create a base NPC that's dead, then enrich it
+        // 2050-03-10 22:15 UTC
+        java.util.Calendar cal = java.util.Calendar.getInstance(
+                java.util.TimeZone.getTimeZone("UTC"));
+        cal.set(2050, 2, 10, 22, 15, 0);
+        cal.set(java.util.Calendar.MILLISECOND, 0);
+        long millis = cal.getTimeInMillis();
+
+        // Create a base NPC that's dead, then verify via the public API
         NpcCharacter base = new NpcCharacter.Builder()
                 .id("v1").fullName("Victim One").gender("M")
                 .age(35).occupation("Teacher")
                 .cooperativeness(5).honesty(5).nervousness(5)
                 .dead(true)
-                .deathDateTime("2050-03-10 22:15")
+                .deathDateTime(millis)
                 .deathTimeVarianceMinutes(60)
                 .build();
+        assertTrue(base.isDead());
+        assertEquals(millis, base.getDeathDateTime());
         // After generating via the public API, check that a victim retains default alive state
         NpcCharacter victim = gen.generateVictim(CaseType.MURDER, null);
         assertFalse("generateVictim defaults to alive (caller sets dead flag)", victim.isDead());

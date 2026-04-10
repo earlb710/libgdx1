@@ -511,6 +511,12 @@ public class CaseGenerator {
                 "Reviewing digital records and correspondence"
                         + " from the days surrounding the incident may be critical.",
                 DiscoveryMethod.DOCUMENTS));
+        leads.add(lead(i++,
+                "Independent forensic analysis has narrowed the time of death to a"
+                        + " precise window that contradicts " + subject + "'s alibi.",
+                "The exact time of death is uncertain — commissioning an independent"
+                        + " forensic review could narrow the window and expose alibi gaps.",
+                DiscoveryMethod.FORENSICS));
         return leads;
     }
 

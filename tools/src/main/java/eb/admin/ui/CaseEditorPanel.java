@@ -54,6 +54,7 @@ public class CaseEditorPanel extends JPanel {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
+                    if (col == 9) return Long.class;      // Death epoch millis
                     if (col == 3 || col == 5 || col == 6 || col == 7 || col == 10) return Integer.class;
                     return String.class;
                 }
@@ -217,6 +218,32 @@ public class CaseEditorPanel extends JPanel {
         npcTable.getColumnModel().getColumn(9).setPreferredWidth(120);  // Death Date/Time
         npcTable.getColumnModel().getColumn(10).setPreferredWidth(80);  // Variance
 
+        // Render Death Date/Time column as formatted "YYYY-MM-DD HH:mm" instead of raw long
+        npcTable.getColumnModel().getColumn(9).setCellRenderer(
+                new javax.swing.table.DefaultTableCellRenderer() {
+                    @Override
+                    public void setValue(Object value) {
+                        if (value instanceof Number) {
+                            long millis = ((Number) value).longValue();
+                            if (millis == 0L) {
+                                setText("");
+                            } else {
+                                java.util.Calendar cal = java.util.Calendar.getInstance(
+                                        java.util.TimeZone.getTimeZone("UTC"));
+                                cal.setTimeInMillis(millis);
+                                setText(String.format("%04d-%02d-%02d %02d:%02d",
+                                        cal.get(java.util.Calendar.YEAR),
+                                        cal.get(java.util.Calendar.MONTH) + 1,
+                                        cal.get(java.util.Calendar.DAY_OF_MONTH),
+                                        cal.get(java.util.Calendar.HOUR_OF_DAY),
+                                        cal.get(java.util.Calendar.MINUTE)));
+                            }
+                        } else {
+                            super.setValue(value);
+                        }
+                    }
+                });
+
         // --- Relationship table ---
         JTable relTable = new JTable(relationshipModel);
         relTable.setRowHeight(26);
@@ -243,7 +270,7 @@ public class CaseEditorPanel extends JPanel {
 
         genNpcsBtn.addActionListener(e -> generateNpcs());
         addNpcBtn.addActionListener(e -> {
-            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, "", 0});
+            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0});
         });
         delNpcBtn.addActionListener(e -> {
             int row = npcTable.getSelectedRow();
@@ -617,7 +644,7 @@ public class CaseEditorPanel extends JPanel {
 
             // Death state — only Victim roles in Murder cases are dead
             boolean dead            = false;
-            String  deathDateTime   = "";
+            long    deathDateTime   = 0L;
             int     deathVariance   = 0;
             if (role.equals("Victim") && "Murder".equals(caseType)) {
                 dead = true;
@@ -625,8 +652,14 @@ public class CaseEditorPanel extends JPanel {
                 int daysAgo = 1 + random.nextInt(14);
                 int hour    = random.nextInt(24);
                 int minute  = random.nextInt(60);
-                deathDateTime = String.format("2050-%02d-%02d %02d:%02d",
-                        1 + (daysAgo / 28), 1 + (daysAgo % 28), hour, minute);
+                java.util.Calendar cal = java.util.Calendar.getInstance(
+                        java.util.TimeZone.getTimeZone("UTC"));
+                cal.set(2050, 0, 1, 0, 0, 0);  // 2050-01-01 baseline
+                cal.set(java.util.Calendar.MILLISECOND, 0);
+                cal.add(java.util.Calendar.DAY_OF_YEAR, -daysAgo);
+                cal.set(java.util.Calendar.HOUR_OF_DAY, hour);
+                cal.set(java.util.Calendar.MINUTE, minute);
+                deathDateTime = cal.getTimeInMillis();
                 // Variance: 0 = precise, up to 180 min, or -1 = unknown (body missing)
                 int roll = random.nextInt(10);
                 if (roll < 3) {
@@ -635,7 +668,7 @@ public class CaseEditorPanel extends JPanel {
                     deathVariance = 15 + random.nextInt(166); // 60%: 15–180 min
                 } else {
                     deathVariance = -1;           // 10% chance: unknown (body missing)
-                    deathDateTime = "";
+                    deathDateTime = 0L;
                 }
             }
 
@@ -992,8 +1025,18 @@ public class CaseEditorPanel extends JPanel {
                 int var = (variance instanceof Number) ? ((Number) variance).intValue() : 0;
                 if (var == -1) {
                     sb.append(" death=UNKNOWN (body missing)");
-                } else if (deathDt != null && !deathDt.toString().isEmpty()) {
-                    sb.append(" death=").append(deathDt);
+                } else if (deathDt instanceof Number && ((Number) deathDt).longValue() != 0L) {
+                    long millis = ((Number) deathDt).longValue();
+                    java.util.Calendar cal = java.util.Calendar.getInstance(
+                            java.util.TimeZone.getTimeZone("UTC"));
+                    cal.setTimeInMillis(millis);
+                    String formatted = String.format("%04d-%02d-%02d %02d:%02d",
+                            cal.get(java.util.Calendar.YEAR),
+                            cal.get(java.util.Calendar.MONTH) + 1,
+                            cal.get(java.util.Calendar.DAY_OF_MONTH),
+                            cal.get(java.util.Calendar.HOUR_OF_DAY),
+                            cal.get(java.util.Calendar.MINUTE));
+                    sb.append(" death=").append(formatted);
                     if (var > 0) sb.append(" ±").append(var).append("min");
                 }
             }

@@ -115,15 +115,18 @@ public final class NpcCharacter {
     private final boolean dead;
 
     /**
-     * Date and time of death in {@code "YYYY-MM-DD HH:mm"} format (using the
-     * in-game calendar).  Empty string when the NPC is alive or the death
+     * Estimated date and time of death as milliseconds since the Unix epoch
+     * (in-game time).  {@code 0L} when the NPC is alive or the death
      * date/time is unknown (e.g. body missing in a possible-murder case).
      *
-     * <p>When non-empty this is the <em>best-estimate</em> time of death as
+     * <p>When non-zero this is the <em>best-estimate</em> time of death as
      * determined by a coroner or detective.  The actual time may differ by up
      * to ±{@link #deathTimeVarianceMinutes} minutes.
+     *
+     * <p>Use {@link #getDeathDateTimeFormatted()} to obtain a human-readable
+     * {@code "YYYY-MM-DD HH:mm"} string for display.
      */
-    private final String deathDateTime;
+    private final long deathDateTime;
 
     /**
      * Error variance on the estimated time of death, in minutes.
@@ -242,7 +245,7 @@ public final class NpcCharacter {
         this.birthdate            = b.birthdate != null ? b.birthdate : "";
         this.tracked              = b.tracked;
         this.dead                 = b.dead;
-        this.deathDateTime        = b.deathDateTime != null ? b.deathDateTime : "";
+        this.deathDateTime        = b.deathDateTime;
         this.deathTimeVarianceMinutes = b.deathTimeVarianceMinutes;
         this.hairType             = b.hairType  != null ? b.hairType  : "";
         this.hairColor            = b.hairColor != null ? b.hairColor : "";
@@ -443,12 +446,30 @@ public final class NpcCharacter {
     }
 
     /**
-     * Returns the estimated date and time of death in
-     * {@code "YYYY-MM-DD HH:mm"} format, or an empty string if this NPC is
-     * alive or the death date/time is unknown.
+     * Returns the estimated date and time of death as milliseconds since the
+     * Unix epoch, or {@code 0L} if this NPC is alive or the death date/time
+     * is unknown.
      */
-    public String getDeathDateTime() {
+    public long getDeathDateTime() {
         return deathDateTime;
+    }
+
+    /**
+     * Returns the estimated date and time of death formatted as
+     * {@code "YYYY-MM-DD HH:mm"} for display purposes, or an empty string
+     * when this NPC is alive or the time of death is unknown ({@code 0L}).
+     */
+    public String getDeathDateTimeFormatted() {
+        if (deathDateTime == 0L) return "";
+        java.util.Calendar cal = java.util.Calendar.getInstance(
+                java.util.TimeZone.getTimeZone("UTC"));
+        cal.setTimeInMillis(deathDateTime);
+        return String.format("%04d-%02d-%02d %02d:%02d",
+                cal.get(java.util.Calendar.YEAR),
+                cal.get(java.util.Calendar.MONTH) + 1,
+                cal.get(java.util.Calendar.DAY_OF_MONTH),
+                cal.get(java.util.Calendar.HOUR_OF_DAY),
+                cal.get(java.util.Calendar.MINUTE));
     }
 
     /**
@@ -668,7 +689,7 @@ public final class NpcCharacter {
         private String      birthdate = "";
         private boolean     tracked   = false;
         private boolean     dead      = false;
-        private String      deathDateTime = "";
+        private long        deathDateTime = 0L;
         private int         deathTimeVarianceMinutes = 0;
 
         // Appearance attributes
@@ -951,14 +972,13 @@ public final class NpcCharacter {
         }
 
         /**
-         * Sets the estimated date and time of death.
-         * Use {@code "YYYY-MM-DD HH:mm"} format for a known estimate, or
-         * pass {@code null}/empty for unknown.
+         * Sets the estimated date and time of death as milliseconds since the
+         * Unix epoch (in-game time).  Pass {@code 0L} for unknown or alive.
          *
-         * @param deathDateTime date-time string, or {@code null}
+         * @param deathDateTime epoch millis, or {@code 0L}
          */
-        public Builder deathDateTime(String deathDateTime) {
-            this.deathDateTime = (deathDateTime != null) ? deathDateTime.trim() : "";
+        public Builder deathDateTime(long deathDateTime) {
+            this.deathDateTime = deathDateTime;
             return this;
         }
 
