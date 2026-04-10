@@ -566,7 +566,7 @@ public class CaseEditorPanel extends JPanel {
     /**
      * Generates a human-readable description for a story-tree node based on its label.
      * Node labels follow the pattern "[TYPE] Title", where TYPE is one of:
-     * ACTION, MINOR, MAJOR, PLOT_TWIST.
+     * ACTION, RESULT, MINOR, MAJOR, PLOT_TWIST.
      */
     private String buildNodeDescription(String label) {
         if (label == null || label.isEmpty()) return "";
@@ -590,6 +590,8 @@ public class CaseEditorPanel extends JPanel {
         switch (tag) {
             case "ACTION":
                 return buildActionDescription(title, subject, victim, client);
+            case "RESULT":
+                return buildResultNodeDescription(title);
             case "MINOR":
                 return "Minor objective: " + title + ".\n\n"
                         + "This step groups a set of related actions the investigator must "
@@ -607,6 +609,76 @@ public class CaseEditorPanel extends JPanel {
             default:
                 return title;
         }
+    }
+
+    /** Generates a description for a RESULT node, resolving its fact or lead reference. */
+    private String buildResultNodeDescription(String rawTitle) {
+        // rawTitle may be "description | fact:fact-3" or "description | lead:lead-2"
+        String description = rawTitle;
+        String factRef  = null;
+        String leadRef  = null;
+
+        int pipeIdx = rawTitle.indexOf(" | ");
+        if (pipeIdx >= 0) {
+            description = rawTitle.substring(0, pipeIdx).trim();
+            String ref  = rawTitle.substring(pipeIdx + 3).trim();
+            if (ref.startsWith("fact:")) {
+                factRef = ref.substring(5).trim();
+            } else if (ref.startsWith("lead:")) {
+                leadRef = ref.substring(5).trim();
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Result: ").append(description).append(".\n\n");
+
+        if (factRef != null) {
+            // Look up the fact in the facts table
+            String factText = null;
+            String factCategory = null;
+            for (int r = 0; r < factsModel.getRowCount(); r++) {
+                Object id = factsModel.getValueAt(r, 0);
+                if (factRef.equals(String.valueOf(id))) {
+                    factCategory = String.valueOf(factsModel.getValueAt(r, 1));
+                    factText     = String.valueOf(factsModel.getValueAt(r, 2));
+                    break;
+                }
+            }
+            if (factText != null) {
+                sb.append("Reveals hidden fact [").append(factRef).append("]")
+                  .append(" (").append(factCategory).append("):\n")
+                  .append("  \"").append(factText).append("\"\n\n")
+                  .append("When the investigator achieves this result, this fact becomes KNOWN.");
+            } else {
+                sb.append("Reveals hidden fact [").append(factRef).append("].\n")
+                  .append("Generate facts first to see the fact details.");
+            }
+        } else if (leadRef != null) {
+            // Look up the lead in the leads table
+            String leadHint = null;
+            String leadMethod = null;
+            for (int r = 0; r < leadsModel.getRowCount(); r++) {
+                Object id = leadsModel.getValueAt(r, 0);
+                if (leadRef.equals(String.valueOf(id))) {
+                    leadHint   = String.valueOf(leadsModel.getValueAt(r, 1));
+                    leadMethod = String.valueOf(leadsModel.getValueAt(r, 2));
+                    break;
+                }
+            }
+            if (leadHint != null) {
+                sb.append("Creates new lead [").append(leadRef).append("]")
+                  .append(" via ").append(leadMethod).append(":\n")
+                  .append("  \"").append(leadHint).append("\"\n\n")
+                  .append("Completing this result adds the lead to the active investigation.");
+            } else {
+                sb.append("Creates new lead [").append(leadRef).append("].\n")
+                  .append("Generate leads first to see the lead details.");
+            }
+        } else {
+            sb.append("This result does not yet reference a specific fact or lead.\n")
+              .append("Edit the node label to append \" | fact:<id>\" or \" | lead:<id>\".");
+        }
+        return sb.toString();
     }
 
     /** Generates a detailed action description for each known action title. */
@@ -1282,6 +1354,23 @@ public class CaseEditorPanel extends JPanel {
         String subject = subjectNameField.getText().trim();
         if (subject.isEmpty()) subject = "the subject";
 
+        // Collect hidden fact IDs and lead IDs to assign to result nodes
+        java.util.List<String> hiddenFactIds = new java.util.ArrayList<>();
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            Object status = factsModel.getValueAt(r, 3);
+            if ("HIDDEN".equals(status)) {
+                Object id = factsModel.getValueAt(r, 0);
+                if (id != null) hiddenFactIds.add(id.toString());
+            }
+        }
+        java.util.List<String> leadIds = new java.util.ArrayList<>();
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            Object id = leadsModel.getValueAt(r, 0);
+            if (id != null) leadIds.add(id.toString());
+        }
+        int[] factIdx = {0};
+        int[] leadIdx = {0};
+
         for (int phase = 1; phase <= complexity; phase++) {
             String phaseTitle = (phase == 1)
                     ? "Initial Investigation"
@@ -1301,8 +1390,38 @@ public class CaseEditorPanel extends JPanel {
 
                     for (int action = 1; action <= 2; action++) {
                         String actionTitle = buildActionTitle(minor, action, subject);
-                        minorNode.add(new DefaultMutableTreeNode(
-                                "[ACTION] " + actionTitle));
+                        DefaultMutableTreeNode actionNode = new DefaultMutableTreeNode(
+                                "[ACTION] " + actionTitle);
+                        // Add two RESULT children per action
+                        // Result 1: reveals a hidden fact (if available)
+                        String result1Label;
+                        if (!hiddenFactIds.isEmpty()) {
+                            String fid = hiddenFactIds.get(factIdx[0] % hiddenFactIds.size());
+                            factIdx[0]++;
+                            result1Label = "[RESULT] " + buildResultDescription(actionTitle, 1)
+                                    + " | fact:" + fid;
+                        } else {
+                            result1Label = "[RESULT] " + buildResultDescription(actionTitle, 1);
+                        }
+                        actionNode.add(new DefaultMutableTreeNode(result1Label));
+                        // Result 2: every other action creates a new lead instead
+                        String result2Label;
+                        boolean createLead = ((phase + major + minor + action) % 3 == 0);
+                        if (createLead && !leadIds.isEmpty()) {
+                            String lid = leadIds.get(leadIdx[0] % leadIds.size());
+                            leadIdx[0]++;
+                            result2Label = "[RESULT] " + buildResultDescription(actionTitle, 2)
+                                    + " | lead:" + lid;
+                        } else if (!hiddenFactIds.isEmpty()) {
+                            String fid = hiddenFactIds.get(factIdx[0] % hiddenFactIds.size());
+                            factIdx[0]++;
+                            result2Label = "[RESULT] " + buildResultDescription(actionTitle, 2)
+                                    + " | fact:" + fid;
+                        } else {
+                            result2Label = "[RESULT] " + buildResultDescription(actionTitle, 2);
+                        }
+                        actionNode.add(new DefaultMutableTreeNode(result2Label));
+                        minorNode.add(actionNode);
                     }
                     majorNode.add(minorNode);
                 }
@@ -1314,6 +1433,34 @@ public class CaseEditorPanel extends JPanel {
         treeModel.reload();
         expandAll(storyTree);
         statusLabel.setText("Generated story tree with " + complexity + " phase(s).");
+    }
+
+    /**
+     * Returns a short result description for the given action title and result slot (1 or 2).
+     * Result 1 is a "basic" outcome; result 2 is a "deeper" or "lead-creating" outcome.
+     */
+    private String buildResultDescription(String actionTitle, int slot) {
+        if ("Photograph the scene".equals(actionTitle)) {
+            return slot == 1
+                    ? "Photo reveals an inconsistency in the official report"
+                    : "Hidden detail photographed — new angle uncovered";
+        } else if ("Collect physical evidence".equals(actionTitle)) {
+            return slot == 1
+                    ? "Trace evidence collected links to a key person"
+                    : "Concealed item recovered — origin requires investigation";
+        } else if (actionTitle.startsWith("Interview a contact of")) {
+            return slot == 1
+                    ? "Contact reveals a hidden relationship"
+                    : "Contact discloses sensitive information under pressure";
+        } else if ("Review documents or records".equals(actionTitle)) {
+            return slot == 1
+                    ? "Record anomaly found — contradicts official timeline"
+                    : "Forged or altered document identified";
+        } else {
+            return slot == 1
+                    ? "Observation uncovers a hidden connection"
+                    : "Deeper analysis reveals an unexpected lead";
+        }
     }
 
     private String buildMajorTitle(int phase, int major, String caseType) {
