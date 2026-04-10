@@ -648,6 +648,8 @@ public class CaseEditorPanel extends JPanel {
         String client  = clientNameField.getText().trim();
         String subject = subjectNameField.getText().trim();
 
+        String victim = victimNameField.getText().trim();
+
         for (int i = 0; i < roles.length; i++) {
             String role   = roles[i];
             String gender = random.nextBoolean() ? "M" : "F";
@@ -657,8 +659,18 @@ public class CaseEditorPanel extends JPanel {
                 name = client;
             } else if (i == 1 && !subject.isEmpty()) {
                 name = subject;
+            } else if (role.equals("Victim") && !victim.isEmpty()) {
+                name = victim;
             } else {
                 name = randomName(gender);
+            }
+            // Populate name fields with generated names so step 3 can use them
+            if (i == 0 && client.isEmpty()) {
+                clientNameField.setText(name);
+            } else if (i == 1 && subject.isEmpty()) {
+                subjectNameField.setText(name);
+            } else if (role.equals("Victim") && victim.isEmpty()) {
+                victimNameField.setText(name);
             }
             int age  = 22 + random.nextInt(43); // 22–64
             String occupation = occupationForRole(role);
@@ -825,7 +837,7 @@ public class CaseEditorPanel extends JPanel {
         String victim          = victimNameField.getText().trim();
         if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
 
-        String desc = CaseGenerator.capitalize(
+        String desc = CaseGenerator.capitalizeSentences(
                 CaseGenerator.buildDescription(type, client, subject, victim,
                         clientGender, subjectGender));
         String obj  = CaseGenerator.buildObjective(type, client, subject, victim);

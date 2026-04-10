@@ -123,7 +123,7 @@ public class CaseGenerator {
         }
 
         String caseName   = type.getDisplayName() + ": " + subjectName;
-        String description = capitalize(
+        String description = capitalizeSentences(
                 buildDescription(type, clientName, subjectName, victimName, clientGender, subjectGender));
         String objective   = buildObjective(type, clientName, subjectName, victimName);
 
@@ -636,6 +636,26 @@ public class CaseGenerator {
         char first = text.charAt(0);
         if (Character.isUpperCase(first)) return text;
         return Character.toUpperCase(first) + text.substring(1);
+    }
+
+    /**
+     * Capitalises the first letter of every sentence in the text.
+     * A sentence boundary is defined as a period followed by a space
+     * and then a lowercase letter.
+     */
+    public static String capitalizeSentences(String text) {
+        if (text == null || text.isEmpty()) return text;
+        StringBuilder sb = new StringBuilder(text.length());
+        sb.append(Character.toUpperCase(text.charAt(0)));
+        for (int i = 1; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (i >= 2 && text.charAt(i - 1) == ' ' && text.charAt(i - 2) == '.') {
+                sb.append(Character.toUpperCase(c));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     // ---- Red herring lead pool (misleading but plausible) -------------------
