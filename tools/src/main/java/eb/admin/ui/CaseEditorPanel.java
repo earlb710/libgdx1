@@ -81,6 +81,7 @@ public class CaseEditorPanel extends JPanel {
     private final DefaultMutableTreeNode storyRoot = new DefaultMutableTreeNode("Story Root");
     private final DefaultTreeModel       treeModel = new DefaultTreeModel(storyRoot);
     private final JTree                  storyTree = new JTree(treeModel);
+    private final JTextArea              nodeDetailArea = new JTextArea();
 
     // Summary
     private final JTextArea summaryArea = new JTextArea(12, 60);
@@ -416,12 +417,39 @@ public class CaseEditorPanel extends JPanel {
 
         storyTree.setRootVisible(true);
         storyTree.setShowsRootHandles(true);
-        JScrollPane scroll = new JScrollPane(storyTree);
+        JScrollPane treeScroll = new JScrollPane(storyTree);
 
-        JButton genTreeBtn   = new JButton("Generate Story Tree");
-        JButton addChildBtn  = new JButton("Add Child");
+        // Right-hand detail area
+        nodeDetailArea.setLineWrap(true);
+        nodeDetailArea.setWrapStyleWord(true);
+        nodeDetailArea.setEditable(false);
+        nodeDetailArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        nodeDetailArea.setText("Click a node to see its description.");
+        JScrollPane detailScroll = new JScrollPane(nodeDetailArea);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("Node Description"));
+
+        // Wire selection listener
+        storyTree.addTreeSelectionListener(e -> {
+            TreePath path = storyTree.getSelectionPath();
+            if (path == null) {
+                nodeDetailArea.setText("");
+                return;
+            }
+            DefaultMutableTreeNode node =
+                    (DefaultMutableTreeNode) path.getLastPathComponent();
+            String label = node.getUserObject() != null ? node.getUserObject().toString() : "";
+            nodeDetailArea.setText(buildNodeDescription(label));
+            nodeDetailArea.setCaretPosition(0);
+        });
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScroll, detailScroll);
+        split.setDividerLocation(340);
+        split.setResizeWeight(0.45);
+
+        JButton genTreeBtn    = new JButton("Generate Story Tree");
+        JButton addChildBtn   = new JButton("Add Child");
         JButton deleteNodeBtn = new JButton("Delete Node");
-        JButton expandBtn    = new JButton("Expand All");
+        JButton expandBtn     = new JButton("Expand All");
 
         genTreeBtn.addActionListener(e -> generateStoryTree());
 
@@ -454,9 +482,97 @@ public class CaseEditorPanel extends JPanel {
         buttons.add(Box.createHorizontalStrut(12));
         buttons.add(expandBtn);
 
-        panel.add(scroll,  BorderLayout.CENTER);
+        panel.add(split,   BorderLayout.CENTER);
         panel.add(buttons, BorderLayout.SOUTH);
         return panel;
+    }
+
+    /**
+     * Generates a human-readable description for a story-tree node based on its label.
+     * Node labels follow the pattern "[TYPE] Title", where TYPE is one of:
+     * ACTION, MINOR, MAJOR, PLOT_TWIST.
+     */
+    private String buildNodeDescription(String label) {
+        if (label == null || label.isEmpty()) return "";
+
+        // Strip the leading [TYPE] tag
+        String tag   = "";
+        String title = label;
+        if (label.startsWith("[") && label.contains("] ")) {
+            int close = label.indexOf(']');
+            tag   = label.substring(1, close).trim();
+            title = label.substring(close + 2).trim();
+        }
+
+        String subject = subjectNameField.getText().trim();
+        if (subject.isEmpty()) subject = "the subject";
+        String victim  = victimNameField.getText().trim();
+        if (victim.isEmpty()) victim = "the victim";
+        String client  = clientNameField.getText().trim();
+        if (client.isEmpty()) client = "the client";
+
+        switch (tag) {
+            case "ACTION":
+                return buildActionDescription(title, subject, victim, client);
+            case "MINOR":
+                return "Minor objective: " + title + ".\n\n"
+                        + "This step groups a set of related actions the investigator must "
+                        + "complete to advance the current major objective. "
+                        + "Complete all actions beneath this node to unlock the next minor step.";
+            case "MAJOR":
+                return "Major objective: " + title + ".\n\n"
+                        + "This is one of the primary goals for the current investigation phase. "
+                        + "Progress here drives the overall case forward and may reveal new leads.";
+            case "PLOT_TWIST":
+                return "Phase: " + title + ".\n\n"
+                        + "This phase represents a key turning point in the investigation. "
+                        + "Completing it unlocks the next chapter and may change the direction "
+                        + "of the case based on what has been discovered.";
+            default:
+                return title;
+        }
+    }
+
+    /** Generates a detailed action description for each known action title. */
+    private String buildActionDescription(String title, String subject, String victim, String client) {
+        if ("Photograph the scene".equals(title)) {
+            return "Action: Photograph the scene.\n\n"
+                    + "The investigator documents the location with photographs. "
+                    + "Key items to capture include entry and exit points, signs of disturbance, "
+                    + "any objects out of place, and the general layout of the area. "
+                    + "Photos will be compared against the official report and may "
+                    + "contradict the coroner's findings.";
+
+        } else if ("Collect physical evidence".equals(title)) {
+            return "Action: Collect physical evidence.\n\n"
+                    + "Physical items at the scene are catalogued and preserved. "
+                    + "This includes anything that could place " + subject
+                    + " at the location, establish a timeline, or link a third party "
+                    + "to the incident. Proper chain of custody must be maintained.";
+
+        } else if (title.startsWith("Interview a contact of")) {
+            return "Action: Interview a contact of " + subject + ".\n\n"
+                    + "The investigator approaches someone in " + subject
+                    + "'s social or professional circle. "
+                    + "The goal is to establish " + subject
+                    + "'s movements, relationships, and possible motive. "
+                    + "The contact's cooperativeness and honesty will affect what is revealed.";
+
+        } else if ("Review documents or records".equals(title)) {
+            return "Action: Review documents or records.\n\n"
+                    + "Relevant paperwork — financial statements, phone records, "
+                    + "employment files, or official reports — is obtained and analysed. "
+                    + "Discrepancies between the documented record and witness accounts "
+                    + "may surface hidden connections between " + subject
+                    + " and " + victim + ".";
+
+        } else {
+            // Generic fallback for manually added or custom actions
+            return "Action: " + title + ".\n\n"
+                    + "The investigator carries out this action as part of the current "
+                    + "minor objective. Document findings carefully — any detail could "
+                    + "become relevant as the case develops.";
+        }
     }
 
     // -- Summary --------------------------------------------------------------
