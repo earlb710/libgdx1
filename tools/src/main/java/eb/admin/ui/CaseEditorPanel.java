@@ -1400,12 +1400,12 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private void generateStoryTree() {
-        // Auto-generate leads and facts so the tree always has data to reference
-        generateLeads();
-        generateFacts();
-
         storyRoot.removeAllChildren();
         storyRoot.setUserObject("Story Root");
+
+        // Clear models — facts and leads are generated inline by the story
+        factsModel.setRowCount(0);
+        leadsModel.setRowCount(0);
 
         int complexity = (int) complexitySpinner.getValue();
         String caseType = (String) caseTypeCombo.getSelectedItem();
@@ -1413,64 +1413,29 @@ public class CaseEditorPanel extends JPanel {
 
         String subject = subjectNameField.getText().trim();
         if (subject.isEmpty()) subject = "the subject";
+        String victim = victimNameField.getText().trim();
+        if (victim.isEmpty()) victim = "the victim";
+        String client = clientNameField.getText().trim();
+        if (client.isEmpty()) client = "the client";
 
-        // ---- Known Facts & Leads section ----
-        DefaultMutableTreeNode knownSection = new DefaultMutableTreeNode(
-                "[KNOWN_FACTS] Known Facts & Leads");
-        // Add all KNOWN facts
-        for (int r = 0; r < factsModel.getRowCount(); r++) {
-            Object status = factsModel.getValueAt(r, 3);
-            if ("KNOWN".equals(String.valueOf(status))) {
-                String fId   = String.valueOf(factsModel.getValueAt(r, 0));
-                String fCat  = String.valueOf(factsModel.getValueAt(r, 1));
-                String fText = String.valueOf(factsModel.getValueAt(r, 2));
-                knownSection.add(new DefaultMutableTreeNode(
-                        "[FACT] " + fId + " (" + fCat + "): " + fText));
-            }
-        }
-        // Add all leads – some are randomly flagged as red herrings
-        for (int r = 0; r < leadsModel.getRowCount(); r++) {
-            String lId   = String.valueOf(leadsModel.getValueAt(r, 0));
-            String lHint = String.valueOf(leadsModel.getValueAt(r, 1));
-            String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
-            boolean redHerring = random.nextInt(100) < 25; // ~25% chance
-            String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
-            knownSection.add(new DefaultMutableTreeNode(
-                    tag + " " + lId + " via " + lMethod + ": " + lHint));
-        }
-        storyRoot.add(knownSection);
+        // Running ID counters for facts and leads created inline
+        int[] factIdCounter = {1};
+        int[] leadIdCounter = {1};
 
-        // Separate hidden facts by importance: high (>= 3) for ok-results, low (< 3) for fail-results
-        java.util.List<String> highFactIds = new java.util.ArrayList<>();
-        java.util.List<String> lowFactIds  = new java.util.ArrayList<>();
-        for (int r = 0; r < factsModel.getRowCount(); r++) {
-            Object status = factsModel.getValueAt(r, 3);
-            if ("HIDDEN".equals(status)) {
-                Object id  = factsModel.getValueAt(r, 0);
-                Object imp = factsModel.getValueAt(r, 10);
-                if (id == null) continue;
-                int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
-                (importance >= 3 ? highFactIds : lowFactIds).add(id.toString());
-            }
-        }
-        // All hidden facts as fallback pool
-        java.util.List<String> allHiddenIds = new java.util.ArrayList<>(highFactIds);
-        allHiddenIds.addAll(lowFactIds);
-
-        java.util.List<String> leadIds = new java.util.ArrayList<>();
-        for (int r = 0; r < leadsModel.getRowCount(); r++) {
-            Object id = leadsModel.getValueAt(r, 0);
-            if (id != null) leadIds.add(id.toString());
-        }
+        // Discovery methods for inline lead creation
+        List<CategoryEntry> methods = (categoryData != null)
+                ? categoryData.getDiscovery_methods() : new ArrayList<>();
 
         // Attribute pool for requirements
         String[] attributes = {"PERCEPTION", "INTELLIGENCE", "CHARISMA",
                                "INTIMIDATION", "EMPATHY", "MEMORY", "STEALTH"};
-        int[] highFactIdx   = {0};
-        int[] lowFactIdx    = {0};
-        int[] allFactIdx    = {0};
-        int[] leadIdx       = {0};
 
+        // ---------- Seed: one KNOWN fact so the investigator has a starting point ----------
+        String seedFact = client + " has reported a suspicious incident involving " + victim + ".";
+        addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
+                client, victim, "", "", "", 0);
+
+        // ---------- Build phases — facts and leads are created as the story demands ----------
         for (int phase = 1; phase <= complexity; phase++) {
             String phaseTitle = (phase == 1)
                     ? "Initial Investigation"
@@ -1497,42 +1462,35 @@ public class CaseEditorPanel extends JPanel {
                         String attr = attributes[random.nextInt(attributes.length)];
                         int threshold = 2 + random.nextInt(4); // 2..5
 
-                        // --- ok result: high-importance hidden fact ---
-                        String okRef;
-                        if (!highFactIds.isEmpty()) {
-                            okRef = "ok:fact:" + highFactIds.get(highFactIdx[0] % highFactIds.size());
-                            highFactIdx[0]++;
-                        } else if (!allHiddenIds.isEmpty()) {
-                            okRef = "ok:fact:" + allHiddenIds.get(allFactIdx[0] % allHiddenIds.size());
-                            allFactIdx[0]++;
-                        } else {
-                            okRef = "";
-                        }
+                        // --- ok result: create a HIGH-importance HIDDEN fact ---
+                        String okFactText = buildInlineFact(actionTitle, subject, victim,
+                                phase, major, true);
+                        String okFactId = addFact(factIdCounter, categoryForAction(actionTitle),
+                                okFactText, "HIDDEN", 0L, subject, victim, "", "", "",
+                                3 + random.nextInt(3)); // importance 3–5
+                        String okRef = "ok:fact:" + okFactId;
 
-                        // --- fail result: low-importance fact OR lead (alternating) ---
+                        // --- fail result: create either a low-importance fact or a lead ---
                         String failRef;
-                        boolean failUsesLead = !leadIds.isEmpty() && (random.nextBoolean());
+                        boolean failUsesLead = !methods.isEmpty() && random.nextBoolean();
                         if (failUsesLead) {
-                            failRef = "fail:lead:" + leadIds.get(leadIdx[0] % leadIds.size());
-                            leadIdx[0]++;
-                        } else if (!lowFactIds.isEmpty()) {
-                            failRef = "fail:fact:" + lowFactIds.get(lowFactIdx[0] % lowFactIds.size());
-                            lowFactIdx[0]++;
-                        } else if (!allHiddenIds.isEmpty()) {
-                            failRef = "fail:fact:" + allHiddenIds.get(allFactIdx[0] % allHiddenIds.size());
-                            allFactIdx[0]++;
-                        } else if (!leadIds.isEmpty()) {
-                            failRef = "fail:lead:" + leadIds.get(leadIdx[0] % leadIds.size());
-                            leadIdx[0]++;
+                            String leadId = addInlineLead(leadIdCounter, methods, subject);
+                            failRef = "fail:lead:" + leadId;
                         } else {
-                            failRef = "";
+                            String failFactText = buildInlineFact(actionTitle, subject, victim,
+                                    phase, major, false);
+                            String failFactId = addFact(factIdCounter,
+                                    categoryForAction(actionTitle),
+                                    failFactText, "HIDDEN", 0L, "", "", "", "", "",
+                                    random.nextInt(3)); // importance 0–2
+                            failRef = "fail:fact:" + failFactId;
                         }
 
                         String desc = buildResultDescription(actionTitle);
                         StringBuilder label = new StringBuilder("[RESULT] ").append(desc)
                                 .append(" | req:").append(attr).append(":").append(threshold);
-                        if (!okRef.isEmpty())   label.append(" | ").append(okRef);
-                        if (!failRef.isEmpty()) label.append(" | ").append(failRef);
+                        label.append(" | ").append(okRef);
+                        label.append(" | ").append(failRef);
 
                         actionNode.add(new DefaultMutableTreeNode(label.toString()));
                         minorNode.add(actionNode);
@@ -1544,10 +1502,123 @@ public class CaseEditorPanel extends JPanel {
             storyRoot.add(phaseNode);
         }
 
+        // ---------- Build the KNOWN_FACTS section from whatever was generated ----------
+        DefaultMutableTreeNode knownSection = new DefaultMutableTreeNode(
+                "[KNOWN_FACTS] Known Facts & Leads");
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if ("KNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) {
+                String fId   = String.valueOf(factsModel.getValueAt(r, 0));
+                String fCat  = String.valueOf(factsModel.getValueAt(r, 1));
+                String fText = String.valueOf(factsModel.getValueAt(r, 2));
+                knownSection.add(new DefaultMutableTreeNode(
+                        "[FACT] " + fId + " (" + fCat + "): " + fText));
+            }
+        }
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            String lId     = String.valueOf(leadsModel.getValueAt(r, 0));
+            String lHint   = String.valueOf(leadsModel.getValueAt(r, 1));
+            String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
+            boolean redHerring = random.nextInt(100) < 25;
+            String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
+            knownSection.add(new DefaultMutableTreeNode(
+                    tag + " " + lId + " via " + lMethod + ": " + lHint));
+        }
+        storyRoot.insert(knownSection, 0); // first child
+
         treeModel.reload();
         expandAll(storyTree);
         statusLabel.setText("Generated story tree with " + complexity + " phase(s), "
                 + factsModel.getRowCount() + " facts, " + leadsModel.getRowCount() + " leads.");
+    }
+
+    // ---- Inline helpers for story-driven fact/lead creation ------------------
+
+    /** Adds a fact row to factsModel and returns the assigned ID string. */
+    private String addFact(int[] idCounter, String category, String text, String status,
+                           long epoch, String char1, String char2, String relType,
+                           String itemId, String evidId, int importance) {
+        String id = "fact-" + idCounter[0]++;
+        factsModel.addRow(new Object[]{id, category, text, status,
+                epoch, char1, char2, relType, itemId, evidId, importance});
+        return id;
+    }
+
+    /** Creates a lead row in leadsModel and returns its ID. */
+    private String addInlineLead(int[] idCounter, List<CategoryEntry> methods, String subject) {
+        CategoryEntry method = methods.get(random.nextInt(methods.size()));
+        String methodName = method.getName() != null ? method.getName() : method.getCode();
+        String hint = buildLeadHint(idCounter[0], methodName, subject);
+        String desc = buildLeadDescription(idCounter[0], methodName, subject);
+        String id = "lead-" + idCounter[0]++;
+        leadsModel.addRow(new Object[]{id, hint, methodName, desc});
+        return id;
+    }
+
+    /** Picks a fact category based on the action being performed. */
+    private String categoryForAction(String actionTitle) {
+        if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
+                || actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
+                || actionTitle.startsWith("Recover") || actionTitle.startsWith("Map entry")) {
+            return "EVIDENCE";
+        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
+                || actionTitle.startsWith("Question")) {
+            return "RELATIONSHIP";
+        } else {
+            return "ITEM";
+        }
+    }
+
+    /** Generates a contextual fact sentence driven by the current action. */
+    private String buildInlineFact(String actionTitle, String subject, String victim,
+                                   int phase, int major, boolean highImportance) {
+        if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
+                || actionTitle.startsWith("Map entry")) {
+            String[] high = {
+                "Scene photos reveal a second set of footprints near " + victim + "'s location.",
+                "Documentation shows the door was forced from the inside, implicating " + subject + ".",
+                "A sketch of the layout reveals an unaccounted exit used after the incident."};
+            String[] low = {
+                "General scene photos show no obvious signs of struggle.",
+                "The layout appears consistent with the initial report.",
+                "Photographs capture minor damage unrelated to the main incident."};
+            String[] pool = highImportance ? high : low;
+            return pool[random.nextInt(pool.length)];
+        } else if (actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
+                || actionTitle.startsWith("Recover")) {
+            String[] high = {
+                "Trace evidence places " + subject + " at the scene within the critical window.",
+                "A recovered item bears " + subject + "'s fingerprints and traces of " + victim + "'s blood.",
+                "Lab analysis links the recovered substance to a toxin found in " + victim + "'s system."};
+            String[] low = {
+                "A common fibre sample was collected — inconclusive but logged.",
+                "Low-quality latent print recovered — partial match pending.",
+                "Residue collected may be from a cleaning product, not evidence."};
+            String[] pool = highImportance ? high : low;
+            return pool[random.nextInt(pool.length)];
+        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
+                || actionTitle.startsWith("Question")) {
+            String[] high = {
+                "A witness confirms seeing " + subject + " near " + victim + " shortly before the incident.",
+                "An associate reveals that " + subject + " and " + victim + " had a secret arrangement.",
+                "The interviewee discloses that " + subject + " threatened " + victim + " days earlier."};
+            String[] low = {
+                "The contact says they barely know " + subject + " — little useful information.",
+                "A neighbour heard raised voices but can't identify who was involved.",
+                "The associate repeats the official story without adding new details."};
+            String[] pool = highImportance ? high : low;
+            return pool[random.nextInt(pool.length)];
+        } else {
+            String[] high = {
+                "Financial records show " + subject + " received a large payment around the incident date.",
+                "A document links " + subject + " to a shell company connected to " + victim + ".",
+                "Digital records reveal " + subject + " searched for information about " + victim + "'s routine."};
+            String[] low = {
+                "Records show routine transactions with no obvious irregularities.",
+                "A public filing lists " + subject + " at a different address — minor note.",
+                "Background check returns no prior criminal record for " + subject + "."};
+            String[] pool = highImportance ? high : low;
+            return pool[random.nextInt(pool.length)];
+        }
     }
 
     /** Returns a random short result description appropriate for the given action title. */
