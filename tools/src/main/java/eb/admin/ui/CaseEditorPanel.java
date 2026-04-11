@@ -895,20 +895,6 @@ public class CaseEditorPanel extends JPanel {
         }
     }
 
-    /** Returns the description of the currently selected motive, or a generic fallback. */
-    private String getMotiveExplanation() {
-        CategoryEntry motive = getSelectedMotiveEntry();
-        if (motive != null) {
-            String name = motive.getName();
-            String desc = motive.getDescription();
-            if (name != null && desc != null) {
-                return name + " — " + desc;
-            }
-            return name != null ? name : "The motive is not yet known.";
-        }
-        return "The motive is not yet known.";
-    }
-
     /** Finds the CategoryEntry matching the currently selected motive combo item. */
     private CategoryEntry getSelectedMotiveEntry() {
         if (categoryData == null || motiveCombo.getSelectedIndex() < 0) return null;
@@ -1471,7 +1457,9 @@ public class CaseEditorPanel extends JPanel {
         if (caseType == null) caseType = "Investigation";
         String motive = (String) motiveCombo.getSelectedItem();
         if (motive == null) motive = "Unknown";
-        String motiveExplanation = getMotiveExplanation();
+        CategoryEntry motiveEntry = getSelectedMotiveEntry();
+        String motiveCode = (motiveEntry != null && motiveEntry.getCode() != null)
+                ? motiveEntry.getCode() : "UNKNOWN";
 
         storyRoot.setUserObject("Story Root [" + caseType + " / " + motive
                 + " / complexity=" + complexity + "]");
@@ -1501,7 +1489,7 @@ public class CaseEditorPanel extends JPanel {
                 client, victim, "", "", "", 0);
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
-        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveExplanation);
+        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode);
 
         // ---------- Build phases — facts and leads are created as the story demands ----------
         for (int phase = 1; phase <= complexity; phase++) {
@@ -1634,62 +1622,190 @@ public class CaseEditorPanel extends JPanel {
 
     /**
      * Generates UNKNOWN facts — the critical mysteries the investigator must solve.
-     * These are driven by the case type and represent how the crime was committed,
-     * the motive, the weapon/method, and other unsolved elements of the story.
+     * Each fact has a concrete value (the truth) — its UNKNOWN status means
+     * the investigator hasn't discovered it yet, but the case author knows the answer.
      */
     private void generateUnknownFacts(int[] factIdCounter, String caseType,
                                        String subject, String victim, String client,
-                                       String motiveExplanation) {
+                                       String motiveCode) {
         boolean isMurder = "Murder".equalsIgnoreCase(caseType);
 
         // Core unknown: how was the crime committed?
         if (isMurder) {
-            addFact(factIdCounter, "METHOD",
-                    "How was " + victim + " killed? The exact method of death is not yet established.",
+            String[] methodPool = {
+                victim + " was poisoned over several days using a slow-acting compound.",
+                victim + " was strangled in a secluded area with no witnesses.",
+                victim + " was struck from behind with a heavy object, causing fatal head trauma.",
+                victim + " was stabbed during what appeared to be a struggle.",
+                victim + " was pushed from a height, staged to look like a fall."};
+            addFact(factIdCounter, "METHOD", methodPool[random.nextInt(methodPool.length)],
                     "UNKNOWN", 0L, "", victim, "", "", "", 5);
         } else {
-            addFact(factIdCounter, "METHOD",
-                    "How was the crime committed? The exact method is not yet established.",
+            String[] methodPool = {
+                "The crime was executed through a carefully forged set of documents.",
+                "A digital intrusion was used to gain unauthorised access to the target.",
+                "The operation relied on an insider who provided access at the right moment.",
+                subject + " exploited a position of trust to carry out the scheme undetected."};
+            addFact(factIdCounter, "METHOD", methodPool[random.nextInt(methodPool.length)],
                     "UNKNOWN", 0L, "", "", "", "", "", 5);
         }
 
-        // Motive — includes the generated explanation that must be discovered
+        // Motive — a concrete, case-specific narrative
+        String motiveNarrative = buildMotiveNarrative(motiveCode, subject, victim);
         addFact(factIdCounter, "MOTIVE",
-                "What was the motive? Why would " + subject + " do this? ("
-                        + motiveExplanation + ")",
+                motiveCode + ": " + motiveNarrative,
                 "UNKNOWN", 0L, subject, "", "", "", "", 5);
 
         // Weapon / instrument
         if (isMurder) {
+            String[] weaponPool = {
+                "The murder weapon was a kitchen knife taken from " + victim + "'s own home.",
+                "A heavy brass paperweight found hidden in " + subject + "'s vehicle was used.",
+                "Traces of a rare toxin were found — sourced from an online purchase linked to " + subject + ".",
+                "A length of cord matching material from " + subject + "'s workshop was the instrument.",
+                "A firearm registered to a third party but last handled by " + subject + " was used."};
             addFact(factIdCounter, "EVIDENCE",
-                    "What was the murder weapon? The instrument of death has not been identified.",
+                    weaponPool[random.nextInt(weaponPool.length)],
                     "UNKNOWN", 0L, "", "", "", "", "", 4);
         }
 
         // Opportunity / timeline
+        String[] timelinePool = {
+            "The crime occurred between 10 PM and midnight while " + victim + " was alone.",
+            subject + " used a 45-minute gap in the security footage to act unobserved.",
+            "The incident took place during a power outage that " + subject + " may have arranged.",
+            "Phone records place " + subject + " near the scene at 11:30 PM on the night in question."};
         addFact(factIdCounter, "DATE",
-                "When exactly did the crime occur? The precise timeline has not been established.",
+                timelinePool[random.nextInt(timelinePool.length)],
                 "UNKNOWN", 0L, "", "", "", "", "", 4);
 
         // Location specifics
+        String[] locationPool = {
+            "The crime was committed in the back office of " + victim + "'s business premises.",
+            "It took place at " + victim + "'s residence, in the upstairs study.",
+            "The incident occurred in a rented storage unit on the outskirts of town.",
+            "A secluded car park behind the old warehouse was where " + subject + " confronted " + victim + "."};
         addFact(factIdCounter, "ITEM",
-                "Where exactly was the crime committed? The specific location and circumstances are unclear.",
+                locationPool[random.nextInt(locationPool.length)],
                 "UNKNOWN", 0L, "", "", "", "", "", 3);
 
         // Accomplices
+        String[] accomplicePool = {
+            subject + " acted alone, relying on meticulous planning to avoid detection.",
+            subject + " had a single accomplice who provided a vehicle and a false alibi.",
+            "An unidentified associate helped " + subject + " dispose of key evidence.",
+            subject + " coerced a reluctant colleague into acting as a lookout."};
         addFact(factIdCounter, "RELATIONSHIP",
-                "Did " + subject + " act alone, or were there accomplices?",
+                accomplicePool[random.nextInt(accomplicePool.length)],
                 "UNKNOWN", 0L, subject, "", "", "", "", 3);
 
         // Alibi verification
+        String[] alibiPool = {
+            subject + "'s alibi of being at a restaurant that evening is contradicted by CCTV footage.",
+            subject + " claims to have been home alone, but phone GPS data tells a different story.",
+            "The colleague " + subject + " named as an alibi witness has since recanted their statement.",
+            subject + "'s car was recorded by toll cameras heading towards the scene at the critical time."};
         addFact(factIdCounter, "DATE",
-                subject + "'s alibi for the time of the incident has not been verified.",
+                alibiPool[random.nextInt(alibiPool.length)],
                 "UNKNOWN", 0L, subject, "", "", "", "", 4);
 
         // Cover-up
+        String[] coverupPool = {
+            subject + " wiped down surfaces and removed personal items from the scene.",
+            "Security footage from a nearby camera was deliberately deleted that night.",
+            subject + " disposed of clothing and shoes in a skip two streets away.",
+            "A hastily cleaned area in " + subject + "'s home shows traces of bleach and scrubbing."};
         addFact(factIdCounter, "ITEM",
-                "Was there an attempt to conceal evidence or cover up the crime?",
+                coverupPool[random.nextInt(coverupPool.length)],
                 "UNKNOWN", 0L, "", "", "", "", "", 3);
+    }
+
+    /**
+     * Builds a case-specific motive narrative for the given motive code.
+     * Each code has multiple templates using the subject/victim names, ensuring
+     * that every case gets a unique, tailored motivation story.
+     */
+    private String buildMotiveNarrative(String motiveCode, String subject, String victim) {
+        String[] pool;
+        switch (motiveCode) {
+            case "FINANCIAL_GAIN":
+                pool = new String[]{
+                    "Having fallen on hard times, " + subject + " decided this would be a quick solution to all financial problems.",
+                    subject + " discovered a lucrative insurance policy on " + victim + " and devised a plan to collect.",
+                    "Mounting debts and a failing business drove " + subject + " to target " + victim + "'s estate.",
+                    subject + " had been secretly siphoning funds and needed " + victim + " out of the way before an audit."};
+                break;
+            case "REVENGE":
+                pool = new String[]{
+                    subject + " had nursed a grudge against " + victim + " for years after a devastating public humiliation.",
+                    "After " + victim + " destroyed " + subject + "'s career, " + subject + " spent months planning retribution.",
+                    subject + " blamed " + victim + " for the death of a loved one and vowed to settle the score.",
+                    "A bitter feud over a broken promise drove " + subject + " to take drastic action against " + victim + "."};
+                break;
+            case "JEALOUSY":
+                pool = new String[]{
+                    subject + " could not accept that " + victim + " had been promoted over them despite fewer qualifications.",
+                    "A romantic rivalry between " + subject + " and " + victim + " escalated beyond control.",
+                    subject + " envied " + victim + "'s social standing and growing influence in the community.",
+                    "Watching " + victim + " succeed where " + subject + " had failed became an unbearable obsession."};
+                break;
+            case "COERCION":
+                pool = new String[]{
+                    subject + " was being blackmailed with compromising photographs and saw no other way out.",
+                    "A criminal associate threatened " + subject + "'s family unless " + victim + " was dealt with.",
+                    subject + " was manipulated by a third party who stood to gain from " + victim + "'s downfall.",
+                    "Under extreme pressure from mounting threats, " + subject + " reluctantly carried out someone else's plan."};
+                break;
+            case "POWER":
+                pool = new String[]{
+                    subject + " saw " + victim + " as the only obstacle to seizing control of the organisation.",
+                    "With " + victim + " out of the picture, " + subject + " would inherit full authority over the estate.",
+                    subject + " had long resented " + victim + "'s dominance and orchestrated a takeover.",
+                    "Eliminating " + victim + " was the final move in " + subject + "'s carefully planned bid for control."};
+                break;
+            case "SELF_DEFENSE":
+                pool = new String[]{
+                    subject + " believed " + victim + " was about to expose a secret that would ruin everything.",
+                    "After receiving threatening messages from " + victim + ", " + subject + " acted out of genuine fear.",
+                    subject + " claimed " + victim + " attacked first, but the evidence suggests a premeditated response.",
+                    "Cornered by " + victim + "'s escalating threats, " + subject + " felt there was no alternative."};
+                break;
+            case "IDEOLOGY":
+                pool = new String[]{
+                    subject + " viewed " + victim + "'s activities as a betrayal of deeply held principles and acted accordingly.",
+                    "Radicalised through online forums, " + subject + " targeted " + victim + " as a symbol of everything wrong.",
+                    subject + " believed silencing " + victim + " would advance a political cause they were devoted to.",
+                    "A fanatical commitment to a fringe movement drove " + subject + " to act against " + victim + "."};
+                break;
+            case "CONCEALMENT":
+                pool = new String[]{
+                    subject + " had committed a prior offence that " + victim + " was about to report to the authorities.",
+                    victim + " stumbled upon " + subject + "'s embezzlement scheme and had to be silenced.",
+                    subject + " needed to destroy evidence of a previous fraud before " + victim + " could hand it over.",
+                    "With " + victim + " threatening to reveal the truth, " + subject + " acted to protect a web of lies."};
+                break;
+            case "PASSION":
+                pool = new String[]{
+                    "An intense argument between " + subject + " and " + victim + " escalated into a violent confrontation.",
+                    subject + "'s uncontrollable rage after discovering " + victim + "'s betrayal led to a fatal outburst.",
+                    "Years of suppressed emotion erupted when " + subject + " confronted " + victim + " about the affair.",
+                    "A moment of blind fury during a heated exchange drove " + subject + " to act without thinking."};
+                break;
+            case "LOYALTY":
+                pool = new String[]{
+                    subject + " acted to protect a family member who " + victim + " was threatening to expose.",
+                    "A close friend of " + subject + " asked for help dealing with " + victim + ", and " + subject + " couldn't refuse.",
+                    subject + " took the fall for an associate, believing loyalty demanded sacrifice.",
+                    "To shield a loved one from " + victim + "'s harassment, " + subject + " decided to intervene permanently."};
+                break;
+            default:
+                pool = new String[]{
+                    subject + "'s true motivation remains complex — a mix of personal grievance and opportunity.",
+                    "The exact reason " + subject + " targeted " + victim + " stems from a private conflict not yet fully understood.",
+                    subject + " was driven by circumstances that created a perfect storm of desperation and opportunity."};
+                break;
+        }
+        return pool[random.nextInt(pool.length)];
     }
 
     /** Creates a lead row in leadsModel and returns its ID. */
