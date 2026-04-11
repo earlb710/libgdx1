@@ -14,6 +14,14 @@ package eb.framework1.investigation;
  * concerns a specific other character (e.g. "What do you think of Alice?").
  * For self-referencing topics like {@link InterviewTopic#ALIBI} the field is
  * empty.
+ *
+ * <h3>Attribute-gated responses</h3>
+ * <p>Some responses are gated by the player's character attributes.  When
+ * {@link #getRequiredAttribute()} is non-empty, the player must have at
+ * least {@link #getRequiredValue()} points in that attribute to receive the
+ * full {@link #getAnswer() answer}.  If the requirement is not met the player
+ * sees the {@link #getAlternateAnswer() alternate answer} instead — typically
+ * a less informative or evasive response.
  */
 public final class InterviewResponse {
 
@@ -23,8 +31,13 @@ public final class InterviewResponse {
     private final boolean truthful;
     private final String aboutNpcName;
 
+    // Attribute-gate fields
+    private final String requiredAttribute;
+    private final int    requiredValue;
+    private final String alternateAnswer;
+
     /**
-     * Creates an interview response.
+     * Creates an interview response with no attribute requirement.
      *
      * @param topic        the category of this exchange; must not be {@code null}
      * @param question     the detective's question text; must not be {@code null}
@@ -35,11 +48,39 @@ public final class InterviewResponse {
      */
     public InterviewResponse(InterviewTopic topic, String question, String answer,
                              boolean truthful, String aboutNpcName) {
-        this.topic        = topic   != null ? topic   : InterviewTopic.OBSERVATION;
-        this.question     = question != null ? question : "";
-        this.answer       = answer   != null ? answer   : "";
-        this.truthful     = truthful;
-        this.aboutNpcName = aboutNpcName != null ? aboutNpcName : "";
+        this(topic, question, answer, truthful, aboutNpcName, "", 0, "");
+    }
+
+    /**
+     * Creates an attribute-gated interview response.
+     *
+     * <p>When the player's {@code requiredAttribute} is at least
+     * {@code requiredValue}, the full {@code answer} is shown.  Otherwise
+     * the {@code alternateAnswer} is displayed.
+     *
+     * @param topic             the category of this exchange
+     * @param question          the detective's question text
+     * @param answer            the NPC's full reply (shown when requirement met)
+     * @param truthful          {@code true} if the full answer is factually accurate
+     * @param aboutNpcName      the NPC the question is about (empty if self-referencing)
+     * @param requiredAttribute the {@link eb.framework1.character.CharacterAttribute}
+     *                          display name (e.g. "Empathy"), or empty for no gate
+     * @param requiredValue     minimum attribute value needed (1–10); ignored when
+     *                          {@code requiredAttribute} is empty
+     * @param alternateAnswer   fallback answer shown when the requirement is not met
+     */
+    public InterviewResponse(InterviewTopic topic, String question, String answer,
+                             boolean truthful, String aboutNpcName,
+                             String requiredAttribute, int requiredValue,
+                             String alternateAnswer) {
+        this.topic             = topic   != null ? topic   : InterviewTopic.OBSERVATION;
+        this.question          = question != null ? question : "";
+        this.answer            = answer   != null ? answer   : "";
+        this.truthful          = truthful;
+        this.aboutNpcName      = aboutNpcName != null ? aboutNpcName : "";
+        this.requiredAttribute = requiredAttribute != null ? requiredAttribute : "";
+        this.requiredValue     = requiredValue;
+        this.alternateAnswer   = alternateAnswer != null ? alternateAnswer : "";
     }
 
     /** Returns the interview topic. */
@@ -48,7 +89,7 @@ public final class InterviewResponse {
     /** Returns the detective's question text. */
     public String getQuestion() { return question; }
 
-    /** Returns the NPC's answer text. */
+    /** Returns the NPC's full answer text (shown when attribute requirement is met). */
     public String getAnswer() { return answer; }
 
     /**
@@ -67,10 +108,63 @@ public final class InterviewResponse {
      */
     public String getAboutNpcName() { return aboutNpcName; }
 
+    // ------------------------------------------------------------------
+    // Attribute-gate accessors
+    // ------------------------------------------------------------------
+
+    /**
+     * Returns the display name of the required player attribute
+     * (e.g. {@code "Empathy"}, {@code "Perception"}), or an empty string
+     * if there is no attribute gate on this response.
+     */
+    public String getRequiredAttribute() { return requiredAttribute; }
+
+    /**
+     * Returns the minimum attribute value (1–10) that the player must have
+     * in {@link #getRequiredAttribute()} to receive the full answer.
+     * Returns {@code 0} when there is no attribute gate.
+     */
+    public int getRequiredValue() { return requiredValue; }
+
+    /**
+     * Returns the fallback answer shown when the player does not meet the
+     * attribute requirement.  This is typically a less informative, evasive,
+     * or generic response.  Empty when there is no attribute gate.
+     */
+    public String getAlternateAnswer() { return alternateAnswer; }
+
+    /**
+     * Returns {@code true} if this response has an attribute gate that must
+     * be checked before choosing which answer to display.
+     */
+    public boolean hasAttributeRequirement() {
+        return !requiredAttribute.isEmpty() && requiredValue > 0;
+    }
+
+    /**
+     * Returns the answer the player should see, based on whether
+     * {@code playerAttributeValue} meets the requirement.
+     *
+     * @param playerAttributeValue the player's current value for
+     *        {@link #getRequiredAttribute()}, or any value when there is no gate
+     * @return the full answer if the requirement is met (or there is none),
+     *         otherwise the alternate answer
+     */
+    public String getEffectiveAnswer(int playerAttributeValue) {
+        if (!hasAttributeRequirement()) return answer;
+        return playerAttributeValue >= requiredValue ? answer : alternateAnswer;
+    }
+
     @Override
     public String toString() {
-        return "InterviewResponse{topic=" + topic
-                + ", aboutNpc='" + aboutNpcName + "'"
-                + ", truthful=" + truthful + '}';
+        StringBuilder sb = new StringBuilder("InterviewResponse{topic=");
+        sb.append(topic).append(", aboutNpc='").append(aboutNpcName).append("'");
+        sb.append(", truthful=").append(truthful);
+        if (hasAttributeRequirement()) {
+            sb.append(", req=").append(requiredAttribute)
+              .append(">=").append(requiredValue);
+        }
+        sb.append('}');
+        return sb.toString();
     }
 }

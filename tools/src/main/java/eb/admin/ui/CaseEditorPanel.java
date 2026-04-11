@@ -97,13 +97,16 @@ public class CaseEditorPanel extends JPanel {
             };
 
     // Step 7 – Interviews
-    // Columns: 0=NPC Name, 1=Role, 2=Topic, 3=Question, 4=Answer, 5=Truthful, 6=About NPC
+    // Columns: 0=NPC Name, 1=Role, 2=Topic, 3=Question, 4=Answer, 5=Truthful,
+    //          6=About NPC, 7=Req Attribute, 8=Req Value, 9=Alt Answer
     private final DefaultTableModel interviewModel =
             new DefaultTableModel(new String[]{
                     "NPC Name", "Role", "Topic", "Question", "Answer",
-                    "Truthful", "About NPC"}, 0) {
+                    "Truthful", "About NPC",
+                    "Req Attribute", "Req Value", "Alt Answer"}, 0) {
                 @Override public Class<?> getColumnClass(int col) {
                     if (col == 5) return Boolean.class;  // Truthful checkbox
+                    if (col == 8) return Integer.class;   // Req Value
                     return String.class;
                 }
             };
@@ -532,9 +535,19 @@ public class CaseEditorPanel extends JPanel {
         interviewTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Role
         interviewTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Topic
         interviewTable.getColumnModel().getColumn(3).setPreferredWidth(250); // Question
-        interviewTable.getColumnModel().getColumn(4).setPreferredWidth(350); // Answer
+        interviewTable.getColumnModel().getColumn(4).setPreferredWidth(300); // Answer
         interviewTable.getColumnModel().getColumn(5).setPreferredWidth(60);  // Truthful
-        interviewTable.getColumnModel().getColumn(6).setPreferredWidth(120); // About NPC
+        interviewTable.getColumnModel().getColumn(6).setPreferredWidth(100); // About NPC
+        interviewTable.getColumnModel().getColumn(7).setPreferredWidth(100); // Req Attribute
+        interviewTable.getColumnModel().getColumn(8).setPreferredWidth(60);  // Req Value
+        interviewTable.getColumnModel().getColumn(9).setPreferredWidth(300); // Alt Answer
+
+        // Req Attribute column — combo editor with character attributes
+        JComboBox<String> attrCombo = new JComboBox<>(new String[]{
+                "", "Perception", "Empathy", "Intuition", "Charisma",
+                "Intimidation", "Intelligence", "Memory", "Stealth"});
+        interviewTable.getColumnModel().getColumn(7)
+                .setCellEditor(new DefaultCellEditor(attrCombo));
 
         // Topic column — combo editor
         JComboBox<String> topicCombo = new JComboBox<>();
@@ -571,6 +584,10 @@ public class CaseEditorPanel extends JPanel {
             Object truthObj = interviewModel.getValueAt(row, 5);
             boolean truthful = Boolean.TRUE.equals(truthObj);
             String aboutNpc = String.valueOf(interviewModel.getValueAt(row, 6));
+            String reqAttr  = String.valueOf(interviewModel.getValueAt(row, 7));
+            Object reqValObj = interviewModel.getValueAt(row, 8);
+            int reqVal = reqValObj instanceof Integer ? (Integer) reqValObj : 0;
+            String altAnswer = String.valueOf(interviewModel.getValueAt(row, 9));
 
             StringBuilder sb = new StringBuilder();
             sb.append("NPC: ").append(npc).append(" (").append(role).append(")\n");
@@ -580,6 +597,14 @@ public class CaseEditorPanel extends JPanel {
             sb.append("Q: ").append(question).append("\n\n");
             sb.append("A: ").append(answer).append("\n\n");
             sb.append(truthful ? "✔ This answer is TRUTHFUL." : "✘ This answer is DECEPTIVE.");
+
+            if (reqAttr != null && !reqAttr.isEmpty() && !"null".equals(reqAttr) && reqVal > 0) {
+                sb.append("\n\n── Attribute Requirement ──");
+                sb.append("\nRequires: ").append(reqAttr).append(" ≥ ").append(reqVal);
+                sb.append("\n\nIf NOT met, player sees:");
+                sb.append("\n").append(altAnswer != null && !"null".equals(altAnswer) ? altAnswer : "(no alternate)");
+            }
+
             interviewDetailArea.setText(sb.toString());
             interviewDetailArea.setCaretPosition(0);
         });
@@ -596,7 +621,8 @@ public class CaseEditorPanel extends JPanel {
         genBtn.addActionListener(e -> generateInterviews());
         addBtn.addActionListener(e -> {
             interviewModel.addRow(new Object[]{
-                    "", "", "Alibi", "", "", Boolean.TRUE, ""});
+                    "", "", "Alibi", "", "", Boolean.TRUE, "",
+                    "", Integer.valueOf(0), ""});
         });
         deleteBtn.addActionListener(e -> {
             int row = interviewTable.getSelectedRow();
@@ -1572,7 +1598,7 @@ public class CaseEditorPanel extends JPanel {
                     "Where were you at the time of the incident?",
                     alibi, alibiTruthful, "");
 
-            // --- OPINION of other NPCs ---
+            // --- OPINION of other NPCs (Empathy-gated for opinions about the subject) ---
             for (int j = 0; j < npcNames.size(); j++) {
                 if (j == i || npcDead.get(j)) continue;  // Skip self and dead NPCs
                 String otherName = npcNames.get(j);
@@ -1580,9 +1606,18 @@ public class CaseEditorPanel extends JPanel {
                 String opinion = buildInterviewOpinion(npcRole, otherName, otherRole,
                         subject, victim, isMurder);
                 boolean opTruthful = isSubject ? random.nextBoolean() : true;
-                addInterviewRow(npcName, npcRole, "Opinion",
-                        "What do you think of " + otherName + "?",
-                        opinion, opTruthful, otherName);
+                // Opinions about the subject get Empathy gate
+                if (otherName.equals(subject) && !isSubject) {
+                    String altOpinion = buildInterviewOpinionGeneric(otherName);
+                    addInterviewRow(npcName, npcRole, "Opinion",
+                            "What do you think of " + otherName + "?",
+                            opinion, opTruthful, otherName,
+                            "Empathy", 5, altOpinion);
+                } else {
+                    addInterviewRow(npcName, npcRole, "Opinion",
+                            "What do you think of " + otherName + "?",
+                            opinion, opTruthful, otherName);
+                }
             }
 
             // --- WHEREABOUTS of subject (if not the subject themselves) ---
@@ -1600,21 +1635,45 @@ public class CaseEditorPanel extends JPanel {
                     "When did you last see " + targetPerson + "?",
                     lastContact, contactTruthful, targetPerson);
 
-            // --- OBSERVATION ---
+            // --- OBSERVATION (attribute-gated) ---
             String observation = buildInterviewObservation(npcRole, subject,
                     targetPerson, isSubject);
             boolean obsTruthful = isSubject ? random.nextBoolean() : true;
-            addInterviewRow(npcName, npcRole, "Observation",
-                    "Did you notice anything unusual around the time of the incident?",
-                    observation, obsTruthful, "");
+            if (isSubject) {
+                // Subject: Intimidation reveals more under pressure
+                String revealObs = buildInterviewObservationRevealed(subject, targetPerson);
+                addInterviewRow(npcName, npcRole, "Observation",
+                        "Did you notice anything unusual around the time of the incident?",
+                        revealObs, obsTruthful, "",
+                        "Intimidation", 6, observation);
+            } else {
+                // Others: Perception reveals specific details
+                String genericObs = buildInterviewObservationGeneric();
+                addInterviewRow(npcName, npcRole, "Observation",
+                        "Did you notice anything unusual around the time of the incident?",
+                        observation, obsTruthful, "",
+                        "Perception", 5, genericObs);
+            }
 
-            // --- MOTIVE (murder cases only, for non-subject NPCs) ---
+            // --- MOTIVE (murder cases only, attribute-gated) ---
             if (isMurder) {
                 String motive = buildInterviewMotive(npcRole, subject, victim, isSubject);
                 boolean motTruthful = isSubject ? random.nextBoolean() : true;
-                addInterviewRow(npcName, npcRole, "Motive",
-                        "Can you think of anyone who would want to harm " + victim + "?",
-                        motive, motTruthful, victim);
+                if (isSubject) {
+                    // Subject: Intimidation reveals more under pressure
+                    String motiveRevealed = buildInterviewMotiveRevealed(subject, victim);
+                    addInterviewRow(npcName, npcRole, "Motive",
+                            "Can you think of anyone who would want to harm " + victim + "?",
+                            motiveRevealed, motTruthful, victim,
+                            "Intimidation", 7, motive);
+                } else {
+                    // Others: Intuition reveals motive insight
+                    String motiveGeneric = buildInterviewMotiveGeneric();
+                    addInterviewRow(npcName, npcRole, "Motive",
+                            "Can you think of anyone who would want to harm " + victim + "?",
+                            motive, motTruthful, victim,
+                            "Intuition", 5, motiveGeneric);
+                }
             }
 
             // --- RELATIONSHIP (with the target person) ---
@@ -1631,13 +1690,24 @@ public class CaseEditorPanel extends JPanel {
                 + " interview responses for " + countInterviewedNpcs() + " NPCs.");
     }
 
-    /** Adds a single row to the interview table. */
+    /** Adds a single row to the interview table (no attribute gate). */
     private void addInterviewRow(String npcName, String npcRole, String topic,
                                   String question, String answer,
                                   boolean truthful, String aboutNpc) {
+        addInterviewRow(npcName, npcRole, topic, question, answer,
+                truthful, aboutNpc, "", 0, "");
+    }
+
+    /** Adds a single row to the interview table with optional attribute gate. */
+    private void addInterviewRow(String npcName, String npcRole, String topic,
+                                  String question, String answer,
+                                  boolean truthful, String aboutNpc,
+                                  String reqAttribute, int reqValue,
+                                  String altAnswer) {
         interviewModel.addRow(new Object[]{
                 npcName, npcRole, topic, question, answer,
-                Boolean.valueOf(truthful), aboutNpc});
+                Boolean.valueOf(truthful), aboutNpc,
+                reqAttribute, Integer.valueOf(reqValue), altAnswer});
     }
 
     /** Counts the number of distinct NPC names in the interview table. */
@@ -1868,6 +1938,63 @@ public class CaseEditorPanel extends JPanel {
             };
             return pool[random.nextInt(pool.length)];
         }
+    }
+
+    // ---- Alternate/generic/revealed answer generators for attribute gates ----
+
+    /** Generic opinion when Empathy requirement is not met. */
+    private String buildInterviewOpinionGeneric(String otherName) {
+        String[] pool = {
+            "I don't really know " + otherName + " well enough to say.",
+            otherName + "? I couldn't tell you much. We weren't close.",
+            "I don't have strong feelings about " + otherName + " either way.",
+            "I'd rather not comment on " + otherName + ". I barely know them."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /** Generic observation when Perception requirement is not met. */
+    private String buildInterviewObservationGeneric() {
+        String[] pool = {
+            "I'm not sure. I don't think I noticed anything out of the ordinary.",
+            "Nothing comes to mind. Sorry, I wish I could be more helpful.",
+            "I wasn't really paying attention to anything in particular.",
+            "Everything seemed normal to me. I can't think of anything specific."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /** Revealed observation when Intimidation gets through to the subject. */
+    private String buildInterviewObservationRevealed(String subject, String targetPerson) {
+        String[] pool = {
+            "Fine. I did see something that night. There was someone else hanging around, but I don't know who.",
+            "Alright, alright. I noticed things were off. " + targetPerson + " had been acting scared for days.",
+            "Okay, look — there was a meeting. I overheard part of it. Voices were raised.",
+            "I'll tell you this much — " + targetPerson + " was expecting trouble. They told me so."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /** Generic motive when Intuition requirement is not met. */
+    private String buildInterviewMotiveGeneric() {
+        String[] pool = {
+            "I don't know why anyone would do this. It's terrible.",
+            "I can't think of anyone specific. I'm sorry.",
+            "I wish I knew. I've been asking myself the same question.",
+            "I wouldn't want to accuse anyone. I really don't know."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /** Revealed motive when Intimidation breaks through subject's defences. */
+    private String buildInterviewMotiveRevealed(String subject, String victim) {
+        String[] pool = {
+            "Fine. " + victim + " and I had problems. But there are others who had it worse with " + victim + ".",
+            "You want the truth? " + victim + " made enemies. I was one of them, but I'm not the only one.",
+            "Look, I'll admit it — " + victim + " wronged me. But I didn't do this. Check other people's stories.",
+            "Alright. Yes, I was angry with " + victim + ". But killing? That's not me. Someone else was circling."
+        };
+        return pool[random.nextInt(pool.length)];
     }
 
     private String buildLeadHint(int index, String method, String subject) {

@@ -830,8 +830,9 @@ public class CaseGenerator {
                 alibiPool[random.nextInt(alibiPool.length)],
                 true, ""));
 
-        // OPINION of subject
+        // OPINION of subject — attribute-gated (Empathy reveals deeper insight)
         String[] opinionPool;
+        String[] opinionAltPool;
         switch (type) {
             case MURDER:
                 opinionPool = new String[]{
@@ -839,6 +840,11 @@ public class CaseGenerator {
                     subject + " had a temper. Everyone knew " + pronoun + " resented " + victim + ".",
                     "Honestly, " + subject + " scared me. There was something cold about " + pronoun + ".",
                     subject + " and " + victim + " used to be close, but something changed. " + pronounCap + " became possessive."
+                };
+                opinionAltPool = new String[]{
+                    "I don't really know what to say about " + subject + ". We weren't that close.",
+                    subject + "? I suppose we didn't get along, but I can't put my finger on why.",
+                    "I'd rather not say too much about " + subject + ". It's complicated."
                 };
                 break;
             case INFIDELITY:
@@ -848,6 +854,11 @@ public class CaseGenerator {
                     subject + " gets defensive whenever I ask about " + pronoun + " schedule.",
                     "People have told me " + subject + " has been seen with someone else. I need to know the truth."
                 };
+                opinionAltPool = new String[]{
+                    "Things have been different between us lately. That's all I'll say.",
+                    "I don't know what's going on with " + subject + ". Something feels off.",
+                    subject + " has been busy. I'm sure there's a reason."
+                };
                 break;
             default:
                 opinionPool = new String[]{
@@ -856,12 +867,19 @@ public class CaseGenerator {
                     "There's something off about " + subject + ". " + pronounCap + " acts helpful but I don't believe it.",
                     subject + " was always competitive — jealous of anyone who got ahead."
                 };
+                opinionAltPool = new String[]{
+                    "I know " + subject + ", but I'm not sure what to tell you.",
+                    subject + " and I aren't exactly close. I can't really say much.",
+                    "I don't have a strong opinion about " + subject + ", honestly."
+                };
                 break;
         }
         script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
                 "What do you think of " + subject + "?",
                 opinionPool[random.nextInt(opinionPool.length)],
-                true, subject));
+                true, subject,
+                "Empathy", 5,
+                opinionAltPool[random.nextInt(opinionAltPool.length)]));
 
         // LAST CONTACT with target
         String[] lastContactPool = {
@@ -875,19 +893,26 @@ public class CaseGenerator {
                 lastContactPool[random.nextInt(lastContactPool.length)],
                 true, targetPerson));
 
-        // OBSERVATION
+        // OBSERVATION — attribute-gated (Perception reveals more detail)
         String[] observPool = {
             "Now that you mention it, I did notice " + subject + " acting strangely a few days before.",
             "I saw an unfamiliar car parked near " + targetPerson + "'s place more than once.",
             "There were raised voices coming from " + targetPerson + "'s flat the night before.",
             "I noticed " + subject + " was unusually nervous the last time we spoke."
         };
+        String[] observAltPool = {
+            "I'm not sure. I don't think I noticed anything out of the ordinary.",
+            "Nothing comes to mind. Sorry, I wish I could be more helpful.",
+            "I wasn't really paying attention to anything in particular."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
                 "Did you notice anything unusual around the time of the incident?",
                 observPool[random.nextInt(observPool.length)],
-                true, ""));
+                true, "",
+                "Perception", 5,
+                observAltPool[random.nextInt(observAltPool.length)]));
 
-        // MOTIVE
+        // MOTIVE — attribute-gated (Intuition reveals motive insight)
         if (isMurder) {
             String[] motivePool = {
                 subject + " was jealous of " + victim + "'s relationship with others. It ate " + pronoun + " up inside.",
@@ -895,10 +920,17 @@ public class CaseGenerator {
                 victim + " was about to expose something about " + subject + ". I think " + pronoun + " panicked.",
                 subject + " always wanted what " + victim + " had — the status, the connections, everything."
             };
+            String[] motiveAltPool = {
+                "I don't know why anyone would do this. It's terrible.",
+                "I can't think of anyone specific. I'm sorry.",
+                "I wish I knew. I've been asking myself the same question."
+            };
             script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
                     "Can you think of anyone who would want to harm " + victim + "?",
                     motivePool[random.nextInt(motivePool.length)],
-                    true, victim));
+                    true, victim,
+                    "Intuition", 5,
+                    motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
     }
 
@@ -974,17 +1006,25 @@ public class CaseGenerator {
                 whereaboutsPool[random.nextInt(whereaboutsPool.length)],
                 random.nextBoolean(), targetPerson));
 
-        // OBSERVATION
+        // OBSERVATION — attribute-gated (Intimidation pressures subject to reveal more)
         String[] observPool = {
             "I didn't notice anything. I've been keeping to myself lately.",
             "Nothing unusual. Everything seemed normal to me.",
             "I try to mind my own business. I suggest you do the same.",
             "Look, I don't watch people. I had my own things going on."
         };
+        String[] observRevealPool = {
+            "Fine. I did see something that night. There was someone else hanging around the area, but I don't know who.",
+            "Alright, alright. I noticed things were off. " + targetPerson + " had been acting scared for days.",
+            "Okay, look — there was a meeting. I overheard part of it. Voices were raised.",
+            "I'll tell you this much — " + targetPerson + " was expecting trouble. They told me so."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
                 "Did you notice anything unusual around the time of the incident?",
-                observPool[random.nextInt(observPool.length)],
-                random.nextBoolean(), ""));
+                observRevealPool[random.nextInt(observRevealPool.length)],
+                random.nextBoolean(), "",
+                "Intimidation", 6,
+                observPool[random.nextInt(observPool.length)]));
 
         // LAST CONTACT with target
         boolean truthfulContact = random.nextInt(10) < 4; // 40% truthful
@@ -1004,18 +1044,26 @@ public class CaseGenerator {
                 contactPool[random.nextInt(contactPool.length)],
                 truthfulContact, targetPerson));
 
-        // MOTIVE — deflect blame
+        // MOTIVE — deflect blame (Intimidation-gated: pressure reveals more)
         if (isMurder) {
-            String[] motivePool = {
+            String[] motiveDeflectPool = {
                 "Why are you asking me? You should be looking at " + client + ".",
                 "I don't know who would do this. But I know it wasn't me.",
                 "Plenty of people had issues with " + victim + ". I'm not the only one.",
                 "Have you checked " + victim + "'s financial records? There were debts. People were owed money."
             };
+            String[] motiveRevealPool = {
+                "Fine. " + victim + " and I had problems. But there are others who had it worse with " + victim + ".",
+                "You want the truth? " + victim + " made enemies. I was one of them, but I'm not the only one.",
+                "Look, I'll admit it — " + victim + " wronged me. But I didn't do this. Check " + client + "'s story.",
+                "Alright. Yes, I was angry with " + victim + ". But killing? That's not me. Someone else was circling."
+            };
             script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
                     "Can you think of anyone who would want to harm " + victim + "?",
-                    motivePool[random.nextInt(motivePool.length)],
-                    random.nextBoolean(), victim));
+                    motiveRevealPool[random.nextInt(motiveRevealPool.length)],
+                    random.nextBoolean(), victim,
+                    "Intimidation", 7,
+                    motiveDeflectPool[random.nextInt(motiveDeflectPool.length)]));
         }
     }
 
@@ -1050,7 +1098,7 @@ public class CaseGenerator {
                 subjectWhereaboutsPool[random.nextInt(subjectWhereaboutsPool.length)],
                 true, subject));
 
-        // OPINION of subject — character traits
+        // OPINION of subject — character traits (Empathy-gated: deeper profile)
         String[] opinionPool = {
             subject + " has always been the jealous type. Envious of anyone who had more.",
             "I've heard " + subject + " has a short temper. People around here are wary of confrontation.",
@@ -1059,10 +1107,17 @@ public class CaseGenerator {
             subject + " was competitive to the point of obsession. Always comparing, always resentful.",
             "I wouldn't call " + subject + " violent, but there was a bitterness. A deep grudge."
         };
+        String[] opinionAltPool = {
+            "I don't know " + subject + " well enough to say.",
+            subject + "? Seemed normal enough to me. I can't really comment.",
+            "I've seen " + subject + " around but I couldn't tell you much about their character."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
                 "What can you tell me about " + subject + "'s character?",
                 opinionPool[random.nextInt(opinionPool.length)],
-                true, subject));
+                true, subject,
+                "Empathy", 6,
+                opinionAltPool[random.nextInt(opinionAltPool.length)]));
 
         // OPINION of victim/target
         if (isMurder) {
@@ -1078,7 +1133,7 @@ public class CaseGenerator {
                     true, victim));
         }
 
-        // OBSERVATION
+        // OBSERVATION — attribute-gated (Perception reveals specific details)
         String[] observPool = {
             "I heard raised voices from the direction of " + targetPerson + "'s place that night.",
             "There was a car I didn't recognise parked outside for hours. It left in a hurry.",
@@ -1086,10 +1141,17 @@ public class CaseGenerator {
             "I saw someone running from the area around 11 PM. I couldn't make out who it was.",
             "Things had been tense in the neighbourhood. There were arguments in the days before."
         };
+        String[] observAltPool = {
+            "I might have heard something, but I can't be sure.",
+            "Nothing stands out in particular. It was a normal evening.",
+            "I was busy with my own things. I didn't pay much attention."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
                 "Did you notice anything unusual around the time of the incident?",
                 observPool[random.nextInt(observPool.length)],
-                true, ""));
+                true, "",
+                "Perception", 6,
+                observAltPool[random.nextInt(observAltPool.length)]));
 
         // LAST CONTACT
         String[] contactPool = {
@@ -1103,7 +1165,7 @@ public class CaseGenerator {
                 contactPool[random.nextInt(contactPool.length)],
                 true, targetPerson));
 
-        // MOTIVE
+        // MOTIVE — attribute-gated (Intuition reveals motive insight)
         if (isMurder) {
             String[] motivePool = {
                 "I always thought " + subject + " was jealous of " + victim + ". " + subject + " couldn't hide it.",
@@ -1111,10 +1173,17 @@ public class CaseGenerator {
                 subject + " once said something that stuck with me — about " + victim + " getting what was coming.",
                 "I don't want to point fingers, but " + subject + " had more reason than anyone."
             };
+            String[] motiveAltPool = {
+                "I can't think of anyone specific. It's a mystery to me.",
+                "I don't like to speculate. I really don't know.",
+                "I wouldn't want to accuse anyone. I'm just a witness."
+            };
             script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
                     "Do you know of anyone who might have wanted to harm " + victim + "?",
                     motivePool[random.nextInt(motivePool.length)],
-                    true, victim));
+                    true, victim,
+                    "Intuition", 5,
+                    motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
     }
 
@@ -1159,7 +1228,7 @@ public class CaseGenerator {
                 relationshipPool[random.nextInt(relationshipPool.length)],
                 true, targetPerson));
 
-        // OPINION of subject — personality profile
+        // OPINION of subject — personality profile (Empathy-gated: deeper character insight)
         String[] opinionPool = {
             subject + " was always envious. The kind of person who measures themselves against everyone else.",
             "I noticed " + subject + " becoming more controlling and possessive over time. It worried me.",
@@ -1168,10 +1237,17 @@ public class CaseGenerator {
             subject + " was resentful — especially about money. Always felt shortchanged.",
             "I've seen " + subject + " fly into a rage over small things. There's a violent streak there."
         };
+        String[] opinionAltPool = {
+            subject + "? We got along fine. I can't say I noticed anything unusual.",
+            "I don't know " + subject + " well enough to comment on their personality.",
+            subject + " seemed like anyone else. Nothing stood out to me."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
                 "What's your impression of " + subject + "?",
                 opinionPool[random.nextInt(opinionPool.length)],
-                true, subject));
+                true, subject,
+                "Empathy", 6,
+                opinionAltPool[random.nextInt(opinionAltPool.length)]));
 
         // WHEREABOUTS
         String[] whereaboutsPool = {
@@ -1185,17 +1261,24 @@ public class CaseGenerator {
                 whereaboutsPool[random.nextInt(whereaboutsPool.length)],
                 random.nextBoolean(), subject));
 
-        // OBSERVATION
+        // OBSERVATION — attribute-gated (Perception reveals behavioral detail)
         String[] observPool = {
             "In the weeks before, " + subject + " was acting differently. More secretive, more on edge.",
             targetPerson + " mentioned feeling watched or followed. I didn't take it seriously at the time.",
             "There was a lot of tension between " + subject + " and " + targetPerson + " recently.",
             "I noticed " + subject + " drinking more than usual. Something was clearly bothering them."
         };
+        String[] observAltPool = {
+            "I can't say I noticed anything unusual. Everything seemed normal.",
+            "I wasn't around much in the weeks before, so I can't really say.",
+            "Nothing specific comes to mind. I'm sorry."
+        };
         script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
                 "Did you notice anything unusual in the weeks leading up to the incident?",
                 observPool[random.nextInt(observPool.length)],
-                true, ""));
+                true, "",
+                "Perception", 5,
+                observAltPool[random.nextInt(observAltPool.length)]));
 
         // LAST CONTACT
         String[] contactPool = {
@@ -1209,7 +1292,7 @@ public class CaseGenerator {
                 contactPool[random.nextInt(contactPool.length)],
                 true, targetPerson));
 
-        // MOTIVE
+        // MOTIVE — attribute-gated (Intuition reveals motive insight)
         if (isMurder) {
             String[] motivePool = {
                 subject + " and " + victim + " had a bitter dispute about money. " + subject + " never got over it.",
@@ -1218,10 +1301,17 @@ public class CaseGenerator {
                 subject + " was possessive about " + victim + ". When things soured, it turned ugly.",
                 "There was a rivalry between them. " + subject + " couldn't stand that " + victim + " was doing better."
             };
+            String[] motiveAltPool = {
+                "I honestly don't know. This is all such a shock.",
+                "I can't imagine why anyone would do something like this.",
+                "I'd rather not speculate. I don't want to say the wrong thing."
+            };
             script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
                     "Why do you think someone might have wanted to harm " + victim + "?",
                     motivePool[random.nextInt(motivePool.length)],
-                    true, victim));
+                    true, victim,
+                    "Intuition", 6,
+                    motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
     }
 
