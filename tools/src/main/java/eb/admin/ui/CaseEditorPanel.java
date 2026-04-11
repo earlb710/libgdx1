@@ -775,32 +775,14 @@ public class CaseEditorPanel extends JPanel {
                     + "Key items to capture include entry and exit points, signs of disturbance, "
                     + "any objects out of place, and the general layout of the area. "
                     + "Photos will be compared against the official report and may "
-                    + "contradict the coroner's findings.\n\n"
-                    + "Possible Results:\n"
-                    + "  [PERCEPTION: 2]      Notices general layout and obvious disturbances — "
-                    + "confirms the scene matches the official report.\n"
-                    + "  [PERCEPTION: 4]      Spots a detail out of place (moved furniture, disturbed "
-                    + "dust, partial footprint) — adds a minor clue to the case file.\n"
-                    + "  [PERCEPTION: 6]      Identifies a hidden or deliberately concealed item "
-                    + "(covered blood stain, tampered lock) — unlocks a new lead.\n"
-                    + "  [INTELLIGENCE: 4]    Cross-references photos against the coroner's "
-                    + "measurements — finds a discrepancy in the official timeline.";
+                    + "contradict the coroner's findings.";
 
         } else if ("Collect physical evidence".equals(title)) {
             return "Action: Collect physical evidence.\n\n"
                     + "Physical items at the scene are catalogued and preserved. "
                     + "This includes anything that could place " + subject
                     + " at the location, establish a timeline, or link a third party "
-                    + "to the incident. Proper chain of custody must be maintained.\n\n"
-                    + "Possible Results:\n"
-                    + "  [INTELLIGENCE: 2]    Recovers surface-level items (discarded items, "
-                    + "obvious debris) — standard evidence log entry.\n"
-                    + "  [INTELLIGENCE: 4]    Recovers trace evidence (fibres, hair, partial "
-                    + "fingerprint) — provides a forensic lead linking " + subject + " or a third party.\n"
-                    + "  [INTELLIGENCE: 6]    Uncovers concealed or micro-scale evidence "
-                    + "(DNA under fingernails, hidden compartment) — strong physical link.\n"
-                    + "  [PERCEPTION: 5]      Notices that a specific item is missing from where "
-                    + "it should be — suggests deliberate removal or staging.";
+                    + "to the incident. Proper chain of custody must be maintained.";
 
         } else if (title.startsWith("Interview a contact of")) {
             return "Action: Interview a contact of " + subject + ".\n\n"
@@ -808,18 +790,7 @@ public class CaseEditorPanel extends JPanel {
                     + "'s social or professional circle. "
                     + "The goal is to establish " + subject
                     + "'s movements, relationships, and possible motive. "
-                    + "The contact's cooperativeness and honesty will affect what is revealed.\n\n"
-                    + "Possible Results:\n"
-                    + "  [CHARISMA: 2]        Contact speaks briefly — confirms or denies a known "
-                    + "alibi for " + subject + ".\n"
-                    + "  [CHARISMA: 4]        Contact opens up — reveals a detail about " + subject
-                    + "'s recent behaviour or state of mind.\n"
-                    + "  [CHARISMA: 6]        Contact confides something sensitive — exposes a "
-                    + "hidden relationship or secret relevant to the case.\n"
-                    + "  [INTIMIDATION: 4]    Investigator applies pressure — contact divulges "
-                    + "information they were reluctant to share.\n"
-                    + "  [EMPATHY: 3]         Reads the contact's emotional state — determines "
-                    + "whether fear, guilt, or loyalty is shaping their answers.";
+                    + "The contact's cooperativeness and honesty will affect what is revealed.";
 
         } else if ("Review documents or records".equals(title)) {
             return "Action: Review documents or records.\n\n"
@@ -827,33 +798,14 @@ public class CaseEditorPanel extends JPanel {
                     + "employment files, or official reports — is obtained and analysed. "
                     + "Discrepancies between the documented record and witness accounts "
                     + "may surface hidden connections between " + subject
-                    + " and " + victim + ".\n\n"
-                    + "Possible Results:\n"
-                    + "  [INTELLIGENCE: 2]    Locates the requested documents and confirms "
-                    + "basic facts (dates, names, addresses).\n"
-                    + "  [INTELLIGENCE: 4]    Spots an anomaly in the records (unusual "
-                    + "payment, altered entry, missing period) — raises a question about "
-                    + subject + "'s activities.\n"
-                    + "  [INTELLIGENCE: 6]    Traces a financial or communication chain "
-                    + "connecting " + subject + " and " + victim
-                    + " — provides strong circumstantial evidence.\n"
-                    + "  [MEMORY: 3]          Recalls a related fact from earlier in the case — "
-                    + "cross-links two previously unconnected details.\n"
-                    + "  [STEALTH: 4]         Recognises forged or tampered documents — "
-                    + "proves deliberate cover-up.";
+                    + " and " + victim + ".";
 
         } else {
             // Generic fallback for manually added or custom actions
             return "Action: " + title + ".\n\n"
                     + "The investigator carries out this action as part of the current "
                     + "minor objective. Document findings carefully — any detail could "
-                    + "become relevant as the case develops.\n\n"
-                    + "Possible Results:\n"
-                    + "  [PERCEPTION: 2]      Basic observation — confirms surface-level details.\n"
-                    + "  [INTELLIGENCE: 4]    Deeper analysis — uncovers a hidden connection "
-                    + "or inconsistency.\n"
-                    + "  [INTUITION: 3]       A hunch proves correct — points toward an "
-                    + "unexpected angle in the investigation.";
+                    + "become relevant as the case develops.";
         }
     }
 
