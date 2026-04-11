@@ -39,12 +39,14 @@ public final class InterviewResponse {
     /**
      * Creates an interview response with no attribute requirement.
      *
-     * @param topic        the category of this exchange; must not be {@code null}
-     * @param question     the detective's question text; must not be {@code null}
-     * @param answer       the NPC's reply; must not be {@code null}
+     * @param topic        the category of this exchange; defaults to
+     *                     {@link InterviewTopic#OBSERVATION} if {@code null}
+     * @param question     the detective's question text; defaults to empty if
+     *                     {@code null}
+     * @param answer       the NPC's reply; defaults to empty if {@code null}
      * @param truthful     {@code true} if the answer is factually accurate
-     * @param aboutNpcName the name of the NPC the question is about, or empty
-     *                     if the question is self-referencing
+     * @param aboutNpcName the name of the NPC the question is about, or empty /
+     *                     {@code null} if the question is self-referencing
      */
     public InterviewResponse(InterviewTopic topic, String question, String answer,
                              boolean truthful, String aboutNpcName) {
