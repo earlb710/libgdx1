@@ -96,6 +96,18 @@ public class CaseEditorPanel extends JPanel {
                 }
             };
 
+    // Step 7 – Interviews
+    // Columns: 0=NPC Name, 1=Role, 2=Topic, 3=Question, 4=Answer, 5=Truthful, 6=About NPC
+    private final DefaultTableModel interviewModel =
+            new DefaultTableModel(new String[]{
+                    "NPC Name", "Role", "Topic", "Question", "Answer",
+                    "Truthful", "About NPC"}, 0) {
+                @Override public Class<?> getColumnClass(int col) {
+                    if (col == 5) return Boolean.class;  // Truthful checkbox
+                    return String.class;
+                }
+            };
+
     // Step 6 – Story Tree
     private final DefaultMutableTreeNode storyRoot = new DefaultMutableTreeNode("Story Root");
     private final DefaultTreeModel       treeModel = new DefaultTreeModel(storyRoot);
@@ -146,6 +158,7 @@ public class CaseEditorPanel extends JPanel {
         objectiveArea.setText("");
         leadsModel.setRowCount(0);
         factsModel.setRowCount(0);
+        interviewModel.setRowCount(0);
         storyRoot.removeAllChildren();
         treeModel.reload();
         summaryArea.setText("");
@@ -164,6 +177,7 @@ public class CaseEditorPanel extends JPanel {
         steps.addTab("4. Story Tree",             buildStoryTreeStep());
         steps.addTab("5. Leads",                  buildLeadsStep());
         steps.addTab("6. Facts",                  buildFactsStep());
+        steps.addTab("7. Interviews",             buildInterviewsStep());
         steps.addTab("Summary",                   buildSummaryStep());
         return steps;
     }
@@ -501,6 +515,101 @@ public class CaseEditorPanel extends JPanel {
 
         panel.add(scroll,   BorderLayout.CENTER);
         panel.add(buttons,  BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // -- Step 7: Interviews ---------------------------------------------------
+
+    private JPanel buildInterviewsStep() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JTable interviewTable = new JTable(interviewModel);
+        interviewTable.setRowHeight(26);
+        interviewTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        interviewTable.getTableHeader().setReorderingAllowed(false);
+        interviewTable.getColumnModel().getColumn(0).setPreferredWidth(120); // NPC Name
+        interviewTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Role
+        interviewTable.getColumnModel().getColumn(2).setPreferredWidth(100); // Topic
+        interviewTable.getColumnModel().getColumn(3).setPreferredWidth(250); // Question
+        interviewTable.getColumnModel().getColumn(4).setPreferredWidth(350); // Answer
+        interviewTable.getColumnModel().getColumn(5).setPreferredWidth(60);  // Truthful
+        interviewTable.getColumnModel().getColumn(6).setPreferredWidth(120); // About NPC
+
+        // Topic column — combo editor
+        JComboBox<String> topicCombo = new JComboBox<>();
+        for (eb.framework1.investigation.InterviewTopic t : eb.framework1.investigation.InterviewTopic.values()) {
+            topicCombo.addItem(t.getDisplayName());
+        }
+        interviewTable.getColumnModel().getColumn(2)
+                .setCellEditor(new DefaultCellEditor(topicCombo));
+
+        JScrollPane scroll = new JScrollPane(interviewTable);
+
+        // Detail area for viewing full answer text
+        JTextArea interviewDetailArea = new JTextArea(4, 60);
+        interviewDetailArea.setLineWrap(true);
+        interviewDetailArea.setWrapStyleWord(true);
+        interviewDetailArea.setEditable(false);
+        interviewDetailArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        interviewDetailArea.setText("Select a row to see the full question and answer.");
+        JScrollPane detailScroll = new JScrollPane(interviewDetailArea);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("Interview Detail"));
+
+        interviewTable.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            int row = interviewTable.getSelectedRow();
+            if (row < 0) {
+                interviewDetailArea.setText("");
+                return;
+            }
+            String npc      = String.valueOf(interviewModel.getValueAt(row, 0));
+            String role     = String.valueOf(interviewModel.getValueAt(row, 1));
+            String topic    = String.valueOf(interviewModel.getValueAt(row, 2));
+            String question = String.valueOf(interviewModel.getValueAt(row, 3));
+            String answer   = String.valueOf(interviewModel.getValueAt(row, 4));
+            Object truthObj = interviewModel.getValueAt(row, 5);
+            boolean truthful = Boolean.TRUE.equals(truthObj);
+            String aboutNpc = String.valueOf(interviewModel.getValueAt(row, 6));
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("NPC: ").append(npc).append(" (").append(role).append(")\n");
+            sb.append("Topic: ").append(topic);
+            if (!aboutNpc.isEmpty()) sb.append("  —  About: ").append(aboutNpc);
+            sb.append("\n\n");
+            sb.append("Q: ").append(question).append("\n\n");
+            sb.append("A: ").append(answer).append("\n\n");
+            sb.append(truthful ? "✔ This answer is TRUTHFUL." : "✘ This answer is DECEPTIVE.");
+            interviewDetailArea.setText(sb.toString());
+            interviewDetailArea.setCaretPosition(0);
+        });
+
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                scroll, detailScroll);
+        split.setDividerLocation(300);
+        split.setResizeWeight(0.7);
+
+        JButton genBtn    = new JButton("Generate Interviews");
+        JButton addBtn    = new JButton("Add Response");
+        JButton deleteBtn = new JButton("Delete Response");
+
+        genBtn.addActionListener(e -> generateInterviews());
+        addBtn.addActionListener(e -> {
+            interviewModel.addRow(new Object[]{
+                    "", "", "Alibi", "", "", Boolean.TRUE, ""});
+        });
+        deleteBtn.addActionListener(e -> {
+            int row = interviewTable.getSelectedRow();
+            if (row >= 0) interviewModel.removeRow(row);
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(genBtn);
+        buttons.add(addBtn);
+        buttons.add(deleteBtn);
+
+        panel.add(split,   BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -1407,6 +1516,360 @@ public class CaseEditorPanel extends JPanel {
         statusLabel.setText("Generated " + factsModel.getRowCount() + " facts.");
     }
 
+    /**
+     * Generates interview scripts for all living NPCs in the NPC table.
+     *
+     * <p>Each NPC gets a set of pre-generated question/answer pairs covering
+     * alibis, whereabouts, opinions of other characters, relationships,
+     * last contact, observations, and possible motives.  Responses vary
+     * based on the NPC's role, and subjects (suspects) may give deceptive
+     * answers marked as non-truthful.
+     */
+    private void generateInterviews() {
+        if (npcModel.getRowCount() < 2) {
+            JOptionPane.showMessageDialog(this, "Generate NPCs first.",
+                    "Missing Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        interviewModel.setRowCount(0);
+
+        String caseType = (String) caseTypeCombo.getSelectedItem();
+        if (caseType == null) caseType = "Investigation";
+        boolean isMurder = "Murder".equals(caseType);
+
+        String client  = clientNameField.getText().trim();
+        String subject = subjectNameField.getText().trim();
+        String victim  = victimNameField.getText().trim();
+        if (client.isEmpty())  client  = "the client";
+        if (subject.isEmpty()) subject = "the subject";
+        if (victim.isEmpty())  victim  = "the victim";
+
+        String targetPerson = isMurder ? victim : subject;
+
+        // Collect all NPC names and roles
+        List<String> npcNames = new ArrayList<>();
+        List<String> npcRoles = new ArrayList<>();
+        List<Boolean> npcDead = new ArrayList<>();
+        for (int i = 0; i < npcModel.getRowCount(); i++) {
+            npcRoles.add(String.valueOf(npcModel.getValueAt(i, 0)));
+            npcNames.add(String.valueOf(npcModel.getValueAt(i, 1)));
+            npcDead.add(Boolean.TRUE.equals(npcModel.getValueAt(i, 8)));
+        }
+
+        for (int i = 0; i < npcNames.size(); i++) {
+            if (npcDead.get(i)) continue;  // Dead NPCs cannot be interviewed
+
+            String npcName = npcNames.get(i);
+            String npcRole = npcRoles.get(i);
+            boolean isSubject = npcRole.startsWith("Subject");
+            boolean isClient  = npcRole.startsWith("Client");
+
+            // --- ALIBI ---
+            String alibi = buildInterviewAlibi(npcRole, isSubject);
+            boolean alibiTruthful = isSubject ? random.nextInt(10) < 3 : true;
+            addInterviewRow(npcName, npcRole, "Alibi",
+                    "Where were you at the time of the incident?",
+                    alibi, alibiTruthful, "");
+
+            // --- OPINION of other NPCs ---
+            for (int j = 0; j < npcNames.size(); j++) {
+                if (j == i || npcDead.get(j)) continue;  // Skip self and dead NPCs
+                String otherName = npcNames.get(j);
+                String otherRole = npcRoles.get(j);
+                String opinion = buildInterviewOpinion(npcRole, otherName, otherRole,
+                        subject, victim, isMurder);
+                boolean opTruthful = isSubject ? random.nextBoolean() : true;
+                addInterviewRow(npcName, npcRole, "Opinion",
+                        "What do you think of " + otherName + "?",
+                        opinion, opTruthful, otherName);
+            }
+
+            // --- WHEREABOUTS of subject (if not the subject themselves) ---
+            if (!isSubject) {
+                String whereabouts = buildInterviewWhereabouts(npcRole, subject, isMurder);
+                addInterviewRow(npcName, npcRole, "Whereabouts",
+                        "Do you know where " + subject + " was at the time?",
+                        whereabouts, true, subject);
+            }
+
+            // --- LAST CONTACT with target ---
+            String lastContact = buildInterviewLastContact(npcRole, targetPerson);
+            boolean contactTruthful = isSubject ? random.nextInt(10) < 4 : true;
+            addInterviewRow(npcName, npcRole, "Last Contact",
+                    "When did you last see " + targetPerson + "?",
+                    lastContact, contactTruthful, targetPerson);
+
+            // --- OBSERVATION ---
+            String observation = buildInterviewObservation(npcRole, subject,
+                    targetPerson, isSubject);
+            boolean obsTruthful = isSubject ? random.nextBoolean() : true;
+            addInterviewRow(npcName, npcRole, "Observation",
+                    "Did you notice anything unusual around the time of the incident?",
+                    observation, obsTruthful, "");
+
+            // --- MOTIVE (murder cases only, for non-subject NPCs) ---
+            if (isMurder) {
+                String motive = buildInterviewMotive(npcRole, subject, victim, isSubject);
+                boolean motTruthful = isSubject ? random.nextBoolean() : true;
+                addInterviewRow(npcName, npcRole, "Motive",
+                        "Can you think of anyone who would want to harm " + victim + "?",
+                        motive, motTruthful, victim);
+            }
+
+            // --- RELATIONSHIP (with the target person) ---
+            if (!npcName.equals(targetPerson)) {
+                String relationship = buildInterviewRelationship(npcRole, npcName,
+                        targetPerson, isMurder);
+                addInterviewRow(npcName, npcRole, "Relationship",
+                        "How do you know " + targetPerson + "?",
+                        relationship, true, targetPerson);
+            }
+        }
+
+        statusLabel.setText("Generated " + interviewModel.getRowCount()
+                + " interview responses for " + countInterviewedNpcs() + " NPCs.");
+    }
+
+    /** Adds a single row to the interview table. */
+    private void addInterviewRow(String npcName, String npcRole, String topic,
+                                  String question, String answer,
+                                  boolean truthful, String aboutNpc) {
+        interviewModel.addRow(new Object[]{
+                npcName, npcRole, topic, question, answer,
+                Boolean.valueOf(truthful), aboutNpc});
+    }
+
+    /** Counts the number of distinct NPC names in the interview table. */
+    private int countInterviewedNpcs() {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        for (int i = 0; i < interviewModel.getRowCount(); i++) {
+            names.add(String.valueOf(interviewModel.getValueAt(i, 0)));
+        }
+        return names.size();
+    }
+
+    // ---- Interview answer generators ----------------------------------------
+
+    private String buildInterviewAlibi(String role, boolean isSubject) {
+        if (isSubject) {
+            String[] pool = {
+                "I was with a friend all night. We were playing cards until past midnight.",
+                "I was working late at the office. Check the security cameras if you want.",
+                "I was at a restaurant across town. I'm sure they'll remember me.",
+                "I was at home alone that evening. I fell asleep early.",
+                "I was at a bar downtown. The bartender knows me."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else if (role.startsWith("Client")) {
+            String[] pool = {
+                "I was at home all evening. My phone records will confirm it.",
+                "I was having dinner with friends. They'll vouch for me.",
+                "I was at work late — the security desk will have me on the log.",
+                "I was visiting family out of town. I have the tickets."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else {
+            String[] pool = {
+                "I was in the neighbourhood, on my way home from work.",
+                "I was at the local shop. It was close to closing time.",
+                "I was walking the dog. That's how I ended up seeing what I saw.",
+                "I was at home that evening. Went to bed early.",
+                "I was out with colleagues after work until about 10 PM."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+    }
+
+    private String buildInterviewOpinion(String npcRole, String otherName, String otherRole,
+                                          String subject, String victim, boolean isMurder) {
+        // Subject role opinions about others
+        if (npcRole.startsWith("Subject")) {
+            if (otherRole.startsWith("Client")) {
+                String[] pool = {
+                    otherName + " has always had it in for me. Don't believe everything you hear.",
+                    "I barely know " + otherName + ". We've spoken maybe twice.",
+                    otherName + " is paranoid. Sees conspiracies everywhere."
+                };
+                return pool[random.nextInt(pool.length)];
+            }
+            String[] pool = {
+                "I don't really know " + otherName + " well enough to comment.",
+                otherName + "? We get along fine. No issues between us.",
+                "I've nothing to say about " + otherName + "."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+
+        // Opinions about the subject — focus on character traits
+        if (otherName.equals(subject)) {
+            String[] pool = {
+                otherName + " has always been the jealous type. Envious of anyone who had more.",
+                "I've heard " + otherName + " has a short temper. People are wary of confrontation.",
+                otherName + " seemed charming on the surface, but there was something calculating underneath.",
+                otherName + " was possessive. Couldn't stand others having what they wanted.",
+                otherName + " was competitive to the point of obsession. Always comparing.",
+                otherName + " was resentful — especially about money. Always felt shortchanged.",
+                "I wouldn't call " + otherName + " violent, but there was a bitterness. A deep grudge.",
+                otherName + " was manipulative. Tells people what they want to hear.",
+                "I've seen " + otherName + " fly into a rage over small things."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+
+        // Opinions about the victim
+        if (isMurder && otherName.equals(victim)) {
+            String[] pool = {
+                otherName + " was well-liked by most people. I can't imagine who would do this.",
+                otherName + " had a way of rubbing some people the wrong way, but nothing serious.",
+                "Everyone knew " + otherName + ". A decent person. This has shaken everyone.",
+                otherName + " was private. Kept to themselves. I don't know much about their personal life."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+
+        // Generic opinions about other NPCs
+        String[] pool = {
+            otherName + " seems reliable enough. We've had no problems.",
+            "I don't know " + otherName + " very well, to be honest.",
+            otherName + " is a decent person as far as I can tell.",
+            "I've heard mixed things about " + otherName + ", but nothing specific.",
+            otherName + " keeps to themselves mostly. Hard to read."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    private String buildInterviewWhereabouts(String npcRole, String subject, boolean isMurder) {
+        if (npcRole.contains("Witness")) {
+            String[] pool = {
+                "I saw " + subject + " near the area that evening. " + subject + " looked agitated.",
+                "I'm pretty sure " + subject + " was in the area. I recognised the car.",
+                "I didn't see " + subject + " personally, but a neighbour mentioned spotting someone.",
+                subject + " was definitely around. I saw someone matching the description leaving in a hurry."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+        String[] pool = {
+            "I believe " + subject + " was supposed to be somewhere else that night.",
+            subject + " told me they'd be at home. Whether that's true, I don't know.",
+            "I haven't spoken to " + subject + " about that night.",
+            "Someone mentioned seeing " + subject + " in the area, but I can't say for certain."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    private String buildInterviewLastContact(String role, String targetPerson) {
+        if (role.startsWith("Client")) {
+            String[] pool = {
+                "I last saw " + targetPerson + " about two days before everything happened.",
+                "We spoke on the phone three days ago. Seemed normal.",
+                "I saw " + targetPerson + " the morning before the incident.",
+                "It's been over a week since I last spoke to " + targetPerson + "."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else if (role.startsWith("Subject")) {
+            String[] pool = {
+                "I haven't seen " + targetPerson + " in weeks.",
+                "I can't remember the last time I saw " + targetPerson + ".",
+                "I saw " + targetPerson + " that same day, earlier in the afternoon.",
+                "We spoke on the phone that morning. It was brief."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else {
+            String[] pool = {
+                "I said hello to " + targetPerson + " the day before. Seemed fine.",
+                "I saw " + targetPerson + " a few days ago at the shops.",
+                "We're not close, but I saw " + targetPerson + " that week.",
+                "Maybe three or four days before — I can't remember exactly."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+    }
+
+    private String buildInterviewObservation(String role, String subject,
+                                              String targetPerson, boolean isSubject) {
+        if (isSubject) {
+            String[] pool = {
+                "I didn't notice anything. I've been keeping to myself lately.",
+                "Nothing unusual. Everything seemed normal to me.",
+                "I try to mind my own business.",
+                "Look, I don't watch people. I had my own things going on."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+        String[] pool = {
+            "Now that you mention it, I did notice " + subject + " acting strangely.",
+            "I saw an unfamiliar car parked near " + targetPerson + "'s place more than once.",
+            "There were raised voices coming from " + targetPerson + "'s place the night before.",
+            "I noticed " + subject + " was unusually nervous the last time we spoke.",
+            "I heard arguments in the days before. Things had been tense.",
+            "I saw someone running from the area around 11 PM. I couldn't make out who.",
+            "The lights were on unusually late at " + targetPerson + "'s. That's not normal."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    private String buildInterviewMotive(String role, String subject, String victim,
+                                         boolean isSubject) {
+        if (isSubject) {
+            String[] pool = {
+                "Why are you asking me? You should be looking elsewhere.",
+                "I don't know who would do this. But I know it wasn't me.",
+                "Plenty of people had issues with " + victim + ". I'm not the only one.",
+                "Have you checked " + victim + "'s financial records? There were debts."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+        String[] pool = {
+            "I always thought " + subject + " was jealous of " + victim + ". It was obvious.",
+            "There was bad blood between " + subject + " and " + victim + ". Everyone could see it.",
+            subject + " once said something about " + victim + " getting what was coming.",
+            subject + " and " + victim + " had a bitter dispute about money.",
+            "I know " + subject + " was jealous of " + victim + "'s position. Felt passed over.",
+            victim + " knew something about " + subject + " that " + subject + " wanted kept quiet.",
+            subject + " was possessive about " + victim + ". When things soured, it turned ugly.",
+            "There was a rivalry between them. " + subject + " couldn't stand " + victim + " doing better."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    private String buildInterviewRelationship(String role, String npcName,
+                                               String targetPerson, boolean isMurder) {
+        if (role.startsWith("Client")) {
+            String[] pool = {
+                "We've known each other for years. That's why this hurts so much.",
+                targetPerson + " and I are — were — close.",
+                "We're family. Or as close as family gets.",
+                "I've known " + targetPerson + " most of my life."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else if (role.startsWith("Subject")) {
+            String[] pool = {
+                "We were acquaintances. Nothing more.",
+                "I knew " + targetPerson + " through work. Strictly professional.",
+                "We moved in the same circles. That's all.",
+                "I barely know " + targetPerson + ". We crossed paths occasionally."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else if (role.contains("Associate")) {
+            String[] pool = {
+                targetPerson + " and I were close. We'd known each other for years.",
+                "I worked with " + targetPerson + " for a long time. Colleagues and friends.",
+                targetPerson + " was like family to me.",
+                "We weren't best friends, but I respected " + targetPerson + "."
+            };
+            return pool[random.nextInt(pool.length)];
+        } else {
+            String[] pool = {
+                "I know " + targetPerson + " from the neighbourhood.",
+                "We're acquaintances. I see " + targetPerson + " around.",
+                "We've spoken a few times. Nothing deep.",
+                "I know " + targetPerson + " by sight. We've exchanged pleasantries."
+            };
+            return pool[random.nextInt(pool.length)];
+        }
+    }
+
     private String buildLeadHint(int index, String method, String subject) {
         switch (method) {
             case "Interview":
@@ -2058,6 +2521,30 @@ public class CaseEditorPanel extends JPanel {
 
         sb.append("--- Story Tree ---\n");
         appendTreeText(sb, storyRoot, 0);
+
+        sb.append('\n');
+        sb.append("--- Interviews (").append(interviewModel.getRowCount()).append(" responses) ---\n");
+        String lastNpc = "";
+        for (int i = 0; i < interviewModel.getRowCount(); i++) {
+            String npc = String.valueOf(interviewModel.getValueAt(i, 0));
+            if (!npc.equals(lastNpc)) {
+                if (!lastNpc.isEmpty()) sb.append('\n');
+                String role = String.valueOf(interviewModel.getValueAt(i, 1));
+                sb.append("  ").append(npc).append(" (").append(role).append("):\n");
+                lastNpc = npc;
+            }
+            String topic    = String.valueOf(interviewModel.getValueAt(i, 2));
+            String question = String.valueOf(interviewModel.getValueAt(i, 3));
+            String answer   = String.valueOf(interviewModel.getValueAt(i, 4));
+            Object truthObj = interviewModel.getValueAt(i, 5);
+            boolean truthful = Boolean.TRUE.equals(truthObj);
+            String aboutNpc = String.valueOf(interviewModel.getValueAt(i, 6));
+            sb.append("    [").append(topic).append("]");
+            if (!aboutNpc.isEmpty()) sb.append(" (about ").append(aboutNpc).append(")");
+            sb.append(truthful ? " ✔" : " ✘").append('\n');
+            sb.append("      Q: ").append(question).append('\n');
+            sb.append("      A: ").append(answer).append('\n');
+        }
 
         summaryArea.setText(sb.toString());
         summaryArea.setCaretPosition(0);
