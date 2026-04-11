@@ -219,6 +219,58 @@
       "percentage": 10
     }
   ],
+  "motive_categories": [
+    {
+      "code": "FINANCIAL_GAIN",
+      "name": "Financial Gain",
+      "description": "Driven by greed, inheritance, insurance fraud, or the promise of monetary reward"
+    },
+    {
+      "code": "REVENGE",
+      "name": "Revenge",
+      "description": "A desire to settle a grudge, avenge a wrong, or punish a perceived betrayal"
+    },
+    {
+      "code": "JEALOUSY",
+      "name": "Jealousy",
+      "description": "Envy over a romantic partner, professional success, or social standing"
+    },
+    {
+      "code": "COERCION",
+      "name": "Coercion",
+      "description": "Forced or manipulated into action by threats, blackmail, or undue influence"
+    },
+    {
+      "code": "POWER",
+      "name": "Power",
+      "description": "A drive to seize control, authority, or dominance over others"
+    },
+    {
+      "code": "SELF_DEFENSE",
+      "name": "Self-Defense",
+      "description": "Acting out of fear for personal safety, whether justified or perceived"
+    },
+    {
+      "code": "IDEOLOGY",
+      "name": "Ideology",
+      "description": "Motivated by political, religious, or philosophical beliefs"
+    },
+    {
+      "code": "CONCEALMENT",
+      "name": "Concealment",
+      "description": "Covering up another crime, secret, or compromising situation"
+    },
+    {
+      "code": "PASSION",
+      "name": "Passion",
+      "description": "An intense emotional outburst — love, rage, or desperation — leading to impulsive action"
+    },
+    {
+      "code": "LOYALTY",
+      "name": "Loyalty",
+      "description": "Protecting a family member, friend, or associate at any cost"
+    }
+  ],
   "discovery_methods": [
     {
       "code": "BACKGROUND_CHECK",

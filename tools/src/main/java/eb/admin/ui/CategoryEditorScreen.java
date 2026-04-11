@@ -84,6 +84,8 @@ public class CategoryEditorScreen extends JFrame {
             createModel(new String[]{"Code", "Name", "RGB", "Percentage"});
     private final DefaultTableModel genderCategoryModel =
             createModel(new String[]{"Code", "Name"});
+    private final DefaultTableModel motiveCategoryModel =
+            createModel(new String[]{"Code", "Name", "Description"});
 
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
@@ -140,6 +142,7 @@ public class CategoryEditorScreen extends JFrame {
         categoryTabs.addTab("Skill Categories",        buildSkillCategoryTabPanel());
         categoryTabs.addTab("Skin Tone Categories",    buildSkinToneCategoryTabPanel());
         categoryTabs.addTab("Gender Categories",       buildGenderCategoryTabPanel());
+        categoryTabs.addTab("Motive Categories",      buildCodeNameDescTabPanel(motiveCategoryModel));
 
         // "Categories" top-level panel: meta (version/lang) + inner sub-tabs
         JPanel categoriesPanel = new JPanel(new BorderLayout(0, 4));
@@ -659,6 +662,7 @@ public class CategoryEditorScreen extends JFrame {
             populateSkillCategoryModel(skillCategoryModel, data.getSkill_categories());
             populateSkinToneCategoryModel(skinToneCategoryModel, data.getSkin_tone_categories());
             populateGenderCategoryModel(genderCategoryModel, data.getGender_categories());
+            populateCodeNameDescModel(motiveCategoryModel, data.getMotive_categories());
 
             casePanel.loadData(data);
 
@@ -730,6 +734,7 @@ public class CategoryEditorScreen extends JFrame {
             skillCategoryModel.setRowCount(0);
             skinToneCategoryModel.setRowCount(0);
             genderCategoryModel.setRowCount(0);
+            motiveCategoryModel.setRowCount(0);
             casePanel.clearAll();
             versionField.setText("");
             currentFile = newFile;
@@ -1020,6 +1025,7 @@ public class CategoryEditorScreen extends JFrame {
         data.setSkill_categories(skillCategoryModelToEntries(skillCategoryModel));
         data.setSkin_tone_categories(skinToneCategoryModelToEntries(skinToneCategoryModel));
         data.setGender_categories(genderCategoryModelToEntries(genderCategoryModel));
+        data.setMotive_categories(codeNameDescModelToEntries(motiveCategoryModel));
         return data;
     }
 

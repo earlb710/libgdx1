@@ -26,7 +26,7 @@ import java.util.Random;
  *
  * <h3>Steps</h3>
  * <ol>
- *   <li><b>Case Type</b> — choose a type from the case_types table</li>
+ *   <li><b>Case Type</b> — choose a type, motive, and complexity from the code tables</li>
  *   <li><b>NPC Characters</b> — enter client/subject names, generate
  *       case-specific NPCs with roles and relationships</li>
  *   <li><b>Description &amp; Objective</b> — view generated narrative text</li>
@@ -43,6 +43,8 @@ public class CaseEditorPanel extends JPanel {
     // Step 1 – Case Type
     private final JComboBox<String> caseTypeCombo = new JComboBox<>();
     private final JLabel caseTypeDesc = new JLabel(" ");
+    private final JComboBox<String> motiveCombo = new JComboBox<>();
+    private final JLabel motiveDesc = new JLabel(" ");
     private final JSpinner complexitySpinner =
             new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
 
@@ -124,6 +126,7 @@ public class CaseEditorPanel extends JPanel {
     public void loadData(CategoryData data) {
         this.categoryData = data;
         refreshCaseTypeCombo();
+        refreshMotiveCombo();
         refreshDiscoveryMethodColumn();
     }
 
@@ -131,6 +134,8 @@ public class CaseEditorPanel extends JPanel {
     public void clearAll() {
         caseTypeCombo.removeAllItems();
         caseTypeDesc.setText(" ");
+        motiveCombo.removeAllItems();
+        motiveDesc.setText(" ");
         complexitySpinner.setValue(1);
         clientNameField.setText("");
         subjectNameField.setText("");
@@ -188,20 +193,33 @@ public class CaseEditorPanel extends JPanel {
         form.add(caseTypeDesc, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        form.add(new JLabel("Motive:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        form.add(motiveCombo, gbc);
+
+        motiveCombo.addActionListener(e -> updateMotiveDescription());
+
+        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        form.add(new JLabel("Motive Detail:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1;
+        motiveDesc.setFont(motiveDesc.getFont().deriveFont(Font.ITALIC));
+        form.add(motiveDesc, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 4; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
         form.add(new JLabel("Complexity (1–3):"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.NONE;
         form.add(complexitySpinner, gbc);
 
         JButton randomBtn = new JButton("Random Type");
         randomBtn.addActionListener(e -> pickRandomCaseType());
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE; gbc.anchor = GridBagConstraints.CENTER;
         form.add(randomBtn, gbc);
 
         panel.add(form, BorderLayout.NORTH);
 
         JLabel info = new JLabel(
-                "<html><i>Select a case type and complexity, then move to the next tab.</i></html>");
+                "<html><i>Select a case type, motive, and complexity, then move to the next tab.</i></html>");
         panel.add(info, BorderLayout.SOUTH);
         return panel;
     }
@@ -880,6 +898,47 @@ public class CaseEditorPanel extends JPanel {
         // editor is needed because leads are generated programmatically.
     }
 
+    private void refreshMotiveCombo() {
+        motiveCombo.removeAllItems();
+        if (categoryData == null) return;
+        for (CategoryEntry e : categoryData.getMotive_categories()) {
+            String name = e.getName() != null ? e.getName() : e.getCode();
+            motiveCombo.addItem(name);
+        }
+        updateMotiveDescription();
+    }
+
+    private void updateMotiveDescription() {
+        if (categoryData == null || motiveCombo.getSelectedIndex() < 0) {
+            motiveDesc.setText(" ");
+            return;
+        }
+        int idx = motiveCombo.getSelectedIndex();
+        List<CategoryEntry> motives = categoryData.getMotive_categories();
+        if (idx >= 0 && idx < motives.size()) {
+            String desc = motives.get(idx).getDescription();
+            motiveDesc.setText(desc != null ? desc : " ");
+        }
+    }
+
+    /** Returns the description of the currently selected motive, or a generic fallback. */
+    private String getMotiveExplanation() {
+        if (categoryData == null || motiveCombo.getSelectedIndex() < 0) {
+            return "The motive is not yet known.";
+        }
+        int idx = motiveCombo.getSelectedIndex();
+        List<CategoryEntry> motives = categoryData.getMotive_categories();
+        if (idx >= 0 && idx < motives.size()) {
+            String name = motives.get(idx).getName();
+            String desc = motives.get(idx).getDescription();
+            if (name != null && desc != null) {
+                return name + " — " + desc;
+            }
+            return name != null ? name : "The motive is not yet known.";
+        }
+        return "The motive is not yet known.";
+    }
+
     private void updateCaseTypeDescription() {
         if (categoryData == null || caseTypeCombo.getSelectedIndex() < 0) {
             caseTypeDesc.setText(" ");
@@ -907,8 +966,12 @@ public class CaseEditorPanel extends JPanel {
         if (caseTypeCombo.getItemCount() > 0) {
             int idx = random.nextInt(caseTypeCombo.getItemCount());
             caseTypeCombo.setSelectedIndex(idx);
+            if (motiveCombo.getItemCount() > 0) {
+                motiveCombo.setSelectedIndex(random.nextInt(motiveCombo.getItemCount()));
+            }
             complexitySpinner.setValue(1 + random.nextInt(3));
-            statusLabel.setText("Randomly selected case type: " + caseTypeCombo.getSelectedItem());
+            statusLabel.setText("Randomly selected: " + caseTypeCombo.getSelectedItem()
+                    + " / " + motiveCombo.getSelectedItem());
         }
     }
 
@@ -1413,7 +1476,6 @@ public class CaseEditorPanel extends JPanel {
 
     private void generateStoryTree() {
         storyRoot.removeAllChildren();
-        storyRoot.setUserObject("Story Root");
 
         // Clear models — facts and leads are generated inline by the story
         factsModel.setRowCount(0);
@@ -1422,6 +1484,12 @@ public class CaseEditorPanel extends JPanel {
         int complexity = (int) complexitySpinner.getValue();
         String caseType = (String) caseTypeCombo.getSelectedItem();
         if (caseType == null) caseType = "Investigation";
+        String motive = (String) motiveCombo.getSelectedItem();
+        if (motive == null) motive = "Unknown";
+        String motiveExplanation = getMotiveExplanation();
+
+        storyRoot.setUserObject("Story Root [" + caseType + " / " + motive
+                + " / complexity=" + complexity + "]");
 
         String subject = subjectNameField.getText().trim();
         if (subject.isEmpty()) subject = "the subject";
@@ -1448,7 +1516,7 @@ public class CaseEditorPanel extends JPanel {
                 client, victim, "", "", "", 0);
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
-        generateUnknownFacts(factIdCounter, caseType, subject, victim, client);
+        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveExplanation);
 
         // ---------- Build phases — facts and leads are created as the story demands ----------
         for (int phase = 1; phase <= complexity; phase++) {
@@ -1585,7 +1653,8 @@ public class CaseEditorPanel extends JPanel {
      * the motive, the weapon/method, and other unsolved elements of the story.
      */
     private void generateUnknownFacts(int[] factIdCounter, String caseType,
-                                       String subject, String victim, String client) {
+                                       String subject, String victim, String client,
+                                       String motiveExplanation) {
         boolean isMurder = "Murder".equalsIgnoreCase(caseType);
 
         // Core unknown: how was the crime committed?
@@ -1599,9 +1668,10 @@ public class CaseEditorPanel extends JPanel {
                     "UNKNOWN", 0L, "", "", "", "", "", 5);
         }
 
-        // Motive
+        // Motive — includes the generated explanation that must be discovered
         addFact(factIdCounter, "MOTIVE",
-                "What was the motive? Why would " + subject + " do this?",
+                "What was the motive? Why would " + subject + " do this? ("
+                        + motiveExplanation + ")",
                 "UNKNOWN", 0L, subject, "", "", "", "", 5);
 
         // Weapon / instrument
