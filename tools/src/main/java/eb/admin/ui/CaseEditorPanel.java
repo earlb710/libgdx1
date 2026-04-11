@@ -1400,6 +1400,10 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private void generateStoryTree() {
+        // Auto-generate leads and facts so the tree always has data to reference
+        generateLeads();
+        generateFacts();
+
         storyRoot.removeAllChildren();
         storyRoot.setUserObject("Story Root");
 
@@ -1542,7 +1546,8 @@ public class CaseEditorPanel extends JPanel {
 
         treeModel.reload();
         expandAll(storyTree);
-        statusLabel.setText("Generated story tree with " + complexity + " phase(s).");
+        statusLabel.setText("Generated story tree with " + complexity + " phase(s), "
+                + factsModel.getRowCount() + " facts, " + leadsModel.getRowCount() + " leads.");
     }
 
     /** Returns a random short result description appropriate for the given action title. */
