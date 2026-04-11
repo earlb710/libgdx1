@@ -901,11 +901,32 @@ public class CaseEditorPanel extends JPanel {
     private void refreshMotiveCombo() {
         motiveCombo.removeAllItems();
         if (categoryData == null) return;
+
+        // Determine the selected case type code for filtering
+        String selectedCaseTypeCode = getSelectedCaseTypeCode();
+
         for (CategoryEntry e : categoryData.getMotive_categories()) {
+            // If the motive has case_types defined, only include it if it matches
+            if (selectedCaseTypeCode != null && e.getCase_types() != null
+                    && !e.getCase_types().isEmpty()
+                    && !e.getCase_types().contains(selectedCaseTypeCode)) {
+                continue;
+            }
             String name = e.getName() != null ? e.getName() : e.getCode();
             motiveCombo.addItem(name);
         }
         updateMotiveDescription();
+    }
+
+    /** Returns the code of the currently selected case type, or null if none. */
+    private String getSelectedCaseTypeCode() {
+        if (categoryData == null || caseTypeCombo.getSelectedIndex() < 0) return null;
+        int idx = caseTypeCombo.getSelectedIndex();
+        List<CategoryEntry> types = categoryData.getCase_types();
+        if (idx >= 0 && idx < types.size()) {
+            return types.get(idx).getCode();
+        }
+        return null;
     }
 
     private void updateMotiveDescription() {
@@ -913,30 +934,41 @@ public class CaseEditorPanel extends JPanel {
             motiveDesc.setText(" ");
             return;
         }
-        int idx = motiveCombo.getSelectedIndex();
-        List<CategoryEntry> motives = categoryData.getMotive_categories();
-        if (idx >= 0 && idx < motives.size()) {
-            String desc = motives.get(idx).getDescription();
+        CategoryEntry motive = getSelectedMotiveEntry();
+        if (motive != null) {
+            String desc = motive.getDescription();
             motiveDesc.setText(desc != null ? desc : " ");
+        } else {
+            motiveDesc.setText(" ");
         }
     }
 
     /** Returns the description of the currently selected motive, or a generic fallback. */
     private String getMotiveExplanation() {
-        if (categoryData == null || motiveCombo.getSelectedIndex() < 0) {
-            return "The motive is not yet known.";
-        }
-        int idx = motiveCombo.getSelectedIndex();
-        List<CategoryEntry> motives = categoryData.getMotive_categories();
-        if (idx >= 0 && idx < motives.size()) {
-            String name = motives.get(idx).getName();
-            String desc = motives.get(idx).getDescription();
+        CategoryEntry motive = getSelectedMotiveEntry();
+        if (motive != null) {
+            String name = motive.getName();
+            String desc = motive.getDescription();
             if (name != null && desc != null) {
                 return name + " — " + desc;
             }
             return name != null ? name : "The motive is not yet known.";
         }
         return "The motive is not yet known.";
+    }
+
+    /** Finds the CategoryEntry matching the currently selected motive combo item. */
+    private CategoryEntry getSelectedMotiveEntry() {
+        if (categoryData == null || motiveCombo.getSelectedIndex() < 0) return null;
+        String selected = (String) motiveCombo.getSelectedItem();
+        if (selected == null) return null;
+        for (CategoryEntry e : categoryData.getMotive_categories()) {
+            String name = e.getName() != null ? e.getName() : e.getCode();
+            if (selected.equals(name)) {
+                return e;
+            }
+        }
+        return null;
     }
 
     private void updateCaseTypeDescription() {
@@ -952,6 +984,7 @@ public class CaseEditorPanel extends JPanel {
             caseTypeDesc.setText(desc != null ? desc : " ");
         }
         updateVictimNameVisibility();
+        refreshMotiveCombo();
     }
 
     /** Shows the victim name field only when the selected case type is Murder. */

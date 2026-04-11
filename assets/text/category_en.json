@@ -223,52 +223,62 @@
     {
       "code": "FINANCIAL_GAIN",
       "name": "Financial Gain",
-      "description": "Driven by greed, inheritance, insurance fraud, or the promise of monetary reward"
+      "description": "Driven by greed, inheritance, insurance fraud, or the promise of monetary reward",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "FRAUD", "MURDER", "THEFT"]
     },
     {
       "code": "REVENGE",
       "name": "Revenge",
-      "description": "A desire to settle a grudge, avenge a wrong, or punish a perceived betrayal"
+      "description": "A desire to settle a grudge, avenge a wrong, or punish a perceived betrayal",
+      "case_types": ["BLACKMAIL", "MURDER", "STALKING", "THEFT"]
     },
     {
       "code": "JEALOUSY",
       "name": "Jealousy",
-      "description": "Envy over a romantic partner, professional success, or social standing"
+      "description": "Envy over a romantic partner, professional success, or social standing",
+      "case_types": ["INFIDELITY", "MURDER", "STALKING"]
     },
     {
       "code": "COERCION",
       "name": "Coercion",
-      "description": "Forced or manipulated into action by threats, blackmail, or undue influence"
+      "description": "Forced or manipulated into action by threats, blackmail, or undue influence",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "FRAUD", "MURDER", "THEFT"]
     },
     {
       "code": "POWER",
       "name": "Power",
-      "description": "A drive to seize control, authority, or dominance over others"
+      "description": "A drive to seize control, authority, or dominance over others",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "MURDER", "STALKING"]
     },
     {
       "code": "SELF_DEFENSE",
       "name": "Self-Defense",
-      "description": "Acting out of fear for personal safety, whether justified or perceived"
+      "description": "Acting out of fear for personal safety, whether justified or perceived",
+      "case_types": ["MISSING_PERSON", "MURDER"]
     },
     {
       "code": "IDEOLOGY",
       "name": "Ideology",
-      "description": "Motivated by political, religious, or philosophical beliefs"
+      "description": "Motivated by political, religious, or philosophical beliefs",
+      "case_types": ["CORPORATE_ESPIONAGE", "MURDER", "THEFT"]
     },
     {
       "code": "CONCEALMENT",
       "name": "Concealment",
-      "description": "Covering up another crime, secret, or compromising situation"
+      "description": "Covering up another crime, secret, or compromising situation",
+      "case_types": ["BLACKMAIL", "FRAUD", "MISSING_PERSON", "MURDER"]
     },
     {
       "code": "PASSION",
       "name": "Passion",
-      "description": "An intense emotional outburst — love, rage, or desperation — leading to impulsive action"
+      "description": "An intense emotional outburst — love, rage, or desperation — leading to impulsive action",
+      "case_types": ["INFIDELITY", "MISSING_PERSON", "MURDER", "STALKING"]
     },
     {
       "code": "LOYALTY",
       "name": "Loyalty",
-      "description": "Protecting a family member, friend, or associate at any cost"
+      "description": "Protecting a family member, friend, or associate at any cost",
+      "case_types": ["BLACKMAIL", "FRAUD", "MISSING_PERSON", "MURDER", "THEFT"]
     }
   ],
   "discovery_methods": [

@@ -87,6 +87,15 @@ public class CategoryEditorScreen extends JFrame {
     private final DefaultTableModel motiveCategoryModel =
             createModel(new String[]{"Code", "Name", "Description"});
 
+    /** Case type checkboxes shown beneath the motive categories table. */
+    private final Map<String, JCheckBox> motiveCaseTypeCheckboxes = new java.util.LinkedHashMap<>();
+    /** Parallel list storing the case-type codes for each row of motiveCategoryModel. */
+    private final List<List<String>> motiveCaseTypesPerRow = new ArrayList<>();
+    /** The motive table currently being edited — needed for selection listener. */
+    private JTable motiveTable;
+    /** Panel holding the case-type checkboxes for the motive tab. */
+    private final JPanel motiveCaseTypeCheckboxPanel = new JPanel();
+
     // Status bar
     private final JLabel statusLabel = new JLabel("No file loaded – use File › Open to load a JSON file.");
 
@@ -142,7 +151,7 @@ public class CategoryEditorScreen extends JFrame {
         categoryTabs.addTab("Skill Categories",        buildSkillCategoryTabPanel());
         categoryTabs.addTab("Skin Tone Categories",    buildSkinToneCategoryTabPanel());
         categoryTabs.addTab("Gender Categories",       buildGenderCategoryTabPanel());
-        categoryTabs.addTab("Motive Categories",      buildCodeNameDescTabPanel(motiveCategoryModel));
+        categoryTabs.addTab("Motive Categories",      buildMotiveCategoryTabPanel());
 
         // "Categories" top-level panel: meta (version/lang) + inner sub-tabs
         JPanel categoriesPanel = new JPanel(new BorderLayout(0, 4));
@@ -432,6 +441,179 @@ public class CategoryEditorScreen extends JFrame {
     }
 
     /**
+     * Builds a custom tab panel for Motive Categories that includes the standard
+     * Code/Name/Description table plus a row of case-type checkboxes below it.
+     * When a motive row is selected, the checkboxes reflect which case types
+     * that motive is associated with.
+     */
+    private JPanel buildMotiveCategoryTabPanel() {
+        JTable table = new JTable(motiveCategoryModel) {
+            @Override
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int col) {
+                Component c = super.prepareRenderer(renderer, row, col);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, col);
+                if (bg != null) {
+                    c.setBackground(bg);
+                    c.setForeground(ANNOTATION_FOREGROUND);
+                } else if (!isRowSelected(row)) {
+                    c.setBackground(getBackground());
+                    c.setForeground(getForeground());
+                }
+                return c;
+            }
+
+            @Override
+            public javax.swing.table.TableCellEditor getCellEditor(int row, int column) {
+                javax.swing.table.TableCellEditor editor = super.getCellEditor(row, column);
+                Color bg = getAnnotationColor((DefaultTableModel) getModel(), row, column);
+                if (bg != null && editor instanceof DefaultCellEditor) {
+                    ((DefaultCellEditor) editor).getComponent().setBackground(bg);
+                }
+                return editor;
+            }
+        };
+        motiveTable = table;
+        categoryTables.add(table);
+        table.setRowHeight(26);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(0).setPreferredWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(160);
+        table.getColumnModel().getColumn(2).setPreferredWidth(500);
+
+        JScrollPane motiveScrollPane = new JScrollPane(table);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    JTable src = (JTable) e.getSource();
+                    int row = src.rowAtPoint(e.getPoint());
+                    int col = src.columnAtPoint(e.getPoint());
+                    if (row >= 0 && col >= 0 && src.getModel().isCellEditable(row, col)) {
+                        src.setRowSelectionInterval(row, row);
+                        showAnnotationMenu(src, row, col, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+
+        // --- Case type checkboxes panel ---
+        motiveCaseTypeCheckboxPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 2));
+        motiveCaseTypeCheckboxPanel.setBorder(
+                BorderFactory.createTitledBorder("Applicable Case Types (select a motive row)"));
+
+        // When a row is selected, load its case-type checkboxes
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                loadMotiveCaseTypesForSelectedRow();
+            }
+        });
+
+        JButton motiveAddBtn    = new JButton("Add Row");
+        JButton motiveDeleteBtn = new JButton("Delete Row");
+        JButton motiveSaveBtn   = new JButton("Save");
+
+        motiveAddBtn.addActionListener((ActionEvent e) -> {
+            motiveCategoryModel.addRow(new Object[]{"", "", ""});
+            motiveCaseTypesPerRow.add(new ArrayList<>());
+            int last = motiveCategoryModel.getRowCount() - 1;
+            table.scrollRectToVisible(table.getCellRect(last, 0, true));
+            table.setRowSelectionInterval(last, last);
+        });
+
+        motiveDeleteBtn.addActionListener((ActionEvent e) -> {
+            if (table.isEditing()) {
+                table.getCellEditor().cancelCellEditing();
+            }
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                motiveCategoryModel.removeRow(row);
+                if (row < motiveCaseTypesPerRow.size()) {
+                    motiveCaseTypesPerRow.remove(row);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Please select a row to delete.",
+                        "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        motiveSaveBtn.addActionListener((ActionEvent e) -> saveFile(false));
+
+        JPanel motiveButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        motiveButtons.add(motiveAddBtn);
+        motiveButtons.add(motiveDeleteBtn);
+        motiveButtons.add(Box.createHorizontalStrut(12));
+        motiveButtons.add(motiveSaveBtn);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(motiveCaseTypeCheckboxPanel, BorderLayout.CENTER);
+        bottomPanel.add(motiveButtons, BorderLayout.SOUTH);
+
+        JPanel motivePanel = new JPanel(new BorderLayout());
+        motivePanel.add(motiveScrollPane, BorderLayout.CENTER);
+        motivePanel.add(bottomPanel,      BorderLayout.SOUTH);
+
+        return motivePanel;
+    }
+
+    /**
+     * Rebuilds the case-type checkboxes for the Motive Categories panel
+     * using the current set of case types from the case type table model.
+     */
+    private void refreshMotiveCaseTypeCheckboxes() {
+        motiveCaseTypeCheckboxPanel.removeAll();
+        motiveCaseTypeCheckboxes.clear();
+
+        for (int r = 0; r < caseModel.getRowCount(); r++) {
+            String code = cellStr(caseModel, r, 0);
+            String label = cellStr(caseModel, r, 1);
+            if (code == null || code.isEmpty()) continue;
+            if (label == null || label.isEmpty()) label = code;
+            JCheckBox cb = new JCheckBox(label);
+            cb.setActionCommand(code);
+            cb.setEnabled(false); // disabled until a row is selected
+            cb.addActionListener(e -> saveMotiveCaseTypesForSelectedRow());
+            motiveCaseTypeCheckboxes.put(code, cb);
+            motiveCaseTypeCheckboxPanel.add(cb);
+        }
+        motiveCaseTypeCheckboxPanel.revalidate();
+        motiveCaseTypeCheckboxPanel.repaint();
+    }
+
+    /** Loads checkbox state from the parallel list for the currently selected motive row. */
+    private void loadMotiveCaseTypesForSelectedRow() {
+        int row = motiveTable != null ? motiveTable.getSelectedRow() : -1;
+        for (JCheckBox cb : motiveCaseTypeCheckboxes.values()) {
+            cb.setSelected(false);
+            cb.setEnabled(row >= 0);
+        }
+        if (row >= 0 && row < motiveCaseTypesPerRow.size()) {
+            List<String> codes = motiveCaseTypesPerRow.get(row);
+            for (String code : codes) {
+                JCheckBox cb = motiveCaseTypeCheckboxes.get(code);
+                if (cb != null) {
+                    cb.setSelected(true);
+                }
+            }
+        }
+    }
+
+    /** Saves checkbox state back to the parallel list for the currently selected motive row. */
+    private void saveMotiveCaseTypesForSelectedRow() {
+        int row = motiveTable != null ? motiveTable.getSelectedRow() : -1;
+        if (row < 0 || row >= motiveCaseTypesPerRow.size()) return;
+        List<String> codes = new ArrayList<>();
+        for (Map.Entry<String, JCheckBox> entry : motiveCaseTypeCheckboxes.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                codes.add(entry.getKey());
+            }
+        }
+        motiveCaseTypesPerRow.set(row, codes);
+    }
+
+    /**
      * Builds the tab panel for the Skill Categories table.
      * Skill categories use {@code code} and {@code name} columns (not {@code description}).
      */
@@ -663,6 +845,8 @@ public class CategoryEditorScreen extends JFrame {
             populateSkinToneCategoryModel(skinToneCategoryModel, data.getSkin_tone_categories());
             populateGenderCategoryModel(genderCategoryModel, data.getGender_categories());
             populateCodeNameDescModel(motiveCategoryModel, data.getMotive_categories());
+            populateMotiveCaseTypes(data.getMotive_categories());
+            refreshMotiveCaseTypeCheckboxes();
 
             casePanel.loadData(data);
 
@@ -735,6 +919,7 @@ public class CategoryEditorScreen extends JFrame {
             skinToneCategoryModel.setRowCount(0);
             genderCategoryModel.setRowCount(0);
             motiveCategoryModel.setRowCount(0);
+            motiveCaseTypesPerRow.clear();
             casePanel.clearAll();
             versionField.setText("");
             currentFile = newFile;
@@ -804,6 +989,23 @@ public class CategoryEditorScreen extends JFrame {
     }
 
     /**
+     * Populates the parallel case-type list for each motive category entry.
+     * The entries must be in the same sorted order as {@link #populateCodeNameDescModel}.
+     */
+    private void populateMotiveCaseTypes(List<CategoryEntry> entries) {
+        motiveCaseTypesPerRow.clear();
+        if (entries == null) return;
+        List<CategoryEntry> sorted = new ArrayList<>(entries);
+        sorted.sort(Comparator.comparing(e -> nvl(e.getCode())));
+        for (CategoryEntry e : sorted) {
+            List<String> types = e.getCase_types() != null
+                    ? new ArrayList<>(e.getCase_types())
+                    : new ArrayList<>();
+            motiveCaseTypesPerRow.add(types);
+        }
+    }
+
+    /**
      * Converts a three-column (Code, Name, Description) table model back to a list
      * of {@link CategoryEntry} objects.
      */
@@ -814,6 +1016,28 @@ public class CategoryEditorScreen extends JFrame {
             entry.setCode(cellStr(model, r, 0));
             entry.setName(cellStr(model, r, 1));
             entry.setDescription(cellStr(model, r, 2));
+            list.add(entry);
+        }
+        return list;
+    }
+
+    /**
+     * Converts the motive category table model and the parallel case-type list
+     * back to a list of {@link CategoryEntry} objects with {@code case_types} set.
+     */
+    private List<CategoryEntry> motiveCategoryModelToEntries() {
+        List<CategoryEntry> list = new ArrayList<>();
+        for (int r = 0; r < motiveCategoryModel.getRowCount(); r++) {
+            CategoryEntry entry = new CategoryEntry();
+            entry.setCode(cellStr(motiveCategoryModel, r, 0));
+            entry.setName(cellStr(motiveCategoryModel, r, 1));
+            entry.setDescription(cellStr(motiveCategoryModel, r, 2));
+            if (r < motiveCaseTypesPerRow.size()) {
+                List<String> types = motiveCaseTypesPerRow.get(r);
+                if (types != null && !types.isEmpty()) {
+                    entry.setCase_types(new ArrayList<>(types));
+                }
+            }
             list.add(entry);
         }
         return list;
@@ -1025,7 +1249,7 @@ public class CategoryEditorScreen extends JFrame {
         data.setSkill_categories(skillCategoryModelToEntries(skillCategoryModel));
         data.setSkin_tone_categories(skinToneCategoryModelToEntries(skinToneCategoryModel));
         data.setGender_categories(genderCategoryModelToEntries(genderCategoryModel));
-        data.setMotive_categories(codeNameDescModelToEntries(motiveCategoryModel));
+        data.setMotive_categories(motiveCategoryModelToEntries());
         return data;
     }
 
