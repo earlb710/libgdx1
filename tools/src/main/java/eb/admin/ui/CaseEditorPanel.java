@@ -450,8 +450,8 @@ public class CaseEditorPanel extends JPanel {
         factsTable.getColumnModel().getColumn(9).setPreferredWidth(120);
         factsTable.getColumnModel().getColumn(10).setPreferredWidth(80);
 
-        // Status column — restricted combo: KNOWN or HIDDEN
-        JComboBox<String> statusCombo = new JComboBox<>(new String[]{"KNOWN", "HIDDEN"});
+        // Status column — restricted combo: KNOWN, HIDDEN, or UNKNOWN
+        JComboBox<String> statusCombo = new JComboBox<>(new String[]{"KNOWN", "HIDDEN", "UNKNOWN"});
         factsTable.getColumnModel().getColumn(3)
                 .setCellEditor(new DefaultCellEditor(statusCombo));
 
@@ -613,10 +613,22 @@ public class CaseEditorPanel extends JPanel {
                         + "start of the case. Known facts come from the initial briefing and "
                         + "public information. Leads point to avenues of inquiry — but beware, "
                         + "some may be red herrings that waste time without advancing the case.";
+            case "UNKNOWN_FACTS":
+                return "Unknown Facts (To Be Solved)\n\n"
+                        + "These are the critical unknowns that the investigator must uncover "
+                        + "through the storyline. They represent what actually happened — the "
+                        + "method, motive, and means of the crime. Solving these facts is the "
+                        + "core objective of the investigation.";
             case "FACT":
                 return "Known fact: " + title + "\n\n"
                         + "This fact is available from the start of the investigation. "
                         + "It may provide context or constrain the investigator's theories.";
+            case "FACT:UNKNOWN":
+                return "Unknown fact (to be solved): " + title + "\n\n"
+                        + "This fact represents a critical unknown in the case. The investigator "
+                        + "does not know this at the start — it must be uncovered by following "
+                        + "leads, gathering evidence, and advancing the storyline. Discovering "
+                        + "this fact moves the investigation closer to resolution.";
             case "LEAD":
                 return "Lead: " + title + "\n\n"
                         + "This lead is available from the start. Following it may uncover "
@@ -1435,6 +1447,9 @@ public class CaseEditorPanel extends JPanel {
         addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
                 client, victim, "", "", "", 0);
 
+        // ---------- UNKNOWN facts: these are what the investigator must solve ----------
+        generateUnknownFacts(factIdCounter, caseType, subject, victim, client);
+
         // ---------- Build phases — facts and leads are created as the story demands ----------
         for (int phase = 1; phase <= complexity; phase++) {
             String phaseTitle = (phase == 1)
@@ -1525,10 +1540,31 @@ public class CaseEditorPanel extends JPanel {
         }
         storyRoot.insert(knownSection, 0); // first child
 
+        // ---------- Build the UNKNOWN_FACTS section — what needs to be solved ----------
+        DefaultMutableTreeNode unknownSection = new DefaultMutableTreeNode(
+                "[UNKNOWN_FACTS] Unknown Facts (To Be Solved)");
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if ("UNKNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) {
+                String fId   = String.valueOf(factsModel.getValueAt(r, 0));
+                String fCat  = String.valueOf(factsModel.getValueAt(r, 1));
+                String fText = String.valueOf(factsModel.getValueAt(r, 2));
+                Object imp   = factsModel.getValueAt(r, 10);
+                int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
+                unknownSection.add(new DefaultMutableTreeNode(
+                        "[FACT:UNKNOWN] " + fId + " (" + fCat + ", importance=" + importance + "): " + fText));
+            }
+        }
+        storyRoot.insert(unknownSection, 1); // second child, after KNOWN_FACTS
+
         treeModel.reload();
         expandAll(storyTree);
+        int unknownCount = 0;
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if ("UNKNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) unknownCount++;
+        }
         statusLabel.setText("Generated story tree with " + complexity + " phase(s), "
-                + factsModel.getRowCount() + " facts, " + leadsModel.getRowCount() + " leads.");
+                + factsModel.getRowCount() + " facts (" + unknownCount + " unknown), "
+                + leadsModel.getRowCount() + " leads.");
     }
 
     // ---- Inline helpers for story-driven fact/lead creation ------------------
@@ -1541,6 +1577,64 @@ public class CaseEditorPanel extends JPanel {
         factsModel.addRow(new Object[]{id, category, text, status,
                 epoch, char1, char2, relType, itemId, evidId, importance});
         return id;
+    }
+
+    /**
+     * Generates UNKNOWN facts — the critical mysteries the investigator must solve.
+     * These are driven by the case type and represent how the crime was committed,
+     * the motive, the weapon/method, and other unsolved elements of the story.
+     */
+    private void generateUnknownFacts(int[] factIdCounter, String caseType,
+                                       String subject, String victim, String client) {
+        boolean isMurder = "Murder".equalsIgnoreCase(caseType);
+
+        // Core unknown: how was the crime committed?
+        if (isMurder) {
+            addFact(factIdCounter, "METHOD",
+                    "How was " + victim + " killed? The exact method of death is not yet established.",
+                    "UNKNOWN", 0L, "", victim, "", "", "", 5);
+        } else {
+            addFact(factIdCounter, "METHOD",
+                    "How was the crime committed? The exact method is not yet established.",
+                    "UNKNOWN", 0L, "", "", "", "", "", 5);
+        }
+
+        // Motive
+        addFact(factIdCounter, "MOTIVE",
+                "What was the motive? Why would " + subject + " do this?",
+                "UNKNOWN", 0L, subject, "", "", "", "", 5);
+
+        // Weapon / instrument
+        if (isMurder) {
+            addFact(factIdCounter, "EVIDENCE",
+                    "What was the murder weapon? The instrument of death has not been identified.",
+                    "UNKNOWN", 0L, "", "", "", "", "", 4);
+        }
+
+        // Opportunity / timeline
+        addFact(factIdCounter, "DATE",
+                "When exactly did the crime occur? The precise timeline has not been established.",
+                "UNKNOWN", 0L, "", "", "", "", "", 4);
+
+        // Location specifics
+        addFact(factIdCounter, "ITEM",
+                "Where exactly was the crime committed? The specific location and circumstances are unclear.",
+                "UNKNOWN", 0L, "", "", "", "", "", 3);
+
+        // Accomplices
+        addFact(factIdCounter, "RELATIONSHIP",
+                "Did " + subject + " act alone, or were there accomplices?",
+                "UNKNOWN", 0L, subject, "", "", "", "", 3);
+
+        // Alibi verification
+        addFact(factIdCounter, "DATE",
+                subject + "'s alibi for the time of the incident has not been verified.",
+                "UNKNOWN", 0L, subject, "", "", "", "", 4);
+
+        // Cover-up
+        addFact(factIdCounter, "ITEM",
+                "Was there an attempt to conceal evidence or cover up the crime?",
+                "UNKNOWN", 0L, "", "", "", "", "", 3);
     }
 
     /** Creates a lead row in leadsModel and returns its ID. */
