@@ -1286,7 +1286,7 @@ public class CaseEditorPanel extends JPanel {
      * The 555 prefix signals it is a fictional number.
      */
     private String generatePhoneNumber() {
-        int suffix = 100 + random.nextInt(9900); // 0100–9999
+        int suffix = 100 + random.nextInt(9900); // 100–9999, formatted as 0100–9999
         return "555-" + String.format("%04d", suffix);
     }
 
