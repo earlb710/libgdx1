@@ -751,7 +751,7 @@ public class CaseEditorPanel extends JPanel {
             int close = label.indexOf(']');
             tag   = label.substring(1, close).trim();
             // title is text after "] " if present, otherwise empty
-            title = (close + 2 <= label.length()) ? label.substring(close + 1).trim() : "";
+            title = (close + 1 < label.length()) ? label.substring(close + 1).trim() : "";
         }
 
         String subject = subjectNameField.getText().trim();
