@@ -927,6 +927,8 @@ public class CaseEditorPanel extends JPanel {
                 || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
         boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
                 || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
+        boolean isPhoto     = actionTitle != null && (actionTitle.startsWith("Photograph")
+                || actionTitle.startsWith("Sketch") || actionTitle.startsWith("Map entry"));
 
         switch (attr) {
             case "INTIMIDATION":
@@ -935,6 +937,9 @@ public class CaseEditorPanel extends JPanel {
                          + "Under your unblinking gaze they reluctantly answer.";
                 if (isEvidence)
                     return "Your commanding presence clears the area. You examine the evidence undisturbed.";
+                if (isDocument)
+                    return "Your authoritative demand leaves the clerk no room to argue — "
+                         + "the files appear on the counter without delay.";
                 return "Your forceful demeanour gets results — they comply without further argument.";
 
             case "CHARISMA":
@@ -943,13 +948,25 @@ public class CaseEditorPanel extends JPanel {
                          + "They open up more than they intended.";
                 if (isDocument)
                     return "A friendly rapport with the clerk gets you access to records that aren't publicly available.";
-                return "Your easy manner puts them at ease and they give you exactly what you need.";
+                if (isEvidence)
+                    return "You charm the officer guarding the perimeter into letting you through. "
+                         + "Inside you find exactly the sample you needed.";
+                if (isPhoto)
+                    return "A quick conversation with a bystander gets you access to a better vantage point "
+                         + "for the perfect angle.";
+                return "Your easy manner wins cooperation and they hand over what you need.";
 
             case "PERCEPTION":
                 if (isEvidence)
                     return "Your sharp eye catches something others missed — a detail that changes everything.";
                 if (isInterview)
                     return "You pick up on a micro-expression that reveals more than their words let on.";
+                if (isDocument)
+                    return "Scanning the pages, a single mismatched date jumps out at you — "
+                         + "the discrepancy is unmistakable.";
+                if (isPhoto)
+                    return "You notice an odd reflection in the window and angle your camera to capture it. "
+                         + "The resulting image reveals a critical detail.";
                 return "A careful scan of the surroundings reveals a detail that wasn't in any report.";
 
             case "INTELLIGENCE":
@@ -957,12 +974,21 @@ public class CaseEditorPanel extends JPanel {
                     return "You rapidly cross-reference dates and figures, spotting the anomaly buried in the paperwork.";
                 if (isInterview)
                     return "You ask the exact right question — one they didn't expect — and watch their composure crack.";
+                if (isEvidence)
+                    return "You reconstruct the sequence of events from the physical evidence alone, "
+                         + "identifying the one item that doesn't belong.";
                 return "You piece together the scattered facts and the pattern becomes clear.";
 
             case "EMPATHY":
                 if (isInterview)
                     return "Reading the tension in their body language, you find the right moment to gently press. "
                          + "They share something they haven't told anyone else.";
+                if (isEvidence)
+                    return "Sensing something personal about the way items are arranged, you look deeper — "
+                         + "there's a hidden keepsake that tells a story the scene report missed.";
+                if (isDocument)
+                    return "Between the dry lines of the report you sense the fear of the person who wrote it. "
+                         + "You re-read the passage and find the detail they tried to bury.";
                 return "Your sensitivity to the emotional undercurrents in the room guides you to the truth.";
 
             case "MEMORY":
@@ -971,6 +997,12 @@ public class CaseEditorPanel extends JPanel {
                          + "the connection is unmistakable.";
                 if (isInterview)
                     return "Something they say triggers a memory. You name the detail and watch their expression change.";
+                if (isEvidence)
+                    return "You remember a serial number from the case file. Checking the item, "
+                         + "the match confirms it was moved from the original location.";
+                if (isPhoto)
+                    return "Comparing this angle to a photo you saw earlier, "
+                         + "you spot the object that has been moved since the initial sweep.";
                 return "You recall something from earlier in the case that makes this evidence click into place.";
 
             case "STEALTH":
@@ -978,6 +1010,12 @@ public class CaseEditorPanel extends JPanel {
                     return "Moving quietly and unobserved, you collect what you need before anyone notices you were there.";
                 if (isInterview)
                     return "You observe them from a distance before approaching, giving you an advantage when you do speak.";
+                if (isPhoto)
+                    return "From a concealed position you photograph the scene without disturbing it — "
+                         + "the raw, untouched state tells its own story.";
+                if (isDocument)
+                    return "You slip into the records room unnoticed and locate the file "
+                         + "before anyone can conveniently misplace it.";
                 return "Your unobtrusive presence lets you gather information without anyone realising you were watching.";
 
             default:
@@ -996,6 +1034,8 @@ public class CaseEditorPanel extends JPanel {
                 || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
         boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
                 || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
+        boolean isPhoto     = actionTitle != null && (actionTitle.startsWith("Photograph")
+                || actionTitle.startsWith("Sketch") || actionTitle.startsWith("Map entry"));
 
         switch (attr) {
             case "INTIMIDATION":
@@ -1006,6 +1046,9 @@ public class CaseEditorPanel extends JPanel {
                 if (isEvidence)
                     return "Someone challenges your right to be here. Without sufficient authority "
                          + "you're forced to back down, but you catch a glimpse of something before you leave.";
+                if (isDocument)
+                    return "The records clerk refuses to hand over the restricted file. "
+                         + "You notice they glance nervously at a particular drawer — that itself is a clue.";
                 return "Your attempt to assert authority falls short. They hold their ground — "
                      + "but their reaction itself tells you something.";
 
@@ -1016,8 +1059,15 @@ public class CaseEditorPanel extends JPanel {
                 if (isDocument)
                     return "The clerk turns you away without the access you need. "
                          + "You'll have to find another way in, or come back with better credentials.";
-                return "They aren't warmed by your manner and give you nothing useful — "
-                     + "at least not directly.";
+                if (isEvidence)
+                    return "The officer on guard isn't swayed by your request. "
+                         + "You're turned away from the perimeter, but from outside you spot a secondary entrance "
+                         + "that may be worth investigating later.";
+                if (isPhoto)
+                    return "A bystander blocks your best angle and won't budge. "
+                         + "The shots you manage are mediocre, but one catches an odd detail in the background.";
+                return "They aren't won over by your approach and give you nothing useful — "
+                     + "but their reluctance itself may be telling.";
 
             case "PERCEPTION":
                 if (isEvidence)
@@ -1026,6 +1076,12 @@ public class CaseEditorPanel extends JPanel {
                 if (isInterview)
                     return "You miss the subtle cue in their expression. "
                          + "They answer smoothly — too smoothly — but you can't pin down what's off.";
+                if (isDocument)
+                    return "The numbers blur together and the anomaly hides in plain sight. "
+                         + "You'll need to come back with fresh eyes or a different approach.";
+                if (isPhoto)
+                    return "You photograph the scene but miss the critical angle. "
+                         + "Later review of your shots shows nothing the initial report didn't already cover.";
                 return "The detail you were looking for doesn't reveal itself this time. "
                      + "It may still be there — consider returning with fresh eyes.";
 
@@ -1036,12 +1092,21 @@ public class CaseEditorPanel extends JPanel {
                 if (isInterview)
                     return "You ask the wrong question and they steer the conversation away. "
                          + "You leave with less than you came with.";
+                if (isEvidence)
+                    return "The evidence doesn't connect to anything you already know. "
+                         + "The link is there, but without more context you can't see it yet.";
                 return "The pieces don't connect yet. There's still a gap somewhere in your reasoning.";
 
             case "EMPATHY":
                 if (isInterview)
                     return "You try to connect but they remain guarded throughout. "
                          + "Their defensiveness itself might be telling — why would they be so closed off?";
+                if (isEvidence)
+                    return "You walk the scene looking for anything personal or out of place, "
+                         + "but the sterile environment yields nothing to your instinct this time.";
+                if (isDocument)
+                    return "You read through the statements but nothing strikes an emotional chord. "
+                         + "The writer was careful — or perhaps genuinely uninvolved.";
                 return "You misread the emotional temperature in the room. "
                      + "Your approach creates distance instead of trust.";
 
@@ -1052,6 +1117,12 @@ public class CaseEditorPanel extends JPanel {
                 if (isInterview)
                     return "They mention something that should ring a bell, but the connection escapes you in the moment. "
                          + "Write it down — it may make sense later.";
+                if (isEvidence)
+                    return "You feel like you've seen this type of item before, but the case reference escapes you. "
+                         + "A trip back to the case file might jog your memory.";
+                if (isPhoto)
+                    return "You can't recall what the scene looked like in the earlier photos, "
+                         + "so you miss what changed. Re-check the originals when you get back.";
                 return "The critical detail doesn't surface when you need it. "
                      + "Go back through your earlier findings before proceeding.";
 
@@ -1062,6 +1133,12 @@ public class CaseEditorPanel extends JPanel {
                 if (isInterview)
                     return "They spot you watching before you're ready. "
                          + "The element of surprise is lost, and they're now on guard.";
+                if (isPhoto)
+                    return "Someone sees your camera and calls you out. "
+                         + "You're asked to leave, but not before you notice which area they were most anxious to protect.";
+                if (isDocument)
+                    return "The records clerk spots you in the restricted section. "
+                         + "You're escorted out, but you glimpsed a folder label that may narrow your next search.";
                 return "You're seen when you should have remained undetected. "
                      + "The opportunity is lost for now — but they don't know exactly what you know.";
 
@@ -2530,10 +2607,6 @@ public class CaseEditorPanel extends JPanel {
         List<CategoryEntry> methods = (categoryData != null)
                 ? categoryData.getDiscovery_methods() : new ArrayList<>();
 
-        // Attribute pool for requirements
-        String[] attributes = {"PERCEPTION", "INTELLIGENCE", "CHARISMA",
-                               "INTIMIDATION", "EMPATHY", "MEMORY", "STEALTH"};
-
         // ---------- Seed: one KNOWN fact so the investigator has a starting point ----------
         String seedFact = client + " has reported a suspicious incident involving " + victim + ".";
         addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
@@ -2565,8 +2638,9 @@ public class CaseEditorPanel extends JPanel {
                         DefaultMutableTreeNode actionNode = new DefaultMutableTreeNode(
                                 "[ACTION:" + actionTitle + "]");
 
-                        // Pick a random attribute requirement (threshold 2-5)
-                        String attr = attributes[random.nextInt(attributes.length)];
+                        // Pick an attribute that makes sense for this action type
+                        String[] pool = attributesForAction(actionTitle);
+                        String attr = pool[random.nextInt(pool.length)];
                         int threshold = 2 + random.nextInt(4); // 2..5
 
                         // --- ok result: create a HIGH-importance HIDDEN fact ---
@@ -2950,6 +3024,31 @@ public class CaseEditorPanel extends JPanel {
             String[] pool = highImportance ? high : low;
             return pool[random.nextInt(pool.length)];
         }
+    }
+
+    /**
+     * Returns a subset of attributes that make narrative sense for the given action.
+     * Evidence actions use PERCEPTION, INTELLIGENCE, STEALTH.
+     * Interview/conversation actions use CHARISMA, EMPATHY, INTIMIDATION.
+     * Document/records actions use INTELLIGENCE, MEMORY, PERCEPTION.
+     * Photography/mapping actions use PERCEPTION, MEMORY, STEALTH.
+     */
+    private String[] attributesForAction(String actionTitle) {
+        if (actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
+                || actionTitle.startsWith("Recover")) {
+            return new String[]{"PERCEPTION", "INTELLIGENCE", "STEALTH"};
+        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
+                || actionTitle.startsWith("Question")) {
+            return new String[]{"CHARISMA", "EMPATHY", "INTIMIDATION"};
+        } else if (actionTitle.startsWith("Review") || actionTitle.startsWith("Analyse")
+                || actionTitle.startsWith("Search")) {
+            return new String[]{"INTELLIGENCE", "MEMORY", "PERCEPTION"};
+        } else if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
+                || actionTitle.startsWith("Map entry")) {
+            return new String[]{"PERCEPTION", "MEMORY", "STEALTH"};
+        }
+        return new String[]{"PERCEPTION", "INTELLIGENCE", "CHARISMA",
+                            "INTIMIDATION", "EMPATHY", "MEMORY", "STEALTH"};
     }
 
     /** Returns a random short result description appropriate for the given action title. */
