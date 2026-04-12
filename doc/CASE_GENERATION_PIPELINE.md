@@ -429,12 +429,65 @@ Story Root [CaseType / Motive / complexity=N]
 | ACTION (leaf)  | 8         | **8**       | **16**      | **24**      |
 | RESULT         | 8         | 8           | 16          | 24          |
 
+### Action Title Generation
+
+**Source:** `CaseEditorPanel.buildActionTitle(minor, action, subject)`
+
+Each MINOR node has two ACTION children. The action titles are drawn from
+pools determined by which minor slot and action slot they occupy:
+
+| Minor | Action | Category          | Pool (3 options each)                                            |
+|-------|--------|-------------------|------------------------------------------------------------------|
+| 1     | 1      | Photography/Scene | "Photograph the scene", "Sketch the layout", "Map entry and exit points" |
+| 1     | 2      | Evidence Collection | "Collect physical evidence", "Bag and tag trace samples", "Recover latent fingerprints" |
+| 2     | 1      | Interview         | "Interview a contact of {s}", "Speak to a known associate of {s}", "Question a neighbour of {s}" |
+| 2     | 2      | Documents/Records | "Review documents or records", "Analyse financial records", "Search public records for {s}" |
+
+`{s}` is replaced with the subject's name at generation time.
+
 ### Action Node — Attribute Requirements
 
-Each ACTION has a random skill check:
+**Source:** `CaseEditorPanel.attributesForAction(actionTitle)`
 
-- **Attribute:** Random from 7: `PERCEPTION`, `INTELLIGENCE`, `CHARISMA`, `INTIMIDATION`, `EMPATHY`, `MEMORY`, `STEALTH`
-- **Threshold:** 2–5 (uniform, `2 + nextInt(4)`)
+Each ACTION has a random skill check. The attribute is chosen from a pool
+that is **constrained by action type** — not from the full set of 7. This
+ensures the narrative connection between the action and the skill check
+makes logical sense (e.g., evidence collection never requires CHARISMA).
+
+| Action Category       | Prefixes                               | Attribute Pool                         |
+|-----------------------|----------------------------------------|----------------------------------------|
+| Evidence Collection   | Collect, Bag, Recover                  | `PERCEPTION`, `INTELLIGENCE`, `STEALTH` |
+| Interview/Conversation | Interview, Speak, Question            | `CHARISMA`, `EMPATHY`, `INTIMIDATION`  |
+| Documents/Records     | Review, Analyse, Search                | `INTELLIGENCE`, `MEMORY`, `PERCEPTION` |
+| Photography/Scene     | Photograph, Sketch, Map entry          | `PERCEPTION`, `MEMORY`, `STEALTH`      |
+| Fallback (unmatched)  | —                                      | All 7 attributes                       |
+
+**Threshold:** 2–5 (uniform, `2 + nextInt(4)`)
+
+### Result Description Pools
+
+**Source:** `CaseEditorPanel.buildResultDescription(actionTitle)`
+
+Each RESULT node gets a short description randomly chosen from a pool
+specific to the action category. Each category has **two sub-pools of 3 options**
+(one pool is selected at random, then one item from that pool):
+
+| Action Category    | Sub-pool A                                                          | Sub-pool B                                                           |
+|--------------------|---------------------------------------------------------------------|----------------------------------------------------------------------|
+| Photography/Scene  | Inconsistency in official report / contradicts coroner / disturbance inconsistent with timeline | Hidden marking/tag visible / different point of origin / background connects to known location |
+| Evidence Collection | Trace evidence links to key person / sample matches known substance / fingerprint places third party | Concealed item — origin requires investigation / secondary sample widens suspect pool / low-grade trace inconclusive but directional |
+| Interview          | Hidden relationship revealed / secret meeting contradicts alibi / neighbour saw something unreported | Information disclosed under pressure / associate lets slip a detail / subject's evasiveness is itself a clue |
+| Documents/Records  | Record anomaly contradicts timeline / document trail to unknown account / payment that shouldn't exist | Forged/altered entry identified / gap suggests deliberate concealment / cross-reference reveals second individual |
+
+### Fact Category Mapping
+
+**Source:** `CaseEditorPanel.categoryForAction(actionTitle)`
+
+| Action Prefixes                                          | Fact Category  |
+|----------------------------------------------------------|---------------|
+| Photograph, Sketch, Collect, Bag, Recover, Map entry    | EVIDENCE      |
+| Interview, Speak, Question                               | RELATIONSHIP  |
+| Review, Analyse, Search (and all others)                 | ITEM          |
 
 ### Action Outcomes
 
@@ -445,12 +498,57 @@ Each ACTION has a random skill check:
 
 ### Inline Fact Templates (per action type)
 
-| Action Category     | High-Importance Examples                | Low-Importance Examples              |
-|--------------------|----------------------------------------|--------------------------------------|
-| Photograph / Scene  | Footprints, forced entry, hidden exit  | No struggle, layout consistency      |
-| Collect / Forensics | Trace evidence, fingerprint match      | Common fiber, partial print          |
-| Interview           | Witness confirms sighting, threats     | Barely knows suspect, repeats story  |
-| Documents / Records | Large payment, shell company           | Routine transactions, clean record   |
+**Source:** `CaseEditorPanel.buildInlineFact(actionTitle, subject, victim, phase, major, highImportance)`
+
+Facts created by action outcomes use `{subject}` and `{victim}` substitution.
+Each category has 3 high-importance and 3 low-importance templates:
+
+| Action Category     | High-Importance Templates (3)                                                  | Low-Importance Templates (3)                                         |
+|--------------------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| Photography/Scene   | Second set of footprints near victim / door forced from inside implicating subject / unaccounted exit revealed | No obvious signs of struggle / layout consistent with initial report / minor damage unrelated to incident |
+| Evidence Collection | Subject placed at scene within critical window / subject's fingerprints + victim's blood on recovered item / lab links substance to toxin in victim | Common fibre sample — inconclusive / low-quality latent print — partial match pending / residue may be cleaning product |
+| Interview           | Witness confirms seeing subject near victim / associate reveals secret arrangement / interviewee discloses subject threatened victim | Contact barely knows subject / neighbour heard raised voices but can't identify / associate repeats official story |
+| Documents/Records   | Large payment around incident date / shell company connection / digital records show search for victim's routine | Routine transactions — no irregularities / subject listed at different address / no prior criminal record |
+
+### Success & Failure Narratives
+
+**Source:** `CaseEditorPanel.buildAttributeSuccessNarrative(attr, actionTitle)` and
+`buildAttributeFailureNarrative(attr, actionTitle)`
+
+When the player meets or fails the attribute threshold on a RESULT node,
+a context-aware narrative sentence is displayed. The narrative is determined
+by the **combination of attribute × action type**, ensuring logical coherence
+(e.g., a PERCEPTION check on evidence collection describes spotting a missed
+detail, not charming a guard).
+
+Each of the 7 attributes has a specific sentence for each of the 4 action
+categories (evidence, interview, document, photo) plus a generic fallback.
+That gives **7 × 5 = 35 success narratives** and **7 × 5 = 35 failure narratives**
+(70 total).
+
+#### Success Narrative Examples
+
+| Attribute      | Evidence Collection                                      | Interview                                                | Documents/Records                                       | Photography/Scene                                       |
+|---------------|----------------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|
+| PERCEPTION    | Sharp eye catches something others missed                | Picks up on a micro-expression                           | Mismatched date jumps out                               | Odd reflection captured; reveals critical detail        |
+| INTELLIGENCE  | Reconstructs sequence from physical evidence alone       | Exact right question cracks composure                    | Cross-references dates and figures, spots anomaly       | *(uses generic fallback)*                                |
+| CHARISMA      | Charms perimeter officer into granting access            | Warm smile earns trust; they open up                     | Friendly rapport gets access to non-public records      | Conversation gets access to better vantage point        |
+| INTIMIDATION  | Commanding presence clears the area                      | Stern look makes cooperation mandatory                   | Authoritative demand produces files without delay       | *(uses generic fallback)*                                |
+| EMPATHY       | Senses something personal about item arrangement         | Reads tension; gently presses at right moment            | Senses fear in report writer; finds buried detail       | *(uses generic fallback)*                                |
+| MEMORY        | Remembers serial number; confirms item was moved         | Something said triggers a memory; names the detail       | Detail from earlier briefing maps onto this record      | Compares to earlier photo; spots moved object           |
+| STEALTH       | Moves quietly; collects evidence before anyone notices   | Observes from distance before approaching                | Slips into records room unnoticed                       | Photographs from concealed position; raw state tells story |
+
+#### Failure Narrative Examples
+
+| Attribute      | Evidence Collection                                      | Interview                                                | Documents/Records                                       | Photography/Scene                                       |
+|---------------|----------------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|
+| PERCEPTION    | Scans area carefully but nothing stands out               | Misses subtle cue in their expression                    | Numbers blur; anomaly hides in plain sight              | Misses critical angle; shots add nothing new            |
+| INTELLIGENCE  | Evidence doesn't connect to anything known yet            | Wrong question; they steer conversation away             | Paperwork volume/complexity is overwhelming             | *(uses generic fallback)*                                |
+| CHARISMA      | Officer on guard isn't swayed; spots secondary entrance   | Approach falls flat; conversation shut down (overhears something on way out) | Clerk turns you away; need better credentials           | Bystander blocks best angle; mediocre shots with one odd background detail |
+| INTIMIDATION  | Challenged on right to be here; forced to back down (glimpses something) | Person won't stand aside; recognise connection to subject | Clerk refuses restricted file; nervous glance at drawer is a clue | *(uses generic fallback)*                                |
+| EMPATHY       | Sterile environment yields nothing to instinct            | Try to connect but they remain guarded; defensiveness is telling | Nothing strikes emotional chord in statements           | *(uses generic fallback)*                                |
+| MEMORY        | Feel like you've seen item before; case reference escapes | They mention something that should ring a bell           | Relevant detail just out of reach; review notes         | Can't recall earlier photos; miss what changed          |
+| STEALTH       | Presence noticed; forced to abandon but pocketed one item | They spot you watching before you're ready               | Records clerk spots you in restricted section           | Camera spotted; asked to leave but notice protected area |
 
 ---
 
@@ -565,6 +663,11 @@ When the player's attribute is **below** the gate value, they receive the
 | Interview Topics          | **8** |
 | Red Herring Templates     | 8     |
 | Story Attributes          | 7     |
+| Action Title Pools        | **4 categories × 3 options = 12** |
+| Result Description Pools  | **4 categories × 2 sub-pools × 3 = 24** |
+| Inline Fact Templates     | **4 categories × 3 high + 3 low = 24** |
+| Success Narratives        | **7 attr × 5 action types = 35** |
+| Failure Narratives        | **7 attr × 5 action types = 35** |
 | Murder Methods            | 5     |
 | Murder Weapons            | 5     |
 | Unknown Fact Sets (Murder)| 8     |

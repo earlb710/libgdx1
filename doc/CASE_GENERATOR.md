@@ -116,6 +116,19 @@ Constructs a complete `CaseFile` from a `CaseType` and an in-game date.
 The `{s}` placeholder in any string is replaced with the subject's name at
 generation time.
 
+#### Attribute-constrained action checks
+Each `ACTION` node's skill check attribute is drawn from a pool constrained
+by the action's type (`attributesForAction()`), not from the full set of 7
+attributes. This ensures narrative coherence — e.g., evidence collection
+uses PERCEPTION / INTELLIGENCE / STEALTH, never CHARISMA.
+
+#### Context-aware success / failure narratives
+`buildAttributeSuccessNarrative(attr, actionTitle)` and
+`buildAttributeFailureNarrative(attr, actionTitle)` produce a short prose
+sentence for every combination of attribute (7) × action category (4 + generic
+fallback). The narrative explains *how* the attribute helped or hindered the
+specific action. For full tables see `CASE_GENERATION_PIPELINE.md § Step 8`.
+
 ### 7. Save/load persistence for the story tree
 
 `SaveGameManager` serialises and deserialises the complete story tree so that
