@@ -126,6 +126,59 @@ Only the **Victim** role is marked dead.
 | 3–8                 | 15–180 min range | **60 %**  |
 | 9                   | Unknown / body missing (−1) | **10 %** |
 
+### Phone Number Generation
+
+Every NPC receives a phone number in the format `555-XXXX` (suffix 0100–9999).
+The number is generated at creation time by `generatePhoneNumber()`.
+
+| Property          | Value                              |
+|-------------------|------------------------------------|
+| Format            | `555-XXXX`                         |
+| Suffix range      | 0100–9999 (uniform)                |
+| Unique per NPC    | Not enforced (collision unlikely)  |
+
+### Phone Number Discovery
+
+Each NPC's phone number starts as **hidden** (`phoneDiscovered = false`).
+The player must discover it through investigation before they can call the NPC.
+
+| Role              | Phone Discovered at Start | Notes                                     |
+|-------------------|--------------------------|-------------------------------------------|
+| **Client**        | **Always true**          | The client hires the detective, so their number is known |
+| All other NPCs    | **false**                | Must be discovered via interviews or leads |
+
+**Discovery methods:**
+- **Interview (CONTACT_INFO topic):** Other NPCs can reveal a character's phone number when asked. Gated by **Charisma ≥ 4** (client/associate sources) or **Charisma ≥ 5** (witness source).
+- **Story progression:** Discovering facts may also reveal phone numbers as a game mechanic.
+
+### Default Location Assignment
+
+Each NPC is assigned a default location — the place where they can usually
+be found without an appointment. Locations are chosen by `locationForRole()`.
+
+| Role Pattern               | Location Pool                                    |
+|----------------------------|--------------------------------------------------|
+| Police Contact             | Police Station (fixed)                           |
+| Accountant / Insurance / IT / Colleague | Office (fixed)                       |
+| Neighbour                  | Their Home (fixed)                               |
+| Friend                     | Café, Bar, Restaurant, Public Park               |
+| Associate                  | Office, Restaurant, Hotel Lobby                  |
+| Witness                    | Café, Diner, Public Park, Their Home             |
+| Fence / Dealer             | Bar, Warehouse District, Street Market           |
+| Intermediary               | Café, Hotel Lobby, Bus Station                   |
+| Confidant                  | Church, Café, Library                            |
+| Rival                      | Bar, Restaurant, Office                          |
+| Other Party                | Gym, Bar, Restaurant                             |
+| Contact                    | Café, Diner, Bus Station                         |
+| Client                     | Café, Office, Restaurant, Their Home             |
+| Subject                    | Bar, Their Home, Gym                             |
+| All others                 | Random from full pool (16 locations)             |
+
+**Full location pool (16):**
+Café, Bar, Office, Public Park, Library, Restaurant, Their Home, Gym,
+Warehouse District, Church, Hospital, Diner, Hotel Lobby,
+Bus Station, Street Market, Courthouse
+
 ---
 
 ## Step 3 — Suspect Attribute Generation
@@ -451,6 +504,7 @@ All **living** NPCs. Dead NPCs (e.g., Victim in Murder cases) are skipped.
 | Observation   | All NPCs                 | Perception 5 (non-suspect) or Intimidation 6 (suspect) | See below |
 | Motive        | All NPCs (murder only)   | Intuition 5 (non-suspect) or Intimidation 7 (suspect) | See below |
 | Relationship  | All NPCs (with target)   | —             | —           |
+| Contact Info  | All NPCs (about others)  | Charisma 4–5  | See below   |
 
 ### Attribute Gates Summary
 
@@ -459,6 +513,7 @@ All **living** NPCs. Dead NPCs (e.g., Victim in Murder cases) are skipped.
 | Opinion     | Empathy ≥ 5          | — (no gate)              |
 | Observation | Perception ≥ 5       | Intimidation ≥ 6         |
 | Motive      | Intuition ≥ 5        | Intimidation ≥ 7         |
+| Contact Info | Charisma ≥ 4 (client/associate) or Charisma ≥ 5 (witness) | — (uncooperative, no gate; always refuses) |
 
 When the player's attribute is **below** the gate value, they receive the
 `alternateAnswer` (a generic, less revealing response).
@@ -477,15 +532,16 @@ When the player's attribute is **below** the gate value, they receive the
 
 ### Answer Pool Sizes
 
-| Topic          | Subject Pool | Client Pool | Witness Pool | Generic Pool |
-|---------------|-------------|-------------|-------------|-------------|
-| Alibi          | 5           | 4           | 5           | —           |
-| Opinion (of Subject) | 3     | —           | 9 (character traits) | 5   |
-| Opinion (of Victim)  | —     | —           | 4           | —           |
-| Whereabouts    | —           | —           | 4           | 4           |
-| Last Contact   | 4           | 4           | 4           | —           |
-| Observation    | 4 + 4 (revealed) | —      | 7           | 4           |
-| Motive         | 4 + 4 (revealed) | —      | 8           | 4           |
+| Topic          | Subject Pool | Client Pool | Witness Pool | Associate Pool | Generic Pool |
+|---------------|-------------|-------------|-------------|----------------|-------------|
+| Alibi          | 5           | 4           | 5           | 4              | —           |
+| Opinion (of Subject) | 3     | —           | 9 (character traits) | 6       | 5           |
+| Opinion (of Victim)  | —     | —           | 4           | —              | —           |
+| Whereabouts    | —           | —           | 4           | 4              | 4           |
+| Last Contact   | 4           | 4           | 4           | 4              | —           |
+| Observation    | 4 + 4 (revealed) | —      | 7           | 4              | 4           |
+| Motive         | 4 + 4 (revealed) | —      | 8           | 5              | 4           |
+| Contact Info   | 3 (refusal) | 4 + 3 (gated) | 3 + 3 (gated) | 4 + 3 (gated) | 5 (refusal) |
 
 ---
 
@@ -506,12 +562,14 @@ When the player's attribute is **below** the gate value, they receive the
 | Access Labels             | 6     |
 | Relationship Types        | 11    |
 | Discovery Methods         | 6     |
-| Interview Topics          | 7     |
+| Interview Topics          | **8** |
 | Red Herring Templates     | 8     |
 | Story Attributes          | 7     |
 | Murder Methods            | 5     |
 | Murder Weapons            | 5     |
 | Unknown Fact Sets (Murder)| 8     |
+| NPC Locations             | **16** |
+| Phone Number Format       | 555-XXXX (9900 possible suffixes) |
 
 ### Key Probabilities
 
@@ -598,15 +656,29 @@ across cases.
   until contradicted
 - Tie motive discovery to specific interview gates and evidence findings
 
-### 6. Location-Based Investigation
+### 6. Location-Based Investigation ✅ (Implemented)
 
-**Current:** Location is a single text label ("back office", "car park").
+**Previous status:** Location was a single text label ("back office", "car park").
 
-**Improvement:**
-- Generate a **scene map** with 3–5 searchable locations per case
-- Each location has a discovery probability and specific evidence types
-- Suspects are placed at locations at specific times, enabling
-  timeline-based elimination
+**What was implemented:**
+- Each NPC is assigned a **default location** from a pool of 16 recognisable
+  urban/suburban places (Café, Bar, Office, Park, Library, etc.)
+- Locations are **role-aware**: a Police Contact is at the Police Station,
+  a Neighbour is at Their Home, a Friend is at a random social venue
+- Each NPC has a **phone number** (format `555-XXXX`) that starts as hidden
+- The **client's phone number is always known** from the start
+- Other phone numbers must be **discovered** through CONTACT_INFO interview
+  questions (gated by Charisma ≥ 4 or ≥ 5)
+- Once a phone number is discovered, the player can call the NPC to arrange
+  a **meeting at a specific location** for quest progression
+- `NpcLocation` model class provides the `LocationCode` enum with 18
+  predefined codes and display names
+- `PhoneContact` carries `phoneNumber`, `phoneDiscovered`, and
+  `defaultLocation` fields
+- `InterviewTopic.CONTACT_INFO` is a new interview topic across all 4
+  NPC interview builders (client, subject, witness, associate)
+- NPC table in the admin tool has 3 new columns: Phone Number (16),
+  Phone Discovered (17), Default Location (18)
 
 ### 7. Non-Linear Story Progression
 

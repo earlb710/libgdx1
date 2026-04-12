@@ -1084,14 +1084,14 @@ public class CaseGenerator {
         }
 
         // CONTACT_INFO — Subject is uncooperative about sharing contacts
-        String[] contactPool = {
+        String[] contactRefusalPool = {
             "Why would I help you track down anyone else? Leave me alone.",
             "I'm not giving you anyone's number. You can find them yourself.",
             "I don't hand out other people's details. Ask someone who cares."
         };
         script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
                 "Do you have a way to reach " + client + "?",
-                contactPool[random.nextInt(contactPool.length)],
+                contactRefusalPool[random.nextInt(contactRefusalPool.length)],
                 random.nextBoolean(), client));
     }
 
@@ -1215,22 +1215,22 @@ public class CaseGenerator {
         }
 
         // CONTACT_INFO — Witness may share the subject's contact info
-        String[] contactPool = {
+        String[] contactRevealPool = {
             "I think I have " + subject + "'s number somewhere. Let me check — yes, here it is.",
             subject + "? I've seen them around. I might have their number from the neighbourhood group.",
             "I'm not sure I have " + subject + "'s number, but they're usually around the area."
         };
-        String[] contactAltPool = {
+        String[] contactRefusePool = {
             "I don't really know " + subject + " well enough to share their details.",
             "Sorry, I don't feel comfortable giving out contact information.",
             "I'd rather you found them yourself. I don't want to get involved."
         };
         script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
                 "Do you have a way to reach " + subject + "?",
-                contactPool[random.nextInt(contactPool.length)],
+                contactRevealPool[random.nextInt(contactRevealPool.length)],
                 true, subject,
                 "Charisma", 5,
-                contactAltPool[random.nextInt(contactAltPool.length)]));
+                contactRefusePool[random.nextInt(contactRefusePool.length)]));
     }
 
     // ---- Associate interview ----
