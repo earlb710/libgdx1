@@ -739,7 +739,7 @@ public class CaseEditorPanel extends JPanel {
     /**
      * Generates a human-readable description for a story-tree node based on its label.
      * Node labels follow the pattern "[TYPE] Title", where TYPE is one of:
-     * ACTION, RESULT, MINOR, MAJOR, PLOT_TWIST.
+     * ACTION, RESULT, MINOR, MAJOR, PLOT_TWIST, LEAD, LEAD:RED_HERRING, INTERVIEW.
      */
     private String buildNodeDescription(String label) {
         if (label == null || label.isEmpty()) return "";
@@ -817,6 +817,12 @@ public class CaseEditorPanel extends JPanel {
                         + "⚠ This lead is a red herring! Following it will consume time and "
                         + "resources without producing useful results. The investigator won't "
                         + "know this in advance — it appears identical to a genuine lead.";
+            case "INTERVIEW":
+                return "Interview: " + title + "\n\n"
+                        + "This NPC can be questioned on this topic. Conducting the interview "
+                        + "may reveal new facts or corroborate existing leads. Some responses "
+                        + "are attribute-gated and require a sufficiently skilled investigator "
+                        + "to obtain the full answer.";
             default:
                 return title;
         }
@@ -1767,9 +1773,15 @@ public class CaseEditorPanel extends JPanel {
      * answers marked as non-truthful.
      */
     private void generateInterviews() {
+        generateInterviews(false);
+    }
+
+    private void generateInterviews(boolean silent) {
         if (npcModel.getRowCount() < 2) {
-            JOptionPane.showMessageDialog(this, "Generate NPCs first.",
-                    "Missing Data", JOptionPane.WARNING_MESSAGE);
+            if (!silent) {
+                JOptionPane.showMessageDialog(this, "Generate NPCs first.",
+                        "Missing Data", JOptionPane.WARNING_MESSAGE);
+            }
             return;
         }
 
@@ -2322,9 +2334,10 @@ public class CaseEditorPanel extends JPanel {
     private void generateStoryTree() {
         storyRoot.removeAllChildren();
 
-        // Clear models — facts and leads are generated inline by the story
+        // Clear models — facts, leads, and interviews are generated inline by the story
         factsModel.setRowCount(0);
         leadsModel.setRowCount(0);
+        interviewModel.setRowCount(0);
 
         int complexity = (int) complexitySpinner.getValue();
         String caseType = (String) caseTypeCombo.getSelectedItem();
@@ -2432,6 +2445,11 @@ public class CaseEditorPanel extends JPanel {
             storyRoot.add(phaseNode);
         }
 
+        // ---------- Generate interviews now that NPCs and case details are set ----------
+        if (npcModel.getRowCount() >= 2) {
+            generateInterviews(true);
+        }
+
         // ---------- Build the KNOWN_FACTS section from whatever was generated ----------
         DefaultMutableTreeNode knownSection = new DefaultMutableTreeNode(
                 "[KNOWN_FACTS] Known Facts & Leads");
@@ -2452,6 +2470,14 @@ public class CaseEditorPanel extends JPanel {
             String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
             knownSection.add(new DefaultMutableTreeNode(
                     tag + " " + lId + " via " + lMethod + ": " + lHint));
+        }
+        for (int r = 0; r < interviewModel.getRowCount(); r++) {
+            String npcName = String.valueOf(interviewModel.getValueAt(r, 0));
+            String npcRole = String.valueOf(interviewModel.getValueAt(r, 1));
+            String topic   = String.valueOf(interviewModel.getValueAt(r, 2));
+            String question = String.valueOf(interviewModel.getValueAt(r, 3));
+            knownSection.add(new DefaultMutableTreeNode(
+                    "[INTERVIEW] " + npcName + " (" + npcRole + ") / " + topic + ": " + question));
         }
         storyRoot.insert(knownSection, 0); // first child
 
@@ -2479,7 +2505,8 @@ public class CaseEditorPanel extends JPanel {
         }
         statusLabel.setText("Generated story tree with " + complexity + " phase(s), "
                 + factsModel.getRowCount() + " facts (" + unknownCount + " unknown), "
-                + leadsModel.getRowCount() + " leads.");
+                + leadsModel.getRowCount() + " leads, "
+                + interviewModel.getRowCount() + " interview responses.");
     }
 
     // ---- Inline helpers for story-driven fact/lead creation ------------------
