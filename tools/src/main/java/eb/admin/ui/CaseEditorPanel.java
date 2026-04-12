@@ -831,14 +831,15 @@ public class CaseEditorPanel extends JPanel {
     /** Generates a description for a RESULT node, resolving its req/ok/fail references. */
     private String buildResultNodeDescription(String rawTitle) {
         // Parse pipe-separated segments beyond the description
-        // Format: "description | req:ATTR:N | ok:fact:id | ok:lead:id | fail:fact:id | fail:lead:id"
+        // Format: "description | req:ATTR:N | action:title | ok:fact:id | fail:fact:id"
         int firstPipe = rawTitle.indexOf(" | ");
         String description = (firstPipe >= 0) ? rawTitle.substring(0, firstPipe).trim() : rawTitle.trim();
 
-        String reqAttr    = null;
-        int    reqThresh  = 0;
-        String okFactRef  = null;
-        String okLeadRef  = null;
+        String reqAttr     = null;
+        int    reqThresh   = 0;
+        String actionTitle = null;
+        String okFactRef   = null;
+        String okLeadRef   = null;
         String failFactRef = null;
         String failLeadRef = null;
 
@@ -852,6 +853,8 @@ public class CaseEditorPanel extends JPanel {
                         reqAttr = parts[0];
                         try { reqThresh = Integer.parseInt(parts[1]); } catch (NumberFormatException ignored) {}
                     }
+                } else if (seg.startsWith("action:")) {
+                    actionTitle = seg.substring(7).trim();
                 } else if (seg.startsWith("ok:fact:")) {
                     okFactRef = seg.substring(8).trim();
                 } else if (seg.startsWith("ok:lead:")) {
@@ -873,7 +876,7 @@ public class CaseEditorPanel extends JPanel {
         StringBuilder sb = new StringBuilder();
         sb.append("Result: ").append(description).append(".\n\n");
 
-        // Requirement
+        // Requirement and how it was applied
         if (reqAttr != null) {
             sb.append("Requirement: [").append(reqAttr).append(": ").append(reqThresh).append("]\n")
               .append("The investigator must have ").append(reqAttr).append(" ≥ ").append(reqThresh)
@@ -884,6 +887,9 @@ public class CaseEditorPanel extends JPanel {
         sb.append("✔ SUCCESS OUTCOME");
         if (reqAttr != null) sb.append("  (").append(reqAttr).append(" ≥ ").append(reqThresh).append(")");
         sb.append(":\n");
+        if (reqAttr != null) {
+            sb.append("  ").append(buildAttributeSuccessNarrative(reqAttr, actionTitle)).append("\n");
+        }
         if (okFactRef != null) {
             sb.append(resolveFactRef(okFactRef, "Reveals hidden fact", "becomes KNOWN."));
         } else if (okLeadRef != null) {
@@ -896,6 +902,9 @@ public class CaseEditorPanel extends JPanel {
         sb.append("\n✘ FAILURE OUTCOME");
         if (reqAttr != null) sb.append("  (").append(reqAttr).append(" < ").append(reqThresh).append(")");
         sb.append(":\n");
+        if (reqAttr != null) {
+            sb.append("  ").append(buildAttributeFailureNarrative(reqAttr, actionTitle)).append("\n");
+        }
         if (failFactRef != null) {
             sb.append(resolveFactRef(failFactRef, "Reveals a minor hidden fact", "becomes KNOWN (lower importance)."));
         } else if (failLeadRef != null) {
@@ -905,6 +914,161 @@ public class CaseEditorPanel extends JPanel {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Returns a narrative sentence describing how the investigator successfully applied
+     * the given attribute to accomplish the action.
+     */
+    private String buildAttributeSuccessNarrative(String attr, String actionTitle) {
+        boolean isInterview = actionTitle != null && (actionTitle.startsWith("Interview")
+                || actionTitle.startsWith("Speak") || actionTitle.startsWith("Question"));
+        boolean isEvidence  = actionTitle != null && (actionTitle.startsWith("Collect")
+                || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
+        boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
+                || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
+
+        switch (attr) {
+            case "INTIMIDATION":
+                if (isInterview)
+                    return "With a stern look you make it clear that cooperation is not optional. "
+                         + "Under your unblinking gaze they reluctantly answer.";
+                if (isEvidence)
+                    return "Your commanding presence clears the area. You examine the evidence undisturbed.";
+                return "Your forceful demeanour gets results — they comply without further argument.";
+
+            case "CHARISMA":
+                if (isInterview)
+                    return "With a warm smile and well-chosen words you earn their trust. "
+                         + "They open up more than they intended.";
+                if (isDocument)
+                    return "A friendly rapport with the clerk gets you access to records that aren't publicly available.";
+                return "Your easy manner puts them at ease and they give you exactly what you need.";
+
+            case "PERCEPTION":
+                if (isEvidence)
+                    return "Your sharp eye catches something others missed — a detail that changes everything.";
+                if (isInterview)
+                    return "You pick up on a micro-expression that reveals more than their words let on.";
+                return "A careful scan of the surroundings reveals a detail that wasn't in any report.";
+
+            case "INTELLIGENCE":
+                if (isDocument)
+                    return "You rapidly cross-reference dates and figures, spotting the anomaly buried in the paperwork.";
+                if (isInterview)
+                    return "You ask the exact right question — one they didn't expect — and watch their composure crack.";
+                return "You piece together the scattered facts and the pattern becomes clear.";
+
+            case "EMPATHY":
+                if (isInterview)
+                    return "Reading the tension in their body language, you find the right moment to gently press. "
+                         + "They share something they haven't told anyone else.";
+                return "Your sensitivity to the emotional undercurrents in the room guides you to the truth.";
+
+            case "MEMORY":
+                if (isDocument)
+                    return "You recall a detail from an earlier briefing that maps perfectly onto this record — "
+                         + "the connection is unmistakable.";
+                if (isInterview)
+                    return "Something they say triggers a memory. You name the detail and watch their expression change.";
+                return "You recall something from earlier in the case that makes this evidence click into place.";
+
+            case "STEALTH":
+                if (isEvidence)
+                    return "Moving quietly and unobserved, you collect what you need before anyone notices you were there.";
+                if (isInterview)
+                    return "You observe them from a distance before approaching, giving you an advantage when you do speak.";
+                return "Your unobtrusive presence lets you gather information without anyone realising you were watching.";
+
+            default:
+                return "Applying your skill at the critical moment, you achieve the outcome you were after.";
+        }
+    }
+
+    /**
+     * Returns a narrative sentence describing what happens when the investigator lacks
+     * the required attribute and the action fails.
+     */
+    private String buildAttributeFailureNarrative(String attr, String actionTitle) {
+        boolean isInterview = actionTitle != null && (actionTitle.startsWith("Interview")
+                || actionTitle.startsWith("Speak") || actionTitle.startsWith("Question"));
+        boolean isEvidence  = actionTitle != null && (actionTitle.startsWith("Collect")
+                || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
+        boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
+                || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
+
+        switch (attr) {
+            case "INTIMIDATION":
+                if (isInterview)
+                    return "You ask them to stand aside, but they don't seem willing. "
+                         + "You do notice it's the same person you saw talking to the subject earlier — "
+                         + "that connection may be worth pursuing.";
+                if (isEvidence)
+                    return "Someone challenges your right to be here. Without sufficient authority "
+                         + "you're forced to back down, but you catch a glimpse of something before you leave.";
+                return "Your attempt to assert authority falls short. They hold their ground — "
+                     + "but their reaction itself tells you something.";
+
+            case "CHARISMA":
+                if (isInterview)
+                    return "Your approach falls flat — they seem unimpressed and shut the conversation down. "
+                         + "However, on your way out you overhear something that might be worth a follow-up.";
+                if (isDocument)
+                    return "The clerk turns you away without the access you need. "
+                         + "You'll have to find another way in, or come back with better credentials.";
+                return "They aren't warmed by your manner and give you nothing useful — "
+                     + "at least not directly.";
+
+            case "PERCEPTION":
+                if (isEvidence)
+                    return "You scan the area carefully but nothing immediately stands out. "
+                         + "Whatever was here may have already been disturbed or removed.";
+                if (isInterview)
+                    return "You miss the subtle cue in their expression. "
+                         + "They answer smoothly — too smoothly — but you can't pin down what's off.";
+                return "The detail you were looking for doesn't reveal itself this time. "
+                     + "It may still be there — consider returning with fresh eyes.";
+
+            case "INTELLIGENCE":
+                if (isDocument)
+                    return "The volume and complexity of the paperwork overwhelms you for now. "
+                         + "You'll need more context before the pattern emerges.";
+                if (isInterview)
+                    return "You ask the wrong question and they steer the conversation away. "
+                         + "You leave with less than you came with.";
+                return "The pieces don't connect yet. There's still a gap somewhere in your reasoning.";
+
+            case "EMPATHY":
+                if (isInterview)
+                    return "You try to connect but they remain guarded throughout. "
+                         + "Their defensiveness itself might be telling — why would they be so closed off?";
+                return "You misread the emotional temperature in the room. "
+                     + "Your approach creates distance instead of trust.";
+
+            case "MEMORY":
+                if (isDocument)
+                    return "The relevant detail is just out of reach. You know you've seen something like this before, "
+                         + "but you can't recall where. Time to review your notes.";
+                if (isInterview)
+                    return "They mention something that should ring a bell, but the connection escapes you in the moment. "
+                         + "Write it down — it may make sense later.";
+                return "The critical detail doesn't surface when you need it. "
+                     + "Go back through your earlier findings before proceeding.";
+
+            case "STEALTH":
+                if (isEvidence)
+                    return "Your presence is noticed earlier than expected. "
+                         + "You're forced to abandon the search, but you managed to pocket one small piece of evidence.";
+                if (isInterview)
+                    return "They spot you watching before you're ready. "
+                         + "The element of surprise is lost, and they're now on guard.";
+                return "You're seen when you should have remained undetected. "
+                     + "The opportunity is lost for now — but they don't know exactly what you know.";
+
+            default:
+                return "Without the required skill you fall short this time. "
+                     + "There may still be another way to achieve the same result.";
+        }
     }
 
     private String resolveFactRef(String factId, String prefix, String suffix) {
@@ -2432,6 +2596,7 @@ public class CaseEditorPanel extends JPanel {
                         String desc = buildResultDescription(actionTitle);
                         StringBuilder label = new StringBuilder("[RESULT] ").append(desc)
                                 .append(" | req:").append(attr).append(":").append(threshold);
+                        label.append(" | action:").append(actionTitle);
                         label.append(" | ").append(okRef);
                         label.append(" | ").append(failRef);
 
