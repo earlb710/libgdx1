@@ -932,9 +932,26 @@ public class CaseGenerator {
                     "Intuition", 5,
                     motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
-    }
 
-    // ---- Subject (suspect) interview ----
+        // CONTACT_INFO — Charisma-gated: client may share the subject's phone number
+        String[] contactPool = {
+            "I have " + subject + "'s number. Let me find it for you — you can call and arrange to meet.",
+            subject + "'s number? Yes, I have it. You should be able to reach " + subject + " directly.",
+            "Here, take " + subject + "'s number. Good luck getting a straight answer out of " + subject + ".",
+            "I can give you " + subject + "'s details. " + capitalize(pronoun) + " usually hangs around the usual places."
+        };
+        String[] contactAltPool = {
+            "I'm not sure I should give that out. Can you come back when I've had time to think?",
+            "I'd rather not share anyone's number without their permission.",
+            "I don't have it on me right now. Sorry."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
+                "Do you have a way to reach " + subject + "?",
+                contactPool[random.nextInt(contactPool.length)],
+                true, subject,
+                "Charisma", 4,
+                contactAltPool[random.nextInt(contactAltPool.length)]));
+    }
 
     private void buildSubjectInterview(InterviewScript script, CaseType type,
                                        String client, String subject, String victim,
@@ -1065,6 +1082,17 @@ public class CaseGenerator {
                     "Intimidation", 7,
                     motiveDeflectPool[random.nextInt(motiveDeflectPool.length)]));
         }
+
+        // CONTACT_INFO — Subject is uncooperative about sharing contacts
+        String[] contactPool = {
+            "Why would I help you track down anyone else? Leave me alone.",
+            "I'm not giving you anyone's number. You can find them yourself.",
+            "I don't hand out other people's details. Ask someone who cares."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
+                "Do you have a way to reach " + client + "?",
+                contactPool[random.nextInt(contactPool.length)],
+                random.nextBoolean(), client));
     }
 
     // ---- Key Witness interview ----
@@ -1185,6 +1213,24 @@ public class CaseGenerator {
                     "Intuition", 5,
                     motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
+
+        // CONTACT_INFO — Witness may share the subject's contact info
+        String[] contactPool = {
+            "I think I have " + subject + "'s number somewhere. Let me check — yes, here it is.",
+            subject + "? I've seen them around. I might have their number from the neighbourhood group.",
+            "I'm not sure I have " + subject + "'s number, but they're usually around the area."
+        };
+        String[] contactAltPool = {
+            "I don't really know " + subject + " well enough to share their details.",
+            "Sorry, I don't feel comfortable giving out contact information.",
+            "I'd rather you found them yourself. I don't want to get involved."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
+                "Do you have a way to reach " + subject + "?",
+                contactPool[random.nextInt(contactPool.length)],
+                true, subject,
+                "Charisma", 5,
+                contactAltPool[random.nextInt(contactAltPool.length)]));
     }
 
     // ---- Associate interview ----
@@ -1313,6 +1359,25 @@ public class CaseGenerator {
                     "Intuition", 6,
                     motiveAltPool[random.nextInt(motiveAltPool.length)]));
         }
+
+        // CONTACT_INFO — Associate may share the subject's contact info
+        String[] contactInfoPool = {
+            "Yes, I have " + subject + "'s number. We used to work together. Here — take it.",
+            subject + "? Sure, I can give you their number. We've been in touch recently.",
+            "I can give you " + subject + "'s details. Just tell them I sent you.",
+            "I've got " + subject + "'s number. They might not pick up, but it's worth a try."
+        };
+        String[] contactInfoAltPool = {
+            "I'd rather not share " + subject + "'s details without asking first.",
+            "I don't think " + subject + " would appreciate me giving out their number.",
+            "You'll have to find them through other channels. I can't help with that."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
+                "Do you have a way to reach " + subject + "?",
+                contactInfoPool[random.nextInt(contactInfoPool.length)],
+                true, subject,
+                "Charisma", 4,
+                contactInfoAltPool[random.nextInt(contactInfoAltPool.length)]));
     }
 
     // =========================================================================

@@ -87,7 +87,20 @@ public enum InterviewTopic {
      */
     MOTIVE(
             "Motive",
-            "Ask whether they know of anyone with a reason to harm the victim");
+            "Ask whether they know of anyone with a reason to harm the victim"),
+
+    /**
+     * "Do you have a way to reach [other person]?"
+     *
+     * <p>The NPC may share another character's phone number or tell the
+     * player where they can usually be found.  Discovering a phone number
+     * unlocks the ability to call that character and arrange a meeting at
+     * a specific location.  This topic is gated by {@code Charisma} — the
+     * NPC must trust the player enough to share contact information.
+     */
+    CONTACT_INFO(
+            "Contact Info",
+            "Ask for another character's phone number or usual location");
 
     private final String displayName;
     private final String description;

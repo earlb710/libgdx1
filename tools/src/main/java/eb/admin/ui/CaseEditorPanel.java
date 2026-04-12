@@ -59,18 +59,21 @@ public class CaseEditorPanel extends JPanel {
     // 0=Role, 1=Name, 2=Gender, 3=Age, 4=Occupation,
     // 5=Cooperativeness, 6=Honesty, 7=Nervousness,
     // 8=Dead, 9=Death Date/Time, 10=Variance (min),
-    // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive
+    // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive,
+    // 16=Phone Number, 17=Phone Discovered, 18=Default Location
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
                     "Cooperativeness", "Honesty", "Nervousness",
                     "Dead", "Death Date/Time", "Variance (min)",
                     "Hair Color", "Beard Style",
-                    "Opportunity", "Access", "Has Motive"}, 0) {
+                    "Opportunity", "Access", "Has Motive",
+                    "Phone Number", "Phone Discovered", "Default Location"}, 0) {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
                     if (col == 15) return Boolean.class;   // Has Motive checkbox
+                    if (col == 17) return Boolean.class;   // Phone Discovered checkbox
                     if (col == 9) return Long.class;      // Death epoch millis
                     if (col == 3 || col == 5 || col == 6 || col == 7 || col == 10) return Integer.class;
                     return String.class;
@@ -308,6 +311,9 @@ public class CaseEditorPanel extends JPanel {
         npcTable.getColumnModel().getColumn(13).setPreferredWidth(140); // Opportunity
         npcTable.getColumnModel().getColumn(14).setPreferredWidth(160); // Access
         npcTable.getColumnModel().getColumn(15).setPreferredWidth(70);  // Has Motive
+        npcTable.getColumnModel().getColumn(16).setPreferredWidth(100); // Phone Number
+        npcTable.getColumnModel().getColumn(17).setPreferredWidth(100); // Phone Discovered
+        npcTable.getColumnModel().getColumn(18).setPreferredWidth(120); // Default Location
 
         // Render Death Date/Time column as formatted "YYYY-MM-DD HH:mm" instead of raw long
         npcTable.getColumnModel().getColumn(9).setCellRenderer(
@@ -361,7 +367,7 @@ public class CaseEditorPanel extends JPanel {
 
         genNpcsBtn.addActionListener(e -> generateNpcs());
         addNpcBtn.addActionListener(e -> {
-            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0, "", "", "", "", false});
+            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0, "", "", "", "", false, "", false, ""});
         });
         delNpcBtn.addActionListener(e -> {
             int row = npcTable.getSelectedRow();
@@ -1267,6 +1273,49 @@ public class CaseEditorPanel extends JPanel {
              "drives a vehicle matching witness description",
              "works in the same building"};
 
+    /** Location labels used to assign a default location to each NPC. */
+    private static final String[] LOCATION_LABELS = {
+        "Café", "Bar", "Office", "Public Park", "Library",
+        "Restaurant", "Their Home", "Gym", "Warehouse District",
+        "Church", "Hospital", "Diner", "Hotel Lobby",
+        "Bus Station", "Street Market", "Courthouse"
+    };
+
+    /**
+     * Generates a realistic-looking phone number in the format "555-XXXX".
+     * The 555 prefix signals it is a fictional number.
+     */
+    private String generatePhoneNumber() {
+        int suffix = 100 + random.nextInt(9900); // 0100–9999
+        return "555-" + String.format("%04d", suffix);
+    }
+
+    /**
+     * Picks a default location for an NPC based on their role.
+     * Some roles have plausible fixed locations; others are random.
+     */
+    private String locationForRole(String role) {
+        if (role.contains("Police"))         return "Police Station";
+        if (role.contains("Accountant"))     return "Office";
+        if (role.contains("Insurance"))      return "Office";
+        if (role.contains("IT"))             return "Office";
+        if (role.contains("Colleague"))      return "Office";
+        if (role.contains("Neighbour"))      return "Their Home";
+        if (role.contains("Friend"))         return pick("Café", "Bar", "Restaurant", "Public Park");
+        if (role.contains("Associate"))      return pick("Office", "Restaurant", "Hotel Lobby");
+        if (role.contains("Witness"))        return pick("Café", "Diner", "Public Park", "Their Home");
+        if (role.contains("Fence") || role.contains("Dealer"))
+            return pick("Bar", "Warehouse District", "Street Market");
+        if (role.contains("Intermediary"))   return pick("Café", "Hotel Lobby", "Bus Station");
+        if (role.contains("Confidant"))      return pick("Church", "Café", "Library");
+        if (role.contains("Rival"))          return pick("Bar", "Restaurant", "Office");
+        if (role.contains("Other Party"))    return pick("Gym", "Bar", "Restaurant");
+        if (role.contains("Contact"))        return pick("Café", "Diner", "Bus Station");
+        if (role.startsWith("Client"))       return pick("Café", "Office", "Restaurant", "Their Home");
+        if (role.startsWith("Subject"))      return pick("Bar", "Their Home", "Gym");
+        return LOCATION_LABELS[random.nextInt(LOCATION_LABELS.length)];
+    }
+
     private void generateNpcs() {
         String caseType = (String) caseTypeCombo.getSelectedItem();
         if (caseType == null || caseType.isEmpty()) {
@@ -1425,7 +1474,10 @@ public class CaseEditorPanel extends JPanel {
                     role, name, gender, age, occupation,
                     cooperativeness, honesty, nervousness,
                     dead, deathDateTime, deathVariance,
-                    hairColor, beardStyle, opportunity, access, hasMotive
+                    hairColor, beardStyle, opportunity, access, hasMotive,
+                    generatePhoneNumber(),
+                    role.startsWith("Client"),  // Client phone is always discovered
+                    locationForRole(role)
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -1842,6 +1894,35 @@ public class CaseEditorPanel extends JPanel {
                         "How do you know " + targetPerson + "?",
                         relationship, true, targetPerson);
             }
+
+            // --- CONTACT_INFO (phone number discovery, Charisma-gated) ---
+            // Each NPC can reveal contact info for other NPCs they know.
+            // This is the primary mechanic for discovering phone numbers.
+            for (int j = 0; j < npcNames.size(); j++) {
+                if (j == i || npcDead.get(j)) continue;
+                String otherName = npcNames.get(j);
+                String otherRole = npcRoles.get(j);
+
+                // Only generate contact info responses for NPCs this character
+                // plausibly knows (skip subjects talking about each other's contacts)
+                boolean knows = !isSubject || otherRole.startsWith("Client")
+                        || otherRole.contains("Associate");
+                if (!knows && isSuspect) continue;
+
+                // Look up the other NPC's phone number and location from the table
+                String otherPhone    = String.valueOf(npcModel.getValueAt(j, 16));
+                String otherLocation = String.valueOf(npcModel.getValueAt(j, 18));
+
+                String contactAnswer = buildInterviewContactInfo(
+                        npcRole, otherName, otherRole, otherPhone, otherLocation);
+                String contactGeneric = buildInterviewContactInfoGeneric(otherName);
+
+                // Charisma gate: player needs Charisma ≥ 4 to get the phone number
+                addInterviewRow(npcName, npcRole, "Contact Info",
+                        "Do you have a way to reach " + otherName + "?",
+                        contactAnswer, true, otherName,
+                        "Charisma", 4, contactGeneric);
+            }
         }
 
         statusLabel.setText("Generated " + interviewModel.getRowCount()
@@ -2151,6 +2232,44 @@ public class CaseEditorPanel extends JPanel {
             "You want the truth? " + victim + " made enemies. I was one of them, but I'm not the only one.",
             "Look, I'll admit it — " + victim + " wronged me. But I didn't do this. Check other people's stories.",
             "Alright. Yes, I was angry with " + victim + ". But killing? That's not me. Someone else was circling."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /**
+     * Builds a contact-info answer that includes the other NPC's phone number
+     * and/or usual location.  This is the "full" answer revealed when the
+     * Charisma gate is met.
+     */
+    private String buildInterviewContactInfo(String npcRole, String otherName,
+                                              String otherRole, String phone,
+                                              String location) {
+        String[] pool = {
+            "Sure, I have " + otherName + "'s number. It's " + phone
+                    + ". You can usually find them at the " + location + ".",
+            "Yes — " + otherName + " can be reached at " + phone
+                    + ". They spend most of their time at the " + location + ".",
+            otherName + "? Their number is " + phone
+                    + ". Last I heard they hang around the " + location + " most days.",
+            "I've got " + otherName + "'s number right here: " + phone
+                    + ". If you want to meet in person, try the " + location + ".",
+            "Here — " + phone + ". That's " + otherName + "'s direct number."
+                    + " They're usually at the " + location + " in the evenings."
+        };
+        return pool[random.nextInt(pool.length)];
+    }
+
+    /**
+     * Generic contact-info answer when the Charisma requirement is not met.
+     * The NPC refuses to share the phone number.
+     */
+    private String buildInterviewContactInfoGeneric(String otherName) {
+        String[] pool = {
+            "I'm not comfortable sharing " + otherName + "'s details with a stranger.",
+            "I don't think " + otherName + " would want me giving out their number.",
+            "You'd have to ask someone else. I don't give out people's information.",
+            "I might have their number somewhere, but I'm not sharing it with you.",
+            "Sorry, I don't feel right handing out " + otherName + "'s contact details."
         };
         return pool[random.nextInt(pool.length)];
     }
@@ -2781,6 +2900,17 @@ public class CaseEditorPanel extends JPanel {
                     sb.append(" death=").append(formatted);
                     if (var > 0) sb.append(" ±").append(var).append("min");
                 }
+            }
+            // Phone & location info
+            String phone = String.valueOf(npcModel.getValueAt(i, 16));
+            boolean phoneDisco = Boolean.TRUE.equals(npcModel.getValueAt(i, 17));
+            String loc = String.valueOf(npcModel.getValueAt(i, 18));
+            if (!phone.isEmpty()) {
+                sb.append("  phone=").append(phone);
+                sb.append(phoneDisco ? " [KNOWN]" : " [HIDDEN]");
+            }
+            if (!loc.isEmpty()) {
+                sb.append("  loc=").append(loc);
             }
             sb.append('\n');
         }
