@@ -744,13 +744,14 @@ public class CaseEditorPanel extends JPanel {
     private String buildNodeDescription(String label) {
         if (label == null || label.isEmpty()) return "";
 
-        // Strip the leading [TYPE] tag
+        // Strip the leading [TYPE] or [TYPE:name] tag
         String tag   = "";
         String title = label;
-        if (label.startsWith("[") && label.contains("] ")) {
+        if (label.startsWith("[") && label.contains("]")) {
             int close = label.indexOf(']');
             tag   = label.substring(1, close).trim();
-            title = label.substring(close + 2).trim();
+            // title is text after "] " if present, otherwise empty
+            title = (close + 2 <= label.length()) ? label.substring(close + 1).trim() : "";
         }
 
         String subject = subjectNameField.getText().trim();
@@ -759,6 +760,12 @@ public class CaseEditorPanel extends JPanel {
         if (victim.isEmpty()) victim = "the victim";
         String client  = clientNameField.getText().trim();
         if (client.isEmpty()) client = "the client";
+
+        // Handle [ACTION:action name] format
+        if (tag.startsWith("ACTION:")) {
+            String actionName = tag.substring("ACTION:".length()).trim();
+            return buildActionDescription(actionName, subject, victim, client);
+        }
 
         switch (tag) {
             case "ACTION":
@@ -2379,7 +2386,7 @@ public class CaseEditorPanel extends JPanel {
                     for (int action = 1; action <= 2; action++) {
                         String actionTitle = buildActionTitle(minor, action, subject);
                         DefaultMutableTreeNode actionNode = new DefaultMutableTreeNode(
-                                "[ACTION] " + actionTitle);
+                                "[ACTION:" + actionTitle + "]");
 
                         // Pick a random attribute requirement (threshold 2-5)
                         String attr = attributes[random.nextInt(attributes.length)];
