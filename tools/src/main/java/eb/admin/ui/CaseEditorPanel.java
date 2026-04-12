@@ -55,14 +55,22 @@ public class CaseEditorPanel extends JPanel {
     private final JLabel     victimNameLabel  = new JLabel("  Victim Name:");
     private final JComboBox<String> clientGenderCombo  = new JComboBox<>(new String[]{"M", "F"});
     private final JComboBox<String> subjectGenderCombo = new JComboBox<>(new String[]{"M", "F"});
+    // NPC table columns:
+    // 0=Role, 1=Name, 2=Gender, 3=Age, 4=Occupation,
+    // 5=Cooperativeness, 6=Honesty, 7=Nervousness,
+    // 8=Dead, 9=Death Date/Time, 10=Variance (min),
+    // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
                     "Cooperativeness", "Honesty", "Nervousness",
-                    "Dead", "Death Date/Time", "Variance (min)"}, 0) {
+                    "Dead", "Death Date/Time", "Variance (min)",
+                    "Hair Color", "Beard Style",
+                    "Opportunity", "Access", "Has Motive"}, 0) {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
+                    if (col == 15) return Boolean.class;   // Has Motive checkbox
                     if (col == 9) return Long.class;      // Death epoch millis
                     if (col == 3 || col == 5 || col == 6 || col == 7 || col == 10) return Integer.class;
                     return String.class;
@@ -295,6 +303,11 @@ public class CaseEditorPanel extends JPanel {
         npcTable.getColumnModel().getColumn(8).setPreferredWidth(40);   // Dead
         npcTable.getColumnModel().getColumn(9).setPreferredWidth(120);  // Death Date/Time
         npcTable.getColumnModel().getColumn(10).setPreferredWidth(80);  // Variance
+        npcTable.getColumnModel().getColumn(11).setPreferredWidth(80);  // Hair Color
+        npcTable.getColumnModel().getColumn(12).setPreferredWidth(90);  // Beard Style
+        npcTable.getColumnModel().getColumn(13).setPreferredWidth(140); // Opportunity
+        npcTable.getColumnModel().getColumn(14).setPreferredWidth(160); // Access
+        npcTable.getColumnModel().getColumn(15).setPreferredWidth(70);  // Has Motive
 
         // Render Death Date/Time column as formatted "YYYY-MM-DD HH:mm" instead of raw long
         npcTable.getColumnModel().getColumn(9).setCellRenderer(
@@ -348,7 +361,7 @@ public class CaseEditorPanel extends JPanel {
 
         genNpcsBtn.addActionListener(e -> generateNpcs());
         addNpcBtn.addActionListener(e -> {
-            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0});
+            npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0, "", "", "", "", false});
         });
         delNpcBtn.addActionListener(e -> {
             int row = npcTable.getSelectedRow();
@@ -1115,35 +1128,83 @@ public class CaseEditorPanel extends JPanel {
      * Returns case-type-specific NPC roles.  The first two roles are always
      * "Client" and "Subject/Victim"; additional roles depend on the case type.
      */
-    private String[] rolesForCaseType(String caseType) {
+    /**
+     * Returns NPC roles for the given case type and complexity.
+     * Higher complexity adds additional suspects — NPCs who all had
+     * opportunity but can be thinned out using their attributes.
+     *
+     * @param caseType   the selected case type
+     * @param complexity 1-3; controls additional suspect count (0, 1-2, 2-3 extras)
+     */
+    private String[] rolesForCaseType(String caseType, int complexity) {
+        List<String> roles = new ArrayList<>();
         switch (caseType) {
             case "Missing Person":
-                return new String[]{"Client", "Subject (Missing)", "Witness",
-                        "Last-Known Contact", "Neighbour"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client", "Subject (Missing)", "Witness",
+                        "Last-Known Contact", "Neighbour"));
+                break;
             case "Infidelity":
-                return new String[]{"Client", "Subject (Partner)", "Other Party",
-                        "Mutual Friend", "Witness"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client", "Subject (Partner)", "Other Party",
+                        "Mutual Friend", "Witness"));
+                break;
             case "Theft":
-                return new String[]{"Client (Victim)", "Subject (Suspect)",
-                        "Witness", "Insurance Adjuster", "Fence/Dealer"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client (Victim)", "Subject (Suspect)",
+                        "Witness", "Insurance Adjuster", "Fence/Dealer"));
+                break;
             case "Fraud":
-                return new String[]{"Client (Victim)", "Subject (Perpetrator)",
-                        "Accountant", "Business Associate", "Insider Witness"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client (Victim)", "Subject (Perpetrator)",
+                        "Accountant", "Business Associate", "Insider Witness"));
+                break;
             case "Blackmail":
-                return new String[]{"Client (Victim)", "Subject (Blackmailer)",
-                        "Witness", "Intermediary", "Confidant"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client (Victim)", "Subject (Blackmailer)",
+                        "Witness", "Intermediary", "Confidant"));
+                break;
             case "Murder":
-                return new String[]{"Client", "Subject (Suspect)", "Victim",
-                        "Key Witness", "Victim's Associate", "Police Contact"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client", "Subject (Suspect)", "Victim",
+                        "Key Witness", "Victim's Associate", "Police Contact"));
+                break;
             case "Stalking":
-                return new String[]{"Client (Victim)", "Subject (Stalker)",
-                        "Neighbour Witness", "Ex-Partner", "Friend of Client"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client (Victim)", "Subject (Stalker)",
+                        "Neighbour Witness", "Ex-Partner", "Friend of Client"));
+                break;
             case "Corporate Espionage":
-                return new String[]{"Client (Employer)", "Subject (Leak)",
-                        "Rival Contact", "Trusted Colleague", "IT Specialist"};
+                roles.addAll(java.util.Arrays.asList(
+                        "Client (Employer)", "Subject (Leak)",
+                        "Rival Contact", "Trusted Colleague", "IT Specialist"));
+                break;
             default:
-                return new String[]{"Client", "Subject", "Witness"};
+                roles.addAll(java.util.Arrays.asList("Client", "Subject", "Witness"));
+                break;
         }
+
+        // Additional suspects based on complexity:
+        //   complexity 1 → 0 extra suspects
+        //   complexity 2 → 1-2 extra suspects
+        //   complexity 3 → 2-3 extra suspects
+        int extraSuspects = 0;
+        if (complexity == 2) {
+            extraSuspects = 1 + random.nextInt(2);  // 1-2
+        } else if (complexity >= 3) {
+            extraSuspects = 2 + random.nextInt(2);  // 2-3
+        }
+
+        String[] suspectLabels = {
+                "Suspect — Neighbour", "Suspect — Colleague",
+                "Suspect — Associate", "Suspect — Ex-Partner",
+                "Suspect — Acquaintance"
+        };
+        for (int s = 0; s < extraSuspects && s < suspectLabels.length; s++) {
+            roles.add(suspectLabels[s]);
+        }
+
+        return roles.toArray(new String[0]);
     }
 
     /** Typical occupations per NPC role, to add flavour. */
@@ -1174,6 +1235,16 @@ public class CaseEditorPanel extends JPanel {
         return options[random.nextInt(options.length)];
     }
 
+    /** Picks a random value from the array that differs from {@code exclude}. */
+    private String pickDifferent(String[] options, String exclude) {
+        if (options.length <= 1) return options[0];
+        String result;
+        do {
+            result = options[random.nextInt(options.length)];
+        } while (result.equals(exclude));
+        return result;
+    }
+
     private String randomName(String gender) {
         String first = "F".equals(gender)
                 ? FEMALE_NAMES[random.nextInt(FEMALE_NAMES.length)]
@@ -1181,6 +1252,20 @@ public class CaseEditorPanel extends JPanel {
         String last = SURNAMES[random.nextInt(SURNAMES.length)];
         return first + " " + last;
     }
+
+    private static final String[] HAIR_COLORS =
+            {"black", "brown", "blonde", "red", "gray", "white"};
+    private static final String[] BEARD_STYLES_M =
+            {"clean-shaven", "stubble", "short beard", "long beard", "goatee", "moustache"};
+    private static final String[] OPPORTUNITY_LABELS =
+            {"was near the scene", "had keys to the building",
+             "was seen in the area", "lives close by",
+             "visited the location earlier that day"};
+    private static final String[] ACCESS_LABELS =
+            {"owns a firearm", "had access to the victim's home",
+             "has a key to the office", "had access to the safe",
+             "drives a vehicle matching witness description",
+             "works in the same building"};
 
     private void generateNpcs() {
         String caseType = (String) caseTypeCombo.getSelectedItem();
@@ -1193,11 +1278,19 @@ public class CaseEditorPanel extends JPanel {
         npcModel.setRowCount(0);
         relationshipModel.setRowCount(0);
 
-        String[] roles = rolesForCaseType(caseType);
+        int complexity = (int) complexitySpinner.getValue();
+        String[] roles = rolesForCaseType(caseType, complexity);
         String client  = clientNameField.getText().trim();
         String subject = subjectNameField.getText().trim();
 
         String victim = victimNameField.getText().trim();
+
+        // The primary subject's distinguishing attributes (all suspects share
+        // opportunity but only the real perpetrator matches every attribute).
+        String perpetratorHair  = HAIR_COLORS[random.nextInt(HAIR_COLORS.length)];
+        String perpetratorBeard = "clean-shaven";
+        String perpetratorOpp   = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
+        String perpetratorAcc   = ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
 
         for (int i = 0; i < roles.length; i++) {
             String role   = roles[i];
@@ -1231,7 +1324,7 @@ public class CaseEditorPanel extends JPanel {
             if (role.startsWith("Client")) {
                 cooperativeness = 6 + random.nextInt(4); // 6–9 (cooperative)
                 honesty         = 5 + random.nextInt(5); // 5–9
-            } else if (role.startsWith("Subject")) {
+            } else if (role.startsWith("Subject") || role.startsWith("Suspect")) {
                 cooperativeness = 1 + random.nextInt(5); // 1–5 (less cooperative)
                 nervousness     = 4 + random.nextInt(6); // 4–9 (more nervous)
             }
@@ -1266,10 +1359,73 @@ public class CaseEditorPanel extends JPanel {
                 }
             }
 
+            // --- Suspect-distinguishing attributes ---
+            // All suspects (Subject + additional Suspect roles) had opportunity;
+            // only the primary Subject matches ALL criteria so the player can
+            // thin out extra suspects using hair, beard, access, and motive.
+            boolean isSuspectRole = role.startsWith("Subject") || role.startsWith("Suspect");
+            String hairColor  = "";
+            String beardStyle = "";
+            String opportunity = "";
+            String access      = "";
+            boolean hasMotive  = false;
+
+            if (isSuspectRole) {
+                if (role.startsWith("Subject")) {
+                    // The true perpetrator — matches everything
+                    hairColor   = perpetratorHair;
+                    beardStyle  = "M".equals(gender)
+                            ? BEARD_STYLES_M[random.nextInt(BEARD_STYLES_M.length)]
+                            : "none";
+                    perpetratorBeard = beardStyle;
+                    opportunity = perpetratorOpp;
+                    access      = perpetratorAcc;
+                    hasMotive   = true;
+                } else {
+                    // Additional suspect — shares some attributes but NOT all.
+                    // Always has opportunity (plausible), but at least one
+                    // other attribute differs so the player can eliminate them.
+                    opportunity = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
+
+                    // Randomly decide which attributes match vs differ
+                    // (ensure at least one differs)
+                    boolean matchHair   = random.nextBoolean();
+                    boolean matchBeard  = random.nextBoolean();
+                    boolean matchAccess = random.nextBoolean();
+                    boolean matchMotive = random.nextBoolean();
+                    // Guarantee at least one mismatch
+                    if (matchHair && matchBeard && matchAccess && matchMotive) {
+                        // Force one to differ
+                        switch (random.nextInt(4)) {
+                            case 0: matchHair = false; break;
+                            case 1: matchBeard = false; break;
+                            case 2: matchAccess = false; break;
+                            default: matchMotive = false; break;
+                        }
+                    }
+
+                    hairColor = matchHair
+                            ? perpetratorHair
+                            : pickDifferent(HAIR_COLORS, perpetratorHair);
+                    if ("M".equals(gender)) {
+                        beardStyle = matchBeard
+                                ? perpetratorBeard
+                                : pickDifferent(BEARD_STYLES_M, perpetratorBeard);
+                    } else {
+                        beardStyle = "none";
+                    }
+                    access = matchAccess
+                            ? perpetratorAcc
+                            : ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
+                    hasMotive = matchMotive;
+                }
+            }
+
             npcModel.addRow(new Object[]{
                     role, name, gender, age, occupation,
                     cooperativeness, honesty, nervousness,
-                    dead, deathDateTime, deathVariance
+                    dead, deathDateTime, deathVariance,
+                    hairColor, beardStyle, opportunity, access, hasMotive
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -1589,11 +1745,12 @@ public class CaseEditorPanel extends JPanel {
             String npcName = npcNames.get(i);
             String npcRole = npcRoles.get(i);
             boolean isSubject = npcRole.startsWith("Subject");
+            boolean isSuspect = npcRole.startsWith("Suspect");
             boolean isClient  = npcRole.startsWith("Client");
 
             // --- ALIBI ---
-            String alibi = buildInterviewAlibi(npcRole, isSubject);
-            boolean alibiTruthful = isSubject ? random.nextInt(10) < 3 : true;
+            String alibi = buildInterviewAlibi(npcRole, isSubject || isSuspect);
+            boolean alibiTruthful = (isSubject || isSuspect) ? random.nextInt(10) < 3 : true;
             addInterviewRow(npcName, npcRole, "Alibi",
                     "Where were you at the time of the incident?",
                     alibi, alibiTruthful, "");
@@ -1605,9 +1762,9 @@ public class CaseEditorPanel extends JPanel {
                 String otherRole = npcRoles.get(j);
                 String opinion = buildInterviewOpinion(npcRole, otherName, otherRole,
                         subject, victim, isMurder);
-                boolean opTruthful = isSubject ? random.nextBoolean() : true;
+                boolean opTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
                 // Opinions about the subject get Empathy gate
-                if (otherName.equals(subject) && !isSubject) {
+                if (otherName.equals(subject) && !isSubject && !isSuspect) {
                     String altOpinion = buildInterviewOpinionGeneric(otherName);
                     addInterviewRow(npcName, npcRole, "Opinion",
                             "What do you think of " + otherName + "?",
@@ -1620,8 +1777,8 @@ public class CaseEditorPanel extends JPanel {
                 }
             }
 
-            // --- WHEREABOUTS of subject (if not the subject themselves) ---
-            if (!isSubject) {
+            // --- WHEREABOUTS of subject (if not the subject or a suspect) ---
+            if (!isSubject && !isSuspect) {
                 String whereabouts = buildInterviewWhereabouts(npcRole, subject, isMurder);
                 addInterviewRow(npcName, npcRole, "Whereabouts",
                         "Do you know where " + subject + " was at the time?",
@@ -1630,17 +1787,17 @@ public class CaseEditorPanel extends JPanel {
 
             // --- LAST CONTACT with target ---
             String lastContact = buildInterviewLastContact(npcRole, targetPerson);
-            boolean contactTruthful = isSubject ? random.nextInt(10) < 4 : true;
+            boolean contactTruthful = (isSubject || isSuspect) ? random.nextInt(10) < 4 : true;
             addInterviewRow(npcName, npcRole, "Last Contact",
                     "When did you last see " + targetPerson + "?",
                     lastContact, contactTruthful, targetPerson);
 
             // --- OBSERVATION (attribute-gated) ---
             String observation = buildInterviewObservation(npcRole, subject,
-                    targetPerson, isSubject);
-            boolean obsTruthful = isSubject ? random.nextBoolean() : true;
-            if (isSubject) {
-                // Subject: Intimidation reveals more under pressure
+                    targetPerson, isSubject || isSuspect);
+            boolean obsTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
+            if (isSubject || isSuspect) {
+                // Subject/Suspect: Intimidation reveals more under pressure
                 String revealObs = buildInterviewObservationRevealed(subject, targetPerson);
                 addInterviewRow(npcName, npcRole, "Observation",
                         "Did you notice anything unusual around the time of the incident?",
@@ -1657,10 +1814,11 @@ public class CaseEditorPanel extends JPanel {
 
             // --- MOTIVE (murder cases only, attribute-gated) ---
             if (isMurder) {
-                String motive = buildInterviewMotive(npcRole, subject, victim, isSubject);
-                boolean motTruthful = isSubject ? random.nextBoolean() : true;
-                if (isSubject) {
-                    // Subject: Intimidation reveals more under pressure
+                String motive = buildInterviewMotive(npcRole, subject, victim,
+                        isSubject || isSuspect);
+                boolean motTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
+                if (isSubject || isSuspect) {
+                    // Subject/Suspect: Intimidation reveals more under pressure
                     String motiveRevealed = buildInterviewMotiveRevealed(subject, victim);
                     addInterviewRow(npcName, npcRole, "Motive",
                             "Can you think of anyone who would want to harm " + victim + "?",
