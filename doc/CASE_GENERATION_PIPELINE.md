@@ -172,12 +172,12 @@ be found without an appointment. Locations are chosen by `locationForRole()`.
 | Contact                    | Café, Diner, Bus Station                         |
 | Client                     | Café, Office, Restaurant, Their Home             |
 | Subject                    | Bar, Their Home, Gym                             |
-| All others                 | Random from full pool (16 locations)             |
+| All others                 | Random from full pool (18 locations)             |
 
-**Full location pool (16):**
+**Full location pool (18):**
 Café, Bar, Office, Public Park, Library, Restaurant, Their Home, Gym,
-Warehouse District, Church, Hospital, Diner, Hotel Lobby,
-Bus Station, Street Market, Courthouse
+Warehouse District, Church, Hospital, Police Station, Diner, Hotel Lobby,
+Parking Garage, Bus Station, Street Market, Courthouse
 
 ---
 
@@ -671,7 +671,7 @@ When the player's attribute is **below** the gate value, they receive the
 | Murder Methods            | 5     |
 | Murder Weapons            | 5     |
 | Unknown Fact Sets (Murder)| 8     |
-| NPC Locations             | **16** |
+| NPC Locations             | **18** |
 | Phone Number Format       | 555-XXXX (9900 possible suffixes) |
 
 ### Key Probabilities
@@ -764,7 +764,7 @@ across cases.
 **Previous status:** Location was a single text label ("back office", "car park").
 
 **What was implemented:**
-- Each NPC is assigned a **default location** from a pool of 16 recognisable
+- Each NPC is assigned a **default location** from a pool of 18 recognisable
   urban/suburban places (Café, Bar, Office, Park, Library, etc.)
 - Locations are **role-aware**: a Police Contact is at the Police Station,
   a Neighbour is at Their Home, a Friend is at a random social venue
@@ -852,6 +852,31 @@ before the next MAJOR_PROGRESS unlocks.
 - Generate recurring NPCs across cases (reputation carries over)
 - Allow **multi-case arcs** where solving case A reveals a lead for case B
 - Persistent suspect records that the player can reference across cases
+
+### 13. Code Architecture Cleanup
+
+**Current:** Case generation logic is split between two very large classes
+with significant duplication.
+
+| Class | Lines | Methods | Primary role |
+|-------|-------|---------|-------------|
+| `CaseGenerator` | 2 310 | 29 | Core generation engine (interview scripts, leads, story tree) |
+| `CaseEditorPanel` | 3 290 | 99 | Admin UI **and** secondary generation engine |
+
+**Key duplication areas:**
+
+| Area | Lines duplicated | Risk |
+|------|-----------------|------|
+| Interview generation | ~400 lines reimplemented in CaseEditorPanel vs CaseGenerator's 4 builder methods | Two copies to keep in sync; divergence causes subtle interview inconsistencies |
+| Action-type classification (`isInterview`/`isEvidence`/…) | 8-line block copy-pasted 7+ times in CaseEditorPanel | Bug in one copy not propagated to others |
+| Motive narrative templates | 80 lines in CaseEditorPanel only; unavailable to core engine | Game runtime cannot generate motive text |
+| Name arrays | ~75 entries hardcoded in CaseEditorPanel; separate `PersonNameGenerator` in CaseGenerator | Two independent name pools may diverge |
+
+**Improvement:**
+- Extract shared utilities (`ActionTypeClassifier`, `NarrativeTemplates`)
+- Move admin-only generation logic into `CaseGenerator` or a shared service
+- Have `CaseEditorPanel` delegate to `CaseGenerator` for all generation
+- Consider splitting `CaseGenerator` into `CaseFileGenerator` + `InterviewScriptBuilder`
 
 ---
 

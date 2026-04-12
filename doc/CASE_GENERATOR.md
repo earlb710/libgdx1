@@ -94,7 +94,7 @@ For complexity 3: **24 leaf actions** total
 | `isChildAvailable(index)` | True when all prior siblings are complete |
 | `complete()` | Mark a leaf `ACTION` node as done |
 
-### 6. `CaseGenerator` — the generator
+### 6. `CaseGenerator` — the generator (2 310 lines)
 
 Constructs a complete `CaseFile` from a `CaseType` and an in-game date.
 
@@ -106,6 +106,7 @@ Constructs a complete `CaseFile` from a `CaseType` and an in-game date.
 | Hidden leads | `buildLeads()` |
 | Complexity (1–3, random) | `random.nextInt(3) + 1` |
 | Story tree | `buildStoryTree()` → `buildPhase()` |
+| Interview scripts | `buildInterviewScripts()` → per-NPC builders |
 
 #### Story template data
 `STORY_DATA` is a `String[8][3][24]` table:
@@ -129,7 +130,165 @@ sentence for every combination of attribute (7) × action category (4 + generic
 fallback). The narrative explains *how* the attribute helped or hindered the
 specific action. For full tables see `CASE_GENERATION_PIPELINE.md § Step 8`.
 
-### 7. Save/load persistence for the story tree
+### 7. `InterviewTopic` enum — interview question categories
+
+Eight topics a player can ask about during NPC interviews:
+
+| Constant | Description |
+|---|---|
+| `ALIBI` | Where were you at the time of the crime? |
+| `WHEREABOUTS` | What do you know about another character's location? |
+| `OPINION` | What do you think of another character? (reveals jealousy, rivalry, etc.) |
+| `RELATIONSHIP` | How do you know another character? |
+| `LAST_CONTACT` | When did you last see the victim or subject? |
+| `OBSERVATION` | Did you notice anything unusual around the time of the crime? |
+| `MOTIVE` | Do you know of anyone with a reason to harm the victim? (Murder only) |
+| `CONTACT_INFO` | Do you have a way to reach another character? (Charisma-gated) |
+
+### 8. `InterviewResponse` — attribute-gated answers
+
+Each response stores:
+- `topic` — the `InterviewTopic` being answered
+- `question` / `answer` — the Q&A text
+- `truthful` — hidden flag; subjects may be deceptive
+- `aboutNpcName` — the NPC the question concerns
+
+#### Attribute gates
+Three optional fields gate whether the player receives the full or a
+shortened answer:
+
+| Field | Purpose |
+|---|---|
+| `requiredAttribute` | Display name of the required attribute (e.g. `"Empathy"`) or empty |
+| `requiredValue` | Minimum threshold (1–10) or `0` if no gate |
+| `alternateAnswer` | Fallback text shown when the player's attribute is below the threshold |
+
+`hasAttributeRequirement()` returns `true` when `requiredAttribute` is
+non-empty **and** `requiredValue > 0`.  
+`getEffectiveAnswer(int playerVal)` returns the full `answer` if the
+player meets the threshold, otherwise `alternateAnswer`.
+
+### 9. `InterviewScript` — per-NPC interview data
+
+Wraps a list of `InterviewResponse` objects for one NPC.  
+`CaseFile` stores `List<InterviewScript>` so every NPC's script is
+accessible at runtime.
+
+#### Interview generation (`CaseGenerator.buildInterviewScripts()`)
+
+Four dedicated builder methods generate scripts for the core cast:
+
+| Builder | NPC role | Key behaviour |
+|---|---|---|
+| `buildClientInterview()` | Client | Always truthful; opinion gate Empathy ≥ 5 |
+| `buildSubjectInterview()` | Subject (suspect) | May be deceptive; alibi truthful 30 %, opinion 50 % |
+| `buildWitnessInterview()` | Key Witness | Always truthful; observation gate Perception ≥ 6 |
+| `buildAssociateInterview()` | Associate | Always truthful; observation gate Perception ≥ 5 |
+
+Each builder is 138–166 lines and covers 6–8 topics with randomised
+answer pools (3–9 options per pool).
+
+#### Attribute gate summary
+
+| Topic | Non-suspect gate | Subject/suspect gate |
+|---|---|---|
+| OPINION | Empathy ≥ 5 | — (no gate) |
+| OBSERVATION | Perception ≥ 5–6 | Intimidation ≥ 6 |
+| MOTIVE (Murder) | Intuition ≥ 5 | Intimidation ≥ 7 |
+| CONTACT_INFO | Charisma ≥ 4 (client/associate) or ≥ 5 (witness) | Always refuses |
+
+#### Truthfulness by role
+
+| Role | Alibi | Opinion | Last Contact | Observation | Motive |
+|---|---|---|---|---|---|
+| Client / Witness / Associate | 100 % | 100 % | 100 % | 100 % | 100 % |
+| Subject / Suspect | **30 %** | **50 %** | **40 %** | **50 %** | **50 %** |
+
+### 10. Phone & location system
+
+#### `NpcLocation` — location model
+
+`NpcLocation.LocationCode` is an enum of **18** predefined urban/suburban
+locations:
+
+> Café, Bar, Office, Public Park, Library, Restaurant, Their Home, Gym,
+> Warehouse District, Church, Hospital, Police Station, Diner, Hotel Lobby,
+> Parking Garage, Bus Station, Street Market, Courthouse
+
+Each NPC is assigned a **default location** via `locationForRole()`, which
+maps role keywords to plausible venues (e.g. "Police Contact" → Police
+Station, "Neighbour" → Their Home, "Friend" → random social venue).
+
+#### `PhoneContact` — phone number model
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `String` | Display name in the player's phone |
+| `caseId` | `String` | Source case reference |
+| `phoneNumber` | `String` | Format `555-XXXX` (suffix 0100–9999) |
+| `phoneDiscovered` | `boolean` | `true` once the player has learnt the number |
+| `defaultLocation` | `String` | Where the NPC can usually be found |
+| `phoned` | `boolean` | Has the player called this contact? |
+| `rating` | `PhoneMessageRating` | Call outcome rating (NEUTRAL / POSITIVE / NEGATIVE / BLACKLIST) |
+
+The **client's phone number is always discovered** at case start.  All
+other numbers begin hidden and must be uncovered through `CONTACT_INFO`
+interviews (Charisma-gated) or story progression.
+
+### 11. Suspect attributes
+
+At complexity ≥ 2 the case adds extra suspects (1–2 at complexity 2,
+2–3 at complexity 3).  Five distinguishing attributes allow the player to
+eliminate innocent suspects:
+
+| Attribute | Pool size | Subject value | Suspect rule |
+|---|---|---|---|
+| Hair Color | 6 | Random | 50 % match / 50 % differ |
+| Beard Style | 6 (males) or "none" | Random | 50 % match / 50 % differ |
+| Opportunity | 5 | Random | **Always matches** (all suspects present) |
+| Access | 6 | Random | 50 % match / 50 % differ |
+| Has Motive | 2 | **Always true** | 50 % match / 50 % differ |
+
+If a suspect's four testable attributes all accidentally match the true
+perpetrator (6.25 % chance), one is randomly forced to differ.
+
+### 12. NPC table columns (admin tool)
+
+The NPC data table in `CaseEditorPanel` has **19 columns** (indices 0–18):
+
+| Index | Name | Notes |
+|---|---|---|
+| 0–10 | Role, Name, Gender, Age, Occupation, Cooperativeness, Honesty, Nervousness, Dead, Death Date/Time, Variance | Original character fields |
+| 11 | Hair Color | Suspect attribute |
+| 12 | Beard Style | Suspect attribute |
+| 13 | Opportunity | Suspect attribute |
+| 14 | Access | Suspect attribute |
+| 15 | Has Motive | Suspect attribute (Boolean) |
+| 16 | Phone Number | Format `555-XXXX` |
+| 17 | Phone Discovered | Boolean |
+| 18 | Default Location | Location display name |
+
+### 13. Unknown facts & motive narratives
+
+`generateUnknownFacts()` creates 7–8 facts with status `UNKNOWN` that
+represent the core mysteries the player must solve:
+
+| # | Category | Templates | Importance |
+|---|---|---|---|
+| 1 | METHOD | 5 (murder-specific) / 4 (other) | 5 |
+| 2 | MOTIVE | 10 codes × 3–4 templates = ~37 | 5 |
+| 3 | ITEM (weapon, murder only) | 5 | 4 |
+| 4 | DATE (timeline) | 4 | 4 |
+| 5 | EVIDENCE (location) | 4 | 3 |
+| 6 | RELATIONSHIP (accomplices) | 4 | 3 |
+| 7 | DATE (alibi contradictions) | 4 | 4 |
+| 8 | EVIDENCE (cover-up) | 4 | 3 |
+
+`buildMotiveNarrative(motiveCode, subject, victim)` selects from a pool
+of 3–4 unique sentence templates per motive code (10 codes, ~37 templates
+total).  Each template uses `{subject}` and `{victim}` substitution.
+
+### 14. Save/load persistence for the story tree
 
 `SaveGameManager` serialises and deserialises the complete story tree so that
 player progress survives a save/load cycle.  Four nested DTO classes carry the
@@ -147,7 +306,7 @@ data:
 re-selects the active case.  Old saves without the `caseFiles` field load cleanly
 (backward-compatible).
 
-### 8. Case-file tab: story-tree progress panel
+### 15. Case-file tab: story-tree progress panel
 
 `InfoPanelRenderer.drawCaseFileTab()` was rewritten to add a scrollable content
 area and a **Progress** section displayed above Clues / Evidence / Notes:
@@ -186,6 +345,29 @@ the bottom of the panel, independent of scroll position.
   detect that a new `PLOT_TWIST` branch is now available and surface the
   narrative moment (journal entry, dialogue, screen notification) that
   explains the twist.
+
+- **Code architecture — class size and duplication.**  
+  `CaseEditorPanel` (3 290 lines, 99 methods) and `CaseGenerator`
+  (2 310 lines, 29 methods) are both too large and share duplicated logic.
+  Key concerns:
+
+  | Issue | Detail |
+  |---|---|
+  | **Interview generation duplication** | `CaseEditorPanel.generateInterviews()` reimplements the same interview-building logic that already exists in `CaseGenerator`'s four per-NPC builder methods.  The admin tool should delegate to `CaseGenerator` instead of maintaining a second copy. |
+  | **Action-type detection repetition** | The `isInterview / isEvidence / isDocument / isPhoto` boolean block (checking `actionTitle.startsWith(…)`) is copy-pasted **7+ times** within `CaseEditorPanel`.  It should be extracted to a single helper method such as `classifyActionType(String)`. |
+  | **Motive narratives locked in admin tool** | `buildMotiveNarrative()` (10 codes × 3–4 templates each) exists only in `CaseEditorPanel`.  Moving it to `CaseGenerator` or a shared utility would make it usable by the core game engine. |
+  | **Hardcoded name arrays** | `CaseEditorPanel` maintains its own `MALE_NAMES`, `FEMALE_NAMES`, and `SURNAMES` arrays (~75 entries) instead of using the injected `PersonNameGenerator` that `CaseGenerator` already depends on. |
+  | **CaseEditorPanel responsibilities** | The panel is both a Swing UI component *and* a case-generation engine.  Extracting the generation logic into a shared service layer would shrink the panel to pure UI code and eliminate most cross-file duplication. |
+
+  **Recommended refactoring path:**
+  1. Extract `ActionTypeClassifier` utility (isInterview / isEvidence / …).
+  2. Move `buildMotiveNarrative()` to `CaseGenerator` or a new
+     `NarrativeTemplates` class.
+  3. Have `CaseEditorPanel.generateInterviews()` delegate to
+     `CaseGenerator.buildInterviewScripts()`.
+  4. Replace hardcoded name arrays with `PersonNameGenerator`.
+  5. Consider splitting `CaseGenerator` into `CaseFileGenerator` +
+     `InterviewScriptBuilder`.
 
 ### Medium priority
 
