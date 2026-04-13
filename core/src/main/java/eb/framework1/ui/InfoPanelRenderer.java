@@ -474,8 +474,123 @@ public class InfoPanelRenderer {
         final float BTN_H = moveBounds.height;
         final float LA_W  = laBounds.width;
 
-        // Buttons stack from top of content area downward (top = tabBarY bottom)
+        // --- Layout all button positions ---
         final float btnX = 20f;
+        float[] btnLayout = layoutInfoTabButtons(s, panelH, showMoveToButton, showLookAroundButton,
+                showOfficeButton, selBuilding, atCurrentBuilding,
+                btnX, BTN_W, BTN_H, LA_W, BTN_PAD, BTN_SPACING, PAD_X, PAD_Y,
+                fontCapH, smallLineH);
+        float lowestBtnBottom = btnLayout[0];
+        float curRowBottom    = btnLayout[1];
+
+        String officeBtnLabel = showOfficeButton
+                ? "Your Office: " + floorOrdinal(s.homeFloor) + " Fl Unit " + s.homeFloor + s.homeUnitLetter
+                : "";
+        float OFFICE_W = showOfficeButton
+                ? TextMeasurer.measure(font, glyphLayout, officeBtnLabel, PAD_X, PAD_Y).width : 0f;
+
+        boolean isHotel = selBuilding != null && BuildingServices.getHotelNightlyCost(selBuilding) > 0;
+        boolean showHotelRoomButton = isHotel
+                && profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS) > 0;
+        int hotelRoomNum = profile.getAttribute(BuildingServices.ATTR_HOTEL_ROOM);
+        String hotelRoomBtnLabel = showHotelRoomButton ? "Go to Room " + hotelRoomNum : "";
+        float HOTEL_ROOM_W = showHotelRoomButton
+                ? TextMeasurer.measure(font, glyphLayout, hotelRoomBtnLabel, PAD_X, PAD_Y).width : 0f;
+
+        CalendarEntry upcomingAppt = findUpcomingAppointmentAtLocation(s);
+        boolean showAppointmentButton = upcomingAppt != null
+                && s.selectedCellX == s.charCellX && s.selectedCellY == s.charCellY;
+        String apptBtnLabel = showAppointmentButton
+                ? (upcomingAppt.contactName.isEmpty()
+                        ? "Appointment: " + upcomingAppt.title
+                        : "Meet " + upcomingAppt.contactName)
+                : "";
+        float APPT_W = showAppointmentButton
+                ? TextMeasurer.measure(font, glyphLayout, apptBtnLabel, PAD_X, PAD_Y).width : 0f;
+
+        java.util.List<BuildingService> svcList =
+                (atCurrentBuilding && selBuilding != null)
+                        ? BuildingServices.getServices(selBuilding)
+                        : java.util.Collections.<BuildingService>emptyList();
+
+        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showHotelRoomButton || showAppointmentButton || s.svcBtnCount > 0;
+
+        // --- Content area ---
+        final float SB = MapViewState.SCROLLBAR_THICKNESS;
+        float contentStartY = hasButton
+                ? lowestBtnBottom - fontLineH
+                : panelH - fontLineH;
+        float contentAreaBottom = SB;
+        float contentAreaH      = contentStartY - contentAreaBottom;
+        float contentAreaW      = s.screenWidth - SB;
+
+        // --- Measure content and update max-scroll bounds ---
+        final float TEXT_X = 20f;
+        float wrapWidth = contentAreaW - TEXT_X;
+        float totalContentH = computeContentHeight(s, fontLineH, smallLineH, wrapWidth);
+        float totalContentW = computeContentWidth(s, TEXT_X);
+        s.infoMaxScrollY = Math.max(0f, totalContentH - contentAreaH);
+        s.infoMaxScrollX = Math.max(0f, totalContentW - contentAreaW);
+        s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
+        s.infoScrollX = MathUtils.clamp(s.infoScrollX, 0f, s.infoMaxScrollX);
+
+        // --- Draw button shapes and borders ---
+        drawInfoTabButtonShapes(s, showMoveToButton, canMove, showLookAroundButton,
+                showOfficeButton, showHotelRoomButton, showAppointmentButton,
+                BTN_W, BTN_H, LA_W, OFFICE_W, HOTEL_ROOM_W, APPT_W, svcList);
+
+        // --- Draw button labels ---
+        batch.begin();
+        drawInfoTabButtonLabels(s, showMoveToButton, canMove, showLookAroundButton,
+                showOfficeButton, showHotelRoomButton, showAppointmentButton,
+                officeBtnLabel, hotelRoomBtnLabel, apptBtnLabel,
+                BTN_W, BTN_H, LA_W, OFFICE_W, HOTEL_ROOM_W, APPT_W, svcList);
+
+        // --- GL scissor: clip content area ---
+        batch.flush();
+        float scissorTop = hasButton ? lowestBtnBottom : panelH;
+        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
+        Gdx.gl.glScissor(0, (int) contentAreaBottom,
+                (int) contentAreaW, Math.max(0, (int)(scissorTop - contentAreaBottom)));
+
+        drawScrollX = s.infoScrollX;
+        drawScrollY = s.infoScrollY;
+
+        // --- Draw scrollable content (cell info, building, NPCs) ---
+        drawInfoTabContent(s, panelH, fontCapH, fontLineH, smallCapH, smallLineH,
+                tinyCapH, valCenterOff, valTinyBottomOff, valSmallTinyOff,
+                contentStartY, contentAreaBottom, contentAreaW, wrapWidth, scissorTop,
+                TEXT_X, BTN_H, PAD_X, PAD_Y);
+
+        batch.end();
+
+        // --- Draw eye and chat icons ---
+        drawInfoTabIcons(s);
+
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        drawScrollX = 0f;
+        drawScrollY = 0f;
+
+        // --- Zoom text ---
+        drawInfoTabZoomText(s, panelH);
+
+        drawScrollbars(s, contentAreaH, contentAreaW, SB);
+
+        drawInfoTabHelpButton(s);
+    }
+
+    /**
+     * Lays out button positions in the info tab, stacking downward from the
+     * top of the content area.  Returns {@code float[]{lowestBtnBottom, curRowBottom}}.
+     */
+    private float[] layoutInfoTabButtons(
+            MapViewState s, int panelH,
+            boolean showMoveToButton, boolean showLookAroundButton,
+            boolean showOfficeButton, Building selBuilding, boolean atCurrentBuilding,
+            float btnX, float BTN_W, float BTN_H, float LA_W,
+            float BTN_PAD, float BTN_SPACING, float PAD_X, float PAD_Y,
+            float fontCapH, float smallLineH) {
+
         float curRowBottom = panelH - BTN_PAD - BTN_H;
         float lowestBtnBottom = -1f;
 
@@ -501,7 +616,7 @@ public class InfoPanelRenderer {
         s.goToOfficeBtnY = curRowBottom;
         if (showOfficeButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // "Go to Room" button — shown when player is standing at a hotel where they have nights booked.
+        // "Go to Room" button
         boolean isHotel = selBuilding != null && BuildingServices.getHotelNightlyCost(selBuilding) > 0;
         boolean showHotelRoomButton = isHotel
                 && profile.getAttribute(BuildingServices.ATTR_HOTEL_NIGHTS) > 0;
@@ -516,22 +631,12 @@ public class InfoPanelRenderer {
         s.goToHotelRoomBtnY = curRowBottom;
         if (showHotelRoomButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // Open Stash button – shown inside the office (UnitInteriorPopup), not here
-        boolean showStashButton = false;
-        s.openStashBtnX = btnX; s.openStashBtnH = BTN_H; s.openStashBtnW = 0f;
-        s.openStashBtnY = curRowBottom;
+        // Stash/Emails/Phone — shown inside office popup, not here
+        s.openStashBtnX   = btnX; s.openStashBtnH   = BTN_H; s.openStashBtnW   = 0f; s.openStashBtnY   = curRowBottom;
+        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f; s.checkEmailsBtnY = curRowBottom;
+        s.openPhoneBtnX   = btnX; s.openPhoneBtnH   = BTN_H; s.openPhoneBtnW   = 0f; s.openPhoneBtnY   = curRowBottom;
 
-        // Check Emails button – shown inside the office (UnitInteriorPopup), not here
-        boolean showCheckEmailsButton = false;
-        s.checkEmailsBtnX = btnX; s.checkEmailsBtnH = BTN_H; s.checkEmailsBtnW = 0f;
-        s.checkEmailsBtnY = curRowBottom;
-
-        // Phone button – shown inside the office (UnitInteriorPopup), not here
-        s.openPhoneBtnX = btnX; s.openPhoneBtnH = BTN_H; s.openPhoneBtnW = 0f;
-        s.openPhoneBtnY = curRowBottom;
-
-        // Appointment button – shown when an upcoming appointment (≤ 3 h) is at the
-        // player's current location and the player is viewing their own cell.
+        // Appointment button
         CalendarEntry upcomingAppt = findUpcomingAppointmentAtLocation(s);
         boolean showAppointmentButton = upcomingAppt != null
                 && s.selectedCellX == s.charCellX && s.selectedCellY == s.charCellY;
@@ -548,8 +653,7 @@ public class InfoPanelRenderer {
         s.appointmentBtnY = curRowBottom;
         if (showAppointmentButton) { lowestBtnBottom = curRowBottom; curRowBottom -= BTN_H + BTN_SPACING; }
 
-        // Service buttons – shown when the player is standing at a discovered building that
-        // has services (and is not heading elsewhere).
+        // Service buttons
         java.util.List<BuildingService> svcList =
                 (atCurrentBuilding && selBuilding != null)
                         ? BuildingServices.getServices(selBuilding)
@@ -567,28 +671,19 @@ public class InfoPanelRenderer {
             s.svcBtnCount++;
         }
 
-        boolean hasButton = showMoveToButton || showLookAroundButton || showOfficeButton || showHotelRoomButton || showStashButton || showCheckEmailsButton || showAppointmentButton || s.svcBtnCount > 0;
+        return new float[]{lowestBtnBottom, curRowBottom};
+    }
 
-        // --- Content area ---
-        final float SB = MapViewState.SCROLLBAR_THICKNESS;
-        float contentStartY = hasButton
-                ? lowestBtnBottom - fontLineH
-                : panelH - fontLineH;
-        float contentAreaBottom = SB;
-        float contentAreaH      = contentStartY - contentAreaBottom;
-        float contentAreaW      = s.screenWidth - SB;
+    /** Draws filled rectangles and borders for all visible info-tab buttons. */
+    private void drawInfoTabButtonShapes(
+            MapViewState s,
+            boolean showMoveToButton, boolean canMove,
+            boolean showLookAroundButton, boolean showOfficeButton,
+            boolean showHotelRoomButton, boolean showAppointmentButton,
+            float BTN_W, float BTN_H, float LA_W,
+            float OFFICE_W, float HOTEL_ROOM_W, float APPT_W,
+            java.util.List<BuildingService> svcList) {
 
-        // --- Measure content and update max-scroll bounds ---
-        final float TEXT_X = 20f;
-        float wrapWidth = contentAreaW - TEXT_X;
-        float totalContentH = computeContentHeight(s, fontLineH, smallLineH, wrapWidth);
-        float totalContentW = computeContentWidth(s, TEXT_X);
-        s.infoMaxScrollY = Math.max(0f, totalContentH - contentAreaH);
-        s.infoMaxScrollX = Math.max(0f, totalContentW - contentAreaW);
-        s.infoScrollY = MathUtils.clamp(s.infoScrollY, 0f, s.infoMaxScrollY);
-        s.infoScrollX = MathUtils.clamp(s.infoScrollX, 0f, s.infoMaxScrollX);
-
-        // --- Shapes (buttons) ---
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (showMoveToButton) {
             shapeRenderer.setColor(canMove ? MOVE_TO_BUTTON_COLOR : Color.DARK_GRAY);
@@ -614,7 +709,6 @@ public class InfoPanelRenderer {
             shapeRenderer.setColor(SERVICE_BTN_COLOR);
             shapeRenderer.rect(s.svcBtnX[si], s.svcBtnY[si], s.svcBtnW[si], BTN_H);
         }
-
         shapeRenderer.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -643,11 +737,21 @@ public class InfoPanelRenderer {
             shapeRenderer.rect(s.svcBtnX[si],     s.svcBtnY[si],     s.svcBtnW[si],     BTN_H);
             shapeRenderer.rect(s.svcBtnX[si] + 1, s.svcBtnY[si] + 1, s.svcBtnW[si] - 2, BTN_H - 2);
         }
-
         shapeRenderer.end();
-        batch.begin();
-        float textX = 20f;
+    }
 
+    /** Draws text labels onto all visible info-tab buttons. Batch must already be active. */
+    private void drawInfoTabButtonLabels(
+            MapViewState s,
+            boolean showMoveToButton, boolean canMove,
+            boolean showLookAroundButton, boolean showOfficeButton,
+            boolean showHotelRoomButton, boolean showAppointmentButton,
+            String officeBtnLabel, String hotelRoomBtnLabel, String apptBtnLabel,
+            float BTN_W, float BTN_H, float LA_W,
+            float OFFICE_W, float HOTEL_ROOM_W, float APPT_W,
+            java.util.List<BuildingService> svcList) {
+
+        float textX = 20f;
         if (showMoveToButton) {
             glyphLayout.setText(font, "Move to");
             font.setColor(Color.WHITE);
@@ -700,17 +804,19 @@ public class InfoPanelRenderer {
                     s.svcBtnX[si] + (s.svcBtnW[si] - glyphLayout.width) / 2,
                     s.svcBtnY[si] + (BTN_H + glyphLayout.height) / 2);
         }
+    }
 
-
-        // GL scissor
-        batch.flush();
-        float scissorTop = hasButton ? lowestBtnBottom : panelH;
-        Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor(0, (int) contentAreaBottom,
-                (int) contentAreaW, Math.max(0, (int)(scissorTop - contentAreaBottom)));
-
-        drawScrollX = s.infoScrollX;
-        drawScrollY = s.infoScrollY;
+    /**
+     * Draws the scrollable cell-info content (terrain, building details, NPCs).
+     * Batch must be active; GL scissor must be enabled.
+     */
+    private void drawInfoTabContent(
+            MapViewState s, int panelH,
+            float fontCapH, float fontLineH, float smallCapH, float smallLineH,
+            float tinyCapH, float valCenterOff, float valTinyBottomOff, float valSmallTinyOff,
+            float contentStartY, float contentAreaBottom, float contentAreaW, float wrapWidth,
+            float scissorTop,
+            float textX, float BTN_H, float PAD_X, float PAD_Y) {
 
         float textY = contentStartY;
         s.impBtnCount = 0;
@@ -724,245 +830,292 @@ public class InfoPanelRenderer {
             if (cell.hasBuilding()) {
                 Building building = cell.getBuilding();
                 if (building.isDiscovered()) {
-                    String bMod = formatAttributeModifiers(building.getAttributeModifiers());
-                    String bName = building.getDisplayName();
-
-                    if (building.getDefinition() != null) {
-                        textY = drawLabelValue(font, "Type: ",
-                                building.getName(), textX, textY);
-                        textY -= fontLineH;
-                        textY = drawLabelValue(font, "Floors: ",
-                                String.valueOf(building.getFloors()), textX, textY);
-                        textY -= fontLineH;
-                    }
-
-                    // Multi-tenant: show all company names
-                    List<String> tenants = building.getTenants();
-                    if (tenants.size() > 1) {
-                        font.setColor(LABEL_COLOR);
-                        font.draw(batch, "Tenants:", textX - drawScrollX, textY + drawScrollY);
-                        textY -= fontLineH;
-                        for (String tenant : tenants) {
-                            float tdy = textY + drawScrollY;
-                            if (tdy < contentAreaBottom - fontLineH) break;
-                            smallFont.setColor(Color.WHITE);
-                            smallFont.draw(batch, "  " + tenant, textX - drawScrollX, tdy);
-                            textY -= smallLineH;
-                        }
-                    }
-
-                    // Building description from buildings_en.json (word-wrapped, novel colour)
-                    List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
-
-                    // Space above "Building: name", then draw it just above the description
-                    textY -= smallLineH;
-                    float dx = textX - drawScrollX;
-                    float dy = textY + drawScrollY;
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Building: ", dx, dy);
-                    glyphLayout.setText(font, "Building: ");
-                    float nameX = dx + glyphLayout.width;
-                    smallFont.setColor(Color.WHITE);
-                    smallFont.draw(batch, bName, nameX, dy - valCenterOff);
-                    if (!bMod.isEmpty()) {
-                        glyphLayout.setText(smallFont, bName);
-                        tinyFont.setColor(Color.WHITE);
-                        tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
-                                nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
-                    }
-                    textY -= fontLineH;
-
-                    // Description immediately below "Building: name" (no extra gap)
-                    if (!novelLines.isEmpty()) {
-                        smallFont.setColor(NOVEL_COLOR);
-                        for (String nLine : novelLines) {
-                            smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
-                            textY -= smallLineH;
-                        }
-                    }
-
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "Locations:", textX - drawScrollX, textY + drawScrollY);
-                    textY -= fontLineH;
-                    for (Improvement imp : building.getImprovements()) {
-                        float idy = textY + drawScrollY;
-                        if (idy < contentAreaBottom - fontLineH) break;
-                        float idx = textX - drawScrollX;
-                        if (imp.isDiscovered()) {
-                            String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
-                            String namePart = "  - " + imp.getName();
-                            font.setColor(Color.WHITE);
-                            font.draw(batch, namePart, idx, idy);
-                            if (!modStr.isEmpty()) {
-                                glyphLayout.setText(font, namePart);
-                                tinyFont.setColor(Color.WHITE);
-                                tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
-                                        idx + glyphLayout.width, idy - valTinyBottomOff);
-                            }
-                            // --- Inline action button for functional improvements (right-aligned, same line as heading) ---
-                            if (imp.hasFunction()) {
-                                String fnLabel = functionLabel(imp.getFunction());
-                                String denyReason = impDenyReason(imp);
-                                boolean allowed = (denyReason == null);
-                                TextMeasurer.TextBounds fbBounds =
-                                        TextMeasurer.measure(font, glyphLayout, fnLabel, PAD_X, PAD_Y);
-                                float fbW = fbBounds.width;
-                                float btnScreenX = contentAreaW - PAD_X - fbW;
-                                float btnScreenY = idy - (BTN_H + fontCapH) / 2f;
-                                // Store screen-space bounds for hit-testing (updated every frame)
-                                if (s.impBtnCount < MapViewState.MAX_IMP_BTNS) {
-                                    s.impBtnX[s.impBtnCount] = btnScreenX;
-                                    s.impBtnY[s.impBtnCount] = btnScreenY;
-                                    s.impBtnW[s.impBtnCount] = fbW;
-                                    s.impBtnImp[s.impBtnCount] = imp;
-                                    s.impBtnCount++;
-                                }
-                                // Draw button if visible
-                                if (btnScreenY + BTN_H > contentAreaBottom && btnScreenY < scissorTop) {
-                                    batch.end();
-                                    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                                    shapeRenderer.setColor(allowed ? IMP_ACTION_BTN_COLOR : IMP_ACTION_BTN_DISABLED);
-                                    shapeRenderer.rect(btnScreenX, btnScreenY, fbW, BTN_H);
-                                    shapeRenderer.end();
-                                    shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-                                    shapeRenderer.setColor(INFO_BORDER_COLOR);
-                                    shapeRenderer.rect(btnScreenX,     btnScreenY,     fbW,     BTN_H);
-                                    shapeRenderer.rect(btnScreenX + 1, btnScreenY + 1, fbW - 2, BTN_H - 2);
-                                    shapeRenderer.end();
-                                    batch.begin();
-                                    glyphLayout.setText(font, fnLabel);
-                                    font.setColor(Color.WHITE);
-                                    font.draw(batch, fnLabel,
-                                            btnScreenX + (fbW - glyphLayout.width) / 2f,
-                                            btnScreenY + (BTN_H + glyphLayout.height) / 2f);
-                                    if (!allowed) {
-                                        glyphLayout.setText(smallFont, denyReason);
-                                        smallFont.setColor(DENY_COLOR);
-                                        smallFont.draw(batch, denyReason,
-                                                btnScreenX - 8f - glyphLayout.width,
-                                                btnScreenY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2f);
-                                    }
-                                }
-                            }
-                            textY -= fontLineH;
-                            // Description from improvements_en.json (word-wrapped, novel colour)
-                            List<String> descLines = impDescriptionLines(imp, wrapWidth);
-                            if (!descLines.isEmpty()) {
-                                smallFont.setColor(NOVEL_COLOR);
-                                for (String dLine : descLines) {
-                                    float ddy = textY + drawScrollY;
-                                    if (ddy < contentAreaBottom - smallLineH) break;
-                                    smallFont.draw(batch, dLine, idx + 8f, ddy);
-                                    textY -= smallLineH;
-                                }
-                            }
-                        } else {
-                            font.setColor(Color.WHITE);
-                            font.draw(batch, "  - ???", idx, idy);
-                            textY -= fontLineH;
-                        }
-                    }
+                    textY = drawInfoTabBuildingContent(s, building, textX, textY,
+                            fontCapH, fontLineH, smallCapH, smallLineH, tinyCapH,
+                            valCenterOff, valTinyBottomOff, valSmallTinyOff,
+                            contentAreaBottom, contentAreaW, wrapWidth, scissorTop,
+                            BTN_H, PAD_X, PAD_Y);
                 } else {
                     drawLabelValue(font, "Building: ", "???", textX, textY);
                 }
             }
 
             // NPCs currently at this cell
-            if (s.allNpcs != null && !s.allNpcs.isEmpty()) {
-                List<NpcCharacter> npcsHere = new ArrayList<>();
-                for (NpcCharacter npc : s.allNpcs) {
-                    int nx = npc.getCurrentCellX(s.currentHour);
-                    int ny = npc.getCurrentCellY(s.currentHour);
-                    if (nx == s.selectedCellX && ny == s.selectedCellY) {
-                        npcsHere.add(npc);
-                    }
-                }
-                if (!npcsHere.isEmpty()) {
-                    textY -= fontLineH;
-                    font.setColor(LABEL_COLOR);
-                    font.draw(batch, "People here:", textX - drawScrollX, textY + drawScrollY);
-                    textY -= fontLineH;
-                    for (NpcCharacter npc : npcsHere) {
-                        boolean hasMet = profile.getRelationship(npc.getId()) != null;
-                        String displayName = hasMet
-                                ? "  " + npc.getFullName()
-                                : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
-                        font.setColor(Color.WHITE);
-                        font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+            textY = drawInfoTabNpcs(s, textX, textY, fontCapH, fontLineH, contentAreaBottom);
 
-                        // Face portrait: shown to the right of the name for known NPCs
-                        if (hasMet && portraitPainter != null && npc.getFaceConfig() != null) {
-                            Texture portrait = portraitPainter.getPortrait(
-                                    npc.getId(), npc.getFaceConfig());
-                            if (portrait != null) {
-                                glyphLayout.setText(font, displayName);
-                                float px = textX - drawScrollX + glyphLayout.width + 8f;
-                                float py = textY + drawScrollY - PORTRAIT_H;
-                                batch.draw(portrait, px, py, PORTRAIT_W, PORTRAIT_H);
-                            }
-                        }
-
-                        // Eye icon: only for unknown NPCs when the player is at the same cell
-                        int nx = npc.getCurrentCellX(s.currentHour);
-                        int ny = npc.getCurrentCellY(s.currentHour);
-                        boolean playerHere = (nx == s.charCellX && ny == s.charCellY);
-                        if (!hasMet && playerHere && eyeIconTexture != null
-                                && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
-                            glyphLayout.setText(font, displayName);
-                            float iconH = Math.min(eyeIconTexH, fontCapH) * ICON_TOUCH_SCALE;
-                            float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
-                                    ? eyeIconTexW * iconH / eyeIconTexH : iconH;
-                            float ex = textX - drawScrollX + glyphLayout.width + 12f;
-                            float ey = textY + drawScrollY - (fontCapH + iconH) / 2f;
-                            int idx = s.eyeIconCount++;
-                            s.eyeIconX[idx]   = ex;
-                            s.eyeIconY[idx]   = ey;
-                            s.eyeIconW[idx]   = iconW;
-                            s.eyeIconH        = iconH;
-                            s.eyeIconNpc[idx] = npc;
-
-                            // Chat icon: placed immediately to the right of the eye icon
-                            if (chatIconTexture != null
-                                    && s.chatIconCount < MapViewState.MAX_CHAT_ICONS) {
-                                float chatH = Math.min(chatIconTexH, fontCapH) * ICON_TOUCH_SCALE;
-                                float chatW = (chatIconTexW > 0 && chatIconTexH > 0)
-                                        ? chatIconTexW * chatH / chatIconTexH : chatH;
-                                float cx = ex + iconW + 8f;
-                                int ci = s.chatIconCount++;
-                                s.chatIconX[ci]   = cx;
-                                s.chatIconY[ci]   = ey;
-                                s.chatIconW[ci]   = chatW;
-                                s.chatIconH       = chatH;
-                                s.chatIconNpc[ci] = npc;
-                            }
-                        }
-
-                        textY -= fontLineH;
-                    }
-                }
-            }
         } else {
             font.setColor(Color.WHITE);
             font.draw(batch, "Click on a cell to see details",
                     textX - drawScrollX, textY + drawScrollY);
         }
+    }
 
-        batch.end();
-        // Draw eye icons: filled background + icon on top, clipped by the active scissor region
+    /**
+     * Draws discovered-building details: type, floors, tenants, description,
+     * improvements with action buttons.
+     * Returns the updated textY position.
+     */
+    private float drawInfoTabBuildingContent(
+            MapViewState s, Building building,
+            float textX, float textY,
+            float fontCapH, float fontLineH, float smallCapH, float smallLineH,
+            float tinyCapH, float valCenterOff, float valTinyBottomOff, float valSmallTinyOff,
+            float contentAreaBottom, float contentAreaW, float wrapWidth, float scissorTop,
+            float BTN_H, float PAD_X, float PAD_Y) {
+
+        String bMod = formatAttributeModifiers(building.getAttributeModifiers());
+        String bName = building.getDisplayName();
+
+        if (building.getDefinition() != null) {
+            textY = drawLabelValue(font, "Type: ",
+                    building.getName(), textX, textY);
+            textY -= fontLineH;
+            textY = drawLabelValue(font, "Floors: ",
+                    String.valueOf(building.getFloors()), textX, textY);
+            textY -= fontLineH;
+        }
+
+        // Multi-tenant: show all company names
+        List<String> tenants = building.getTenants();
+        if (tenants.size() > 1) {
+            font.setColor(LABEL_COLOR);
+            font.draw(batch, "Tenants:", textX - drawScrollX, textY + drawScrollY);
+            textY -= fontLineH;
+            for (String tenant : tenants) {
+                float tdy = textY + drawScrollY;
+                if (tdy < contentAreaBottom - fontLineH) break;
+                smallFont.setColor(Color.WHITE);
+                smallFont.draw(batch, "  " + tenant, textX - drawScrollX, tdy);
+                textY -= smallLineH;
+            }
+        }
+
+        // Building description from buildings_en.json (word-wrapped, novel colour)
+        List<String> novelLines = buildingNovelLines(building, contentAreaW - textX);
+
+        // Space above "Building: name", then draw it just above the description
+        textY -= smallLineH;
+        float dx = textX - drawScrollX;
+        float dy = textY + drawScrollY;
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Building: ", dx, dy);
+        glyphLayout.setText(font, "Building: ");
+        float nameX = dx + glyphLayout.width;
+        smallFont.setColor(Color.WHITE);
+        smallFont.draw(batch, bName, nameX, dy - valCenterOff);
+        if (!bMod.isEmpty()) {
+            glyphLayout.setText(smallFont, bName);
+            tinyFont.setColor(Color.WHITE);
+            tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(building.getAttributeModifiers()),
+                    nameX + glyphLayout.width, dy - valCenterOff - valSmallTinyOff);
+        }
+        textY -= fontLineH;
+
+        // Description immediately below "Building: name" (no extra gap)
+        if (!novelLines.isEmpty()) {
+            smallFont.setColor(NOVEL_COLOR);
+            for (String nLine : novelLines) {
+                smallFont.draw(batch, nLine, textX - drawScrollX, textY + drawScrollY);
+                textY -= smallLineH;
+            }
+        }
+
+        // Improvements
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "Locations:", textX - drawScrollX, textY + drawScrollY);
+        textY -= fontLineH;
+        for (Improvement imp : building.getImprovements()) {
+            float idy = textY + drawScrollY;
+            if (idy < contentAreaBottom - fontLineH) break;
+            float idx = textX - drawScrollX;
+            if (imp.isDiscovered()) {
+                String modStr = formatAttributeModifiers(imp.getAttributeModifiers());
+                String namePart = "  - " + imp.getName();
+                font.setColor(Color.WHITE);
+                font.draw(batch, namePart, idx, idy);
+                if (!modStr.isEmpty()) {
+                    glyphLayout.setText(font, namePart);
+                    tinyFont.setColor(Color.WHITE);
+                    tinyFont.draw(batch, " " + formatAttributeModifiersMarkup(imp.getAttributeModifiers()),
+                            idx + glyphLayout.width, idy - valTinyBottomOff);
+                }
+                // --- Inline action button for functional improvements ---
+                if (imp.hasFunction()) {
+                    drawImprovementActionButton(s, imp, idy, fontCapH, BTN_H, PAD_X, PAD_Y,
+                            contentAreaW, contentAreaBottom, scissorTop);
+                }
+                textY -= fontLineH;
+                // Description from improvements_en.json (word-wrapped, novel colour)
+                List<String> descLines = impDescriptionLines(imp, wrapWidth);
+                if (!descLines.isEmpty()) {
+                    smallFont.setColor(NOVEL_COLOR);
+                    for (String dLine : descLines) {
+                        float ddy = textY + drawScrollY;
+                        if (ddy < contentAreaBottom - smallLineH) break;
+                        smallFont.draw(batch, dLine, idx + 8f, ddy);
+                        textY -= smallLineH;
+                    }
+                }
+            } else {
+                font.setColor(Color.WHITE);
+                font.draw(batch, "  - ???", idx, idy);
+                textY -= fontLineH;
+            }
+        }
+        return textY;
+    }
+
+    /**
+     * Draws a single improvement's inline action button (e.g. "Rest", "Buy").
+     * Temporarily switches between batch/shapeRenderer modes.
+     */
+    private void drawImprovementActionButton(
+            MapViewState s, Improvement imp,
+            float idy, float fontCapH, float BTN_H,
+            float PAD_X, float PAD_Y,
+            float contentAreaW, float contentAreaBottom, float scissorTop) {
+
+        String fnLabel = functionLabel(imp.getFunction());
+        String denyReason = impDenyReason(imp);
+        boolean allowed = (denyReason == null);
+        TextMeasurer.TextBounds fbBounds =
+                TextMeasurer.measure(font, glyphLayout, fnLabel, PAD_X, PAD_Y);
+        float fbW = fbBounds.width;
+        float btnScreenX = contentAreaW - PAD_X - fbW;
+        float btnScreenY = idy - (BTN_H + fontCapH) / 2f;
+        // Store screen-space bounds for hit-testing (updated every frame)
+        if (s.impBtnCount < MapViewState.MAX_IMP_BTNS) {
+            s.impBtnX[s.impBtnCount] = btnScreenX;
+            s.impBtnY[s.impBtnCount] = btnScreenY;
+            s.impBtnW[s.impBtnCount] = fbW;
+            s.impBtnImp[s.impBtnCount] = imp;
+            s.impBtnCount++;
+        }
+        // Draw button if visible
+        if (btnScreenY + BTN_H > contentAreaBottom && btnScreenY < scissorTop) {
+            batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(allowed ? IMP_ACTION_BTN_COLOR : IMP_ACTION_BTN_DISABLED);
+            shapeRenderer.rect(btnScreenX, btnScreenY, fbW, BTN_H);
+            shapeRenderer.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(INFO_BORDER_COLOR);
+            shapeRenderer.rect(btnScreenX,     btnScreenY,     fbW,     BTN_H);
+            shapeRenderer.rect(btnScreenX + 1, btnScreenY + 1, fbW - 2, BTN_H - 2);
+            shapeRenderer.end();
+            batch.begin();
+            glyphLayout.setText(font, fnLabel);
+            font.setColor(Color.WHITE);
+            font.draw(batch, fnLabel,
+                    btnScreenX + (fbW - glyphLayout.width) / 2f,
+                    btnScreenY + (BTN_H + glyphLayout.height) / 2f);
+            if (!allowed) {
+                glyphLayout.setText(smallFont, denyReason);
+                smallFont.setColor(DENY_COLOR);
+                smallFont.draw(batch, denyReason,
+                        btnScreenX - 8f - glyphLayout.width,
+                        btnScreenY + (BTN_H + smallFont.getLineHeight() * 0.5f) / 2f);
+            }
+        }
+    }
+
+    /**
+     * Draws NPC list for the selected cell, including portraits, eye icons, and chat icons.
+     * Returns the updated textY position.
+     */
+    private float drawInfoTabNpcs(MapViewState s, float textX, float textY,
+                                  float fontCapH, float fontLineH,
+                                  float contentAreaBottom) {
+        if (s.allNpcs == null || s.allNpcs.isEmpty()) return textY;
+
+        List<NpcCharacter> npcsHere = new ArrayList<>();
+        for (NpcCharacter npc : s.allNpcs) {
+            int nx = npc.getCurrentCellX(s.currentHour);
+            int ny = npc.getCurrentCellY(s.currentHour);
+            if (nx == s.selectedCellX && ny == s.selectedCellY) {
+                npcsHere.add(npc);
+            }
+        }
+        if (npcsHere.isEmpty()) return textY;
+
+        textY -= fontLineH;
+        font.setColor(LABEL_COLOR);
+        font.draw(batch, "People here:", textX - drawScrollX, textY + drawScrollY);
+        textY -= fontLineH;
+        for (NpcCharacter npc : npcsHere) {
+            boolean hasMet = profile.getRelationship(npc.getId()) != null;
+            String displayName = hasMet
+                    ? "  " + npc.getFullName()
+                    : ("  Unknown " + ("F".equalsIgnoreCase(npc.getGender()) ? "woman" : "man"));
+            font.setColor(Color.WHITE);
+            font.draw(batch, displayName, textX - drawScrollX, textY + drawScrollY);
+
+            // Face portrait: shown to the right of the name for known NPCs
+            if (hasMet && portraitPainter != null && npc.getFaceConfig() != null) {
+                Texture portrait = portraitPainter.getPortrait(
+                        npc.getId(), npc.getFaceConfig());
+                if (portrait != null) {
+                    glyphLayout.setText(font, displayName);
+                    float px = textX - drawScrollX + glyphLayout.width + 8f;
+                    float py = textY + drawScrollY - PORTRAIT_H;
+                    batch.draw(portrait, px, py, PORTRAIT_W, PORTRAIT_H);
+                }
+            }
+
+            // Eye icon: only for unknown NPCs when the player is at the same cell
+            int nx = npc.getCurrentCellX(s.currentHour);
+            int ny = npc.getCurrentCellY(s.currentHour);
+            boolean playerHere = (nx == s.charCellX && ny == s.charCellY);
+            if (!hasMet && playerHere && eyeIconTexture != null
+                    && s.eyeIconCount < MapViewState.MAX_EYE_ICONS) {
+                glyphLayout.setText(font, displayName);
+                float iconH = Math.min(eyeIconTexH, fontCapH) * ICON_TOUCH_SCALE;
+                float iconW = (eyeIconTexW > 0 && eyeIconTexH > 0)
+                        ? eyeIconTexW * iconH / eyeIconTexH : iconH;
+                float ex = textX - drawScrollX + glyphLayout.width + 12f;
+                float ey = textY + drawScrollY - (fontCapH + iconH) / 2f;
+                int idx = s.eyeIconCount++;
+                s.eyeIconX[idx]   = ex;
+                s.eyeIconY[idx]   = ey;
+                s.eyeIconW[idx]   = iconW;
+                s.eyeIconH        = iconH;
+                s.eyeIconNpc[idx] = npc;
+
+                // Chat icon: placed immediately to the right of the eye icon
+                if (chatIconTexture != null
+                        && s.chatIconCount < MapViewState.MAX_CHAT_ICONS) {
+                    float chatH = Math.min(chatIconTexH, fontCapH) * ICON_TOUCH_SCALE;
+                    float chatW = (chatIconTexW > 0 && chatIconTexH > 0)
+                            ? chatIconTexW * chatH / chatIconTexH : chatH;
+                    float cx = ex + iconW + 8f;
+                    int ci = s.chatIconCount++;
+                    s.chatIconX[ci]   = cx;
+                    s.chatIconY[ci]   = ey;
+                    s.chatIconW[ci]   = chatW;
+                    s.chatIconH       = chatH;
+                    s.chatIconNpc[ci] = npc;
+                }
+            }
+
+            textY -= fontLineH;
+        }
+        return textY;
+    }
+
+    /** Draws eye and chat NPC interaction icons (batch must be inactive). */
+    private void drawInfoTabIcons(MapViewState s) {
         for (int i = 0; i < s.eyeIconCount; i++) {
             drawIconWithBackground(eyeIconTexture, EYE_ICON_BG_COLOR,
                     s.eyeIconX[i], s.eyeIconY[i], s.eyeIconW[i], s.eyeIconH);
         }
-        // Draw chat icons: filled background + icon on top, right next to the eye icons
         for (int i = 0; i < s.chatIconCount; i++) {
             drawIconWithBackground(chatIconTexture, CHAT_ICON_BG_COLOR,
                     s.chatIconX[i], s.chatIconY[i], s.chatIconW[i], s.chatIconH);
         }
-        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
-        drawScrollX = 0f;
-        drawScrollY = 0f;
+    }
 
-        // Zoom text (top-right of content area)
+    /** Draws the zoom level indicator in the top-right of the info panel. */
+    private void drawInfoTabZoomText(MapViewState s, int panelH) {
         if (s.zoomLevel != s.lastZoomLevel) {
             s.cachedZoomText = "Zoom: " + String.format("%.1fx", s.zoomLevel);
             s.lastZoomLevel = s.zoomLevel;
@@ -973,12 +1126,7 @@ public class InfoPanelRenderer {
         smallFont.draw(batch, s.cachedZoomText,
                 s.screenWidth - glyphLayout.width - 20,
                 panelH - (glyphLayout.height * 1.4f));
-
         batch.end();
-
-        drawScrollbars(s, contentAreaH, contentAreaW, SB);
-
-        drawInfoTabHelpButton(s);
     }
 
     /**
