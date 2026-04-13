@@ -5,6 +5,7 @@ import eb.framework1.character.SkillCategoryDefinition;
 import eb.framework1.character.SkinToneDefinition;
 import eb.framework1.character.GenderDefinition;
 import eb.framework1.generator.*;
+import eb.framework1.investigation.InterviewTemplateData;
 import eb.framework1.ui.SvgResourceData;
 
 
@@ -25,14 +26,15 @@ import java.util.Map;
  * Loads data on startup and provides access to the definitions.
  */
 public class GameDataManager {
-    private static final String BUILDINGS_FILE      = "text/buildings_en.json";
-    private static final String IMPROVEMENTS_FILE   = "text/improvements_en.json";
-    private static final String PERSON_NAMES_FILE   = "text/person_names.json";
-    private static final String SURNAMES_FILE       = "text/person_surnames.json";
-    private static final String COMPANY_NAMES_FILE  = "text/company_names.json";
-    private static final String COMPANY_TYPES_FILE  = "company_types.json";
-    private static final String CATEGORIES_FILE     = "text/category_en.json";
-    private static final String SVG_RESOURCES_FILE  = "text/svg_resource.json";
+    private static final String BUILDINGS_FILE           = "text/buildings_en.json";
+    private static final String IMPROVEMENTS_FILE        = "text/improvements_en.json";
+    private static final String PERSON_NAMES_FILE        = "text/person_names.json";
+    private static final String SURNAMES_FILE            = "text/person_surnames.json";
+    private static final String COMPANY_NAMES_FILE       = "text/company_names.json";
+    private static final String COMPANY_TYPES_FILE       = "company_types.json";
+    private static final String CATEGORIES_FILE          = "text/category_en.json";
+    private static final String SVG_RESOURCES_FILE       = "text/svg_resource.json";
+    private static final String INTERVIEW_TEMPLATES_FILE = "text/interview_templates_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -57,6 +59,8 @@ public class GameDataManager {
     private CompanyNameGenerator companyNameGenerator;
     /** Surname list shared between PersonNameGenerator and CompanyNameGenerator. */
     private List<String>         loadedSurnames = new ArrayList<>();
+    /** Interview template text pools, loaded from {@code interview_templates_en.json}. */
+    private InterviewTemplateData interviewTemplateData;
 
     public GameDataManager() {
         this.buildings = new ArrayList<>();
@@ -79,6 +83,7 @@ public class GameDataManager {
         loadSvgResources();
         loadPersonNames();
         loadCompanyNames();
+        loadInterviewTemplates();
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
@@ -628,6 +633,15 @@ public class GameDataManager {
     }
 
     /**
+     * Returns the {@link InterviewTemplateData} loaded from
+     * {@code text/interview_templates_en.json}, or {@code null} if the file
+     * was not found or could not be parsed.
+     */
+    public InterviewTemplateData getInterviewTemplateData() {
+        return interviewTemplateData;
+    }
+
+    /**
      * Returns the {@link SvgResourceData} for the given item id, or
      * {@code null} if no entry with that id exists.
      *
@@ -689,6 +703,33 @@ public class GameDataManager {
         } catch (Exception e) {
             Gdx.app.error("GameDataManager",
                     "Error loading " + SVG_RESOURCES_FILE + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Loads interview template text pools from
+     * {@code text/interview_templates_en.json}.
+     *
+     * <p>Populates {@link #interviewTemplateData}.  If the file is missing or
+     * cannot be parsed the field is left {@code null} and a warning is logged;
+     * {@link InterviewTemplateEngine} will then fall back to its built-in
+     * English defaults.
+     */
+    private void loadInterviewTemplates() {
+        try {
+            FileHandle file = Gdx.files.internal(INTERVIEW_TEMPLATES_FILE);
+            if (!file.exists()) {
+                Gdx.app.log("GameDataManager",
+                        "Interview templates file not found: " + INTERVIEW_TEMPLATES_FILE);
+                return;
+            }
+            String json = file.readString("UTF-8");
+            interviewTemplateData = InterviewTemplateData.parse(json);
+            Gdx.app.log("GameDataManager",
+                    "Loaded interview templates from " + INTERVIEW_TEMPLATES_FILE);
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager",
+                    "Error loading " + INTERVIEW_TEMPLATES_FILE + ": " + e.getMessage(), e);
         }
     }
 }

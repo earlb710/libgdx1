@@ -70,7 +70,7 @@ public class CaseGenerator {
      *                must not be {@code null}
      */
     public CaseGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random());
+        this(nameGen, new Random(), null);
     }
 
     /**
@@ -82,10 +82,25 @@ public class CaseGenerator {
      *                default {@code new Random()}
      */
     public CaseGenerator(PersonNameGenerator nameGen, Random random) {
+        this(nameGen, random, null);
+    }
+
+    /**
+     * Creates a generator with an explicit {@link Random} instance and
+     * pre-loaded interview template data.
+     *
+     * @param nameGen      name generator; must not be {@code null}
+     * @param random       random-number source; {@code null} is replaced by
+     *                     a default {@code new Random()}
+     * @param templateData interview text pools loaded from JSON; {@code null}
+     *                     causes the engine to emit placeholder strings
+     */
+    public CaseGenerator(PersonNameGenerator nameGen, Random random,
+                         InterviewTemplateData templateData) {
         if (nameGen == null) throw new IllegalArgumentException("nameGen must not be null");
         this.nameGen = nameGen;
         this.random  = random != null ? random : new Random();
-        this.interviewEngine = new InterviewTemplateEngine(this.random);
+        this.interviewEngine = new InterviewTemplateEngine(this.random, templateData);
     }
 
     // -------------------------------------------------------------------------

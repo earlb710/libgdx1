@@ -9,6 +9,7 @@ import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
 import eb.framework1.investigation.InterviewResponse;
 import eb.framework1.investigation.InterviewScript;
+import eb.framework1.investigation.InterviewTemplateData;
 import eb.framework1.investigation.InterviewTemplateEngine;
 import eb.framework1.investigation.InterviewTopic;
 import eb.framework1.investigation.NarrativeTemplates;
@@ -49,6 +50,7 @@ public class CaseEditorPanel extends JPanel {
     private final Random random = new Random();
     private final NarrativeTemplates narratives = new NarrativeTemplates(random);
     private final PersonNameGenerator nameGen = buildDefaultNameGenerator();
+    private final InterviewTemplateData interviewTemplateData = loadInterviewTemplates();
 
     // Step 1 – Case Type
     private final JComboBox<String> caseTypeCombo = new JComboBox<>();
@@ -1188,6 +1190,25 @@ public class CaseEditorPanel extends JPanel {
         return new PersonNameGenerator(firstNames, surnameList, random);
     }
 
+    /**
+     * Loads {@link InterviewTemplateData} from
+     * {@code assets/text/interview_templates_en.json} relative to the working
+     * directory.  Returns {@code null} if the file is not found or cannot be
+     * parsed; the engine will then emit fallback placeholder strings.
+     */
+    private static InterviewTemplateData loadInterviewTemplates() {
+        java.io.File file = new java.io.File("assets/text/interview_templates_en.json");
+        if (!file.exists()) return null;
+        try {
+            byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+            String json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            return InterviewTemplateData.parse(json);
+        } catch (Exception e) {
+            System.err.println("CaseEditorPanel: failed to load interview templates: " + e.getMessage());
+            return null;
+        }
+    }
+
     /** Relationship type labels used in the relationship table. */
     private static final String[] RELATIONSHIP_TYPES = {
         "Family", "Friend", "Colleague", "Acquaintance", "Rival",
@@ -1884,7 +1905,7 @@ public class CaseEditorPanel extends JPanel {
         }
 
         // Build the 4 core interview scripts via the shared engine
-        InterviewTemplateEngine engine = new InterviewTemplateEngine(random);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(random, interviewTemplateData);
         List<InterviewScript> coreScripts = engine.buildAll(
                 caseType, client, subject, victim, clientGender, subjectGender, nameGen);
         // Indices guaranteed by buildAll(): 0=Client, 1=Subject, 2=Key Witness, 3=Associate
