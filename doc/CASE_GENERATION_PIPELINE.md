@@ -860,8 +860,8 @@ with significant duplication.
 
 | Class | Lines | Methods | Primary role |
 |-------|-------|---------|-------------|
-| `CaseGenerator` | 2 310 | 29 | Core generation engine (interview scripts, leads, story tree) |
-| `CaseEditorPanel` | ~2 900 | ~90 | Admin UI with delegated generation |
+| `CaseGenerator` | ~1 480 | ~29 | Core generation engine (leads, story tree) |
+| `CaseEditorPanel` | ~2 770 | ~85 | Admin UI with delegated generation |
 
 **Addressed duplication areas:**
 
@@ -870,17 +870,11 @@ with significant duplication.
 | Action-type classification (`isInterview`/`isEvidence`/…) | ✅ Done | Extracted `ActionType` enum; all 7+ copy-paste sites now use `ActionType.classify()` |
 | Narrative templates (success/failure/motive) | ✅ Done | Extracted `NarrativeTemplates` class in core; `CaseEditorPanel` delegates to it |
 | Name arrays | ✅ Done | Replaced hardcoded arrays with `PersonNameGenerator` — same API as `CaseGenerator` |
-
-**Remaining duplication areas:**
-
-| Area | Lines duplicated | Risk |
-|------|-----------------|------|
-| Interview generation | ~400 lines reimplemented in CaseEditorPanel vs CaseGenerator's 4 builder methods | Two copies to keep in sync; divergence causes subtle interview inconsistencies |
+| Interview generation | ✅ Done | `CaseEditorPanel.generateInterviews()` now delegates to `InterviewTemplateEngine.buildAll()` for the four core NPC scripts (client, subject, witness, associate); dynamic cross-NPC rows (opinion, contact info with real phone/location, personality from trait col 19) are produced in the panel using engine text-generation helpers (`buildOpinionText`, `buildContactInfoText`, etc.). The 14 duplicated `buildInterview*()` helper methods have been removed from `CaseEditorPanel`. |
 
 **Remaining improvements:**
-- Have `CaseEditorPanel.generateInterviews()` delegate to `CaseGenerator` for interview script building
 - Consider splitting `CaseGenerator` into `CaseFileGenerator` + `InterviewScriptBuilder`
 
 ---
 
-*Last updated: 2026-04-12*
+*Last updated: 2026-04-13*

@@ -253,6 +253,17 @@ public class InterviewTemplateEngine {
                     "Intuition", 5, pick(motiveAltPool)));
         }
 
+        // RELATIONSHIP with the target person
+        String[] clientRelPool = {
+            "I've known " + targetPerson + " for years. That's why this hurts so much.",
+            targetPerson + " and I are — were — close.",
+            "We're family. Or as close as family gets.",
+            "I've known " + targetPerson + " most of my life."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.RELATIONSHIP,
+                "How do you know " + targetPerson + "?",
+                pick(clientRelPool), true, targetPerson));
+
         // CONTACT_INFO — Charisma-gated
         String[] contactPool = {
             "I have " + subject + "'s number. Let me find it for you — you can call and arrange to meet.",
@@ -389,6 +400,17 @@ public class InterviewTemplateEngine {
         script.addResponse(new InterviewResponse(InterviewTopic.LAST_CONTACT,
                 "When did you last see " + targetPerson + "?",
                 pick(contactPool), truthfulContact, targetPerson));
+
+        // RELATIONSHIP with the target person — subject is evasive
+        String[] subjectRelPool = {
+            "We were acquaintances. Nothing more.",
+            "I knew " + targetPerson + " through work. Strictly professional.",
+            "We moved in the same circles. That's all.",
+            "I barely know " + targetPerson + ". We crossed paths occasionally."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.RELATIONSHIP,
+                "How do you know " + targetPerson + "?",
+                pick(subjectRelPool), random.nextBoolean(), targetPerson));
 
         // MOTIVE — Intimidation-gated
         if (isMurder) {
@@ -527,6 +549,17 @@ public class InterviewTemplateEngine {
         script.addResponse(new InterviewResponse(InterviewTopic.LAST_CONTACT,
                 "When did you last see " + targetPerson + "?",
                 pick(contactPool), true, targetPerson));
+
+        // RELATIONSHIP with the target person — casual/neighbourhood acquaintance
+        String[] witnessRelPool = {
+            "I know " + targetPerson + " from the neighbourhood.",
+            "We're acquaintances. I see " + targetPerson + " around.",
+            "We've spoken a few times. Nothing deep.",
+            "I know " + targetPerson + " by sight. We've exchanged pleasantries."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.RELATIONSHIP,
+                "How do you know " + targetPerson + "?",
+                pick(witnessRelPool), true, targetPerson));
 
         // MOTIVE — Intuition-gated
         if (isMurder) {
@@ -732,5 +765,139 @@ public class InterviewTemplateEngine {
                 "What do you know about " + targetPerson + "'s hobbies or interests?",
                 pick(assocPersPool), true, targetPerson,
                 "Empathy", 4, pick(assocPersAltPool)));
+    }
+
+    // =========================================================================
+    // Dynamic cross-NPC text helpers (used by the admin panel)
+    // =========================================================================
+
+    /**
+     * Generates opinion text for one NPC's view of another, used when the
+     * admin panel produces cross-NPC opinion rows.
+     *
+     * @param npcRole   role of the NPC giving the opinion
+     * @param otherName name of the NPC being discussed
+     * @param otherRole role of the NPC being discussed
+     * @param subject   case subject name
+     * @param victim    case victim name (may be empty for non-Murder cases)
+     * @param isMurder  {@code true} for Murder case types
+     * @return opinion sentence drawn from the appropriate text pool
+     */
+    public String buildOpinionText(String npcRole, String otherName, String otherRole,
+                                   String subject, String victim, boolean isMurder) {
+        // Subject/Suspect opinions about the client are deflective
+        if (npcRole.startsWith("Subject") || npcRole.startsWith("Suspect")) {
+            if (otherRole.startsWith("Client")) {
+                String[] pool = {
+                    otherName + " has always had it in for me. Don't believe everything you hear.",
+                    "I barely know " + otherName + ". We've spoken maybe twice.",
+                    otherName + " is paranoid. Sees conspiracies everywhere."
+                };
+                return pick(pool);
+            }
+            String[] pool = {
+                "I don't really know " + otherName + " well enough to comment.",
+                otherName + "? We get along fine. No issues between us.",
+                "I've nothing to say about " + otherName + "."
+            };
+            return pick(pool);
+        }
+
+        // Opinions about the subject — emphasise character flaws
+        if (otherName.equals(subject)) {
+            String[] pool = {
+                otherName + " has always been the jealous type. Envious of anyone who had more.",
+                "I've heard " + otherName + " has a short temper. People are wary of confrontation.",
+                otherName + " seemed charming on the surface, but there was something calculating underneath.",
+                otherName + " was possessive. Couldn't stand others having what they wanted.",
+                otherName + " was competitive to the point of obsession. Always comparing.",
+                otherName + " was resentful — especially about money. Always felt shortchanged.",
+                "I wouldn't call " + otherName + " violent, but there was a bitterness. A deep grudge.",
+                otherName + " was manipulative. Tells people what they want to hear.",
+                "I've seen " + otherName + " fly into a rage over small things."
+            };
+            return pick(pool);
+        }
+
+        // Opinions about the victim in a murder case
+        if (isMurder && otherName.equals(victim)) {
+            String[] pool = {
+                otherName + " was well-liked by most people. I can't imagine who would do this.",
+                otherName + " had a way of rubbing some people the wrong way, but nothing serious.",
+                "Everyone knew " + otherName + ". A decent person. This has shaken everyone.",
+                otherName + " was private. Kept to themselves. I don't know much about their personal life."
+            };
+            return pick(pool);
+        }
+
+        // Generic opinions about other NPCs
+        String[] pool = {
+            otherName + " seems reliable enough. We've had no problems.",
+            "I don't know " + otherName + " very well, to be honest.",
+            otherName + " is a decent person as far as I can tell.",
+            "I've heard mixed things about " + otherName + ", but nothing specific.",
+            otherName + " keeps to themselves mostly. Hard to read."
+        };
+        return pick(pool);
+    }
+
+    /**
+     * Returns a generic, non-committal opinion text shown when the player's
+     * Empathy attribute does not meet the gate requirement.
+     *
+     * @param otherName name of the NPC being asked about
+     * @return evasive answer sentence
+     */
+    public String buildOpinionAltText(String otherName) {
+        String[] pool = {
+            "I don't really know " + otherName + " well enough to say.",
+            otherName + "? I couldn't tell you much. We weren't close.",
+            "I don't have strong feelings about " + otherName + " either way.",
+            "I'd rather not comment on " + otherName + ". I barely know them."
+        };
+        return pick(pool);
+    }
+
+    /**
+     * Generates a contact-info answer that includes the other NPC's phone
+     * number and usual location.  Shown when the Charisma gate is met.
+     *
+     * @param otherName name of the NPC whose contact details are revealed
+     * @param phone     phone number string from the NPC table
+     * @param location  usual location string from the NPC table
+     * @return answer sentence containing the phone and location details
+     */
+    public String buildContactInfoText(String otherName, String phone, String location) {
+        String[] pool = {
+            "Sure, I have " + otherName + "'s number. It's " + phone
+                    + ". You can usually find them at the " + location + ".",
+            "Yes — " + otherName + " can be reached at " + phone
+                    + ". They spend most of their time at the " + location + ".",
+            otherName + "? Their number is " + phone
+                    + ". Last I heard they hang around the " + location + " most days.",
+            "I've got " + otherName + "'s number right here: " + phone
+                    + ". If you want to meet in person, try the " + location + ".",
+            "Here — " + phone + ". That's " + otherName + "'s direct number."
+                    + " They're usually at the " + location + " in the evenings."
+        };
+        return pick(pool);
+    }
+
+    /**
+     * Returns a contact-info refusal text shown when the Charisma gate is
+     * not met.
+     *
+     * @param otherName name of the NPC whose contact details were requested
+     * @return refusal sentence
+     */
+    public String buildContactInfoAltText(String otherName) {
+        String[] pool = {
+            "I'm not comfortable sharing " + otherName + "'s details with a stranger.",
+            "I don't think " + otherName + " would want me giving out their number.",
+            "You'd have to ask someone else. I don't give out people's information.",
+            "I might have their number somewhere, but I'm not sharing it with you.",
+            "Sorry, I don't feel right handing out " + otherName + "'s contact details."
+        };
+        return pick(pool);
     }
 }

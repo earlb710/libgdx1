@@ -7,6 +7,10 @@ import eb.framework1.generator.PersonNameGenerator;
 import eb.framework1.investigation.ActionType;
 import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
+import eb.framework1.investigation.InterviewResponse;
+import eb.framework1.investigation.InterviewScript;
+import eb.framework1.investigation.InterviewTemplateEngine;
+import eb.framework1.investigation.InterviewTopic;
 import eb.framework1.investigation.NarrativeTemplates;
 
 import javax.swing.*;
@@ -1854,9 +1858,9 @@ public class CaseEditorPanel extends JPanel {
 
         interviewModel.setRowCount(0);
 
-        String caseType = (String) caseTypeCombo.getSelectedItem();
-        if (caseType == null) caseType = "Investigation";
-        boolean isMurder = "Murder".equals(caseType);
+        String caseTypeStr = (String) caseTypeCombo.getSelectedItem();
+        if (caseTypeStr == null) caseTypeStr = "Investigation";
+        boolean isMurder = "Murder".equals(caseTypeStr);
 
         String client  = clientNameField.getText().trim();
         String subject = subjectNameField.getText().trim();
@@ -1865,9 +1869,31 @@ public class CaseEditorPanel extends JPanel {
         if (subject.isEmpty()) subject = "the subject";
         if (victim.isEmpty())  victim  = "the victim";
 
-        String targetPerson = isMurder ? victim : subject;
+        String clientGender  = (String) clientGenderCombo.getSelectedItem();
+        String subjectGender = (String) subjectGenderCombo.getSelectedItem();
+        if (clientGender  == null) clientGender  = "M";
+        if (subjectGender == null) subjectGender = "M";
 
-        // Collect all NPC names and roles
+        // Map combo display string to CaseType enum
+        CaseType caseType = CaseType.FRAUD;
+        for (CaseType ct : CaseType.values()) {
+            if (ct.getDisplayName().equals(caseTypeStr)) {
+                caseType = ct;
+                break;
+            }
+        }
+
+        // Build the 4 core interview scripts via the shared engine
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(random);
+        List<InterviewScript> coreScripts = engine.buildAll(
+                caseType, client, subject, victim, clientGender, subjectGender, nameGen);
+        // Indices guaranteed by buildAll(): 0=Client, 1=Subject, 2=Key Witness, 3=Associate
+        InterviewScript clientScript  = coreScripts.get(0);
+        InterviewScript subjectScript = coreScripts.get(1);
+        InterviewScript witnessScript = coreScripts.get(2);
+        InterviewScript assocScript   = coreScripts.get(3);
+
+        // Collect all NPC names, roles, and dead flags from the NPC table
         List<String> npcNames = new ArrayList<>();
         List<String> npcRoles = new ArrayList<>();
         List<Boolean> npcDead = new ArrayList<>();
@@ -1884,26 +1910,37 @@ public class CaseEditorPanel extends JPanel {
             String npcRole = npcRoles.get(i);
             boolean isSubject = npcRole.startsWith("Subject");
             boolean isSuspect = npcRole.startsWith("Suspect");
-            boolean isClient  = npcRole.startsWith("Client");
 
-            // --- ALIBI ---
-            String alibi = buildInterviewAlibi(npcRole, isSubject || isSuspect);
-            boolean alibiTruthful = (isSubject || isSuspect) ? random.nextInt(10) < 3 : true;
-            addInterviewRow(npcName, npcRole, "Alibi",
-                    "Where were you at the time of the incident?",
-                    alibi, alibiTruthful, "");
+            // Emit static per-NPC topic rows from the matching core script.
+            // OPINION, CONTACT_INFO, and PERSONALITY are generated below using
+            // live NPC table data (cross-NPC pairs, real phone numbers, trait strings).
+            InterviewScript coreScript = coreScriptForRole(npcRole,
+                    clientScript, subjectScript, witnessScript, assocScript);
+            if (coreScript != null) {
+                for (InterviewResponse r : coreScript.getResponses()) {
+                    if (r.getTopic() == InterviewTopic.OPINION
+                            || r.getTopic() == InterviewTopic.CONTACT_INFO
+                            || r.getTopic() == InterviewTopic.PERSONALITY) {
+                        continue;
+                    }
+                    addInterviewRow(npcName, npcRole,
+                            r.getTopic().getDisplayName(), r.getQuestion(), r.getAnswer(),
+                            r.isTruthful(), r.getAboutNpcName(),
+                            r.getRequiredAttribute(), r.getRequiredValue(),
+                            r.getAlternateAnswer());
+                }
+            }
 
             // --- OPINION of other NPCs (Empathy-gated for opinions about the subject) ---
             for (int j = 0; j < npcNames.size(); j++) {
-                if (j == i || npcDead.get(j)) continue;  // Skip self and dead NPCs
+                if (j == i || npcDead.get(j)) continue;
                 String otherName = npcNames.get(j);
                 String otherRole = npcRoles.get(j);
-                String opinion = buildInterviewOpinion(npcRole, otherName, otherRole,
+                String opinion = engine.buildOpinionText(npcRole, otherName, otherRole,
                         subject, victim, isMurder);
                 boolean opTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
-                // Opinions about the subject get Empathy gate
                 if (otherName.equals(subject) && !isSubject && !isSuspect) {
-                    String altOpinion = buildInterviewOpinionGeneric(otherName);
+                    String altOpinion = engine.buildOpinionAltText(otherName);
                     addInterviewRow(npcName, npcRole, "Opinion",
                             "What do you think of " + otherName + "?",
                             opinion, opTruthful, otherName,
@@ -1915,118 +1952,38 @@ public class CaseEditorPanel extends JPanel {
                 }
             }
 
-            // --- WHEREABOUTS of subject (if not the subject or a suspect) ---
-            if (!isSubject && !isSuspect) {
-                String whereabouts = buildInterviewWhereabouts(npcRole, subject, isMurder);
-                addInterviewRow(npcName, npcRole, "Whereabouts",
-                        "Do you know where " + subject + " was at the time?",
-                        whereabouts, true, subject);
-            }
-
-            // --- LAST CONTACT with target ---
-            String lastContact = buildInterviewLastContact(npcRole, targetPerson);
-            boolean contactTruthful = (isSubject || isSuspect) ? random.nextInt(10) < 4 : true;
-            addInterviewRow(npcName, npcRole, "Last Contact",
-                    "When did you last see " + targetPerson + "?",
-                    lastContact, contactTruthful, targetPerson);
-
-            // --- OBSERVATION (attribute-gated) ---
-            String observation = buildInterviewObservation(npcRole, subject,
-                    targetPerson, isSubject || isSuspect);
-            boolean obsTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
-            if (isSubject || isSuspect) {
-                // Subject/Suspect: Intimidation reveals more under pressure
-                String revealObs = buildInterviewObservationRevealed(subject, targetPerson);
-                addInterviewRow(npcName, npcRole, "Observation",
-                        "Did you notice anything unusual around the time of the incident?",
-                        revealObs, obsTruthful, "",
-                        "Intimidation", 6, observation);
-            } else {
-                // Others: Perception reveals specific details
-                String genericObs = buildInterviewObservationGeneric();
-                addInterviewRow(npcName, npcRole, "Observation",
-                        "Did you notice anything unusual around the time of the incident?",
-                        observation, obsTruthful, "",
-                        "Perception", 5, genericObs);
-            }
-
-            // --- MOTIVE (murder cases only, attribute-gated) ---
-            if (isMurder) {
-                String motive = buildInterviewMotive(npcRole, subject, victim,
-                        isSubject || isSuspect);
-                boolean motTruthful = (isSubject || isSuspect) ? random.nextBoolean() : true;
-                if (isSubject || isSuspect) {
-                    // Subject/Suspect: Intimidation reveals more under pressure
-                    String motiveRevealed = buildInterviewMotiveRevealed(subject, victim);
-                    addInterviewRow(npcName, npcRole, "Motive",
-                            "Can you think of anyone who would want to harm " + victim + "?",
-                            motiveRevealed, motTruthful, victim,
-                            "Intimidation", 7, motive);
-                } else {
-                    // Others: Intuition reveals motive insight
-                    String motiveGeneric = buildInterviewMotiveGeneric();
-                    addInterviewRow(npcName, npcRole, "Motive",
-                            "Can you think of anyone who would want to harm " + victim + "?",
-                            motive, motTruthful, victim,
-                            "Intuition", 5, motiveGeneric);
-                }
-            }
-
-            // --- RELATIONSHIP (with the target person) ---
-            if (!npcName.equals(targetPerson)) {
-                String relationship = buildInterviewRelationship(npcRole, npcName,
-                        targetPerson, isMurder);
-                addInterviewRow(npcName, npcRole, "Relationship",
-                        "How do you know " + targetPerson + "?",
-                        relationship, true, targetPerson);
-            }
-
-            // --- CONTACT_INFO (phone number discovery, Charisma-gated) ---
-            // Each NPC can reveal contact info for other NPCs they know.
-            // This is the primary mechanic for discovering phone numbers.
+            // --- CONTACT_INFO (Charisma-gated, includes real phone/location from table) ---
             for (int j = 0; j < npcNames.size(); j++) {
                 if (j == i || npcDead.get(j)) continue;
                 String otherName = npcNames.get(j);
                 String otherRole = npcRoles.get(j);
 
-                // Only generate contact info responses for NPCs this character
-                // plausibly knows (skip subjects talking about each other's contacts)
+                // Only generate contact info for NPCs this character plausibly knows
                 boolean knows = !isSubject || otherRole.startsWith("Client")
                         || otherRole.contains("Associate");
                 if (!knows && isSuspect) continue;
 
-                // Look up the other NPC's phone number and location from the table
                 String otherPhone    = String.valueOf(npcModel.getValueAt(j, 16));
                 String otherLocation = String.valueOf(npcModel.getValueAt(j, 18));
 
-                String contactAnswer = buildInterviewContactInfo(
-                        npcRole, otherName, otherRole, otherPhone, otherLocation);
-                String contactGeneric = buildInterviewContactInfoGeneric(otherName);
-
-                // Charisma gate: player needs Charisma ≥ 4 to get the phone number
                 addInterviewRow(npcName, npcRole, "Contact Info",
                         "Do you have a way to reach " + otherName + "?",
-                        contactAnswer, true, otherName,
-                        "Charisma", 4, contactGeneric);
+                        engine.buildContactInfoText(otherName, otherPhone, otherLocation),
+                        true, otherName,
+                        "Charisma", 4, engine.buildContactInfoAltText(otherName));
             }
 
-            // --- PERSONALITY (hidden traits, Empathy-gated) ---
-            // Each NPC can reveal personality traits of other NPCs they know.
-            // These are hidden by default; the player must ask the right questions.
+            // --- PERSONALITY (Empathy/Intimidation-gated, from col 19 trait data) ---
             for (int j = 0; j < npcNames.size(); j++) {
                 if (j == i || npcDead.get(j)) continue;
                 String otherName = npcNames.get(j);
-                String otherRole = npcRoles.get(j);
 
-                // Read the other NPC's traits string from col 19
                 String traitsStr = String.valueOf(npcModel.getValueAt(j, 19));
                 if (traitsStr.isEmpty() || "null".equals(traitsStr)) continue;
 
-                // Parse trait pairs and pick 1-2 to reveal
                 String[] traitPairs = traitsStr.split(",");
                 if (traitPairs.length == 0) continue;
 
-                // Pick a random trait to reveal
                 String pair = traitPairs[random.nextInt(traitPairs.length)];
                 String[] parts = pair.split(":");
                 if (parts.length != 2) continue;
@@ -2035,24 +1992,22 @@ public class CaseEditorPanel extends JPanel {
                 try { traitValue = Integer.parseInt(parts[1].trim()); }
                 catch (NumberFormatException e) { continue; }
 
-                // Build a response that hints at the trait
                 String traitLabel = traitName.replace('_', ' ').toLowerCase();
-                String opinion = traitValue > 0
+                String traitOpinion = traitValue > 0
                         ? otherName + " really enjoys " + traitLabel + ". It comes up a lot."
                         : otherName + " can't stand " + traitLabel + ". It's pretty obvious.";
                 String altOpinion = "I don't know " + otherName
                         + " well enough to say what they like.";
 
-                // Subjects need Intimidation; others need Empathy
                 if (isSubject || isSuspect) {
                     addInterviewRow(npcName, npcRole, "Personality",
                             "What are " + otherName + "'s interests?",
-                            opinion, true, otherName,
+                            traitOpinion, true, otherName,
                             "Intimidation", 5, altOpinion);
                 } else {
                     addInterviewRow(npcName, npcRole, "Personality",
                             "What are " + otherName + "'s interests?",
-                            opinion, true, otherName,
+                            traitOpinion, true, otherName,
                             "Empathy", 4, altOpinion);
                 }
             }
@@ -2060,6 +2015,20 @@ public class CaseEditorPanel extends JPanel {
 
         statusLabel.setText("Generated " + interviewModel.getRowCount()
                 + " interview responses for " + countInterviewedNpcs() + " NPCs.");
+    }
+
+    /**
+     * Returns the core {@link InterviewScript} whose NPC role best matches the
+     * given role string, or {@code null} if no core script applies.
+     */
+    private InterviewScript coreScriptForRole(String npcRole,
+            InterviewScript clientScript, InterviewScript subjectScript,
+            InterviewScript witnessScript, InterviewScript assocScript) {
+        if (npcRole.startsWith("Client"))                                       return clientScript;
+        if (npcRole.startsWith("Subject") || npcRole.startsWith("Suspect"))     return subjectScript;
+        if (npcRole.contains("Witness"))                                        return witnessScript;
+        if (npcRole.contains("Associate"))                                      return assocScript;
+        return null;
     }
 
     /** Adds a single row to the interview table (no attribute gate). */
@@ -2089,322 +2058,6 @@ public class CaseEditorPanel extends JPanel {
             names.add(String.valueOf(interviewModel.getValueAt(i, 0)));
         }
         return names.size();
-    }
-
-    // ---- Interview answer generators ----------------------------------------
-
-    private String buildInterviewAlibi(String role, boolean isSubject) {
-        if (isSubject) {
-            String[] pool = {
-                "I was with a friend all night. We were playing cards until past midnight.",
-                "I was working late at the office. Check the security cameras if you want.",
-                "I was at a restaurant across town. I'm sure they'll remember me.",
-                "I was at home alone that evening. I fell asleep early.",
-                "I was at a bar downtown. The bartender knows me."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else if (role.startsWith("Client")) {
-            String[] pool = {
-                "I was at home all evening. My phone records will confirm it.",
-                "I was having dinner with friends. They'll vouch for me.",
-                "I was at work late — the security desk will have me on the log.",
-                "I was visiting family out of town. I have the tickets."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else {
-            String[] pool = {
-                "I was in the neighbourhood, on my way home from work.",
-                "I was at the local shop. It was close to closing time.",
-                "I was walking the dog. That's how I ended up seeing what I saw.",
-                "I was at home that evening. Went to bed early.",
-                "I was out with colleagues after work until about 10 PM."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-    }
-
-    private String buildInterviewOpinion(String npcRole, String otherName, String otherRole,
-                                          String subject, String victim, boolean isMurder) {
-        // Subject role opinions about others
-        if (npcRole.startsWith("Subject")) {
-            if (otherRole.startsWith("Client")) {
-                String[] pool = {
-                    otherName + " has always had it in for me. Don't believe everything you hear.",
-                    "I barely know " + otherName + ". We've spoken maybe twice.",
-                    otherName + " is paranoid. Sees conspiracies everywhere."
-                };
-                return pool[random.nextInt(pool.length)];
-            }
-            String[] pool = {
-                "I don't really know " + otherName + " well enough to comment.",
-                otherName + "? We get along fine. No issues between us.",
-                "I've nothing to say about " + otherName + "."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-
-        // Opinions about the subject — focus on character traits
-        if (otherName.equals(subject)) {
-            String[] pool = {
-                otherName + " has always been the jealous type. Envious of anyone who had more.",
-                "I've heard " + otherName + " has a short temper. People are wary of confrontation.",
-                otherName + " seemed charming on the surface, but there was something calculating underneath.",
-                otherName + " was possessive. Couldn't stand others having what they wanted.",
-                otherName + " was competitive to the point of obsession. Always comparing.",
-                otherName + " was resentful — especially about money. Always felt shortchanged.",
-                "I wouldn't call " + otherName + " violent, but there was a bitterness. A deep grudge.",
-                otherName + " was manipulative. Tells people what they want to hear.",
-                "I've seen " + otherName + " fly into a rage over small things."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-
-        // Opinions about the victim
-        if (isMurder && otherName.equals(victim)) {
-            String[] pool = {
-                otherName + " was well-liked by most people. I can't imagine who would do this.",
-                otherName + " had a way of rubbing some people the wrong way, but nothing serious.",
-                "Everyone knew " + otherName + ". A decent person. This has shaken everyone.",
-                otherName + " was private. Kept to themselves. I don't know much about their personal life."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-
-        // Generic opinions about other NPCs
-        String[] pool = {
-            otherName + " seems reliable enough. We've had no problems.",
-            "I don't know " + otherName + " very well, to be honest.",
-            otherName + " is a decent person as far as I can tell.",
-            "I've heard mixed things about " + otherName + ", but nothing specific.",
-            otherName + " keeps to themselves mostly. Hard to read."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    private String buildInterviewWhereabouts(String npcRole, String subject, boolean isMurder) {
-        if (npcRole.contains("Witness")) {
-            String[] pool = {
-                "I saw " + subject + " near the area that evening. " + subject + " looked agitated.",
-                "I'm pretty sure " + subject + " was in the area. I recognised the car.",
-                "I didn't see " + subject + " personally, but a neighbour mentioned spotting someone.",
-                subject + " was definitely around. I saw someone matching the description leaving in a hurry."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-        String[] pool = {
-            "I believe " + subject + " was supposed to be somewhere else that night.",
-            subject + " told me they'd be at home. Whether that's true, I don't know.",
-            "I haven't spoken to " + subject + " about that night.",
-            "Someone mentioned seeing " + subject + " in the area, but I can't say for certain."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    private String buildInterviewLastContact(String role, String targetPerson) {
-        if (role.startsWith("Client")) {
-            String[] pool = {
-                "I last saw " + targetPerson + " about two days before everything happened.",
-                "We spoke on the phone three days ago. Seemed normal.",
-                "I saw " + targetPerson + " the morning before the incident.",
-                "It's been over a week since I last spoke to " + targetPerson + "."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else if (role.startsWith("Subject")) {
-            String[] pool = {
-                "I haven't seen " + targetPerson + " in weeks.",
-                "I can't remember the last time I saw " + targetPerson + ".",
-                "I saw " + targetPerson + " that same day, earlier in the afternoon.",
-                "We spoke on the phone that morning. It was brief."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else {
-            String[] pool = {
-                "I said hello to " + targetPerson + " the day before. Seemed fine.",
-                "I saw " + targetPerson + " a few days ago at the shops.",
-                "We're not close, but I saw " + targetPerson + " that week.",
-                "Maybe three or four days before — I can't remember exactly."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-    }
-
-    private String buildInterviewObservation(String role, String subject,
-                                              String targetPerson, boolean isSubject) {
-        if (isSubject) {
-            String[] pool = {
-                "I didn't notice anything. I've been keeping to myself lately.",
-                "Nothing unusual. Everything seemed normal to me.",
-                "I try to mind my own business.",
-                "Look, I don't watch people. I had my own things going on."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-        String[] pool = {
-            "Now that you mention it, I did notice " + subject + " acting strangely.",
-            "I saw an unfamiliar car parked near " + targetPerson + "'s place more than once.",
-            "There were raised voices coming from " + targetPerson + "'s place the night before.",
-            "I noticed " + subject + " was unusually nervous the last time we spoke.",
-            "I heard arguments in the days before. Things had been tense.",
-            "I saw someone running from the area around 11 PM. I couldn't make out who.",
-            "The lights were on unusually late at " + targetPerson + "'s. That's not normal."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    private String buildInterviewMotive(String role, String subject, String victim,
-                                         boolean isSubject) {
-        if (isSubject) {
-            String[] pool = {
-                "Why are you asking me? You should be looking elsewhere.",
-                "I don't know who would do this. But I know it wasn't me.",
-                "Plenty of people had issues with " + victim + ". I'm not the only one.",
-                "Have you checked " + victim + "'s financial records? There were debts."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-        String[] pool = {
-            "I always thought " + subject + " was jealous of " + victim + ". It was obvious.",
-            "There was bad blood between " + subject + " and " + victim + ". Everyone could see it.",
-            subject + " once said something about " + victim + " getting what was coming.",
-            subject + " and " + victim + " had a bitter dispute about money.",
-            "I know " + subject + " was jealous of " + victim + "'s position. Felt passed over.",
-            victim + " knew something about " + subject + " that " + subject + " wanted kept quiet.",
-            subject + " was possessive about " + victim + ". When things soured, it turned ugly.",
-            "There was a rivalry between them. " + subject + " couldn't stand " + victim + " doing better."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    private String buildInterviewRelationship(String role, String npcName,
-                                               String targetPerson, boolean isMurder) {
-        if (role.startsWith("Client")) {
-            String[] pool = {
-                "We've known each other for years. That's why this hurts so much.",
-                targetPerson + " and I are — were — close.",
-                "We're family. Or as close as family gets.",
-                "I've known " + targetPerson + " most of my life."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else if (role.startsWith("Subject")) {
-            String[] pool = {
-                "We were acquaintances. Nothing more.",
-                "I knew " + targetPerson + " through work. Strictly professional.",
-                "We moved in the same circles. That's all.",
-                "I barely know " + targetPerson + ". We crossed paths occasionally."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else if (role.contains("Associate")) {
-            String[] pool = {
-                targetPerson + " and I were close. We'd known each other for years.",
-                "I worked with " + targetPerson + " for a long time. Colleagues and friends.",
-                targetPerson + " was like family to me.",
-                "We weren't best friends, but I respected " + targetPerson + "."
-            };
-            return pool[random.nextInt(pool.length)];
-        } else {
-            String[] pool = {
-                "I know " + targetPerson + " from the neighbourhood.",
-                "We're acquaintances. I see " + targetPerson + " around.",
-                "We've spoken a few times. Nothing deep.",
-                "I know " + targetPerson + " by sight. We've exchanged pleasantries."
-            };
-            return pool[random.nextInt(pool.length)];
-        }
-    }
-
-    // ---- Alternate/generic/revealed answer generators for attribute gates ----
-
-    /** Generic opinion when Empathy requirement is not met. */
-    private String buildInterviewOpinionGeneric(String otherName) {
-        String[] pool = {
-            "I don't really know " + otherName + " well enough to say.",
-            otherName + "? I couldn't tell you much. We weren't close.",
-            "I don't have strong feelings about " + otherName + " either way.",
-            "I'd rather not comment on " + otherName + ". I barely know them."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /** Generic observation when Perception requirement is not met. */
-    private String buildInterviewObservationGeneric() {
-        String[] pool = {
-            "I'm not sure. I don't think I noticed anything out of the ordinary.",
-            "Nothing comes to mind. Sorry, I wish I could be more helpful.",
-            "I wasn't really paying attention to anything in particular.",
-            "Everything seemed normal to me. I can't think of anything specific."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /** Revealed observation when Intimidation gets through to the subject. */
-    private String buildInterviewObservationRevealed(String subject, String targetPerson) {
-        String[] pool = {
-            "Fine. I did see something that night. There was someone else hanging around, but I don't know who.",
-            "Alright, alright. I noticed things were off. " + targetPerson + " had been acting scared for days.",
-            "Okay, look — there was a meeting. I overheard part of it. Voices were raised.",
-            "I'll tell you this much — " + targetPerson + " was expecting trouble. They told me so."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /** Generic motive when Intuition requirement is not met. */
-    private String buildInterviewMotiveGeneric() {
-        String[] pool = {
-            "I don't know why anyone would do this. It's terrible.",
-            "I can't think of anyone specific. I'm sorry.",
-            "I wish I knew. I've been asking myself the same question.",
-            "I wouldn't want to accuse anyone. I really don't know."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /** Revealed motive when Intimidation breaks through subject's defences. */
-    private String buildInterviewMotiveRevealed(String subject, String victim) {
-        String[] pool = {
-            "Fine. " + victim + " and I had problems. But there are others who had it worse with " + victim + ".",
-            "You want the truth? " + victim + " made enemies. I was one of them, but I'm not the only one.",
-            "Look, I'll admit it — " + victim + " wronged me. But I didn't do this. Check other people's stories.",
-            "Alright. Yes, I was angry with " + victim + ". But killing? That's not me. Someone else was circling."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /**
-     * Builds a contact-info answer that includes the other NPC's phone number
-     * and/or usual location.  This is the "full" answer revealed when the
-     * Charisma gate is met.
-     */
-    private String buildInterviewContactInfo(String npcRole, String otherName,
-                                              String otherRole, String phone,
-                                              String location) {
-        String[] pool = {
-            "Sure, I have " + otherName + "'s number. It's " + phone
-                    + ". You can usually find them at the " + location + ".",
-            "Yes — " + otherName + " can be reached at " + phone
-                    + ". They spend most of their time at the " + location + ".",
-            otherName + "? Their number is " + phone
-                    + ". Last I heard they hang around the " + location + " most days.",
-            "I've got " + otherName + "'s number right here: " + phone
-                    + ". If you want to meet in person, try the " + location + ".",
-            "Here — " + phone + ". That's " + otherName + "'s direct number."
-                    + " They're usually at the " + location + " in the evenings."
-        };
-        return pool[random.nextInt(pool.length)];
-    }
-
-    /**
-     * Generic contact-info answer when the Charisma requirement is not met.
-     * The NPC refuses to share the phone number.
-     */
-    private String buildInterviewContactInfoGeneric(String otherName) {
-        String[] pool = {
-            "I'm not comfortable sharing " + otherName + "'s details with a stranger.",
-            "I don't think " + otherName + " would want me giving out their number.",
-            "You'd have to ask someone else. I don't give out people's information.",
-            "I might have their number somewhere, but I'm not sharing it with you.",
-            "Sorry, I don't feel right handing out " + otherName + "'s contact details."
-        };
-        return pool[random.nextInt(pool.length)];
     }
 
     private String buildLeadHint(int index, String method, String subject) {
