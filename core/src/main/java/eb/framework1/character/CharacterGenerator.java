@@ -1,5 +1,6 @@
 package eb.framework1.character;
 
+import eb.framework1.RandomUtils;
 import eb.framework1.face.FaceConfig;
 import eb.framework1.face.FaceGenerator;
 import eb.framework1.face.FaceRule;
@@ -329,6 +330,12 @@ public class CharacterGenerator {
             b.attribute(attr, randomAttr());
         }
 
+        // Assign 3–5 random personality traits (hidden, −3 to +3 each).
+        // Each NPC gets a random subset so that not every character has
+        // opinions about everything — the player must interview multiple NPCs
+        // to build a full personality profile.
+        assignRandomPersonalityTraits(b);
+
         // 30% of characters have a vision impairment (farsighted or nearsighted).
         VisionTrait visionTrait = null;
         if (random.nextFloat() < 0.30f) {
@@ -593,7 +600,7 @@ public class CharacterGenerator {
 
     /** Returns {@code "M"} or {@code "F"} at random. */
     private String randomGender() {
-        return random.nextBoolean() ? "M" : "F";
+        return RandomUtils.randomGender(random);
     }
 
     /** Returns a random integer in the range 1–10 (inclusive). */
@@ -611,6 +618,30 @@ public class CharacterGenerator {
     private String pickSprite(String gender) {
         String[] pool = "F".equals(gender) ? FEMALE_SPRITES : MALE_SPRITES;
         return pool[random.nextInt(pool.length)];
+    }
+
+    /**
+     * Assigns 3–5 random {@link PersonalityTrait}s to the builder.
+     * Each trait gets a random value from −3 to +3 (excluding 0 to ensure
+     * the trait is actually notable).
+     */
+    private void assignRandomPersonalityTraits(NpcCharacter.Builder b) {
+        PersonalityTrait[] allTraits = PersonalityTrait.values();
+        int traitCount = 3 + random.nextInt(3); // 3–5 traits
+        // Shuffle by doing a Fisher-Yates partial shuffle on a copy
+        PersonalityTrait[] shuffled = allTraits.clone();
+        for (int i = 0; i < traitCount && i < shuffled.length; i++) {
+            int j = i + random.nextInt(shuffled.length - i);
+            PersonalityTrait tmp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = tmp;
+        }
+        for (int i = 0; i < traitCount && i < shuffled.length; i++) {
+            // Generate a non-zero value: −3..−1 or +1..+3
+            int value = 1 + random.nextInt(3); // 1–3
+            if (random.nextBoolean()) value = -value;
+            b.personalityTrait(shuffled[i], value);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -662,7 +693,7 @@ public class CharacterGenerator {
 
     /** Returns one element chosen at random from the given strings. */
     private String pick(String... options) {
-        return options[random.nextInt(options.length)];
+        return RandomUtils.pick(random, options);
     }
 
     /** Returns a random height (cm) for the given gender. */

@@ -707,15 +707,30 @@ When the player's attribute is **below** the gate value, they receive the
 
 ## Future Improvements
 
-### 1. Expanded Template Pools
+### 1. Expanded Template Pools ✅ (Implemented)
 
-**Current:** Most answer categories have 3–5 templates, leading to repetition
+**Previous status:** Most answer categories had 3–5 templates, leading to repetition
 across cases.
 
-**Improvement:**
-- Increase each answer pool to **10–15 templates**
-- Add per-motive and per-case-type specialised variants
-- Consider a template-composition system (sentence fragments assembled randomly)
+**What was implemented:**
+- **Case description pools** (`CaseGenerator.buildDescription`) expanded from 1 fixed
+  string per case type to **3 random variants** per type (8 types × 3 = 24 descriptions)
+- **Case objective pools** (`CaseGenerator.buildObjective`) expanded from 1 fixed
+  string per type to **3 random variants** per type; both methods now accept a `Random`
+  parameter so callers control seeding
+- **Motive narrative pools** (`NarrativeTemplates.buildMotiveNarrative`) expanded
+  from **4 to 10 entries** per motive code (10 codes × 10 = 100 motive strings)
+- **Attribute success/failure narratives** (`buildAttributeSuccessNarrative` /
+  `buildAttributeFailureNarrative`) converted from single fixed strings to **pools of
+  3 per (attribute × action-type) combination**, using a new `pick(String...)` helper
+- **Interview answer pools** across all four NPC builders (client, subject, witness,
+  associate) expanded from **3–4 entries to 6–8 entries** per pool, covering alibi,
+  opinion, observation, motive, relationship, last-contact, contact-info, and
+  personality topics
+- **Word pools** in `InterviewTemplateEngine` (HOBBY_WORDS, SOCIAL_WORDS,
+  LIKE_DISLIKE_WORDS, LOCATION_CLUE_WORDS) expanded from 5–8 entries to **10–15
+  entries** each
+- Per-motive and per-case-type specialised variants added throughout
 
 ### 2. Dynamic Suspect Attribute Assignment
 
@@ -860,8 +875,8 @@ with significant duplication.
 
 | Class | Lines | Methods | Primary role |
 |-------|-------|---------|-------------|
-| `CaseGenerator` | 2 310 | 29 | Core generation engine (interview scripts, leads, story tree) |
-| `CaseEditorPanel` | ~2 900 | ~90 | Admin UI with delegated generation |
+| `CaseGenerator` | ~1 480 | ~29 | Core generation engine (leads, story tree) |
+| `CaseEditorPanel` | ~2 770 | ~85 | Admin UI with delegated generation |
 
 **Addressed duplication areas:**
 
@@ -870,17 +885,11 @@ with significant duplication.
 | Action-type classification (`isInterview`/`isEvidence`/…) | ✅ Done | Extracted `ActionType` enum; all 7+ copy-paste sites now use `ActionType.classify()` |
 | Narrative templates (success/failure/motive) | ✅ Done | Extracted `NarrativeTemplates` class in core; `CaseEditorPanel` delegates to it |
 | Name arrays | ✅ Done | Replaced hardcoded arrays with `PersonNameGenerator` — same API as `CaseGenerator` |
-
-**Remaining duplication areas:**
-
-| Area | Lines duplicated | Risk |
-|------|-----------------|------|
-| Interview generation | ~400 lines reimplemented in CaseEditorPanel vs CaseGenerator's 4 builder methods | Two copies to keep in sync; divergence causes subtle interview inconsistencies |
+| Interview generation | ✅ Done | `CaseEditorPanel.generateInterviews()` now delegates to `InterviewTemplateEngine.buildAll()` for the four core NPC scripts (client, subject, witness, associate); dynamic cross-NPC rows (opinion, contact info with real phone/location, personality from trait col 19) are produced in the panel using engine text-generation helpers (`buildOpinionText`, `buildContactInfoText`, etc.). The 14 duplicated `buildInterview*()` helper methods have been removed from `CaseEditorPanel`. |
 
 **Remaining improvements:**
-- Have `CaseEditorPanel.generateInterviews()` delegate to `CaseGenerator` for interview script building
 - Consider splitting `CaseGenerator` into `CaseFileGenerator` + `InterviewScriptBuilder`
 
 ---
 
-*Last updated: 2026-04-12*
+*Last updated: 2026-04-13*

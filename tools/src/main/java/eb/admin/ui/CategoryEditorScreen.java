@@ -50,6 +50,7 @@ import java.util.Map;
  *  15. Names                    – person first-names, surnames, company name templates
  *  16. SVG                      – SVG Resource (svg_resource.json) + SVG Index (svgs-index.json)
  *  17. Case                     – step-by-step case generation testing (case type, leads, story tree)
+ *  18. Templates › Interview    – edit interview_templates_en.json pools and question strings
  */
 public class CategoryEditorScreen extends JFrame {
 
@@ -104,7 +105,8 @@ public class CategoryEditorScreen extends JFrame {
     private final CompanyTypesEditorPanel   companyTypesPanel  = new CompanyTypesEditorPanel(statusLabel);
     private final NamesEditorPanel          namesPanel         = new NamesEditorPanel(statusLabel);
     private final SvgEditorPanel            svgPanel           = new SvgEditorPanel(statusLabel);
-    private final CaseEditorPanel           casePanel          = new CaseEditorPanel(statusLabel);
+    private final CaseEditorPanel               casePanel              = new CaseEditorPanel(statusLabel);
+    private final InterviewTemplateEditorPanel  interviewTemplatePanel = new InterviewTemplateEditorPanel(statusLabel);
 
     private File currentFile;
 
@@ -166,6 +168,11 @@ public class CategoryEditorScreen extends JFrame {
         tabbedPane.addTab("Names",         namesPanel);
         tabbedPane.addTab("SVG",           svgPanel);
         tabbedPane.addTab("Case",          casePanel);
+
+        JTabbedPane templatesTabs = new JTabbedPane();
+        templatesTabs.addTab("Interview", interviewTemplatePanel);
+        tabbedPane.addTab("Templates",    templatesTabs);
+
         add(tabbedPane, BorderLayout.CENTER);
 
         statusLabel.setBorder(BorderFactory.createCompoundBorder(

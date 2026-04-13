@@ -209,6 +209,18 @@ public final class NpcCharacter {
     private final String skinToneCode;
 
     /**
+     * Hidden personality traits / opinions, each in the range −3 to +3.
+     * Only a subset of the available {@link PersonalityTrait} values are
+     * assigned to any one NPC (typically 3–5).  Traits not present in the map
+     * are considered neutral (0).
+     *
+     * <p>Traits are hidden from the player and can only be discovered through
+     * interviews.  They contribute indirectly to the case — for example,
+     * knowing a suspect loves hiking narrows possible locations.
+     */
+    private final Map<PersonalityTrait, Integer> personalityTraits;
+
+    /**
      * Relationships this NPC has formed with characters they have met.
      * The list is mutable so that relationship entries can be added during
      * gameplay without rebuilding the NPC object.
@@ -259,6 +271,8 @@ public final class NpcCharacter {
         this.visionTrait          = b.visionTrait;
         this.faceConfig           = b.faceConfig;
         this.skinToneCode         = b.skinToneCode;
+        this.personalityTraits    = Collections.unmodifiableMap(
+                new EnumMap<>(b.personalityTraits));
     }
 
     // -------------------------------------------------------------------------
@@ -352,6 +366,56 @@ public final class NpcCharacter {
      * were drawn.  Never {@code null}; defaults to {@link PersonalityProfile#DEFAULT}.
      */
     public PersonalityProfile getPersonalityProfile() { return personalityProfile; }
+
+    // -------------------------------------------------------------------------
+    // Accessors — personality traits (hidden opinions, −3 to +3)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the value of a single hidden personality trait (−3 to +3).
+     *
+     * <p>Traits are hidden from the player and discovered through interviews.
+     * A value of 0 (neutral) is returned for traits not explicitly assigned.
+     *
+     * @param trait the trait to look up; must not be {@code null}
+     * @return the trait value, or {@code 0} if not present
+     */
+    public int getTraitValue(PersonalityTrait trait) {
+        if (trait == null) return 0;
+        return personalityTraits.getOrDefault(trait, 0);
+    }
+
+    /**
+     * Returns an unmodifiable copy of all assigned personality traits.
+     * Only traits that were explicitly set (non-neutral) are included.
+     *
+     * @return map of trait → value (−3 to +3); never {@code null}
+     */
+    public Map<PersonalityTrait, Integer> getPersonalityTraits() {
+        return personalityTraits;
+    }
+
+    /**
+     * Returns {@code true} if this NPC has any personality traits assigned.
+     */
+    public boolean hasPersonalityTraits() {
+        return !personalityTraits.isEmpty();
+    }
+
+    /**
+     * Returns a human-readable summary of this NPC's personality traits,
+     * e.g. {@code "likes Sports, strongly dislikes Gambling, neutral Cooking"}.
+     * Returns an empty string if no traits are assigned.
+     */
+    public String getTraitsSummary() {
+        if (personalityTraits.isEmpty()) return "";
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<PersonalityTrait, Integer> e : personalityTraits.entrySet()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(e.getKey().describe(e.getValue()));
+        }
+        return sb.toString();
+    }
 
     // -------------------------------------------------------------------------
     // Accessors — character attributes
@@ -710,6 +774,10 @@ public final class NpcCharacter {
         // Face configuration
         private FaceConfig faceConfig   = null;
         private String     skinToneCode = null;
+
+        // Hidden personality traits (−3 to +3)
+        private final Map<PersonalityTrait, Integer> personalityTraits =
+                new EnumMap<>(PersonalityTrait.class);
 
         /**
          * Sets the mandatory unique identifier.
@@ -1105,6 +1173,40 @@ public final class NpcCharacter {
          */
         public Builder skinToneCode(String skinToneCode) {
             this.skinToneCode = skinToneCode;
+            return this;
+        }
+
+        /**
+         * Sets a single hidden personality trait value (−3 to +3).
+         * Values outside this range are clamped.
+         *
+         * @param trait the trait to set; must not be {@code null}
+         * @param value the opinion value (−3 = strongly dislikes … +3 = strongly likes)
+         * @throws IllegalArgumentException if {@code trait} is {@code null}
+         */
+        public Builder personalityTrait(PersonalityTrait trait, int value) {
+            if (trait == null) {
+                throw new IllegalArgumentException("trait must not be null");
+            }
+            this.personalityTraits.put(trait, PersonalityTrait.clamp(value));
+            return this;
+        }
+
+        /**
+         * Replaces the entire personality-trait map.
+         * Entries with {@code null} keys are ignored; values are clamped to −3..+3.
+         *
+         * @param traits map of trait → value; {@code null} clears all traits
+         */
+        public Builder personalityTraits(Map<PersonalityTrait, Integer> traits) {
+            this.personalityTraits.clear();
+            if (traits != null) {
+                for (Map.Entry<PersonalityTrait, Integer> e : traits.entrySet()) {
+                    if (e.getKey() != null) {
+                        personalityTrait(e.getKey(), e.getValue());
+                    }
+                }
+            }
             return this;
         }
 
