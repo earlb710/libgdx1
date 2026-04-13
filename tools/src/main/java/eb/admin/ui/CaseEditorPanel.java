@@ -2,9 +2,11 @@ package eb.admin.ui;
 
 import eb.admin.model.CategoryData;
 import eb.admin.model.CategoryEntry;
+import eb.framework1.generator.PersonNameGenerator;
 import eb.framework1.investigation.ActionType;
 import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
+import eb.framework1.investigation.NarrativeTemplates;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -40,6 +42,8 @@ public class CaseEditorPanel extends JPanel {
 
     private final JLabel statusLabel;
     private final Random random = new Random();
+    private final NarrativeTemplates narratives = new NarrativeTemplates(random);
+    private final PersonNameGenerator nameGen = buildDefaultNameGenerator();
 
     // Step 1 – Case Type
     private final JComboBox<String> caseTypeCombo = new JComboBox<>();
@@ -920,227 +924,19 @@ public class CaseEditorPanel extends JPanel {
     /**
      * Returns a narrative sentence describing how the investigator successfully applied
      * the given attribute to accomplish the action.
+     * Delegates to {@link NarrativeTemplates#buildAttributeSuccessNarrative(String, String)}.
      */
     private String buildAttributeSuccessNarrative(String attr, String actionTitle) {
-        ActionType actionType = ActionType.classify(actionTitle);
-        boolean isInterview = actionType == ActionType.INTERVIEW;
-        boolean isEvidence  = actionType == ActionType.EVIDENCE;
-        boolean isDocument  = actionType == ActionType.DOCUMENT;
-        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
-
-        switch (attr) {
-            case "INTIMIDATION":
-                if (isInterview)
-                    return "With a stern look you make it clear that cooperation is not optional. "
-                         + "Under your unblinking gaze they reluctantly answer.";
-                if (isEvidence)
-                    return "Your commanding presence clears the area. You examine the evidence undisturbed.";
-                if (isDocument)
-                    return "Your authoritative demand leaves the clerk no room to argue — "
-                         + "the files appear on the counter without delay.";
-                return "Your forceful demeanour gets results — they comply without further argument.";
-
-            case "CHARISMA":
-                if (isInterview)
-                    return "With a warm smile and well-chosen words you earn their trust. "
-                         + "They open up more than they intended.";
-                if (isDocument)
-                    return "A friendly rapport with the clerk gets you access to records that aren't publicly available.";
-                if (isEvidence)
-                    return "You charm the officer guarding the perimeter into letting you through. "
-                         + "Inside you find exactly the sample you needed.";
-                if (isPhoto)
-                    return "A quick conversation with a bystander gets you access to a better vantage point "
-                         + "for the perfect angle.";
-                return "Your easy manner wins cooperation and they hand over what you need.";
-
-            case "PERCEPTION":
-                if (isEvidence)
-                    return "Your sharp eye catches something others missed — a detail that changes everything.";
-                if (isInterview)
-                    return "You pick up on a micro-expression that reveals more than their words let on.";
-                if (isDocument)
-                    return "Scanning the pages, a single mismatched date jumps out at you — "
-                         + "the discrepancy is unmistakable.";
-                if (isPhoto)
-                    return "You notice an odd reflection in the window and angle your camera to capture it. "
-                         + "The resulting image reveals a critical detail.";
-                return "A careful scan of the surroundings reveals a detail that wasn't in any report.";
-
-            case "INTELLIGENCE":
-                if (isDocument)
-                    return "You rapidly cross-reference dates and figures, spotting the anomaly buried in the paperwork.";
-                if (isInterview)
-                    return "You ask the exact right question — one they didn't expect — and watch their composure crack.";
-                if (isEvidence)
-                    return "You reconstruct the sequence of events from the physical evidence alone, "
-                         + "identifying the one item that doesn't belong.";
-                return "You piece together the scattered facts and the pattern becomes clear.";
-
-            case "EMPATHY":
-                if (isInterview)
-                    return "Reading the tension in their body language, you find the right moment to gently press. "
-                         + "They share something they haven't told anyone else.";
-                if (isEvidence)
-                    return "Sensing something personal about the way items are arranged, you look deeper — "
-                         + "there's a hidden keepsake that tells a story the scene report missed.";
-                if (isDocument)
-                    return "Between the dry lines of the report you sense the fear of the person who wrote it. "
-                         + "You re-read the passage and find the detail they tried to bury.";
-                return "Your sensitivity to the emotional undercurrents in the room guides you to the truth.";
-
-            case "MEMORY":
-                if (isDocument)
-                    return "You recall a detail from an earlier briefing that maps perfectly onto this record — "
-                         + "the connection is unmistakable.";
-                if (isInterview)
-                    return "Something they say triggers a memory. You name the detail and watch their expression change.";
-                if (isEvidence)
-                    return "You remember a serial number from the case file. Checking the item, "
-                         + "the match confirms it was moved from the original location.";
-                if (isPhoto)
-                    return "Comparing this angle to a photo you saw earlier, "
-                         + "you spot the object that has been moved since the initial sweep.";
-                return "You recall something from earlier in the case that makes this evidence click into place.";
-
-            case "STEALTH":
-                if (isEvidence)
-                    return "Moving quietly and unobserved, you collect what you need before anyone notices you were there.";
-                if (isInterview)
-                    return "You observe them from a distance before approaching, giving you an advantage when you do speak.";
-                if (isPhoto)
-                    return "From a concealed position you photograph the scene without disturbing it — "
-                         + "the raw, untouched state tells its own story.";
-                if (isDocument)
-                    return "You slip into the records room unnoticed and locate the file "
-                         + "before anyone can conveniently misplace it.";
-                return "Your unobtrusive presence lets you gather information without anyone realising you were watching.";
-
-            default:
-                return "Applying your skill at the critical moment, you achieve the outcome you were after.";
-        }
+        return narratives.buildAttributeSuccessNarrative(attr, actionTitle);
     }
 
     /**
      * Returns a narrative sentence describing what happens when the investigator lacks
      * the required attribute and the action fails.
+     * Delegates to {@link NarrativeTemplates#buildAttributeFailureNarrative(String, String)}.
      */
     private String buildAttributeFailureNarrative(String attr, String actionTitle) {
-        ActionType actionType = ActionType.classify(actionTitle);
-        boolean isInterview = actionType == ActionType.INTERVIEW;
-        boolean isEvidence  = actionType == ActionType.EVIDENCE;
-        boolean isDocument  = actionType == ActionType.DOCUMENT;
-        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
-
-        switch (attr) {
-            case "INTIMIDATION":
-                if (isInterview)
-                    return "You ask them to stand aside, but they don't seem willing. "
-                         + "You do notice it's the same person you saw talking to the subject earlier — "
-                         + "that connection may be worth pursuing.";
-                if (isEvidence)
-                    return "Someone challenges your right to be here. Without sufficient authority "
-                         + "you're forced to back down, but you catch a glimpse of something before you leave.";
-                if (isDocument)
-                    return "The records clerk refuses to hand over the restricted file. "
-                         + "You notice they glance nervously at a particular drawer — that itself is a clue.";
-                return "Your attempt to assert authority falls short. They hold their ground — "
-                     + "but their reaction itself tells you something.";
-
-            case "CHARISMA":
-                if (isInterview)
-                    return "Your approach falls flat — they seem unimpressed and shut the conversation down. "
-                         + "However, on your way out you overhear something that might be worth a follow-up.";
-                if (isDocument)
-                    return "The clerk turns you away without the access you need. "
-                         + "You'll have to find another way in, or come back with better credentials.";
-                if (isEvidence)
-                    return "The officer on guard isn't swayed by your request. "
-                         + "You're turned away from the perimeter, but from outside you spot a secondary entrance "
-                         + "that may be worth investigating later.";
-                if (isPhoto)
-                    return "A bystander blocks your best angle and won't budge. "
-                         + "The shots you manage are mediocre, but one catches an odd detail in the background.";
-                return "They aren't won over by your approach and give you nothing useful — "
-                     + "but their reluctance itself may be telling.";
-
-            case "PERCEPTION":
-                if (isEvidence)
-                    return "You scan the area carefully but nothing immediately stands out. "
-                         + "Whatever was here may have already been disturbed or removed.";
-                if (isInterview)
-                    return "You miss the subtle cue in their expression. "
-                         + "They answer smoothly — too smoothly — but you can't pin down what's off.";
-                if (isDocument)
-                    return "The numbers blur together and the anomaly hides in plain sight. "
-                         + "You'll need to come back with fresh eyes or a different approach.";
-                if (isPhoto)
-                    return "You photograph the scene but miss the critical angle. "
-                         + "Later review of your shots shows nothing the initial report didn't already cover.";
-                return "The detail you were looking for doesn't reveal itself this time. "
-                     + "It may still be there — consider returning with fresh eyes.";
-
-            case "INTELLIGENCE":
-                if (isDocument)
-                    return "The volume and complexity of the paperwork overwhelms you for now. "
-                         + "You'll need more context before the pattern emerges.";
-                if (isInterview)
-                    return "You ask the wrong question and they steer the conversation away. "
-                         + "You leave with less than you came with.";
-                if (isEvidence)
-                    return "The evidence doesn't connect to anything you already know. "
-                         + "The link is there, but without more context you can't see it yet.";
-                return "The pieces don't connect yet. There's still a gap somewhere in your reasoning.";
-
-            case "EMPATHY":
-                if (isInterview)
-                    return "You try to connect but they remain guarded throughout. "
-                         + "Their defensiveness itself might be telling — why would they be so closed off?";
-                if (isEvidence)
-                    return "You walk the scene looking for anything personal or out of place, "
-                         + "but the sterile environment yields nothing to your instinct this time.";
-                if (isDocument)
-                    return "You read through the statements but nothing strikes an emotional chord. "
-                         + "The writer was careful — or perhaps genuinely uninvolved.";
-                return "You misread the emotional temperature in the room. "
-                     + "Your approach creates distance instead of trust.";
-
-            case "MEMORY":
-                if (isDocument)
-                    return "The relevant detail is just out of reach. You know you've seen something like this before, "
-                         + "but you can't recall where. Time to review your notes.";
-                if (isInterview)
-                    return "They mention something that should ring a bell, but the connection escapes you in the moment. "
-                         + "Write it down — it may make sense later.";
-                if (isEvidence)
-                    return "You feel like you've seen this type of item before, but the case reference escapes you. "
-                         + "A trip back to the case file might jog your memory.";
-                if (isPhoto)
-                    return "You can't recall what the scene looked like in the earlier photos, "
-                         + "so you miss what changed. Re-check the originals when you get back.";
-                return "The critical detail doesn't surface when you need it. "
-                     + "Go back through your earlier findings before proceeding.";
-
-            case "STEALTH":
-                if (isEvidence)
-                    return "Your presence is noticed earlier than expected. "
-                         + "You're forced to abandon the search, but you managed to pocket one small piece of evidence.";
-                if (isInterview)
-                    return "They spot you watching before you're ready. "
-                         + "The element of surprise is lost, and they're now on guard.";
-                if (isPhoto)
-                    return "Someone sees your camera and calls you out. "
-                         + "You're asked to leave, but not before you notice which area they were most anxious to protect.";
-                if (isDocument)
-                    return "The records clerk spots you in the restricted section. "
-                         + "You're escorted out, but you glimpsed a folder label that may narrow your next search.";
-                return "You're seen when you should have remained undetected. "
-                     + "The opportunity is lost for now — but they don't know exactly what you know.";
-
-            default:
-                return "Without the required skill you fall short this time. "
-                     + "There may still be another way to achieve the same result.";
-        }
+        return narratives.buildAttributeFailureNarrative(attr, actionTitle);
     }
 
     private String resolveFactRef(String factId, String prefix, String suffix) {
@@ -1353,24 +1149,37 @@ public class CaseEditorPanel extends JPanel {
     // NPC generation helpers
     // -------------------------------------------------------------------------
 
-    /** Typical first names per gender, used by the admin panel for quick NPC generation. */
-    private static final String[] MALE_NAMES = {
-        "James", "Robert", "William", "Thomas", "Michael", "David", "Richard",
-        "Daniel", "Edward", "George", "Henry", "Samuel", "Arthur", "Frank",
-        "Peter", "Joseph", "Patrick", "Marcus", "Leon", "Vincent"
-    };
-    private static final String[] FEMALE_NAMES = {
-        "Mary", "Elizabeth", "Sarah", "Catherine", "Margaret", "Alice", "Helen",
-        "Dorothy", "Grace", "Victoria", "Claire", "Emma", "Sophie", "Hannah",
-        "Olivia", "Laura", "Diana", "Angela", "Rose", "Julia"
-    };
-    private static final String[] SURNAMES = {
-        "Smith", "Johnson", "Brown", "Williams", "Jones", "Davis", "Miller",
-        "Wilson", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris",
-        "Clark", "Lewis", "Hall", "Walker", "Young", "King", "Wright", "Green",
-        "Baker", "Adams", "Nelson", "Carter", "Mitchell", "Roberts", "Turner",
-        "Phillips", "Campbell", "Parker", "Evans", "Collins", "Stewart", "Morris"
-    };
+    /**
+     * Creates a {@link PersonNameGenerator} pre-loaded with the admin panel's
+     * default name data.  This replaces the former hardcoded name arrays and
+     * ensures name generation uses the same API as the core
+     * {@code CaseGenerator}.
+     */
+    private PersonNameGenerator buildDefaultNameGenerator() {
+        String[] maleNames = {
+            "James", "Robert", "William", "Thomas", "Michael", "David", "Richard",
+            "Daniel", "Edward", "George", "Henry", "Samuel", "Arthur", "Frank",
+            "Peter", "Joseph", "Patrick", "Marcus", "Leon", "Vincent"
+        };
+        String[] femaleNames = {
+            "Mary", "Elizabeth", "Sarah", "Catherine", "Margaret", "Alice", "Helen",
+            "Dorothy", "Grace", "Victoria", "Claire", "Emma", "Sophie", "Hannah",
+            "Olivia", "Laura", "Diana", "Angela", "Rose", "Julia"
+        };
+        String[] surnames = {
+            "Smith", "Johnson", "Brown", "Williams", "Jones", "Davis", "Miller",
+            "Wilson", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris",
+            "Clark", "Lewis", "Hall", "Walker", "Young", "King", "Wright", "Green",
+            "Baker", "Adams", "Nelson", "Carter", "Mitchell", "Roberts", "Turner",
+            "Phillips", "Campbell", "Parker", "Evans", "Collins", "Stewart", "Morris"
+        };
+        List<PersonNameGenerator.NameEntry> firstNames = new ArrayList<>();
+        for (String n : maleNames) firstNames.add(new PersonNameGenerator.NameEntry(n, "M"));
+        for (String n : femaleNames) firstNames.add(new PersonNameGenerator.NameEntry(n, "F"));
+        List<String> surnameList = new ArrayList<>();
+        for (String s : surnames) surnameList.add(s);
+        return new PersonNameGenerator(firstNames, surnameList, random);
+    }
 
     /** Relationship type labels used in the relationship table. */
     private static final String[] RELATIONSHIP_TYPES = {
@@ -1501,11 +1310,7 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private String randomName(String gender) {
-        String first = "F".equals(gender)
-                ? FEMALE_NAMES[random.nextInt(FEMALE_NAMES.length)]
-                : MALE_NAMES[random.nextInt(MALE_NAMES.length)];
-        String last = SURNAMES[random.nextInt(SURNAMES.length)];
-        return first + " " + last;
+        return nameGen.generateFull(gender);
     }
 
     private static final String[] HAIR_COLORS =
@@ -2857,90 +2662,10 @@ public class CaseEditorPanel extends JPanel {
 
     /**
      * Builds a case-specific motive narrative for the given motive code.
-     * Each code has multiple templates using the subject/victim names, ensuring
-     * that every case gets a unique, tailored motivation story.
+     * Delegates to {@link NarrativeTemplates#buildMotiveNarrative(String, String, String)}.
      */
     private String buildMotiveNarrative(String motiveCode, String subject, String victim) {
-        String[] pool;
-        switch (motiveCode) {
-            case "FINANCIAL_GAIN":
-                pool = new String[]{
-                    "Having fallen on hard times, " + subject + " decided this would be a quick solution to all financial problems.",
-                    subject + " discovered a lucrative insurance policy on " + victim + " and devised a plan to collect.",
-                    "Mounting debts and a failing business drove " + subject + " to target " + victim + "'s estate.",
-                    subject + " had been secretly siphoning funds and needed " + victim + " out of the way before an audit."};
-                break;
-            case "REVENGE":
-                pool = new String[]{
-                    subject + " had nursed a grudge against " + victim + " for years after a devastating public humiliation.",
-                    "After " + victim + " destroyed " + subject + "'s career, " + subject + " spent months planning retribution.",
-                    subject + " blamed " + victim + " for the death of a loved one and vowed to settle the score.",
-                    "A bitter feud over a broken promise drove " + subject + " to take drastic action against " + victim + "."};
-                break;
-            case "JEALOUSY":
-                pool = new String[]{
-                    subject + " could not accept that " + victim + " had been promoted over them despite fewer qualifications.",
-                    "A romantic rivalry between " + subject + " and " + victim + " escalated beyond control.",
-                    subject + " envied " + victim + "'s social standing and growing influence in the community.",
-                    "Watching " + victim + " succeed where " + subject + " had failed became an unbearable obsession."};
-                break;
-            case "COERCION":
-                pool = new String[]{
-                    subject + " was being blackmailed with compromising photographs and saw no other way out.",
-                    "A criminal associate threatened " + subject + "'s family unless " + victim + " was dealt with.",
-                    subject + " was manipulated by a third party who stood to gain from " + victim + "'s downfall.",
-                    "Under extreme pressure from mounting threats, " + subject + " reluctantly carried out someone else's plan."};
-                break;
-            case "POWER":
-                pool = new String[]{
-                    subject + " saw " + victim + " as the only obstacle to seizing control of the organisation.",
-                    "With " + victim + " out of the picture, " + subject + " would inherit full authority over the estate.",
-                    subject + " had long resented " + victim + "'s dominance and orchestrated a takeover.",
-                    "Eliminating " + victim + " was the final move in " + subject + "'s carefully planned bid for control."};
-                break;
-            case "SELF_DEFENSE":
-                pool = new String[]{
-                    subject + " believed " + victim + " was about to expose a secret that would ruin everything.",
-                    "After receiving threatening messages from " + victim + ", " + subject + " acted out of genuine fear.",
-                    subject + " claimed " + victim + " attacked first, but the evidence suggests a premeditated response.",
-                    "Cornered by " + victim + "'s escalating threats, " + subject + " felt there was no alternative."};
-                break;
-            case "IDEOLOGY":
-                pool = new String[]{
-                    subject + " viewed " + victim + "'s activities as a betrayal of deeply held principles and acted accordingly.",
-                    "Radicalised through online forums, " + subject + " targeted " + victim + " as a symbol of everything wrong.",
-                    subject + " believed silencing " + victim + " would advance a political cause they were devoted to.",
-                    "A fanatical commitment to a fringe movement drove " + subject + " to act against " + victim + "."};
-                break;
-            case "CONCEALMENT":
-                pool = new String[]{
-                    subject + " had committed a prior offence that " + victim + " was about to report to the authorities.",
-                    victim + " stumbled upon " + subject + "'s embezzlement scheme and had to be silenced.",
-                    subject + " needed to destroy evidence of a previous fraud before " + victim + " could hand it over.",
-                    "With " + victim + " threatening to reveal the truth, " + subject + " acted to protect a web of lies."};
-                break;
-            case "PASSION":
-                pool = new String[]{
-                    "An intense argument between " + subject + " and " + victim + " escalated into a violent confrontation.",
-                    subject + "'s uncontrollable rage after discovering " + victim + "'s betrayal led to a fatal outburst.",
-                    "Years of suppressed emotion erupted when " + subject + " confronted " + victim + " about the affair.",
-                    "A moment of blind fury during a heated exchange drove " + subject + " to act without thinking."};
-                break;
-            case "LOYALTY":
-                pool = new String[]{
-                    subject + " acted to protect a family member who " + victim + " was threatening to expose.",
-                    "A close friend of " + subject + " asked for help dealing with " + victim + ", and " + subject + " couldn't refuse.",
-                    subject + " took the fall for an associate, believing loyalty demanded sacrifice.",
-                    "To shield a loved one from " + victim + "'s harassment, " + subject + " decided to intervene permanently."};
-                break;
-            default:
-                pool = new String[]{
-                    subject + "'s true motivation remains complex — a mix of personal grievance and opportunity.",
-                    "The exact reason " + subject + " targeted " + victim + " stems from a private conflict not yet fully understood.",
-                    subject + " was driven by circumstances that created a perfect storm of desperation and opportunity."};
-                break;
-        }
-        return pool[random.nextInt(pool.length)];
+        return narratives.buildMotiveNarrative(motiveCode, subject, victim);
     }
 
     /** Creates a lead row in leadsModel and returns its ID. */
