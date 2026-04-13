@@ -302,7 +302,7 @@ public class InterviewTemplateEditorPanel extends JPanel {
         if (idx < 0) { setStatus("Select a pool to delete."); return; }
         String key = poolKeyModel.get(idx);
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Delete pool "" + key + "" and all its entries?",
+                "Delete pool \"" + key + "\" and all its entries?",
                 "Confirm Delete", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) return;
         pools.remove(key);
