@@ -143,7 +143,7 @@ public class CaseGenerator {
                 + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
         String objective   = buildObjective(type, clientName, subjectName, victimName);
 
-        CaseFile cf = new CaseFile(clientName + " — " + type.getDisplayName() + ": " + subjectName,
+        CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
                 description, dateOpened != null ? dateOpened : "");
         cf.setCaseType(type);
         cf.setClientName(clientName);
