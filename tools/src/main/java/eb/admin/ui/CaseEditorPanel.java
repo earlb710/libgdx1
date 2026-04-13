@@ -2,6 +2,7 @@ package eb.admin.ui;
 
 import eb.admin.model.CategoryData;
 import eb.admin.model.CategoryEntry;
+import eb.framework1.investigation.ActionType;
 import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
 
@@ -921,14 +922,11 @@ public class CaseEditorPanel extends JPanel {
      * the given attribute to accomplish the action.
      */
     private String buildAttributeSuccessNarrative(String attr, String actionTitle) {
-        boolean isInterview = actionTitle != null && (actionTitle.startsWith("Interview")
-                || actionTitle.startsWith("Speak") || actionTitle.startsWith("Question"));
-        boolean isEvidence  = actionTitle != null && (actionTitle.startsWith("Collect")
-                || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
-        boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
-                || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
-        boolean isPhoto     = actionTitle != null && (actionTitle.startsWith("Photograph")
-                || actionTitle.startsWith("Sketch") || actionTitle.startsWith("Map entry"));
+        ActionType actionType = ActionType.classify(actionTitle);
+        boolean isInterview = actionType == ActionType.INTERVIEW;
+        boolean isEvidence  = actionType == ActionType.EVIDENCE;
+        boolean isDocument  = actionType == ActionType.DOCUMENT;
+        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
 
         switch (attr) {
             case "INTIMIDATION":
@@ -1028,14 +1026,11 @@ public class CaseEditorPanel extends JPanel {
      * the required attribute and the action fails.
      */
     private String buildAttributeFailureNarrative(String attr, String actionTitle) {
-        boolean isInterview = actionTitle != null && (actionTitle.startsWith("Interview")
-                || actionTitle.startsWith("Speak") || actionTitle.startsWith("Question"));
-        boolean isEvidence  = actionTitle != null && (actionTitle.startsWith("Collect")
-                || actionTitle.startsWith("Bag") || actionTitle.startsWith("Recover"));
-        boolean isDocument  = actionTitle != null && (actionTitle.startsWith("Review")
-                || actionTitle.startsWith("Analyse") || actionTitle.startsWith("Search"));
-        boolean isPhoto     = actionTitle != null && (actionTitle.startsWith("Photograph")
-                || actionTitle.startsWith("Sketch") || actionTitle.startsWith("Map entry"));
+        ActionType actionType = ActionType.classify(actionTitle);
+        boolean isInterview = actionType == ActionType.INTERVIEW;
+        boolean isEvidence  = actionType == ActionType.EVIDENCE;
+        boolean isDocument  = actionType == ActionType.DOCUMENT;
+        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
 
         switch (attr) {
             case "INTIMIDATION":
@@ -2961,23 +2956,15 @@ public class CaseEditorPanel extends JPanel {
 
     /** Picks a fact category based on the action being performed. */
     private String categoryForAction(String actionTitle) {
-        if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
-                || actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
-                || actionTitle.startsWith("Recover") || actionTitle.startsWith("Map entry")) {
-            return "EVIDENCE";
-        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
-                || actionTitle.startsWith("Question")) {
-            return "RELATIONSHIP";
-        } else {
-            return "ITEM";
-        }
+        ActionType type = ActionType.classify(actionTitle);
+        return type != null ? type.getFactCategory() : "ITEM";
     }
 
     /** Generates a contextual fact sentence driven by the current action. */
     private String buildInlineFact(String actionTitle, String subject, String victim,
                                    int phase, int major, boolean highImportance) {
-        if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
-                || actionTitle.startsWith("Map entry")) {
+        ActionType actionType = ActionType.classify(actionTitle);
+        if (actionType == ActionType.PHOTOGRAPH) {
             String[] high = {
                 "Scene photos reveal a second set of footprints near " + victim + "'s location.",
                 "Documentation shows the door was forced from the inside, implicating " + subject + ".",
@@ -2988,8 +2975,7 @@ public class CaseEditorPanel extends JPanel {
                 "Photographs capture minor damage unrelated to the main incident."};
             String[] pool = highImportance ? high : low;
             return pool[random.nextInt(pool.length)];
-        } else if (actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
-                || actionTitle.startsWith("Recover")) {
+        } else if (actionType == ActionType.EVIDENCE) {
             String[] high = {
                 "Trace evidence places " + subject + " at the scene within the critical window.",
                 "A recovered item bears " + subject + "'s fingerprints and traces of " + victim + "'s blood.",
@@ -3000,8 +2986,7 @@ public class CaseEditorPanel extends JPanel {
                 "Residue collected may be from a cleaning product, not evidence."};
             String[] pool = highImportance ? high : low;
             return pool[random.nextInt(pool.length)];
-        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
-                || actionTitle.startsWith("Question")) {
+        } else if (actionType == ActionType.INTERVIEW) {
             String[] high = {
                 "A witness confirms seeing " + subject + " near " + victim + " shortly before the incident.",
                 "An associate reveals that " + subject + " and " + victim + " had a secret arrangement.",
@@ -3028,34 +3013,17 @@ public class CaseEditorPanel extends JPanel {
 
     /**
      * Returns a subset of attributes that make narrative sense for the given action.
-     * Evidence actions use PERCEPTION, INTELLIGENCE, STEALTH.
-     * Interview/conversation actions use CHARISMA, EMPATHY, INTIMIDATION.
-     * Document/records actions use INTELLIGENCE, MEMORY, PERCEPTION.
-     * Photography/mapping actions use PERCEPTION, MEMORY, STEALTH.
+     * Delegates to {@link ActionType#attributesFor(String)}.
      */
     private String[] attributesForAction(String actionTitle) {
-        if (actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
-                || actionTitle.startsWith("Recover")) {
-            return new String[]{"PERCEPTION", "INTELLIGENCE", "STEALTH"};
-        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
-                || actionTitle.startsWith("Question")) {
-            return new String[]{"CHARISMA", "EMPATHY", "INTIMIDATION"};
-        } else if (actionTitle.startsWith("Review") || actionTitle.startsWith("Analyse")
-                || actionTitle.startsWith("Search")) {
-            return new String[]{"INTELLIGENCE", "MEMORY", "PERCEPTION"};
-        } else if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
-                || actionTitle.startsWith("Map entry")) {
-            return new String[]{"PERCEPTION", "MEMORY", "STEALTH"};
-        }
-        return new String[]{"PERCEPTION", "INTELLIGENCE", "CHARISMA",
-                            "INTIMIDATION", "EMPATHY", "MEMORY", "STEALTH"};
+        return ActionType.attributesFor(actionTitle);
     }
 
     /** Returns a random short result description appropriate for the given action title. */
     private String buildResultDescription(String actionTitle) {
+        ActionType actionType = ActionType.classify(actionTitle);
         String[][] pools;
-        if (actionTitle.startsWith("Photograph") || actionTitle.startsWith("Sketch")
-                || actionTitle.startsWith("Map entry")) {
+        if (actionType == ActionType.PHOTOGRAPH) {
             pools = new String[][]{
                     {"Photo reveals an inconsistency in the official report",
                      "Photograph captures a detail that contradicts the coroner's findings",
@@ -3063,8 +3031,7 @@ public class CaseEditorPanel extends JPanel {
                     {"A hidden marking or tag is visible in the photo",
                      "Angle of entry suggests a different point of origin",
                      "Background detail connects the scene to a known location"}};
-        } else if (actionTitle.startsWith("Collect") || actionTitle.startsWith("Bag")
-                || actionTitle.startsWith("Recover")) {
+        } else if (actionType == ActionType.EVIDENCE) {
             pools = new String[][]{
                     {"Trace evidence collected links to a key person",
                      "Sample retrieved matches a known substance in the file",
@@ -3072,8 +3039,7 @@ public class CaseEditorPanel extends JPanel {
                     {"Concealed item recovered — origin requires investigation",
                      "Secondary sample may widen the suspect pool",
                      "Low-grade trace is inconclusive but points to a direction"}};
-        } else if (actionTitle.startsWith("Interview") || actionTitle.startsWith("Speak")
-                || actionTitle.startsWith("Question")) {
+        } else if (actionType == ActionType.INTERVIEW) {
             pools = new String[][]{
                     {"Contact reveals a hidden relationship",
                      "Associate discloses a secret meeting that contradicts the alibi",
