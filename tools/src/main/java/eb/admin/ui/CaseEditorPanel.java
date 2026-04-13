@@ -2731,6 +2731,68 @@ public class CaseEditorPanel extends JPanel {
         addFact(factIdCounter, "ITEM",
                 coverupPool[random.nextInt(coverupPool.length)],
                 "UNKNOWN", 0L, "", "", "", "", "", 3);
+
+        // Personality-trait-driven facts — use the Subject's traits (col 19)
+        // to generate additional UNKNOWN facts that tie traits to the case
+        addTraitDrivenFacts(factIdCounter, subject, victim);
+    }
+
+    /**
+     * Reads the subject's personality traits from column 19 of the NPC table
+     * and generates 1–2 trait-informed unknown facts.
+     */
+    private void addTraitDrivenFacts(int[] factIdCounter, String subject, String victim) {
+        // Find the subject row in the NPC table
+        int subjectRow = -1;
+        for (int i = 0; i < npcModel.getRowCount(); i++) {
+            String role = String.valueOf(npcModel.getValueAt(i, 0));
+            if (role.startsWith("Subject")) { subjectRow = i; break; }
+        }
+        if (subjectRow < 0) return;
+
+        String traitsStr = String.valueOf(npcModel.getValueAt(subjectRow, 19));
+        if (traitsStr.isEmpty() || "null".equals(traitsStr)) return;
+
+        // Parse trait pairs
+        String[] traitPairs = traitsStr.split(",");
+        int added = 0;
+        int maxFacts = 1 + random.nextInt(2); // 1–2 trait facts
+
+        for (String pair : traitPairs) {
+            if (added >= maxFacts) break;
+            String[] parts = pair.split(":");
+            if (parts.length != 2) continue;
+            String traitName = parts[0].trim();
+            int traitValue;
+            try { traitValue = Integer.parseInt(parts[1].trim()); }
+            catch (NumberFormatException e) { continue; }
+            if (Math.abs(traitValue) < 2) continue; // only notable traits
+
+            String traitLabel = traitName.replace('_', ' ').toLowerCase();
+            String factText;
+            if (traitValue >= 2) {
+                String[] pool = {
+                    subject + "'s strong interest in " + traitLabel
+                            + " places them at predictable locations and may explain part of their motive.",
+                    "Multiple sources confirm " + subject + " is passionate about " + traitLabel
+                            + ", which connects them to key locations in this case.",
+                    subject + "'s well-known enthusiasm for " + traitLabel
+                            + " provides circumstantial evidence of opportunity and motive."};
+                factText = pool[random.nextInt(pool.length)];
+            } else {
+                String[] pool = {
+                    subject + "'s strong dislike of " + traitLabel
+                            + " is well documented and may have contributed to the conflict with " + victim + ".",
+                    subject + "'s aversion to " + traitLabel
+                            + " narrows down their likely movements and social circle.",
+                    "The fact that " + subject + " actively avoids anything related to " + traitLabel
+                            + " is consistent with the pattern of behaviour described by witnesses."};
+                factText = pool[random.nextInt(pool.length)];
+            }
+            addFact(factIdCounter, "MOTIVE", factText,
+                    "UNKNOWN", 0L, subject, "", "", "", "", 3);
+            added++;
+        }
     }
 
     /**

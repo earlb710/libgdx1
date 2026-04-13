@@ -8,7 +8,9 @@ import eb.framework1.popup.*;
 
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -125,12 +127,24 @@ public class CaseGenerator {
             victimName = nameGen.generateFull(victimGender);
         }
 
-        String caseName   = type.getDisplayName() + ": " + subjectName;
+        // --- Generate hidden personality traits for the key NPCs ---
+        Map<String, Map<PersonalityTrait, Integer>> allTraits = new java.util.HashMap<>();
+        allTraits.put(clientName, generateTraitMap());
+        allTraits.put(subjectName, generateTraitMap());
+        if (!victimName.isEmpty()) {
+            allTraits.put(victimName, generateTraitMap());
+        }
+
+        // Build the description with trait-informed details about the subject
+        Map<PersonalityTrait, Integer> subjectTraits = allTraits.get(subjectName);
         String description = capitalizeSentences(
-                buildDescription(type, clientName, subjectName, victimName, clientGender, subjectGender));
+                buildDescription(type, clientName, subjectName, victimName,
+                        clientGender, subjectGender)
+                + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
         String objective   = buildObjective(type, clientName, subjectName, victimName);
 
-        CaseFile cf = new CaseFile(caseName, description, dateOpened != null ? dateOpened : "");
+        CaseFile cf = new CaseFile(clientName + " — " + type.getDisplayName() + ": " + subjectName,
+                description, dateOpened != null ? dateOpened : "");
         cf.setCaseType(type);
         cf.setClientName(clientName);
         cf.setSubjectName(subjectName);
@@ -141,7 +155,15 @@ public class CaseGenerator {
         cf.setMeetingDialogue(buildMeetingDialogue(type, subjectName, objective, description,
                 cf.getStoryRoot()));
 
-        for (CaseLead lead : buildLeads(type, subjectName, victimName, cf.getComplexity())) {
+        // Store personality traits on the case file so they feed into interviews
+        for (Map.Entry<String, Map<PersonalityTrait, Integer>> e : allTraits.entrySet()) {
+            cf.setNpcTraits(e.getKey(), e.getValue());
+        }
+
+        // Leads — standard + trait-driven + red herrings
+        List<CaseLead> leads = buildLeads(type, subjectName, victimName, cf.getComplexity());
+        addTraitDrivenLeads(leads, subjectName, subjectTraits);
+        for (CaseLead lead : leads) {
             cf.addLead(lead);
         }
 
@@ -455,7 +477,178 @@ public class CaseGenerator {
         return sb.toString();
     }
 
-    // ---- Red herring lead pool (misleading but plausible) -------------------
+    // =========================================================================
+    // Personality-trait helpers
+    // =========================================================================
+
+    /**
+     * Generates a random set of 3–5 personality traits (non-zero, −3 to +3)
+     * as an {@link EnumMap}.  Mirrors the algorithm in
+     * {@link eb.framework1.character.CharacterGenerator#assignRandomPersonalityTraits}.
+     */
+    private Map<PersonalityTrait, Integer> generateTraitMap() {
+        PersonalityTrait[] all = PersonalityTrait.values();
+        int count = 3 + random.nextInt(3); // 3–5
+        PersonalityTrait[] shuffled = all.clone();
+        for (int i = 0; i < count && i < shuffled.length; i++) {
+            int j = i + random.nextInt(shuffled.length - i);
+            PersonalityTrait tmp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = tmp;
+        }
+        Map<PersonalityTrait, Integer> map = new EnumMap<>(PersonalityTrait.class);
+        for (int i = 0; i < count && i < shuffled.length; i++) {
+            int value = 1 + random.nextInt(3);
+            if (random.nextBoolean()) value = -value;
+            map.put(shuffled[i], value);
+        }
+        return map;
+    }
+
+    /**
+     * Returns a one-to-two-sentence "colour" passage about the subject based
+     * on their personality traits.  This text is appended to the case
+     * description to give the player indirect clues about motive and behaviour.
+     *
+     * <p>If the subject has no notable traits the method returns an empty string.
+     */
+    private String buildTraitColour(String subject, Map<PersonalityTrait, Integer> traits,
+                                    String gender) {
+        if (traits == null || traits.isEmpty()) return "";
+
+        String pronoun = "F".equals(gender) ? "she" : "he";
+        String pronounCap = capitalize(pronoun);
+
+        // Collect strong positive and strong negative traits
+        List<String> likes  = new ArrayList<>();
+        List<String> dislikes = new ArrayList<>();
+        for (Map.Entry<PersonalityTrait, Integer> e : traits.entrySet()) {
+            PersonalityTrait t = e.getKey();
+            int v = e.getValue();
+            if (v >= 2)  likes.add(t.getDisplayName().toLowerCase());
+            if (v <= -2) dislikes.add(t.getDisplayName().toLowerCase());
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (!likes.isEmpty()) {
+            sb.append(pronounCap).append(" is known to be passionate about ")
+              .append(joinWithAnd(likes)).append(".");
+        }
+        if (!dislikes.isEmpty()) {
+            if (sb.length() > 0) sb.append(' ');
+            sb.append("Neighbours say ").append(pronoun).append(" has a strong aversion to ")
+              .append(joinWithAnd(dislikes)).append(".");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Adds 1–2 leads derived from the subject's personality traits.
+     * These leads hint at locations or behaviours the player should investigate
+     * but don't reveal the trait directly — the player still needs interviews.
+     */
+    private void addTraitDrivenLeads(List<CaseLead> leads,
+                                     String subject,
+                                     Map<PersonalityTrait, Integer> traits) {
+        if (traits == null || traits.isEmpty()) return;
+
+        int nextIndex = leads.size() + 1;
+        int added = 0;
+        int maxLeads = 1 + random.nextInt(2); // 1–2
+
+        for (Map.Entry<PersonalityTrait, Integer> e : traits.entrySet()) {
+            if (added >= maxLeads) break;
+            PersonalityTrait trait = e.getKey();
+            int value = e.getValue();
+            if (Math.abs(value) < 2) continue; // only notable traits
+
+            String location = traitLocation(trait);
+            String behaviour = traitBehaviour(trait, value, subject);
+            if (location == null || behaviour == null) continue;
+
+            String desc = behaviour + " Visiting " + location
+                    + " may provide further insight into " + subject + "'s activities.";
+            String hint = "Someone matching " + subject + "'s description has been seen near "
+                    + location + " on several occasions.";
+
+            leads.add(lead(nextIndex++, desc, hint, DiscoveryMethod.SURVEILLANCE));
+            added++;
+        }
+    }
+
+    /** Returns a plausible location associated with the given trait. */
+    private String traitLocation(PersonalityTrait trait) {
+        switch (trait) {
+            case SPORTS:      return "the gym on Main Street";
+            case HIKING:      return "the trailhead near the reservoir";
+            case COOKING:     return "the farmers' market on weekends";
+            case READING:     return "the public library downtown";
+            case MUSIC:       return "the live-music venue on 5th Avenue";
+            case ART:         return "the gallery district";
+            case GAMBLING:    return "the back-room card game off Vine Street";
+            case TRAVEL:      return "the bus station";
+            case FLIRTING:    return "the bar on George Street";
+            case SOCIALIZING: return "the community centre";
+            case GOSSIP:      return "the café on the corner of High Street";
+            case SOLITUDE:    return "an isolated cabin outside town";
+            case RISK_TAKING: return "the underground fight club";
+            case AUTHORITY:   return "the magistrate's office";
+            case WEALTH:      return "the private club on Regent Row";
+            case ANIMALS:     return "the local animal shelter";
+            default:          return null;
+        }
+    }
+
+    /** Returns a behaviour snippet for a trait-driven lead. */
+    private static String traitBehaviour(PersonalityTrait trait, int value,
+                                          String subject) {
+        boolean positive = value > 0;
+        switch (trait) {
+            case SPORTS:
+                return positive
+                        ? subject + " has been spotted exercising regularly at odd hours."
+                        : subject + " actively avoids athletic venues, which narrows down possible meeting spots.";
+            case HIKING:
+                return positive
+                        ? subject + " was seen carrying outdoor gear on multiple occasions."
+                        : subject + " has never been seen near any trail or park.";
+            case GAMBLING:
+                return positive
+                        ? "Financial irregularities suggest " + subject + " may have a gambling habit."
+                        : subject + " is known to avoid games of chance entirely.";
+            case FLIRTING:
+                return positive
+                        ? subject + " has a reputation for flirtatious behaviour in local bars."
+                        : subject + " tends to keep social interactions strictly professional.";
+            case WEALTH:
+                return positive
+                        ? subject + " has expensive tastes that don't match their declared income."
+                        : subject + " lives modestly despite apparent means.";
+            case RISK_TAKING:
+                return positive
+                        ? subject + " has a history of reckless decisions and high-stakes behaviour."
+                        : subject + " is methodical and risk-averse, suggesting careful planning.";
+            case SOLITUDE:
+                return positive
+                        ? subject + " spends long periods alone and avoids social gatherings."
+                        : subject + " is rarely seen without company.";
+            default:
+                return subject + " appears to have strong feelings about "
+                        + trait.getDisplayName().toLowerCase() + ".";
+        }
+    }
+
+    /** Joins a list of strings with commas and "and" before the last element. */
+    private static String joinWithAnd(List<String> items) {
+        if (items.size() == 1) return items.get(0);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < items.size(); i++) {
+            if (i > 0 && i == items.size() - 1) sb.append(" and ");
+            else if (i > 0) sb.append(", ");
+            sb.append(items.get(i));
+        }
+        return sb.toString();
+    }
 
     /** Pool of generic red-herring leads that can apply to any case type. */
     private static final String[][] RED_HERRING_POOL = {
