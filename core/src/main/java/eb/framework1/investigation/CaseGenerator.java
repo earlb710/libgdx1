@@ -1,5 +1,6 @@
 package eb.framework1.investigation;
 
+import eb.framework1.RandomUtils;
 import eb.framework1.character.*;
 import eb.framework1.generator.*;
 import eb.framework1.phone.*;
@@ -628,7 +629,7 @@ public class CaseGenerator {
 
     /** Returns {@code "M"} or {@code "F"} at random. */
     private String randomGender() {
-        return random.nextBoolean() ? "M" : "F";
+        return RandomUtils.randomGender(random);
     }
 
     /**

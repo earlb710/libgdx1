@@ -1,5 +1,6 @@
 package eb.framework1.character;
 
+import eb.framework1.RandomUtils;
 import eb.framework1.face.FaceConfig;
 import eb.framework1.face.FaceGenerator;
 import eb.framework1.face.FaceRule;
@@ -593,7 +594,7 @@ public class CharacterGenerator {
 
     /** Returns {@code "M"} or {@code "F"} at random. */
     private String randomGender() {
-        return random.nextBoolean() ? "M" : "F";
+        return RandomUtils.randomGender(random);
     }
 
     /** Returns a random integer in the range 1–10 (inclusive). */
@@ -662,7 +663,7 @@ public class CharacterGenerator {
 
     /** Returns one element chosen at random from the given strings. */
     private String pick(String... options) {
-        return options[random.nextInt(options.length)];
+        return RandomUtils.pick(random, options);
     }
 
     /** Returns a random height (cm) for the given gender. */

@@ -2,6 +2,7 @@ package eb.admin.ui;
 
 import eb.admin.model.CategoryData;
 import eb.admin.model.CategoryEntry;
+import eb.framework1.RandomUtils;
 import eb.framework1.generator.PersonNameGenerator;
 import eb.framework1.investigation.ActionType;
 import eb.framework1.investigation.CaseGenerator;
@@ -1296,17 +1297,12 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private String pick(String... options) {
-        return options[random.nextInt(options.length)];
+        return RandomUtils.pick(random, options);
     }
 
     /** Picks a random value from the array that differs from {@code exclude}. */
     private String pickDifferent(String[] options, String exclude) {
-        if (options.length <= 1) return options[0];
-        String result;
-        do {
-            result = options[random.nextInt(options.length)];
-        } while (result.equals(exclude));
-        return result;
+        return RandomUtils.pickDifferent(random, options, exclude);
     }
 
     private String randomName(String gender) {

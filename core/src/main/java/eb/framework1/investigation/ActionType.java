@@ -98,6 +98,17 @@ public enum ActionType {
     }
 
     /**
+     * Convenience: returns {@code true} if the given action title classifies
+     * as this action type.
+     *
+     * @param actionTitle the full action title; may be {@code null}
+     * @return {@code true} if the title matches this type
+     */
+    public boolean matches(String actionTitle) {
+        return this == classify(actionTitle);
+    }
+
+    /**
      * Returns the fact category string that corresponds to this action type.
      * <ul>
      *   <li>{@code EVIDENCE} and {@code PHOTOGRAPH} → {@code "EVIDENCE"}</li>

@@ -51,11 +51,11 @@ public class NarrativeTemplates {
      * @return a single-paragraph narrative string
      */
     public String buildAttributeSuccessNarrative(String attr, String actionTitle) {
-        ActionType actionType = ActionType.classify(actionTitle);
-        boolean isInterview = actionType == ActionType.INTERVIEW;
-        boolean isEvidence  = actionType == ActionType.EVIDENCE;
-        boolean isDocument  = actionType == ActionType.DOCUMENT;
-        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
+        ActionType at = ActionType.classify(actionTitle);
+        boolean isInterview = at == ActionType.INTERVIEW;
+        boolean isEvidence  = at == ActionType.EVIDENCE;
+        boolean isDocument  = at == ActionType.DOCUMENT;
+        boolean isPhoto     = at == ActionType.PHOTOGRAPH;
 
         switch (attr) {
             case "INTIMIDATION":
@@ -170,11 +170,11 @@ public class NarrativeTemplates {
      * @return a single-paragraph narrative string
      */
     public String buildAttributeFailureNarrative(String attr, String actionTitle) {
-        ActionType actionType = ActionType.classify(actionTitle);
-        boolean isInterview = actionType == ActionType.INTERVIEW;
-        boolean isEvidence  = actionType == ActionType.EVIDENCE;
-        boolean isDocument  = actionType == ActionType.DOCUMENT;
-        boolean isPhoto     = actionType == ActionType.PHOTOGRAPH;
+        ActionType at = ActionType.classify(actionTitle);
+        boolean isInterview = at == ActionType.INTERVIEW;
+        boolean isEvidence  = at == ActionType.EVIDENCE;
+        boolean isDocument  = at == ActionType.DOCUMENT;
+        boolean isPhoto     = at == ActionType.PHOTOGRAPH;
 
         switch (attr) {
             case "INTIMIDATION":
