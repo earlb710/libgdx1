@@ -707,15 +707,30 @@ When the player's attribute is **below** the gate value, they receive the
 
 ## Future Improvements
 
-### 1. Expanded Template Pools
+### 1. Expanded Template Pools ✅ (Implemented)
 
-**Current:** Most answer categories have 3–5 templates, leading to repetition
+**Previous status:** Most answer categories had 3–5 templates, leading to repetition
 across cases.
 
-**Improvement:**
-- Increase each answer pool to **10–15 templates**
-- Add per-motive and per-case-type specialised variants
-- Consider a template-composition system (sentence fragments assembled randomly)
+**What was implemented:**
+- **Case description pools** (`CaseGenerator.buildDescription`) expanded from 1 fixed
+  string per case type to **3 random variants** per type (8 types × 3 = 24 descriptions)
+- **Case objective pools** (`CaseGenerator.buildObjective`) expanded from 1 fixed
+  string per type to **3 random variants** per type; both methods now accept a `Random`
+  parameter so callers control seeding
+- **Motive narrative pools** (`NarrativeTemplates.buildMotiveNarrative`) expanded
+  from **4 to 10 entries** per motive code (10 codes × 10 = 100 motive strings)
+- **Attribute success/failure narratives** (`buildAttributeSuccessNarrative` /
+  `buildAttributeFailureNarrative`) converted from single fixed strings to **pools of
+  3 per (attribute × action-type) combination**, using a new `pick(String...)` helper
+- **Interview answer pools** across all four NPC builders (client, subject, witness,
+  associate) expanded from **3–4 entries to 6–8 entries** per pool, covering alibi,
+  opinion, observation, motive, relationship, last-contact, contact-info, and
+  personality topics
+- **Word pools** in `InterviewTemplateEngine` (HOBBY_WORDS, SOCIAL_WORDS,
+  LIKE_DISLIKE_WORDS, LOCATION_CLUE_WORDS) expanded from 5–8 entries to **10–15
+  entries** each
+- Per-motive and per-case-type specialised variants added throughout
 
 ### 2. Dynamic Suspect Attribute Assignment
 

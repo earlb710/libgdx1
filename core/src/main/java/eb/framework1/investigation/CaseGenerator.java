@@ -139,9 +139,9 @@ public class CaseGenerator {
         Map<PersonalityTrait, Integer> subjectTraits = allTraits.get(subjectName);
         String description = capitalizeSentences(
                 buildDescription(type, clientName, subjectName, victimName,
-                        clientGender, subjectGender)
+                        clientGender, subjectGender, random)
                 + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
-        String objective   = buildObjective(type, clientName, subjectName, victimName);
+        String objective   = buildObjective(type, clientName, subjectName, victimName, random);
 
         CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
                 description, dateOpened != null ? dateOpened : "");
@@ -317,55 +317,142 @@ public class CaseGenerator {
      *                      may be empty for other types)
      * @param clientGender  {@code "M"} or {@code "F"}
      * @param subjectGender {@code "M"} or {@code "F"}
+     * @param rng           random source used to select among template variants
      * @return a multi-sentence narrative description
      */
     public static String buildDescription(CaseType type, String client, String subject,
                                     String victim, String clientGender,
-                                    String subjectGender) {
+                                    String subjectGender, Random rng) {
+        if (rng == null) rng = new Random();
         String pronoun = "F".equals(subjectGender) ? "She" : "He";
+        String pron    = pronoun.toLowerCase();
         switch (type) {
             case MISSING_PERSON:
-                return client + " came in looking for answers. " + subject
+                return RandomUtils.pick(rng,
+                    client + " came in looking for answers. " + subject
                         + " vanished three days ago without a word."
                         + " No note, no call, nothing. " + pronoun
                         + " left behind a half-eaten meal and an unlocked door."
-                        + " The police say it's too early to file a report.";
+                        + " The police say it's too early to file a report.",
+                    subject + " hasn't been seen since last Tuesday. " + client
+                        + " is frantic — " + pron + " wouldn't just disappear."
+                        + " A neighbour spotted someone fitting " + subject + "'s description"
+                        + " getting into an unfamiliar car that evening.",
+                    client + " last spoke to " + subject + " four days ago."
+                        + " The call cut off mid-sentence and went straight to voicemail after that."
+                        + " " + pronoun + " missed work, missed the weekend visit, missed everything."
+                        + " Something is very wrong.");
             case INFIDELITY:
-                return client + " suspects their partner, " + subject
+                return RandomUtils.pick(rng,
+                    client + " suspects their partner, " + subject
                         + ", has been seeing someone else."
                         + " Late nights at the office, unexplained receipts,"
                         + " a phone that's always face-down."
-                        + " They need the truth — one way or the other.";
+                        + " They need the truth — one way or the other.",
+                    subject + " has been distant for weeks. " + client
+                        + " found a receipt for a restaurant " + pron + " doesn't remember."
+                        + " The explanation didn't add up, and " + client
+                        + " stopped asking questions. Now they want answers.",
+                    "The relationship between " + client + " and " + subject
+                        + " looked fine from the outside."
+                        + " But text messages started arriving at odd hours,"
+                        + " and a colleague mentioned seeing " + subject + " at a hotel across town."
+                        + " " + client + " needs confirmation before they can act.");
             case THEFT:
-                return client + " reported that " + subject
+                return RandomUtils.pick(rng,
+                    client + " reported that " + subject
                         + " was seen near the premises on the night of the theft."
-                        + " Valuables are missing. Insurance won't pay without a name.";
+                        + " Valuables are missing. Insurance won't pay without a name.",
+                    "Items went missing from " + client + "'s property over a two-week period."
+                        + " A neighbour's security camera caught " + subject
+                        + " on the street that night. Coincidence, or something more?",
+                    client + " has been robbed before, but this feels different."
+                        + " The thief knew exactly which room to check and which lock to bypass."
+                        + " " + subject + "'s name keeps surfacing — " + pron
+                        + " had access, means, and, it seems, motive.");
             case FRAUD:
-                return client + " noticed irregularities in the accounts linked to "
+                return RandomUtils.pick(rng,
+                    client + " noticed irregularities in the accounts linked to "
                         + subject + "."
                         + " Money moved in small amounts, always just under the threshold."
-                        + " Someone knows what they're doing.";
+                        + " Someone knows what they're doing.",
+                    "The discrepancies in " + client + "'s books go back eight months."
+                        + " A forensic accountant flagged a pattern of transfers to accounts connected to "
+                        + subject + "."
+                        + " Whoever did this was patient and methodical.",
+                    subject + " joined the company six months before the losses began."
+                        + " " + pronoun + " was charming, punctual, and well-liked."
+                        + " " + client + " trusted " + pron + " completely."
+                        + " That may have been the first mistake.");
             case BLACKMAIL:
-                return client + " has been receiving anonymous messages."
+                return RandomUtils.pick(rng,
+                    client + " has been receiving anonymous messages."
                         + " The sender claims to have compromising material."
                         + " A name has come up: " + subject + "."
-                        + " Could be a coincidence. Probably isn't.";
+                        + " Could be a coincidence. Probably isn't.",
+                    "Three envelopes. Three payments. No name."
+                        + " Then " + client + " made a mistake and missed a deadline."
+                        + " The next envelope contained a photograph."
+                        + " " + subject + "'s address was stamped on the reverse.",
+                    client + " calls it extortion. The letters call it 'fair compensation'."
+                        + " The amounts are increasing. The threats are becoming specific."
+                        + " " + subject + " is the only person who could have known what they know.");
             case MURDER:
-                return "The client, " + client + ", doesn't believe the official story."
+                return RandomUtils.pick(rng,
+                    "The client, " + client + ", doesn't believe the official story."
                         + " The coroner called it an accident, but the family of "
                         + "the victim, " + victim + ", called it murder."
-                        + " " + subject + " was the last person seen with the victim.";
+                        + " " + subject + " was the last person seen with the victim.",
+                    victim + " was found at the bottom of a staircase."
+                        + " The inquest ruled accidental death."
+                        + " " + client + " was at the funeral and noticed " + subject
+                        + " leave before the eulogy finished."
+                        + " No explanation. No condolences. Just gone.",
+                    "A reopened case. A nervous client. A closed verdict that closed too fast."
+                        + " " + client + " hired a solicitor who hit a wall."
+                        + " Now they're here."
+                        + " " + subject + " was questioned once and released. " + pronoun
+                        + " had an alibi. " + client + " doesn't believe it.");
             case STALKING:
-                return client + " has been followed, photographed, and harassed for weeks."
+                return RandomUtils.pick(rng,
+                    client + " has been followed, photographed, and harassed for weeks."
                         + " " + subject + " was identified by a neighbour."
-                        + " " + client + " is scared. They need this stopped.";
+                        + " " + client + " is scared. They need this stopped.",
+                    "It started with notes slipped under the door. Then flowers."
+                        + " Then a figure outside the window at 2 a.m."
+                        + " The police took a report. Nothing happened."
+                        + " " + subject + "'s name came up during their enquiries.",
+                    client + " changed their phone number twice."
+                        + " Changed their route to work. Changed their locks."
+                        + " None of it worked. " + subject + " always found a way."
+                        + " It's time to find out how.");
             case CORPORATE_ESPIONAGE:
-                return client + "'s company has been bleeding trade secrets."
+                return RandomUtils.pick(rng,
+                    client + "'s company has been bleeding trade secrets."
                         + " Competitor bids match their proposals almost word for word."
-                        + " Internal suspicion has settled on " + subject + ".";
+                        + " Internal suspicion has settled on " + subject + ".",
+                    "Three product launches. Three leaks. Three contracts lost to a rival"
+                        + " who shouldn't have known the details."
+                        + " Someone inside " + client + "'s organisation is talking to that rival."
+                        + " The trail leads to " + subject + ".",
+                    "The legal team calls it a coincidence. The board calls it a pattern."
+                        + " " + client + " calls it sabotage."
+                        + " " + subject + " has had access to every document that was leaked."
+                        + " The numbers don't lie.");
             default:
                 return client + " needs information about " + subject + ".";
         }
+    }
+
+    /**
+     * Backwards-compatible overload — equivalent to calling the overload with
+     * a freshly created {@link Random}.
+     */
+    public static String buildDescription(CaseType type, String client, String subject,
+                                    String victim, String clientGender,
+                                    String subjectGender) {
+        return buildDescription(type, client, subject, victim, clientGender, subjectGender,
+                new Random());
     }
 
     // -------------------------------------------------------------------------
@@ -382,38 +469,90 @@ public class CaseGenerator {
      * @param client  client name
      * @param subject subject name
      * @param victim  victim name (used only for {@link CaseType#MURDER})
+     * @param rng     random source used to select among template variants
      * @return the objective sentence(s)
      */
-    public static String buildObjective(CaseType type, String client, String subject, String victim) {
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim, Random rng) {
+        if (rng == null) rng = new Random();
         switch (type) {
             case MISSING_PERSON:
-                return "Locate " + subject + " and determine whether they left voluntarily"
-                        + " or were taken against their will.";
+                return RandomUtils.pick(rng,
+                    "Locate " + subject + " and determine whether they left voluntarily"
+                        + " or were taken against their will.",
+                    "Find out where " + subject + " went after the last known sighting"
+                        + " and establish whether foul play was involved.",
+                    "Trace " + subject + "'s movements in the 48 hours before they disappeared"
+                        + " and determine whether they are in danger.");
             case INFIDELITY:
-                return "Confirm or disprove that " + subject
+                return RandomUtils.pick(rng,
+                    "Confirm or disprove that " + subject
                         + " is conducting an undisclosed relationship,"
-                        + " and if so, identify the other party.";
+                        + " and if so, identify the other party.",
+                    "Establish with documented evidence whether " + subject
+                        + " has been meeting someone secretly, and determine who that person is.",
+                    "Photograph or otherwise confirm any undisclosed contact between " + subject
+                        + " and a third party, including times, locations, and identity.");
             case THEFT:
-                return "Establish whether " + subject + " committed the theft and,"
-                        + " where possible, locate the stolen property.";
+                return RandomUtils.pick(rng,
+                    "Establish whether " + subject + " committed the theft and,"
+                        + " where possible, locate the stolen property.",
+                    "Gather sufficient evidence to confirm or rule out " + subject
+                        + " as the perpetrator, and identify the current location of the stolen items.",
+                    "Document " + subject + "'s movements on the night of the theft and"
+                        + " establish whether they had access to the stolen property.");
             case FRAUD:
-                return "Gather documented evidence of financial misconduct by "
-                        + subject + " sufficient to support a formal complaint.";
+                return RandomUtils.pick(rng,
+                    "Gather documented evidence of financial misconduct by "
+                        + subject + " sufficient to support a formal complaint.",
+                    "Build a paper trail linking " + subject + " to the irregular transactions"
+                        + " and identify any co-conspirators or beneficiaries.",
+                    "Confirm that the financial irregularities originate with " + subject
+                        + " and obtain records that demonstrate the scale and duration of the scheme.");
             case BLACKMAIL:
-                return "Identify whether " + subject + " is the source of the blackmail"
-                        + " and obtain evidence that can be handed to the authorities.";
+                return RandomUtils.pick(rng,
+                    "Identify whether " + subject + " is the source of the blackmail"
+                        + " and obtain evidence that can be handed to the authorities.",
+                    "Confirm " + subject + "'s identity as the blackmailer and locate the"
+                        + " compromising material being used as leverage.",
+                    "Establish proof of " + subject + "'s involvement in the blackmail scheme"
+                        + " and uncover how they obtained the information.");
             case MURDER:
-                return "Uncover what " + subject + " knows about the death of "
-                        + victim + " and find evidence that contradicts the official findings.";
+                return RandomUtils.pick(rng,
+                    "Uncover what " + subject + " knows about the death of "
+                        + victim + " and find evidence that contradicts the official findings.",
+                    "Establish whether " + subject + " had means, motive, and opportunity"
+                        + " to kill " + victim + ", and gather evidence to reopen the inquest.",
+                    "Prove that " + victim + "'s death was not accidental and identify"
+                        + " " + subject + "'s role in what took place.");
             case STALKING:
-                return "Document " + subject + "'s surveillance activities against "
-                        + client + " and gather evidence for a restraining order or police report.";
+                return RandomUtils.pick(rng,
+                    "Document " + subject + "'s surveillance activities against "
+                        + client + " and gather evidence for a restraining order or police report.",
+                    "Establish a pattern of harassing behaviour by " + subject
+                        + " and compile a dossier suitable for legal action.",
+                    "Confirm " + subject + "'s identity as the stalker and produce dated evidence"
+                        + " of repeated unwanted contact with " + client + ".");
             case CORPORATE_ESPIONAGE:
-                return "Prove that " + subject + " has been passing confidential information"
-                        + " to a competitor and identify who they are working with.";
+                return RandomUtils.pick(rng,
+                    "Prove that " + subject + " has been passing confidential information"
+                        + " to a competitor and identify who they are working with.",
+                    "Establish the method by which " + subject + " has been extracting"
+                        + " trade secrets and identify the recipient organisation.",
+                    "Document at least one specific instance of information transfer by "
+                        + subject + " and link it to the resulting competitive advantage.");
             default:
                 return "Investigate " + subject + " and report the findings.";
         }
+    }
+
+    /**
+     * Backwards-compatible overload — equivalent to calling the overload with
+     * a freshly created {@link Random}.
+     */
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim) {
+        return buildObjective(type, client, subject, victim, new Random());
     }
 
     // -------------------------------------------------------------------------

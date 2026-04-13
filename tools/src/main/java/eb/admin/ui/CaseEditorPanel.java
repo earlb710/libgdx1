@@ -1680,8 +1680,8 @@ public class CaseEditorPanel extends JPanel {
 
         String desc = CaseGenerator.capitalizeSentences(
                 CaseGenerator.buildDescription(type, client, subject, victim,
-                        clientGender, subjectGender));
-        String obj  = CaseGenerator.buildObjective(type, client, subject, victim);
+                        clientGender, subjectGender, random));
+        String obj  = CaseGenerator.buildObjective(type, client, subject, victim, random);
 
         descriptionArea.setText(desc);
         objectiveArea.setText(obj);
