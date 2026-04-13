@@ -861,21 +861,24 @@ with significant duplication.
 | Class | Lines | Methods | Primary role |
 |-------|-------|---------|-------------|
 | `CaseGenerator` | 2 310 | 29 | Core generation engine (interview scripts, leads, story tree) |
-| `CaseEditorPanel` | 3 290 | 99 | Admin UI **and** secondary generation engine |
+| `CaseEditorPanel` | ~2 900 | ~90 | Admin UI with delegated generation |
 
-**Key duplication areas:**
+**Addressed duplication areas:**
+
+| Area | Status | What was done |
+|------|--------|---------------|
+| Action-type classification (`isInterview`/`isEvidence`/…) | ✅ Done | Extracted `ActionType` enum; all 7+ copy-paste sites now use `ActionType.classify()` |
+| Narrative templates (success/failure/motive) | ✅ Done | Extracted `NarrativeTemplates` class in core; `CaseEditorPanel` delegates to it |
+| Name arrays | ✅ Done | Replaced hardcoded arrays with `PersonNameGenerator` — same API as `CaseGenerator` |
+
+**Remaining duplication areas:**
 
 | Area | Lines duplicated | Risk |
 |------|-----------------|------|
 | Interview generation | ~400 lines reimplemented in CaseEditorPanel vs CaseGenerator's 4 builder methods | Two copies to keep in sync; divergence causes subtle interview inconsistencies |
-| Action-type classification (`isInterview`/`isEvidence`/…) | 8-line block copy-pasted 7+ times in CaseEditorPanel | Bug in one copy not propagated to others |
-| Motive narrative templates | 80 lines in CaseEditorPanel only; unavailable to core engine | Game runtime cannot generate motive text |
-| Name arrays | ~75 entries hardcoded in CaseEditorPanel; separate `PersonNameGenerator` in CaseGenerator | Two independent name pools may diverge |
 
-**Improvement:**
-- Extract shared utilities (`ActionTypeClassifier`, `NarrativeTemplates`)
-- Move admin-only generation logic into `CaseGenerator` or a shared service
-- Have `CaseEditorPanel` delegate to `CaseGenerator` for all generation
+**Remaining improvements:**
+- Have `CaseEditorPanel.generateInterviews()` delegate to `CaseGenerator` for interview script building
 - Consider splitting `CaseGenerator` into `CaseFileGenerator` + `InterviewScriptBuilder`
 
 ---

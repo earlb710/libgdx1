@@ -347,26 +347,23 @@ the bottom of the panel, independent of scroll position.
   explains the twist.
 
 - **Code architecture — class size and duplication.**  
-  `CaseEditorPanel` (3 290 lines, 99 methods) and `CaseGenerator`
-  (2 310 lines, 29 methods) are both too large and share duplicated logic.
-  Key concerns:
+  `CaseEditorPanel` (~2 900 lines, ~90 methods) and `CaseGenerator`
+  (2 310 lines, 29 methods) were significantly larger and shared more
+  duplicated logic.  The following cleanup has been completed:
 
-  | Issue | Detail |
-  |---|---|
-  | **Interview generation duplication** | `CaseEditorPanel.generateInterviews()` reimplements the same interview-building logic that already exists in `CaseGenerator`'s four per-NPC builder methods.  The admin tool should delegate to `CaseGenerator` instead of maintaining a second copy. |
-  | **Action-type detection repetition** | The `isInterview / isEvidence / isDocument / isPhoto` boolean block (checking `actionTitle.startsWith(…)`) is copy-pasted **7+ times** within `CaseEditorPanel`.  It should be extracted to a single helper method such as `classifyActionType(String)`. |
-  | **Motive narratives locked in admin tool** | `buildMotiveNarrative()` (10 codes × 3–4 templates each) exists only in `CaseEditorPanel`.  Moving it to `CaseGenerator` or a shared utility would make it usable by the core game engine. |
-  | **Hardcoded name arrays** | `CaseEditorPanel` maintains its own `MALE_NAMES`, `FEMALE_NAMES`, and `SURNAMES` arrays (~75 entries) instead of using the injected `PersonNameGenerator` that `CaseGenerator` already depends on. |
-  | **CaseEditorPanel responsibilities** | The panel is both a Swing UI component *and* a case-generation engine.  Extracting the generation logic into a shared service layer would shrink the panel to pure UI code and eliminate most cross-file duplication. |
+  | Issue | Status | Detail |
+  |---|---|---|
+  | **Action-type detection repetition** | ✅ Done | Extracted `ActionType` enum in core module.  All 7+ copy-paste sites in `CaseEditorPanel` now call `ActionType.classify()`. |
+  | **Motive narratives locked in admin tool** | ✅ Done | Moved to `NarrativeTemplates` class in core.  `CaseEditorPanel` delegates; core engine can now also use them. |
+  | **Attribute success/failure narratives locked in admin tool** | ✅ Done | Moved to `NarrativeTemplates` alongside motive narratives. |
+  | **Hardcoded name arrays** | ✅ Done | Replaced `MALE_NAMES`/`FEMALE_NAMES`/`SURNAMES` with `PersonNameGenerator`. |
+  | **Interview generation duplication** | ⬜ Remaining | `CaseEditorPanel.generateInterviews()` still reimplements interview logic. Should delegate to `CaseGenerator`. |
+  | **CaseEditorPanel responsibilities** | ⬜ Remaining | Panel still mixes UI and generation. Further extraction possible. |
 
-  **Recommended refactoring path:**
-  1. Extract `ActionTypeClassifier` utility (isInterview / isEvidence / …).
-  2. Move `buildMotiveNarrative()` to `CaseGenerator` or a new
-     `NarrativeTemplates` class.
-  3. Have `CaseEditorPanel.generateInterviews()` delegate to
+  **Remaining refactoring path:**
+  1. Have `CaseEditorPanel.generateInterviews()` delegate to
      `CaseGenerator.buildInterviewScripts()`.
-  4. Replace hardcoded name arrays with `PersonNameGenerator`.
-  5. Consider splitting `CaseGenerator` into `CaseFileGenerator` +
+  2. Consider splitting `CaseGenerator` into `CaseFileGenerator` +
      `InterviewScriptBuilder`.
 
 ### Medium priority
