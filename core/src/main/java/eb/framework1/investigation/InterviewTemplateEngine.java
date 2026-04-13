@@ -1,5 +1,6 @@
 package eb.framework1.investigation;
 
+import eb.framework1.RandomUtils;
 import eb.framework1.generator.PersonNameGenerator;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class InterviewTemplateEngine {
         scripts.add(subjectScript);
 
         // --- Key Witness script ---
-        String witnessGender = random.nextBoolean() ? "M" : "F";
+        String witnessGender = RandomUtils.randomGender(random);
         String witnessName = nameGen.generateFull(witnessGender);
         InterviewScript witnessScript = new InterviewScript("npc-witness", witnessName,
                 "Key Witness");
@@ -76,7 +77,7 @@ public class InterviewTemplateEngine {
         scripts.add(witnessScript);
 
         // --- Associate script (victim's or subject's associate) ---
-        String assocGender = random.nextBoolean() ? "M" : "F";
+        String assocGender = RandomUtils.randomGender(random);
         String associateName = nameGen.generateFull(assocGender);
         String assocRole = isMurder ? "Victim's Associate" : "Subject's Associate";
         InterviewScript associateScript = new InterviewScript("npc-associate", associateName,
@@ -105,7 +106,7 @@ public class InterviewTemplateEngine {
         return capitalize(pronoun(gender));
     }
 
-    static String capitalize(String text) {
+    private static String capitalize(String text) {
         if (text == null || text.isEmpty()) return text;
         char first = text.charAt(0);
         if (Character.isUpperCase(first)) return text;
