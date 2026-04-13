@@ -100,7 +100,24 @@ public enum InterviewTopic {
      */
     CONTACT_INFO(
             "Contact Info",
-            "Ask for another character's phone number or usual location");
+            "Ask for another character's phone number or usual location"),
+
+    /**
+     * "What are [person]'s interests or hobbies?"
+     *
+     * <p>The NPC reveals hidden personality traits / opinions about another
+     * character — things like whether they enjoy sports, gambling, hiking,
+     * or flirting.  These traits are rated on a scale from −3 (strongly
+     * dislikes) to +3 (strongly likes).  Discovered traits contribute
+     * indirectly to the case by narrowing locations, establishing patterns
+     * of behaviour, and suggesting motives.
+     *
+     * <p>This topic is gated by {@code Empathy} — the NPC must feel
+     * comfortable enough to share personal observations about someone else.
+     */
+    PERSONALITY(
+            "Personality",
+            "Ask about another character's interests, hobbies, and personal opinions");
 
     private final String displayName;
     private final String description;

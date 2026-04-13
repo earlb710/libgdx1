@@ -66,7 +66,8 @@ public class CaseEditorPanel extends JPanel {
     // 5=Cooperativeness, 6=Honesty, 7=Nervousness,
     // 8=Dead, 9=Death Date/Time, 10=Variance (min),
     // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive,
-    // 16=Phone Number, 17=Phone Discovered, 18=Default Location
+    // 16=Phone Number, 17=Phone Discovered, 18=Default Location,
+    // 19=Personality Traits (hidden, comma-separated "trait:value" pairs)
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
@@ -74,7 +75,8 @@ public class CaseEditorPanel extends JPanel {
                     "Dead", "Death Date/Time", "Variance (min)",
                     "Hair Color", "Beard Style",
                     "Opportunity", "Access", "Has Motive",
-                    "Phone Number", "Phone Discovered", "Default Location"}, 0) {
+                    "Phone Number", "Phone Discovered", "Default Location",
+                    "Personality Traits"}, 0) {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
@@ -1341,6 +1343,33 @@ public class CaseEditorPanel extends JPanel {
     }
 
     /**
+     * Generates a random set of 3–5 personality traits as a comma-separated
+     * string of {@code "TraitName:value"} pairs (e.g. {@code "SPORTS:2,FLIRTING:-1,COOKING:3"}).
+     * Values are −3 to +3, excluding 0 (so every listed trait is notable).
+     */
+    private String generatePersonalityTraits() {
+        eb.framework1.character.PersonalityTrait[] allTraits =
+                eb.framework1.character.PersonalityTrait.values();
+        int traitCount = 3 + random.nextInt(3); // 3–5
+        // Fisher-Yates partial shuffle
+        eb.framework1.character.PersonalityTrait[] shuffled = allTraits.clone();
+        for (int i = 0; i < traitCount && i < shuffled.length; i++) {
+            int j = i + random.nextInt(shuffled.length - i);
+            eb.framework1.character.PersonalityTrait tmp = shuffled[i];
+            shuffled[i] = shuffled[j];
+            shuffled[j] = tmp;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < traitCount && i < shuffled.length; i++) {
+            int value = 1 + random.nextInt(3); // 1–3
+            if (random.nextBoolean()) value = -value;
+            if (sb.length() > 0) sb.append(',');
+            sb.append(shuffled[i].name()).append(':').append(value);
+        }
+        return sb.toString();
+    }
+
+    /**
      * Picks a default location for an NPC based on their role.
      * Some roles have plausible fixed locations; others are random.
      */
@@ -1527,7 +1556,8 @@ public class CaseEditorPanel extends JPanel {
                     hairColor, beardStyle, opportunity, access, hasMotive,
                     generatePhoneNumber(),
                     role.startsWith("Client"),  // Client phone is always discovered
-                    locationForRole(role)
+                    locationForRole(role),
+                    generatePersonalityTraits()
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -1978,6 +2008,53 @@ public class CaseEditorPanel extends JPanel {
                         "Do you have a way to reach " + otherName + "?",
                         contactAnswer, true, otherName,
                         "Charisma", 4, contactGeneric);
+            }
+
+            // --- PERSONALITY (hidden traits, Empathy-gated) ---
+            // Each NPC can reveal personality traits of other NPCs they know.
+            // These are hidden by default; the player must ask the right questions.
+            for (int j = 0; j < npcNames.size(); j++) {
+                if (j == i || npcDead.get(j)) continue;
+                String otherName = npcNames.get(j);
+                String otherRole = npcRoles.get(j);
+
+                // Read the other NPC's traits string from col 19
+                String traitsStr = String.valueOf(npcModel.getValueAt(j, 19));
+                if (traitsStr.isEmpty() || "null".equals(traitsStr)) continue;
+
+                // Parse trait pairs and pick 1-2 to reveal
+                String[] traitPairs = traitsStr.split(",");
+                if (traitPairs.length == 0) continue;
+
+                // Pick a random trait to reveal
+                String pair = traitPairs[random.nextInt(traitPairs.length)];
+                String[] parts = pair.split(":");
+                if (parts.length != 2) continue;
+                String traitName = parts[0].trim();
+                int traitValue;
+                try { traitValue = Integer.parseInt(parts[1].trim()); }
+                catch (NumberFormatException e) { continue; }
+
+                // Build a response that hints at the trait
+                String traitLabel = traitName.replace('_', ' ').toLowerCase();
+                String opinion = traitValue > 0
+                        ? otherName + " really enjoys " + traitLabel + ". It comes up a lot."
+                        : otherName + " can't stand " + traitLabel + ". It's pretty obvious.";
+                String altOpinion = "I don't know " + otherName
+                        + " well enough to say what they like.";
+
+                // Subjects need Intimidation; others need Empathy
+                if (isSubject || isSuspect) {
+                    addInterviewRow(npcName, npcRole, "Personality",
+                            "What are " + otherName + "'s interests?",
+                            opinion, true, otherName,
+                            "Intimidation", 5, altOpinion);
+                } else {
+                    addInterviewRow(npcName, npcRole, "Personality",
+                            "What are " + otherName + "'s interests?",
+                            opinion, true, otherName,
+                            "Empathy", 4, altOpinion);
+                }
             }
         }
 
@@ -2896,6 +2973,11 @@ public class CaseEditorPanel extends JPanel {
             }
             if (!loc.isEmpty()) {
                 sb.append("  loc=").append(loc);
+            }
+            // Personality traits
+            String traits = String.valueOf(npcModel.getValueAt(i, 19));
+            if (!traits.isEmpty() && !"null".equals(traits)) {
+                sb.append("  traits=").append(traits);
             }
             sb.append('\n');
         }

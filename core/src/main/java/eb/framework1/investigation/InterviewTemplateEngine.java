@@ -23,6 +23,27 @@ public class InterviewTemplateEngine {
 
     private final Random random;
 
+    // Word pools for personality-trait interview responses
+    private static final String[] HOBBY_WORDS = {
+        "sports", "hiking", "cooking", "reading", "music",
+        "art", "gambling", "travel"
+    };
+    private static final String[] SOCIAL_WORDS = {
+        "enjoys socializing with everyone", "prefers being alone",
+        "loves to gossip", "tends to flirt with people",
+        "likes taking risks", "is very respectful of authority",
+        "is obsessed with money and status", "has a soft spot for animals"
+    };
+    private static final String[] LIKE_DISLIKE_WORDS = {
+        "loves", "can't stand", "really enjoys", "has no interest in",
+        "is passionate about", "absolutely hates"
+    };
+    private static final String[] LOCATION_CLUE_WORDS = {
+        "the park nearby", "the gym on Main Street",
+        "that café by the station", "the library downtown",
+        "the bar on 5th Avenue"
+    };
+
     /**
      * @param random shared random source (same instance used by the
      *               parent generator for reproducibility)
@@ -248,11 +269,25 @@ public class InterviewTemplateEngine {
                 "Do you have a way to reach " + subject + "?",
                 pick(contactPool), true, subject,
                 "Charisma", 4, pick(contactAltPool)));
-    }
 
-    // =========================================================================
-    // Subject interview
-    // =========================================================================
+        // PERSONALITY — reveal subject's hidden traits (Empathy-gated)
+        String[] personalityPool = {
+            "Well, I know " + subject + " is really into " + pick(HOBBY_WORDS) + ". Always talking about it.",
+            subject + " can't stand " + pick(HOBBY_WORDS) + ", I can tell you that much. But " + pronoun + " absolutely loves " + pick(HOBBY_WORDS) + ".",
+            "If you want to find " + subject + ", try " + pick(LOCATION_CLUE_WORDS) + ". " + capitalize(pronoun) + " spends a lot of time there.",
+            subject + " is the type who " + pick(SOCIAL_WORDS) + ". That much I know for certain.",
+            "I know " + subject + " has a thing for " + pick(HOBBY_WORDS) + ". Wouldn't stop talking about it."
+        };
+        String[] personalityAltPool = {
+            "I don't really know " + subject + " well enough to say what " + pronoun + " likes.",
+            "We weren't close enough for me to know " + subject + "'s hobbies.",
+            "I can't say I paid much attention to " + subject + "'s interests."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.PERSONALITY,
+                "What are " + subject + "'s interests or hobbies?",
+                pick(personalityPool), true, subject,
+                "Empathy", 4, pick(personalityAltPool)));
+    }
 
     private void buildSubjectInterview(InterviewScript script, CaseType type,
                                        String client, String subject, String victim,
@@ -384,11 +419,26 @@ public class InterviewTemplateEngine {
         script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
                 "Do you have a way to reach " + client + "?",
                 pick(contactRefusalPool), random.nextBoolean(), client));
-    }
 
-    // =========================================================================
-    // Witness interview
-    // =========================================================================
+        // PERSONALITY — subject reluctantly reveals own/client's traits
+        // Intimidation-gated: the subject opens up under pressure
+        String[] persPool = {
+            "Fine, you want to know about me? I " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + ". Happy now?",
+            client + "? " + capitalize(client) + " is the kind of person who " + pick(SOCIAL_WORDS) + ". Ask anyone.",
+            "Look, " + client + " " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + " more than most. That's no secret.",
+            "I don't see how my interests matter. But fine — I " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + ".",
+            "You want gossip? " + client + " always " + pick(SOCIAL_WORDS) + ". That tells you something."
+        };
+        String[] persAltPool = {
+            "My personal life is none of your business.",
+            "I'm not here to chat about hobbies. Ask me something relevant.",
+            "Why would I tell you what I like or don't like?"
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.PERSONALITY,
+                "Tell me about your interests — or " + client + "'s.",
+                pick(persPool), random.nextBoolean(), client,
+                "Intimidation", 5, pick(persAltPool)));
+    }
 
     private void buildWitnessInterview(InterviewScript script, CaseType type,
                                        String client, String subject, String victim,
@@ -512,11 +562,26 @@ public class InterviewTemplateEngine {
                 "Do you have a way to reach " + subject + "?",
                 pick(contactRevealPool), true, subject,
                 "Charisma", 5, pick(contactRefusePool)));
-    }
 
-    // =========================================================================
-    // Associate interview
-    // =========================================================================
+        // PERSONALITY — witness reveals subject's or victim's traits (Empathy-gated)
+        String targetForTraits = isMurder ? victim : subject;
+        String[] witPersPool = {
+            targetForTraits + " always had a thing for " + pick(HOBBY_WORDS) + ". I'd see them doing it all the time.",
+            "I noticed " + targetForTraits + " " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + ". It was pretty obvious.",
+            "From what I saw, " + targetForTraits + " " + pick(SOCIAL_WORDS) + ". That was just their nature.",
+            targetForTraits + " was the kind who " + pick(SOCIAL_WORDS) + ". Anyone in the neighbourhood could tell you that.",
+            "If there's one thing I know about " + targetForTraits + ", it's that they " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + "."
+        };
+        String[] witPersAltPool = {
+            "I didn't know " + targetForTraits + " well enough to say what they liked.",
+            "I only saw " + targetForTraits + " in passing. I couldn't tell you their hobbies.",
+            "I didn't pay much attention to " + targetForTraits + "'s personal life."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.PERSONALITY,
+                "What can you tell me about " + targetForTraits + "'s interests?",
+                pick(witPersPool), true, targetForTraits,
+                "Empathy", 5, pick(witPersAltPool)));
+    }
 
     private void buildAssociateInterview(InterviewScript script, CaseType type,
                                          String client, String subject, String victim,
@@ -649,5 +714,23 @@ public class InterviewTemplateEngine {
                 "Do you have a way to reach " + subject + "?",
                 pick(contactInfoPool), true, subject,
                 "Charisma", 4, pick(contactInfoAltPool)));
+
+        // PERSONALITY — associate reveals target's traits (Empathy-gated)
+        String[] assocPersPool = {
+            "Oh, " + targetPerson + " definitely " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + ". We talked about it often.",
+            targetPerson + " is really into " + pick(HOBBY_WORDS) + ". It's one of those things everyone knew about them.",
+            "Between you and me, " + targetPerson + " " + pick(SOCIAL_WORDS) + ". I saw it firsthand.",
+            "I spent enough time with " + targetPerson + " to know they " + pick(LIKE_DISLIKE_WORDS) + " " + pick(HOBBY_WORDS) + ".",
+            targetPerson + " had strong feelings about " + pick(HOBBY_WORDS) + " — " + pick(LIKE_DISLIKE_WORDS) + " it, actually."
+        };
+        String[] assocPersAltPool = {
+            "We didn't really talk about personal interests. Our relationship was professional.",
+            "I'm not sure I could tell you what " + targetPerson + " liked. We didn't talk about that.",
+            "I'd rather not speculate about " + targetPerson + "'s personal life."
+        };
+        script.addResponse(new InterviewResponse(InterviewTopic.PERSONALITY,
+                "What do you know about " + targetPerson + "'s hobbies or interests?",
+                pick(assocPersPool), true, targetPerson,
+                "Empathy", 4, pick(assocPersAltPool)));
     }
 }
