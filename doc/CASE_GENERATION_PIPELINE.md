@@ -191,13 +191,15 @@ suspects share opportunity but **at least one** other attribute differs.
 
 ### Attribute Pools
 
-| Attribute     | Pool                                                                              | Size |
-|---------------|------------------------------------------------------------------------------------|------|
-| Hair Color    | black, brown, blonde, red, gray, white                                            | 6    |
-| Beard Style   | clean-shaven, stubble, short beard, long beard, goatee, moustache (males only)    | 6    |
-| Opportunity   | was near the scene, had keys to the building, was seen in the area, lives close by, visited the location earlier that day | 5 |
-| Access        | owns a firearm, had access to the victim's home, has a key to the office, had access to the safe, drives a vehicle matching witness description, works in the same building | 6 |
-| Has Motive    | true / false                                                                       | 2    |
+| Attribute       | Pool                                                                              | Size |
+|-----------------|------------------------------------------------------------------------------------|------|
+| Hair Color      | black, brown, blonde, red, gray, white                                            | 6    |
+| Beard Style     | clean-shaven, stubble, short beard, long beard, goatee, moustache (males only)    | 6    |
+| Opportunity     | was near the scene, had keys to the building, was seen in the area, lives close by, visited the location earlier that day | 5 |
+| Access (full)   | owns a firearm, had access to the victim's home, has a key to the office, had access to the safe, drives a vehicle matching witness description, works in the same building | 6 |
+| Access (partial)| had access to the building but not the safe, had a visitor pass but not a permanent key, could enter the lobby but not the restricted area, had daytime access only not after hours, had access to the grounds but not the main office, could reach the car park but not the residence | 6 |
+| Has Motive      | true / false                                                                       | 2    |
+| Alibi           | claims to have been at home alone, says at a bar with friends, working late at the office, at a family dinner, out of town, at the gym, at a community event, at a cinema | 8 |
 
 ### Perpetrator (Subject Role) — 100 % Match
 
@@ -206,22 +208,37 @@ suspects share opportunity but **at least one** other attribute differs.
 | Hair Color  | Random from pool (1/6)         |
 | Beard Style | Random from pool (males) or "none" (females) |
 | Opportunity | Random from pool (1/5)         |
-| Access      | Random from pool (1/6)         |
+| Access      | Random from full-access pool (1/6) |
 | Has Motive  | **Always true**                |
+| Alibi       | Random from pool (1/8) — always falsifiable |
 
 ### Red-Herring Suspects — Differentiation Rules
 
-Each additional suspect rolls **independently** per attribute:
+Each additional suspect rolls **independently** per attribute, with the match
+probability **weighted by complexity** to control elimination difficulty:
+
+| Complexity | Match Threshold | Difficulty | Effect                     |
+|------------|----------------|------------|----------------------------|
+| 1          | **30 %**       | Easy       | Few attributes match — suspects are quickly eliminated |
+| 2          | **50 %**       | Moderate   | Balanced matching — standard investigation |
+| 3          | **70 %**       | Hard       | Most attributes match — suspects are difficult to tell apart |
 
 | Attribute   | Match Perpetrator?    | Probability |
 |-------------|----------------------|-------------|
-| Hair Color  | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Beard Style | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Access      | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Has Motive  | `random.nextBoolean()` | **50 %** match / 50 % differ |
+| Hair Color  | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Beard Style | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Access      | `random.nextInt(100) < matchThreshold` | Complexity-weighted (non-matches: 40 % partial, 60 % full differ) |
+| Has Motive  | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Alibi       | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
 
-**Guarantee:** If all four match (probability: 6.25 %), one is randomly forced
-to differ (`random.nextInt(4)` picks which one flips → 25 % each).
+**Guarantee:** If all five match (probability depends on complexity), one is
+randomly forced to differ (`random.nextInt(5)` picks which one flips → 20 % each).
+
+**Partial access:** When a suspect's access does not match the perpetrator,
+there is a 40 % chance the suspect receives **partial access** (e.g., "had
+access to the building but not the safe") instead of a completely different
+access type. This adds nuance — the player must carefully evaluate the degree
+of access, not just whether the suspect had any.
 
 **All suspects always have opportunity** — they had a plausible reason to be
 present. Opportunity alone cannot eliminate a suspect.
@@ -233,9 +250,9 @@ The player thins out suspects by discovering facts about:
 | Dimension       | Example Clue                                         |
 |-----------------|------------------------------------------------------|
 | **Physical Looks** | "Witness saw someone with blonde hair leaving"       |
-| **Access**       | "The killer had access to the safe"                  |
+| **Access**       | "The killer had access to the safe" (full vs partial) |
 | **Motive**       | "Only someone with a financial grudge would…"        |
-| **Time**         | (Alibi verification via interviews)                  |
+| **Alibi**        | "Suspect claims they were at the gym, but CCTV contradicts this" |
 
 ---
 
@@ -682,8 +699,9 @@ When the player's attribute is **below** the gate value, they receive the
 | Death variance: Precise                  | 30 %          |
 | Death variance: 15–180 min range         | 60 %          |
 | Death variance: Unknown / body missing   | 10 %          |
-| Suspect attribute matches perpetrator    | 50 % per attribute |
-| All 4 attributes accidentally match      | 6.25 % (forced mismatch) |
+| Suspect attribute matches perpetrator    | 30 %–70 % per attribute (complexity-weighted) |
+| All 5 attributes accidentally match      | Complexity-dependent (forced mismatch) |
+| Non-matching access is partial (not full differ) | 40 % |
 | Lead classified as red herring           | 25 %          |
 | Failure branch creates lead (vs fact)    | 50 %          |
 | Subject alibi is truthful                | 30 %          |
@@ -732,16 +750,24 @@ across cases.
   entries** each
 - Per-motive and per-case-type specialised variants added throughout
 
-### 2. Dynamic Suspect Attribute Assignment
+### 2. Dynamic Suspect Attribute Assignment ✅ (Implemented)
 
-**Current:** Suspect attributes are purely random 50/50 per dimension.
+**Previous status:** Suspect attributes were purely random 50/50 per dimension.
 
-**Improvement:**
-- Weight attribute matching by complexity — higher complexity means more attributes
-  match, making elimination harder
-- Add **temporal alibi** as a full elimination dimension (not just interview text)
-- Allow suspects to have **partial access** (e.g., "had access to the building
-  but not the safe") for nuanced elimination
+**What was implemented:**
+- Attribute matching is **weighted by complexity**: complexity 1 → 30 % match
+  chance (easy), complexity 2 → 50 % (moderate), complexity 3 → 70 % (hard)
+- **Temporal alibi** added as a 6th elimination dimension with a pool of 8
+  plausible alibis — the perpetrator always has a falsifiable alibi, and
+  suspects either share it (suspicious) or have a different one (verifiable)
+- **Partial access** introduced: when a suspect's access doesn't match the
+  perpetrator, 40 % of the time they receive partial access (e.g., "had
+  access to the building but not the safe") instead of a completely different
+  access type, adding nuanced evaluation
+- NPC table column 20 (`Alibi`) stores the temporal alibi for each suspect
+- The all-match guarantee now covers 5 dimensions (was 4): if all match, one
+  is forced to differ via `random.nextInt(5)`
+- Debug/export output includes alibi data for each NPC
 
 ### 3. Witness Reliability Variance
 

@@ -73,7 +73,8 @@ public class CaseEditorPanel extends JPanel {
     // 8=Dead, 9=Death Date/Time, 10=Variance (min),
     // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive,
     // 16=Phone Number, 17=Phone Discovered, 18=Default Location,
-    // 19=Personality Traits (hidden, comma-separated "trait:value" pairs)
+    // 19=Personality Traits (hidden, comma-separated "trait:value" pairs),
+    // 20=Alibi (temporal alibi — elimination dimension)
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
@@ -82,7 +83,7 @@ public class CaseEditorPanel extends JPanel {
                     "Hair Color", "Beard Style",
                     "Opportunity", "Access", "Has Motive",
                     "Phone Number", "Phone Discovered", "Default Location",
-                    "Personality Traits"}, 0) {
+                    "Personality Traits", "Alibi"}, 0) {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
@@ -1349,6 +1350,30 @@ public class CaseEditorPanel extends JPanel {
              "has a key to the office", "had access to the safe",
              "drives a vehicle matching witness description",
              "works in the same building"};
+    /**
+     * Partial-access labels for nuanced elimination — suspect had some
+     * access but not quite the same as the perpetrator.
+     */
+    private static final String[] ACCESS_PARTIAL_LABELS =
+            {"had access to the building but not the safe",
+             "had a visitor pass but not a permanent key",
+             "could enter the lobby but not the restricted area",
+             "had daytime access only, not after hours",
+             "had access to the grounds but not the main office",
+             "could reach the car park but not the residence"};
+    /**
+     * Temporal alibi labels — suspect's claimed whereabouts during the
+     * crime window.  Used as a full elimination dimension.
+     */
+    private static final String[] ALIBI_LABELS =
+            {"claims to have been at home alone",
+             "says they were at a bar with friends",
+             "states they were working late at the office",
+             "says they were at a family dinner",
+             "claims to have been out of town",
+             "says they were at the gym",
+             "states they were attending a community event",
+             "claims to have been at a cinema"};
 
     /** Location labels used to assign a default location to each NPC. */
     private static final String[] LOCATION_LABELS = {
@@ -1444,6 +1469,7 @@ public class CaseEditorPanel extends JPanel {
         String perpetratorBeard = "clean-shaven";
         String perpetratorOpp   = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
         String perpetratorAcc   = ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
+        String perpetratorAlibi = ALIBI_LABELS[random.nextInt(ALIBI_LABELS.length)];
 
         for (int i = 0; i < roles.length; i++) {
             String role   = roles[i];
@@ -1515,13 +1541,19 @@ public class CaseEditorPanel extends JPanel {
             // --- Suspect-distinguishing attributes ---
             // All suspects (Subject + additional Suspect roles) had opportunity;
             // only the primary Subject matches ALL criteria so the player can
-            // thin out extra suspects using hair, beard, access, and motive.
+            // thin out extra suspects using hair, beard, access, motive, and alibi.
+            //
+            // Complexity weighting:
+            //   complexity 1 → matchChance 30 % (easy elimination — few matches)
+            //   complexity 2 → matchChance 50 % (moderate)
+            //   complexity 3 → matchChance 70 % (hard — most attributes match)
             boolean isSuspectRole = role.startsWith("Subject") || role.startsWith("Suspect");
             String hairColor  = "";
             String beardStyle = "";
             String opportunity = "";
             String access      = "";
             boolean hasMotive  = false;
+            String alibi       = "";
 
             if (isSuspectRole) {
                 if (role.startsWith("Subject")) {
@@ -1534,26 +1566,38 @@ public class CaseEditorPanel extends JPanel {
                     opportunity = perpetratorOpp;
                     access      = perpetratorAcc;
                     hasMotive   = true;
+                    // Perpetrator's alibi is always falsifiable (will be disproved)
+                    alibi       = perpetratorAlibi;
                 } else {
                     // Additional suspect — shares some attributes but NOT all.
                     // Always has opportunity (plausible), but at least one
                     // other attribute differs so the player can eliminate them.
                     opportunity = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
 
-                    // Randomly decide which attributes match vs differ
-                    // (ensure at least one differs)
-                    boolean matchHair   = random.nextBoolean();
-                    boolean matchBeard  = random.nextBoolean();
-                    boolean matchAccess = random.nextBoolean();
-                    boolean matchMotive = random.nextBoolean();
-                    // Guarantee at least one mismatch
-                    if (matchHair && matchBeard && matchAccess && matchMotive) {
-                        // Force one to differ
-                        switch (random.nextInt(4)) {
-                            case 0: matchHair = false; break;
-                            case 1: matchBeard = false; break;
+                    // Complexity-weighted match probability:
+                    //   complexity 1 → 30 % match chance per dimension (easy)
+                    //   complexity 2 → 50 % match chance per dimension (moderate)
+                    //   complexity 3 → 70 % match chance per dimension (hard)
+                    int matchThreshold;
+                    switch (complexity) {
+                        case 1:  matchThreshold = 30; break;
+                        case 3:  matchThreshold = 70; break;
+                        default: matchThreshold = 50; break;
+                    }
+
+                    boolean matchHair   = random.nextInt(100) < matchThreshold;
+                    boolean matchBeard  = random.nextInt(100) < matchThreshold;
+                    boolean matchAccess = random.nextInt(100) < matchThreshold;
+                    boolean matchMotive = random.nextInt(100) < matchThreshold;
+                    boolean matchAlibi  = random.nextInt(100) < matchThreshold;
+                    // Guarantee at least one mismatch across all 5 dimensions
+                    if (matchHair && matchBeard && matchAccess && matchMotive && matchAlibi) {
+                        switch (random.nextInt(5)) {
+                            case 0: matchHair   = false; break;
+                            case 1: matchBeard  = false; break;
                             case 2: matchAccess = false; break;
-                            default: matchMotive = false; break;
+                            case 3: matchMotive = false; break;
+                            default: matchAlibi = false; break;
                         }
                     }
 
@@ -1567,10 +1611,23 @@ public class CaseEditorPanel extends JPanel {
                     } else {
                         beardStyle = "none";
                     }
-                    access = matchAccess
-                            ? perpetratorAcc
-                            : ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
+
+                    // Access: full match, partial match, or completely different
+                    if (matchAccess) {
+                        access = perpetratorAcc;
+                    } else if (random.nextInt(100) < 40) {
+                        // 40 % of non-matches are partial access (nuanced)
+                        access = ACCESS_PARTIAL_LABELS[random.nextInt(ACCESS_PARTIAL_LABELS.length)];
+                    } else {
+                        access = pickDifferent(ACCESS_LABELS, perpetratorAcc);
+                    }
+
                     hasMotive = matchMotive;
+
+                    // Temporal alibi — matches perpetrator's (suspicious) or differs
+                    alibi = matchAlibi
+                            ? perpetratorAlibi
+                            : pickDifferent(ALIBI_LABELS, perpetratorAlibi);
                 }
             }
 
@@ -1582,7 +1639,8 @@ public class CaseEditorPanel extends JPanel {
                     generatePhoneNumber(),
                     role.startsWith("Client"),  // Client phone is always discovered
                     locationForRole(role),
-                    generatePersonalityTraits()
+                    generatePersonalityTraits(),
+                    alibi
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -2714,6 +2772,11 @@ public class CaseEditorPanel extends JPanel {
             String traits = String.valueOf(npcModel.getValueAt(i, 19));
             if (!traits.isEmpty() && !"null".equals(traits)) {
                 sb.append("  traits=").append(traits);
+            }
+            // Alibi
+            String alibiVal = String.valueOf(npcModel.getValueAt(i, 20));
+            if (!alibiVal.isEmpty() && !"null".equals(alibiVal)) {
+                sb.append("  alibi=\"").append(alibiVal).append('"');
             }
             sb.append('\n');
         }

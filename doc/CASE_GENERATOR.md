@@ -238,23 +238,43 @@ interviews (Charisma-gated) or story progression.
 ### 11. Suspect attributes
 
 At complexity ≥ 2 the case adds extra suspects (1–2 at complexity 2,
-2–3 at complexity 3).  Five distinguishing attributes allow the player to
+2–3 at complexity 3).  Six distinguishing attributes allow the player to
 eliminate innocent suspects:
 
 | Attribute | Pool size | Subject value | Suspect rule |
 |---|---|---|---|
-| Hair Color | 6 | Random | 50 % match / 50 % differ |
-| Beard Style | 6 (males) or "none" | Random | 50 % match / 50 % differ |
+| Hair Color | 6 | Random | Complexity-weighted match |
+| Beard Style | 6 (males) or "none" | Random | Complexity-weighted match |
 | Opportunity | 5 | Random | **Always matches** (all suspects present) |
-| Access | 6 | Random | 50 % match / 50 % differ |
-| Has Motive | 2 | **Always true** | 50 % match / 50 % differ |
+| Access | 6 full + 6 partial | Random (full) | Complexity-weighted; non-matches: 40 % partial / 60 % differ |
+| Has Motive | 2 | **Always true** | Complexity-weighted match |
+| Alibi | 8 | Random (falsifiable) | Complexity-weighted match |
 
-If a suspect's four testable attributes all accidentally match the true
-perpetrator (6.25 % chance), one is randomly forced to differ.
+**Complexity weighting:** The match probability per attribute is no longer a
+flat 50 %.  Instead it scales with complexity:
+
+| Complexity | Match chance | Effect |
+|---|---|---|
+| 1 | 30 % | Easy — most attributes differ, quick elimination |
+| 2 | 50 % | Moderate — balanced |
+| 3 | 70 % | Hard — most attributes match, difficult to eliminate |
+
+If a suspect's five testable attributes all accidentally match the true
+perpetrator, one is randomly forced to differ (`random.nextInt(5)`).
+
+**Partial access:** When a suspect does not fully match the perpetrator's
+access, 40 % of the time they receive a "partial access" label (e.g., "had
+access to the building but not the safe") rather than a completely different
+access type. This requires the player to evaluate degree of access.
+
+**Temporal alibi:** Each suspect is assigned a plausible alibi from a pool
+of 8.  The perpetrator's alibi is always falsifiable; other suspects either
+share it (suspicious, needs verification) or have a distinct one (verifiable,
+can be cleared).
 
 ### 12. NPC table columns (admin tool)
 
-The NPC data table in `CaseEditorPanel` has **19 columns** (indices 0–18):
+The NPC data table in `CaseEditorPanel` has **21 columns** (indices 0–20):
 
 | Index | Name | Notes |
 |---|---|---|
@@ -262,11 +282,13 @@ The NPC data table in `CaseEditorPanel` has **19 columns** (indices 0–18):
 | 11 | Hair Color | Suspect attribute |
 | 12 | Beard Style | Suspect attribute |
 | 13 | Opportunity | Suspect attribute |
-| 14 | Access | Suspect attribute |
+| 14 | Access | Suspect attribute (full or partial) |
 | 15 | Has Motive | Suspect attribute (Boolean) |
 | 16 | Phone Number | Format `555-XXXX` |
 | 17 | Phone Discovered | Boolean |
 | 18 | Default Location | Location display name |
+| 19 | Personality Traits | Comma-separated "TRAIT:value" pairs |
+| 20 | Alibi | Temporal alibi — elimination dimension |
 
 ### 13. Unknown facts & motive narratives
 
