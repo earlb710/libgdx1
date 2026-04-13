@@ -238,8 +238,9 @@ interviews (Charisma-gated) or story progression.
 ### 11. Suspect attributes
 
 At complexity ≥ 2 the case adds extra suspects (1–2 at complexity 2,
-2–3 at complexity 3).  Six distinguishing attributes allow the player to
-eliminate innocent suspects:
+2–3 at complexity 3).  Six attributes describe each suspect, of which five
+are testable for elimination (Opportunity always matches and cannot
+eliminate a suspect):
 
 | Attribute | Pool size | Subject value | Suspect rule |
 |---|---|---|---|

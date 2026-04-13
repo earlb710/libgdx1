@@ -197,7 +197,7 @@ suspects share opportunity but **at least one** other attribute differs.
 | Beard Style     | clean-shaven, stubble, short beard, long beard, goatee, moustache (males only)    | 6    |
 | Opportunity     | was near the scene, had keys to the building, was seen in the area, lives close by, visited the location earlier that day | 5 |
 | Access (full)   | owns a firearm, had access to the victim's home, has a key to the office, had access to the safe, drives a vehicle matching witness description, works in the same building | 6 |
-| Access (partial)| had access to the building but not the safe, had a visitor pass but not a permanent key, could enter the lobby but not the restricted area, had daytime access only not after hours, had access to the grounds but not the main office, could reach the car park but not the residence | 6 |
+| Access (partial)| had access to the building but not the safe, had a visitor pass but not a permanent key, could enter the lobby but not the restricted area, had daytime access only (not after hours), had access to the grounds but not the main office, could reach the car park but not the residence | 6 |
 | Has Motive      | true / false                                                                       | 2    |
 | Alibi           | claims to have been at home alone, says at a bar with friends, working late at the office, at a family dinner, out of town, at the gym, at a community event, at a cinema | 8 |
 
@@ -757,7 +757,7 @@ across cases.
 **What was implemented:**
 - Attribute matching is **weighted by complexity**: complexity 1 → 30 % match
   chance (easy), complexity 2 → 50 % (moderate), complexity 3 → 70 % (hard)
-- **Temporal alibi** added as a 6th elimination dimension with a pool of 8
+- **Temporal alibi** added as a 5th testable elimination dimension with a pool of 8
   plausible alibis — the perpetrator always has a falsifiable alibi, and
   suspects either share it (suspicious) or have a different one (verifiable)
 - **Partial access** introduced: when a suspect's access doesn't match the
