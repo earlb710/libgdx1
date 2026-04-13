@@ -707,6 +707,18 @@ When the player's attribute is **below** the gate value, they receive the
 | Subject alibi is truthful                | 30 %          |
 | Subject last-contact is truthful         | 40 %          |
 | Subject opinion/observation/motive truthful | 50 %       |
+| Story fact has prerequisite (complexity ≥ 2)| ~75 % of non-first actions |
+| Evidence fact gets forensics delay (complexity 3)| ~100 % of evidence-type |
+
+### Evidence Chain Statistics
+
+| Chain Type                 | Prerequisite Depth | Availability Days |
+|---------------------------|-------------------|-------------------|
+| Scene → DNA → Toxicology   | 2 links           | 0 → 2 → 4        |
+| Item → Digital → Financial  | 2 links           | 0 → 1 → 3        |
+| Weapon → Timeline → Alibi  | 2 links (murder)  | 0 → 1 → 0        |
+| Location → Cover-up        | 1 link            | 0 → 2             |
+| Story facts (complexity ≥ 2)| 1 link per major  | 0 (or 1–3 at complexity 3) |
 
 ### Total Generated Content (typical Murder case)
 
@@ -779,16 +791,28 @@ across cases.
 - Add CONTRADICTORY witnesses whose accounts conflict, requiring the player
   to determine which is accurate
 
-### 4. Evidence Chain System
+### 4. Evidence Chain System ✅ (Implemented)
 
-**Current:** Facts exist independently with no dependencies.
+**Previous status:** Facts existed independently with no dependencies.
 
-**Improvement:**
-- Create fact → fact dependencies ("discovering DNA evidence unlocks the
-  toxicology report")
-- Implement **evidence chains** where early clues gate access to later discoveries
-- Add a **forensics timeline** — evidence degrades or becomes available over
-  in-game days
+**What was implemented:**
+- Two new fact columns: **Prerequisite Fact ID** (col 11) and **Availability
+  Day** (col 12) enable fact → fact dependencies and forensics timelines
+- **`generateFacts()` evidence chains:**
+  - Chain 1: scene evidence → DNA analysis (day 2) → toxicology report (day 4)
+  - Chain 2: scene item → digital forensics (day 1) → financial records (day 3)
+- **`generateUnknownFacts()` evidence chains:**
+  - Weapon → timeline (day 1, murder only) → alibi verification
+  - Location → cover-up evidence (day 2)
+- **Story tree fact chains** at complexity ≥ 2: within each major block, the
+  second action's success fact requires the first action's discovery; at
+  complexity 3, evidence-type facts also receive a 1–3 day availability delay
+- **EVIDENCE_CHAINS** section added to the story tree visualization, showing
+  the prerequisite graph with availability days
+- Debug/export output shows prerequisite and availability day info on every
+  chained fact
+- Fact table UI updated with two new columns; `appendChainInfo()` helper
+  annotates fact references throughout
 
 ### 5. Procedural Motive Complexity
 

@@ -291,21 +291,56 @@ The NPC data table in `CaseEditorPanel` has **21 columns** (indices 0–20):
 | 19 | Personality Traits | Comma-separated "TRAIT:value" pairs |
 | 20 | Alibi | Temporal alibi — elimination dimension |
 
-### 13. Unknown facts & motive narratives
+### 13. Unknown facts, motive narratives & evidence chains
 
 `generateUnknownFacts()` creates 7–8 facts with status `UNKNOWN` that
-represent the core mysteries the player must solve:
+represent the core mysteries the player must solve.  Several are linked
+into **evidence chains** via prerequisite dependencies:
 
-| # | Category | Templates | Importance |
+| # | Category | Templates | Importance | Prerequisite | Avail Day |
+|---|---|---|---|---|---|
+| 1 | METHOD | 5 (murder) / 4 (other) | 5 | — | 0 |
+| 2 | MOTIVE | 10 codes × 3–4 = ~37 | 5 | — | 0 |
+| 3 | EVIDENCE (weapon, murder) | 5 | 4 | — | 0 |
+| 4 | DATE (timeline) | 4 | 4 | #3 weapon | 1 (murder) |
+| 5 | ITEM (location) | 4 | 3 | — | 0 |
+| 6 | RELATIONSHIP (accomplices) | 4 | 3 | — | 0 |
+| 7 | DATE (alibi) | 4 | 4 | #4 timeline | 0 |
+| 8 | ITEM (cover-up) | 4 | 3 | #5 location | 2 |
+
+#### Evidence chain structure
+
+```
+Murder cases:
+  weapon (#3) → timeline (#4, day 1) → alibi verification (#7)
+  location (#5) → cover-up (#8, day 2)
+
+generateFacts() chains:
+  scene evidence → DNA analysis (day 2) → toxicology report (day 4)
+  scene item → digital forensics (day 1) → financial records (day 3)
+
+Story tree chains (complexity ≥ 2):
+  Within each major block, action N+1's success fact requires action N's
+  discovery.  At complexity 3, evidence-type facts also get 1–3 day delays.
+```
+
+#### Fact table columns (13 total)
+
+| Index | Name | Type | Notes |
 |---|---|---|---|
-| 1 | METHOD | 5 (murder-specific) / 4 (other) | 5 |
-| 2 | MOTIVE | 10 codes × 3–4 templates = ~37 | 5 |
-| 3 | ITEM (weapon, murder only) | 5 | 4 |
-| 4 | DATE (timeline) | 4 | 4 |
-| 5 | EVIDENCE (location) | 4 | 3 |
-| 6 | RELATIONSHIP (accomplices) | 4 | 3 |
-| 7 | DATE (alibi contradictions) | 4 | 4 |
-| 8 | EVIDENCE (cover-up) | 4 | 3 |
+| 0 | ID | String | `fact-N` |
+| 1 | Category | String | DATE, RELATIONSHIP, ITEM, EVIDENCE, METHOD, MOTIVE |
+| 2 | Fact | String | Fact text |
+| 3 | Status | String | KNOWN, HIDDEN, UNKNOWN |
+| 4 | Date (epoch) | Long | In-game timestamp |
+| 5 | Char1 | String | First character reference |
+| 6 | Char2 | String | Second character reference |
+| 7 | Rel Type | String | Relationship type |
+| 8 | Item ID | String | Item identifier |
+| 9 | Evidence ID | String | Evidence type identifier |
+| 10 | Importance | Integer | 0–5 |
+| 11 | Prerequisite Fact ID | String | ID of gating fact (evidence chain) |
+| 12 | Availability Day | Integer | In-game day when available (forensics) |
 
 `buildMotiveNarrative(motiveCode, subject, victim)` selects from a pool
 of 3–4 unique sentence templates per motive code (10 codes, ~37 templates
