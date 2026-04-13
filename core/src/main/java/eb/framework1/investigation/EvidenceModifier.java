@@ -37,7 +37,43 @@ public enum EvidenceModifier {
             "Soil composition analysis to link a suspect or item to a location"),
 
     GLASS_FRAGMENTS("Glass Fragments",
-            "Glass origin and breakage-pattern analysis");
+            "Glass origin and breakage-pattern analysis"),
+
+    ACCELERANT("Accelerant",
+            "Detection of fire accelerants such as petrol, paraffin, or solvents"),
+
+    BALLISTICS("Ballistics",
+            "Firearm and projectile analysis to match bullets or casings to a weapon"),
+
+    CHEMICAL_RESIDUE("Chemical Residue",
+            "Detection and identification of chemical or drug residue on surfaces"),
+
+    DIGITAL_DATA("Digital Data",
+            "Data recovery and analysis from electronic devices or storage media"),
+
+    HANDWRITING("Handwriting",
+            "Handwriting comparison and document authenticity analysis"),
+
+    PAINT_TRANSFER("Paint Transfer",
+            "Paint chip and transfer analysis to link vehicles or surfaces"),
+
+    TIRE_TRACKS("Tire Tracks",
+            "Tire tread pattern and wear analysis to identify a vehicle"),
+
+    GUNSHOT_RESIDUE("Gunshot Residue",
+            "Detection of primer and propellant residue on hands, clothing, or surfaces"),
+
+    TOXICOLOGY("Toxicology",
+            "Analysis of body fluids or substances for drugs, poisons, or alcohol"),
+
+    BITE_MARKS("Bite Marks",
+            "Dental impression comparison to identify an individual from bite wounds"),
+
+    INK_ANALYSIS("Ink Analysis",
+            "Ink composition and age analysis for document dating or authenticity"),
+
+    EXPLOSIVE_RESIDUE("Explosive Residue",
+            "Detection and identification of explosive compounds or detonator fragments");
 
     private final String displayName;
     private final String description;

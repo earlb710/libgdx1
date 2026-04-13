@@ -252,6 +252,7 @@ public class SaveGameManager {
         d.caseType    = cf.getCaseType() != null ? cf.getCaseType().name() : null;
         d.clientName  = cf.getClientName();
         d.subjectName = cf.getSubjectName();
+        d.victimName  = cf.getVictimName();
         d.objective   = cf.getObjective();
         d.leads = new ArrayList<>();
         for (CaseLead lead : cf.getLeads()) {
@@ -290,6 +291,7 @@ public class SaveGameManager {
         }
         cf.setClientName(d.clientName);
         cf.setSubjectName(d.subjectName);
+        cf.setVictimName(d.victimName);
         cf.setObjective(d.objective);
         if (d.complexity >= 1 && d.complexity <= 3) cf.setComplexity(d.complexity);
         if (d.leads != null) {
@@ -490,6 +492,7 @@ public class SaveGameManager {
         public String caseType;
         public String clientName;
         public String subjectName;
+        public String victimName;
         public String objective;
         public java.util.List<CaseLeadData> leads;
         public int complexity;
@@ -545,6 +548,10 @@ public class SaveGameManager {
         public java.util.List<NpcScheduleEntryData> scheduleEntries;
         public String birthdate;
         public boolean tracked;
+        // Death state (added later; false/0/0 in older saves → alive)
+        public boolean dead;
+        public long    deathDateTime;
+        public int     deathTimeVarianceMinutes;
         // Appearance attributes (added later; null/0 in older saves → use defaults)
         public String hairType;
         public String hairColor;
@@ -659,6 +666,9 @@ public class SaveGameManager {
         }
         d.birthdate     = npc.getBirthdate();
         d.tracked       = npc.isTracked();
+        d.dead          = npc.isDead();
+        d.deathDateTime = npc.getDeathDateTime();
+        d.deathTimeVarianceMinutes = npc.getDeathTimeVarianceMinutes();
         d.hairType      = npc.getHairType();
         d.hairColor     = npc.getHairColor();
         d.wealthyLevel  = npc.getWealthyLevel();
@@ -768,6 +778,9 @@ public class SaveGameManager {
                 .nervousness(clampTrait(d.nervousness))
                 .birthdate(d.birthdate)
                 .tracked(d.tracked)
+                .dead(d.dead)
+                .deathDateTime(d.deathDateTime)
+                .deathTimeVarianceMinutes(d.deathTimeVarianceMinutes)
                 .hairType(d.hairType != null ? d.hairType : "")
                 .hairColor(d.hairColor != null ? d.hairColor : "")
                 .wealthyLevel(d.wealthyLevel < 1 ? 5 : d.wealthyLevel)

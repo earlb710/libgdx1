@@ -13,10 +13,14 @@ public class CategoryData {
     private List<CategoryEntry> item_categories = new ArrayList<>();
     private List<CategoryEntry> evidence_categories = new ArrayList<>();
     private List<CategoryEntry> case_types = new ArrayList<>();
+    private List<CategoryEntry> discovery_methods = new ArrayList<>();
+    private List<CategoryEntry> evidence_modifiers = new ArrayList<>();
+    private List<CategoryEntry> evidence_items = new ArrayList<>();
     private List<CategoryEntry> improvement_categories = new ArrayList<>();
     private List<CategoryEntry> skill_categories = new ArrayList<>();
     private List<CategoryEntry> skin_tone_categories = new ArrayList<>();
     private List<CategoryEntry> gender_categories = new ArrayList<>();
+    private List<CategoryEntry> motive_categories = new ArrayList<>();
 
     public String getVersion() {
         return version;
@@ -66,6 +70,30 @@ public class CategoryData {
         this.case_types = case_types;
     }
 
+    public List<CategoryEntry> getDiscovery_methods() {
+        return discovery_methods;
+    }
+
+    public void setDiscovery_methods(List<CategoryEntry> discovery_methods) {
+        this.discovery_methods = discovery_methods;
+    }
+
+    public List<CategoryEntry> getEvidence_modifiers() {
+        return evidence_modifiers;
+    }
+
+    public void setEvidence_modifiers(List<CategoryEntry> evidence_modifiers) {
+        this.evidence_modifiers = evidence_modifiers;
+    }
+
+    public List<CategoryEntry> getEvidence_items() {
+        return evidence_items;
+    }
+
+    public void setEvidence_items(List<CategoryEntry> evidence_items) {
+        this.evidence_items = evidence_items;
+    }
+
     public List<CategoryEntry> getImprovement_categories() {
         return improvement_categories;
     }
@@ -96,5 +124,13 @@ public class CategoryData {
 
     public void setGender_categories(List<CategoryEntry> gender_categories) {
         this.gender_categories = gender_categories;
+    }
+
+    public List<CategoryEntry> getMotive_categories() {
+        return motive_categories;
+    }
+
+    public void setMotive_categories(List<CategoryEntry> motive_categories) {
+        this.motive_categories = motive_categories;
     }
 }

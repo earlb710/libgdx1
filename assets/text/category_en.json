@@ -172,43 +172,329 @@
   "case_types": [
     {
       "code": "BLACKMAIL",
+      "name": "Blackmail",
       "description": "Identify the source of a blackmail threat and neutralise it",
       "percentage": 10
     },
     {
       "code": "CORPORATE_ESPIONAGE",
+      "name": "Corporate Espionage",
       "description": "Uncover an internal information leak damaging a business",
       "percentage": 10
     },
     {
       "code": "FRAUD",
+      "name": "Fraud",
       "description": "Uncover deliberate financial deception or identity misrepresentation",
       "percentage": 10
     },
     {
       "code": "INFIDELITY",
+      "name": "Infidelity",
       "description": "Gather evidence of a partner\u0027s unfaithful behaviour",
       "percentage": 10
     },
     {
       "code": "MISSING_PERSON",
+      "name": "Missing Person",
       "description": "Locate a person who has disappeared and determine what happened to them",
       "percentage": 10
     },
     {
       "code": "MURDER",
+      "name": "Murder",
       "description": "Reinvestigate a suspicious death the authorities closed too quickly",
       "percentage": 10
     },
     {
       "code": "STALKING",
+      "name": "Stalking",
       "description": "Identify and document a stalker threatening the client or their family",
       "percentage": 10
     },
     {
       "code": "THEFT",
+      "name": "Theft",
       "description": "Identify who stole property and, if possible, recover it",
       "percentage": 10
+    }
+  ],
+  "motive_categories": [
+    {
+      "code": "FINANCIAL_GAIN",
+      "name": "Financial Gain",
+      "description": "Driven by greed, inheritance, insurance fraud, or the promise of monetary reward",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "FRAUD", "MURDER", "THEFT"]
+    },
+    {
+      "code": "REVENGE",
+      "name": "Revenge",
+      "description": "A desire to settle a grudge, avenge a wrong, or punish a perceived betrayal",
+      "case_types": ["BLACKMAIL", "MURDER", "STALKING", "THEFT"]
+    },
+    {
+      "code": "JEALOUSY",
+      "name": "Jealousy",
+      "description": "Envy over a romantic partner, professional success, or social standing",
+      "case_types": ["INFIDELITY", "MURDER", "STALKING"]
+    },
+    {
+      "code": "COERCION",
+      "name": "Coercion",
+      "description": "Forced or manipulated into action by threats, blackmail, or undue influence",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "FRAUD", "MURDER", "THEFT"]
+    },
+    {
+      "code": "POWER",
+      "name": "Power",
+      "description": "A drive to seize control, authority, or dominance over others",
+      "case_types": ["BLACKMAIL", "CORPORATE_ESPIONAGE", "MURDER", "STALKING"]
+    },
+    {
+      "code": "SELF_DEFENSE",
+      "name": "Self-Defense",
+      "description": "Acting out of fear for personal safety, whether justified or perceived",
+      "case_types": ["MISSING_PERSON", "MURDER"]
+    },
+    {
+      "code": "IDEOLOGY",
+      "name": "Ideology",
+      "description": "Motivated by political, religious, or philosophical beliefs",
+      "case_types": ["CORPORATE_ESPIONAGE", "MURDER", "THEFT"]
+    },
+    {
+      "code": "CONCEALMENT",
+      "name": "Concealment",
+      "description": "Covering up another crime, secret, or compromising situation",
+      "case_types": ["BLACKMAIL", "FRAUD", "MISSING_PERSON", "MURDER"]
+    },
+    {
+      "code": "PASSION",
+      "name": "Passion",
+      "description": "An intense emotional outburst — love, rage, or desperation — leading to impulsive action",
+      "case_types": ["INFIDELITY", "MISSING_PERSON", "MURDER", "STALKING"]
+    },
+    {
+      "code": "LOYALTY",
+      "name": "Loyalty",
+      "description": "Protecting a family member, friend, or associate at any cost",
+      "case_types": ["BLACKMAIL", "FRAUD", "MISSING_PERSON", "MURDER", "THEFT"]
+    }
+  ],
+  "discovery_methods": [
+    {
+      "code": "BACKGROUND_CHECK",
+      "name": "Background Check",
+      "description": "Research the subject\u0027s history, associates, and prior activities"
+    },
+    {
+      "code": "DOCUMENTS",
+      "name": "Documents",
+      "description": "Obtain and review financial records, contracts, or correspondence"
+    },
+    {
+      "code": "FORENSICS",
+      "name": "Forensics",
+      "description": "Submit physical evidence to a laboratory for scientific analysis"
+    },
+    {
+      "code": "INTERVIEW",
+      "name": "Interview",
+      "description": "Speak to a witness, suspect, or contact to obtain information"
+    },
+    {
+      "code": "PHYSICAL_SEARCH",
+      "name": "Physical Search",
+      "description": "Search a building or outdoor location for hidden objects or signs"
+    },
+    {
+      "code": "SURVEILLANCE",
+      "name": "Surveillance",
+      "description": "Observe the subject at a location over a period of time"
+    }
+  ],
+  "evidence_modifiers": [
+    {
+      "code": "BLOOD",
+      "name": "Blood",
+      "description": "Serological test for the presence, type, and source of blood"
+    },
+    {
+      "code": "DNA",
+      "name": "DNA",
+      "description": "DNA profile analysis for positive identification"
+    },
+    {
+      "code": "FIBER",
+      "name": "Fiber",
+      "description": "Textile fiber analysis to match clothing or fabrics at the scene"
+    },
+    {
+      "code": "FINGERPRINTS",
+      "name": "Fingerprints",
+      "description": "Latent fingerprint analysis to identify who handled the item"
+    },
+    {
+      "code": "GLASS_FRAGMENTS",
+      "name": "Glass Fragments",
+      "description": "Glass origin and breakage-pattern analysis"
+    },
+    {
+      "code": "HAIR",
+      "name": "Hair",
+      "description": "Hair follicle and shaft analysis for identification or contact transfer"
+    },
+    {
+      "code": "SOIL",
+      "name": "Soil",
+      "description": "Soil composition analysis to link a suspect or item to a location"
+    },
+    {
+      "code": "TOOL_MARKS",
+      "name": "Tool Marks",
+      "description": "Impression analysis of marks left by tools, weapons, or forced entry"
+    },
+    {
+      "code": "ACCELERANT",
+      "name": "Accelerant",
+      "description": "Detection of fire accelerants such as petrol, paraffin, or solvents"
+    },
+    {
+      "code": "BALLISTICS",
+      "name": "Ballistics",
+      "description": "Firearm and projectile analysis to match bullets or casings to a weapon"
+    },
+    {
+      "code": "CHEMICAL_RESIDUE",
+      "name": "Chemical Residue",
+      "description": "Detection and identification of chemical or drug residue on surfaces"
+    },
+    {
+      "code": "DIGITAL_DATA",
+      "name": "Digital Data",
+      "description": "Data recovery and analysis from electronic devices or storage media"
+    },
+    {
+      "code": "HANDWRITING",
+      "name": "Handwriting",
+      "description": "Handwriting comparison and document authenticity analysis"
+    },
+    {
+      "code": "PAINT_TRANSFER",
+      "name": "Paint Transfer",
+      "description": "Paint chip and transfer analysis to link vehicles or surfaces"
+    },
+    {
+      "code": "TIRE_TRACKS",
+      "name": "Tire Tracks",
+      "description": "Tire tread pattern and wear analysis to identify a vehicle"
+    },
+    {
+      "code": "GUNSHOT_RESIDUE",
+      "name": "Gunshot Residue",
+      "description": "Detection of primer and propellant residue on hands, clothing, or surfaces"
+    },
+    {
+      "code": "TOXICOLOGY",
+      "name": "Toxicology",
+      "description": "Analysis of body fluids or substances for drugs, poisons, or alcohol"
+    },
+    {
+      "code": "BITE_MARKS",
+      "name": "Bite Marks",
+      "description": "Dental impression comparison to identify an individual from bite wounds"
+    },
+    {
+      "code": "INK_ANALYSIS",
+      "name": "Ink Analysis",
+      "description": "Ink composition and age analysis for document dating or authenticity"
+    },
+    {
+      "code": "EXPLOSIVE_RESIDUE",
+      "name": "Explosive Residue",
+      "description": "Detection and identification of explosive compounds or detonator fragments"
+    }
+  ],
+  "evidence_items": [
+    {
+      "code": "BULLET_CASING",
+      "name": "Bullet Casing",
+      "description": "A spent cartridge case that can be linked to a specific firearm"
+    },
+    {
+      "code": "CIGARETTE",
+      "name": "Cigarette",
+      "description": "A used cigarette that may carry saliva DNA or fingerprints"
+    },
+    {
+      "code": "CLOTH",
+      "name": "Cloth",
+      "description": "A torn or discarded piece of fabric found at the scene"
+    },
+    {
+      "code": "DOCUMENT",
+      "name": "Document",
+      "description": "A note, letter, or printed page found at or near the scene"
+    },
+    {
+      "code": "DRINKING_GLASS",
+      "name": "Drinking Glass",
+      "description": "A common glass that may have been handled or used by a suspect"
+    },
+    {
+      "code": "HAIR_SAMPLE",
+      "name": "Hair Sample",
+      "description": "One or more hairs collected from the scene"
+    },
+    {
+      "code": "KITCHEN_KNIFE",
+      "name": "Kitchen Knife",
+      "description": "A bladed kitchen utensil that could be a weapon or was near one"
+    },
+    {
+      "code": "SHOE_PRINT",
+      "name": "Shoe Print",
+      "description": "A cast or photograph of a shoe impression left at the scene"
+    },
+    {
+      "code": "MOBILE_PHONE",
+      "name": "Mobile Phone",
+      "description": "A smartphone or mobile device found at or linked to the scene"
+    },
+    {
+      "code": "PAINT_CHIP",
+      "name": "Paint Chip",
+      "description": "A chip or scraping of paint collected from a surface or vehicle"
+    },
+    {
+      "code": "BURNED_MATERIAL",
+      "name": "Burned Material",
+      "description": "Charred debris or material collected from a fire scene"
+    },
+    {
+      "code": "ENVELOPE",
+      "name": "Envelope",
+      "description": "A postal envelope that may have been licked, sealed, or addressed by hand"
+    },
+    {
+      "code": "TIRE_IMPRESSION",
+      "name": "Tire Impression",
+      "description": "A cast or photograph of a tire mark left at or near the scene"
+    },
+    {
+      "code": "SYRINGE",
+      "name": "Syringe",
+      "description": "A used syringe found at the scene that may contain drug traces"
+    },
+    {
+      "code": "LETTER",
+      "name": "Letter",
+      "description": "A personal letter found at or sent to the scene"
+    },
+    {
+      "code": "FIREARM",
+      "name": "Firearm",
+      "description": "A gun recovered from the scene or linked to the investigation"
     }
   ],
   "improvement_categories": [
