@@ -293,14 +293,16 @@ The NPC data table in `CaseEditorPanel` has **21 columns** (indices 0–20):
 
 ### 13. Unknown facts, motive narratives & evidence chains
 
-`generateUnknownFacts()` creates 7–8 facts with status `UNKNOWN` that
+`generateUnknownFacts()` creates 7–12 facts with status `UNKNOWN` that
 represent the core mysteries the player must solve.  Several are linked
 into **evidence chains** via prerequisite dependencies:
 
 | # | Category | Templates | Importance | Prerequisite | Avail Day |
 |---|---|---|---|---|---|
 | 1 | METHOD | 5 (murder) / 4 (other) | 5 | — | 0 |
-| 2 | MOTIVE | 10 codes × 3–4 = ~37 | 5 | — | 0 |
+| 2 | MOTIVE (primary) | 10 codes × 10 = ~100 | 5 | — | 0 |
+| 2a | MOTIVE (red herring, complexity ≥ 2) | 10 × 10 × 4 wrappers | 2 | — | 0 |
+| 2b | MOTIVE (secondary, complexity 3) | 10 × 10 × 4 connectors | 4 | #2 primary | 0 |
 | 3 | EVIDENCE (weapon, murder) | 5 | 4 | — | 0 |
 | 4 | DATE (timeline) | 4 | 4 | #3 weapon | 1 (murder) |
 | 5 | ITEM (location) | 4 | 3 | — | 0 |
@@ -308,12 +310,36 @@ into **evidence chains** via prerequisite dependencies:
 | 7 | DATE (alibi) | 4 | 4 | #4 timeline | 0 |
 | 8 | ITEM (cover-up) | 4 | 3 | #5 location | 2 |
 
+#### Procedural motive complexity
+
+At complexity 1, there is a single primary motive.  At complexity ≥ 2, a
+**red-herring motive** (status HIDDEN, importance 2) is added — a plausible
+but false explanation that misleads the investigator until contradicted by
+the true motive.  At complexity 3, a **secondary / layered motive** (status
+UNKNOWN, importance 4) is chained to the primary — it becomes discoverable
+only after the primary motive is found.
+
+```
+Complexity 1:  primary motive only
+Complexity 2:  primary + red-herring motive
+Complexity 3:  primary + red-herring + secondary motive (chained to primary)
+```
+
+`NarrativeTemplates` provides:
+- `pickSecondaryMotiveCode(primaryCode)` — 10 logical pairings
+- `buildSecondaryMotiveNarrative(secondaryCode, primaryCode, subject, victim)`
+- `pickRedHerringMotiveCode(trueMotiveCode)` — random different code
+- `buildRedHerringMotiveNarrative(herringCode, subject, victim)`
+
 #### Evidence chain structure
 
 ```
 Murder cases:
   weapon (#3) → timeline (#4, day 1) → alibi verification (#7)
   location (#5) → cover-up (#8, day 2)
+
+Motive chains (complexity 3):
+  primary motive (#2) → secondary motive (#2b)
 
 generateFacts() chains:
   scene evidence → DNA analysis (day 2) → toxicology report (day 4)
@@ -343,8 +369,8 @@ Story tree chains (complexity ≥ 2):
 | 12 | Availability Day | Integer | In-game day when available (forensics) |
 
 `buildMotiveNarrative(motiveCode, subject, victim)` selects from a pool
-of 3–4 unique sentence templates per motive code (10 codes, ~37 templates
-total).  Each template uses `{subject}` and `{victim}` substitution.
+of ~10 unique sentence templates per motive code (10 codes, ~100 templates
+total).  Each template uses the `subject` and `victim` names directly.
 
 ### 14. Save/load persistence for the story tree
 

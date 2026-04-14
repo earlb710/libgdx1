@@ -842,6 +842,31 @@ public class CaseEditorPanel extends JPanel {
                         + "until its prerequisite fact has been found. The availability day "
                         + "indicates how long forensic processing takes before the evidence "
                         + "becomes available to the investigator.";
+            case "MOTIVE_LAYERS":
+                return "Motive Complexity\n\n"
+                        + "This section shows the layered motive structure for the case. "
+                        + "At complexity 1, there is a single primary motive. At complexity 2+, "
+                        + "a red-herring motive is added — it appears plausible early in the "
+                        + "investigation but is ultimately contradicted. At complexity 3, a "
+                        + "secondary motive provides a deeper layer of motivation beneath the "
+                        + "primary one, discoverable after the primary motive is found.";
+            case "MOTIVE:PRIMARY":
+                return "Primary motive: " + title + "\n\n"
+                        + "This is the true primary motive for the crime. The investigator "
+                        + "must discover this through evidence gathering and interviews.";
+            case "MOTIVE:SECONDARY":
+                return "Secondary / layered motive: " + title + "\n\n"
+                        + "This deeper motive exists beneath the primary one. It is only "
+                        + "discoverable after the primary motive has been uncovered (evidence "
+                        + "chain prerequisite). The secondary motive adds complexity to the "
+                        + "perpetrator's motivations and may explain additional aspects of "
+                        + "the crime that the primary motive alone does not account for.";
+            case "MOTIVE:RED_HERRING":
+                return "⚠ Red-herring motive: " + title + "\n\n"
+                        + "This is a FALSE motive that appears plausible early in the "
+                        + "investigation. It will mislead the investigator until the true "
+                        + "motive is discovered and contradicts it. The red-herring motive "
+                        + "is designed to waste investigation time and create false leads.";
             case "LEAD":
                 return "Lead: " + title + "\n\n"
                         + "This lead is available from the start. Following it may uncover "
@@ -2301,7 +2326,7 @@ public class CaseEditorPanel extends JPanel {
                 client, victim, "", "", "", 0);
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
-        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode);
+        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode, complexity);
 
         // ---------- Build phases — facts and leads are created as the story demands ----------
         // At complexity ≥ 2, evidence chains link facts within each major block:
@@ -2475,6 +2500,37 @@ public class CaseEditorPanel extends JPanel {
             storyRoot.insert(chainSection, 2); // third child
         }
 
+        // ---------- Build the MOTIVE_LAYERS section — motive complexity ----------
+        int insertIdx = chainSection.getChildCount() > 0 ? 3 : 2;
+        DefaultMutableTreeNode motiveSection = new DefaultMutableTreeNode(
+                "[MOTIVE_LAYERS] Motive Complexity (complexity=" + complexity + ")");
+        // Scan facts for motive-related entries
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String cat = String.valueOf(factsModel.getValueAt(r, 1));
+            if (!"MOTIVE".equals(cat)) continue;
+            String fId   = String.valueOf(factsModel.getValueAt(r, 0));
+            String fText = String.valueOf(factsModel.getValueAt(r, 2));
+            String fStatus = String.valueOf(factsModel.getValueAt(r, 3));
+            Object imp = factsModel.getValueAt(r, 10);
+            int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
+            String tag;
+            if (fText.startsWith("RED_HERRING")) {
+                tag = "[MOTIVE:RED_HERRING]";
+            } else if (fText.startsWith("SECONDARY")) {
+                tag = "[MOTIVE:SECONDARY]";
+            } else {
+                tag = "[MOTIVE:PRIMARY]";
+            }
+            StringBuilder nodeLabel = new StringBuilder(tag).append(' ')
+                    .append(fId).append(" (").append(fStatus)
+                    .append(", importance=").append(importance).append("): ").append(fText);
+            appendChainInfo(nodeLabel, r);
+            motiveSection.add(new DefaultMutableTreeNode(nodeLabel.toString()));
+        }
+        if (motiveSection.getChildCount() > 0) {
+            storyRoot.insert(motiveSection, insertIdx);
+        }
+
         treeModel.reload();
         expandAll(storyTree);
         int unknownCount = 0;
@@ -2525,7 +2581,7 @@ public class CaseEditorPanel extends JPanel {
      */
     private void generateUnknownFacts(int[] factIdCounter, String caseType,
                                        String subject, String victim, String client,
-                                       String motiveCode) {
+                                       String motiveCode, int complexity) {
         boolean isMurder = "Murder".equalsIgnoreCase(caseType);
 
         // Core unknown: how was the crime committed?
@@ -2548,11 +2604,38 @@ public class CaseEditorPanel extends JPanel {
                     "UNKNOWN", 0L, "", "", "", "", "", 5);
         }
 
-        // Motive — a concrete, case-specific narrative
+        // Primary motive — a concrete, case-specific narrative
         String motiveNarrative = buildMotiveNarrative(motiveCode, subject, victim);
-        addFact(factIdCounter, "MOTIVE",
+        String primaryMotiveFactId = addFact(factIdCounter, "MOTIVE",
                 motiveCode + ": " + motiveNarrative,
                 "UNKNOWN", 0L, subject, "", "", "", "", 5);
+
+        // --- Procedural motive complexity ---
+
+        // Red-herring motive (complexity ≥ 2): a plausible but false motive
+        // that appears early and misleads the investigator until contradicted
+        // by discovering the true motive.
+        if (complexity >= 2) {
+            String herringCode = narratives.pickRedHerringMotiveCode(motiveCode);
+            String herringNarrative = narratives.buildRedHerringMotiveNarrative(
+                    herringCode, subject, victim);
+            addFact(factIdCounter, "MOTIVE",
+                    "RED_HERRING (" + herringCode + "): " + herringNarrative,
+                    "HIDDEN", 0L, subject, "", "", "", "", 2,
+                    "", 0);
+        }
+
+        // Secondary / layered motive (complexity 3): a deeper motivation
+        // beneath the primary one, discovered after the primary motive is known.
+        if (complexity >= 3) {
+            String secondaryCode = narratives.pickSecondaryMotiveCode(motiveCode);
+            String secondaryNarrative = narratives.buildSecondaryMotiveNarrative(
+                    secondaryCode, motiveCode, subject, victim);
+            addFact(factIdCounter, "MOTIVE",
+                    "SECONDARY (" + secondaryCode + "): " + secondaryNarrative,
+                    "UNKNOWN", 0L, subject, "", "", "", "", 4,
+                    primaryMotiveFactId, 0);
+        }
 
         // Weapon / instrument
         String weaponFactId = "";
@@ -2870,9 +2953,27 @@ public class CaseEditorPanel extends JPanel {
 
         sb.append("Case Type:    ").append(nullSafe(caseTypeCombo.getSelectedItem())).append('\n');
         sb.append("Complexity:   ").append(complexitySpinner.getValue()).append('\n');
+        sb.append("Motive:       ").append(nullSafe(motiveCombo.getSelectedItem())).append('\n');
         sb.append("Client:       ").append(nullSafe(clientNameField.getText())).append('\n');
         sb.append("Subject:      ").append(nullSafe(subjectNameField.getText())).append('\n');
         sb.append("Victim:       ").append(nullSafe(victimNameField.getText())).append('\n');
+        sb.append('\n');
+
+        // --- Motive complexity summary ---
+        int cmplx = (int) complexitySpinner.getValue();
+        sb.append("--- Motive Complexity ---\n");
+        int primaryCount = 0, secondaryCount = 0, herringCount = 0;
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String cat = String.valueOf(factsModel.getValueAt(r, 1));
+            if (!"MOTIVE".equals(cat)) continue;
+            String fText = String.valueOf(factsModel.getValueAt(r, 2));
+            if (fText.startsWith("RED_HERRING")) { herringCount++; }
+            else if (fText.startsWith("SECONDARY")) { secondaryCount++; }
+            else { primaryCount++; }
+        }
+        sb.append("  Primary motives:    ").append(primaryCount).append('\n');
+        if (cmplx >= 2) sb.append("  Red-herring motives:").append(herringCount).append('\n');
+        if (cmplx >= 3) sb.append("  Secondary motives:  ").append(secondaryCount).append('\n');
         sb.append('\n');
 
         sb.append("--- Description ---\n");

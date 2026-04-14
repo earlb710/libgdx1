@@ -709,6 +709,8 @@ When the player's attribute is **below** the gate value, they receive the
 | Subject opinion/observation/motive truthful | 50 %       |
 | Story fact has prerequisite (complexity ≥ 2)| ~75 % of non-first actions |
 | Evidence fact gets forensics delay (complexity 3)| ~100 % of evidence-type |
+| Red-herring motive generated (complexity ≥ 2)| 100 %     |
+| Secondary motive generated (complexity 3)  | 100 %       |
 
 ### Evidence Chain Statistics
 
@@ -729,7 +731,7 @@ When the player's attribute is **below** the gate value, they receive the
 | Leads                | 3           | 4           | 5           |
 | Known Facts          | ~5–8        | ~6–10       | ~7–12       |
 | Hidden Facts         | ~10–16      | ~18–26      | ~26–36      |
-| Unknown Facts        | 8           | 8           | 8           |
+| Unknown Facts        | 8–10        | 8–10        | 9–12        |
 | Leaf Actions         | 8           | 16          | 24          |
 | Interview Responses  | ~30–50      | ~40–65      | ~50–80      |
 
@@ -814,15 +816,56 @@ across cases.
 - Fact table UI updated with two new columns; `appendChainInfo()` helper
   annotates fact references throughout
 
-### 5. Procedural Motive Complexity
+### 5. Procedural Motive Complexity ✅ (Implemented)
 
-**Current:** One motive per case, chosen at generation time.
+**Previous status:** One motive per case, chosen at generation time.
 
-**Improvement:**
-- Allow **layered motives** (primary + secondary) at complexity 3
-- Generate motive **red herrings** — false motives that appear plausible
-  until contradicted
-- Tie motive discovery to specific interview gates and evidence findings
+**What was implemented:**
+- **Layered motives** at complexity 3: a **secondary motive** is generated from
+  a logical pairing table (e.g. FINANCIAL_GAIN → CONCEALMENT, REVENGE → PASSION)
+  and is chained to the primary motive fact via an evidence-chain prerequisite —
+  the investigator must discover the primary motive before the secondary one
+  becomes available
+- **Red-herring motives** at complexity ≥ 2: a HIDDEN fact with a plausible but
+  false motive narrative is generated using a different motive code.  It appears
+  convincing early in the investigation but is ultimately contradicted
+- **`NarrativeTemplates` additions:**
+  - `pickSecondaryMotiveCode(primaryCode)` — selects a logically paired
+    secondary motive (10 predefined pairings)
+  - `buildSecondaryMotiveNarrative(secondaryCode, primaryCode, subject, victim)`
+    — wraps a standard motive narrative with a "deeper motivation" connector
+  - `pickRedHerringMotiveCode(trueMotiveCode)` — selects a different motive
+    code for the false lead
+  - `buildRedHerringMotiveNarrative(herringCode, subject, victim)` — wraps a
+    standard narrative with misleading framing text
+- **Story tree visualisation:** `[MOTIVE_LAYERS]` section shows all motive
+  facts tagged as `[MOTIVE:PRIMARY]`, `[MOTIVE:SECONDARY]`, or
+  `[MOTIVE:RED_HERRING]` with chain info
+- **Summary output** includes a Motive Complexity section counting
+  primary/secondary/red-herring motive facts
+
+#### Motive complexity by level
+
+| Complexity | Primary | Red Herring | Secondary | Total motive facts |
+|------------|---------|-------------|-----------|-------------------|
+| 1          | 1+traits| —           | —         | 1–3               |
+| 2          | 1+traits| 1           | —         | 2–4               |
+| 3          | 1+traits| 1           | 1         | 3–5               |
+
+#### Secondary motive pairings
+
+| Primary         | Secondary       |
+|-----------------|-----------------|
+| FINANCIAL_GAIN  | CONCEALMENT     |
+| REVENGE         | PASSION         |
+| JEALOUSY        | REVENGE         |
+| COERCION        | SELF_DEFENSE    |
+| POWER           | FINANCIAL_GAIN  |
+| SELF_DEFENSE    | CONCEALMENT     |
+| IDEOLOGY        | POWER           |
+| CONCEALMENT     | FINANCIAL_GAIN  |
+| PASSION         | JEALOUSY        |
+| LOYALTY         | COERCION        |
 
 ### 6. Location-Based Investigation ✅ (Implemented)
 

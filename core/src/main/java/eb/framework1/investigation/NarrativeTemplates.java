@@ -714,4 +714,123 @@ public class NarrativeTemplates {
         }
         return pool[random.nextInt(pool.length)];
     }
+
+    // =========================================================================
+    // Layered motives & red-herring motives
+    // =========================================================================
+
+    /** All known motive codes used for pairing and red-herring selection. */
+    private static final String[] ALL_MOTIVE_CODES = {
+        "FINANCIAL_GAIN", "REVENGE", "JEALOUSY", "COERCION", "POWER",
+        "SELF_DEFENSE", "IDEOLOGY", "CONCEALMENT", "PASSION", "LOYALTY"
+    };
+
+    /**
+     * Logical pairings: given a primary motive, which secondary motive
+     * could plausibly coexist with it?  Used for layered motives at
+     * complexity&nbsp;3.
+     */
+    private static final String[][] SECONDARY_PAIRINGS = {
+        {"FINANCIAL_GAIN", "CONCEALMENT"},
+        {"REVENGE",        "PASSION"},
+        {"JEALOUSY",       "REVENGE"},
+        {"COERCION",       "SELF_DEFENSE"},
+        {"POWER",          "FINANCIAL_GAIN"},
+        {"SELF_DEFENSE",   "CONCEALMENT"},
+        {"IDEOLOGY",       "POWER"},
+        {"CONCEALMENT",    "FINANCIAL_GAIN"},
+        {"PASSION",        "JEALOUSY"},
+        {"LOYALTY",        "COERCION"}
+    };
+
+    /**
+     * Selects a secondary motive code that pairs logically with the primary.
+     * Used at complexity&nbsp;3 to create layered motives — a primary
+     * surface-level motive plus a deeper secondary driver.
+     *
+     * @param primaryCode the primary motive code
+     * @return a secondary motive code that pairs with the primary
+     */
+    public String pickSecondaryMotiveCode(String primaryCode) {
+        for (String[] pair : SECONDARY_PAIRINGS) {
+            if (pair[0].equals(primaryCode)) {
+                return pair[1];
+            }
+        }
+        // Fallback: pick any code that differs from primary
+        String fallback;
+        do {
+            fallback = ALL_MOTIVE_CODES[random.nextInt(ALL_MOTIVE_CODES.length)];
+        } while (fallback.equals(primaryCode));
+        return fallback;
+    }
+
+    /**
+     * Builds a secondary-motive narrative for layered motives (complexity&nbsp;3).
+     * The secondary motive provides a deeper layer of motivation beyond the
+     * primary surface-level motive.
+     *
+     * @param secondaryCode the secondary motive code
+     * @param primaryCode   the primary motive code (for context)
+     * @param subject       the perpetrator's name
+     * @param victim        the victim's name
+     * @return a narrative sentence linking the secondary motive to the case
+     */
+    public String buildSecondaryMotiveNarrative(String secondaryCode,
+                                                 String primaryCode,
+                                                 String subject,
+                                                 String victim) {
+        String secondaryBase = buildMotiveNarrative(secondaryCode, subject, victim);
+        String[] connectors = {
+            "Beneath the surface, a deeper motive was at work: ",
+            "The primary motive was only part of the story. In addition, ",
+            "Investigators would later discover a second driving force: ",
+            "What appeared straightforward concealed a more complex motivation — "
+        };
+        return connectors[random.nextInt(connectors.length)] + secondaryBase;
+    }
+
+    /**
+     * Selects a plausible red-herring motive code — one that differs from
+     * the true motive but could appear convincing until contradicted.
+     *
+     * @param trueMotiveCode the actual motive for the case
+     * @return a different motive code suitable as a red herring
+     */
+    public String pickRedHerringMotiveCode(String trueMotiveCode) {
+        // Pick a code that differs from the truth
+        String herring;
+        do {
+            herring = ALL_MOTIVE_CODES[random.nextInt(ALL_MOTIVE_CODES.length)];
+        } while (herring.equals(trueMotiveCode));
+        return herring;
+    }
+
+    /**
+     * Builds a red-herring motive narrative — a plausible but ultimately
+     * false explanation for the crime.  The text is designed to be
+     * convincing early in the investigation but contradicted by later
+     * evidence.
+     *
+     * @param herringCode the false motive code
+     * @param subject     the perpetrator's name
+     * @param victim      the victim's name
+     * @return a narrative sentence for the red-herring motive
+     */
+    public String buildRedHerringMotiveNarrative(String herringCode,
+                                                  String subject,
+                                                  String victim) {
+        String baseNarrative = buildMotiveNarrative(herringCode, subject, victim);
+        String[] wrappers = {
+            "Early evidence suggests a different motive: " + baseNarrative
+                + " — but this will prove misleading.",
+            "Initial interviews point to an apparent motive: " + baseNarrative
+                + " However, deeper investigation reveals this is a dead end.",
+            "On the surface it appeared that " + baseNarrative
+                + " Further analysis contradicts this theory entirely.",
+            "Circumstantial evidence initially suggested: " + baseNarrative
+                + " This line of inquiry leads nowhere."
+        };
+        return wrappers[random.nextInt(wrappers.length)];
+    }
 }
