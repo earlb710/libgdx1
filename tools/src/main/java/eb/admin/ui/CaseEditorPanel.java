@@ -2971,9 +2971,9 @@ public class CaseEditorPanel extends JPanel {
             else if (fText.startsWith("SECONDARY")) { secondaryCount++; }
             else { primaryCount++; }
         }
-        sb.append("  Primary motives:    ").append(primaryCount).append('\n');
-        if (cmplx >= 2) sb.append("  Red-herring motives:").append(herringCount).append('\n');
-        if (cmplx >= 3) sb.append("  Secondary motives:  ").append(secondaryCount).append('\n');
+        sb.append("  Primary motives:     ").append(primaryCount).append('\n');
+        if (cmplx >= 2) sb.append("  Red-herring motives: ").append(herringCount).append('\n');
+        if (cmplx >= 3) sb.append("  Secondary motives:   ").append(secondaryCount).append('\n');
         sb.append('\n');
 
         sb.append("--- Description ---\n");
