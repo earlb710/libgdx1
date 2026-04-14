@@ -1,6 +1,64 @@
 {
   "version": "1.0",
   "description": "Case description and objective template pools. Keyed by case_type.complexity where complexity is 1, 2, or 3. Placeholders: $client, $subject, $victim, $pronoun (he/she), $pronounCap (He/She), $pron (he/she lowercase).",
+  "caseDescriptions": {
+    "MISSING_PERSON": {
+      "roles": ["Client", "Subject (Missing)", "Witness", "Last-Known Contact", "Neighbour"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A missing-person case requires a client who reports the disappearance, the missing subject, at least one witness, a last-known contact, and a neighbour. Higher complexity adds additional suspects."
+    },
+    "INFIDELITY": {
+      "roles": ["Client", "Subject (Partner)", "Other Party", "Mutual Friend", "Witness"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "An infidelity case involves a client suspecting their partner, the subject, a third party, a mutual acquaintance, and a witness. Additional suspects appear at higher complexity."
+    },
+    "THEFT": {
+      "roles": ["Client (Victim)", "Subject (Suspect)", "Witness", "Insurance Adjuster", "Fence/Dealer"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A theft case requires a victim client, a primary suspect, a witness, an insurance adjuster, and a fence or dealer. Additional suspects are introduced at higher complexity."
+    },
+    "FRAUD": {
+      "roles": ["Client (Victim)", "Subject (Perpetrator)", "Accountant", "Business Associate", "Insider Witness"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A fraud case involves a victim client, a perpetrator, an accountant, a business associate, and an insider witness. Higher complexity adds more suspects to the mix."
+    },
+    "BLACKMAIL": {
+      "roles": ["Client (Victim)", "Subject (Blackmailer)", "Witness", "Intermediary", "Confidant"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A blackmail case requires a victim client, the blackmailer, a witness, an intermediary, and a confidant. Additional suspects appear at higher complexity."
+    },
+    "MURDER": {
+      "roles": ["Client", "Subject (Suspect)", "Victim", "Key Witness", "Victim's Associate", "Police Contact"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A murder case is the most complex type, requiring a client, a primary suspect, the victim, a key witness, the victim's associate, and a police contact. This is the only case type with a dead NPC. Additional suspects appear at higher complexity."
+    },
+    "STALKING": {
+      "roles": ["Client (Victim)", "Subject (Stalker)", "Neighbour Witness", "Ex-Partner", "Friend of Client"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A stalking case involves a victim client, the stalker, a neighbour witness, an ex-partner, and a friend of the client. Additional suspects appear at higher complexity."
+    },
+    "CORPORATE_ESPIONAGE": {
+      "roles": ["Client (Employer)", "Subject (Leak)", "Rival Contact", "Trusted Colleague", "IT Specialist"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Suspect — Neighbour", "Suspect — Colleague", "Suspect — Associate", "Suspect — Ex-Partner", "Suspect — Acquaintance"],
+      "summary": "A corporate espionage case requires an employer client, the suspected leak, a rival contact, a trusted colleague, and an IT specialist. Additional suspects appear at higher complexity."
+    }
+  },
   "descriptions": {
     "MISSING_PERSON.1": [
       "$client came in looking for answers. $subject vanished three days ago without a word. No note, no call, nothing. $pronounCap left behind a half-eaten meal and an unlocked door. The police say it's too early to file a report.",

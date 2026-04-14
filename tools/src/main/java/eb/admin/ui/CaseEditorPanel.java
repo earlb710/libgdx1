@@ -37,12 +37,13 @@ import java.util.Random;
  * <h3>Steps</h3>
  * <ol>
  *   <li><b>Case Type</b> — choose a type, motive, and complexity from the code tables</li>
+ *   <li><b>Description &amp; Objective</b> — generate narrative text and NPC requirements</li>
  *   <li><b>NPC Characters</b> — enter client/subject names, generate
  *       case-specific NPCs with roles and relationships</li>
- *   <li><b>Description &amp; Objective</b> — view generated narrative text</li>
  *   <li><b>Story Tree</b> — build and inspect the five-level story tree (generates facts and leads)</li>
  *   <li><b>Leads</b> — review or manually add hidden leads</li>
  *   <li><b>Facts</b> — review or manually add case facts</li>
+ *   <li><b>Interviews</b> — generate interview Q&amp;A pairs for each NPC</li>
  * </ol>
  */
 public class CaseEditorPanel extends JPanel {
@@ -62,7 +63,7 @@ public class CaseEditorPanel extends JPanel {
     private final JSpinner complexitySpinner =
             new JSpinner(new SpinnerNumberModel(1, 1, 3, 1));
 
-    // Step 2 – NPC Characters (includes Client & Subject names)
+    // Step 3 – NPC Characters (includes Client & Subject names)
     private final JTextField clientNameField  = new JTextField(20);
     private final JTextField subjectNameField = new JTextField(20);
     private final JTextField victimNameField  = new JTextField(20);
@@ -100,9 +101,10 @@ public class CaseEditorPanel extends JPanel {
             new DefaultTableModel(new String[]{
                     "From", "To", "Type", "Opinion"}, 0);
 
-    // Step 3 – Description & Objective
-    private final JTextArea descriptionArea = new JTextArea(4, 60);
-    private final JTextArea objectiveArea   = new JTextArea(2, 60);
+    // Step 2 – Description & Objective
+    private final JTextArea descriptionArea       = new JTextArea(4, 60);
+    private final JTextArea objectiveArea          = new JTextArea(2, 60);
+    private final JTextArea npcRequirementsArea    = new JTextArea(3, 60);
 
     // Step 4 – Leads
     private final DefaultTableModel leadsModel =
@@ -189,6 +191,7 @@ public class CaseEditorPanel extends JPanel {
         relationshipModel.setRowCount(0);
         descriptionArea.setText("");
         objectiveArea.setText("");
+        npcRequirementsArea.setText("");
         leadsModel.setRowCount(0);
         factsModel.setRowCount(0);
         interviewModel.setRowCount(0);
@@ -205,8 +208,8 @@ public class CaseEditorPanel extends JPanel {
     private JTabbedPane buildSteps() {
         JTabbedPane steps = new JTabbedPane();
         steps.addTab("1. Case Type",              buildCaseTypeStep());
-        steps.addTab("2. NPC Characters",         buildNpcStep());
-        steps.addTab("3. Description & Objective", buildDescriptionStep());
+        steps.addTab("2. Description & Objective", buildDescriptionStep());
+        steps.addTab("3. NPC Characters",         buildNpcStep());
         steps.addTab("4. Story Tree",             buildStoryTreeStep());
         steps.addTab("5. Leads",                  buildLeadsStep());
         steps.addTab("6. Facts",                  buildFactsStep());
@@ -271,7 +274,7 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 2: NPC Characters (includes Client & Subject name fields) ------
+    // -- Step 3: NPC Characters (includes Client & Subject name fields) ------
 
     private JPanel buildNpcStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -416,7 +419,7 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
-    // -- Step 3 ---------------------------------------------------------------
+    // -- Step 2 ---------------------------------------------------------------
 
     private JPanel buildDescriptionStep() {
         JPanel panel = new JPanel(new BorderLayout(8, 8));
@@ -426,6 +429,10 @@ public class CaseEditorPanel extends JPanel {
         descriptionArea.setWrapStyleWord(true);
         objectiveArea.setLineWrap(true);
         objectiveArea.setWrapStyleWord(true);
+        npcRequirementsArea.setLineWrap(true);
+        npcRequirementsArea.setWrapStyleWord(true);
+        npcRequirementsArea.setEditable(false);
+        npcRequirementsArea.setBackground(new Color(245, 245, 220));
 
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -446,6 +453,13 @@ public class CaseEditorPanel extends JPanel {
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 1; gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 0.5;
         form.add(new JScrollPane(objectiveArea), gbc);
+
+        gbc.gridx = 0; gbc.gridy = 4; gbc.weightx = 0; gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        form.add(new JLabel("NPC Requirements:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 5; gbc.weightx = 1; gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 0.4;
+        form.add(new JScrollPane(npcRequirementsArea), gbc);
 
         JButton generateBtn = new JButton("Generate Description & Objective");
         generateBtn.addActionListener(e -> generateDescriptionAndObjective());
@@ -1895,6 +1909,89 @@ public class CaseEditorPanel extends JPanel {
         }
 
         statusLabel.setText("Generated description and objective for " + caseTypeName + " case.");
+
+        // Build NPC requirements summary from the case description template
+        buildNpcRequirements(type, complexity);
+    }
+
+    /**
+     * Populates the NPC requirements area with the character roles and
+     * counts derived from the case description template.
+     */
+    private void buildNpcRequirements(CaseType type, int complexity) {
+        if (type == null) {
+            npcRequirementsArea.setText("");
+            return;
+        }
+
+        CaseTemplateData.CaseDescription caseDesc = null;
+        if (caseTemplateData != null) {
+            caseDesc = caseTemplateData.getCaseDescription(type.name());
+        }
+
+        if (caseDesc != null) {
+            StringBuilder req = new StringBuilder();
+            java.util.List<String> roles = caseDesc.getRoles();
+            req.append("Base NPC characters (").append(roles.size()).append("):\n");
+            for (int i = 0; i < roles.size(); i++) {
+                req.append("  ").append(i + 1).append(". ").append(roles.get(i)).append("\n");
+            }
+
+            String extra = "0";
+            if (complexity == 2) {
+                extra = caseDesc.getExtraSuspectsComplexity2();
+            } else if (complexity >= 3) {
+                extra = caseDesc.getExtraSuspectsComplexity3();
+            }
+            if (!"0".equals(extra)) {
+                req.append("\nAdditional suspects at complexity ")
+                        .append(complexity).append(": ").append(extra).append("\n");
+                java.util.List<String> suspectLabels = caseDesc.getSuspectLabels();
+                if (!suspectLabels.isEmpty()) {
+                    req.append("Possible suspect roles: ");
+                    for (int i = 0; i < suspectLabels.size(); i++) {
+                        if (i > 0) req.append(", ");
+                        req.append(suspectLabels.get(i));
+                    }
+                    req.append("\n");
+                }
+            }
+
+            int totalMin = roles.size();
+            int totalMax = roles.size();
+            if (!"0".equals(extra)) {
+                // Parse range like "1-2" or "2-3"
+                String[] parts = extra.split("-");
+                try {
+                    totalMin += Integer.parseInt(parts[0].trim());
+                    totalMax += Integer.parseInt(parts.length > 1 ? parts[1].trim() : parts[0].trim());
+                } catch (NumberFormatException ignored) { /* keep base count */ }
+            }
+            req.append("\nTotal NPCs: ");
+            if (totalMin == totalMax) {
+                req.append(totalMin);
+            } else {
+                req.append(totalMin).append("–").append(totalMax);
+            }
+
+            String summary = caseDesc.getSummary();
+            if (summary != null && !summary.isEmpty()) {
+                req.append("\n\n").append(summary);
+            }
+
+            npcRequirementsArea.setText(req.toString());
+        } else {
+            // Fallback: use hardcoded rolesForCaseType
+            String displayName = type.getDisplayName();
+            String[] roles = rolesForCaseType(displayName, complexity);
+            StringBuilder req = new StringBuilder();
+            req.append("NPC characters (").append(roles.length).append("):\n");
+            for (int i = 0; i < roles.length; i++) {
+                req.append("  ").append(i + 1).append(". ").append(roles[i]).append("\n");
+            }
+            npcRequirementsArea.setText(req.toString());
+        }
+        npcRequirementsArea.setCaretPosition(0);
     }
 
     /**
