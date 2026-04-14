@@ -25,8 +25,7 @@ import java.util.Random;
  *   <li>{@code $client}     — client name</li>
  *   <li>{@code $subject}    — subject / suspect name</li>
  *   <li>{@code $victim}     — victim name (empty for non-murder cases)</li>
- *   <li>{@code $pronoun}    — {@code He} or {@code She} (capitalised)</li>
- *   <li>{@code $pronounCap} — same as {@code $pronoun} (alias)</li>
+ *   <li>{@code $pronounCap} — {@code He} or {@code She} (capitalised)</li>
  *   <li>{@code $pron}       — {@code he} or {@code she} (lowercase)</li>
  * </ul>
  *

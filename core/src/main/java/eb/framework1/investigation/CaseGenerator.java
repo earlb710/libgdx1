@@ -179,7 +179,7 @@ public class CaseGenerator {
                         caseTemplateData)
                 + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
         String objective   = buildObjective(type, clientName, subjectName, victimName,
-                random, complexity, caseTemplateData);
+                subjectGender, random, complexity, caseTemplateData);
 
         CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
                 description, dateOpened != null ? dateOpened : "");
@@ -647,11 +647,34 @@ public class CaseGenerator {
                                         String victim, Random rng,
                                         int complexity,
                                         CaseTemplateData caseTemplateData) {
+        return buildObjective(type, client, subject, victim, null, rng,
+                complexity, caseTemplateData);
+    }
+
+    /**
+     * Generates the case objective using JSON template pools when available,
+     * with subject gender for pronoun resolution.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param subjectGender    {@code "M"} or {@code "F"}; may be {@code null}
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return resolved objective sentence(s)
+     */
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim, String subjectGender,
+                                        Random rng, int complexity,
+                                        CaseTemplateData caseTemplateData) {
         if (rng == null) rng = new Random();
         if (caseTemplateData != null) {
             String template = caseTemplateData.pickObjective(type.name(), complexity, rng);
             if (template != null) {
-                return resolveCasePlaceholders(template, client, subject, victim, null, null);
+                return resolveCasePlaceholders(template, client, subject, victim,
+                        null, subjectGender);
             }
         }
         return buildObjective(type, client, subject, victim, rng);

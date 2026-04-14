@@ -1833,7 +1833,7 @@ public class CaseEditorPanel extends JPanel {
                         clientGender, subjectGender, random, complexity,
                         caseTemplateData));
         String obj  = CaseGenerator.buildObjective(type, client, subject, victim,
-                random, complexity, caseTemplateData);
+                subjectGender, random, complexity, caseTemplateData);
 
         descriptionArea.setText(desc);
         objectiveArea.setText(obj);
