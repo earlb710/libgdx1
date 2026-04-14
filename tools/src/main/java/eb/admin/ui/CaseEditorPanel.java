@@ -1864,6 +1864,36 @@ public class CaseEditorPanel extends JPanel {
 
         descriptionArea.setText(desc);
         objectiveArea.setText(objBuilder.toString());
+
+        // Populate leads table with seed leads
+        if (seed != null && !seed.getLeads().isEmpty()) {
+            leadsModel.setRowCount(0);
+            int seedLeadIdx = 1;
+            for (CaseTemplateData.SeedLead sl : seed.getLeads()) {
+                String hint = CaseGenerator.resolveCasePlaceholders(sl.getHint(),
+                        client, subject, victim, clientGender, subjectGender);
+                String leadDesc = CaseGenerator.resolveCasePlaceholders(sl.getDescription(),
+                        client, subject, victim, clientGender, subjectGender);
+                leadsModel.addRow(new Object[]{
+                        "seed-lead-" + seedLeadIdx, hint, sl.getMethod(), leadDesc});
+                seedLeadIdx++;
+            }
+        }
+
+        // Populate facts table with seed facts
+        if (seed != null && !seed.getFacts().isEmpty()) {
+            factsModel.setRowCount(0);
+            int seedFactIdx = 1;
+            for (String rawFact : seed.getFacts()) {
+                String fact = CaseGenerator.resolveCasePlaceholders(rawFact,
+                        client, subject, victim, clientGender, subjectGender);
+                factsModel.addRow(new Object[]{
+                        "seed-fact-" + seedFactIdx, "CLUE", fact, "KNOWN",
+                        0L, "", "", "", "", "", 3, "", 0});
+                seedFactIdx++;
+            }
+        }
+
         statusLabel.setText("Generated description and objective for " + caseTypeName + " case.");
     }
 
