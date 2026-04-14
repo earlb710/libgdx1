@@ -430,36 +430,53 @@ The core `CaseGenerator` has 8 red herring lead templates, e.g.:
 ### Tree Structure
 
 ```
-Story Root [CaseType / Motive / complexity=N]
+Story Root [CaseType / Motive / complexity=N]         (parallel=true at c≥3)
 ├── [KNOWN_FACTS] Known Facts & Leads
-│   ├── [FACT] ...          (all KNOWN-status facts)
-│   ├── [LEAD] ...          (75% genuine leads)
-│   └── [LEAD:RED_HERRING]  (25% red herring leads)
+│   ├── [FACT] ...              (all KNOWN-status facts)
+│   ├── [LEAD] ...              (75% genuine leads)
+│   ├── [LEAD:RED_HERRING]      (25% red herring leads)
+│   └── [LEAD ... EXPIRES:day N] (30% of leads at complexity ≥ 2)
 ├── [UNKNOWN_FACTS] Unknown Facts (To Be Solved)
-│   └── [FACT:UNKNOWN] ...  (all UNKNOWN-status facts)
-├── [PLOT_TWIST] Initial Investigation          ← always present
-│   ├── [MAJOR] ...
+│   └── [FACT:UNKNOWN] ...      (all UNKNOWN-status facts)
+├── [PLOT_TWIST:PARALLEL] Initial Investigation       ← always; majors parallel
+│   ├── [MAJOR] ...  ← can be pursued in any order
 │   │   ├── [MINOR] ...
 │   │   │   ├── [ACTION] ...
 │   │   │   │   └── [RESULT] ... | req:ATTR:N | ok:fact:X | fail:...
 │   │   │   └── [ACTION] ...
 │   │   └── [MINOR] ...
-│   └── [MAJOR] ...
-├── [PLOT_TWIST] Plot Twist 1                   ← if complexity ≥ 2
+│   └── [MAJOR] ...  ← can be pursued in any order
+├── [PLOT_TWIST:PARALLEL] Plot Twist 1                ← if complexity ≥ 2
 │   └── (same structure)
-└── [PLOT_TWIST] Plot Twist 2                   ← if complexity ≥ 3
-    └── (same structure)
+├── [PLOT_TWIST:PARALLEL] Plot Twist 2                ← if complexity ≥ 3
+│   └── (same structure)
+└── [SIDE_CASE:PARALLEL] Side Case — ...              ← if complexity ≥ 3
+    └── [MAJOR] Side Lead
+        └── [MINOR] Quick Enquiry
+            ├── [ACTION] Investigate the side lead
+            └── [ACTION] Report findings
 ```
+
+### Non-Linear Progression
+
+Each PLOT_TWIST phase sets `parallel=true`, so both MAJOR_PROGRESS branches
+within it are available simultaneously — the player chooses which thread to
+pursue first.  At complexity ≥ 3, the story root itself is also parallel,
+allowing an optional SIDE_CASE branch to be investigated at any time.
+
+**Time-pressured leads:** ~30 % of leads at complexity ≥ 2 receive an
+`expirationDay` (3–7 in-game days).  `CaseLead.isExpired(currentDay)` lets
+the runtime determine if a lead is no longer actionable.
 
 ### Node Counts per Complexity
 
 | Level          | Per Phase | Complexity 1 | Complexity 2 | Complexity 3 |
 |---------------|-----------|-------------|-------------|-------------|
-| PLOT_TWIST     | 1         | 1           | 2           | 3           |
-| MAJOR_PROGRESS | 2         | 2           | 4           | 6           |
-| MINOR_PROGRESS | 4         | 4           | 8           | 12          |
-| ACTION (leaf)  | 8         | **8**       | **16**      | **24**      |
-| RESULT         | 8         | 8           | 16          | 24          |
+| PLOT_TWIST     | 1         | 1           | 2           | 3 + 1 side  |
+| MAJOR_PROGRESS | 2         | 2           | 4           | 6 + 1 side  |
+| MINOR_PROGRESS | 4         | 4           | 8           | 12 + 1 side |
+| ACTION (leaf)  | 8         | **8**       | **16**      | **24 + 2 side** |
+| RESULT         | 8         | 8           | 16          | 24 + 1 side |
 
 ### Action Title Generation
 
@@ -910,15 +927,24 @@ across cases.
 
 ### 7. Non-Linear Story Progression
 
-**Current:** Story tree is strictly linear: all sub-branches must complete
-before the next MAJOR_PROGRESS unlocks.
+**Status:** ✅ Done
 
-**Improvement:**
-- Allow **parallel investigation threads** — player chooses which major
-  branch to pursue first
-- Add **time pressure** — certain leads expire after N in-game days
-- Introduce optional **side cases** at complexity 3 that interweave with
-  the main case
+**Previous:** Story tree was strictly linear: all sub-branches had to complete
+before the next MAJOR_PROGRESS unlocked.
+
+**Implementation:**
+- **Parallel investigation threads:** Each PLOT_TWIST phase node is now
+  marked as `parallel=true`, meaning its two MAJOR_PROGRESS children can
+  be pursued in any order.  `CaseStoryNode.isChildAvailable()`,
+  `getNextActiveChild()`, and the new `getAvailableActions()` method all
+  respect the flag.  The admin tool displays `[PLOT_TWIST:PARALLEL]` tags.
+- **Time pressure:** At complexity ≥ 2, approximately 30 % of leads receive
+  an `expirationDay` (3–7 in-game days).  `CaseLead.isExpired(currentDay)`
+  lets the runtime check if a lead has become stale.  The admin tool shows
+  `[EXPIRES:day N]` on affected leads.
+- **Side cases:** At complexity 3, an optional `SIDE_CASE` node (a
+  self-contained mini-investigation) is appended to the story root with
+  `parallel=true`, so the player can pursue it alongside the main phases.
 
 ### 8. Physical Appearance Expansion
 
@@ -1002,4 +1028,4 @@ with significant duplication.
 
 ---
 
-*Last updated: 2026-04-13*
+*Last updated: 2026-04-14*

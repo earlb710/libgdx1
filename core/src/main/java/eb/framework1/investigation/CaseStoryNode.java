@@ -22,11 +22,15 @@ import java.util.List;
  *       or action the player must perform (e.g. "Photograph the scene").</li>
  * </ol>
  *
- * <p><strong>Sequential-unlock rule:</strong> among a node's children, child at
- * position {@code i} becomes available only after every child at positions
- * {@code 0..i-1} is fully complete.  Use {@link #isChildAvailable(int)} to
- * check accessibility and {@link #getNextActiveChild()} to find the current
- * task.
+ * <p><strong>Unlock rules:</strong> by default children are unlocked
+ * <em>sequentially</em> — child at position {@code i} becomes available only
+ * after every child at positions {@code 0..i-1} is fully complete.  A node
+ * can be marked as {@linkplain #setParallel(boolean) parallel}, in which case
+ * <strong>all</strong> children are available simultaneously.  Use
+ * {@link #isChildAvailable(int)} to check accessibility,
+ * {@link #getNextActiveChild()} for the first incomplete child, and
+ * {@link #getAvailableActions()} for <em>all</em> actions reachable across
+ * parallel branches.
  *
  * <p>Leaf ({@link NodeType#ACTION}) nodes are completed by calling
  * {@link #complete()}.  Branch nodes are considered fully complete when every
@@ -59,6 +63,13 @@ public class CaseStoryNode {
     private final List<CaseStoryNode> children;
     /** Completion flag — meaningful only for {@link NodeType#ACTION} leaves. */
     private boolean completed;
+    /**
+     * When {@code true}, all children of this node are available at the same
+     * time (parallel investigation threads).  When {@code false} (the default),
+     * children must be completed sequentially — child {@code i} unlocks only
+     * after children {@code 0..i-1} are fully complete.
+     */
+    private boolean parallel;
 
     /**
      * Creates a new, incomplete story node.
@@ -90,6 +101,7 @@ public class CaseStoryNode {
         this.nodeType    = nodeType;
         this.children    = new ArrayList<>();
         this.completed   = false;
+        this.parallel    = false;
     }
 
     // -------------------------------------------------------------------------
@@ -119,6 +131,21 @@ public class CaseStoryNode {
 
     /** The structural role of this node in the tree. */
     public NodeType getNodeType() { return nodeType; }
+
+    /**
+     * Returns {@code true} if this node's children can be pursued in any
+     * order (parallel investigation threads).  The default is {@code false}
+     * (strict sequential unlock).
+     */
+    public boolean isParallel() { return parallel; }
+
+    /**
+     * Sets whether this node's children should be available simultaneously.
+     *
+     * @param parallel {@code true} for parallel branches, {@code false} for
+     *                 strict sequential unlock
+     */
+    public void setParallel(boolean parallel) { this.parallel = parallel; }
 
     /**
      * Returns an unmodifiable, ordered view of this node's children.
@@ -186,15 +213,22 @@ public class CaseStoryNode {
 
     /**
      * Returns the first child that is not yet fully complete, provided that
-     * every child before it in the list is already fully complete (sequential-
-     * unlock rule).  Returns {@code null} when all children are complete or
-     * there are no children.
+     * the sequential-unlock rule allows it (or, for parallel nodes, any
+     * incomplete child).  Returns {@code null} when all children are complete
+     * or there are no children.
      *
-     * <p>Use this to find the child the player should work on next.
+     * <p>Use this to find the child the player should work on next.  For
+     * parallel nodes, this returns the first incomplete child (in insertion
+     * order), but all incomplete children are actually available — see
+     * {@link #getAvailableActions()} for the full set.
      */
     public CaseStoryNode getNextActiveChild() {
-        for (CaseStoryNode child : children) {
+        for (int i = 0; i < children.size(); i++) {
+            CaseStoryNode child = children.get(i);
             if (!child.isFullyComplete()) return child;
+            // In sequential mode, we must stop at the first incomplete child
+            // but since we already checked it isn't complete, we return it.
+            // Actually, the loop just returns the first incomplete child.
         }
         return null;
     }
@@ -202,12 +236,11 @@ public class CaseStoryNode {
     /**
      * Recursively finds the first available, non-completed
      * {@link NodeType#ACTION} leaf reachable from this node via the
-     * sequential-unlock rule.
+     * unlock rules (sequential or parallel).
      *
      * <p>For an {@link NodeType#ACTION} leaf, returns itself if not yet
      * completed, or {@code null} if already completed.  For branch nodes,
-     * delegates to {@link #getNextActiveChild()} and recurses, so the
-     * sequential-unlock constraint is honoured at every level.
+     * delegates to {@link #getNextActiveChild()} and recurses.
      *
      * @return the next action the player should perform, or {@code null} if
      *         all actions in this sub-tree are already complete
@@ -222,15 +255,64 @@ public class CaseStoryNode {
     }
 
     /**
+     * Returns all currently available (non-completed) {@link NodeType#ACTION}
+     * leaves reachable from this node.  For <em>parallel</em> nodes, actions
+     * from every incomplete child are included — this is how the player sees
+     * multiple investigation threads at once.  For sequential nodes, only
+     * actions from the first incomplete child are returned.
+     *
+     * @return a modifiable list of available actions (never {@code null}, may
+     *         be empty)
+     */
+    public List<CaseStoryNode> getAvailableActions() {
+        List<CaseStoryNode> result = new ArrayList<>();
+        collectAvailable(this, result);
+        return result;
+    }
+
+    /** Recursive helper for {@link #getAvailableActions()}. */
+    private static void collectAvailable(CaseStoryNode node,
+                                         List<CaseStoryNode> result) {
+        if (node.nodeType == NodeType.ACTION) {
+            if (!node.completed) result.add(node);
+            return;
+        }
+        if (node.parallel) {
+            // All children are accessible — recurse into each incomplete one
+            for (CaseStoryNode child : node.children) {
+                if (!child.isFullyComplete()) {
+                    collectAvailable(child, result);
+                }
+            }
+        } else {
+            // Sequential: only the first incomplete child is accessible
+            for (CaseStoryNode child : node.children) {
+                if (!child.isFullyComplete()) {
+                    collectAvailable(child, result);
+                    return; // stop after the first incomplete
+                }
+            }
+        }
+    }
+
+    /**
      * Returns {@code true} if the child at zero-based {@code index} is
-     * currently accessible — every child before it must be fully complete.
+     * currently accessible.
+     *
+     * <ul>
+     *   <li><strong>Parallel node:</strong> every child is always available
+     *       (as long as the index is in range).</li>
+     *   <li><strong>Sequential node (default):</strong> every child before
+     *       {@code index} must be fully complete.</li>
+     * </ul>
      *
      * @param index zero-based index into {@link #getChildren()}
      * @return {@code false} if the index is out of range or a preceding child
-     *         is incomplete
+     *         is incomplete (in sequential mode)
      */
     public boolean isChildAvailable(int index) {
         if (index < 0 || index >= children.size()) return false;
+        if (parallel) return true;
         for (int i = 0; i < index; i++) {
             if (!children.get(i).isFullyComplete()) return false;
         }
@@ -240,6 +322,7 @@ public class CaseStoryNode {
     @Override
     public String toString() {
         return "CaseStoryNode{id='" + id + "', type=" + nodeType
+                + ", parallel=" + parallel
                 + ", children=" + children.size()
                 + ", fullyComplete=" + isFullyComplete() + '}';
     }

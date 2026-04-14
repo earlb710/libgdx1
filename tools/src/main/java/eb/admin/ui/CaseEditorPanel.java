@@ -2414,12 +2414,12 @@ public class CaseEditorPanel extends JPanel {
         // the second action's success fact requires the first action's discovery.
         // At complexity 3, forensic-type facts also get availability delays.
         String previousOkFactId = null;  // tracks last ok-fact for chaining
-        for (int phase = 1; phase <= complexity; phase++) {
+         for (int phase = 1; phase <= complexity; phase++) {
             String phaseTitle = (phase == 1)
                     ? "Initial Investigation"
                     : "Plot Twist " + (phase - 1);
             DefaultMutableTreeNode phaseNode = new DefaultMutableTreeNode(
-                    "[PLOT_TWIST] " + phaseTitle);
+                    "[PLOT_TWIST:PARALLEL] " + phaseTitle);
 
             for (int major = 1; major <= 2; major++) {
                 String majorTitle = buildMajorTitle(phase, major, caseType);
@@ -2505,6 +2505,38 @@ public class CaseEditorPanel extends JPanel {
             storyRoot.add(phaseNode);
         }
 
+        // ---------- Side case at complexity 3 — optional parallel thread ----------
+        if (complexity >= 3) {
+            DefaultMutableTreeNode sideCaseNode = new DefaultMutableTreeNode(
+                    "[SIDE_CASE:PARALLEL] Side Case — " + buildSideCaseTitle(caseType, subject));
+            DefaultMutableTreeNode sideMajor = new DefaultMutableTreeNode(
+                    "[MAJOR] Side Lead");
+            DefaultMutableTreeNode sideMinor = new DefaultMutableTreeNode(
+                    "[MINOR] Quick Enquiry");
+
+            // Side-case actions
+            String sideAction1 = "Investigate the side lead";
+            DefaultMutableTreeNode sideActionNode1 = new DefaultMutableTreeNode(
+                    "[ACTION:" + sideAction1 + "]");
+            String sideOkFact = "Side investigation reveals a secondary connection to " + subject + ".";
+            String sideOkId = addFact(factIdCounter, "CLUE", sideOkFact, "HIDDEN", 0L,
+                    subject, "", "", "", "", 2);
+            sideActionNode1.add(new DefaultMutableTreeNode(
+                    "[RESULT] Side lead uncovered | req:PERCEPTION:3 | ok:fact:" + sideOkId));
+
+            String sideAction2 = "Report side findings";
+            DefaultMutableTreeNode sideActionNode2 = new DefaultMutableTreeNode(
+                    "[ACTION:" + sideAction2 + "]");
+            sideActionNode2.add(new DefaultMutableTreeNode(
+                    "[RESULT] Findings compiled and cross-referenced with main case"));
+
+            sideMinor.add(sideActionNode1);
+            sideMinor.add(sideActionNode2);
+            sideMajor.add(sideMinor);
+            sideCaseNode.add(sideMajor);
+            storyRoot.add(sideCaseNode);
+        }
+
         // ---------- Generate interviews now that NPCs and case details are set ----------
         if (npcModel.getRowCount() >= 2) {
             generateInterviews(true);
@@ -2528,8 +2560,14 @@ public class CaseEditorPanel extends JPanel {
             String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
             boolean redHerring = random.nextInt(100) < 25;
             String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
+            // Time pressure: ~30% of leads expire after 3–7 days at complexity ≥ 2
+            String expiryTag = "";
+            if (complexity >= 2 && random.nextInt(100) < 30) {
+                int expDay = 3 + random.nextInt(5);
+                expiryTag = " [EXPIRES:day " + expDay + "]";
+            }
             knownSection.add(new DefaultMutableTreeNode(
-                    tag + " " + lId + " via " + lMethod + ": " + lHint));
+                    tag + " " + lId + " via " + lMethod + ": " + lHint + expiryTag));
         }
         for (int r = 0; r < interviewModel.getRowCount(); r++) {
             String npcName = String.valueOf(interviewModel.getValueAt(r, 0));
@@ -2987,6 +3025,25 @@ public class CaseEditorPanel extends JPanel {
                         {"Confirm Revised Theory", "Challenge the Official Account",
                          "Expose the Cover-up",    "Connect the Remaining Dots"}};
         return pool[major - 1][random.nextInt(pool[major - 1].length)];
+    }
+
+    /**
+     * Returns a flavour title for the optional side-case node based on the
+     * main case type.
+     */
+    private static String buildSideCaseTitle(String caseType, String subject) {
+        if (caseType == null) return "Tangential Lead";
+        switch (caseType) {
+            case "Murder":              return "Suspicious Associate of " + subject;
+            case "Missing Person":      return "Second Sighting Report";
+            case "Theft":               return "Fence Operation Tip";
+            case "Fraud":               return "Offshore Account Rumour";
+            case "Blackmail":           return "Anonymous Source";
+            case "Stalking":            return "Prior Incident Report";
+            case "Corporate Espionage": return "Whistleblower Contact";
+            case "Infidelity":          return "Parallel Deception";
+            default:                    return "Tangential Lead";
+        }
     }
 
     private String buildMinorTitle(int major, int minor) {

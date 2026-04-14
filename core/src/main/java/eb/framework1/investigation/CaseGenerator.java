@@ -267,8 +267,17 @@ public class CaseGenerator {
         // Leads — standard + trait-driven + red herrings
         List<CaseLead> leads = buildLeads(type, subjectName, victimName, cf.getComplexity());
         addTraitDrivenLeads(leads, subjectName, subjectTraits);
+        // Time pressure: at complexity ≥ 2, assign expiration days to some leads
+        if (cf.getComplexity() >= 2) {
+            assignLeadExpiration(leads);
+        }
         for (CaseLead lead : leads) {
             cf.addLead(lead);
+        }
+
+        // Side case: at complexity 3, add an optional investigation branch
+        if (cf.getComplexity() >= 3) {
+            addSideCaseNode(cf.getStoryRoot(), type, subjectName);
         }
 
         cf.setInterviewScripts(
@@ -993,6 +1002,91 @@ public class CaseGenerator {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Non-linear story progression helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Assigns expiration days to a random subset of leads (approximately 30%).
+     * Expiration creates time pressure: the player must discover these leads
+     * within 3–7 in-game days or lose access to the information.
+     */
+    private void assignLeadExpiration(List<CaseLead> leads) {
+        for (CaseLead lead : leads) {
+            // ~30 % of leads get time pressure
+            if (random.nextInt(100) < 30) {
+                lead.setExpirationDay(3 + random.nextInt(5)); // 3–7 days
+            }
+        }
+    }
+
+    /**
+     * Adds an optional SIDE_CASE node to the story root.  Side cases are
+     * parallel investigation threads at complexity 3 that interweave with
+     * the main case — the player can pursue them at any time.
+     *
+     * <p>The side case is a self-contained two-action mini-investigation
+     * that provides bonus facts and flavour.
+     */
+    private void addSideCaseNode(CaseStoryNode storyRoot, CaseType type,
+                                 String subject) {
+        if (storyRoot == null) return;
+
+        String sideTitle = sideCaseTitle(type, subject);
+        String sideDesc  = "An optional side investigation has surfaced "
+                + "that may shed additional light on the main case. "
+                + "This thread can be pursued at any time.";
+
+        CaseStoryNode sideCase = sn("side-case", sideTitle, sideDesc,
+                CaseStoryNode.NodeType.PLOT_TWIST);
+        // Mark as parallel with the main phases
+        CaseStoryNode sideMajor = sn("side-m0", "Side Lead",
+                "Follow up on the tangential lead.",
+                CaseStoryNode.NodeType.MAJOR_PROGRESS);
+        CaseStoryNode sideMinor = sn("side-m0n0", "Quick Enquiry", "",
+                CaseStoryNode.NodeType.MINOR_PROGRESS);
+        sideMinor.addChild(sn("side-a0",
+                "Investigate the side lead",
+                "A separate thread has emerged — pursue it for additional context.",
+                CaseStoryNode.NodeType.ACTION));
+        sideMinor.addChild(sn("side-a1",
+                "Report findings",
+                "Compile any additional evidence and tie it back to the main case.",
+                CaseStoryNode.NodeType.ACTION));
+        sideMajor.addChild(sideMinor);
+        sideCase.addChild(sideMajor);
+
+        // Allow the root to be pursued in parallel with main phases
+        storyRoot.setParallel(true);
+        storyRoot.addChild(sideCase);
+    }
+
+    /**
+     * Returns a flavour title for the side case based on the main case type.
+     */
+    private static String sideCaseTitle(CaseType type, String subject) {
+        switch (type) {
+            case MURDER:
+                return "Side Case — Suspicious Associate of " + subject;
+            case MISSING_PERSON:
+                return "Side Case — Second Sighting Report";
+            case THEFT:
+                return "Side Case — Fence Operation Tip";
+            case FRAUD:
+                return "Side Case — Offshore Account Rumour";
+            case BLACKMAIL:
+                return "Side Case — Anonymous Source";
+            case STALKING:
+                return "Side Case — Prior Incident Report";
+            case CORPORATE_ESPIONAGE:
+                return "Side Case — Whistleblower Contact";
+            case INFIDELITY:
+                return "Side Case — Parallel Deception";
+            default:
+                return "Side Case — Tangential Lead";
+        }
+    }
+
     /** Joins a list of strings with commas and "and" before the last element. */
     private static String joinWithAnd(List<String> items) {
         if (items.size() == 1) return items.get(0);
@@ -1239,6 +1333,9 @@ public class CaseGenerator {
         for (int i = 0; i < raw.length; i++) d[i] = raw[i].replace("{s}", subject);
 
         CaseStoryNode phase = sn(prefix,       d[0],  d[1],  CaseStoryNode.NodeType.PLOT_TWIST);
+        // Each phase allows parallel investigation: the player chooses which
+        // major branch (m0 or m1) to pursue first.
+        phase.setParallel(true);
 
         CaseStoryNode m0    = sn(prefix+"-m0", d[2],  "",    CaseStoryNode.NodeType.MAJOR_PROGRESS);
         CaseStoryNode m0n0  = sn(prefix+"-m0n0", d[3], "",   CaseStoryNode.NodeType.MINOR_PROGRESS);
