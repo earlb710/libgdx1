@@ -62,6 +62,7 @@ public class CaseGenerator {
     private final PersonNameGenerator nameGen;
     private final Random              random;
     private final InterviewTemplateEngine interviewEngine;
+    private final CaseTemplateData    caseTemplateData;
 
     /**
      * Creates a generator with the given name source and a default {@link Random}.
@@ -70,7 +71,7 @@ public class CaseGenerator {
      *                must not be {@code null}
      */
     public CaseGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random(), null);
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -82,7 +83,7 @@ public class CaseGenerator {
      *                default {@code new Random()}
      */
     public CaseGenerator(PersonNameGenerator nameGen, Random random) {
-        this(nameGen, random, null);
+        this(nameGen, random, null, null);
     }
 
     /**
@@ -97,10 +98,27 @@ public class CaseGenerator {
      */
     public CaseGenerator(PersonNameGenerator nameGen, Random random,
                          InterviewTemplateData templateData) {
+        this(nameGen, random, templateData, null);
+    }
+
+    /**
+     * Creates a generator with all optional data sources.
+     *
+     * @param nameGen          name generator; must not be {@code null}
+     * @param random           random-number source; {@code null} → default
+     * @param templateData     interview text pools; {@code null} → placeholders
+     * @param caseTemplateData case description/objective pools loaded from
+     *                         {@code case_templates_en.json}; {@code null} →
+     *                         built-in hardcoded templates
+     */
+    public CaseGenerator(PersonNameGenerator nameGen, Random random,
+                         InterviewTemplateData templateData,
+                         CaseTemplateData caseTemplateData) {
         if (nameGen == null) throw new IllegalArgumentException("nameGen must not be null");
         this.nameGen = nameGen;
         this.random  = random != null ? random : new Random();
         this.interviewEngine = new InterviewTemplateEngine(this.random, templateData);
+        this.caseTemplateData = caseTemplateData;
     }
 
     // -------------------------------------------------------------------------
@@ -150,13 +168,18 @@ public class CaseGenerator {
             allTraits.put(victimName, generateTraitMap());
         }
 
+        // Determine complexity before description generation so templates can vary
+        int complexity = 1 + random.nextInt(3);  // 1, 2, or 3
+
         // Build the description with trait-informed details about the subject
         Map<PersonalityTrait, Integer> subjectTraits = allTraits.get(subjectName);
         String description = capitalizeSentences(
                 buildDescription(type, clientName, subjectName, victimName,
-                        clientGender, subjectGender, random)
+                        clientGender, subjectGender, random, complexity,
+                        caseTemplateData)
                 + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
-        String objective   = buildObjective(type, clientName, subjectName, victimName, random);
+        String objective   = buildObjective(type, clientName, subjectName, victimName,
+                random, complexity, caseTemplateData);
 
         CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
                 description, dateOpened != null ? dateOpened : "");
@@ -165,7 +188,7 @@ public class CaseGenerator {
         cf.setSubjectName(subjectName);
         cf.setVictimName(victimName);
         cf.setObjective(objective);
-        cf.setComplexity(1 + random.nextInt(3));  // 1, 2, or 3
+        cf.setComplexity(complexity);
         cf.setStoryRoot(buildStoryTree(type, cf.getComplexity(), subjectName));
         cf.setMeetingDialogue(buildMeetingDialogue(type, subjectName, objective, description,
                 cf.getStoryRoot()));
@@ -470,6 +493,43 @@ public class CaseGenerator {
                 new Random());
     }
 
+    /**
+     * Generates a narrative case description using JSON template pools when
+     * available, falling back to the built-in hardcoded templates when the
+     * template data is {@code null} or lacks an entry for the requested type.
+     *
+     * <p>Templates may contain {@code $client}, {@code $subject},
+     * {@code $victim}, {@code $pronounCap}, and {@code $pron} placeholders
+     * which are resolved before returning.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param clientGender     {@code "M"} or {@code "F"}
+     * @param subjectGender    {@code "M"} or {@code "F"}
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return a resolved multi-sentence narrative description
+     */
+    public static String buildDescription(CaseType type, String client, String subject,
+                                    String victim, String clientGender,
+                                    String subjectGender, Random rng,
+                                    int complexity,
+                                    CaseTemplateData caseTemplateData) {
+        if (rng == null) rng = new Random();
+        if (caseTemplateData != null) {
+            String template = caseTemplateData.pickDescription(type.name(), complexity, rng);
+            if (template != null) {
+                return resolveCasePlaceholders(template, client, subject, victim,
+                        clientGender, subjectGender);
+            }
+        }
+        // Fallback to built-in hardcoded templates
+        return buildDescription(type, client, subject, victim, clientGender, subjectGender, rng);
+    }
+
     // -------------------------------------------------------------------------
     // Objective templates
     // -------------------------------------------------------------------------
@@ -568,6 +628,58 @@ public class CaseGenerator {
     public static String buildObjective(CaseType type, String client, String subject,
                                         String victim) {
         return buildObjective(type, client, subject, victim, new Random());
+    }
+
+    /**
+     * Generates the case objective using JSON template pools when available,
+     * falling back to the built-in hardcoded templates otherwise.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return resolved objective sentence(s)
+     */
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim, Random rng,
+                                        int complexity,
+                                        CaseTemplateData caseTemplateData) {
+        if (rng == null) rng = new Random();
+        if (caseTemplateData != null) {
+            String template = caseTemplateData.pickObjective(type.name(), complexity, rng);
+            if (template != null) {
+                return resolveCasePlaceholders(template, client, subject, victim, null, null);
+            }
+        }
+        return buildObjective(type, client, subject, victim, rng);
+    }
+
+    // -------------------------------------------------------------------------
+    // Placeholder resolution for case templates
+    // -------------------------------------------------------------------------
+
+    /**
+     * Resolves {@code $client}, {@code $subject}, {@code $victim},
+     * {@code $pronounCap}, and {@code $pron} placeholders in a template
+     * string.  Gender-based tokens are derived from {@code subjectGender}.
+     */
+    static String resolveCasePlaceholders(String template, String client, String subject,
+                                          String victim, String clientGender,
+                                          String subjectGender) {
+        String result = template;
+        result = result.replace("$client",  client  != null ? client  : "the client");
+        result = result.replace("$subject", subject != null ? subject : "the subject");
+        result = result.replace("$victim",  victim  != null ? victim  : "the victim");
+        if (subjectGender != null) {
+            String cap = "F".equals(subjectGender) ? "She" : "He";
+            String low = cap.toLowerCase();
+            result = result.replace("$pronounCap", cap);
+            result = result.replace("$pron", low);
+        }
+        return result;
     }
 
     // -------------------------------------------------------------------------

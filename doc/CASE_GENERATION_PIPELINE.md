@@ -293,18 +293,33 @@ Neighbour, Partner, Ex-Partner, Business Associate
 
 ## Step 5 — Description & Objective
 
-**Source:** `CaseGenerator.buildDescription()` / `buildObjective()`
+**Source:** `CaseGenerator.buildDescription()` / `buildObjective()` +
+`assets/text/case_templates_en.json`
 
-- **1 description template per case type** (8 total)
-- **1 objective template per case type** (8 total)
-- Templates use `{client}`, `{subject}`, `{victim}`, `he/she` substitution
+- **12 description templates per case type × 3 complexity tiers = 288 total**
+  (8 case types × 12 × 3)
+- **12 objective templates per case type × 3 complexity tiers = 288 total**
+- Templates loaded from `case_templates_en.json` via `CaseTemplateData.parse()`
+- Placeholders: `$client`, `$subject`, `$victim`, `$pronounCap`, `$pron`
+- Resolved by `CaseGenerator.resolveCasePlaceholders()`
 - `CaseGenerator.capitalizeSentences()` ensures sentence-initial capitals
+- Complexity is determined **before** description/objective generation
+- Falls back to built-in hardcoded templates (3 per type) when JSON is absent
 
-### Example (Murder)
+### Complexity tiers
 
-> *"The client, Alex Turner, doesn't believe the official story. the victim,
-> Jordan Voss, called it murder from the start, and nobody listened. Mike Rhodes
-> was the last person seen with the victim. Follow the evidence."*
+| Tier | Description style | Objective style |
+|---|---|---|
+| 1 | Straightforward narrative; single suspect, clear problem | Direct single-goal |
+| 2 | Added complications: conflicting witnesses, secondary evidence | Multi-part with secondary thread |
+| 3 | Deep layering: multiple evidence chains, third parties | Comprehensive multi-objective |
+
+### Example (Murder, complexity 2)
+
+> *"Alex Turner doesn't believe the official story. The coroner called it an
+> accident, but the family called it murder. Mike Rhodes was the last person
+> seen with Jordan Voss. A second witness has now come forward with a different
+> account of that evening."*
 
 ---
 
@@ -669,6 +684,8 @@ When the player's attribute is **below** the gate value, they receive the
 | Case Types                | 8     |
 | Complexity Levels         | 3     |
 | Motive Categories         | 10    |
+| **Description Templates** | **8 types × 3 complexities × 12 = 288** |
+| **Objective Templates**   | **8 types × 3 complexities × 12 = 288** |
 | Base Roles (per type)     | 5–6   |
 | Suspect Labels            | 5     |
 | Hair Colors               | 6     |

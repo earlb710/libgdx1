@@ -9,6 +9,7 @@ import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
 import eb.framework1.investigation.InterviewResponse;
 import eb.framework1.investigation.InterviewScript;
+import eb.framework1.investigation.CaseTemplateData;
 import eb.framework1.investigation.InterviewTemplateData;
 import eb.framework1.investigation.InterviewTemplateEngine;
 import eb.framework1.investigation.InterviewTopic;
@@ -51,6 +52,7 @@ public class CaseEditorPanel extends JPanel {
     private final NarrativeTemplates narratives = new NarrativeTemplates(random);
     private final PersonNameGenerator nameGen = buildDefaultNameGenerator();
     private final InterviewTemplateData interviewTemplateData = loadInterviewTemplates();
+    private final CaseTemplateData caseTemplateData = loadCaseTemplates();
 
     // Step 1 – Case Type
     private final JComboBox<String> caseTypeCombo = new JComboBox<>();
@@ -1259,6 +1261,25 @@ public class CaseEditorPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads {@link CaseTemplateData} from
+     * {@code assets/text/case_templates_en.json} relative to the working
+     * directory.  Returns {@code null} if the file is not found or cannot be
+     * parsed; {@link CaseGenerator} will then fall back to built-in templates.
+     */
+    private static CaseTemplateData loadCaseTemplates() {
+        java.io.File file = new java.io.File("assets/text/case_templates_en.json");
+        if (!file.exists()) return null;
+        try {
+            byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+            String json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            return CaseTemplateData.parse(json);
+        } catch (Exception e) {
+            System.err.println("CaseEditorPanel: failed to load case templates: " + e.getMessage());
+            return null;
+        }
+    }
+
     /** Relationship type labels used in the relationship table. */
     private static final String[] RELATIONSHIP_TYPES = {
         "Family", "Friend", "Colleague", "Acquaintance", "Rival",
@@ -1805,11 +1826,14 @@ public class CaseEditorPanel extends JPanel {
         String subjectGender   = (String) subjectGenderCombo.getSelectedItem();
         String victim          = victimNameField.getText().trim();
         if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
+        int complexity         = (int) complexitySpinner.getValue();
 
         String desc = CaseGenerator.capitalizeSentences(
                 CaseGenerator.buildDescription(type, client, subject, victim,
-                        clientGender, subjectGender, random));
-        String obj  = CaseGenerator.buildObjective(type, client, subject, victim, random);
+                        clientGender, subjectGender, random, complexity,
+                        caseTemplateData));
+        String obj  = CaseGenerator.buildObjective(type, client, subject, victim,
+                random, complexity, caseTemplateData);
 
         descriptionArea.setText(desc);
         objectiveArea.setText(obj);

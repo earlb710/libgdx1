@@ -412,6 +412,56 @@ Next: □ Interview the bartender
 The checkboxes and "Add Note" button are now pinned at fixed screen positions at
 the bottom of the panel, independent of scroll position.
 
+### 16. Case description & objective templates
+
+Case descriptions and objectives are now driven by an external JSON template
+file: **`assets/text/case_templates_en.json`**.
+
+#### Template structure
+```json
+{
+  "descriptions": {
+    "MISSING_PERSON.1": ["...", ...],
+    "MISSING_PERSON.2": ["...", ...],
+    "MISSING_PERSON.3": ["...", ...]
+  },
+  "objectives": {
+    "MISSING_PERSON.1": ["...", ...],
+    ...
+  }
+}
+```
+
+Keys follow the pattern `CASE_TYPE.complexity` where complexity is 1, 2, or 3.
+Each pool contains **12 template strings** that use `$client`, `$subject`,
+`$victim`, `$pronounCap`, and `$pron` placeholders.
+
+#### Complexity tiers
+| Complexity | Description style | Objective style |
+|---|---|---|
+| 1 | Straightforward narrative; single suspect, clear motive | Direct single-goal objective |
+| 2 | Added complications: conflicting witnesses, secondary evidence, false leads | Multi-part objective with secondary investigation thread |
+| 3 | Deep layering: multiple evidence chains, third-party involvement, cross-referenced data | Comprehensive objective covering primary, secondary, and tertiary investigation threads |
+
+#### Data model — `CaseTemplateData`
+- Parsed by `CaseTemplateData.parse(String json)` using libGDX `JsonReader`
+- `pickDescription(caseTypeName, complexity, rng)` — random template from
+  the matching pool; falls back to complexity 1 if no pool exists
+- `pickObjective(caseTypeName, complexity, rng)` — same pattern
+- Loaded at startup by `GameDataManager.loadCaseTemplates()` and by
+  `CaseEditorPanel.loadCaseTemplates()` (admin tool)
+
+#### Integration
+- `CaseGenerator.buildDescription(type, client, subject, victim, clientGender,
+  subjectGender, rng, complexity, caseTemplateData)` — uses template data when
+  available; falls back to built-in hardcoded templates when `null`
+- `CaseGenerator.buildObjective(type, client, subject, victim, rng, complexity,
+  caseTemplateData)` — same fallback pattern
+- `CaseGenerator.resolveCasePlaceholders()` — handles `$client`, `$subject`,
+  `$victim`, `$pronounCap`, `$pron` token substitution
+- Complexity is determined **before** description generation so templates can
+  vary by difficulty level
+
 ---
 
 ## What Is Outstanding

@@ -1033,7 +1033,8 @@ public class MainScreen implements Screen {
                     PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
                     if (png != null) {
                         CaseGenerator caseGen = new CaseGenerator(png, new java.util.Random(),
-                                gdm.getInterviewTemplateData());
+                                gdm.getInterviewTemplateData(),
+                                gdm.getCaseTemplateData());
                         pendingCase = caseGen.generate(profile.getGameDateTime());
                         pendingCase.setClientName(appt.contactName);
                         Gdx.app.log("MainScreen", "Pending case pre-generated for: " + appt.contactName);
@@ -1137,7 +1138,8 @@ public class MainScreen implements Screen {
             PersonNameGenerator png = (gdm != null) ? gdm.getPersonNameGenerator() : null;
             if (png != null) {
                 CaseGenerator caseGen = new CaseGenerator(png, new java.util.Random(),
-                        gdm.getInterviewTemplateData());
+                        gdm.getInterviewTemplateData(),
+                        gdm.getCaseTemplateData());
                 CaseFile newCase = caseGen.generate(profile.getGameDateTime());
                 if (currentMeetAppt != null && !currentMeetAppt.contactName.isEmpty()) {
                     newCase.setClientName(currentMeetAppt.contactName);
