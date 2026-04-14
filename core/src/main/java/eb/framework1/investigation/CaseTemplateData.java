@@ -68,23 +68,52 @@ public class CaseTemplateData {
     }
 
     /**
-     * A coherent bundle of initial known facts and investigation leads
-     * for one case instance.  All strings may contain {@code $placeholder}
-     * tokens which are resolved at generation time.
+     * An initial contact within a {@link CaseSeed}: a person the
+     * investigator should approach early in the case (name, role, and
+     * a brief reason why they are relevant).  All strings may contain
+     * {@code $placeholder} tokens.
+     */
+    public static final class SeedContact {
+        private final String name;
+        private final String role;
+        private final String reason;
+
+        public SeedContact(String name, String role, String reason) {
+            this.name   = name;
+            this.role   = role;
+            this.reason = reason;
+        }
+
+        /** Display name of the contact (may contain $placeholders). */
+        public String getName()   { return name; }
+        /** Role or relationship to the case (e.g. "Client's neighbour"). */
+        public String getRole()   { return role; }
+        /** Why this person should be contacted (e.g. "last person to see $subject alive"). */
+        public String getReason() { return reason; }
+    }
+
+    /**
+     * A coherent bundle of initial known facts, investigation leads,
+     * and initial contacts for one case instance.  All strings may contain
+     * {@code $placeholder} tokens which are resolved at generation time.
      */
     public static final class CaseSeed {
-        private final List<String>   facts;
-        private final List<SeedLead> leads;
+        private final List<String>      facts;
+        private final List<SeedLead>    leads;
+        private final List<SeedContact> contacts;
 
-        public CaseSeed(List<String> facts, List<SeedLead> leads) {
-            this.facts = Collections.unmodifiableList(facts);
-            this.leads = Collections.unmodifiableList(leads);
+        public CaseSeed(List<String> facts, List<SeedLead> leads, List<SeedContact> contacts) {
+            this.facts    = Collections.unmodifiableList(facts);
+            this.leads    = Collections.unmodifiableList(leads);
+            this.contacts = Collections.unmodifiableList(contacts);
         }
 
         /** Initial known facts (added as clues on the case file). */
-        public List<String>   getFacts() { return facts; }
+        public List<String>      getFacts()    { return facts; }
         /** Initial investigation leads (added as case leads). */
-        public List<SeedLead> getLeads() { return leads; }
+        public List<SeedLead>    getLeads()    { return leads; }
+        /** Initial contacts the investigator should approach. */
+        public List<SeedContact> getContacts() { return contacts; }
     }
 
     /**
@@ -343,7 +372,18 @@ public class CaseTemplateData {
                         leads.add(new SeedLead(hint, desc, meth));
                     }
                 }
-                seedList.add(new CaseSeed(facts, leads));
+                // Parse contacts array
+                List<SeedContact> contacts = new ArrayList<SeedContact>();
+                JsonValue contactsArr = seedVal.get("contacts");
+                if (contactsArr != null) {
+                    for (JsonValue c = contactsArr.child; c != null; c = c.next) {
+                        String cName   = c.has("name")   ? c.getString("name")   : "";
+                        String cRole   = c.has("role")   ? c.getString("role")   : "";
+                        String cReason = c.has("reason") ? c.getString("reason") : "";
+                        contacts.add(new SeedContact(cName, cRole, cReason));
+                    }
+                }
+                seedList.add(new CaseSeed(facts, leads, contacts));
             }
             target.put(key, seedList);
         }
