@@ -262,4 +262,110 @@ public class CaseFileTest {
         CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
         cf.setComplexity(4);
     }
+
+    // -------------------------------------------------------------------------
+    // Known facts with source
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void newCaseHasNoKnownFacts() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        assertTrue(cf.getKnownFacts().isEmpty());
+    }
+
+    @Test
+    public void addKnownFactObject() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        KnownFact fact = new KnownFact("Client reported theft", FactSource.CASE);
+        cf.addKnownFact(fact);
+        assertEquals(1, cf.getKnownFacts().size());
+        assertEquals("Client reported theft", cf.getKnownFacts().get(0).getText());
+        assertEquals(FactSource.CASE, cf.getKnownFacts().get(0).getSource());
+    }
+
+    @Test
+    public void addKnownFactConvenience() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.addKnownFact("DNA analysis confirms match", FactSource.POLICE);
+        assertEquals(1, cf.getKnownFacts().size());
+        assertEquals("DNA analysis confirms match", cf.getKnownFacts().get(0).getText());
+        assertEquals(FactSource.POLICE, cf.getKnownFacts().get(0).getSource());
+    }
+
+    @Test
+    public void getKnownFactsBySource() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.addKnownFact("Client hired detective", FactSource.CASE);
+        cf.addKnownFact("Scene evidence collected", FactSource.POLICE);
+        cf.addKnownFact("DNA match confirmed", FactSource.POLICE);
+        cf.addKnownFact("Witness located by investigator", FactSource.DISCOVERED);
+
+        List<KnownFact> caseFacts = cf.getKnownFactsBySource(FactSource.CASE);
+        assertEquals(1, caseFacts.size());
+        assertEquals("Client hired detective", caseFacts.get(0).getText());
+
+        List<KnownFact> policeFacts = cf.getKnownFactsBySource(FactSource.POLICE);
+        assertEquals(2, policeFacts.size());
+        assertEquals("Scene evidence collected", policeFacts.get(0).getText());
+        assertEquals("DNA match confirmed", policeFacts.get(1).getText());
+
+        List<KnownFact> discoveredFacts = cf.getKnownFactsBySource(FactSource.DISCOVERED);
+        assertEquals(1, discoveredFacts.size());
+        assertEquals("Witness located by investigator", discoveredFacts.get(0).getText());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addNullKnownFactThrows() {
+        CaseFile cf = new CaseFile("Test", "desc", "2050-01-02 10:00");
+        cf.addKnownFact((KnownFact) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void knownFactNullTextThrows() {
+        new KnownFact(null, FactSource.CASE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void knownFactBlankTextThrows() {
+        new KnownFact("  ", FactSource.CASE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void knownFactNullSourceThrows() {
+        new KnownFact("fact text", null);
+    }
+
+    @Test
+    public void knownFactEquality() {
+        KnownFact a = new KnownFact("fact", FactSource.POLICE);
+        KnownFact b = new KnownFact("fact", FactSource.POLICE);
+        KnownFact c = new KnownFact("fact", FactSource.CASE);
+        assertEquals(a, b);
+        assertNotEquals(a, c);
+        assertEquals(a.hashCode(), b.hashCode());
+    }
+
+    @Test
+    public void knownFactToString() {
+        KnownFact f = new KnownFact("DNA match", FactSource.POLICE);
+        assertTrue(f.toString().contains("POLICE"));
+        assertTrue(f.toString().contains("DNA match"));
+    }
+
+    @Test
+    public void forensicResultsArePoliceSource() {
+        CaseFile cf = new CaseFile("Murder", "desc", "2050-01-02 10:00");
+        // Forensic lab results should be categorised under POLICE
+        cf.addKnownFact("DNA analysis of blood sample confirms match with suspect", FactSource.POLICE);
+        cf.addKnownFact("Toxicology report reveals sedative in victim's system", FactSource.POLICE);
+        cf.addKnownFact("Digital forensics recovered deleted messages", FactSource.POLICE);
+        cf.addKnownFact("Financial records show suspicious payment", FactSource.POLICE);
+
+        List<KnownFact> policeFacts = cf.getKnownFactsBySource(FactSource.POLICE);
+        assertEquals(4, policeFacts.size());
+        // All forensic results end up under known fact.police
+        for (KnownFact fact : policeFacts) {
+            assertEquals(FactSource.POLICE, fact.getSource());
+        }
+    }
 }

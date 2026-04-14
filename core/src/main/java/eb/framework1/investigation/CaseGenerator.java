@@ -232,6 +232,7 @@ public class CaseGenerator {
         // Add seed facts as initial known clues on the case file
         for (String fact : resolvedFacts) {
             cf.addClue(fact);
+            cf.addKnownFact(fact, FactSource.CASE);
         }
 
         // Add seed leads as case leads (undiscovered — hints visible,

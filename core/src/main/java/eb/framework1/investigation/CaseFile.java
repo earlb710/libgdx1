@@ -47,6 +47,7 @@ public class CaseFile {
     private final List<String>       evidence;
     private final List<String>       notes;
     private final List<EvidenceItem> evidenceItems;
+    private final List<KnownFact>    knownFacts;
 
     // ---- Fields populated by CaseGenerator ----
     /** Broad category of the case (nullable for legacy/manual cases). */
@@ -149,6 +150,7 @@ public class CaseFile {
         this.evidence      = evidence != null ? new ArrayList<>(evidence) : new ArrayList<>();
         this.notes         = notes != null ? new ArrayList<>(notes) : new ArrayList<>();
         this.evidenceItems = evidenceItems != null ? new ArrayList<>(evidenceItems) : new ArrayList<>();
+        this.knownFacts    = new ArrayList<>();
         // Generator-populated fields default to empty/null
         this.caseType    = null;
         this.clientName  = "";
@@ -397,6 +399,29 @@ public class CaseFile {
     }
 
     /**
+     * Returns an unmodifiable view of all {@link KnownFact}s recorded against
+     * this case, regardless of source.
+     */
+    public List<KnownFact> getKnownFacts() {
+        return Collections.unmodifiableList(knownFacts);
+    }
+
+    /**
+     * Returns an unmodifiable list of known facts that originated from the
+     * given {@link FactSource}.
+     *
+     * @param source the source to filter by; must not be {@code null}
+     */
+    public List<KnownFact> getKnownFactsBySource(FactSource source) {
+        if (source == null) {
+            throw new IllegalArgumentException("FactSource must not be null");
+        }
+        return knownFacts.stream()
+                .filter(f -> f.getSource() == source)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Returns an unmodifiable view of the hidden {@link CaseLead}s attached to
      * this case.
      */
@@ -453,6 +478,32 @@ public class CaseFile {
             throw new IllegalArgumentException("Evidence item must not be null");
         }
         evidenceItems.add(item);
+    }
+
+    /**
+     * Records a {@link KnownFact} against this case.  The fact's
+     * {@link FactSource} tracks how it was obtained (CASE, POLICE, or
+     * DISCOVERED).
+     *
+     * @param fact the known fact to record; must not be {@code null}
+     * @throws IllegalArgumentException if {@code fact} is {@code null}
+     */
+    public void addKnownFact(KnownFact fact) {
+        if (fact == null) {
+            throw new IllegalArgumentException("KnownFact must not be null");
+        }
+        knownFacts.add(fact);
+    }
+
+    /**
+     * Convenience method: creates a {@link KnownFact} with the given text and
+     * source, then records it on this case.
+     *
+     * @param text   fact description; must not be blank
+     * @param source how the fact was obtained; must not be null
+     */
+    public void addKnownFact(String text, FactSource source) {
+        addKnownFact(new KnownFact(text, source));
     }
 
     /**

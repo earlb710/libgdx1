@@ -7,6 +7,7 @@ import eb.framework1.generator.PersonNameGenerator;
 import eb.framework1.investigation.ActionType;
 import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
+import eb.framework1.investigation.FactSource;
 import eb.framework1.investigation.InterviewResponse;
 import eb.framework1.investigation.InterviewScript;
 import eb.framework1.investigation.CaseTemplateData;
@@ -561,7 +562,11 @@ public class CaseEditorPanel extends JPanel {
                 .setCellEditor(new DefaultCellEditor(statusCombo));
 
         // Source column — restricted combo: CASE, POLICE, or DISCOVERED
-        JComboBox<String> sourceCombo = new JComboBox<>(new String[]{"CASE", "POLICE", "DISCOVERED"});
+        String[] sourceNames = new String[FactSource.values().length];
+        for (int i = 0; i < FactSource.values().length; i++) {
+            sourceNames[i] = FactSource.values()[i].name();
+        }
+        JComboBox<String> sourceCombo = new JComboBox<>(sourceNames);
         factsTable.getColumnModel().getColumn(13)
                 .setCellEditor(new DefaultCellEditor(sourceCombo));
 
@@ -575,7 +580,8 @@ public class CaseEditorPanel extends JPanel {
             int nextId = factsModel.getRowCount() + 1;
             factsModel.addRow(new Object[]{
                     "fact-" + nextId, "DATE", "", "HIDDEN",
-                    0L, "", "", "", "", "", 0, "", 0, "DISCOVERED"});
+                    0L, "", "", "", "", "", 0, "", 0,
+                    FactSource.DISCOVERED.name()});
         });
 
         deleteBtn.addActionListener(e -> {
@@ -1924,7 +1930,8 @@ public class CaseEditorPanel extends JPanel {
                         client, subject, victim, clientGender, subjectGender);
                 factsModel.addRow(new Object[]{
                         "seed-fact-" + seedFactIdx, "CLUE", fact, "KNOWN",
-                        0L, "", "", "", "", "", 3, "", 0, "CASE"});
+                        0L, "", "", "", "", "", 3, "", 0,
+                        FactSource.CASE.name()});
                 seedFactIdx++;
             }
         }
@@ -2110,14 +2117,14 @@ public class CaseEditorPanel extends JPanel {
                     deathFactId, "DATE",
                     victim + " was found dead on " + deathDateText + ".",
                     "KNOWN", deathEpoch, "", "", "", "", "", 5, "", 0,
-                    "POLICE"});
+                    FactSource.POLICE.name()});
         } else {
             deathFactId = "fact-" + factId++;
             factsModel.addRow(new Object[]{
                     deathFactId, "DATE",
                     "Exact date and time of " + victim + "'s death is unknown.",
                     "HIDDEN", 0L, "", "", "", "", "", 5, "", 0,
-                    "POLICE"});
+                    FactSource.POLICE.name()});
         }
         // Last-seen date: 2 days before now as a rough epoch placeholder
         long lastSeenEpoch = System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000;
@@ -2125,40 +2132,40 @@ public class CaseEditorPanel extends JPanel {
                 "fact-" + factId++, "DATE",
                 subject + " was last seen two days before the incident.",
                 "HIDDEN", lastSeenEpoch, "", "", "", "", "", 3, "", 0,
-                "POLICE"});
+                FactSource.POLICE.name()});
         // Report date: current day morning as placeholder
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "DATE",
                 client + " reported the case on the morning after the incident.",
                 "KNOWN", System.currentTimeMillis(), "", "", "", "", "", 0, "", 0,
-                "CASE"});
+                FactSource.CASE.name()});
 
         // --- RELATIONSHIP facts -------------------------------------------
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 client + " knew " + victim + " personally.",
                 "KNOWN", 0L, client, victim, "PERSONAL", "", "", 0, "", 0,
-                "CASE"});
+                FactSource.CASE.name()});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 subject + " and " + victim + " had a prior dispute.",
                 "HIDDEN", 0L, subject, victim, "DISPUTE", "", "", 4, "", 0,
-                "DISCOVERED"});
+                FactSource.DISCOVERED.name()});
         for (int r = 0; r < relationshipModel.getRowCount(); r++) {
             String from    = String.valueOf(relationshipModel.getValueAt(r, 0));
             String to      = String.valueOf(relationshipModel.getValueAt(r, 1));
             String relType = String.valueOf(relationshipModel.getValueAt(r, 2));
             String status  = "HIDDEN";
-            String source  = "DISCOVERED";
+            FactSource source = FactSource.DISCOVERED;
             if ("Client".equalsIgnoreCase(from) || "Client".equalsIgnoreCase(to)) {
                 status = "KNOWN";
-                source = "CASE";
+                source = FactSource.CASE;
             }
             factsModel.addRow(new Object[]{
                     "fact-" + factId++, "RELATIONSHIP",
                     from + " → " + to + " (" + relType + ").",
                     status, 0L, from, to, relType, "", "", 0, "", 0,
-                    source});
+                    source.name()});
         }
 
         // --- ITEM facts ---------------------------------------------------
@@ -2174,13 +2181,13 @@ public class CaseEditorPanel extends JPanel {
                 "A " + knownItemPair[0].toLowerCase() + " belonging to " + victim
                         + " was recovered at the scene.",
                 "KNOWN", 0L, "", "", "", knownItemPair[1], "", 0, "", 0,
-                "POLICE"});
+                FactSource.POLICE.name()});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "ITEM",
                 "A " + hiddenItemPair[0].toLowerCase() + " linked to " + subject
                         + " is hidden at an unknown location.",
                 "HIDDEN", 0L, "", "", "", hiddenItemPair[1], "", 3, "", 0,
-                "DISCOVERED"});
+                FactSource.DISCOVERED.name()});
 
         // --- EVIDENCE facts (with evidence chains) ------------------------
         // Chain 1: Scene → Fingerprints (day 0) → DNA analysis (day 2, needs
@@ -2192,7 +2199,7 @@ public class CaseEditorPanel extends JPanel {
                 sceneEvidenceId, "EVIDENCE",
                 knownEvId + " evidence was collected from the scene.",
                 "KNOWN", 0L, "", "", "", "", knownEvId, 0, "", 0,
-                "POLICE"});
+                FactSource.POLICE.name()});
 
         // DNA analysis — prerequisite: scene evidence, available day 2
         String dnaFactId = "fact-" + factId++;
@@ -2202,7 +2209,7 @@ public class CaseEditorPanel extends JPanel {
                         + " sample confirms a match with " + subject + ".",
                 "HIDDEN", 0L, "", "", "", "", "DNA", 4,
                 sceneEvidenceId, 2,
-                "POLICE"});
+                FactSource.POLICE.name()});
 
         // Toxicology — prerequisite: DNA, available day 4
         String toxFactId = "fact-" + factId++;
@@ -2212,7 +2219,7 @@ public class CaseEditorPanel extends JPanel {
                         + victim + "'s system, consistent with " + subject + "'s access to pharmaceuticals.",
                 "HIDDEN", 0L, "", "", "", "", "TOXICOLOGY", 5,
                 dnaFactId, 4,
-                "POLICE"});
+                FactSource.POLICE.name()});
 
         // Chain 2: Scene item → Digital forensics (day 1) → Financial records (day 3)
         String digitalFactId = "fact-" + factId++;
@@ -2222,7 +2229,7 @@ public class CaseEditorPanel extends JPanel {
                         + " reveal deleted messages between " + victim + " and " + subject + ".",
                 "HIDDEN", 0L, "", "", "", "", "DIGITAL_DATA", 3,
                 sceneItemId, 1,
-                "POLICE"});
+                FactSource.POLICE.name()});
 
         String financialFactId = "fact-" + factId++;
         factsModel.addRow(new Object[]{
@@ -2231,7 +2238,7 @@ public class CaseEditorPanel extends JPanel {
                         + subject + " received a suspicious payment days before the incident.",
                 "HIDDEN", 0L, "", "", "", "", "FINANCIAL", 4,
                 digitalFactId, 3,
-                "POLICE"});
+                FactSource.POLICE.name()});
 
         statusLabel.setText("Generated " + factsModel.getRowCount() + " facts ("
                 + countChainedFacts() + " in evidence chains).");
@@ -2562,7 +2569,7 @@ public class CaseEditorPanel extends JPanel {
         // ---------- Seed: one KNOWN fact so the investigator has a starting point ----------
         String seedFact = client + " has reported a suspicious incident involving " + victim + ".";
         addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
-                client, victim, "", "", "", 0, "", 0, "CASE");
+                client, victim, "", "", "", 0, "", 0, FactSource.CASE);
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
         generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode, complexity);
@@ -2829,7 +2836,8 @@ public class CaseEditorPanel extends JPanel {
                            long epoch, String char1, String char2, String relType,
                            String itemId, String evidId, int importance) {
         return addFact(idCounter, category, text, status,
-                epoch, char1, char2, relType, itemId, evidId, importance, "", 0, "DISCOVERED");
+                epoch, char1, char2, relType, itemId, evidId, importance, "", 0,
+                FactSource.DISCOVERED);
     }
 
     /**
@@ -2846,7 +2854,7 @@ public class CaseEditorPanel extends JPanel {
                            String prerequisiteFactId, int availabilityDay) {
         return addFact(idCounter, category, text, status,
                 epoch, char1, char2, relType, itemId, evidId, importance,
-                prerequisiteFactId, availabilityDay, "DISCOVERED");
+                prerequisiteFactId, availabilityDay, FactSource.DISCOVERED);
     }
 
     /**
@@ -2861,11 +2869,12 @@ public class CaseEditorPanel extends JPanel {
     private String addFact(int[] idCounter, String category, String text, String status,
                            long epoch, String char1, String char2, String relType,
                            String itemId, String evidId, int importance,
-                           String prerequisiteFactId, int availabilityDay, String source) {
+                           String prerequisiteFactId, int availabilityDay,
+                           FactSource source) {
         String id = "fact-" + idCounter[0]++;
         factsModel.addRow(new Object[]{id, category, text, status,
                 epoch, char1, char2, relType, itemId, evidId, importance,
-                prerequisiteFactId, availabilityDay, source});
+                prerequisiteFactId, availabilityDay, source.name()});
         return id;
     }
 
