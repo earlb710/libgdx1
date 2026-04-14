@@ -218,6 +218,21 @@ public class CaseGenerator {
                 objBuilder.append("\n\u2022 ").append(hint);
             }
         }
+        // Append seed contacts so the player knows who to approach
+        if (seed != null && !seed.getContacts().isEmpty()) {
+            objBuilder.append("\n\nInitial contacts:");
+            for (CaseTemplateData.SeedContact sc : seed.getContacts()) {
+                String contactName = resolveCasePlaceholders(sc.getName(),
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+                String contactRole = resolveCasePlaceholders(sc.getRole(),
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+                String contactReason = resolveCasePlaceholders(sc.getReason(),
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+                objBuilder.append("\n\u2022 ").append(contactName)
+                        .append(" \u2014 ").append(contactRole)
+                        .append(" (").append(contactReason).append(")");
+            }
+        }
         String objective = objBuilder.toString();
 
         CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
@@ -233,6 +248,46 @@ public class CaseGenerator {
         for (String fact : resolvedFacts) {
             cf.addClue(fact);
             cf.addKnownFact(fact, FactSource.CASE);
+        }
+
+        // Process seed contacts: generate concrete NPC names, add CASE-sourced
+        // known facts, and store personality traits for each contact NPC.
+        if (seed != null && !seed.getContacts().isEmpty()) {
+            int contactIdx = 1;
+            for (CaseTemplateData.SeedContact sc : seed.getContacts()) {
+                String rawName = sc.getName();
+                String contactRole = resolveCasePlaceholders(sc.getRole(),
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+                String contactReason = resolveCasePlaceholders(sc.getReason(),
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+
+                // Determine the contact's concrete name: if the seed name is a
+                // placeholder like "$client" or "$subject", resolve it; otherwise
+                // generate a new NPC name (since the seed uses a generic label
+                // like "Neighbour" or "Last-known contact").
+                String contactName;
+                String resolvedName = resolveCasePlaceholders(rawName,
+                        clientName, subjectName, victimName, clientGender, subjectGender);
+                if (resolvedName.equals(clientName) || resolvedName.equals(subjectName)
+                        || resolvedName.equals(victimName)) {
+                    // Already a known principal NPC — no new name needed
+                    contactName = resolvedName;
+                } else {
+                    // Generate a concrete NPC name for this contact
+                    String contactGender = randomGender();
+                    contactName = nameGen.generateFull(contactGender);
+                    // Store personality traits for the new contact NPC
+                    allTraits.put(contactName, generateTraitMap());
+                }
+
+                // Add a CASE-sourced known fact so the player sees this contact
+                // in their case file from the start
+                String factText = "Contact: " + contactName + " \u2014 " + contactRole
+                        + " (" + contactReason + ")";
+                cf.addKnownFact(factText, FactSource.CASE);
+
+                contactIdx++;
+            }
         }
 
         // Add seed leads as case leads (undiscovered — hints visible,

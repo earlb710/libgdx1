@@ -306,6 +306,27 @@ Neighbour, Partner, Ex-Partner, Business Associate
 - Complexity is determined **before** description/objective generation
 - Falls back to built-in hardcoded templates (3 per type) when JSON is absent
 
+### NPC generation wiring
+
+When `generateDescriptionAndObjective()` runs in the admin panel:
+
+1. Seed contacts are shown in the contacts area **and** each contact
+   automatically creates a `CONTACT`-category CASE-sourced fact row in the
+   facts table.
+2. `generateNpcs()` is called at the end so that Step 3 (NPC Characters)
+   is pre-populated immediately.
+
+In the core `CaseGenerator.generate()`:
+
+1. For each seed contact whose name is not already a principal NPC
+   (`$client`, `$subject`, `$victim`), a new NPC name is generated via
+   `PersonNameGenerator` and a personality trait map is created.
+2. A CASE-sourced `KnownFact` of the form
+   *"Contact: Alice Smith — Neighbour (may have noticed unusual activity)"*
+   is added to the `CaseFile` for every seed contact.
+3. The objective text gains an **"Initial contacts:"** section listing
+   every contact with their role and reason.
+
 ### Complexity tiers
 
 | Tier | Description style | Objective style |

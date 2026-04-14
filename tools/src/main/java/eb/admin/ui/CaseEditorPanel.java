@@ -1936,11 +1936,12 @@ public class CaseEditorPanel extends JPanel {
             }
         }
 
-        // Populate initial contacts from seed
+        // Populate initial contacts from seed — both display text AND known facts
         if (seed != null && !seed.getContacts().isEmpty()) {
             StringBuilder contactsBuilder = new StringBuilder();
             contactsBuilder.append("Initial contacts (").append(seed.getContacts().size()).append("):\n");
             int contactIdx = 1;
+            int seedFactBase = factsModel.getRowCount();
             for (CaseTemplateData.SeedContact sc : seed.getContacts()) {
                 String contactName = CaseGenerator.resolveCasePlaceholders(sc.getName(),
                         client, subject, victim, clientGender, subjectGender);
@@ -1948,9 +1949,18 @@ public class CaseEditorPanel extends JPanel {
                         client, subject, victim, clientGender, subjectGender);
                 String contactReason = CaseGenerator.resolveCasePlaceholders(sc.getReason(),
                         client, subject, victim, clientGender, subjectGender);
-                contactsBuilder.append("  ").append(contactIdx++).append(". ")
+                contactsBuilder.append("  ").append(contactIdx).append(". ")
                         .append(contactName).append(" — ").append(contactRole)
                         .append(" (").append(contactReason).append(")\n");
+
+                // Create a CASE-sourced known fact for each contact
+                String factText = "Contact: " + contactName + " — " + contactRole
+                        + " (" + contactReason + ")";
+                factsModel.addRow(new Object[]{
+                        "contact-fact-" + contactIdx, "CONTACT", factText, "KNOWN",
+                        0L, contactName, "", "", "", "", 3, "", 0,
+                        FactSource.CASE.name()});
+                contactIdx++;
             }
             initialContactsArea.setText(contactsBuilder.toString());
         } else {
@@ -1962,6 +1972,9 @@ public class CaseEditorPanel extends JPanel {
 
         // Build NPC requirements summary from the case description template
         buildNpcRequirements(type, complexity);
+
+        // Auto-generate NPC characters so step 3 is pre-populated
+        generateNpcs();
     }
 
     /**
