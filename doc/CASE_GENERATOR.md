@@ -238,23 +238,44 @@ interviews (Charisma-gated) or story progression.
 ### 11. Suspect attributes
 
 At complexity ≥ 2 the case adds extra suspects (1–2 at complexity 2,
-2–3 at complexity 3).  Five distinguishing attributes allow the player to
-eliminate innocent suspects:
+2–3 at complexity 3).  Six attributes describe each suspect, of which five
+are testable for elimination (Opportunity always matches and cannot
+eliminate a suspect):
 
 | Attribute | Pool size | Subject value | Suspect rule |
 |---|---|---|---|
-| Hair Color | 6 | Random | 50 % match / 50 % differ |
-| Beard Style | 6 (males) or "none" | Random | 50 % match / 50 % differ |
+| Hair Color | 6 | Random | Complexity-weighted match |
+| Beard Style | 6 (males) or "none" | Random | Complexity-weighted match |
 | Opportunity | 5 | Random | **Always matches** (all suspects present) |
-| Access | 6 | Random | 50 % match / 50 % differ |
-| Has Motive | 2 | **Always true** | 50 % match / 50 % differ |
+| Access | 6 full + 6 partial | Random (full) | Complexity-weighted; non-matches: 40 % partial / 60 % differ |
+| Has Motive | 2 | **Always true** | Complexity-weighted match |
+| Alibi | 8 | Random (falsifiable) | Complexity-weighted match |
 
-If a suspect's four testable attributes all accidentally match the true
-perpetrator (6.25 % chance), one is randomly forced to differ.
+**Complexity weighting:** The match probability per attribute is no longer a
+flat 50 %.  Instead it scales with complexity:
+
+| Complexity | Match chance | Effect |
+|---|---|---|
+| 1 | 30 % | Easy — most attributes differ, quick elimination |
+| 2 | 50 % | Moderate — balanced |
+| 3 | 70 % | Hard — most attributes match, difficult to eliminate |
+
+If a suspect's five testable attributes all accidentally match the true
+perpetrator, one is randomly forced to differ (`random.nextInt(5)`).
+
+**Partial access:** When a suspect does not fully match the perpetrator's
+access, 40 % of the time they receive a "partial access" label (e.g., "had
+access to the building but not the safe") rather than a completely different
+access type. This requires the player to evaluate degree of access.
+
+**Temporal alibi:** Each suspect is assigned a plausible alibi from a pool
+of 8.  The perpetrator's alibi is always falsifiable; other suspects either
+share it (suspicious, needs verification) or have a distinct one (verifiable,
+can be cleared).
 
 ### 12. NPC table columns (admin tool)
 
-The NPC data table in `CaseEditorPanel` has **19 columns** (indices 0–18):
+The NPC data table in `CaseEditorPanel` has **21 columns** (indices 0–20):
 
 | Index | Name | Notes |
 |---|---|---|
@@ -262,31 +283,94 @@ The NPC data table in `CaseEditorPanel` has **19 columns** (indices 0–18):
 | 11 | Hair Color | Suspect attribute |
 | 12 | Beard Style | Suspect attribute |
 | 13 | Opportunity | Suspect attribute |
-| 14 | Access | Suspect attribute |
+| 14 | Access | Suspect attribute (full or partial) |
 | 15 | Has Motive | Suspect attribute (Boolean) |
 | 16 | Phone Number | Format `555-XXXX` |
 | 17 | Phone Discovered | Boolean |
 | 18 | Default Location | Location display name |
+| 19 | Personality Traits | Comma-separated "TRAIT:value" pairs |
+| 20 | Alibi | Temporal alibi — elimination dimension |
 
-### 13. Unknown facts & motive narratives
+### 13. Unknown facts, motive narratives & evidence chains
 
-`generateUnknownFacts()` creates 7–8 facts with status `UNKNOWN` that
-represent the core mysteries the player must solve:
+`generateUnknownFacts()` creates 7–12 facts with status `UNKNOWN` that
+represent the core mysteries the player must solve.  Several are linked
+into **evidence chains** via prerequisite dependencies:
 
-| # | Category | Templates | Importance |
+| # | Category | Templates | Importance | Prerequisite | Avail Day |
+|---|---|---|---|---|---|
+| 1 | METHOD | 5 (murder) / 4 (other) | 5 | — | 0 |
+| 2 | MOTIVE (primary) | 10 codes × 10 = ~100 | 5 | — | 0 |
+| 2a | MOTIVE (red herring, complexity ≥ 2) | 10 × 10 × 4 wrappers | 2 | — | 0 |
+| 2b | MOTIVE (secondary, complexity 3) | 10 × 10 × 4 connectors | 4 | #2 primary | 0 |
+| 3 | EVIDENCE (weapon, murder) | 5 | 4 | — | 0 |
+| 4 | DATE (timeline) | 4 | 4 | #3 weapon | 1 (murder) |
+| 5 | ITEM (location) | 4 | 3 | — | 0 |
+| 6 | RELATIONSHIP (accomplices) | 4 | 3 | — | 0 |
+| 7 | DATE (alibi) | 4 | 4 | #4 timeline | 0 |
+| 8 | ITEM (cover-up) | 4 | 3 | #5 location | 2 |
+
+#### Procedural motive complexity
+
+At complexity 1, there is a single primary motive.  At complexity ≥ 2, a
+**red-herring motive** (status HIDDEN, importance 2) is added — a plausible
+but false explanation that misleads the investigator until contradicted by
+the true motive.  At complexity 3, a **secondary / layered motive** (status
+UNKNOWN, importance 4) is chained to the primary — it becomes discoverable
+only after the primary motive is found.
+
+```
+Complexity 1:  primary motive only
+Complexity 2:  primary + red-herring motive
+Complexity 3:  primary + red-herring + secondary motive (chained to primary)
+```
+
+`NarrativeTemplates` provides:
+- `pickSecondaryMotiveCode(primaryCode)` — 10 logical pairings
+- `buildSecondaryMotiveNarrative(secondaryCode, primaryCode, subject, victim)`
+- `pickRedHerringMotiveCode(trueMotiveCode)` — random different code
+- `buildRedHerringMotiveNarrative(herringCode, subject, victim)`
+
+#### Evidence chain structure
+
+```
+Murder cases:
+  weapon (#3) → timeline (#4, day 1) → alibi verification (#7)
+  location (#5) → cover-up (#8, day 2)
+
+Motive chains (complexity 3):
+  primary motive (#2) → secondary motive (#2b)
+
+generateFacts() chains:
+  scene evidence → DNA analysis (day 2) → toxicology report (day 4)
+  scene item → digital forensics (day 1) → financial records (day 3)
+
+Story tree chains (complexity ≥ 2):
+  Within each major block, action N+1's success fact requires action N's
+  discovery.  At complexity 3, evidence-type facts also get 1–3 day delays.
+```
+
+#### Fact table columns (13 total)
+
+| Index | Name | Type | Notes |
 |---|---|---|---|
-| 1 | METHOD | 5 (murder-specific) / 4 (other) | 5 |
-| 2 | MOTIVE | 10 codes × 3–4 templates = ~37 | 5 |
-| 3 | ITEM (weapon, murder only) | 5 | 4 |
-| 4 | DATE (timeline) | 4 | 4 |
-| 5 | EVIDENCE (location) | 4 | 3 |
-| 6 | RELATIONSHIP (accomplices) | 4 | 3 |
-| 7 | DATE (alibi contradictions) | 4 | 4 |
-| 8 | EVIDENCE (cover-up) | 4 | 3 |
+| 0 | ID | String | `fact-N` |
+| 1 | Category | String | DATE, RELATIONSHIP, ITEM, EVIDENCE, METHOD, MOTIVE |
+| 2 | Fact | String | Fact text |
+| 3 | Status | String | KNOWN, HIDDEN, UNKNOWN |
+| 4 | Date (epoch) | Long | In-game timestamp |
+| 5 | Char1 | String | First character reference |
+| 6 | Char2 | String | Second character reference |
+| 7 | Rel Type | String | Relationship type |
+| 8 | Item ID | String | Item identifier |
+| 9 | Evidence ID | String | Evidence type identifier |
+| 10 | Importance | Integer | 0–5 |
+| 11 | Prerequisite Fact ID | String | ID of gating fact (evidence chain) |
+| 12 | Availability Day | Integer | In-game day when available (forensics) |
 
 `buildMotiveNarrative(motiveCode, subject, victim)` selects from a pool
-of 3–4 unique sentence templates per motive code (10 codes, ~37 templates
-total).  Each template uses `{subject}` and `{victim}` substitution.
+of ~10 unique sentence templates per motive code (10 codes, ~100 templates
+total).  Each template uses the `subject` and `victim` names directly.
 
 ### 14. Save/load persistence for the story tree
 
@@ -327,6 +411,56 @@ Next: □ Interview the bartender
 
 The checkboxes and "Add Note" button are now pinned at fixed screen positions at
 the bottom of the panel, independent of scroll position.
+
+### 16. Case description & objective templates
+
+Case descriptions and objectives are now driven by an external JSON template
+file: **`assets/text/case_templates_en.json`**.
+
+#### Template structure
+```json
+{
+  "descriptions": {
+    "MISSING_PERSON.1": ["...", ...],
+    "MISSING_PERSON.2": ["...", ...],
+    "MISSING_PERSON.3": ["...", ...]
+  },
+  "objectives": {
+    "MISSING_PERSON.1": ["...", ...],
+    ...
+  }
+}
+```
+
+Keys follow the pattern `CASE_TYPE.complexity` where complexity is 1, 2, or 3.
+Each pool contains **12 template strings** that use `$client`, `$subject`,
+`$victim`, `$pronounCap`, and `$pron` placeholders.
+
+#### Complexity tiers
+| Complexity | Description style | Objective style |
+|---|---|---|
+| 1 | Straightforward narrative; single suspect, clear motive | Direct single-goal objective |
+| 2 | Added complications: conflicting witnesses, secondary evidence, false leads | Multi-part objective with secondary investigation thread |
+| 3 | Deep layering: multiple evidence chains, third-party involvement, cross-referenced data | Comprehensive objective covering primary, secondary, and tertiary investigation threads |
+
+#### Data model — `CaseTemplateData`
+- Parsed by `CaseTemplateData.parse(String json)` using libGDX `JsonReader`
+- `pickDescription(caseTypeName, complexity, rng)` — random template from
+  the matching pool; falls back to complexity 1 if no pool exists
+- `pickObjective(caseTypeName, complexity, rng)` — same pattern
+- Loaded at startup by `GameDataManager.loadCaseTemplates()` and by
+  `CaseEditorPanel.loadCaseTemplates()` (admin tool)
+
+#### Integration
+- `CaseGenerator.buildDescription(type, client, subject, victim, clientGender,
+  subjectGender, rng, complexity, caseTemplateData)` — uses template data when
+  available; falls back to built-in hardcoded templates when `null`
+- `CaseGenerator.buildObjective(type, client, subject, victim, rng, complexity,
+  caseTemplateData)` — same fallback pattern
+- `CaseGenerator.resolveCasePlaceholders()` — handles `$client`, `$subject`,
+  `$victim`, `$pronounCap`, `$pron` token substitution
+- Complexity is determined **before** description generation so templates can
+  vary by difficulty level
 
 ---
 

@@ -191,13 +191,15 @@ suspects share opportunity but **at least one** other attribute differs.
 
 ### Attribute Pools
 
-| Attribute     | Pool                                                                              | Size |
-|---------------|------------------------------------------------------------------------------------|------|
-| Hair Color    | black, brown, blonde, red, gray, white                                            | 6    |
-| Beard Style   | clean-shaven, stubble, short beard, long beard, goatee, moustache (males only)    | 6    |
-| Opportunity   | was near the scene, had keys to the building, was seen in the area, lives close by, visited the location earlier that day | 5 |
-| Access        | owns a firearm, had access to the victim's home, has a key to the office, had access to the safe, drives a vehicle matching witness description, works in the same building | 6 |
-| Has Motive    | true / false                                                                       | 2    |
+| Attribute       | Pool                                                                              | Size |
+|-----------------|------------------------------------------------------------------------------------|------|
+| Hair Color      | black, brown, blonde, red, gray, white                                            | 6    |
+| Beard Style     | clean-shaven, stubble, short beard, long beard, goatee, moustache (males only)    | 6    |
+| Opportunity     | was near the scene, had keys to the building, was seen in the area, lives close by, visited the location earlier that day | 5 |
+| Access (full)   | owns a firearm, had access to the victim's home, has a key to the office, had access to the safe, drives a vehicle matching witness description, works in the same building | 6 |
+| Access (partial)| had access to the building but not the safe, had a visitor pass but not a permanent key, could enter the lobby but not the restricted area, had daytime access only (not after hours), had access to the grounds but not the main office, could reach the car park but not the residence | 6 |
+| Has Motive      | true / false                                                                       | 2    |
+| Alibi           | claims to have been at home alone, says at a bar with friends, working late at the office, at a family dinner, out of town, at the gym, at a community event, at a cinema | 8 |
 
 ### Perpetrator (Subject Role) — 100 % Match
 
@@ -206,22 +208,37 @@ suspects share opportunity but **at least one** other attribute differs.
 | Hair Color  | Random from pool (1/6)         |
 | Beard Style | Random from pool (males) or "none" (females) |
 | Opportunity | Random from pool (1/5)         |
-| Access      | Random from pool (1/6)         |
+| Access      | Random from full-access pool (1/6) |
 | Has Motive  | **Always true**                |
+| Alibi       | Random from pool (1/8) — always falsifiable |
 
 ### Red-Herring Suspects — Differentiation Rules
 
-Each additional suspect rolls **independently** per attribute:
+Each additional suspect rolls **independently** per attribute, with the match
+probability **weighted by complexity** to control elimination difficulty:
+
+| Complexity | Match Threshold | Difficulty | Effect                     |
+|------------|----------------|------------|----------------------------|
+| 1          | **30 %**       | Easy       | Few attributes match — suspects are quickly eliminated |
+| 2          | **50 %**       | Moderate   | Balanced matching — standard investigation |
+| 3          | **70 %**       | Hard       | Most attributes match — suspects are difficult to tell apart |
 
 | Attribute   | Match Perpetrator?    | Probability |
 |-------------|----------------------|-------------|
-| Hair Color  | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Beard Style | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Access      | `random.nextBoolean()` | **50 %** match / 50 % differ |
-| Has Motive  | `random.nextBoolean()` | **50 %** match / 50 % differ |
+| Hair Color  | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Beard Style | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Access      | `random.nextInt(100) < matchThreshold` | Complexity-weighted (non-matches: 40 % partial, 60 % full differ) |
+| Has Motive  | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
+| Alibi       | `random.nextInt(100) < matchThreshold` | Complexity-weighted |
 
-**Guarantee:** If all four match (probability: 6.25 %), one is randomly forced
-to differ (`random.nextInt(4)` picks which one flips → 25 % each).
+**Guarantee:** If all five match (probability depends on complexity), one is
+randomly forced to differ (`random.nextInt(5)` picks which one flips → 20 % each).
+
+**Partial access:** When a suspect's access does not match the perpetrator,
+there is a 40 % chance the suspect receives **partial access** (e.g., "had
+access to the building but not the safe") instead of a completely different
+access type. This adds nuance — the player must carefully evaluate the degree
+of access, not just whether the suspect had any.
 
 **All suspects always have opportunity** — they had a plausible reason to be
 present. Opportunity alone cannot eliminate a suspect.
@@ -233,9 +250,9 @@ The player thins out suspects by discovering facts about:
 | Dimension       | Example Clue                                         |
 |-----------------|------------------------------------------------------|
 | **Physical Looks** | "Witness saw someone with blonde hair leaving"       |
-| **Access**       | "The killer had access to the safe"                  |
+| **Access**       | "The killer had access to the safe" (full vs partial) |
 | **Motive**       | "Only someone with a financial grudge would…"        |
-| **Time**         | (Alibi verification via interviews)                  |
+| **Alibi**        | "Suspect claims they were at the gym, but CCTV contradicts this" |
 
 ---
 
@@ -276,18 +293,33 @@ Neighbour, Partner, Ex-Partner, Business Associate
 
 ## Step 5 — Description & Objective
 
-**Source:** `CaseGenerator.buildDescription()` / `buildObjective()`
+**Source:** `CaseGenerator.buildDescription()` / `buildObjective()` +
+`assets/text/case_templates_en.json`
 
-- **1 description template per case type** (8 total)
-- **1 objective template per case type** (8 total)
-- Templates use `{client}`, `{subject}`, `{victim}`, `he/she` substitution
+- **12 description templates per case type × 3 complexity tiers = 288 total**
+  (8 case types × 12 × 3)
+- **12 objective templates per case type × 3 complexity tiers = 288 total**
+- Templates loaded from `case_templates_en.json` via `CaseTemplateData.parse()`
+- Placeholders: `$client`, `$subject`, `$victim`, `$pronounCap`, `$pron`
+- Resolved by `CaseGenerator.resolveCasePlaceholders()`
 - `CaseGenerator.capitalizeSentences()` ensures sentence-initial capitals
+- Complexity is determined **before** description/objective generation
+- Falls back to built-in hardcoded templates (3 per type) when JSON is absent
 
-### Example (Murder)
+### Complexity tiers
 
-> *"The client, Alex Turner, doesn't believe the official story. the victim,
-> Jordan Voss, called it murder from the start, and nobody listened. Mike Rhodes
-> was the last person seen with the victim. Follow the evidence."*
+| Tier | Description style | Objective style |
+|---|---|---|
+| 1 | Straightforward narrative; single suspect, clear problem | Direct single-goal |
+| 2 | Added complications: conflicting witnesses, secondary evidence | Multi-part with secondary thread |
+| 3 | Deep layering: multiple evidence chains, third parties | Comprehensive multi-objective |
+
+### Example (Murder, complexity 2)
+
+> *"Alex Turner doesn't believe the official story. The coroner called it an
+> accident, but the family called it murder. Mike Rhodes was the last person
+> seen with Jordan Voss. A second witness has now come forward with a different
+> account of that evening."*
 
 ---
 
@@ -398,36 +430,53 @@ The core `CaseGenerator` has 8 red herring lead templates, e.g.:
 ### Tree Structure
 
 ```
-Story Root [CaseType / Motive / complexity=N]
+Story Root [CaseType / Motive / complexity=N]         (parallel=true at c≥3)
 ├── [KNOWN_FACTS] Known Facts & Leads
-│   ├── [FACT] ...          (all KNOWN-status facts)
-│   ├── [LEAD] ...          (75% genuine leads)
-│   └── [LEAD:RED_HERRING]  (25% red herring leads)
+│   ├── [FACT] ...              (all KNOWN-status facts)
+│   ├── [LEAD] ...              (75% genuine leads)
+│   ├── [LEAD:RED_HERRING]      (25% red herring leads)
+│   └── [LEAD ... EXPIRES:day N] (30% of leads at complexity ≥ 2)
 ├── [UNKNOWN_FACTS] Unknown Facts (To Be Solved)
-│   └── [FACT:UNKNOWN] ...  (all UNKNOWN-status facts)
-├── [PLOT_TWIST] Initial Investigation          ← always present
-│   ├── [MAJOR] ...
+│   └── [FACT:UNKNOWN] ...      (all UNKNOWN-status facts)
+├── [PLOT_TWIST:PARALLEL] Initial Investigation       ← always; majors parallel
+│   ├── [MAJOR] ...  ← can be pursued in any order
 │   │   ├── [MINOR] ...
 │   │   │   ├── [ACTION] ...
 │   │   │   │   └── [RESULT] ... | req:ATTR:N | ok:fact:X | fail:...
 │   │   │   └── [ACTION] ...
 │   │   └── [MINOR] ...
-│   └── [MAJOR] ...
-├── [PLOT_TWIST] Plot Twist 1                   ← if complexity ≥ 2
+│   └── [MAJOR] ...  ← can be pursued in any order
+├── [PLOT_TWIST:PARALLEL] Plot Twist 1                ← if complexity ≥ 2
 │   └── (same structure)
-└── [PLOT_TWIST] Plot Twist 2                   ← if complexity ≥ 3
-    └── (same structure)
+├── [PLOT_TWIST:PARALLEL] Plot Twist 2                ← if complexity ≥ 3
+│   └── (same structure)
+└── [SIDE_CASE:PARALLEL] Side Case — ...              ← if complexity ≥ 3
+    └── [MAJOR] Side Lead
+        └── [MINOR] Quick Enquiry
+            ├── [ACTION] Investigate the side lead
+            └── [ACTION] Report findings
 ```
+
+### Non-Linear Progression
+
+Each PLOT_TWIST phase sets `parallel=true`, so both MAJOR_PROGRESS branches
+within it are available simultaneously — the player chooses which thread to
+pursue first.  At complexity ≥ 3, the story root itself is also parallel,
+allowing an optional SIDE_CASE branch to be investigated at any time.
+
+**Time-pressured leads:** ~30 % of leads at complexity ≥ 2 receive an
+`expirationDay` (3–7 in-game days).  `CaseLead.isExpired(currentDay)` lets
+the runtime determine if a lead is no longer actionable.
 
 ### Node Counts per Complexity
 
 | Level          | Per Phase | Complexity 1 | Complexity 2 | Complexity 3 |
 |---------------|-----------|-------------|-------------|-------------|
-| PLOT_TWIST     | 1         | 1           | 2           | 3           |
-| MAJOR_PROGRESS | 2         | 2           | 4           | 6           |
-| MINOR_PROGRESS | 4         | 4           | 8           | 12          |
-| ACTION (leaf)  | 8         | **8**       | **16**      | **24**      |
-| RESULT         | 8         | 8           | 16          | 24          |
+| PLOT_TWIST     | 1         | 1           | 2           | 3 + 1 side  |
+| MAJOR_PROGRESS | 2         | 2           | 4           | 6 + 1 side  |
+| MINOR_PROGRESS | 4         | 4           | 8           | 12 + 1 side |
+| ACTION (leaf)  | 8         | **8**       | **16**      | **24 + 2 side** |
+| RESULT         | 8         | 8           | 16          | 24 + 1 side |
 
 ### Action Title Generation
 
@@ -652,6 +701,8 @@ When the player's attribute is **below** the gate value, they receive the
 | Case Types                | 8     |
 | Complexity Levels         | 3     |
 | Motive Categories         | 10    |
+| **Description Templates** | **8 types × 3 complexities × 12 = 288** |
+| **Objective Templates**   | **8 types × 3 complexities × 12 = 288** |
 | Base Roles (per type)     | 5–6   |
 | Suspect Labels            | 5     |
 | Hair Colors               | 6     |
@@ -682,13 +733,28 @@ When the player's attribute is **below** the gate value, they receive the
 | Death variance: Precise                  | 30 %          |
 | Death variance: 15–180 min range         | 60 %          |
 | Death variance: Unknown / body missing   | 10 %          |
-| Suspect attribute matches perpetrator    | 50 % per attribute |
-| All 4 attributes accidentally match      | 6.25 % (forced mismatch) |
+| Suspect attribute matches perpetrator    | 30 %–70 % per attribute (complexity-weighted) |
+| All 5 attributes accidentally match      | Complexity-dependent (forced mismatch) |
+| Non-matching access is partial (not full differ) | 40 % |
 | Lead classified as red herring           | 25 %          |
 | Failure branch creates lead (vs fact)    | 50 %          |
 | Subject alibi is truthful                | 30 %          |
 | Subject last-contact is truthful         | 40 %          |
 | Subject opinion/observation/motive truthful | 50 %       |
+| Story fact has prerequisite (complexity ≥ 2)| ~75 % of non-first actions |
+| Evidence fact gets forensics delay (complexity 3)| ~100 % of evidence-type |
+| Red-herring motive generated (complexity ≥ 2)| 100 %     |
+| Secondary motive generated (complexity 3)  | 100 %       |
+
+### Evidence Chain Statistics
+
+| Chain Type                 | Prerequisite Depth | Availability Days |
+|---------------------------|-------------------|-------------------|
+| Scene → DNA → Toxicology   | 2 links           | 0 → 2 → 4        |
+| Item → Digital → Financial  | 2 links           | 0 → 1 → 3        |
+| Weapon → Timeline → Alibi  | 2 links (murder)  | 0 → 1 → 0        |
+| Location → Cover-up        | 1 link            | 0 → 2             |
+| Story facts (complexity ≥ 2)| 1 link per major  | 0 (or 1–3 at complexity 3) |
 
 ### Total Generated Content (typical Murder case)
 
@@ -699,7 +765,7 @@ When the player's attribute is **below** the gate value, they receive the
 | Leads                | 3           | 4           | 5           |
 | Known Facts          | ~5–8        | ~6–10       | ~7–12       |
 | Hidden Facts         | ~10–16      | ~18–26      | ~26–36      |
-| Unknown Facts        | 8           | 8           | 8           |
+| Unknown Facts        | 8–10        | 8–10        | 9–12        |
 | Leaf Actions         | 8           | 16          | 24          |
 | Interview Responses  | ~30–50      | ~40–65      | ~50–80      |
 
@@ -732,16 +798,24 @@ across cases.
   entries** each
 - Per-motive and per-case-type specialised variants added throughout
 
-### 2. Dynamic Suspect Attribute Assignment
+### 2. Dynamic Suspect Attribute Assignment ✅ (Implemented)
 
-**Current:** Suspect attributes are purely random 50/50 per dimension.
+**Previous status:** Suspect attributes were purely random 50/50 per dimension.
 
-**Improvement:**
-- Weight attribute matching by complexity — higher complexity means more attributes
-  match, making elimination harder
-- Add **temporal alibi** as a full elimination dimension (not just interview text)
-- Allow suspects to have **partial access** (e.g., "had access to the building
-  but not the safe") for nuanced elimination
+**What was implemented:**
+- Attribute matching is **weighted by complexity**: complexity 1 → 30 % match
+  chance (easy), complexity 2 → 50 % (moderate), complexity 3 → 70 % (hard)
+- **Temporal alibi** added as a 5th testable elimination dimension with a pool of 8
+  plausible alibis — the perpetrator always has a falsifiable alibi, and
+  suspects either share it (suspicious) or have a different one (verifiable)
+- **Partial access** introduced: when a suspect's access doesn't match the
+  perpetrator, 40 % of the time they receive partial access (e.g., "had
+  access to the building but not the safe") instead of a completely different
+  access type, adding nuanced evaluation
+- NPC table column 20 (`Alibi`) stores the temporal alibi for each suspect
+- The all-match guarantee now covers 5 dimensions (was 4): if all match, one
+  is forced to differ via `random.nextInt(5)`
+- Debug/export output includes alibi data for each NPC
 
 ### 3. Witness Reliability Variance
 
@@ -753,26 +827,79 @@ across cases.
 - Add CONTRADICTORY witnesses whose accounts conflict, requiring the player
   to determine which is accurate
 
-### 4. Evidence Chain System
+### 4. Evidence Chain System ✅ (Implemented)
 
-**Current:** Facts exist independently with no dependencies.
+**Previous status:** Facts existed independently with no dependencies.
 
-**Improvement:**
-- Create fact → fact dependencies ("discovering DNA evidence unlocks the
-  toxicology report")
-- Implement **evidence chains** where early clues gate access to later discoveries
-- Add a **forensics timeline** — evidence degrades or becomes available over
-  in-game days
+**What was implemented:**
+- Two new fact columns: **Prerequisite Fact ID** (col 11) and **Availability
+  Day** (col 12) enable fact → fact dependencies and forensics timelines
+- **`generateFacts()` evidence chains:**
+  - Chain 1: scene evidence → DNA analysis (day 2) → toxicology report (day 4)
+  - Chain 2: scene item → digital forensics (day 1) → financial records (day 3)
+- **`generateUnknownFacts()` evidence chains:**
+  - Weapon → timeline (day 1, murder only) → alibi verification
+  - Location → cover-up evidence (day 2)
+- **Story tree fact chains** at complexity ≥ 2: within each major block, the
+  second action's success fact requires the first action's discovery; at
+  complexity 3, evidence-type facts also receive a 1–3 day availability delay
+- **EVIDENCE_CHAINS** section added to the story tree visualization, showing
+  the prerequisite graph with availability days
+- Debug/export output shows prerequisite and availability day info on every
+  chained fact
+- Fact table UI updated with two new columns; `appendChainInfo()` helper
+  annotates fact references throughout
 
-### 5. Procedural Motive Complexity
+### 5. Procedural Motive Complexity ✅ (Implemented)
 
-**Current:** One motive per case, chosen at generation time.
+**Previous status:** One motive per case, chosen at generation time.
 
-**Improvement:**
-- Allow **layered motives** (primary + secondary) at complexity 3
-- Generate motive **red herrings** — false motives that appear plausible
-  until contradicted
-- Tie motive discovery to specific interview gates and evidence findings
+**What was implemented:**
+- **Layered motives** at complexity 3: a **secondary motive** is generated from
+  a logical pairing table (e.g. FINANCIAL_GAIN → CONCEALMENT, REVENGE → PASSION)
+  and is chained to the primary motive fact via an evidence-chain prerequisite —
+  the investigator must discover the primary motive before the secondary one
+  becomes available
+- **Red-herring motives** at complexity ≥ 2: a HIDDEN fact with a plausible but
+  false motive narrative is generated using a different motive code.  It appears
+  convincing early in the investigation but is ultimately contradicted
+- **`NarrativeTemplates` additions:**
+  - `pickSecondaryMotiveCode(primaryCode)` — selects a logically paired
+    secondary motive (10 predefined pairings)
+  - `buildSecondaryMotiveNarrative(secondaryCode, primaryCode, subject, victim)`
+    — wraps a standard motive narrative with a "deeper motivation" connector
+  - `pickRedHerringMotiveCode(trueMotiveCode)` — selects a different motive
+    code for the false lead
+  - `buildRedHerringMotiveNarrative(herringCode, subject, victim)` — wraps a
+    standard narrative with misleading framing text
+- **Story tree visualisation:** `[MOTIVE_LAYERS]` section shows all motive
+  facts tagged as `[MOTIVE:PRIMARY]`, `[MOTIVE:SECONDARY]`, or
+  `[MOTIVE:RED_HERRING]` with chain info
+- **Summary output** includes a Motive Complexity section counting
+  primary/secondary/red-herring motive facts
+
+#### Motive complexity by level
+
+| Complexity | Primary | Red Herring | Secondary | Total motive facts |
+|------------|---------|-------------|-----------|-------------------|
+| 1          | 1+traits| —           | —         | 1–3               |
+| 2          | 1+traits| 1           | —         | 2–4               |
+| 3          | 1+traits| 1           | 1         | 3–5               |
+
+#### Secondary motive pairings
+
+| Primary         | Secondary       |
+|-----------------|-----------------|
+| FINANCIAL_GAIN  | CONCEALMENT     |
+| REVENGE         | PASSION         |
+| JEALOUSY        | REVENGE         |
+| COERCION        | SELF_DEFENSE    |
+| POWER           | FINANCIAL_GAIN  |
+| SELF_DEFENSE    | CONCEALMENT     |
+| IDEOLOGY        | POWER           |
+| CONCEALMENT     | FINANCIAL_GAIN  |
+| PASSION         | JEALOUSY        |
+| LOYALTY         | COERCION        |
 
 ### 6. Location-Based Investigation ✅ (Implemented)
 
@@ -800,15 +927,24 @@ across cases.
 
 ### 7. Non-Linear Story Progression
 
-**Current:** Story tree is strictly linear: all sub-branches must complete
-before the next MAJOR_PROGRESS unlocks.
+**Status:** ✅ Done
 
-**Improvement:**
-- Allow **parallel investigation threads** — player chooses which major
-  branch to pursue first
-- Add **time pressure** — certain leads expire after N in-game days
-- Introduce optional **side cases** at complexity 3 that interweave with
-  the main case
+**Previous:** Story tree was strictly linear: all sub-branches had to complete
+before the next MAJOR_PROGRESS unlocked.
+
+**Implementation:**
+- **Parallel investigation threads:** Each PLOT_TWIST phase node is now
+  marked as `parallel=true`, meaning its two MAJOR_PROGRESS children can
+  be pursued in any order.  `CaseStoryNode.isChildAvailable()`,
+  `getNextActiveChild()`, and the new `getAvailableActions()` method all
+  respect the flag.  The admin tool displays `[PLOT_TWIST:PARALLEL]` tags.
+- **Time pressure:** At complexity ≥ 2, approximately 30 % of leads receive
+  an `expirationDay` (3–7 in-game days).  `CaseLead.isExpired(currentDay)`
+  lets the runtime check if a lead has become stale.  The admin tool shows
+  `[EXPIRES:day N]` on affected leads.
+- **Side cases:** At complexity 3, an optional `SIDE_CASE` node (a
+  self-contained mini-investigation) is appended to the story root with
+  `parallel=true`, so the player can pursue it alongside the main phases.
 
 ### 8. Physical Appearance Expansion
 
@@ -892,4 +1028,4 @@ with significant duplication.
 
 ---
 
-*Last updated: 2026-04-13*
+*Last updated: 2026-04-14*

@@ -62,6 +62,7 @@ public class CaseGenerator {
     private final PersonNameGenerator nameGen;
     private final Random              random;
     private final InterviewTemplateEngine interviewEngine;
+    private final CaseTemplateData    caseTemplateData;
 
     /**
      * Creates a generator with the given name source and a default {@link Random}.
@@ -70,7 +71,7 @@ public class CaseGenerator {
      *                must not be {@code null}
      */
     public CaseGenerator(PersonNameGenerator nameGen) {
-        this(nameGen, new Random(), null);
+        this(nameGen, new Random(), null, null);
     }
 
     /**
@@ -82,7 +83,7 @@ public class CaseGenerator {
      *                default {@code new Random()}
      */
     public CaseGenerator(PersonNameGenerator nameGen, Random random) {
-        this(nameGen, random, null);
+        this(nameGen, random, null, null);
     }
 
     /**
@@ -97,10 +98,27 @@ public class CaseGenerator {
      */
     public CaseGenerator(PersonNameGenerator nameGen, Random random,
                          InterviewTemplateData templateData) {
+        this(nameGen, random, templateData, null);
+    }
+
+    /**
+     * Creates a generator with all optional data sources.
+     *
+     * @param nameGen          name generator; must not be {@code null}
+     * @param random           random-number source; {@code null} → default
+     * @param templateData     interview text pools; {@code null} → placeholders
+     * @param caseTemplateData case description/objective pools loaded from
+     *                         {@code case_templates_en.json}; {@code null} →
+     *                         built-in hardcoded templates
+     */
+    public CaseGenerator(PersonNameGenerator nameGen, Random random,
+                         InterviewTemplateData templateData,
+                         CaseTemplateData caseTemplateData) {
         if (nameGen == null) throw new IllegalArgumentException("nameGen must not be null");
         this.nameGen = nameGen;
         this.random  = random != null ? random : new Random();
         this.interviewEngine = new InterviewTemplateEngine(this.random, templateData);
+        this.caseTemplateData = caseTemplateData;
     }
 
     // -------------------------------------------------------------------------
@@ -150,13 +168,57 @@ public class CaseGenerator {
             allTraits.put(victimName, generateTraitMap());
         }
 
-        // Build the description with trait-informed details about the subject
+        // Determine complexity before description generation so templates can vary
+        int complexity = 1 + random.nextInt(3);  // 1, 2, or 3
+
+        // --- Pick a coherent seed (facts + leads) for this case type ---
+        CaseTemplateData.CaseSeed seed = null;
+        List<String> resolvedFacts = new ArrayList<>();
+        List<CaseTemplateData.SeedLead> resolvedLeadData = new ArrayList<>();
+        if (caseTemplateData != null) {
+            seed = caseTemplateData.pickSeed(type.name(), random);
+        }
+        if (seed != null) {
+            for (String rawFact : seed.getFacts()) {
+                resolvedFacts.add(resolveCasePlaceholders(rawFact, clientName,
+                        subjectName, victimName, clientGender, subjectGender));
+            }
+            resolvedLeadData = seed.getLeads();
+        }
+
+        // Build the description with trait-informed details about the subject,
+        // and append the seed facts so the narrative specifies known information.
         Map<PersonalityTrait, Integer> subjectTraits = allTraits.get(subjectName);
-        String description = capitalizeSentences(
+        StringBuilder descBuilder = new StringBuilder(
                 buildDescription(type, clientName, subjectName, victimName,
-                        clientGender, subjectGender, random)
-                + " " + buildTraitColour(subjectName, subjectTraits, subjectGender));
-        String objective   = buildObjective(type, clientName, subjectName, victimName, random);
+                        clientGender, subjectGender, random, complexity,
+                        caseTemplateData));
+        String traitColour = buildTraitColour(subjectName, subjectTraits, subjectGender);
+        if (!traitColour.isEmpty()) {
+            descBuilder.append(' ').append(traitColour);
+        }
+        if (!resolvedFacts.isEmpty()) {
+            descBuilder.append("\n\nWhat we know so far:");
+            for (String fact : resolvedFacts) {
+                descBuilder.append("\n\u2022 ").append(fact);
+            }
+        }
+        String description = capitalizeSentences(descBuilder.toString());
+
+        // Build the objective and append seed lead hints so the player knows
+        // where to start investigating.
+        StringBuilder objBuilder = new StringBuilder(
+                buildObjective(type, clientName, subjectName, victimName,
+                        subjectGender, random, complexity, caseTemplateData));
+        if (!resolvedLeadData.isEmpty()) {
+            objBuilder.append("\n\nInitial lines of enquiry:");
+            for (CaseTemplateData.SeedLead sl : resolvedLeadData) {
+                String hint = resolveCasePlaceholders(sl.getHint(), clientName,
+                        subjectName, victimName, clientGender, subjectGender);
+                objBuilder.append("\n\u2022 ").append(hint);
+            }
+        }
+        String objective = objBuilder.toString();
 
         CaseFile cf = new CaseFile(type.getDisplayName() + ": " + subjectName,
                 description, dateOpened != null ? dateOpened : "");
@@ -165,8 +227,35 @@ public class CaseGenerator {
         cf.setSubjectName(subjectName);
         cf.setVictimName(victimName);
         cf.setObjective(objective);
-        cf.setComplexity(1 + random.nextInt(3));  // 1, 2, or 3
-        cf.setStoryRoot(buildStoryTree(type, cf.getComplexity(), subjectName));
+        cf.setComplexity(complexity);
+
+        // Add seed facts as initial known clues on the case file
+        for (String fact : resolvedFacts) {
+            cf.addClue(fact);
+        }
+
+        // Add seed leads as case leads (undiscovered — hints visible,
+        // full descriptions hidden until found)
+        int seedLeadIndex = 1;
+        for (CaseTemplateData.SeedLead sl : resolvedLeadData) {
+            String hint = resolveCasePlaceholders(sl.getHint(), clientName,
+                    subjectName, victimName, clientGender, subjectGender);
+            String desc = resolveCasePlaceholders(sl.getDescription(), clientName,
+                    subjectName, victimName, clientGender, subjectGender);
+            DiscoveryMethod dm;
+            try {
+                dm = DiscoveryMethod.valueOf(sl.getMethod());
+            } catch (IllegalArgumentException e) {
+                dm = DiscoveryMethod.INTERVIEW;
+            }
+            cf.addLead(new CaseLead("seed-lead-" + seedLeadIndex, desc, hint, dm));
+            seedLeadIndex++;
+        }
+
+        // Build the story tree — pass seed facts so Phase 0 references them
+        cf.setStoryRoot(buildStoryTree(type, cf.getComplexity(), subjectName,
+                resolvedFacts, resolvedLeadData, clientName, victimName,
+                clientGender, subjectGender));
         cf.setMeetingDialogue(buildMeetingDialogue(type, subjectName, objective, description,
                 cf.getStoryRoot()));
 
@@ -178,8 +267,17 @@ public class CaseGenerator {
         // Leads — standard + trait-driven + red herrings
         List<CaseLead> leads = buildLeads(type, subjectName, victimName, cf.getComplexity());
         addTraitDrivenLeads(leads, subjectName, subjectTraits);
+        // Time pressure: at complexity ≥ 2, assign expiration days to some leads
+        if (cf.getComplexity() >= 2) {
+            assignLeadExpiration(leads);
+        }
         for (CaseLead lead : leads) {
             cf.addLead(lead);
+        }
+
+        // Side case: at complexity 3, add an optional investigation branch
+        if (cf.getComplexity() >= 3) {
+            addSideCaseNode(cf.getStoryRoot(), type, subjectName);
         }
 
         cf.setInterviewScripts(
@@ -470,6 +568,43 @@ public class CaseGenerator {
                 new Random());
     }
 
+    /**
+     * Generates a narrative case description using JSON template pools when
+     * available, falling back to the built-in hardcoded templates when the
+     * template data is {@code null} or lacks an entry for the requested type.
+     *
+     * <p>Templates may contain {@code $client}, {@code $subject},
+     * {@code $victim}, {@code $pronounCap}, and {@code $pron} placeholders
+     * which are resolved before returning.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param clientGender     {@code "M"} or {@code "F"}
+     * @param subjectGender    {@code "M"} or {@code "F"}
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return a resolved multi-sentence narrative description
+     */
+    public static String buildDescription(CaseType type, String client, String subject,
+                                    String victim, String clientGender,
+                                    String subjectGender, Random rng,
+                                    int complexity,
+                                    CaseTemplateData caseTemplateData) {
+        if (rng == null) rng = new Random();
+        if (caseTemplateData != null) {
+            String template = caseTemplateData.pickDescription(type.name(), complexity, rng);
+            if (template != null) {
+                return resolveCasePlaceholders(template, client, subject, victim,
+                        clientGender, subjectGender);
+            }
+        }
+        // Fallback to built-in hardcoded templates
+        return buildDescription(type, client, subject, victim, clientGender, subjectGender, rng);
+    }
+
     // -------------------------------------------------------------------------
     // Objective templates
     // -------------------------------------------------------------------------
@@ -568,6 +703,81 @@ public class CaseGenerator {
     public static String buildObjective(CaseType type, String client, String subject,
                                         String victim) {
         return buildObjective(type, client, subject, victim, new Random());
+    }
+
+    /**
+     * Generates the case objective using JSON template pools when available,
+     * falling back to the built-in hardcoded templates otherwise.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return resolved objective sentence(s)
+     */
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim, Random rng,
+                                        int complexity,
+                                        CaseTemplateData caseTemplateData) {
+        return buildObjective(type, client, subject, victim, null, rng,
+                complexity, caseTemplateData);
+    }
+
+    /**
+     * Generates the case objective using JSON template pools when available,
+     * with subject gender for pronoun resolution.
+     *
+     * @param type             the case type
+     * @param client           client name
+     * @param subject          subject name
+     * @param victim           victim name
+     * @param subjectGender    {@code "M"} or {@code "F"}; may be {@code null}
+     * @param rng              random source
+     * @param complexity       1, 2, or 3
+     * @param caseTemplateData JSON template pools; may be {@code null}
+     * @return resolved objective sentence(s)
+     */
+    public static String buildObjective(CaseType type, String client, String subject,
+                                        String victim, String subjectGender,
+                                        Random rng, int complexity,
+                                        CaseTemplateData caseTemplateData) {
+        if (rng == null) rng = new Random();
+        if (caseTemplateData != null) {
+            String template = caseTemplateData.pickObjective(type.name(), complexity, rng);
+            if (template != null) {
+                return resolveCasePlaceholders(template, client, subject, victim,
+                        null, subjectGender);
+            }
+        }
+        return buildObjective(type, client, subject, victim, rng);
+    }
+
+    // -------------------------------------------------------------------------
+    // Placeholder resolution for case templates
+    // -------------------------------------------------------------------------
+
+    /**
+     * Resolves {@code $client}, {@code $subject}, {@code $victim},
+     * {@code $pronounCap}, and {@code $pron} placeholders in a template
+     * string.  Gender-based tokens are derived from {@code subjectGender}.
+     */
+    public static String resolveCasePlaceholders(String template, String client, String subject,
+                                          String victim, String clientGender,
+                                          String subjectGender) {
+        String result = template;
+        result = result.replace("$client",  client  != null ? client  : "the client");
+        result = result.replace("$subject", subject != null ? subject : "the subject");
+        result = result.replace("$victim",  victim  != null ? victim  : "the victim");
+        if (subjectGender != null) {
+            String cap = "F".equals(subjectGender) ? "She" : "He";
+            String low = cap.toLowerCase();
+            result = result.replace("$pronounCap", cap);
+            result = result.replace("$pron", low);
+        }
+        return result;
     }
 
     // -------------------------------------------------------------------------
@@ -792,6 +1002,91 @@ public class CaseGenerator {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Non-linear story progression helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Assigns expiration days to a random subset of leads (approximately 30%).
+     * Expiration creates time pressure: the player must discover these leads
+     * within 3–7 in-game days or lose access to the information.
+     */
+    private void assignLeadExpiration(List<CaseLead> leads) {
+        for (CaseLead lead : leads) {
+            // ~30 % of leads get time pressure
+            if (random.nextInt(100) < 30) {
+                lead.setExpirationDay(3 + random.nextInt(5)); // 3–7 days
+            }
+        }
+    }
+
+    /**
+     * Adds an optional SIDE_CASE node to the story root.  Side cases are
+     * parallel investigation threads at complexity 3 that interweave with
+     * the main case — the player can pursue them at any time.
+     *
+     * <p>The side case is a self-contained two-action mini-investigation
+     * that provides bonus facts and flavour.
+     */
+    private void addSideCaseNode(CaseStoryNode storyRoot, CaseType type,
+                                 String subject) {
+        if (storyRoot == null) return;
+
+        String sideTitle = sideCaseTitle(type, subject);
+        String sideDesc  = "An optional side investigation has surfaced "
+                + "that may shed additional light on the main case. "
+                + "This thread can be pursued at any time.";
+
+        CaseStoryNode sideCase = sn("side-case", sideTitle, sideDesc,
+                CaseStoryNode.NodeType.PLOT_TWIST);
+        // Mark as parallel with the main phases
+        CaseStoryNode sideMajor = sn("side-m0", "Side Lead",
+                "Follow up on the tangential lead.",
+                CaseStoryNode.NodeType.MAJOR_PROGRESS);
+        CaseStoryNode sideMinor = sn("side-m0n0", "Quick Enquiry", "",
+                CaseStoryNode.NodeType.MINOR_PROGRESS);
+        sideMinor.addChild(sn("side-a0",
+                "Investigate the side lead",
+                "A separate thread has emerged — pursue it for additional context.",
+                CaseStoryNode.NodeType.ACTION));
+        sideMinor.addChild(sn("side-a1",
+                "Report findings",
+                "Compile any additional evidence and tie it back to the main case.",
+                CaseStoryNode.NodeType.ACTION));
+        sideMajor.addChild(sideMinor);
+        sideCase.addChild(sideMajor);
+
+        // Allow the root to be pursued in parallel with main phases
+        storyRoot.setParallel(true);
+        storyRoot.addChild(sideCase);
+    }
+
+    /**
+     * Returns a flavour title for the side case based on the main case type.
+     */
+    private static String sideCaseTitle(CaseType type, String subject) {
+        switch (type) {
+            case MURDER:
+                return "Side Case — Suspicious Associate of " + subject;
+            case MISSING_PERSON:
+                return "Side Case — Second Sighting Report";
+            case THEFT:
+                return "Side Case — Fence Operation Tip";
+            case FRAUD:
+                return "Side Case — Offshore Account Rumour";
+            case BLACKMAIL:
+                return "Side Case — Anonymous Source";
+            case STALKING:
+                return "Side Case — Prior Incident Report";
+            case CORPORATE_ESPIONAGE:
+                return "Side Case — Whistleblower Contact";
+            case INFIDELITY:
+                return "Side Case — Parallel Deception";
+            default:
+                return "Side Case — Tangential Lead";
+        }
+    }
+
     /** Joins a list of strings with commas and "and" before the last element. */
     private static String joinWithAnd(List<String> items) {
         if (items.size() == 1) return items.get(0);
@@ -915,20 +1210,96 @@ public class CaseGenerator {
      *                  └─ ACTION  (×2 per minor — leaf nodes)
      * </pre>
      *
-     * @param type       case category, used to select narrative templates
-     * @param complexity number of phases (1–3)
-     * @param subject    subject name, substituted into node text
+     * <p>When seed data is available, Phase 0's first leaf-action descriptions
+     * are enriched with references to the seed facts and leads so that the
+     * story tree is coherent with the case description and objective.
+     *
+     * @param type           case category, used to select narrative templates
+     * @param complexity     number of phases (1–3)
+     * @param subject        subject name, substituted into node text
+     * @param seedFacts      resolved initial facts (may be empty)
+     * @param seedLeadData   seed leads with hint/method (may be empty)
+     * @param client         client name for placeholder resolution
+     * @param victim         victim name for placeholder resolution
+     * @param clientGender   client gender for placeholder resolution
+     * @param subjectGender  subject gender for placeholder resolution
      * @return the ROOT node containing all phase sub-trees
      */
-    private CaseStoryNode buildStoryTree(CaseType type, int complexity, String subject) {
+    private CaseStoryNode buildStoryTree(CaseType type, int complexity, String subject,
+                                         List<String> seedFacts,
+                                         List<CaseTemplateData.SeedLead> seedLeadData,
+                                         String client, String victim,
+                                         String clientGender, String subjectGender) {
         CaseStoryNode root = sn("story", type.getDisplayName() + " — Case Story",
                 "Story-progression tree for this investigation.",
                 CaseStoryNode.NodeType.ROOT);
         String[][] data = STORY_DATA[type.ordinal()];
         for (int p = 0; p < complexity && p < data.length; p++) {
-            root.addChild(buildPhase(data[p], subject, "p" + p));
+            CaseStoryNode phase = buildPhase(data[p], subject, "p" + p);
+            // Enrich Phase 0 with seed data so actions reference the known facts/leads
+            if (p == 0 && !seedFacts.isEmpty()) {
+                enrichPhaseWithSeeds(phase, seedFacts, seedLeadData,
+                        client, subject, victim, clientGender, subjectGender);
+            }
+            root.addChild(phase);
         }
         return root;
+    }
+
+    /**
+     * Enriches a Phase 0 PLOT_TWIST node by appending seed fact and lead
+     * information to the descriptions of early ACTION leaf nodes.  This makes
+     * the story tree reference the same specific details mentioned in the case
+     * description and objective.
+     *
+     * <p>Implementation walks the first MAJOR_PROGRESS node&rsquo;s leaf
+     * actions and appends one seed fact or lead reference to each, so the
+     * player sees a direct link between the initial briefing and the first
+     * steps of the investigation.
+     */
+    private void enrichPhaseWithSeeds(CaseStoryNode phase,
+                                       List<String> seedFacts,
+                                       List<CaseTemplateData.SeedLead> seedLeadData,
+                                       String client, String subject,
+                                       String victim, String clientGender,
+                                       String subjectGender) {
+        // Collect all ACTION leaf nodes from Phase 0
+        List<CaseStoryNode> actions = new ArrayList<>();
+        collectActions(phase, actions);
+        if (actions.isEmpty()) return;
+
+        // Build enrichment snippets from seed facts and leads
+        List<String> enrichments = new ArrayList<>();
+        for (String fact : seedFacts) {
+            enrichments.add("Known fact: " + fact);
+        }
+        for (CaseTemplateData.SeedLead sl : seedLeadData) {
+            String hint = resolveCasePlaceholders(sl.getHint(), client,
+                    subject, victim, clientGender, subjectGender);
+            enrichments.add("Lead: " + hint);
+        }
+
+        // Append enrichment to the first N actions (one snippet per action)
+        int limit = Math.min(actions.size(), enrichments.size());
+        for (int i = 0; i < limit; i++) {
+            CaseStoryNode action = actions.get(i);
+            String existing = action.getDescription();
+            String enriched = existing.isEmpty()
+                    ? enrichments.get(i)
+                    : existing + " " + enrichments.get(i);
+            action.setDescription(enriched);
+        }
+    }
+
+    /** Recursively collects all ACTION leaf nodes from a subtree. */
+    private static void collectActions(CaseStoryNode node, List<CaseStoryNode> result) {
+        if (node.getNodeType() == CaseStoryNode.NodeType.ACTION) {
+            result.add(node);
+            return;
+        }
+        for (CaseStoryNode child : node.getChildren()) {
+            collectActions(child, result);
+        }
     }
 
     /**
@@ -962,6 +1333,9 @@ public class CaseGenerator {
         for (int i = 0; i < raw.length; i++) d[i] = raw[i].replace("{s}", subject);
 
         CaseStoryNode phase = sn(prefix,       d[0],  d[1],  CaseStoryNode.NodeType.PLOT_TWIST);
+        // Each phase allows parallel investigation: the player chooses which
+        // major branch (m0 or m1) to pursue first.
+        phase.setParallel(true);
 
         CaseStoryNode m0    = sn(prefix+"-m0", d[2],  "",    CaseStoryNode.NodeType.MAJOR_PROGRESS);
         CaseStoryNode m0n0  = sn(prefix+"-m0n0", d[3], "",   CaseStoryNode.NodeType.MINOR_PROGRESS);

@@ -9,6 +9,7 @@ import eb.framework1.investigation.CaseGenerator;
 import eb.framework1.investigation.CaseType;
 import eb.framework1.investigation.InterviewResponse;
 import eb.framework1.investigation.InterviewScript;
+import eb.framework1.investigation.CaseTemplateData;
 import eb.framework1.investigation.InterviewTemplateData;
 import eb.framework1.investigation.InterviewTemplateEngine;
 import eb.framework1.investigation.InterviewTopic;
@@ -51,6 +52,7 @@ public class CaseEditorPanel extends JPanel {
     private final NarrativeTemplates narratives = new NarrativeTemplates(random);
     private final PersonNameGenerator nameGen = buildDefaultNameGenerator();
     private final InterviewTemplateData interviewTemplateData = loadInterviewTemplates();
+    private final CaseTemplateData caseTemplateData = loadCaseTemplates();
 
     // Step 1 – Case Type
     private final JComboBox<String> caseTypeCombo = new JComboBox<>();
@@ -73,7 +75,8 @@ public class CaseEditorPanel extends JPanel {
     // 8=Dead, 9=Death Date/Time, 10=Variance (min),
     // 11=Hair Color, 12=Beard Style, 13=Opportunity, 14=Access, 15=Has Motive,
     // 16=Phone Number, 17=Phone Discovered, 18=Default Location,
-    // 19=Personality Traits (hidden, comma-separated "trait:value" pairs)
+    // 19=Personality Traits (hidden, comma-separated "trait:value" pairs),
+    // 20=Alibi (temporal alibi — elimination dimension)
     private final DefaultTableModel npcModel =
             new DefaultTableModel(new String[]{
                     "Role", "Name", "Gender", "Age", "Occupation",
@@ -82,7 +85,7 @@ public class CaseEditorPanel extends JPanel {
                     "Hair Color", "Beard Style",
                     "Opportunity", "Access", "Has Motive",
                     "Phone Number", "Phone Discovered", "Default Location",
-                    "Personality Traits"}, 0) {
+                    "Personality Traits", "Alibi"}, 0) {
                 @Override
                 public Class<?> getColumnClass(int col) {
                     if (col == 8) return Boolean.class;   // Dead checkbox
@@ -107,16 +110,18 @@ public class CaseEditorPanel extends JPanel {
 
     // Step 5 – Facts
     // Columns: 0=ID, 1=Category, 2=Fact, 3=Status, 4=Date(epoch),
-    //          5=Char1, 6=Char2, 7=Rel Type, 8=Item ID, 9=Evidence ID, 10=Importance
+    //          5=Char1, 6=Char2, 7=Rel Type, 8=Item ID, 9=Evidence ID,
+    //          10=Importance, 11=Prerequisite Fact ID, 12=Availability Day
     private final DefaultTableModel factsModel =
             new DefaultTableModel(new String[]{
                     "ID", "Category", "Fact", "Status",
                     "Date (epoch)", "Char1", "Char2", "Rel Type",
-                    "Item ID", "Evidence ID", "Importance"}, 0) {
+                    "Item ID", "Evidence ID", "Importance",
+                    "Prerequisite Fact ID", "Availability Day"}, 0) {
                 @Override public boolean isCellEditable(int row, int col) { return col != 0; }
                 @Override public Class<?> getColumnClass(int col) {
                     if (col == 4)  return Long.class;
-                    if (col == 10) return Integer.class;
+                    if (col == 10 || col == 12) return Integer.class;
                     return String.class;
                 }
             };
@@ -517,6 +522,8 @@ public class CaseEditorPanel extends JPanel {
         factsTable.getColumnModel().getColumn(8).setPreferredWidth(110);
         factsTable.getColumnModel().getColumn(9).setPreferredWidth(120);
         factsTable.getColumnModel().getColumn(10).setPreferredWidth(80);
+        factsTable.getColumnModel().getColumn(11).setPreferredWidth(120);
+        factsTable.getColumnModel().getColumn(12).setPreferredWidth(100);
 
         // Status column — restricted combo: KNOWN, HIDDEN, or UNKNOWN
         JComboBox<String> statusCombo = new JComboBox<>(new String[]{"KNOWN", "HIDDEN", "UNKNOWN"});
@@ -533,7 +540,7 @@ public class CaseEditorPanel extends JPanel {
             int nextId = factsModel.getRowCount() + 1;
             factsModel.addRow(new Object[]{
                     "fact-" + nextId, "DATE", "", "HIDDEN",
-                    0L, "", "", "", "", "", 0});
+                    0L, "", "", "", "", "", 0, "", 0});
         });
 
         deleteBtn.addActionListener(e -> {
@@ -812,6 +819,12 @@ public class CaseEditorPanel extends JPanel {
                         + "through the storyline. They represent what actually happened — the "
                         + "method, motive, and means of the crime. Solving these facts is the "
                         + "core objective of the investigation.";
+            case "EVIDENCE_CHAINS":
+                return "Evidence Chains\n\n"
+                        + "Facts linked by prerequisites form evidence chains. Early clues "
+                        + "must be discovered before later, more detailed evidence becomes "
+                        + "available. Some forensic evidence also has an availability delay — "
+                        + "the lab needs time to process samples before results are ready.";
             case "FACT":
                 return "Known fact: " + title + "\n\n"
                         + "This fact is available from the start of the investigation. "
@@ -821,7 +834,41 @@ public class CaseEditorPanel extends JPanel {
                         + "This fact represents a critical unknown in the case. The investigator "
                         + "does not know this at the start — it must be uncovered by following "
                         + "leads, gathering evidence, and advancing the storyline. Discovering "
-                        + "this fact moves the investigation closer to resolution.";
+                        + "this fact moves the investigation closer to resolution.\n\n"
+                        + "If this fact has a prerequisite, the gating fact must be discovered "
+                        + "first. If it has an availability day, it only becomes accessible "
+                        + "after that many in-game days have passed (forensics processing).";
+            case "CHAIN":
+                return "Evidence chain link: " + title + "\n\n"
+                        + "This fact is part of an evidence chain. It cannot be discovered "
+                        + "until its prerequisite fact has been found. The availability day "
+                        + "indicates how long forensic processing takes before the evidence "
+                        + "becomes available to the investigator.";
+            case "MOTIVE_LAYERS":
+                return "Motive Complexity\n\n"
+                        + "This section shows the layered motive structure for the case. "
+                        + "At complexity 1, there is a single primary motive. At complexity 2+, "
+                        + "a red-herring motive is added — it appears plausible early in the "
+                        + "investigation but is ultimately contradicted. At complexity 3, a "
+                        + "secondary motive provides a deeper layer of motivation beneath the "
+                        + "primary one, discoverable after the primary motive is found.";
+            case "MOTIVE:PRIMARY":
+                return "Primary motive: " + title + "\n\n"
+                        + "This is the true primary motive for the crime. The investigator "
+                        + "must discover this through evidence gathering and interviews.";
+            case "MOTIVE:SECONDARY":
+                return "Secondary / layered motive: " + title + "\n\n"
+                        + "This deeper motive exists beneath the primary one. It is only "
+                        + "discoverable after the primary motive has been uncovered (evidence "
+                        + "chain prerequisite). The secondary motive adds complexity to the "
+                        + "perpetrator's motivations and may explain additional aspects of "
+                        + "the crime that the primary motive alone does not account for.";
+            case "MOTIVE:RED_HERRING":
+                return "⚠ Red-herring motive: " + title + "\n\n"
+                        + "This is a FALSE motive that appears plausible early in the "
+                        + "investigation. It will mislead the investigator until the true "
+                        + "motive is discovered and contradicts it. The red-herring motive "
+                        + "is designed to waste investigation time and create false leads.";
             case "LEAD":
                 return "Lead: " + title + "\n\n"
                         + "This lead is available from the start. Following it may uncover "
@@ -956,8 +1003,13 @@ public class CaseEditorPanel extends JPanel {
                 String text = String.valueOf(factsModel.getValueAt(r, 2));
                 Object imp  = factsModel.getValueAt(r, 10);
                 int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
-                return "  " + prefix + " [" + factId + "] (" + cat + ", importance=" + importance + "): "
-                        + suffix + "\n  \"" + text + "\"\n";
+                StringBuilder sb = new StringBuilder();
+                sb.append("  ").append(prefix).append(" [").append(factId).append("] (")
+                  .append(cat).append(", importance=").append(importance).append("): ")
+                  .append(suffix);
+                appendChainInfo(sb, r);
+                sb.append("\n  \"").append(text).append("\"\n");
+                return sb.toString();
             }
         }
         return "  " + prefix + " [" + factId + "] — generate facts first to see details.\n";
@@ -1209,6 +1261,25 @@ public class CaseEditorPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads {@link CaseTemplateData} from
+     * {@code assets/text/case_templates_en.json} relative to the working
+     * directory.  Returns {@code null} if the file is not found or cannot be
+     * parsed; {@link CaseGenerator} will then fall back to built-in templates.
+     */
+    private static CaseTemplateData loadCaseTemplates() {
+        java.io.File file = new java.io.File("assets/text/case_templates_en.json");
+        if (!file.exists()) return null;
+        try {
+            byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+            String json = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+            return CaseTemplateData.parse(json);
+        } catch (Exception e) {
+            System.err.println("CaseEditorPanel: failed to load case templates: " + e.getMessage());
+            return null;
+        }
+    }
+
     /** Relationship type labels used in the relationship table. */
     private static final String[] RELATIONSHIP_TYPES = {
         "Family", "Friend", "Colleague", "Acquaintance", "Rival",
@@ -1349,6 +1420,30 @@ public class CaseEditorPanel extends JPanel {
              "has a key to the office", "had access to the safe",
              "drives a vehicle matching witness description",
              "works in the same building"};
+    /**
+     * Partial-access labels for nuanced elimination — suspect had some
+     * access but not quite the same as the perpetrator.
+     */
+    private static final String[] ACCESS_PARTIAL_LABELS =
+            {"had access to the building but not the safe",
+             "had a visitor pass but not a permanent key",
+             "could enter the lobby but not the restricted area",
+             "had daytime access only, not after hours",
+             "had access to the grounds but not the main office",
+             "could reach the car park but not the residence"};
+    /**
+     * Temporal alibi labels — suspect's claimed whereabouts during the
+     * crime window.  Used as a full elimination dimension.
+     */
+    private static final String[] ALIBI_LABELS =
+            {"claims to have been at home alone",
+             "says they were at a bar with friends",
+             "states they were working late at the office",
+             "says they were at a family dinner",
+             "claims to have been out of town",
+             "says they were at the gym",
+             "states they were attending a community event",
+             "claims to have been at a cinema"};
 
     /** Location labels used to assign a default location to each NPC. */
     private static final String[] LOCATION_LABELS = {
@@ -1444,6 +1539,7 @@ public class CaseEditorPanel extends JPanel {
         String perpetratorBeard = "clean-shaven";
         String perpetratorOpp   = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
         String perpetratorAcc   = ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
+        String perpetratorAlibi = ALIBI_LABELS[random.nextInt(ALIBI_LABELS.length)];
 
         for (int i = 0; i < roles.length; i++) {
             String role   = roles[i];
@@ -1515,13 +1611,19 @@ public class CaseEditorPanel extends JPanel {
             // --- Suspect-distinguishing attributes ---
             // All suspects (Subject + additional Suspect roles) had opportunity;
             // only the primary Subject matches ALL criteria so the player can
-            // thin out extra suspects using hair, beard, access, and motive.
+            // thin out extra suspects using hair, beard, access, motive, and alibi.
+            //
+            // Complexity weighting:
+            //   complexity 1 → matchChance 30 % (easy elimination — few matches)
+            //   complexity 2 → matchChance 50 % (moderate)
+            //   complexity 3 → matchChance 70 % (hard — most attributes match)
             boolean isSuspectRole = role.startsWith("Subject") || role.startsWith("Suspect");
             String hairColor  = "";
             String beardStyle = "";
             String opportunity = "";
             String access      = "";
             boolean hasMotive  = false;
+            String alibi       = "";
 
             if (isSuspectRole) {
                 if (role.startsWith("Subject")) {
@@ -1534,26 +1636,38 @@ public class CaseEditorPanel extends JPanel {
                     opportunity = perpetratorOpp;
                     access      = perpetratorAcc;
                     hasMotive   = true;
+                    // Perpetrator's alibi is always falsifiable (will be disproved)
+                    alibi       = perpetratorAlibi;
                 } else {
                     // Additional suspect — shares some attributes but NOT all.
                     // Always has opportunity (plausible), but at least one
                     // other attribute differs so the player can eliminate them.
                     opportunity = OPPORTUNITY_LABELS[random.nextInt(OPPORTUNITY_LABELS.length)];
 
-                    // Randomly decide which attributes match vs differ
-                    // (ensure at least one differs)
-                    boolean matchHair   = random.nextBoolean();
-                    boolean matchBeard  = random.nextBoolean();
-                    boolean matchAccess = random.nextBoolean();
-                    boolean matchMotive = random.nextBoolean();
-                    // Guarantee at least one mismatch
-                    if (matchHair && matchBeard && matchAccess && matchMotive) {
-                        // Force one to differ
-                        switch (random.nextInt(4)) {
-                            case 0: matchHair = false; break;
-                            case 1: matchBeard = false; break;
+                    // Complexity-weighted match probability:
+                    //   complexity 1 → 30 % match chance per dimension (easy)
+                    //   complexity 2 → 50 % match chance per dimension (moderate)
+                    //   complexity 3 → 70 % match chance per dimension (hard)
+                    int matchThreshold;
+                    switch (complexity) {
+                        case 1:  matchThreshold = 30; break;
+                        case 3:  matchThreshold = 70; break;
+                        default: matchThreshold = 50; break;
+                    }
+
+                    boolean matchHair   = random.nextInt(100) < matchThreshold;
+                    boolean matchBeard  = random.nextInt(100) < matchThreshold;
+                    boolean matchAccess = random.nextInt(100) < matchThreshold;
+                    boolean matchMotive = random.nextInt(100) < matchThreshold;
+                    boolean matchAlibi  = random.nextInt(100) < matchThreshold;
+                    // Guarantee at least one mismatch across all 5 dimensions
+                    if (matchHair && matchBeard && matchAccess && matchMotive && matchAlibi) {
+                        switch (random.nextInt(5)) {
+                            case 0: matchHair   = false; break;
+                            case 1: matchBeard  = false; break;
                             case 2: matchAccess = false; break;
-                            default: matchMotive = false; break;
+                            case 3: matchMotive = false; break;
+                            default: matchAlibi = false; break;
                         }
                     }
 
@@ -1567,10 +1681,23 @@ public class CaseEditorPanel extends JPanel {
                     } else {
                         beardStyle = "none";
                     }
-                    access = matchAccess
-                            ? perpetratorAcc
-                            : ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
+
+                    // Access: full match, partial match, or completely different
+                    if (matchAccess) {
+                        access = perpetratorAcc;
+                    } else if (random.nextInt(100) < 40) {
+                        // 40 % of non-matches are partial access (nuanced)
+                        access = ACCESS_PARTIAL_LABELS[random.nextInt(ACCESS_PARTIAL_LABELS.length)];
+                    } else {
+                        access = pickDifferent(ACCESS_LABELS, perpetratorAcc);
+                    }
+
                     hasMotive = matchMotive;
+
+                    // Temporal alibi — matches perpetrator's (suspicious) or differs
+                    alibi = matchAlibi
+                            ? perpetratorAlibi
+                            : pickDifferent(ALIBI_LABELS, perpetratorAlibi);
                 }
             }
 
@@ -1582,7 +1709,8 @@ public class CaseEditorPanel extends JPanel {
                     generatePhoneNumber(),
                     role.startsWith("Client"),  // Client phone is always discovered
                     locationForRole(role),
-                    generatePersonalityTraits()
+                    generatePersonalityTraits(),
+                    alibi
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
@@ -1698,14 +1826,74 @@ public class CaseEditorPanel extends JPanel {
         String subjectGender   = (String) subjectGenderCombo.getSelectedItem();
         String victim          = victimNameField.getText().trim();
         if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
+        int complexity         = (int) complexitySpinner.getValue();
 
-        String desc = CaseGenerator.capitalizeSentences(
+        // Pick a coherent seed of facts + leads for this case type
+        CaseTemplateData.CaseSeed seed = null;
+        if (caseTemplateData != null && type != null) {
+            seed = caseTemplateData.pickSeed(type.name(), random);
+        }
+
+        // Build description and append seed facts
+        StringBuilder descBuilder = new StringBuilder(
                 CaseGenerator.buildDescription(type, client, subject, victim,
-                        clientGender, subjectGender, random));
-        String obj  = CaseGenerator.buildObjective(type, client, subject, victim, random);
+                        clientGender, subjectGender, random, complexity,
+                        caseTemplateData));
+        if (seed != null && !seed.getFacts().isEmpty()) {
+            descBuilder.append("\n\nWhat we know so far:");
+            for (String rawFact : seed.getFacts()) {
+                String fact = CaseGenerator.resolveCasePlaceholders(rawFact, client,
+                        subject, victim, clientGender, subjectGender);
+                descBuilder.append("\n\u2022 ").append(fact);
+            }
+        }
+        String desc = CaseGenerator.capitalizeSentences(descBuilder.toString());
+
+        // Build objective and append seed lead hints
+        StringBuilder objBuilder = new StringBuilder(
+                CaseGenerator.buildObjective(type, client, subject, victim,
+                        subjectGender, random, complexity, caseTemplateData));
+        if (seed != null && !seed.getLeads().isEmpty()) {
+            objBuilder.append("\n\nInitial lines of enquiry:");
+            for (CaseTemplateData.SeedLead sl : seed.getLeads()) {
+                String hint = CaseGenerator.resolveCasePlaceholders(sl.getHint(), client,
+                        subject, victim, clientGender, subjectGender);
+                objBuilder.append("\n\u2022 ").append(hint);
+            }
+        }
 
         descriptionArea.setText(desc);
-        objectiveArea.setText(obj);
+        objectiveArea.setText(objBuilder.toString());
+
+        // Populate leads table with seed leads
+        if (seed != null && !seed.getLeads().isEmpty()) {
+            leadsModel.setRowCount(0);
+            int seedLeadIdx = 1;
+            for (CaseTemplateData.SeedLead sl : seed.getLeads()) {
+                String hint = CaseGenerator.resolveCasePlaceholders(sl.getHint(),
+                        client, subject, victim, clientGender, subjectGender);
+                String leadDesc = CaseGenerator.resolveCasePlaceholders(sl.getDescription(),
+                        client, subject, victim, clientGender, subjectGender);
+                leadsModel.addRow(new Object[]{
+                        "seed-lead-" + seedLeadIdx, hint, sl.getMethod(), leadDesc});
+                seedLeadIdx++;
+            }
+        }
+
+        // Populate facts table with seed facts
+        if (seed != null && !seed.getFacts().isEmpty()) {
+            factsModel.setRowCount(0);
+            int seedFactIdx = 1;
+            for (String rawFact : seed.getFacts()) {
+                String fact = CaseGenerator.resolveCasePlaceholders(rawFact,
+                        client, subject, victim, clientGender, subjectGender);
+                factsModel.addRow(new Object[]{
+                        "seed-fact-" + seedFactIdx, "CLUE", fact, "KNOWN",
+                        0L, "", "", "", "", "", 3, "", 0});
+                seedFactIdx++;
+            }
+        }
+
         statusLabel.setText("Generated description and objective for " + caseTypeName + " case.");
     }
 
@@ -1775,39 +1963,41 @@ public class CaseEditorPanel extends JPanel {
                 break;
             }
         }
+        String deathFactId;
         if (deathDateText != null) {
-            // col: ID, Cat, Fact, Status, Date(epoch), Char1, Char2, RelType, ItemID, EvidID, Importance
+            deathFactId = "fact-" + factId++;
             factsModel.addRow(new Object[]{
-                    "fact-" + factId++, "DATE",
+                    deathFactId, "DATE",
                     victim + " was found dead on " + deathDateText + ".",
-                    "KNOWN", deathEpoch, "", "", "", "", "", 5});
+                    "KNOWN", deathEpoch, "", "", "", "", "", 5, "", 0});
         } else {
+            deathFactId = "fact-" + factId++;
             factsModel.addRow(new Object[]{
-                    "fact-" + factId++, "DATE",
+                    deathFactId, "DATE",
                     "Exact date and time of " + victim + "'s death is unknown.",
-                    "HIDDEN", 0L, "", "", "", "", "", 5});
+                    "HIDDEN", 0L, "", "", "", "", "", 5, "", 0});
         }
         // Last-seen date: 2 days before now as a rough epoch placeholder
         long lastSeenEpoch = System.currentTimeMillis() - 2L * 24 * 60 * 60 * 1000;
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "DATE",
                 subject + " was last seen two days before the incident.",
-                "HIDDEN", lastSeenEpoch, "", "", "", "", "", 3});
+                "HIDDEN", lastSeenEpoch, "", "", "", "", "", 3, "", 0});
         // Report date: current day morning as placeholder
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "DATE",
                 client + " reported the case on the morning after the incident.",
-                "KNOWN", System.currentTimeMillis(), "", "", "", "", "", 0});
+                "KNOWN", System.currentTimeMillis(), "", "", "", "", "", 0, "", 0});
 
         // --- RELATIONSHIP facts -------------------------------------------
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 client + " knew " + victim + " personally.",
-                "KNOWN", 0L, client, victim, "PERSONAL", "", "", 0});
+                "KNOWN", 0L, client, victim, "PERSONAL", "", "", 0, "", 0});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "RELATIONSHIP",
                 subject + " and " + victim + " had a prior dispute.",
-                "HIDDEN", 0L, subject, victim, "DISPUTE", "", "", 4});
+                "HIDDEN", 0L, subject, victim, "DISPUTE", "", "", 4, "", 0});
         for (int r = 0; r < relationshipModel.getRowCount(); r++) {
             String from    = String.valueOf(relationshipModel.getValueAt(r, 0));
             String to      = String.valueOf(relationshipModel.getValueAt(r, 1));
@@ -1817,7 +2007,7 @@ public class CaseEditorPanel extends JPanel {
             factsModel.addRow(new Object[]{
                     "fact-" + factId++, "RELATIONSHIP",
                     from + " → " + to + " (" + relType + ").",
-                    status, 0L, from, to, relType, "", "", 0});
+                    status, 0L, from, to, relType, "", "", 0, "", 0});
         }
 
         // --- ITEM facts ---------------------------------------------------
@@ -1827,32 +2017,89 @@ public class CaseEditorPanel extends JPanel {
                                        {"Burned Material", "BURNED_MATERIAL"}, {"Letter", "LETTER"}};
         String[] knownItemPair  = knownItemPairs[random.nextInt(knownItemPairs.length)];
         String[] hiddenItemPair = hiddenItemPairs[random.nextInt(hiddenItemPairs.length)];
+        String sceneItemId = "fact-" + factId++;
         factsModel.addRow(new Object[]{
-                "fact-" + factId++, "ITEM",
+                sceneItemId, "ITEM",
                 "A " + knownItemPair[0].toLowerCase() + " belonging to " + victim
                         + " was recovered at the scene.",
-                "KNOWN", 0L, "", "", "", knownItemPair[1], "", 0});
+                "KNOWN", 0L, "", "", "", knownItemPair[1], "", 0, "", 0});
         factsModel.addRow(new Object[]{
                 "fact-" + factId++, "ITEM",
                 "A " + hiddenItemPair[0].toLowerCase() + " linked to " + subject
                         + " is hidden at an unknown location.",
-                "HIDDEN", 0L, "", "", "", hiddenItemPair[1], "", 3});
+                "HIDDEN", 0L, "", "", "", hiddenItemPair[1], "", 3, "", 0});
 
-        // --- EVIDENCE facts -----------------------------------------------
+        // --- EVIDENCE facts (with evidence chains) ------------------------
+        // Chain 1: Scene → Fingerprints (day 0) → DNA analysis (day 2, needs
+        //          fingerprints) → Toxicology report (day 4, needs DNA)
         String[] knownEvidenceIds  = {"FINGERPRINTS", "BLOOD", "HAIR"};
-        String[] hiddenEvidenceIds = {"DNA", "BALLISTICS", "TOXICOLOGY", "DIGITAL_DATA", "GUNSHOT_RESIDUE"};
         String knownEvId  = knownEvidenceIds[random.nextInt(knownEvidenceIds.length)];
-        String hiddenEvId = hiddenEvidenceIds[random.nextInt(hiddenEvidenceIds.length)];
+        String sceneEvidenceId = "fact-" + factId++;
         factsModel.addRow(new Object[]{
-                "fact-" + factId++, "EVIDENCE",
+                sceneEvidenceId, "EVIDENCE",
                 knownEvId + " evidence was collected from the scene.",
-                "KNOWN", 0L, "", "", "", "", knownEvId, 0});
-        factsModel.addRow(new Object[]{
-                "fact-" + factId++, "EVIDENCE",
-                hiddenEvId + " trace links " + subject + " to the incident — awaiting lab confirmation.",
-                "HIDDEN", 0L, "", "", "", "", hiddenEvId, 4});
+                "KNOWN", 0L, "", "", "", "", knownEvId, 0, "", 0});
 
-        statusLabel.setText("Generated " + factsModel.getRowCount() + " facts.");
+        // DNA analysis — prerequisite: scene evidence, available day 2
+        String dnaFactId = "fact-" + factId++;
+        factsModel.addRow(new Object[]{
+                dnaFactId, "EVIDENCE",
+                "DNA analysis of the " + knownEvId.toLowerCase()
+                        + " sample confirms a match with " + subject + ".",
+                "HIDDEN", 0L, "", "", "", "", "DNA", 4,
+                sceneEvidenceId, 2});
+
+        // Toxicology — prerequisite: DNA, available day 4
+        String toxFactId = "fact-" + factId++;
+        factsModel.addRow(new Object[]{
+                toxFactId, "EVIDENCE",
+                "Toxicology report reveals traces of a controlled substance in "
+                        + victim + "'s system, consistent with " + subject + "'s access to pharmaceuticals.",
+                "HIDDEN", 0L, "", "", "", "", "TOXICOLOGY", 5,
+                dnaFactId, 4});
+
+        // Chain 2: Scene item → Digital forensics (day 1) → Financial records (day 3)
+        String digitalFactId = "fact-" + factId++;
+        factsModel.addRow(new Object[]{
+                digitalFactId, "EVIDENCE",
+                "Digital forensics on " + victim + "'s " + knownItemPair[0].toLowerCase()
+                        + " reveal deleted messages between " + victim + " and " + subject + ".",
+                "HIDDEN", 0L, "", "", "", "", "DIGITAL_DATA", 3,
+                sceneItemId, 1});
+
+        String financialFactId = "fact-" + factId++;
+        factsModel.addRow(new Object[]{
+                financialFactId, "EVIDENCE",
+                "Financial records subpoenaed from the deleted messages show "
+                        + subject + " received a suspicious payment days before the incident.",
+                "HIDDEN", 0L, "", "", "", "", "FINANCIAL", 4,
+                digitalFactId, 3});
+
+        statusLabel.setText("Generated " + factsModel.getRowCount() + " facts ("
+                + countChainedFacts() + " in evidence chains).");
+    }
+
+    /** Counts facts that have a prerequisite (i.e. are part of an evidence chain). */
+    private int countChainedFacts() {
+        int count = 0;
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String prereq = String.valueOf(factsModel.getValueAt(r, 11));
+            if (!prereq.isEmpty() && !"null".equals(prereq)) count++;
+        }
+        return count;
+    }
+
+    /** Appends prerequisite and availability-day info to a label if present. */
+    private void appendChainInfo(StringBuilder label, int factRow) {
+        String prereq = String.valueOf(factsModel.getValueAt(factRow, 11));
+        Object dayObj = factsModel.getValueAt(factRow, 12);
+        int day = (dayObj instanceof Number) ? ((Number) dayObj).intValue() : 0;
+        if (!prereq.isEmpty() && !"null".equals(prereq)) {
+            label.append(" [requires ").append(prereq).append(']');
+        }
+        if (day > 0) {
+            label.append(" [available day ").append(day).append(']');
+        }
     }
 
     /**
@@ -2160,20 +2407,25 @@ public class CaseEditorPanel extends JPanel {
                 client, victim, "", "", "", 0);
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
-        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode);
+        generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode, complexity);
 
         // ---------- Build phases — facts and leads are created as the story demands ----------
-        for (int phase = 1; phase <= complexity; phase++) {
+        // At complexity ≥ 2, evidence chains link facts within each major block:
+        // the second action's success fact requires the first action's discovery.
+        // At complexity 3, forensic-type facts also get availability delays.
+        String previousOkFactId = null;  // tracks last ok-fact for chaining
+         for (int phase = 1; phase <= complexity; phase++) {
             String phaseTitle = (phase == 1)
                     ? "Initial Investigation"
                     : "Plot Twist " + (phase - 1);
             DefaultMutableTreeNode phaseNode = new DefaultMutableTreeNode(
-                    "[PLOT_TWIST] " + phaseTitle);
+                    "[PLOT_TWIST:PARALLEL] " + phaseTitle);
 
             for (int major = 1; major <= 2; major++) {
                 String majorTitle = buildMajorTitle(phase, major, caseType);
                 DefaultMutableTreeNode majorNode = new DefaultMutableTreeNode(
                         "[MAJOR] " + majorTitle);
+                previousOkFactId = null;  // reset chain at each major block
 
                 for (int minor = 1; minor <= 2; minor++) {
                     String minorTitle = buildMinorTitle(major, minor);
@@ -2191,12 +2443,28 @@ public class CaseEditorPanel extends JPanel {
                         int threshold = 2 + random.nextInt(4); // 2..5
 
                         // --- ok result: create a HIGH-importance HIDDEN fact ---
+                        // Evidence chain: at complexity ≥ 2, non-first actions in a
+                        // major block have their success fact gated by the previous
+                        // action's success fact (prerequisite).
                         String okFactText = buildInlineFact(actionTitle, subject, victim,
                                 phase, major, true);
-                        String okFactId = addFact(factIdCounter, categoryForAction(actionTitle),
+                        String prereqId = "";
+                        int availDay = 0;
+                        if (complexity >= 2 && previousOkFactId != null) {
+                            prereqId = previousOkFactId;
+                        }
+                        // Forensics timeline: at complexity 3, evidence-type facts
+                        // get a 1–3 day availability delay
+                        ActionType aType = ActionType.classify(actionTitle);
+                        if (complexity >= 3 && aType == ActionType.EVIDENCE) {
+                            availDay = 1 + random.nextInt(3);
+                        }
+                        String okFactId = addFact(factIdCounter,
+                                categoryForAction(actionTitle),
                                 okFactText, "HIDDEN", 0L, subject, victim, "", "", "",
-                                3 + random.nextInt(3)); // importance 3–5
+                                3 + random.nextInt(3), prereqId, availDay);
                         String okRef = "ok:fact:" + okFactId;
+                        previousOkFactId = okFactId;
 
                         // --- fail result: create either a low-importance fact or a lead ---
                         String failRef;
@@ -2220,6 +2488,12 @@ public class CaseEditorPanel extends JPanel {
                         label.append(" | action:").append(actionTitle);
                         label.append(" | ").append(okRef);
                         label.append(" | ").append(failRef);
+                        if (!prereqId.isEmpty()) {
+                            label.append(" | prereq:").append(prereqId);
+                        }
+                        if (availDay > 0) {
+                            label.append(" | avail_day:").append(availDay);
+                        }
 
                         actionNode.add(new DefaultMutableTreeNode(label.toString()));
                         minorNode.add(actionNode);
@@ -2229,6 +2503,38 @@ public class CaseEditorPanel extends JPanel {
                 phaseNode.add(majorNode);
             }
             storyRoot.add(phaseNode);
+        }
+
+        // ---------- Side case at complexity 3 — optional parallel thread ----------
+        if (complexity >= 3) {
+            DefaultMutableTreeNode sideCaseNode = new DefaultMutableTreeNode(
+                    "[SIDE_CASE:PARALLEL] Side Case — " + buildSideCaseTitle(caseType, subject));
+            DefaultMutableTreeNode sideMajor = new DefaultMutableTreeNode(
+                    "[MAJOR] Side Lead");
+            DefaultMutableTreeNode sideMinor = new DefaultMutableTreeNode(
+                    "[MINOR] Quick Enquiry");
+
+            // Side-case actions
+            String sideAction1 = "Investigate the side lead";
+            DefaultMutableTreeNode sideActionNode1 = new DefaultMutableTreeNode(
+                    "[ACTION:" + sideAction1 + "]");
+            String sideOkFact = "Side investigation reveals a secondary connection to " + subject + ".";
+            String sideOkId = addFact(factIdCounter, "CLUE", sideOkFact, "HIDDEN", 0L,
+                    subject, "", "", "", "", 2);
+            sideActionNode1.add(new DefaultMutableTreeNode(
+                    "[RESULT] Side lead uncovered | req:PERCEPTION:3 | ok:fact:" + sideOkId));
+
+            String sideAction2 = "Report side findings";
+            DefaultMutableTreeNode sideActionNode2 = new DefaultMutableTreeNode(
+                    "[ACTION:" + sideAction2 + "]");
+            sideActionNode2.add(new DefaultMutableTreeNode(
+                    "[RESULT] Findings compiled and cross-referenced with main case"));
+
+            sideMinor.add(sideActionNode1);
+            sideMinor.add(sideActionNode2);
+            sideMajor.add(sideMinor);
+            sideCaseNode.add(sideMajor);
+            storyRoot.add(sideCaseNode);
         }
 
         // ---------- Generate interviews now that NPCs and case details are set ----------
@@ -2254,8 +2560,14 @@ public class CaseEditorPanel extends JPanel {
             String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
             boolean redHerring = random.nextInt(100) < 25;
             String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
+            // Time pressure: ~30% of leads expire after 3–7 days at complexity ≥ 2
+            String expiryTag = "";
+            if (complexity >= 2 && random.nextInt(100) < 30) {
+                int expDay = 3 + random.nextInt(5);
+                expiryTag = " [EXPIRES:day " + expDay + "]";
+            }
             knownSection.add(new DefaultMutableTreeNode(
-                    tag + " " + lId + " via " + lMethod + ": " + lHint));
+                    tag + " " + lId + " via " + lMethod + ": " + lHint + expiryTag));
         }
         for (int r = 0; r < interviewModel.getRowCount(); r++) {
             String npcName = String.valueOf(interviewModel.getValueAt(r, 0));
@@ -2277,11 +2589,66 @@ public class CaseEditorPanel extends JPanel {
                 String fText = String.valueOf(factsModel.getValueAt(r, 2));
                 Object imp   = factsModel.getValueAt(r, 10);
                 int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
-                unknownSection.add(new DefaultMutableTreeNode(
-                        "[FACT:UNKNOWN] " + fId + " (" + fCat + ", importance=" + importance + "): " + fText));
+                StringBuilder nodeLabel = new StringBuilder("[FACT:UNKNOWN] ")
+                        .append(fId).append(" (").append(fCat)
+                        .append(", importance=").append(importance).append("): ").append(fText);
+                appendChainInfo(nodeLabel, r);
+                unknownSection.add(new DefaultMutableTreeNode(nodeLabel.toString()));
             }
         }
         storyRoot.insert(unknownSection, 1); // second child, after KNOWN_FACTS
+
+        // ---------- Build the EVIDENCE_CHAINS section — prerequisite graph ----------
+        DefaultMutableTreeNode chainSection = new DefaultMutableTreeNode(
+                "[EVIDENCE_CHAINS] Evidence Chains");
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String prereq = String.valueOf(factsModel.getValueAt(r, 11));
+            if (!prereq.isEmpty() && !"null".equals(prereq)) {
+                String fId = String.valueOf(factsModel.getValueAt(r, 0));
+                String fText = String.valueOf(factsModel.getValueAt(r, 2));
+                Object dayObj = factsModel.getValueAt(r, 12);
+                int day = (dayObj instanceof Number) ? ((Number) dayObj).intValue() : 0;
+                StringBuilder chainLabel = new StringBuilder("[CHAIN] ")
+                        .append(prereq).append(" → ").append(fId);
+                if (day > 0) chainLabel.append(" (available day ").append(day).append(")");
+                chainLabel.append(": ").append(fText);
+                chainSection.add(new DefaultMutableTreeNode(chainLabel.toString()));
+            }
+        }
+        if (chainSection.getChildCount() > 0) {
+            storyRoot.insert(chainSection, 2); // third child
+        }
+
+        // ---------- Build the MOTIVE_LAYERS section — motive complexity ----------
+        int insertIdx = chainSection.getChildCount() > 0 ? 3 : 2;
+        DefaultMutableTreeNode motiveSection = new DefaultMutableTreeNode(
+                "[MOTIVE_LAYERS] Motive Complexity (complexity=" + complexity + ")");
+        // Scan facts for motive-related entries
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String cat = String.valueOf(factsModel.getValueAt(r, 1));
+            if (!"MOTIVE".equals(cat)) continue;
+            String fId   = String.valueOf(factsModel.getValueAt(r, 0));
+            String fText = String.valueOf(factsModel.getValueAt(r, 2));
+            String fStatus = String.valueOf(factsModel.getValueAt(r, 3));
+            Object imp = factsModel.getValueAt(r, 10);
+            int importance = (imp instanceof Number) ? ((Number) imp).intValue() : 0;
+            String tag;
+            if (fText.startsWith("RED_HERRING")) {
+                tag = "[MOTIVE:RED_HERRING]";
+            } else if (fText.startsWith("SECONDARY")) {
+                tag = "[MOTIVE:SECONDARY]";
+            } else {
+                tag = "[MOTIVE:PRIMARY]";
+            }
+            StringBuilder nodeLabel = new StringBuilder(tag).append(' ')
+                    .append(fId).append(" (").append(fStatus)
+                    .append(", importance=").append(importance).append("): ").append(fText);
+            appendChainInfo(nodeLabel, r);
+            motiveSection.add(new DefaultMutableTreeNode(nodeLabel.toString()));
+        }
+        if (motiveSection.getChildCount() > 0) {
+            storyRoot.insert(motiveSection, insertIdx);
+        }
 
         treeModel.reload();
         expandAll(storyTree);
@@ -2289,8 +2656,10 @@ public class CaseEditorPanel extends JPanel {
         for (int r = 0; r < factsModel.getRowCount(); r++) {
             if ("UNKNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) unknownCount++;
         }
+        int chainedCount = countChainedFacts();
         statusLabel.setText("Generated story tree with " + complexity + " phase(s), "
-                + factsModel.getRowCount() + " facts (" + unknownCount + " unknown), "
+                + factsModel.getRowCount() + " facts (" + unknownCount + " unknown, "
+                + chainedCount + " chained), "
                 + leadsModel.getRowCount() + " leads, "
                 + interviewModel.getRowCount() + " interview responses.");
     }
@@ -2301,9 +2670,26 @@ public class CaseEditorPanel extends JPanel {
     private String addFact(int[] idCounter, String category, String text, String status,
                            long epoch, String char1, String char2, String relType,
                            String itemId, String evidId, int importance) {
+        return addFact(idCounter, category, text, status,
+                epoch, char1, char2, relType, itemId, evidId, importance, "", 0);
+    }
+
+    /**
+     * Adds a fact row with evidence-chain fields and returns the assigned ID.
+     *
+     * @param prerequisiteFactId ID of a fact that must be discovered first
+     *                           (empty string = no prerequisite)
+     * @param availabilityDay    in-game day when the fact becomes available
+     *                           (0 = immediate, &gt;0 = delayed forensics)
+     */
+    private String addFact(int[] idCounter, String category, String text, String status,
+                           long epoch, String char1, String char2, String relType,
+                           String itemId, String evidId, int importance,
+                           String prerequisiteFactId, int availabilityDay) {
         String id = "fact-" + idCounter[0]++;
         factsModel.addRow(new Object[]{id, category, text, status,
-                epoch, char1, char2, relType, itemId, evidId, importance});
+                epoch, char1, char2, relType, itemId, evidId, importance,
+                prerequisiteFactId, availabilityDay});
         return id;
     }
 
@@ -2314,7 +2700,7 @@ public class CaseEditorPanel extends JPanel {
      */
     private void generateUnknownFacts(int[] factIdCounter, String caseType,
                                        String subject, String victim, String client,
-                                       String motiveCode) {
+                                       String motiveCode, int complexity) {
         boolean isMurder = "Murder".equalsIgnoreCase(caseType);
 
         // Core unknown: how was the crime committed?
@@ -2337,13 +2723,41 @@ public class CaseEditorPanel extends JPanel {
                     "UNKNOWN", 0L, "", "", "", "", "", 5);
         }
 
-        // Motive — a concrete, case-specific narrative
+        // Primary motive — a concrete, case-specific narrative
         String motiveNarrative = buildMotiveNarrative(motiveCode, subject, victim);
-        addFact(factIdCounter, "MOTIVE",
+        String primaryMotiveFactId = addFact(factIdCounter, "MOTIVE",
                 motiveCode + ": " + motiveNarrative,
                 "UNKNOWN", 0L, subject, "", "", "", "", 5);
 
+        // --- Procedural motive complexity ---
+
+        // Red-herring motive (complexity ≥ 2): a plausible but false motive
+        // that appears early and misleads the investigator until contradicted
+        // by discovering the true motive.
+        if (complexity >= 2) {
+            String herringCode = narratives.pickRedHerringMotiveCode(motiveCode);
+            String herringNarrative = narratives.buildRedHerringMotiveNarrative(
+                    herringCode, subject, victim);
+            addFact(factIdCounter, "MOTIVE",
+                    "RED_HERRING (" + herringCode + "): " + herringNarrative,
+                    "HIDDEN", 0L, subject, "", "", "", "", 2,
+                    "", 0);
+        }
+
+        // Secondary / layered motive (complexity 3): a deeper motivation
+        // beneath the primary one, discovered after the primary motive is known.
+        if (complexity >= 3) {
+            String secondaryCode = narratives.pickSecondaryMotiveCode(motiveCode);
+            String secondaryNarrative = narratives.buildSecondaryMotiveNarrative(
+                    secondaryCode, motiveCode, subject, victim);
+            addFact(factIdCounter, "MOTIVE",
+                    "SECONDARY (" + secondaryCode + "): " + secondaryNarrative,
+                    "UNKNOWN", 0L, subject, "", "", "", "", 4,
+                    primaryMotiveFactId, 0);
+        }
+
         // Weapon / instrument
+        String weaponFactId = "";
         if (isMurder) {
             String[] weaponPool = {
                 "The murder weapon was a kitchen knife taken from " + victim + "'s own home.",
@@ -2351,20 +2765,21 @@ public class CaseEditorPanel extends JPanel {
                 "Traces of a rare toxin were found — sourced from an online purchase linked to " + subject + ".",
                 "A length of cord matching material from " + subject + "'s workshop was the instrument.",
                 "A firearm registered to a third party but last handled by " + subject + " was used."};
-            addFact(factIdCounter, "EVIDENCE",
+            weaponFactId = addFact(factIdCounter, "EVIDENCE",
                     weaponPool[random.nextInt(weaponPool.length)],
                     "UNKNOWN", 0L, "", "", "", "", "", 4);
         }
 
-        // Opportunity / timeline
+        // Opportunity / timeline — requires weapon discovery (evidence chain)
         String[] timelinePool = {
             "The crime occurred between 10 PM and midnight while " + victim + " was alone.",
             subject + " used a 45-minute gap in the security footage to act unobserved.",
             "The incident took place during a power outage that " + subject + " may have arranged.",
             "Phone records place " + subject + " near the scene at 11:30 PM on the night in question."};
-        addFact(factIdCounter, "DATE",
+        String timelineFactId = addFact(factIdCounter, "DATE",
                 timelinePool[random.nextInt(timelinePool.length)],
-                "UNKNOWN", 0L, "", "", "", "", "", 4);
+                "UNKNOWN", 0L, "", "", "", "", "", 4,
+                weaponFactId, isMurder ? 1 : 0);
 
         // Location specifics
         String[] locationPool = {
@@ -2372,7 +2787,7 @@ public class CaseEditorPanel extends JPanel {
             "It took place at " + victim + "'s residence, in the upstairs study.",
             "The incident occurred in a rented storage unit on the outskirts of town.",
             "A secluded car park behind the old warehouse was where " + subject + " confronted " + victim + "."};
-        addFact(factIdCounter, "ITEM",
+        String locationFactId = addFact(factIdCounter, "ITEM",
                 locationPool[random.nextInt(locationPool.length)],
                 "UNKNOWN", 0L, "", "", "", "", "", 3);
 
@@ -2386,7 +2801,7 @@ public class CaseEditorPanel extends JPanel {
                 accomplicePool[random.nextInt(accomplicePool.length)],
                 "UNKNOWN", 0L, subject, "", "", "", "", 3);
 
-        // Alibi verification
+        // Alibi verification — requires timeline discovery (evidence chain)
         String[] alibiPool = {
             subject + "'s alibi of being at a restaurant that evening is contradicted by CCTV footage.",
             subject + " claims to have been home alone, but phone GPS data tells a different story.",
@@ -2394,9 +2809,10 @@ public class CaseEditorPanel extends JPanel {
             subject + "'s car was recorded by toll cameras heading towards the scene at the critical time."};
         addFact(factIdCounter, "DATE",
                 alibiPool[random.nextInt(alibiPool.length)],
-                "UNKNOWN", 0L, subject, "", "", "", "", 4);
+                "UNKNOWN", 0L, subject, "", "", "", "", 4,
+                timelineFactId, 0);
 
-        // Cover-up
+        // Cover-up — requires location discovery (evidence chain, day 2)
         String[] coverupPool = {
             subject + " wiped down surfaces and removed personal items from the scene.",
             "Security footage from a nearby camera was deliberately deleted that night.",
@@ -2404,7 +2820,8 @@ public class CaseEditorPanel extends JPanel {
             "A hastily cleaned area in " + subject + "'s home shows traces of bleach and scrubbing."};
         addFact(factIdCounter, "ITEM",
                 coverupPool[random.nextInt(coverupPool.length)],
-                "UNKNOWN", 0L, "", "", "", "", "", 3);
+                "UNKNOWN", 0L, "", "", "", "", "", 3,
+                locationFactId, 2);
 
         // Personality-trait-driven facts — use the Subject's traits (col 19)
         // to generate additional UNKNOWN facts that tie traits to the case
@@ -2610,6 +3027,25 @@ public class CaseEditorPanel extends JPanel {
         return pool[major - 1][random.nextInt(pool[major - 1].length)];
     }
 
+    /**
+     * Returns a flavour title for the optional side-case node based on the
+     * main case type.
+     */
+    private static String buildSideCaseTitle(String caseType, String subject) {
+        if (caseType == null) return "Tangential Lead";
+        switch (caseType) {
+            case "Murder":              return "Suspicious Associate of " + subject;
+            case "Missing Person":      return "Second Sighting Report";
+            case "Theft":               return "Fence Operation Tip";
+            case "Fraud":               return "Offshore Account Rumour";
+            case "Blackmail":           return "Anonymous Source";
+            case "Stalking":            return "Prior Incident Report";
+            case "Corporate Espionage": return "Whistleblower Contact";
+            case "Infidelity":          return "Parallel Deception";
+            default:                    return "Tangential Lead";
+        }
+    }
+
     private String buildMinorTitle(int major, int minor) {
         String[][] pool = (major == 1)
                 ? new String[][]{
@@ -2655,9 +3091,27 @@ public class CaseEditorPanel extends JPanel {
 
         sb.append("Case Type:    ").append(nullSafe(caseTypeCombo.getSelectedItem())).append('\n');
         sb.append("Complexity:   ").append(complexitySpinner.getValue()).append('\n');
+        sb.append("Motive:       ").append(nullSafe(motiveCombo.getSelectedItem())).append('\n');
         sb.append("Client:       ").append(nullSafe(clientNameField.getText())).append('\n');
         sb.append("Subject:      ").append(nullSafe(subjectNameField.getText())).append('\n');
         sb.append("Victim:       ").append(nullSafe(victimNameField.getText())).append('\n');
+        sb.append('\n');
+
+        // --- Motive complexity summary ---
+        int cmplx = (int) complexitySpinner.getValue();
+        sb.append("--- Motive Complexity ---\n");
+        int primaryCount = 0, secondaryCount = 0, herringCount = 0;
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            String cat = String.valueOf(factsModel.getValueAt(r, 1));
+            if (!"MOTIVE".equals(cat)) continue;
+            String fText = String.valueOf(factsModel.getValueAt(r, 2));
+            if (fText.startsWith("RED_HERRING")) { herringCount++; }
+            else if (fText.startsWith("SECONDARY")) { secondaryCount++; }
+            else { primaryCount++; }
+        }
+        sb.append("  Primary motives:     ").append(primaryCount).append('\n');
+        if (cmplx >= 2) sb.append("  Red-herring motives: ").append(herringCount).append('\n');
+        if (cmplx >= 3) sb.append("  Secondary motives:   ").append(secondaryCount).append('\n');
         sb.append('\n');
 
         sb.append("--- Description ---\n");
@@ -2714,6 +3168,11 @@ public class CaseEditorPanel extends JPanel {
             String traits = String.valueOf(npcModel.getValueAt(i, 19));
             if (!traits.isEmpty() && !"null".equals(traits)) {
                 sb.append("  traits=").append(traits);
+            }
+            // Alibi
+            String alibiVal = String.valueOf(npcModel.getValueAt(i, 20));
+            if (!alibiVal.isEmpty() && !"null".equals(alibiVal)) {
+                sb.append("  alibi=\"").append(alibiVal).append('"');
             }
             sb.append('\n');
         }

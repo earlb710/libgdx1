@@ -33,6 +33,12 @@ public class CaseLead {
     private final String          hint;          // vague hint always visible to player
     private final DiscoveryMethod discoveryMethod;
     private boolean               discovered;
+    /**
+     * The in-game day by which this lead must be discovered, or {@code 0} if
+     * the lead never expires.  A non-zero value means the lead becomes stale
+     * and unrecoverable after this day — creating time pressure for the player.
+     */
+    private int                   expirationDay;
 
     /**
      * Creates a new, undiscovered lead.
@@ -61,6 +67,7 @@ public class CaseLead {
         this.hint            = hint.trim();
         this.discoveryMethod = discoveryMethod;
         this.discovered      = false;
+        this.expirationDay   = 0;
     }
 
     // -------------------------------------------------------------------------
@@ -91,6 +98,34 @@ public class CaseLead {
     /** Returns {@code true} once this lead has been uncovered by the player. */
     public boolean isDiscovered() { return discovered; }
 
+    /**
+     * Returns the in-game day by which this lead must be discovered, or
+     * {@code 0} if the lead never expires.
+     */
+    public int getExpirationDay() { return expirationDay; }
+
+    /**
+     * Sets the in-game day by which this lead must be discovered.  Pass
+     * {@code 0} (the default) to indicate the lead never expires.
+     *
+     * @param day expiration day (0 = no expiration, &gt; 0 = expires after
+     *            this day)
+     */
+    public void setExpirationDay(int day) {
+        this.expirationDay = Math.max(0, day);
+    }
+
+    /**
+     * Returns {@code true} if this lead has expired — i.e. it has an
+     * expiration day, the current in-game day is past that day, and the lead
+     * was never discovered.
+     *
+     * @param currentDay the current in-game day
+     */
+    public boolean isExpired(int currentDay) {
+        return expirationDay > 0 && !discovered && currentDay > expirationDay;
+    }
+
     // -------------------------------------------------------------------------
     // State mutation
     // -------------------------------------------------------------------------
@@ -105,6 +140,8 @@ public class CaseLead {
     @Override
     public String toString() {
         return "CaseLead{id='" + id + "', method=" + discoveryMethod
-                + ", discovered=" + discovered + '}';
+                + ", discovered=" + discovered
+                + (expirationDay > 0 ? ", expires=" + expirationDay : "")
+                + '}';
     }
 }

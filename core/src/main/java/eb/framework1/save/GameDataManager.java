@@ -5,6 +5,7 @@ import eb.framework1.character.SkillCategoryDefinition;
 import eb.framework1.character.SkinToneDefinition;
 import eb.framework1.character.GenderDefinition;
 import eb.framework1.generator.*;
+import eb.framework1.investigation.CaseTemplateData;
 import eb.framework1.investigation.InterviewTemplateData;
 import eb.framework1.ui.SvgResourceData;
 
@@ -35,6 +36,7 @@ public class GameDataManager {
     private static final String CATEGORIES_FILE          = "text/category_en.json";
     private static final String SVG_RESOURCES_FILE       = "text/svg_resource.json";
     private static final String INTERVIEW_TEMPLATES_FILE = "text/interview_templates_en.json";
+    private static final String CASE_TEMPLATES_FILE      = "text/case_templates_en.json";
 
     private final List<BuildingDefinition> buildings;
     private final Map<String, BuildingDefinition> buildingsById;
@@ -61,6 +63,8 @@ public class GameDataManager {
     private List<String>         loadedSurnames = new ArrayList<>();
     /** Interview template text pools, loaded from {@code interview_templates_en.json}. */
     private InterviewTemplateData interviewTemplateData;
+    /** Case description/objective template pools, loaded from {@code case_templates_en.json}. */
+    private CaseTemplateData caseTemplateData;
 
     public GameDataManager() {
         this.buildings = new ArrayList<>();
@@ -84,6 +88,7 @@ public class GameDataManager {
         loadPersonNames();
         loadCompanyNames();
         loadInterviewTemplates();
+        loadCaseTemplates();
 
         Gdx.app.log("GameDataManager", "Loaded " + buildings.size() + " buildings and " + categories.size() + " categories");
     }
@@ -642,6 +647,15 @@ public class GameDataManager {
     }
 
     /**
+     * Returns the {@link CaseTemplateData} loaded from
+     * {@code text/case_templates_en.json}, or {@code null} if the file
+     * was not found or could not be parsed.
+     */
+    public CaseTemplateData getCaseTemplateData() {
+        return caseTemplateData;
+    }
+
+    /**
      * Returns the {@link SvgResourceData} for the given item id, or
      * {@code null} if no entry with that id exists.
      *
@@ -730,6 +744,33 @@ public class GameDataManager {
         } catch (Exception e) {
             Gdx.app.error("GameDataManager",
                     "Error loading " + INTERVIEW_TEMPLATES_FILE + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Loads case description/objective template pools from
+     * {@code text/case_templates_en.json}.
+     *
+     * <p>Populates {@link #caseTemplateData}.  If the file is missing or
+     * cannot be parsed the field is left {@code null} and a warning is logged;
+     * {@link eb.framework1.investigation.CaseGenerator} will then fall back to
+     * its built-in English defaults.
+     */
+    private void loadCaseTemplates() {
+        try {
+            FileHandle file = Gdx.files.internal(CASE_TEMPLATES_FILE);
+            if (!file.exists()) {
+                Gdx.app.log("GameDataManager",
+                        "Case templates file not found: " + CASE_TEMPLATES_FILE);
+                return;
+            }
+            String json = file.readString("UTF-8");
+            caseTemplateData = CaseTemplateData.parse(json);
+            Gdx.app.log("GameDataManager",
+                    "Loaded case templates from " + CASE_TEMPLATES_FILE);
+        } catch (Exception e) {
+            Gdx.app.error("GameDataManager",
+                    "Error loading " + CASE_TEMPLATES_FILE + ": " + e.getMessage(), e);
         }
     }
 }
