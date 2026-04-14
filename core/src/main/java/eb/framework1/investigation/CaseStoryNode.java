@@ -226,9 +226,6 @@ public class CaseStoryNode {
         for (int i = 0; i < children.size(); i++) {
             CaseStoryNode child = children.get(i);
             if (!child.isFullyComplete()) return child;
-            // In sequential mode, we must stop at the first incomplete child
-            // but since we already checked it isn't complete, we return it.
-            // Actually, the loop just returns the first incomplete child.
         }
         return null;
     }
