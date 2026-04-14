@@ -18,6 +18,13 @@ import java.util.Random;
  * {@code MISSING_PERSON.1}, {@code MURDER.3}.  There are two top-level
  * sections: {@code "descriptions"} and {@code "objectives"}.
  *
+ * <p>A third section, {@code "caseSeeds"}, provides coherent bundles of
+ * initial known facts and investigation leads for each case type (keyed by
+ * uppercase type name, e.g. {@code "MISSING_PERSON"}).  When a case is
+ * generated the selected seed&rsquo;s facts are appended to the description
+ * and added as initial clues, and its leads are appended to the objective
+ * and added as {@link CaseLead}s on the {@link CaseFile}.
+ *
  * <p>Each pool is a list of template strings that may contain
  * {@code $placeholder} tokens resolved by {@link TemplateResolver}.  Supported
  * placeholders:
@@ -35,13 +42,65 @@ import java.util.Random;
  */
 public class CaseTemplateData {
 
+    // -------------------------------------------------------------------------
+    // Inner value classes for seed data
+    // -------------------------------------------------------------------------
+
+    /**
+     * A single lead within a {@link CaseSeed}: a hint (visible from the
+     * start), a full description (revealed on discovery), and a
+     * {@link DiscoveryMethod} name.
+     */
+    public static final class SeedLead {
+        private final String hint;
+        private final String description;
+        private final String method;
+
+        public SeedLead(String hint, String description, String method) {
+            this.hint        = hint;
+            this.description = description;
+            this.method      = method;
+        }
+
+        public String getHint()        { return hint; }
+        public String getDescription() { return description; }
+        public String getMethod()      { return method; }
+    }
+
+    /**
+     * A coherent bundle of initial known facts and investigation leads
+     * for one case instance.  All strings may contain {@code $placeholder}
+     * tokens which are resolved at generation time.
+     */
+    public static final class CaseSeed {
+        private final List<String>   facts;
+        private final List<SeedLead> leads;
+
+        public CaseSeed(List<String> facts, List<SeedLead> leads) {
+            this.facts = Collections.unmodifiableList(facts);
+            this.leads = Collections.unmodifiableList(leads);
+        }
+
+        /** Initial known facts (added as clues on the case file). */
+        public List<String>   getFacts() { return facts; }
+        /** Initial investigation leads (added as case leads). */
+        public List<SeedLead> getLeads() { return leads; }
+    }
+
+    // -------------------------------------------------------------------------
+    // Fields
+    // -------------------------------------------------------------------------
+
     private final Map<String, List<String>> descriptions;
     private final Map<String, List<String>> objectives;
+    private final Map<String, List<CaseSeed>> caseSeeds;
 
     private CaseTemplateData(Map<String, List<String>> descriptions,
-                              Map<String, List<String>> objectives) {
+                              Map<String, List<String>> objectives,
+                              Map<String, List<CaseSeed>> caseSeeds) {
         this.descriptions = descriptions;
         this.objectives   = objectives;
+        this.caseSeeds    = caseSeeds;
     }
 
     // -------------------------------------------------------------------------
@@ -76,6 +135,21 @@ public class CaseTemplateData {
     }
 
     /**
+     * Returns a random {@link CaseSeed} for the given case type, or
+     * {@code null} if no seeds are defined for that type.
+     *
+     * @param caseTypeName uppercase case-type name, e.g. {@code "MURDER"}
+     * @param rng          random source
+     * @return a seed bundle, or {@code null}
+     */
+    public CaseSeed pickSeed(String caseTypeName, Random rng) {
+        if (caseSeeds == null || caseTypeName == null) return null;
+        List<CaseSeed> pool = caseSeeds.get(caseTypeName);
+        if (pool == null || pool.isEmpty()) return null;
+        return pool.get(rng.nextInt(pool.size()));
+    }
+
+    /**
      * Returns the description pool for the given key (e.g.
      * {@code "MURDER.2"}), or an empty list if absent.
      */
@@ -107,11 +181,22 @@ public class CaseTemplateData {
      * {
      *   "descriptions": {
      *     "MISSING_PERSON.1": ["...", ...],
-     *     "MISSING_PERSON.2": ["...", ...],
      *     ...
      *   },
      *   "objectives": {
      *     "MISSING_PERSON.1": ["...", ...],
+     *     ...
+     *   },
+     *   "caseSeeds": {
+     *     "MISSING_PERSON": [
+     *       {
+     *         "facts": ["fact 1", "fact 2"],
+     *         "leads": [
+     *           {"hint": "...", "description": "...", "method": "INTERVIEW"}
+     *         ]
+     *       },
+     *       ...
+     *     ],
      *     ...
      *   }
      * }
@@ -124,14 +209,16 @@ public class CaseTemplateData {
     public static CaseTemplateData parse(String json) {
         Map<String, List<String>> descriptions = new HashMap<String, List<String>>();
         Map<String, List<String>> objectives   = new HashMap<String, List<String>>();
+        Map<String, List<CaseSeed>> seeds      = new HashMap<String, List<CaseSeed>>();
 
         JsonReader reader = new JsonReader();
         JsonValue  root   = reader.parse(json);
 
         parseSection(root, "descriptions", descriptions);
         parseSection(root, "objectives",   objectives);
+        parseSeedsSection(root, seeds);
 
-        return new CaseTemplateData(descriptions, objectives);
+        return new CaseTemplateData(descriptions, objectives, seeds);
     }
 
     // -------------------------------------------------------------------------
@@ -149,6 +236,44 @@ public class CaseTemplateData {
                 list.add(item.asString());
             }
             target.put(key, list);
+        }
+    }
+
+    /**
+     * Parses the {@code "caseSeeds"} section of the JSON.  Each top-level key
+     * is a case-type name (e.g. {@code "MURDER"}) mapping to an array of seed
+     * objects.
+     */
+    private static void parseSeedsSection(JsonValue root,
+                                           Map<String, List<CaseSeed>> target) {
+        JsonValue section = root.get("caseSeeds");
+        if (section == null) return;
+        for (JsonValue typeEntry = section.child; typeEntry != null; typeEntry = typeEntry.next) {
+            String key = typeEntry.name();
+            List<CaseSeed> seedList = new ArrayList<CaseSeed>();
+            for (JsonValue seedVal = typeEntry.child; seedVal != null; seedVal = seedVal.next) {
+                // Parse facts array
+                List<String> facts = new ArrayList<String>();
+                JsonValue factsArr = seedVal.get("facts");
+                if (factsArr != null) {
+                    for (JsonValue f = factsArr.child; f != null; f = f.next) {
+                        facts.add(f.asString());
+                    }
+                }
+                // Parse leads array
+                List<SeedLead> leads = new ArrayList<SeedLead>();
+                JsonValue leadsArr = seedVal.get("leads");
+                if (leadsArr != null) {
+                    for (JsonValue l = leadsArr.child; l != null; l = l.next) {
+                        String hint = l.has("hint") ? l.getString("hint") : "";
+                        String desc = l.has("description") ? l.getString("description") : "";
+                        String meth = l.has("method") ? l.getString("method") : "INTERVIEW";
+                        leads.add(new SeedLead(hint, desc, meth));
+                    }
+                }
+                seedList.add(new CaseSeed(facts, leads));
+            }
+            target.put(key, seedList);
         }
     }
 

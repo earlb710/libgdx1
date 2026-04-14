@@ -54,7 +54,7 @@ public class CaseStoryNode {
 
     private final String   id;
     private final String   title;
-    private final String   description;
+    private String         description;
     private final NodeType nodeType;
     private final List<CaseStoryNode> children;
     /** Completion flag — meaningful only for {@link NodeType#ACTION} leaves. */
@@ -104,6 +104,18 @@ public class CaseStoryNode {
 
     /** Longer description of what this node represents (may be empty). */
     public String getDescription() { return description; }
+
+    /**
+     * Replaces the description of this node.  Used by {@link CaseGenerator}
+     * to enrich story-tree actions with seed fact and lead references so
+     * that the tree is coherent with the case description and objective.
+     *
+     * @param description new description text; {@code null} is treated
+     *                    as an empty string
+     */
+    public void setDescription(String description) {
+        this.description = description != null ? description.trim() : "";
+    }
 
     /** The structural role of this node in the tree. */
     public NodeType getNodeType() { return nodeType; }

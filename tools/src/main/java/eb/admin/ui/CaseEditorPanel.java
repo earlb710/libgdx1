@@ -1828,15 +1828,42 @@ public class CaseEditorPanel extends JPanel {
         if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
         int complexity         = (int) complexitySpinner.getValue();
 
-        String desc = CaseGenerator.capitalizeSentences(
+        // Pick a coherent seed of facts + leads for this case type
+        CaseTemplateData.CaseSeed seed = null;
+        if (caseTemplateData != null && type != null) {
+            seed = caseTemplateData.pickSeed(type.name(), random);
+        }
+
+        // Build description and append seed facts
+        StringBuilder descBuilder = new StringBuilder(
                 CaseGenerator.buildDescription(type, client, subject, victim,
                         clientGender, subjectGender, random, complexity,
                         caseTemplateData));
-        String obj  = CaseGenerator.buildObjective(type, client, subject, victim,
-                subjectGender, random, complexity, caseTemplateData);
+        if (seed != null && !seed.getFacts().isEmpty()) {
+            descBuilder.append("\n\nWhat we know so far:");
+            for (String rawFact : seed.getFacts()) {
+                String fact = CaseGenerator.resolveCasePlaceholders(rawFact, client,
+                        subject, victim, clientGender, subjectGender);
+                descBuilder.append("\n\u2022 ").append(fact);
+            }
+        }
+        String desc = CaseGenerator.capitalizeSentences(descBuilder.toString());
+
+        // Build objective and append seed lead hints
+        StringBuilder objBuilder = new StringBuilder(
+                CaseGenerator.buildObjective(type, client, subject, victim,
+                        subjectGender, random, complexity, caseTemplateData));
+        if (seed != null && !seed.getLeads().isEmpty()) {
+            objBuilder.append("\n\nInitial lines of enquiry:");
+            for (CaseTemplateData.SeedLead sl : seed.getLeads()) {
+                String hint = CaseGenerator.resolveCasePlaceholders(sl.getHint(), client,
+                        subject, victim, clientGender, subjectGender);
+                objBuilder.append("\n\u2022 ").append(hint);
+            }
+        }
 
         descriptionArea.setText(desc);
-        objectiveArea.setText(obj);
+        objectiveArea.setText(objBuilder.toString());
         statusLabel.setText("Generated description and objective for " + caseTypeName + " case.");
     }
 

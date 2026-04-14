@@ -1,9 +1,7 @@
 {
   "version": "1.0",
   "description": "Case description and objective template pools. Keyed by case_type.complexity where complexity is 1, 2, or 3. Placeholders: $client, $subject, $victim, $pronoun (he/she), $pronounCap (He/She), $pron (he/she lowercase).",
-
   "descriptions": {
-
     "MISSING_PERSON.1": [
       "$client came in looking for answers. $subject vanished three days ago without a word. No note, no call, nothing. $pronounCap left behind a half-eaten meal and an unlocked door. The police say it's too early to file a report.",
       "$subject hasn't been seen since last Tuesday. $client is frantic — $pron wouldn't just disappear. A neighbour spotted someone fitting $subject's description getting into an unfamiliar car that evening.",
@@ -18,7 +16,6 @@
       "$client's sibling, $subject, missed their mother's birthday without a word. That's when the family knew something was genuinely wrong.",
       "$subject left a note saying $pron needed space. That was nine days ago. $client doesn't believe $pron wrote it — the handwriting was shaky, and $subject doesn't use that pen."
     ],
-
     "MISSING_PERSON.2": [
       "$client came in looking for answers. $subject vanished three days ago without a word. No note, no call, nothing. $pronounCap left behind a half-eaten meal and an unlocked door. The police say it's too early to file a report. A second neighbour has now come forward with a conflicting account.",
       "$subject hasn't been seen since last Tuesday. $client is frantic — $pron wouldn't just disappear. A neighbour spotted someone fitting $subject's description getting into an unfamiliar car. CCTV from a nearby shop tells a different story.",
@@ -33,7 +30,6 @@
       "$subject left a note saying $pron needed space. That was nine days ago. $client doesn't believe $pron wrote it. Forensics on the ink suggest the note was written weeks earlier.",
       "The morning $subject disappeared, $pron made two phone calls — one to a solicitor, one to an unknown number. $client has no idea who the second call was to. Neither does the solicitor."
     ],
-
     "MISSING_PERSON.3": [
       "$client came in looking for answers. $subject vanished three days ago without a word. A half-eaten meal, an unlocked door, and a neighbour with a conflicting account. The police are stalling. A second witness saw $subject arguing with someone in a parked car — and recognised the driver.",
       "$subject hasn't been seen since last Tuesday. $client is frantic. A neighbour spotted $subject getting into an unfamiliar car. CCTV from a nearby shop tells a different story. And a third source places $subject at a railway station two counties away the following morning.",
@@ -48,7 +44,6 @@
       "$subject left a note saying $pron needed space. $client doesn't believe $pron wrote it. Forensics suggest the note was written weeks earlier. A second note — in different handwriting — was found tucked inside a library book $subject had borrowed.",
       "The morning $subject disappeared, $pron made two calls — one to a solicitor, one to an unknown number. The solicitor won't talk. The unknown number traces to a prepaid SIM bought with cash at a petrol station. The station's CCTV shows a face that $client might recognise."
     ],
-
     "INFIDELITY.1": [
       "$client suspects their partner, $subject, has been seeing someone else. Late nights at the office, unexplained receipts, a phone that's always face-down. They need the truth — one way or the other.",
       "$subject has been distant for weeks. $client found a receipt for a restaurant $pron doesn't remember. The explanation didn't add up, and $client stopped asking questions. Now they want answers.",
@@ -63,7 +58,6 @@
       "$client came home early to find $subject had already left. The shower was still running, and there were two coffee cups in the sink.",
       "$subject's best friend let something slip at a dinner party — then corrected themselves quickly. $client caught it. Now $client can't let it go."
     ],
-
     "INFIDELITY.2": [
       "$client suspects $subject has been seeing someone else. Late nights, unexplained receipts, a phone that's always face-down. A colleague mentioned seeing $subject at a hotel across town. The hotel has no record of a booking under $subject's name — but someone paid cash for the room.",
       "$subject has been distant for weeks. $client found a receipt for a restaurant $pron doesn't remember. A friend spotted $subject leaving that same restaurant with someone. The friend was asked not to tell $client.",
@@ -78,7 +72,6 @@
       "$subject's best friend let something slip at a dinner party — then corrected themselves quickly. $client caught it. A follow-up conversation with the friend was met with a wall of silence.",
       "A mutual acquaintance forwarded $client a social media photo that clearly shows $subject at a weekend event — an event $subject claimed to have missed. Someone else's arm is around $subject's waist."
     ],
-
     "INFIDELITY.3": [
       "$client suspects $subject has been seeing someone else. Late nights, unexplained receipts, a hotel sighting. The hotel has no record under $subject's name — but someone paid cash. The room was booked through a company account linked to a name $client recognises as $subject's ex-colleague. There may be more going on than a simple affair.",
       "$subject has been distant for weeks. A friend spotted $subject leaving a restaurant with someone — and was asked not to tell. That someone turns out to be a business associate of $client's employer. The implications are uncomfortable.",
@@ -93,7 +86,6 @@
       "$subject's best friend slipped at a dinner party, then went silent. A follow-up conversation revealed the friend knew about the affair for months — and had been asked to provide cover stories for specific dates.",
       "A social media photo shows $subject at an event $pron claimed to have missed. Someone's arm is around $subject's waist. That someone has since deleted their entire online presence — the accounts were purged the same day $client confronted $subject."
     ],
-
     "THEFT.1": [
       "$client reported that $subject was seen near the premises on the night of the theft. Valuables are missing. Insurance won't pay without a name.",
       "Items went missing from $client's property over a two-week period. A neighbour's security camera caught $subject on the street that night. Coincidence, or something more?",
@@ -108,7 +100,6 @@
       "$subject borrowed $client's car for the weekend. When it came back, the dash camera memory card was missing — and so were the tools from the boot.",
       "A family heirloom went missing during a gathering at $client's home. $subject was the last to leave. The item hasn't surfaced at any local dealer — yet."
     ],
-
     "THEFT.2": [
       "$client reported that $subject was seen near the premises on the night of the theft. Valuables are missing. Insurance won't pay without a name. A pawn shop three miles away received an item matching the description the next day.",
       "Items went missing from $client's property over a two-week period. A neighbour's camera caught $subject on the street that night. But the footage also shows a second figure — one the camera didn't capture clearly.",
@@ -123,7 +114,6 @@
       "$subject borrowed $client's car for the weekend. The dash cam and tools are missing. An insurance claim was filed for a 'break-in' on the car — by $subject, at a different address.",
       "A family heirloom went missing during a gathering at $client's home. $subject was the last to leave. A jeweller on the high street was offered something matching the description — but declined. The seller was wearing a hat and sunglasses."
     ],
-
     "THEFT.3": [
       "$client reported that $subject was seen near the premises on the night of the theft. Valuables are missing. A pawn shop received a matching item the next day — sold by someone using a fake ID. The fake ID was printed at a shop that $subject's cousin owns. The cousin has a prior conviction for handling stolen goods.",
       "Items went missing from $client's property over two weeks. A neighbour's camera caught $subject on the street. The footage also shows a second figure — who turns out to be an employee of a removals company that $subject recently hired for a 'personal job'. The removals company has no record of the booking.",
@@ -138,7 +128,6 @@
       "$subject borrowed $client's car. The dash cam and tools are missing. An insurance claim was filed for a 'break-in' — by $subject, at a different address. The police report for that 'break-in' was signed by an officer who is $subject's neighbour.",
       "A family heirloom went missing during a gathering. $subject was the last to leave. A jeweller was offered something matching the description. The seller wore a hat and sunglasses — but paid for parking nearby using a card in $subject's name."
     ],
-
     "FRAUD.1": [
       "$client noticed irregularities in the accounts linked to $subject. Money moved in small amounts, always just under the threshold. Someone knows what they're doing.",
       "The discrepancies in $client's books go back eight months. A forensic accountant flagged a pattern of transfers to accounts connected to $subject. Whoever did this was patient and methodical.",
@@ -153,7 +142,6 @@
       "A bank reconciliation uncovered a duplicate payment. Then another. Then another. Each one routed through a shell company. $subject set up the payment system.",
       "$client's accountant found a pattern: every time $subject approves an order, the vendor charges 12% more than the quoted price. The surplus goes to a personal account."
     ],
-
     "FRAUD.2": [
       "$client noticed irregularities linked to $subject. Money moved in small amounts, always just under the threshold. A second set of books has been found on a USB drive in $subject's desk — the numbers don't match the official records.",
       "The discrepancies go back eight months. A forensic accountant flagged transfers to accounts connected to $subject. One of those accounts is registered to a company that doesn't appear to exist.",
@@ -168,7 +156,6 @@
       "A bank reconciliation uncovered duplicate payments routed through a shell company. $subject set up the payment system. The shell company shares a registered address with a firm that $subject's partner owns.",
       "$client's accountant found a pattern: every time $subject approves an order, the vendor charges 12% more. The surplus goes to a personal account. The vendor's contact person listed on the invoices doesn't exist."
     ],
-
     "FRAUD.3": [
       "$client noticed irregularities linked to $subject. A second set of books was found on a USB drive in $subject's desk. One of the accounts traces to a shell company — and that company has a single director: $subject's former business partner, who was convicted of tax fraud in 2019.",
       "The discrepancies go back eight months. Transfers to accounts connected to $subject route through a company that doesn't appear to exist. That company filed a dormant-accounts return last year — signed by a solicitor who also acts for $subject's family trust.",
@@ -183,7 +170,6 @@
       "Duplicate payments routed through a shell company that shares an address with $subject's partner's firm. The firm's accounts show income from 'consultancy fees' — fees paid by $client's company. No consultancy work was ever commissioned.",
       "Every time $subject approves an order, the vendor overcharges by 12%. The vendor's contact person doesn't exist. The vendor's bank account was opened using a passport in $subject's name — but with a different photograph. The passport number matches one reported stolen three years ago."
     ],
-
     "BLACKMAIL.1": [
       "$client has been receiving anonymous messages. The sender claims to have compromising material. A name has come up: $subject. Could be a coincidence. Probably isn't.",
       "Three envelopes. Three payments. No name. Then $client made a mistake and missed a deadline. The next envelope contained a photograph. $subject's address was stamped on the reverse.",
@@ -198,7 +184,6 @@
       "A letter arrived at $client's workplace, addressed to the CEO, marked 'private'. It contained half a document. The other half, the blackmailer says, will follow — unless $client cooperates.",
       "$client's car was vandalised with a message scratched into the paint: 'You know what you owe.' The only person $client owes anything to is $subject."
     ],
-
     "BLACKMAIL.2": [
       "$client has been receiving anonymous messages. A name has come up: $subject. The messages reference events that only $subject witnessed — but the writing style doesn't match $subject's known correspondence. Someone may be feeding $subject information.",
       "Three envelopes, three payments. $subject's address was stamped on the reverse of the last one. But $subject recently moved — the address is outdated. Either $subject planted it deliberately, or someone is framing $pron.",
@@ -213,7 +198,6 @@
       "A letter arrived at $client's workplace marked 'private'. It contained half a document. The paper stock matches a batch purchased by $subject's employer — but twenty other employees had access to the stationery cupboard.",
       "$client's car was vandalised with a message: 'You know what you owe.' $subject denies involvement. But a paint analysis matches a spray can found in a bin near $subject's flat — wrapped in a glove that carries a different person's DNA."
     ],
-
     "BLACKMAIL.3": [
       "$client has been receiving anonymous messages referencing events only $subject witnessed — but the writing style doesn't match. Someone may be feeding $subject information. A digital forensics sweep of $client's devices found spyware installed three months ago — around the time $subject last visited $client's home.",
       "Three envelopes, three payments. $subject's address on the reverse is outdated — either a deliberate plant or a frame job. A handwriting expert says the address was written left-handed. $subject is right-handed. The postal sorting office has CCTV of the sender — wearing a cap and glasses, but with a distinctive tattoo on their wrist.",
@@ -228,7 +212,6 @@
       "A letter at $client's workplace contained half a document on stationery from $subject's employer. Twenty employees had access. But the ink used is from a specific pen model — one that $subject ordered online. The delivery address was not $subject's home — it was a PO box.",
       "$client's car was vandalised. A spray can near $subject's flat carried a different person's DNA — but the glove it was wrapped in was purchased with $subject's store loyalty card. The loyalty card transaction also included a roll of masking tape and a marker pen."
     ],
-
     "MURDER.1": [
       "The client, $client, doesn't believe the official story. The coroner called it an accident, but the family of the victim, $victim, called it murder. $subject was the last person seen with the victim.",
       "$victim was found at the bottom of a staircase. The inquest ruled accidental death. $client was at the funeral and noticed $subject leave before the eulogy finished. No explanation. No condolences. Just gone.",
@@ -243,7 +226,6 @@
       "$victim was found in a car at the bottom of a quarry. The steering column was intact. The brakes worked. $subject was the last person to service the vehicle.",
       "$client's brother, $victim, was found dead in a hotel room. The door was locked from inside. $subject checked in to the room next door. $client doesn't believe in coincidences."
     ],
-
     "MURDER.2": [
       "$client doesn't believe the official story. The coroner called it an accident, but the family called it murder. $subject was the last person seen with $victim. A second witness has now come forward with a different account of that evening.",
       "$victim was found at the bottom of a staircase. The inquest ruled accidental death. $client noticed $subject leave before the eulogy finished. A re-examination of the scene photos reveals bruising inconsistent with a fall.",
@@ -258,7 +240,6 @@
       "$victim was found in a car at the bottom of a quarry. Brakes and steering intact. $subject serviced the vehicle. A mechanic's second opinion found a brake-fluid line that had been partially scored — not enough to fail immediately, but enough to fail at speed.",
       "$client's brother, $victim, was found in a hotel room. The door was locked from inside. $subject checked in next door. The hotel's electronic lock log shows $subject's key card was used on $victim's door at 2:14 a.m."
     ],
-
     "MURDER.3": [
       "$client doesn't believe the official story. The coroner called it an accident. $subject was the last person seen with $victim. A second witness has come forward with a different account. A third witness — a taxi driver — recorded the licence plate of a car leaving the scene at speed. The car belongs to someone in $subject's family.",
       "$victim was found at the bottom of a staircase. Bruising inconsistent with a fall. $subject left the funeral before the eulogy. A forensic re-analysis of fibres found on $victim's clothing matches material from $subject's jacket — a jacket $subject reported stolen the day after the death.",
@@ -273,7 +254,6 @@
       "$victim was found in a car at a quarry. Brakes and steering intact — but a scored brake-fluid line would fail at speed. $subject serviced the vehicle. The tool marks on the line match a specific brand of cutting tool. $subject bought that exact tool online two weeks before the service.",
       "$victim was found in a hotel room, door locked from inside. $subject's key card was used on $victim's door at 2:14 a.m. The hotel's window latch on $victim's room was found unfastened — the room is on the ground floor. A partial shoe print outside the window matches $subject's shoe size."
     ],
-
     "STALKING.1": [
       "$client has been followed, photographed, and harassed for weeks. $subject was identified by a neighbour. $client is scared. They need this stopped.",
       "It started with notes slipped under the door. Then flowers. Then a figure outside the window at 2 a.m. The police took a report. Nothing happened. $subject's name came up during their enquiries.",
@@ -288,7 +268,6 @@
       "Flowers arrive at $client's office every Monday. No card, no signature. The florist confirmed the orders are prepaid — by $subject.",
       "$client noticed that someone had been in their garden overnight — footprints in the flower bed, directly below the bedroom window. $subject was seen in the area by a passing dog-walker."
     ],
-
     "STALKING.2": [
       "$client has been followed, photographed, and harassed for weeks. $subject was identified by a neighbour. $client is scared. A police report was filed — but the investigating officer told $client privately that $subject's family has connections.",
       "Notes, flowers, a figure at the window at 2 a.m. $subject's name came up during police enquiries. A digital sweep of $client's phone found tracking software installed without $client's knowledge.",
@@ -303,7 +282,6 @@
       "Flowers arrive at $client's office every Monday. The florist confirmed $subject prepays the orders. The delivery notes include a message that changes each week — quoting lines from $client's private diary, which $client has never shared.",
       "Footprints below $client's bedroom window. $subject was seen in the area. A soil analysis of the prints matches $subject's garden — a specific and uncommon compost blend. $subject's browser history (obtained via a warrant) shows searches for $client's home address and floor plans."
     ],
-
     "STALKING.3": [
       "$client has been followed, photographed, and harassed for weeks. $subject was identified by a neighbour. A police report was filed but the investigating officer said $subject's family has connections. The officer was transferred the next day. The new officer says the file has been marked 'low priority' without explanation.",
       "Notes, flowers, a figure at the window. Tracking software was found on $client's phone. The software was installed via a phishing link sent from $client's best friend's email account — which had been compromised. The compromise traces to a Wi-Fi network at a café $subject frequents.",
@@ -318,7 +296,6 @@
       "Flowers quoting lines from $client's private diary. $client has never shared it. A forensic sweep found a keystroke logger on $client's home computer — installed via a USB device. The USB device was purchased online and delivered to a parcel locker. The locker was opened using $subject's phone.",
       "Footprints below the bedroom window matched $subject's garden soil. $subject's browser history shows searches for floor plans. A more detailed analysis of the footprints reveals a shoe model sold by exactly one retailer in the region — and $subject's credit card was used to purchase that model."
     ],
-
     "CORPORATE_ESPIONAGE.1": [
       "$client's company has been bleeding trade secrets. Competitor bids match their proposals almost word for word. Internal suspicion has settled on $subject.",
       "Three product launches. Three leaks. Three contracts lost to a rival who shouldn't have known the details. Someone inside $client's organisation is talking to that rival. The trail leads to $subject.",
@@ -333,7 +310,6 @@
       "$subject has been taking meetings with a recruiter — a recruiter who also represents $client's biggest competitor. $client isn't sure whether it's a job search or a data sale.",
       "The competitor's CEO mentioned details from $client's strategic plan during a conference speech. The plan was circulated to twelve people. $subject was one of them."
     ],
-
     "CORPORATE_ESPIONAGE.2": [
       "$client's company has been bleeding trade secrets. Competitor bids match proposals word for word. $subject has been flagged. IT logs show $subject accessed the bid documents from a personal device — one not registered with the company.",
       "Three product launches. Three leaks. Three contracts lost. The trail leads to $subject. A colleague noticed $subject meeting someone in a coffee shop near the competitor's headquarters — twice in three weeks.",
@@ -348,7 +324,6 @@
       "$subject has been meeting a recruiter who also represents $client's biggest competitor. The recruiter's calendar — obtained via a subpoena — shows the meetings were scheduled around $client's board dates.",
       "The competitor's CEO referenced $client's strategic plan at a conference. $subject was one of twelve recipients. $subject was also the only one who printed a hard copy — and the printout was never returned to the document room."
     ],
-
     "CORPORATE_ESPIONAGE.3": [
       "$client's company has been bleeding trade secrets. $subject accessed bid documents from a personal device. That device was later connected to a Wi-Fi network at the competitor's headquarters — during a period when $subject was officially on annual leave.",
       "Three launches, three leaks, three lost contracts. $subject was seen meeting someone near the competitor's office. That someone is a former employee of $client who left under an NDA — an NDA that was drafted by $subject's solicitor.",
@@ -364,9 +339,7 @@
       "The competitor's CEO referenced $client's strategic plan at a conference. $subject printed a hard copy that was never returned. A cleaner at $client's office found shredded paper in the confidential waste — reassembled, it turned out to be the missing printout. The shredder log shows it was destroyed the morning after the conference speech."
     ]
   },
-
   "objectives": {
-
     "MISSING_PERSON.1": [
       "Locate $subject and determine whether they left voluntarily or were taken against their will.",
       "Find out where $subject went after the last known sighting and establish whether foul play was involved.",
@@ -381,7 +354,6 @@
       "Establish whether $subject left any forwarding arrangements — new address, redirected post, closed accounts.",
       "Verify whether $subject has crossed any border or booked any travel in the last week."
     ],
-
     "MISSING_PERSON.2": [
       "Locate $subject and determine whether they left voluntarily or were taken. Follow up on the conflicting witness accounts.",
       "Find out where $subject went after the last known sighting. Investigate the secondary lead and establish whether the two accounts can be reconciled.",
@@ -396,7 +368,6 @@
       "Establish whether $subject left forwarding arrangements. Investigate the new bank account opened the week before the disappearance.",
       "Verify border crossings and travel bookings. Determine who accompanied $subject — if anyone — and whether they travelled under their own name."
     ],
-
     "MISSING_PERSON.3": [
       "Locate $subject and determine whether they left voluntarily or were taken. Resolve the conflicting witness accounts and pursue the third-party lead.",
       "Find out where $subject went. Investigate the secondary and tertiary leads. Determine whether the disappearance was staged.",
@@ -411,7 +382,6 @@
       "Investigate forwarding arrangements, the new bank account, and the cash withdrawals. Determine whether $subject was preparing to leave — or being prepared to leave.",
       "Verify border crossings and travel bookings. Identify all companions and aliases. Determine whether $subject is still in the country."
     ],
-
     "INFIDELITY.1": [
       "Confirm or disprove that $subject is conducting an undisclosed relationship, and if so, identify the other party.",
       "Establish with documented evidence whether $subject has been meeting someone secretly, and determine who that person is.",
@@ -426,7 +396,6 @@
       "Identify any shared accounts, memberships, or bookings that $subject maintains with a person unknown to $client.",
       "Determine whether $subject's colleagues are covering for $pron, and if so, establish what they know."
     ],
-
     "INFIDELITY.2": [
       "Confirm or disprove that $subject is conducting an undisclosed relationship. Identify the other party and determine the duration of the relationship.",
       "Establish with documented evidence whether $subject has been meeting someone secretly. Identify the person and investigate whether $subject has been using aliases or separate accounts.",
@@ -441,7 +410,6 @@
       "Identify shared accounts, memberships, or bookings. Determine whether $subject has been redirecting post or receiving correspondence at an alternative address.",
       "Determine whether colleagues are providing cover. Establish what they know and whether they are being compensated for their silence."
     ],
-
     "INFIDELITY.3": [
       "Confirm or disprove the undisclosed relationship. Identify the other party. Determine the duration, scope, and whether financial or legal arrangements are involved.",
       "Establish whether $subject has been meeting someone secretly. Identify the person, investigate aliases and accounts, and determine whether a wider deception is in play.",
@@ -456,7 +424,6 @@
       "Identify shared accounts, memberships, and redirected post. Determine the total financial exposure and whether $client's assets are at risk.",
       "Determine whether colleagues are providing cover. Establish what they know, whether they are compensated, and whether any of them are directly involved in the deception."
     ],
-
     "THEFT.1": [
       "Establish whether $subject committed the theft and, where possible, locate the stolen property.",
       "Gather sufficient evidence to confirm or rule out $subject as the perpetrator, and identify the current location of the stolen items.",
@@ -471,7 +438,6 @@
       "Establish whether the theft was opportunistic or planned — and whether $subject had inside knowledge.",
       "Document any changes in $subject's financial position or lifestyle that coincide with the theft."
     ],
-
     "THEFT.2": [
       "Establish whether $subject committed the theft. Locate the stolen property. Investigate the secondary evidence trail.",
       "Confirm or rule out $subject. Identify the current location of the items. Determine whether a fence or intermediary was used.",
@@ -486,7 +452,6 @@
       "Establish whether the theft was opportunistic or planned. Investigate the insider knowledge required.",
       "Document changes in $subject's financial position. Investigate any unexplained purchases or deposits."
     ],
-
     "THEFT.3": [
       "Establish whether $subject committed the theft. Locate the stolen property. Investigate the secondary evidence trail. Determine the role of any third party.",
       "Confirm or rule out $subject. Locate the items. Investigate the fence or intermediary. Establish the financial network used to launder the proceeds.",
@@ -501,7 +466,6 @@
       "Establish whether the theft was planned. Investigate the insider knowledge. Determine whether $subject was recruited or self-directed.",
       "Document financial changes. Investigate purchases, deposits, and asset transfers. Determine the total value of the proceeds and where they are now."
     ],
-
     "FRAUD.1": [
       "Gather documented evidence of financial misconduct by $subject sufficient to support a formal complaint.",
       "Build a paper trail linking $subject to the irregular transactions and identify any co-conspirators or beneficiaries.",
@@ -516,7 +480,6 @@
       "Establish the current financial position — how much has been taken, how much remains recoverable.",
       "Determine whether $subject is still actively defrauding $client or has paused operations."
     ],
-
     "FRAUD.2": [
       "Gather documented evidence of misconduct by $subject. Investigate the secondary account and determine its ownership.",
       "Build a paper trail linking $subject to irregular transactions. Identify co-conspirators. Investigate the shell company.",
@@ -531,7 +494,6 @@
       "Establish the current financial position. Determine recoverability. Investigate whether the fraud has expanded to other departments.",
       "Determine whether $subject is still active. Investigate the most recent suspicious transaction and its destination."
     ],
-
     "FRAUD.3": [
       "Gather documented evidence. Investigate the secondary account, its ownership, and the chain of transactions leading to offshore entities.",
       "Build a paper trail. Identify co-conspirators and the shell company. Determine the full scope of the network and its international reach.",
@@ -546,7 +508,6 @@
       "Establish the financial position. Determine recoverability. Investigate expansion. Determine whether clients of $client's firm have been directly defrauded.",
       "Determine whether $subject is still active. Investigate the most recent transaction. Establish whether $subject is aware of the investigation."
     ],
-
     "BLACKMAIL.1": [
       "Identify whether $subject is the source of the blackmail and obtain evidence that can be handed to the authorities.",
       "Confirm $subject's identity as the blackmailer and locate the compromising material being used as leverage.",
@@ -561,7 +522,6 @@
       "Interview $subject's known contacts and determine whether anyone else is aware of the scheme.",
       "Identify any prior victims of $subject's blackmail activities."
     ],
-
     "BLACKMAIL.2": [
       "Identify whether $subject is the source. Obtain evidence. Investigate the secondary communication channel.",
       "Confirm $subject's identity. Locate the material. Determine whether a middleman or second party is involved.",
@@ -576,7 +536,6 @@
       "Interview $subject's contacts. Determine awareness. Investigate the colleague who may be assisting $subject.",
       "Identify prior victims. Investigate whether a pattern of behaviour exists. Determine the total number of people $subject has targeted."
     ],
-
     "BLACKMAIL.3": [
       "Identify $subject as the source. Obtain evidence. Investigate the secondary communication channel and the digital forensics trail.",
       "Confirm identity. Locate the material. Investigate the middleman. Determine the full chain from information theft to extortion demand.",
@@ -591,7 +550,6 @@
       "Interview contacts. Investigate the assisting colleague. Determine whether the colleague is a willing participant or being coerced.",
       "Identify prior victims. Investigate the pattern. Determine total targets. Establish whether a coordinated prosecution is feasible."
     ],
-
     "MURDER.1": [
       "Uncover what $subject knows about the death of $victim and find evidence that contradicts the official findings.",
       "Establish whether $subject had means, motive, and opportunity to kill $victim, and gather evidence to reopen the inquest.",
@@ -606,7 +564,6 @@
       "Determine whether $subject's alibi holds up under scrutiny.",
       "Build a case file sufficient for $client to present to the coroner and request a formal review."
     ],
-
     "MURDER.2": [
       "Uncover what $subject knows about $victim's death. Find evidence that contradicts the official findings. Investigate the new witness testimony.",
       "Establish means, motive, and opportunity. Gather evidence to reopen the inquest. Investigate the forensic anomaly.",
@@ -621,7 +578,6 @@
       "Determine whether $subject's alibi holds. Investigate the alibi witness and their relationship to $subject.",
       "Build a case file for the coroner. Investigate whether the original pathologist missed or suppressed findings."
     ],
-
     "MURDER.3": [
       "Uncover what $subject knows. Contradict the official findings. Investigate new witness testimony. Determine whether the original investigation was compromised.",
       "Establish means, motive, and opportunity. Reopen the inquest. Investigate the forensic anomaly and its implications for the cause of death.",
@@ -636,7 +592,6 @@
       "Challenge $subject's alibi. Investigate the alibi witness. Determine whether the alibi was rehearsed or fabricated.",
       "Build a complete case file. Investigate the original pathologist. Determine whether the initial findings were incompetent or corrupt."
     ],
-
     "STALKING.1": [
       "Document $subject's surveillance activities against $client and gather evidence for a restraining order or police report.",
       "Establish a pattern of harassing behaviour by $subject and compile a dossier suitable for legal action.",
@@ -651,7 +606,6 @@
       "Determine whether $subject has violated any existing warnings or orders.",
       "Assess the level of threat $subject poses and recommend appropriate security measures for $client."
     ],
-
     "STALKING.2": [
       "Document surveillance activities. Gather evidence for a restraining order. Investigate the digital surveillance component.",
       "Establish a pattern of harassment. Compile a dossier. Investigate the third-party assistance $subject may be receiving.",
@@ -666,7 +620,6 @@
       "Determine whether existing warnings have been violated. Investigate $subject's compliance records and legal history.",
       "Assess threat level. Investigate $subject's background. Determine whether $subject has a history of violence or prior restraining orders."
     ],
-
     "STALKING.3": [
       "Document surveillance activities. Gather evidence. Investigate the digital component. Determine the full scope of monitoring and whether $client's devices or accounts have been compromised.",
       "Establish a pattern. Compile a dossier. Investigate third-party assistance. Determine the identity of the accomplice and their relationship to $subject.",
@@ -681,7 +634,6 @@
       "Investigate compliance records. Determine whether $subject has used aliases to circumvent warnings. Establish the full legal history.",
       "Assess threat level comprehensively. Investigate background, violence history, and prior orders. Determine whether $subject has access to weapons or has made specific threats."
     ],
-
     "CORPORATE_ESPIONAGE.1": [
       "Prove that $subject has been passing confidential information to a competitor and identify who they are working with.",
       "Establish the method by which $subject has been extracting trade secrets and identify the recipient organisation.",
@@ -696,7 +648,6 @@
       "Determine whether $subject has been compensated for the leaks — financially or otherwise.",
       "Assess the ongoing risk and recommend measures to prevent further information loss."
     ],
-
     "CORPORATE_ESPIONAGE.2": [
       "Prove information transfer. Identify the contact. Investigate the secondary communication channel used by $subject.",
       "Establish the extraction method. Identify the recipient. Investigate the personal device used for transfers.",
@@ -711,7 +662,6 @@
       "Determine compensation. Investigate $subject's finances. Identify the source of unexplained income.",
       "Assess ongoing risk. Investigate current access. Determine whether $subject still has credentials and whether they have been used since the investigation began."
     ],
-
     "CORPORATE_ESPIONAGE.3": [
       "Prove information transfer. Identify the contact. Investigate the secondary channel. Determine the full scope of the operation and the total volume of data transferred.",
       "Establish the extraction method. Identify the recipient. Investigate the personal device. Determine whether the device contains data from other employers — suggesting a serial pattern.",
@@ -725,6 +675,1752 @@
       "Establish a complete leak timeline. Investigate all access anomalies. Determine whether a systematic programme of extraction was in place.",
       "Determine all compensation. Map $subject's finances. Trace payments through intermediaries. Determine whether assets have been acquired with the proceeds.",
       "Assess ongoing risk comprehensively. Determine current access and credential status. Investigate whether $subject has dead-man's-switch arrangements for remaining data."
+    ]
+  },
+  "caseSeeds": {
+    "MISSING_PERSON": [
+      {
+        "facts": [
+          "$subject was last seen near the east dock at approximately 11 p.m. on the night of the disappearance.",
+          "A half-eaten meal and an unlocked front door were found at $subject's residence."
+        ],
+        "leads": [
+          {
+            "hint": "A dock worker may have seen $subject on the night in question.",
+            "description": "A dock worker at the east pier recalls seeing someone matching $subject's description waiting near the loading bay around 11 p.m. They appeared to be waiting for someone who arrived in a dark-coloured vehicle.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "$subject's home shows signs of a sudden departure — a closer look may reveal why.",
+            "description": "The scene at $subject's flat — an unlocked door, an uneaten meal — suggests $pron left in a hurry. A closer inspection reveals a torn envelope behind the sofa with a partial return address.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject withdrew £2,000 in cash from an ATM two days before vanishing.",
+          "A neighbour heard raised voices coming from $subject's flat the night before the disappearance."
+        ],
+        "leads": [
+          {
+            "hint": "Recent financial activity suggests the disappearance may have been planned — or coerced.",
+            "description": "Bank records show $subject withdrew £2,000 in cash in a single transaction at an ATM near the train station. The withdrawal was unusual — $subject typically uses card payments.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Neighbours may have overheard something relevant the night before $subject vanished.",
+            "description": "The upstairs neighbour heard two voices arguing loudly around 10:30 p.m. One voice was $subject's; the other was unfamiliar. The argument ended with a door slamming.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's mobile phone was last active near a parking structure on Oak Street.",
+          "$subject's car is still in the driveway, untouched since the disappearance."
+        ],
+        "leads": [
+          {
+            "hint": "The area around $subject's phone's last known location has not been fully searched.",
+            "description": "Cell tower data places $subject's phone near the multi-storey car park on Oak Street at 11:47 p.m. The phone went dark after that. The car park has limited CCTV but adjacent businesses may have exterior cameras.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "If $subject's car is still at home, $pron left by other means — someone may have seen how.",
+            "description": "The car sits undisturbed in the driveway with no sign of tampering. A taxi company operating in the area has records of a pickup from a nearby street at 11:15 p.m. on the night in question.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject sent a cryptic text message — just a location pin — from $pron phone before it went silent.",
+          "The location pin points to an industrial estate on the outskirts of town."
+        ],
+        "leads": [
+          {
+            "hint": "The location $subject sent before going silent warrants investigation.",
+            "description": "The GPS pin embedded in the text message points to Unit 7 of the Millbrook Industrial Estate. The unit is listed as vacant but the roller shutter shows signs of recent use.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "$subject's phone records may reveal who $pron was communicating with before the message was sent.",
+            "description": "Phone records show $subject exchanged six calls with an unregistered number in the two hours before sending the pin. The calls were brief — none longer than 40 seconds.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A CCTV camera near $subject's home recorded an unfamiliar dark saloon parked outside for three hours on the night of the disappearance.",
+          "$subject asked a colleague about passport replacement procedures the week before vanishing."
+        ],
+        "leads": [
+          {
+            "hint": "CCTV from the area may show who visited $subject the night $pron disappeared.",
+            "description": "A camera mounted on a neighbouring business captured a dark saloon (partial plate visible) arriving at 9:14 p.m. and leaving at 12:22 a.m. A figure is seen entering the passenger side before it departs.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "A colleague may know why $subject was asking about travel documents.",
+            "description": "A co-worker in HR confirms $subject asked about emergency passport procedures, saying $pron had 'lost' the original. $subject seemed anxious and asked the colleague not to mention the enquiry.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject missed a family gathering without explanation — entirely out of character.",
+          "A friend says $subject mentioned being 'in some kind of trouble' but refused to elaborate."
+        ],
+        "leads": [
+          {
+            "hint": "Family members may have noticed warning signs before $subject disappeared.",
+            "description": "The family confirms $subject had been withdrawn for several weeks. $subject cancelled two planned visits with vague excuses and stopped answering calls from certain numbers.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "The friend $subject confided in may know more than they initially let on.",
+            "description": "$subject's friend recalls a conversation three days before the disappearance. $subject said someone was 'making threats' but wouldn't name them. The friend noticed $subject checking over $pron shoulder repeatedly.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject left a note saying $pron 'needed space', but the handwriting appears shaky and unnatural.",
+          "Forensic analysis of the note's ink suggests it was written at least two weeks before it was supposedly left."
+        ],
+        "leads": [
+          {
+            "hint": "The note $subject allegedly left may not be genuine.",
+            "description": "Handwriting analysis indicates the note was written under duress or by someone attempting to imitate $subject's hand. Several letter formations differ from $subject's known samples.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "Examining the paper and ink may reveal when the note was actually written.",
+            "description": "Ink oxidation analysis dates the note to approximately two weeks before the disappearance. This contradicts the claim it was left the day $subject vanished, suggesting it was prepared in advance — possibly under coercion.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's online accounts show no activity since the morning of the disappearance.",
+          "A delivery driver saw $subject leaving the house with a small bag around 6 a.m."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's digital footprint stopped abruptly — checking online accounts may reveal why.",
+            "description": "All social media, email, and banking apps show last activity between 5:30 and 6:15 a.m. on the day of the disappearance. A draft email was started but never sent — the subject line reads 'If anything happens'.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Someone saw $subject leaving early that morning — they may recall useful details.",
+            "description": "The regular delivery driver saw $subject step out of the front door at approximately 6:10 a.m. carrying a small sports bag. $subject looked around nervously before walking quickly toward the main road.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A second phone — a prepaid handset — was found hidden in $subject's desk drawer.",
+          "The prepaid phone contains three text messages from the same unregistered number, all with map coordinates."
+        ],
+        "leads": [
+          {
+            "hint": "A hidden phone in $subject's desk may contain clues about $pron movements.",
+            "description": "The prepaid handset is a basic model purchased with cash. It contains only incoming messages — $subject never replied. The phone's call log is empty.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "The map coordinates in the messages may lead to locations $subject visited — or was told to visit.",
+            "description": "The three sets of coordinates correspond to: a layby on the A34, a disused railway building, and a residential address in a neighbouring town. None are obviously connected to $subject's known routines.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject was involved in a minor traffic incident two days before the disappearance; the other driver's details were never exchanged.",
+          "The incident occurred near an address $subject has no known connection to."
+        ],
+        "leads": [
+          {
+            "hint": "The traffic incident shortly before the disappearance may not have been accidental.",
+            "description": "Police records show $subject reported a minor rear-end collision at a junction near Ashford Road. The other vehicle left before details were exchanged. Dash-cam footage from a passing bus may exist.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The location of the incident is not somewhere $subject would normally be.",
+            "description": "The junction is in a quiet residential area four miles from $subject's home and workplace. The only notable address nearby is a rented flat — the tenant moved in six weeks ago under a name that doesn't check out.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A locksmith was called to $subject's property the day before the disappearance.",
+          "The locksmith's invoice was paid in cash by someone other than $subject."
+        ],
+        "leads": [
+          {
+            "hint": "The locksmith who visited $subject's home may have useful information.",
+            "description": "The locksmith confirms being called to change the front-door lock. The person who met him at the property was not $subject — they gave a false name and paid £120 in cash.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Someone else arranged and paid for work at $subject's home — finding out who may be critical.",
+            "description": "The locksmith describes the payer as a man in his 40s, medium build, wearing a dark jacket. The description doesn't match anyone in $subject's known circle.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's gym membership card was used at a facility 30 miles from home on the morning of the disappearance.",
+          "The gym's sign-in system recorded an entry at 7:02 a.m. but no exit."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's gym card was used far from home on the day $pron vanished.",
+            "description": "The gym is a large 24-hour facility near a motorway junction. Staff don't recall seeing $subject. The car park has CCTV that recycles every 72 hours — the footage may still be recoverable.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The gym has no record of $subject leaving — $pron may have exited through an alternative route.",
+            "description": "The facility has a fire exit at the rear that opens onto a service road. The exit is not covered by cameras. A delivery driver who uses the same road each morning may have noticed something.",
+            "method": "INTERVIEW"
+          }
+        ]
+      }
+    ],
+    "INFIDELITY": [
+      {
+        "facts": [
+          "$subject has been working late three nights a week, but the extra hours do not appear on $pron pay slips.",
+          "A restaurant receipt for two was found in $subject's jacket — for a restaurant $client has never visited with $subject."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's work schedule and actual whereabouts may not match.",
+            "description": "A colleague confirms $subject leaves the office at 5:30 p.m. sharp on the evenings in question. $subject's phone location data places $pron in a different part of the city during the 'overtime' hours.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The restaurant on the receipt may be a regular meeting place.",
+            "description": "Staff at the restaurant recognise $subject's photo. $subject has dined there several times, always with the same companion — described as someone of similar age, well-dressed, who arrives separately.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Hotel receipts under an assumed name match $subject's handwriting.",
+          "The hotel is a boutique property across town from $subject's workplace."
+        ],
+        "leads": [
+          {
+            "hint": "Financial records may reveal hotel bookings under a name other than $subject's.",
+            "description": "A credit card linked to a secondary account — one $client did not know existed — has been used to book rooms at the hotel on seven occasions in the past three months.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Hotel staff may be able to identify who $subject has been meeting.",
+            "description": "Front-desk staff recall $subject checking in with the same guest each time. The guest always arrives by taxi. A partial surname was used on one booking.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject changed $pron phone password last month and has begun deleting call history.",
+          "Regular late-night calls to an unrecognised number appear on the phone bill."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's phone records may contain a pattern of contact with an unknown party.",
+            "description": "The phone bill shows calls to the same unregistered number after 10 p.m. on 14 of the last 30 days. Calls average eight minutes. The number traces to a prepaid SIM purchased at a local supermarket.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Changes to $subject's phone security suggest $pron is trying to hide something.",
+            "description": "A tech-savvy friend of $client confirmed $subject's phone now uses app-level encryption on messaging. The browser history is cleared daily — an automated task was set up recently.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A set of house keys found in $subject's jacket does not fit the family home.",
+          "The keys appear to be for a modern lock, possibly a newly rented flat."
+        ],
+        "leads": [
+          {
+            "hint": "The unidentified keys may open a property $client doesn't know about.",
+            "description": "A locksmith identified the keys as fitting a Yale-style lock commonly used in new-build flats. A letting agent in the city centre has a record of a flat let to someone matching $subject's description.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "Property records may reveal whether $subject has rented a second address.",
+            "description": "Council tax records show a flat in $subject's name registered three months ago. The flat is a one-bedroom property in a residential block — the sort of place someone might keep as a private retreat.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A mutual friend mentioned seeing $subject at a wine bar with someone unfamiliar.",
+          "$subject told $client $pron was at the gym at the time."
+        ],
+        "leads": [
+          {
+            "hint": "The wine bar where $subject was spotted may be a regular meeting place.",
+            "description": "Bar staff confirm $subject has been visiting every Thursday for at least two months, always with the same companion. They sit in the back booth and leave together.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "Gym records will show whether $subject actually attended on the nights in question.",
+            "description": "The gym's access log shows no entry for $subject on any of the Thursday evenings in the past two months. $subject's membership card has not been used since the month before.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's car sat-nav history shows regular trips to a residential address $client doesn't recognise.",
+          "The address is a flat rented by a former colleague of $subject."
+        ],
+        "leads": [
+          {
+            "hint": "$subject has been making regular trips to an unfamiliar address.",
+            "description": "The sat-nav recorded 11 trips to the same address over the past six weeks, all on weekday evenings. The average duration at the destination is 2.5 hours.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The occupant of the address may be the person $subject has been visiting.",
+            "description": "The flat is rented by a person who previously worked at $subject's company. They left 18 months ago. Social media shows they are single and share several interests with $subject.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has started buying new clothes, cologne, and going to the gym regularly.",
+          "None of these efforts seem directed at $client."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's sudden interest in personal appearance may indicate a new relationship.",
+            "description": "Credit card statements show a marked increase in spending on grooming, clothing, and dining over the past two months. The purchases include items $subject would not typically buy.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Gym staff may have observed $subject's interactions.",
+            "description": "A gym staff member recalls $subject often arriving with the same person. They train together and leave at the same time. The companion is a regular member whose name is on file.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client came home early to find $subject had already left; two coffee cups were in the sink.",
+          "The home security camera shows an unidentified person leaving 30 minutes before $client arrived."
+        ],
+        "leads": [
+          {
+            "hint": "The security footage from $client's home may identify the visitor.",
+            "description": "The camera captured a clear image of a person leaving through the front door at 4:47 p.m. They are carrying a small bag and walk to a car parked two doors down. The vehicle's registration is partially visible.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The visitor's vehicle registration could identify them.",
+            "description": "A partial plate check narrows the vehicle to three registered owners in the area. Cross-referencing with $subject's known contacts may identify the visitor.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's best friend let something slip at a dinner party then quickly corrected themselves.",
+          "The friend has since refused to discuss the matter with $client."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's friend may know details about the suspected affair.",
+            "description": "The friend's slip referred to a 'weekend away' that $subject supposedly took alone — but the friend's phrasing suggested $subject was not alone. Pressed further, the friend became visibly uncomfortable.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Social media activity around the time of the 'weekend away' may reveal who was there.",
+            "description": "Location-tagged posts from a coastal hotel show $subject in the background of another guest's photo. A second person, partially cropped out, appears to be standing with $subject.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A greeting card hidden in $subject's desk has no signature — just a heart and a date.",
+          "The date coincides with a 'business trip' $subject took alone."
+        ],
+        "leads": [
+          {
+            "hint": "The date on the card may correspond to a significant event in the suspected relationship.",
+            "description": "The date falls on a Thursday three months ago. $subject's diary shows a 'conference' that day, but no such conference was held. The hotel booked for the trip has a double-room reservation under $subject's name.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The card may carry fingerprints or other identifying marks.",
+            "description": "The card is a commercially available design. It carries a faint perfume and a fingerprint on the inside cover that does not match $subject or $client. The handwriting is neat and deliberate.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject says $pron has been visiting a sick friend, but the friend in question is not ill.",
+          "The mileage on $subject's car tells a different story — far more than the claimed destination would require."
+        ],
+        "leads": [
+          {
+            "hint": "The 'sick friend' $subject claims to visit may provide — or deny — an alibi.",
+            "description": "The friend confirms they are not unwell and have not seen $subject in over a month. They seem surprised to learn their name is being used as a cover story.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "$subject's actual destination can be traced through vehicle mileage and fuel receipts.",
+            "description": "The odometer readings and fuel purchases indicate $subject is driving approximately 60 miles round trip — consistent with a destination outside the city, not the friend's address 10 minutes away.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A social media photo shows $subject at a weekend event $pron claimed to have missed.",
+          "Someone else's arm is around $subject's waist in the photo."
+        ],
+        "leads": [
+          {
+            "hint": "The event where $subject was photographed may yield witnesses who saw who $pron was with.",
+            "description": "The event was a charity gala at a country hotel. The guest list is semi-public. Other attendees' social media posts may contain additional photos of $subject and their companion.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The person in the photo with $subject may be identifiable through the event's records.",
+            "description": "The photo was posted by an acquaintance. In the original unedited version, the companion's face is partially visible. Reverse image searching and cross-referencing with $subject's contacts may identify them.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      }
+    ],
+    "THEFT": [
+      {
+        "facts": [
+          "Fingerprints lifted from the point of entry match $subject's on file from a prior caution.",
+          "The lock on the rear door was forced using a pry bar — a tool later found in $subject's shed."
+        ],
+        "leads": [
+          {
+            "hint": "The entry point may still hold physical evidence linking $subject to the break-in.",
+            "description": "In addition to the fingerprints, fibres caught on the splintered door frame are consistent with a dark cotton jacket. $subject was seen wearing such a jacket in recent CCTV footage from a nearby shop.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "A search of $subject's property may uncover tools used in the break-in.",
+            "description": "A pry bar found in $subject's garden shed matches the dimensions of the forced-entry marks. Tool-mark analysis could provide a definitive link.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject sold items matching the stolen property's description to a second-hand dealer two days after the incident.",
+          "The dealer's CCTV captured $subject's face during the transaction."
+        ],
+        "leads": [
+          {
+            "hint": "The stolen goods may have already been sold — local dealers may have records.",
+            "description": "A second-hand dealer on Bridge Road purchased three items matching the stolen property's description. The seller gave a false name but paid in cash and left a mobile number that traces to $subject.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The dealer's security footage may show $subject handling the stolen items.",
+            "description": "The dealer's CCTV captured the full transaction, including $subject placing the items on the counter. Stills from the footage clearly show $subject's face and the items in question.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A security camera at a nearby business captured a figure matching $subject's build leaving the area at 02:30.",
+          "The footage shows the figure carrying a large holdall."
+        ],
+        "leads": [
+          {
+            "hint": "CCTV from businesses near the scene may have captured the break-in.",
+            "description": "A camera on the premises of Henderson & Sons, 40 metres from the target property, recorded a figure in dark clothing walking south at 02:30. The gait and build are consistent with $subject.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The holdall seen in the footage may still be in $subject's possession.",
+            "description": "The bag is a distinctive make — a grey canvas sports bag with a diagonal stripe. A neighbour of $subject recalls seeing a similar bag in $subject's hallway during a recent visit.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject had a set of keys to the property from a previous tenancy.",
+          "The current tenant did not change the locks after moving in."
+        ],
+        "leads": [
+          {
+            "hint": "$subject may still have access to the property from a previous arrangement.",
+            "description": "Letting agency records confirm $subject was the previous tenant and was issued two sets of keys. Only one set was returned at the end of the tenancy.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The landlord or letting agent can confirm whether the locks were changed.",
+            "description": "The landlord confirms the locks were not replaced between tenancies. The missing key set would give full access to the property without any sign of forced entry.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Mobile phone tower data places $subject's phone within 200 metres of the scene at the time of the theft.",
+          "$subject claims to have been at home — 3 miles away — all evening."
+        ],
+        "leads": [
+          {
+            "hint": "Phone location data may contradict $subject's claimed whereabouts on the night.",
+            "description": "Cell tower records place $subject's phone within range of the tower serving the street where the theft occurred, between 01:45 and 03:10. The tower does not cover $subject's home address.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$subject's alibi for the evening needs independent verification.",
+            "description": "$subject claims to have been watching television at home. No one else was present. Checking whether any online activity, smart-meter data, or CCTV from $subject's building corroborates this claim would be worthwhile.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A glove was recovered at the scene with DNA matching $subject's profile.",
+          "The glove is a standard black nitrile type — commonly used to avoid leaving fingerprints."
+        ],
+        "leads": [
+          {
+            "hint": "Forensic evidence from the scene may directly link $subject to the crime.",
+            "description": "A left-hand black nitrile glove found inside the property contained skin cells matching $subject's DNA profile. The glove appears to have been dropped in haste.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "$subject may have purchased the gloves recently — receipts or purchase history could confirm this.",
+            "description": "A box of identical gloves was purchased at a hardware store 0.5 miles from $subject's home. The store's loyalty-card system may show whether $subject's card was used.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The stolen items include a distinctive engraved watch that would be difficult to sell without attracting attention.",
+          "$subject has recently advertised a 'vintage watch' online through an anonymous listing."
+        ],
+        "leads": [
+          {
+            "hint": "The stolen items may be identifiable by unique markings — tracking their sale could lead to $subject.",
+            "description": "The engraved watch carries a personalised inscription. An online marketplace listing posted two days after the theft describes a watch matching this description. The listing's IP address maps to $subject's neighbourhood.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Monitoring online sales platforms may reveal $subject attempting to sell the stolen goods.",
+            "description": "The anonymous listing uses a newly created account and a burner email address. However, the payment method linked to the account shares digits with a card registered to $subject.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The alarm system at the property was disabled 15 minutes before the break-in.",
+          "$subject previously worked for the company that installed the alarm."
+        ],
+        "leads": [
+          {
+            "hint": "The alarm was disabled before the theft — someone with technical knowledge may have been involved.",
+            "description": "The alarm company's logs show the system was deactivated remotely using a maintenance code. The code was issued to engineers during installation and should have been rotated — but wasn't.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$subject's employment history may include work on the property's security system.",
+            "description": "$subject was employed by SecureHome Ltd for 18 months and was assigned to the installation team that fitted the property's alarm. $subject would have had access to the maintenance codes.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A witness saw $subject's distinctive red van parked in the alley behind the property at 1 a.m.",
+          "$subject claims the van was parked at home all night."
+        ],
+        "leads": [
+          {
+            "hint": "A vehicle matching $subject's was seen near the scene — independent verification is needed.",
+            "description": "The witness, a shift worker returning home, is confident about the vehicle's description: a red Transit van with a dented rear bumper. They noted a partial registration that matches $subject's van.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Automated number-plate recognition cameras in the area may confirm the van's movements.",
+            "description": "ANPR data from the main road 200 metres from the property may have captured the van's plate. The data is retained for 30 days.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The stolen safe was bolted to the floor; removing it required specific power tools.",
+          "$subject recently borrowed a concrete saw from a colleague."
+        ],
+        "leads": [
+          {
+            "hint": "The method used to remove the safe required specialist equipment — $subject may have acquired such tools recently.",
+            "description": "The floor bolts were cut with a concrete saw, leaving distinctive blade marks. The type of saw is industrial-grade and not commonly owned by individuals.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "A colleague lent $subject tools shortly before the theft — they may be able to confirm what was borrowed.",
+            "description": "The colleague confirms lending $subject a concrete cutting saw 'for a home renovation project'. The saw was returned two days after the theft with the blade heavily worn.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Muddy footprints found at the scene match a size-10 work boot with a distinctive sole pattern.",
+          "$subject was photographed wearing boots with the same tread pattern at a building site last week."
+        ],
+        "leads": [
+          {
+            "hint": "Footprint evidence at the scene could match footwear in $subject's possession.",
+            "description": "A clear set of muddy prints leads from the garden to the back door and through the property. The sole pattern is a Caterpillar-style lug tread in size 10, consistent with standard construction boots.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "Comparing $subject's boots to the prints at the scene would confirm or eliminate $pron.",
+            "description": "Recent photos of $subject at a building site show $pron wearing boots with an identical tread pattern. If $subject still has the boots, a direct comparison would be conclusive.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The property owner reported that only three people knew where the spare key was hidden.",
+          "$subject is one of the three."
+        ],
+        "leads": [
+          {
+            "hint": "Access to the property was gained without forced entry — someone with key knowledge was involved.",
+            "description": "The spare key was kept under a specific garden stone. No signs of forced entry suggest the key was used. Of the three people who knew its location, $subject is the only one without a verified alibi.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Checking whether the hidden key is still in place — or has been copied — may be revealing.",
+            "description": "The key has been returned to its hiding place, but it shows fresh scratches consistent with key duplication. A local key-cutting shop may have records or CCTV.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      }
+    ],
+    "FRAUD": [
+      {
+        "facts": [
+          "$subject set up a dormant company eighteen months ago that now receives regular payments.",
+          "Payments from the victim's accounts flow into the company via two intermediary accounts."
+        ],
+        "leads": [
+          {
+            "hint": "Corporate registration records may reveal undisclosed companies linked to $subject.",
+            "description": "Companies House records show $subject registered 'Greystone Consultants Ltd' 18 months ago. The company has no employees, no website, and no visible trade — but receives monthly transfers averaging £4,200.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Tracing the flow of funds through intermediary accounts may expose the full scheme.",
+            "description": "Two accounts at different banks act as pass-throughs. Money enters from the victim's business account, sits for 48 hours, then moves to Greystone. Both intermediary accounts use variations of $subject's mother's maiden name.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "An accountant at $subject's firm suspects financial manipulation but was told to stay quiet.",
+          "The accountant noticed discrepancies in quarterly reports dating back nine months."
+        ],
+        "leads": [
+          {
+            "hint": "An insider at $subject's workplace may be willing to talk if approached carefully.",
+            "description": "The accountant noticed that expense claims were being duplicated and approved by $subject personally. When they raised it internally, they were told it was 'a known accounting adjustment'. They don't believe the explanation.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Quarterly financial reports may contain irregularities that point to systematic fraud.",
+            "description": "Comparing the filed quarterly reports with the raw accounting data reveals consistent overstatements in travel and consulting expenses. The differences amount to approximately £45,000 over nine months.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has transferred substantial sums abroad in the past six months.",
+          "The transfers exceed $subject's declared income by a significant margin."
+        ],
+        "leads": [
+          {
+            "hint": "International wire transfers in $subject's name may indicate hidden income.",
+            "description": "Banking records show seven wire transfers to a numbered account in a jurisdiction with limited disclosure requirements. The total exceeds £120,000 — well above $subject's annual salary.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "A background check on $subject's lifestyle and assets may reveal spending beyond declared means.",
+            "description": "$subject recently purchased a property and a high-end vehicle. Neither purchase is explained by $subject's declared salary. A forensic accountant could quantify the discrepancy.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Invoices from a supplier that doesn't appear to exist have been approved by $subject.",
+          "The supplier's registered address is a virtual office with no physical presence."
+        ],
+        "leads": [
+          {
+            "hint": "Vendor records may include fictitious companies used to siphon funds.",
+            "description": "The supplier — 'Apex Logistics' — has issued 23 invoices totalling £67,000. The company's registered address is a serviced-office provider. No one at the address has heard of Apex Logistics.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The bank account receiving payments for the fictitious supplier may be traceable to $subject.",
+            "description": "Payments to Apex Logistics are directed to a business account opened six months ago. The account holder's phone number is a prepaid SIM, but the postal address used during registration is one street away from $subject's home.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has been authorising refunds to accounts that belong to $pron or $pron associates.",
+          "The refund transactions are individually small but collectively significant."
+        ],
+        "leads": [
+          {
+            "hint": "Refund transaction patterns may reveal a systematic diversion of company funds.",
+            "description": "Over 60 refunds averaging £380 each have been processed in the past year. All were authorised by $subject. The receiving accounts cycle between four bank accounts — at least two are linked to $subject's family members.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Interviewing $subject's colleagues about the refund approval process may reveal how oversight was bypassed.",
+            "description": "The company's refund policy requires dual authorisation for amounts over £500. By keeping individual refunds below this threshold, $subject has avoided triggering the second-signature requirement.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A former business partner of $subject filed a complaint alleging misappropriation of partnership funds.",
+          "The complaint was withdrawn after an out-of-court settlement — the terms are sealed."
+        ],
+        "leads": [
+          {
+            "hint": "A prior complaint against $subject may establish a pattern of financial misconduct.",
+            "description": "Court records show the original complaint alleged $subject diverted £35,000 from a joint venture account. The case was settled before trial. The former partner may be willing to discuss what happened.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "The terms of the settlement may indicate how much was actually misappropriated.",
+            "description": "Although the settlement is sealed, the former partner's solicitor may confirm whether it included an admission of liability. Public registry filings show the partnership was dissolved immediately after.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's personal bank account shows regular cash deposits just below the reporting threshold.",
+          "The deposits occur on the same day each month — always in cash."
+        ],
+        "leads": [
+          {
+            "hint": "Regular cash deposits structured to avoid reporting thresholds are a classic indicator of laundering.",
+            "description": "Monthly deposits of £9,900 (just below the £10,000 reporting trigger) have been made into $subject's personal account for eight consecutive months. The source of the cash is unknown.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The bank branch where deposits are made may have CCTV or teller recollections.",
+            "description": "All deposits were made at the same branch, always at the counter rather than an ATM. A teller may recall $subject or be able to retrieve security footage from the relevant dates.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Payroll records show payments to an employee who left the company two years ago.",
+          "$subject is the payroll administrator and the only person who could have maintained the payments."
+        ],
+        "leads": [
+          {
+            "hint": "Payroll records may include ghost employees whose salaries are being diverted.",
+            "description": "The former employee's salary — £2,800 per month — has continued to be paid into a bank account since their departure. HR has no record of the employee still being on the books. The account receiving the payments was opened after the employee left.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The bank account receiving the ghost employee's salary may be linked to $subject.",
+            "description": "The receiving account was opened with identification documents in the former employee's name. However, the account's contact address is a PO box — one that $subject rents under a different name.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Insurance claims filed by $subject's department contain inflated damage assessments.",
+          "An independent assessor's estimate is 40% lower than the claims submitted."
+        ],
+        "leads": [
+          {
+            "hint": "Comparing insurance claims to independent assessments may reveal systematic inflation.",
+            "description": "Three recent insurance claims managed by $subject show damage valuations 35–45% above market rates. The contractor who performed the repairs is $subject's brother-in-law.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The contractor performing the insured repairs may be inflating costs in collusion with $subject.",
+            "description": "The contractor — trading as 'Castle Repairs' — has received all three repair contracts. Their invoices include line items for materials that weren't delivered and labour hours that exceed the scope of work.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has been diverting client deposits into a personal holding account.",
+          "The deposits are returned — minus a hidden fee — before the client notices."
+        ],
+        "leads": [
+          {
+            "hint": "Client deposit accounts may show brief unexplained gaps where funds are temporarily missing.",
+            "description": "A pattern emerges: client funds are moved to a holding account for 3–5 business days, during which $subject earns interest or applies them as collateral. The funds are returned with a small shortfall attributed to 'processing fees'.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Clients may have noticed small unexplained deductions from their deposits.",
+            "description": "Two clients have independently queried minor discrepancies in their returned deposits. Both were told it was a bank charge. Neither was shown documentation. Their statements could corroborate the pattern.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject approved a contract with a company owned by $pron spouse.",
+          "The contract value is three times the market rate for the same service."
+        ],
+        "leads": [
+          {
+            "hint": "Contracts approved by $subject may involve undisclosed conflicts of interest.",
+            "description": "The contract — worth £92,000 — was awarded to a company whose sole director is $subject's spouse. $subject did not declare the relationship. Comparable services from other providers range from £28,000 to £35,000.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The company awarded the contract may be a shell set up to receive inflated payments.",
+            "description": "The company has no website, no employees other than $subject's spouse, and was incorporated just two months before the contract was signed. Its only revenue comes from this single contract.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Travel expense claims submitted by $subject include trips that colleagues say never happened.",
+          "The 'business trips' coincide with $subject's personal holiday dates."
+        ],
+        "leads": [
+          {
+            "hint": "Cross-referencing $subject's travel claims with actual travel records may expose fictitious expenses.",
+            "description": "Expense claims for three 'client visits' include flights, hotels, and meals totalling £4,700. Airline manifests show no booking under $subject's name for any of the dates. However, $subject's passport was stamped at a leisure destination on two of those dates.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Colleagues who were supposedly on the same trips may confirm whether they took place.",
+            "description": "The claims reference meetings with named colleagues. Two of the three named individuals confirm they were not on any trip with $subject on those dates. The third does not recall the meeting.",
+            "method": "INTERVIEW"
+          }
+        ]
+      }
+    ],
+    "BLACKMAIL": [
+      {
+        "facts": [
+          "The blackmail messages were sent from a disposable device registered to a false address.",
+          "The writing style is consistent with $subject's known correspondence."
+        ],
+        "leads": [
+          {
+            "hint": "The device used to send the messages may carry traces of the sender's identity.",
+            "description": "The disposable phone was purchased at a high-street retailer. The store's CCTV shows a figure in a cap and sunglasses buying the device with cash. Despite the disguise, gait analysis may match $subject.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "Linguistic analysis of the messages may link them to $subject's writing style.",
+            "description": "The blackmail messages contain unusual phrasing and spelling patterns that closely match $subject's professional emails. A forensic linguist could provide a formal comparison.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject was present at the event $client is being blackmailed about.",
+          "$subject was seen photographing guests throughout the evening."
+        ],
+        "leads": [
+          {
+            "hint": "Attendees at the event may recall $subject taking photographs.",
+            "description": "Three guests independently remember $subject circulating with a phone camera, taking pictures that seemed more deliberate than casual social snaps. One guest asked $subject to stop and was told it was 'for a project'.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "$subject's phone or cloud storage may contain the compromising material.",
+            "description": "If $subject backed up photos to a cloud service, a court order could compel disclosure. Alternatively, metadata on the blackmail images may match $subject's device model and location data.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The blackmailer's demands escalated after the first payment was made.",
+          "$subject's financial situation improved noticeably around the same time."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's financial records may show income that corresponds to the blackmail payments.",
+            "description": "Bank statements show unexplained cash deposits into $subject's account within 48 hours of each demand being met. The amounts don't match exactly — suggesting $subject is laundering the payments through a third party.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The timing of $subject's spending increases may correlate with the blackmail payments.",
+            "description": "$subject made several luxury purchases — including a new laptop and a weekend trip — shortly after the second and third payments. The timing is consistent with receiving the blackmail proceeds.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A hidden USB drive in $subject's office contains copies of the material referenced in the blackmail demands.",
+          "The drive was found taped behind a desk drawer."
+        ],
+        "leads": [
+          {
+            "hint": "A search of $subject's private workspace may yield physical evidence.",
+            "description": "The USB drive contains high-resolution copies of the compromising photographs, along with a draft of the initial blackmail message that was never sent. The drive's metadata links to $subject's personal laptop.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "The USB drive's file metadata may reveal when and where the material was created.",
+            "description": "File creation timestamps show the images were transferred to the drive three weeks before the first blackmail message was sent. The files were copied from a device registered to $subject.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The blackmailer referenced details about $client's private life that are not publicly known.",
+          "$subject had access to this information through a shared social circle."
+        ],
+        "leads": [
+          {
+            "hint": "The blackmailer's knowledge of $client's private affairs narrows the pool of suspects.",
+            "description": "The messages reference a specific incident that only a handful of people knew about. Cross-referencing attendees, confidants, and anyone with access to $client's personal correspondence may isolate the source.",
+            "method": "BACKGROUND_CHECK"
+          },
+          {
+            "hint": "$subject's position in $client's social circle may have given $pron access to private information.",
+            "description": "$subject attended the same social events as $client and was known to ask probing personal questions. A mutual acquaintance recalls $subject asking specifically about the incident referenced in the blackmail.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The drop-off point for the blackmail payments is a public locker at a train station.",
+          "Locker rental records are kept for 60 days."
+        ],
+        "leads": [
+          {
+            "hint": "The payment drop-off location may have surveillance that captures the collector.",
+            "description": "The train station has CCTV covering the locker area. Footage from the most recent collection date shows a figure matching $subject's build opening locker 47 at 3:15 p.m.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "Locker rental records may identify who booked the drop-off point.",
+            "description": "The locker was rented using a prepaid card and a false name. However, the rental terminal logs the device's Bluetooth identifiers — one of which matches a fitness tracker model $subject is known to wear.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client received a new threat after confiding in $subject about the situation.",
+          "The new message referenced specific details $client had only shared with $subject."
+        ],
+        "leads": [
+          {
+            "hint": "The timing and content of the latest threat suggests the blackmailer has a direct line to $client's confidence.",
+            "description": "Within 12 hours of $client telling $subject about a planned holiday, the blackmailer sent a message referencing the destination and dates. No one else was told. This strongly implicates $subject as the source.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Comparing the timeline of $client's disclosures with the blackmailer's messages may confirm a leak.",
+            "description": "A timeline analysis shows that on four occasions, private information shared with $subject appeared in blackmail messages within 24–48 hours. The pattern is too consistent to be coincidental.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The blackmail photographs were taken from a vantage point that required access to a specific building.",
+          "$subject has a key card for that building through $pron employment."
+        ],
+        "leads": [
+          {
+            "hint": "The vantage point from which the photographs were taken limits who could have been the photographer.",
+            "description": "The angles and elevation of the photos indicate they were taken from the third floor of the Meridian Building. Access to that floor is restricted to employees of three companies, including $subject's employer.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "Building access logs may confirm whether $subject was in the building when the photos were taken.",
+            "description": "Key-card logs for the Meridian Building record entry and exit times. On the date the photos' metadata suggests they were taken, $subject's card was used to enter the building at 7:45 p.m. — outside normal working hours.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "An anonymous email account used to send the threats was accessed from an IP address near $subject's home.",
+          "The email account was created two weeks before the first demand."
+        ],
+        "leads": [
+          {
+            "hint": "The email account used by the blackmailer may be traceable through its login locations.",
+            "description": "IP geolocation data places the account's logins within a 200-metre radius of $subject's home address. The account was accessed exclusively from this location and a coffee shop three streets away.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The coffee shop near $subject's home may have CCTV or Wi-Fi logs from the relevant times.",
+            "description": "The coffee shop offers free Wi-Fi but logs device MAC addresses. Cross-referencing the MAC addresses with $subject's known devices — laptop or phone — could provide a definitive link.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject previously made a veiled threat to $client during a disagreement.",
+          "The disagreement was about money $subject believed $client owed $pron."
+        ],
+        "leads": [
+          {
+            "hint": "A prior personal conflict between $subject and $client may have motivated the blackmail.",
+            "description": "$subject and $client had a falling-out over an unpaid loan of £5,000 eighteen months ago. $subject told a mutual friend that $client 'would regret it'. The friend is willing to make a statement.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Text messages or emails from the time of the disagreement may contain incriminating language.",
+            "description": "$client still has text messages from $subject sent during the dispute. One reads: 'I know things about you that would change everything. Don't think I won't use them.' The message predates the first blackmail demand by four months.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The blackmailer demanded payment in cryptocurrency to a wallet that has received funds from $subject's exchange account.",
+          "$subject opened the exchange account three months ago."
+        ],
+        "leads": [
+          {
+            "hint": "The cryptocurrency wallet used for payments may be linked to $subject's exchange account.",
+            "description": "Blockchain analysis shows the receiving wallet has transacted with a wallet that traces back to an exchange account. KYC verification on the exchange account was completed with $subject's identity documents.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$subject's cryptocurrency activity may show the proceeds being converted to cash.",
+            "description": "The exchange account shows regular sell orders converting received crypto to GBP, with bank transfers going to an account in $subject's name. The total matches the blackmail payments received.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A voice message left by the blackmailer has been partially cleaned up by audio analysis.",
+          "The voice profile is consistent with $subject's despite attempts at distortion."
+        ],
+        "leads": [
+          {
+            "hint": "Audio forensics on the voice messages may identify the blackmailer.",
+            "description": "The blackmailer left a voicemail using a voice distortion app. Audio engineers have partially reversed the effect, revealing speech patterns and an accent consistent with $subject's known voice samples.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "The voice distortion app used may be traceable through $subject's device.",
+            "description": "The distortion effect matches a specific app available on both iOS and Android. If $subject's phone or purchase history shows the app was downloaded, it would be strong circumstantial evidence.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      }
+    ],
+    "MURDER": [
+      {
+        "facts": [
+          "Traces of a sedative not consistent with $victim's prescription were found on a glass near the scene.",
+          "$subject's fingerprints were found on the glass alongside the sedative traces."
+        ],
+        "leads": [
+          {
+            "hint": "Forensic analysis of objects at the scene may have been incomplete.",
+            "description": "The glass contained residue of a benzodiazepine — a sedative not prescribed to $victim. The glass also carried two sets of prints: $victim's and $subject's. $subject has not explained why $pron prints are on the glass.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "$subject may have had access to the sedative found at the scene.",
+            "description": "A search of pharmacy records shows a prescription for the same benzodiazepine was filled at a chemist near $subject's home two weeks before $victim's death. The prescription was issued under a name that doesn't check out.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject altered $pron alibi between the first and second police interviews.",
+          "A witness can confirm the discrepancy."
+        ],
+        "leads": [
+          {
+            "hint": "Inconsistencies in the official account may surface when speaking to those who were present.",
+            "description": "In the first interview, $subject claimed to be at a restaurant until 10 p.m. In the second, $pron said $pron left at 9:15. The restaurant's booking system confirms a table in $subject's name with a bill paid at 9:22.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Re-examining police interview transcripts may reveal the alibi change.",
+            "description": "The original police transcripts are available through a freedom-of-information request. Comparing the two statements side by side makes the discrepancy unmistakable and raises questions about what $subject was doing between 9:22 and 10 p.m.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject was observed watching $victim's residence on three evenings in the week before the death.",
+          "The observation was from a parked car with the engine running."
+        ],
+        "leads": [
+          {
+            "hint": "Surveillance of $subject's behaviour patterns may reveal prior knowledge of $victim's movements.",
+            "description": "A neighbour of $victim noticed a car parked across the street on three consecutive evenings. On the third evening, they noted the registration — it matches $subject's vehicle.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "$victim's neighbours may have noticed someone watching the property.",
+            "description": "The neighbour is willing to provide a statement and can describe the vehicle and its occupant. They also recall the car leaving abruptly when $victim closed the curtains.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$victim sent a message naming $subject hours before $pron death.",
+          "The message was deleted remotely from $victim's phone."
+        ],
+        "leads": [
+          {
+            "hint": "Digital records from the days surrounding the incident may be critical.",
+            "description": "$victim sent a text to a friend at 6:47 p.m. reading: 'If anything happens to me, look at $subject.' The message was deleted from $victim's phone remotely at 11:30 p.m. — after the estimated time of death.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The friend who received $victim's message may still have it.",
+            "description": "The friend's phone still contains the received message. They didn't understand it at the time but now recognise its significance. They are willing to share the message and provide a statement.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Independent forensic analysis has narrowed the time of death to a window that contradicts $subject's alibi.",
+          "The original coroner's report placed the time of death two hours earlier."
+        ],
+        "leads": [
+          {
+            "hint": "Commissioning an independent forensic review could narrow the time of death and expose alibi gaps.",
+            "description": "An independent pathologist has reviewed the original findings and concluded the time of death was between 9:30 and 10:15 p.m. — a window during which $subject claims to have been driving home alone with no witnesses.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "The discrepancy between the original and revised time of death may indicate pressure on the initial investigation.",
+            "description": "The original coroner's report was completed in unusual haste. A colleague of the coroner has expressed concerns privately about the methodology used and may be willing to discuss them.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject took out a substantial life insurance policy on $victim six months before the death.",
+          "$subject is the sole beneficiary."
+        ],
+        "leads": [
+          {
+            "hint": "Financial motives may emerge from insurance and inheritance records.",
+            "description": "A life insurance policy worth £250,000 was taken out on $victim with $subject named as the sole beneficiary. The policy was purchased through an online broker, and $victim's signature on the application may be forged.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The insurance broker who processed the policy may recall the circumstances of the application.",
+            "description": "The broker recalls the application was submitted online with minimal verification. The medical section was completed without a doctor's examination, which the broker now admits should have raised a flag.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "Soil samples from $subject's shoes match the soil type found at the location where $victim's body was discovered.",
+          "$subject claims never to have visited that location."
+        ],
+        "leads": [
+          {
+            "hint": "Trace evidence on $subject's clothing or footwear may place $pron at the crime scene.",
+            "description": "Soil analysis from $subject's walking boots shows a distinctive clay-and-chalk mixture consistent with the terrain at the discovery site. This soil type is uncommon and not found near $subject's home or workplace.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "Geolocation data from $subject's phone may confirm whether $pron visited the area.",
+            "description": "Although $subject's phone was switched off during the critical hours, a brief reconnection at 2:17 a.m. pinged a cell tower serving the area where $victim was found.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A witness heard $subject and $victim arguing violently two days before the death.",
+          "$subject was overheard saying 'you won't get away with this'."
+        ],
+        "leads": [
+          {
+            "hint": "Witnesses who were present during the argument may recall what was said.",
+            "description": "The argument took place in the car park of a pub. Two patrons heard raised voices. One recalls $subject grabbing $victim's arm. The other heard $subject say 'you won't get away with this' before $victim pulled free and left.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "The pub's CCTV may have captured the confrontation.",
+            "description": "The pub's exterior camera covers part of the car park. Footage from the evening in question shows two figures in a heated exchange at approximately 8:45 p.m. The angle may be sufficient to confirm identities.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$victim's will was recently changed to exclude $subject.",
+          "$subject learned of the change the week before $victim died."
+        ],
+        "leads": [
+          {
+            "hint": "Changes to $victim's will shortly before the death may point to a motive.",
+            "description": "The solicitor handling $victim's estate confirms the will was amended four weeks before the death. $subject was removed as a beneficiary and replaced by a charity. $subject was informed by letter.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$subject's reaction to being disinherited may have been witnessed by others.",
+            "description": "A friend of $subject recalls $pron being furious after receiving a letter from a solicitor. $subject said $victim had 'made a huge mistake' and that $pron 'wasn't going to let it stand'.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A knife recovered from $subject's vehicle has been confirmed as consistent with the weapon used.",
+          "$subject claims the knife is a work tool and has always been in the van."
+        ],
+        "leads": [
+          {
+            "hint": "A weapon consistent with the injuries may be linked to $subject.",
+            "description": "A 15cm fixed-blade knife found under the driver's seat of $subject's van matches the wound profile described in the pathology report. Luminol testing detected traces of blood on the handle despite apparent cleaning.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "DNA or blood traces on the weapon may connect it to $victim.",
+            "description": "Preliminary blood analysis from the knife handle returned a partial match to $victim's blood type. Full DNA profiling is pending but expected to confirm the match.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject purchased a burner phone two days before $victim's death.",
+          "The burner phone was used to call $victim three times on the night of the killing."
+        ],
+        "leads": [
+          {
+            "hint": "A prepaid phone purchased by $subject shortly before the death may have been used to lure $victim.",
+            "description": "CCTV at a phone shop shows $subject purchasing a prepaid handset with cash. The phone's number was used to call $victim at 8:12, 9:03, and 9:41 p.m. on the night of the death. The final call lasted seven minutes.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The burner phone may still be in $subject's possession or have been disposed of nearby.",
+            "description": "The phone went inactive after the final call. Cell tower data from its last transmission places it near a waste bin behind a service station on the A12 — a route consistent with $subject's drive home.",
+            "method": "PHYSICAL_SEARCH"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject searched online for 'how to make a death look accidental' in the weeks before $victim died.",
+          "The search history was deleted but recovered from cached data."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's internet search history may contain incriminating queries.",
+            "description": "Browser cache analysis recovered search queries including 'undetectable poisons', 'how to stage an accident', and 'how long does DNA last outdoors'. The searches were made over a two-week period ending three days before $victim's death.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "The device used for the searches may contain additional evidence.",
+            "description": "$subject's personal laptop contains a cleared browser history, but forensic data recovery has retrieved cached pages, bookmarks, and a downloaded PDF titled 'Forensic Countermeasures'. The laptop's MAC address matches the device used for the searches.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      }
+    ],
+    "STALKING": [
+      {
+        "facts": [
+          "$subject has photographed $client's home and daily routine over a six-week period.",
+          "A folder of printed images was found discarded near $subject's residence."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's personal space may contain evidence of obsessive tracking.",
+            "description": "The discarded folder contains 47 photographs of $client's home, taken from different angles at different times of day. Some include notes on $client's departure and arrival times in $subject's handwriting.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "Neighbours near where the photos were taken may have seen $subject in the area.",
+            "description": "A resident on $client's street recalls seeing someone parked in a silver car on multiple occasions, always facing $client's house. The description of the driver matches $subject.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject created multiple fake online accounts to monitor and contact $client.",
+          "The accounts use variations of the same username pattern."
+        ],
+        "leads": [
+          {
+            "hint": "Tracing digital footprints may identify the source of online harassment.",
+            "description": "The fake accounts — @shadow_watcher, @shadow_w4tcher, @sh4dow_watcher — all follow $client and have sent unwanted messages. IP login data from two of the accounts traces to $subject's home broadband connection.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The pattern of online activity may reveal $subject's monitoring habits.",
+            "description": "The accounts engage with $client's posts within minutes of publication, suggesting real-time monitoring. Activity timestamps cluster around $subject's known work breaks and evening hours.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A former partner of $subject filed a similar stalking complaint two years ago in another city.",
+          "The complaint was upheld and a restraining order was issued."
+        ],
+        "leads": [
+          {
+            "hint": "A background investigation may reveal a pattern of stalking behaviour.",
+            "description": "Police records from another jurisdiction show $subject was subject to a restraining order obtained by a former partner. The behaviour described — persistent surveillance, unwanted gifts, and intimidating messages — mirrors the current case.",
+            "method": "BACKGROUND_CHECK"
+          },
+          {
+            "hint": "The previous victim may be willing to share their experience.",
+            "description": "The former partner has been contacted through their solicitor and is willing to provide a statement. They describe an escalating pattern that began with online monitoring and progressed to in-person following.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client has received unwanted gifts left at $pron doorstep — always when $pron is out.",
+          "The gifts include items that reference private conversations $client had at home."
+        ],
+        "leads": [
+          {
+            "hint": "The timing of the gifts suggests $subject knows $client's schedule — surveillance of the area may catch $pron in the act.",
+            "description": "The gifts appear within 30 minutes of $client leaving home. Setting up a concealed camera or arranging for someone to watch the property during $client's next departure may capture $subject delivering one.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The content of the gifts suggests $client's private conversations are being overheard.",
+            "description": "One gift included a book that $client mentioned wanting during a phone call made from home. If the home is not bugged, $subject may be using a directional microphone or has access to $client's phone.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's vehicle has been spotted on $client's street at least twice a week for the past month.",
+          "ANPR data confirms the vehicle's presence on dates matching $client's reports."
+        ],
+        "leads": [
+          {
+            "hint": "Number-plate recognition data may confirm $subject's vehicle was in $client's area on the reported dates.",
+            "description": "ANPR cameras on the main road entering $client's estate recorded $subject's vehicle on 9 of the last 14 days. All readings fall within a two-hour window around $client's typical return-from-work time.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$client's neighbours may have dashcam footage showing $subject's vehicle.",
+            "description": "A neighbour with a front-facing dashcam has offered to check their recordings. Preliminary review of two dates shows a vehicle matching $subject's parked 50 metres from $client's front door.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has been sending letters to $client's workplace, causing distress and professional embarrassment.",
+          "The letters contain personal information that should not be publicly known."
+        ],
+        "leads": [
+          {
+            "hint": "The letters may carry forensic evidence linking them to $subject.",
+            "description": "The letters are handwritten on distinctive textured paper. Envelope adhesive may carry DNA. The postmark is from $subject's local post office. Fingerprint analysis has not yet been attempted.",
+            "method": "FORENSICS"
+          },
+          {
+            "hint": "Co-workers who received or handled the letters may recall delivery details.",
+            "description": "The receptionist at $client's office confirms the letters arrive by Royal Mail, always on a Monday morning. One letter was hand-delivered — the receptionist may have seen the person who dropped it off.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client found a GPS tracking device attached to the underside of $pron car.",
+          "The device model is a commercially available tracker that logs location history."
+        ],
+        "leads": [
+          {
+            "hint": "The tracking device may carry purchase records or serial numbers that identify the buyer.",
+            "description": "The GPS tracker is a commercial model sold online. The serial number may be traceable to a purchase order. $subject's delivery records or credit card history could show the purchase.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The device's stored location data may reveal where $subject has been collecting the tracking information.",
+            "description": "The tracker uploads location data to a cloud account. Gaining access to the account (with appropriate legal authority) would reveal when the device was placed and how the data has been used.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has been approaching $client's friends and family, asking invasive questions about $client's life.",
+          "Three people have independently reported feeling uncomfortable about $subject's questioning."
+        ],
+        "leads": [
+          {
+            "hint": "$client's friends and family may have been approached by $subject seeking personal information.",
+            "description": "Three of $client's contacts — a sister, a colleague, and a gym partner — report being approached by $subject in the past month. In each case, $subject steered conversation toward $client's schedule, relationships, and habits.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "The pattern of $subject's approaches may establish a deliberate information-gathering campaign.",
+            "description": "Mapping the contacts $subject has approached, the questions asked, and the dates of each encounter reveals a systematic effort to build a detailed profile of $client's daily life.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client's email account was accessed from an unrecognised device on three occasions.",
+          "The login IP addresses trace to locations near $subject's home and workplace."
+        ],
+        "leads": [
+          {
+            "hint": "$client's email security logs may reveal unauthorised access.",
+            "description": "Login records show three access events from devices not recognised by $client. The sessions lasted between 5 and 20 minutes and occurred during hours when $client was at work.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The IP addresses used for the unauthorised logins may be traceable to $subject.",
+            "description": "Two of the three IP addresses resolve to a residential broadband connection in $subject's postcode area. The third is a public Wi-Fi network at a café 200 metres from $subject's workplace.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject left a voicemail on $client's phone that was initially calm but became increasingly threatening.",
+          "The voicemail was left at 2:30 a.m."
+        ],
+        "leads": [
+          {
+            "hint": "The voicemail left by $subject may constitute evidence of threatening behaviour.",
+            "description": "The 4-minute voicemail begins with $subject saying $pron 'just wants to talk' but escalates to threats about 'consequences' if $client continues to ignore $pron. The tone becomes aggressive in the final minute.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Phone records may show a pattern of unwanted contact attempts.",
+            "description": "Call logs show $subject attempted to call $client 23 times in the past week, predominantly between midnight and 4 a.m. Text messages sent from the same number include demands to meet.",
+            "method": "DOCUMENTS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject was seen waiting outside $client's child's school.",
+          "The school has no record of $subject being authorised to collect any child."
+        ],
+        "leads": [
+          {
+            "hint": "School staff may have noticed $subject's presence near the school.",
+            "description": "A teacher on playground duty noticed an adult matching $subject's description standing at the school gate on two afternoons. They were not collecting a child and left when the teacher approached.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "School CCTV may have captured $subject near the premises.",
+            "description": "The school's external cameras cover the main gate and car park. Footage from the dates in question may show $subject's presence and vehicle, establishing a pattern of attending the school.",
+            "method": "SURVEILLANCE"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$client's social media accounts have been flooded with anonymous comments and messages.",
+          "The language and timing of the messages suggest a single person operating multiple accounts."
+        ],
+        "leads": [
+          {
+            "hint": "The anonymous accounts may share digital fingerprints that link them to $subject.",
+            "description": "Analysis of the accounts shows they were all created within a 48-hour window, use the same email provider, and exhibit identical posting patterns. Two accounts share a profile image that was cropped from a photo on $subject's real social media.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Platform abuse reports may trigger account disclosure that identifies $subject.",
+            "description": "Formal reports to the social media platform may compel disclosure of the accounts' registration data. If the email addresses or phone numbers used match $subject's known contact details, the link is established.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      }
+    ],
+    "CORPORATE_ESPIONAGE": [
+      {
+        "facts": [
+          "$subject accessed confidential project files outside normal working hours on at least twelve occasions.",
+          "The access logs show downloads of sensitive pricing and strategy documents."
+        ],
+        "leads": [
+          {
+            "hint": "Internal access logs may show irregular system activity by $subject.",
+            "description": "IT security logs reveal $subject accessed the shared drive containing project files between 10 p.m. and 2 a.m. on 12 occasions over three months. Each session involved downloading documents flagged as 'confidential' or 'restricted'.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "$subject may have transferred the downloaded files to an external device.",
+            "description": "USB audit logs show a removable storage device was connected to $subject's workstation during several of the late-night sessions. The device ID does not match any company-issued equipment.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A colleague saw $subject photographing a whiteboard during a closed strategy session.",
+          "$subject was not authorised to attend the session."
+        ],
+        "leads": [
+          {
+            "hint": "Other staff members may have witnessed $subject acting suspiciously.",
+            "description": "The colleague noticed $subject standing near the boardroom door with a phone raised. When challenged, $subject claimed to be checking a text message. The colleague is willing to provide a formal statement.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "$subject's phone gallery may contain images of confidential material.",
+            "description": "If the phone can be examined, the gallery and recently deleted folder may contain photographs of the whiteboard content, meeting slides, or other restricted material.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject meets a contact from a rival firm monthly at a location away from both offices.",
+          "The meetings take place at a pub in a neighbouring town."
+        ],
+        "leads": [
+          {
+            "hint": "Regular off-site meetings with a competitor employee would confirm the leak.",
+            "description": "Surveillance over two months has identified a pattern: $subject and the contact meet at the Crown and Anchor pub on the third Thursday of each month, arriving separately and sitting in the back room.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The identity of $subject's contact at the rival firm may be established through their records.",
+            "description": "The contact's vehicle registration was noted during surveillance. It is registered to an employee of the rival firm who works in their business development division.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject emailed proprietary documents to a personal email address.",
+          "The personal address uses a pseudonym but is linked to $subject's phone number."
+        ],
+        "leads": [
+          {
+            "hint": "Email server logs may show data being sent to external addresses.",
+            "description": "The company's outbound email filter flagged three messages from $subject's work account to an external Gmail address. The messages contained attachments totalling 45 MB — including product roadmaps and client pricing.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The external email account may be traceable to $subject through associated recovery details.",
+            "description": "The Gmail account's recovery phone number matches $subject's personal mobile. The account name — 'greyconsulting' — does not correspond to any registered business.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A USB device found in $subject's desk contains copies of trade-secret documents.",
+          "The documents include material $subject was not authorised to access."
+        ],
+        "leads": [
+          {
+            "hint": "A search of $subject's workspace may reveal undisclosed copies of sensitive material.",
+            "description": "The USB drive — found in a locked drawer — contains 23 files, including the company's five-year strategic plan, supplier contracts, and a client database. The files were copied over a period of four months.",
+            "method": "PHYSICAL_SEARCH"
+          },
+          {
+            "hint": "File metadata on the USB drive may show when and how the documents were copied.",
+            "description": "Metadata timestamps show the files were copied during $subject's logged working hours. The drive's serial number may link it to a purchase made by $subject.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "The rival firm launched a competing product with features strikingly similar to a project $subject worked on.",
+          "The rival's product appeared just three months after $subject joined the project team."
+        ],
+        "leads": [
+          {
+            "hint": "The timeline of the rival's product launch may correlate with $subject's access to the project.",
+            "description": "The rival firm announced their competing product 14 weeks after $subject was added to the project team. The features mirror internal design documents that $subject had access to. The rival's patent application references specifications identical to the company's unpublished research.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "Former employees of the rival firm may confirm that the leaked material was used.",
+            "description": "A recently departed employee of the rival firm has indicated willingness to discuss how the competing product was developed. They claim the project team received a 'briefing document' that appeared to originate from an external source.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject received unexplained payments into a personal account from a source linked to the competitor.",
+          "The payments total £35,000 over six months."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's personal finances may show payments from an unknown or suspicious source.",
+            "description": "Bank statements show six transfers of varying amounts (£4,000–£8,000) from a business account registered to a consultancy firm. The firm's only client is the rival company.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The consultancy firm making the payments may be a front for the competitor.",
+            "description": "The consultancy — 'Apex Advisory' — has no public profile, one director (based overseas), and a virtual office address. Its bank account receives regular funding from the rival company and pays out exclusively to $subject.",
+            "method": "BACKGROUND_CHECK"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject was seen entering the competitor's offices after hours.",
+          "Security footage from the competitor's building captured $subject's face."
+        ],
+        "leads": [
+          {
+            "hint": "$subject may have been physically present at the competitor's premises.",
+            "description": "External CCTV from the competitor's building shows $subject entering through a side door at 7:45 p.m. on a Tuesday. $subject was inside for approximately 90 minutes. A visitor pass was not logged.",
+            "method": "SURVEILLANCE"
+          },
+          {
+            "hint": "The competitor's reception or security staff may recall $subject's visit.",
+            "description": "A security guard at the building recalls someone matching $subject's description being met at the side entrance by a member of staff. The guard did not log the visit because the staff member vouched for the visitor.",
+            "method": "INTERVIEW"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject's home computer contains a folder of company documents marked 'CONFIDENTIAL'.",
+          "The documents include material from projects $subject was not assigned to."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's personal devices may contain copies of company data.",
+            "description": "A trusted source reports seeing company-branded documents on $subject's home laptop during a social visit. The documents included project briefs and financial forecasts marked 'Internal — Confidential'.",
+            "method": "INTERVIEW"
+          },
+          {
+            "hint": "Comparing the documents on $subject's computer to the company's version-control system could date the leak.",
+            "description": "If the files can be examined, their metadata and version numbers can be matched to specific revisions in the company's document management system, pinpointing when they were copied.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject booked a conference room to make private phone calls to the competitor.",
+          "Call logs from the room's phone show regular contact with a number registered to the rival firm."
+        ],
+        "leads": [
+          {
+            "hint": "Conference room booking records and phone logs may reveal suspicious communication.",
+            "description": "$subject booked a small meeting room 15 times in two months, always for 30-minute slots. The room's phone was used to dial the same external number each time — a direct line at the competitor's head office.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "IT may be able to recover recordings or transcripts of the calls.",
+            "description": "The company's phone system records outbound calls for quality and compliance purposes. If recordings exist for the calls made from the meeting room, they may contain direct evidence of information sharing.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "$subject has been using a personal cloud storage account to sync company files.",
+          "The cloud account is not company-sanctioned and bypasses IT security controls."
+        ],
+        "leads": [
+          {
+            "hint": "$subject may be using unsanctioned cloud services to exfiltrate data.",
+            "description": "Network monitoring detected $subject's workstation uploading large files to a personal Dropbox account. The uploads occurred during working hours and included files from the R&D shared drive.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The cloud account's sharing settings may show whether files were shared with external parties.",
+            "description": "If the Dropbox account can be accessed, its sharing history will show whether files were distributed to other accounts. Shared-link logs may reveal the email addresses of recipients.",
+            "method": "FORENSICS"
+          }
+        ]
+      },
+      {
+        "facts": [
+          "A draft email found in $subject's outbox contained an attachment of the company's client list.",
+          "The intended recipient's email domain belongs to the competitor."
+        ],
+        "leads": [
+          {
+            "hint": "$subject's email drafts may contain unsent messages with sensitive attachments.",
+            "description": "The draft was addressed to an individual at the rival firm and contained a spreadsheet of the company's top 200 clients, including contract values and renewal dates. The draft was created but apparently not sent — or was sent and re-saved as a draft.",
+            "method": "DOCUMENTS"
+          },
+          {
+            "hint": "The intended recipient at the rival firm may confirm whether they received the data.",
+            "description": "The recipient's LinkedIn profile identifies them as head of new-business at the competitor. If approached as part of a formal investigation, they may be compelled to disclose what they received.",
+            "method": "INTERVIEW"
+          }
+        ]
+      }
     ]
   }
 }
