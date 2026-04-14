@@ -847,4 +847,309 @@ public class CaseGeneratorTest {
         }
         assertTrue("Should have found at least one complexity-1 case", testedAtLeastOne);
     }
+
+    // -------------------------------------------------------------------------
+    // Forensic results → POLICE known facts
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void forensicLeads_producePoliceKnownFacts() {
+        // Generate many cases until we get one with FORENSICS leads
+        // (Theft and Murder both have FORENSICS leads)
+        CaseGenerator gen = makeGenerator(42);
+        CaseFile cf = gen.generate(CaseType.THEFT, "2050-01-01 09:00");
+
+        boolean hasForensicLead = false;
+        for (CaseLead lead : cf.getLeads()) {
+            if (lead.getDiscoveryMethod() == DiscoveryMethod.FORENSICS) {
+                hasForensicLead = true;
+                // Should have a corresponding POLICE known fact
+                boolean foundMatch = false;
+                for (KnownFact kf : cf.getKnownFactsBySource(FactSource.POLICE)) {
+                    if (kf.getText().equals(lead.getDescription())) {
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                assertTrue("Forensic lead should have a matching POLICE known fact",
+                        foundMatch);
+            }
+        }
+        assertTrue("THEFT case should have at least one FORENSICS lead", hasForensicLead);
+    }
+
+    @Test
+    public void nonForensicLeads_doNotProducePoliceKnownFacts() {
+        CaseGenerator gen = makeGenerator(99);
+        // INFIDELITY has no FORENSICS leads
+        CaseFile cf = gen.generate(CaseType.INFIDELITY, "2050-01-01 09:00");
+
+        for (CaseLead lead : cf.getLeads()) {
+            assertNotEquals("INFIDELITY should have no FORENSICS leads",
+                    DiscoveryMethod.FORENSICS, lead.getDiscoveryMethod());
+        }
+        assertTrue("No POLICE known facts expected for non-forensic cases",
+                cf.getKnownFactsBySource(FactSource.POLICE).isEmpty());
+    }
+
+    @Test
+    public void murderCase_hasForensicPoliceKnownFacts() {
+        CaseGenerator gen = makeGenerator(7);
+        CaseFile cf = gen.generate(CaseType.MURDER, "2050-01-01 09:00");
+
+        int forensicLeadCount = 0;
+        for (CaseLead lead : cf.getLeads()) {
+            if (lead.getDiscoveryMethod() == DiscoveryMethod.FORENSICS) {
+                forensicLeadCount++;
+            }
+        }
+
+        List<KnownFact> policeFacts = cf.getKnownFactsBySource(FactSource.POLICE);
+        // Each forensic lead should produce exactly one POLICE known fact
+        assertEquals("POLICE known facts should match forensic lead count",
+                forensicLeadCount, policeFacts.size());
+    }
+
+    // -------------------------------------------------------------------------
+    // InterviewScript reliability
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void interviewScript_defaultReliability() {
+        InterviewScript script = new InterviewScript("id", "Name", "Role");
+        assertEquals(InterviewScript.DEFAULT_RELIABILITY, script.getReliability(), 0.001f);
+        assertFalse(script.isUnreliable());
+    }
+
+    @Test
+    public void interviewScript_customReliability() {
+        InterviewScript script = new InterviewScript("id", "Name", "Role", 0.7f);
+        assertEquals(0.7f, script.getReliability(), 0.001f);
+        assertTrue(script.isUnreliable());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void interviewScript_reliabilityBelowMinThrows() {
+        new InterviewScript("id", "Name", "Role", 0.3f);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void interviewScript_reliabilityAboveMaxThrows() {
+        new InterviewScript("id", "Name", "Role", 1.1f);
+    }
+
+    @Test
+    public void interviewScript_minReliabilityAllowed() {
+        InterviewScript script = new InterviewScript("id", "Name", "Role",
+                InterviewScript.MIN_RELIABILITY);
+        assertEquals(InterviewScript.MIN_RELIABILITY, script.getReliability(), 0.001f);
+        assertTrue(script.isUnreliable());
+    }
+
+    // -------------------------------------------------------------------------
+    // Witness reliability variance (via InterviewTemplateEngine)
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void witnessReliability_complexity1_alwaysReliable() {
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(new Random(42));
+        for (int i = 0; i < 20; i++) {
+            float rel = engine.computeWitnessReliability(1);
+            assertEquals("Complexity 1 should always yield 1.0 reliability",
+                    InterviewScript.DEFAULT_RELIABILITY, rel, 0.001f);
+        }
+    }
+
+    @Test
+    public void witnessReliability_complexity2_mixedReliability() {
+        // Run many trials to verify that we get both reliable and unreliable
+        Random rng = new Random(123);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+        int reliable = 0;
+        int unreliable = 0;
+        for (int i = 0; i < 100; i++) {
+            float rel = engine.computeWitnessReliability(2);
+            assertTrue("Reliability must be >= 0.5", rel >= 0.5f);
+            assertTrue("Reliability must be <= 1.0", rel <= 1.0f);
+            if (rel >= InterviewScript.DEFAULT_RELIABILITY) reliable++;
+            else unreliable++;
+        }
+        // With 60% reliable probability across 100 trials, we should see
+        // at least some of each
+        assertTrue("Should have some reliable witnesses at complexity 2", reliable > 0);
+        assertTrue("Should have some unreliable witnesses at complexity 2", unreliable > 0);
+    }
+
+    @Test
+    public void witnessReliability_complexity3_mixedReliability() {
+        Random rng = new Random(456);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+        int reliable = 0;
+        int unreliable = 0;
+        for (int i = 0; i < 100; i++) {
+            float rel = engine.computeWitnessReliability(3);
+            assertTrue("Reliability must be >= 0.5", rel >= 0.5f);
+            assertTrue("Reliability must be <= 1.0", rel <= 1.0f);
+            if (rel >= InterviewScript.DEFAULT_RELIABILITY) reliable++;
+            else unreliable++;
+        }
+        assertTrue("Should have some reliable witnesses at complexity 3", reliable > 0);
+        assertTrue("Should have some unreliable witnesses at complexity 3", unreliable > 0);
+    }
+
+    @Test
+    public void witnessReliability_unreliableWitnessHasSomeNonTruthfulResponses() {
+        // Build a witness script with low reliability and check that some
+        // responses are non-truthful
+        Random rng = new Random(789);
+        PersonNameGenerator nameGen = makeNameGen(rng);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+
+        // Force complexity 3 and generate until we get an unreliable witness
+        boolean foundUnreliable = false;
+        for (int attempt = 0; attempt < 50; attempt++) {
+            List<InterviewScript> scripts = engine.buildAll(
+                    CaseType.MURDER, "Client", "Subject", "Victim",
+                    "M", "M", nameGen, 3);
+
+            InterviewScript witnessScript = null;
+            for (InterviewScript s : scripts) {
+                if ("Key Witness".equals(s.getNpcRole())) {
+                    witnessScript = s;
+                    break;
+                }
+            }
+            assertNotNull("Should have a Key Witness script", witnessScript);
+
+            if (witnessScript.isUnreliable()) {
+                foundUnreliable = true;
+                // With reliability < 1.0, across multiple responses there
+                // should be at least one non-truthful response
+                int nonTruthful = 0;
+                for (InterviewResponse r : witnessScript.getResponses()) {
+                    if (!r.isTruthful()) nonTruthful++;
+                }
+                // Not guaranteed every time, but very likely with many responses
+                // and low reliability
+                if (witnessScript.getReliability() <= 0.6f) {
+                    assertTrue("Low-reliability witness should have some non-truthful responses",
+                            nonTruthful > 0);
+                }
+                break;
+            }
+        }
+        assertTrue("Should find at least one unreliable witness in 50 trials",
+                foundUnreliable);
+    }
+
+    // -------------------------------------------------------------------------
+    // Contradictory witness (complexity 3)
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void contradictoryWitness_generatedAtComplexity3() {
+        Random rng = new Random(11);
+        PersonNameGenerator nameGen = makeNameGen(rng);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+
+        List<InterviewScript> scripts = engine.buildAll(
+                CaseType.MURDER, "Client", "Subject", "Victim",
+                "M", "M", nameGen, 3);
+
+        InterviewScript contraScript = null;
+        for (InterviewScript s : scripts) {
+            if ("Contradictory Witness".equals(s.getNpcRole())) {
+                contraScript = s;
+                break;
+            }
+        }
+        assertNotNull("Complexity 3 should produce a Contradictory Witness", contraScript);
+        assertTrue("Contradictory witness should be unreliable", contraScript.isUnreliable());
+        assertTrue("Contradictory witness should have responses",
+                contraScript.size() > 0);
+    }
+
+    @Test
+    public void contradictoryWitness_notGeneratedAtComplexity1() {
+        Random rng = new Random(22);
+        PersonNameGenerator nameGen = makeNameGen(rng);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+
+        List<InterviewScript> scripts = engine.buildAll(
+                CaseType.THEFT, "Client", "Subject", "",
+                "M", "M", nameGen, 1);
+
+        for (InterviewScript s : scripts) {
+            assertNotEquals("Complexity 1 should not have a Contradictory Witness",
+                    "Contradictory Witness", s.getNpcRole());
+        }
+    }
+
+    @Test
+    public void contradictoryWitness_notGeneratedAtComplexity2() {
+        Random rng = new Random(33);
+        PersonNameGenerator nameGen = makeNameGen(rng);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+
+        List<InterviewScript> scripts = engine.buildAll(
+                CaseType.FRAUD, "Client", "Subject", "",
+                "F", "M", nameGen, 2);
+
+        for (InterviewScript s : scripts) {
+            assertNotEquals("Complexity 2 should not have a Contradictory Witness",
+                    "Contradictory Witness", s.getNpcRole());
+        }
+    }
+
+    @Test
+    public void contradictoryWitness_hasConflictingTopics() {
+        Random rng = new Random(44);
+        PersonNameGenerator nameGen = makeNameGen(rng);
+        InterviewTemplateEngine engine = new InterviewTemplateEngine(rng);
+
+        List<InterviewScript> scripts = engine.buildAll(
+                CaseType.MURDER, "Client", "Subject", "Victim",
+                "M", "F", nameGen, 3);
+
+        InterviewScript primaryWitness = null;
+        InterviewScript contraWitness = null;
+        for (InterviewScript s : scripts) {
+            if ("Key Witness".equals(s.getNpcRole())) primaryWitness = s;
+            if ("Contradictory Witness".equals(s.getNpcRole())) contraWitness = s;
+        }
+        assertNotNull(primaryWitness);
+        assertNotNull(contraWitness);
+
+        // Contradictory witness should have responses on the conflicting topics
+        assertFalse("Should have WHEREABOUTS response",
+                contraWitness.getResponsesByTopic(InterviewTopic.WHEREABOUTS).isEmpty());
+        assertFalse("Should have LAST_CONTACT response",
+                contraWitness.getResponsesByTopic(InterviewTopic.LAST_CONTACT).isEmpty());
+        assertFalse("Should have OBSERVATION response",
+                contraWitness.getResponsesByTopic(InterviewTopic.OBSERVATION).isEmpty());
+
+        // All contradictory witness responses should be non-truthful
+        for (InterviewResponse r : contraWitness.getResponses()) {
+            assertFalse("Contradictory witness responses should be non-truthful: "
+                    + r.getTopic(), r.isTruthful());
+        }
+    }
+
+    /** Builds a PersonNameGenerator for tests. */
+    private static PersonNameGenerator makeNameGen(Random rng) {
+        List<PersonNameGenerator.NameEntry> firstNames = Arrays.asList(
+                new PersonNameGenerator.NameEntry("Alice", "F"),
+                new PersonNameGenerator.NameEntry("Bob",   "M"),
+                new PersonNameGenerator.NameEntry("Carol", "F"),
+                new PersonNameGenerator.NameEntry("Dave",  "M"),
+                new PersonNameGenerator.NameEntry("Eve",   "F"),
+                new PersonNameGenerator.NameEntry("Frank", "M"),
+                new PersonNameGenerator.NameEntry("Grace", "F"),
+                new PersonNameGenerator.NameEntry("Hank",  "M")
+        );
+        List<String> surnames = Arrays.asList(
+                "Smith", "Jones", "Williams", "Taylor", "Brown"
+        );
+        return new PersonNameGenerator(firstNames, surnames, rng);
+    }
 }

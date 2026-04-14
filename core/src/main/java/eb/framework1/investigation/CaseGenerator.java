@@ -274,6 +274,10 @@ public class CaseGenerator {
         }
         for (CaseLead lead : leads) {
             cf.addLead(lead);
+            // Forensic-method leads produce POLICE-sourced known facts
+            if (lead.getDiscoveryMethod() == DiscoveryMethod.FORENSICS) {
+                cf.addKnownFact(lead.getDescription(), FactSource.POLICE);
+            }
         }
 
         // Side case: at complexity 3, add an optional investigation branch
@@ -283,7 +287,7 @@ public class CaseGenerator {
 
         cf.setInterviewScripts(
                 buildInterviewScripts(type, clientName, subjectName, victimName,
-                        clientGender, subjectGender));
+                        clientGender, subjectGender, cf.getComplexity()));
 
         return cf;
     }
@@ -1193,6 +1197,22 @@ public class CaseGenerator {
                                                 String subjectGender) {
         return interviewEngine.buildAll(type, client, subject, victim,
                 clientGender, subjectGender, nameGen);
+    }
+
+    /**
+     * Builds pre-generated interview scripts with complexity-driven witness
+     * reliability variance.  Delegates to
+     * {@link InterviewTemplateEngine#buildAll(CaseType, String, String,
+     * String, String, String, PersonNameGenerator, int)}.
+     */
+    List<InterviewScript> buildInterviewScripts(CaseType type,
+                                                String client, String subject,
+                                                String victim,
+                                                String clientGender,
+                                                String subjectGender,
+                                                int complexity) {
+        return interviewEngine.buildAll(type, client, subject, victim,
+                clientGender, subjectGender, nameGen, complexity);
     }
 
     // =========================================================================

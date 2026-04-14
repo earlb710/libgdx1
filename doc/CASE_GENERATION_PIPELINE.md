@@ -817,15 +817,55 @@ across cases.
   is forced to differ via `random.nextInt(5)`
 - Debug/export output includes alibi data for each NPC
 
-### 3. Witness Reliability Variance
+### 3. Witness Reliability Variance ✅ (Implemented)
 
-**Current:** All witnesses are 100 % truthful.
+**Previous status:** All witnesses were 100 % truthful.
 
-**Improvement:**
-- Introduce a **witness reliability score** (0.5–1.0) affecting truthfulness
-- At higher complexity, some witnesses could be unreliable or bribed
-- Add CONTRADICTORY witnesses whose accounts conflict, requiring the player
-  to determine which is accurate
+**What was implemented:**
+- **Witness reliability score** (0.5–1.0) added to `InterviewScript` via
+  `getReliability()` / `isUnreliable()` accessors and a new four-arg
+  constructor `InterviewScript(id, name, role, reliability)`
+- **Complexity-driven reliability:** at complexity 1 all witnesses are fully
+  reliable; at complexity 2 there is a 40 % chance the key witness has
+  reduced reliability (0.7–0.9); at complexity 3 there is a 60 % chance of
+  lower reliability (0.5–0.8)
+- Each witness response's truthfulness is determined by a per-response dice
+  roll against the reliability score (`reliableTruth(reliability)`) — lower
+  reliability means more non-truthful responses, creating subtle misinformation
+- **Contradictory witness** added at complexity ≥ 3: a fifth interview script
+  with role "Contradictory Witness" is generated with low reliability
+  (0.5–0.7).  This witness deliberately contradicts the primary witness on
+  three key topics: WHEREABOUTS, LAST_CONTACT, and OBSERVATION.  All of the
+  contradictory witness's responses are flagged as non-truthful, requiring
+  the player to cross-reference testimony and determine which account is
+  accurate
+- `InterviewTemplateEngine.buildAll()` now accepts an optional `complexity`
+  parameter; the existing single-arg overload defaults to complexity 1 for
+  backward compatibility
+- `CaseGenerator.generate()` passes case complexity through to the interview
+  engine automatically
+
+#### Witness reliability by complexity
+
+| Complexity | Key Witness Reliability | Contradictory Witness | Total Witness NPCs |
+|------------|------------------------|-----------------------|-------------------|
+| 1          | 1.0 (always)           | —                     | 1                 |
+| 2          | 1.0 (60 %) or 0.7–0.9  | —                     | 1                 |
+| 3          | 1.0 (40 %) or 0.5–0.8  | 0.5–0.7               | 2                 |
+
+### 3b. Forensic Results → POLICE Known Facts ✅ (Implemented)
+
+**Previous status:** Forensic-method leads were generated but not reflected
+in the `KnownFact` system.
+
+**What was implemented:**
+- When leads are added to a `CaseFile` during generation, any lead whose
+  `DiscoveryMethod` is `FORENSICS` also creates a `KnownFact` with
+  `FactSource.POLICE` containing the lead's full description text
+- This means forensic evidence (fingerprints, DNA analysis, toxicology
+  reports, etc.) automatically appears under the player's POLICE known-facts
+  category, consistent with the `FactSource.POLICE` documentation
+- Applies to all case types with forensic leads (currently Theft and Murder)
 
 ### 4. Evidence Chain System ✅ (Implemented)
 
