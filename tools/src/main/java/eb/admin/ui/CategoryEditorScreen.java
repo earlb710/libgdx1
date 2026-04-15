@@ -107,6 +107,7 @@ public class CategoryEditorScreen extends JFrame {
     private final SvgEditorPanel            svgPanel           = new SvgEditorPanel(statusLabel);
     private final CaseEditorPanel               casePanel              = new CaseEditorPanel(statusLabel);
     private final InterviewTemplateEditorPanel  interviewTemplatePanel = new InterviewTemplateEditorPanel(statusLabel);
+    private final CaseDescriptionTemplatePanel  caseDescTemplatePanel  = new CaseDescriptionTemplatePanel(statusLabel);
 
     private File currentFile;
 
@@ -171,6 +172,7 @@ public class CategoryEditorScreen extends JFrame {
 
         JTabbedPane templatesTabs = new JTabbedPane();
         templatesTabs.addTab("Interview", interviewTemplatePanel);
+        templatesTabs.addTab("Case Description", caseDescTemplatePanel);
         tabbedPane.addTab("Templates",    templatesTabs);
 
         add(tabbedPane, BorderLayout.CENTER);

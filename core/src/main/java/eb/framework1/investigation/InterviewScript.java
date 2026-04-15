@@ -34,13 +34,33 @@ import java.util.stream.Collectors;
  */
 public final class InterviewScript {
 
+    /** Default reliability score — fully reliable. */
+    public static final float DEFAULT_RELIABILITY = 1.0f;
+
+    /** Minimum allowed reliability score. */
+    public static final float MIN_RELIABILITY = 0.5f;
+
     private final String npcId;
     private final String npcName;
     private final String npcRole;
     private final List<InterviewResponse> responses;
 
     /**
-     * Creates an empty interview script for the given NPC.
+     * How reliable this witness is, on a scale from {@value #MIN_RELIABILITY}
+     * (frequently inaccurate) to {@value #DEFAULT_RELIABILITY} (fully
+     * truthful).  The score influences how many of the NPC's responses are
+     * flagged as truthful at generation time.
+     *
+     * <p>A value of {@value #DEFAULT_RELIABILITY} means the witness is 100 %
+     * reliable (all responses truthful unless the topic inherently involves
+     * deception, e.g. a suspect's alibi).  Lower values mean some responses
+     * are randomly flipped to non-truthful during interview generation.
+     */
+    private float reliability;
+
+    /**
+     * Creates an empty interview script for the given NPC with default
+     * (full) reliability.
      *
      * @param npcId   unique identifier for this NPC within the case
      * @param npcName display name of the NPC being interviewed
@@ -50,13 +70,36 @@ public final class InterviewScript {
      *                                  blank
      */
     public InterviewScript(String npcId, String npcName, String npcRole) {
+        this(npcId, npcName, npcRole, DEFAULT_RELIABILITY);
+    }
+
+    /**
+     * Creates an empty interview script with the specified reliability score.
+     *
+     * @param npcId       unique identifier for this NPC within the case
+     * @param npcName     display name of the NPC being interviewed
+     * @param npcRole     the NPC's role in the case
+     * @param reliability witness reliability from {@value #MIN_RELIABILITY}
+     *                    to {@value #DEFAULT_RELIABILITY}
+     * @throws IllegalArgumentException if {@code npcName} is {@code null} or
+     *                                  blank, or if {@code reliability} is
+     *                                  outside the valid range
+     */
+    public InterviewScript(String npcId, String npcName, String npcRole,
+                           float reliability) {
         if (npcName == null || npcName.trim().isEmpty()) {
             throw new IllegalArgumentException("npcName must not be blank");
         }
-        this.npcId    = npcId   != null ? npcId.trim() : "";
-        this.npcName  = npcName.trim();
-        this.npcRole  = npcRole != null ? npcRole.trim() : "";
-        this.responses = new ArrayList<>();
+        if (reliability < MIN_RELIABILITY || reliability > DEFAULT_RELIABILITY) {
+            throw new IllegalArgumentException(
+                    "reliability must be between " + MIN_RELIABILITY + " and "
+                            + DEFAULT_RELIABILITY + ", got " + reliability);
+        }
+        this.npcId       = npcId   != null ? npcId.trim() : "";
+        this.npcName     = npcName.trim();
+        this.npcRole     = npcRole != null ? npcRole.trim() : "";
+        this.responses   = new ArrayList<>();
+        this.reliability = reliability;
     }
 
     // -------------------------------------------------------------------------
@@ -71,6 +114,22 @@ public final class InterviewScript {
 
     /** Returns the NPC's role label in the case (e.g. "Key Witness"). */
     public String getNpcRole() { return npcRole; }
+
+    /**
+     * Returns the witness reliability score.
+     *
+     * <p>A value of {@value #DEFAULT_RELIABILITY} means fully reliable; lower
+     * values (down to {@value #MIN_RELIABILITY}) indicate an unreliable or
+     * bribed witness whose testimony may be inaccurate.
+     */
+    public float getReliability() { return reliability; }
+
+    /**
+     * Returns {@code true} if this NPC has less than full reliability.
+     */
+    public boolean isUnreliable() {
+        return reliability < DEFAULT_RELIABILITY;
+    }
 
     /**
      * Returns an unmodifiable view of all responses in this script.
@@ -130,6 +189,7 @@ public final class InterviewScript {
     @Override
     public String toString() {
         return "InterviewScript{npc='" + npcName + "', role='" + npcRole
-                + "', responses=" + responses.size() + '}';
+                + "', reliability=" + reliability
+                + ", responses=" + responses.size() + '}';
     }
 }

@@ -1,6 +1,161 @@
 {
   "version": "1.0",
   "description": "Case description and objective template pools. Keyed by case_type.complexity where complexity is 1, 2, or 3. Placeholders: $client, $subject, $victim, $pronoun (he/she), $pronounCap (He/She), $pron (he/she lowercase).",
+  "caseDescriptions": {
+    "MISSING_PERSON": {
+      "roles": [
+        "Client",
+        "Subject (Missing)",
+        "Witness",
+        "Last-Known Contact",
+        "Neighbour"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A missing-person case requires a client who reports the disappearance, the missing subject, at least one witness, a last-known contact, and a neighbour. Higher complexity adds additional suspects."
+    },
+    "INFIDELITY": {
+      "roles": [
+        "Client",
+        "Subject (Partner)",
+        "Other Party",
+        "Mutual Friend",
+        "Witness"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "An infidelity case involves a client suspecting their partner, the subject, a third party, a mutual acquaintance, and a witness. Additional suspects appear at higher complexity."
+    },
+    "THEFT": {
+      "roles": [
+        "Client (Victim)",
+        "Subject (Suspect)",
+        "Witness",
+        "Insurance Adjuster",
+        "Fence/Dealer"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A theft case requires a victim client, a primary suspect, a witness, an insurance adjuster, and a fence or dealer. Additional suspects are introduced at higher complexity."
+    },
+    "FRAUD": {
+      "roles": [
+        "Client (Victim)",
+        "Subject (Perpetrator)",
+        "Accountant",
+        "Business Associate",
+        "Insider Witness"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A fraud case involves a victim client, a perpetrator, an accountant, a business associate, and an insider witness. Higher complexity adds more suspects to the mix."
+    },
+    "BLACKMAIL": {
+      "roles": [
+        "Client (Victim)",
+        "Subject (Blackmailer)",
+        "Witness",
+        "Intermediary",
+        "Confidant"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A blackmail case requires a victim client, the blackmailer, a witness, an intermediary, and a confidant. Additional suspects appear at higher complexity."
+    },
+    "MURDER": {
+      "roles": [
+        "Client",
+        "Subject (Suspect)",
+        "Victim",
+        "Key Witness",
+        "Victim's Associate",
+        "Police Contact"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A murder case is the most complex type, requiring a client, a primary suspect, the victim, a key witness, the victim's associate, and a police contact. This is the only case type with a dead NPC. Additional suspects appear at higher complexity."
+    },
+    "STALKING": {
+      "roles": [
+        "Client (Victim)",
+        "Subject (Stalker)",
+        "Neighbour Witness",
+        "Ex-Partner",
+        "Friend of Client"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A stalking case involves a victim client, the stalker, a neighbour witness, an ex-partner, and a friend of the client. Additional suspects appear at higher complexity."
+    },
+    "CORPORATE_ESPIONAGE": {
+      "roles": [
+        "Client (Employer)",
+        "Subject (Leak)",
+        "Rival Contact",
+        "Trusted Colleague",
+        "IT Specialist"
+      ],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": [
+        "Suspect — Neighbour",
+        "Suspect — Colleague",
+        "Suspect — Associate",
+        "Suspect — Ex-Partner",
+        "Suspect — Acquaintance"
+      ],
+      "summary": "A corporate espionage case requires an employer client, the suspected leak, a rival contact, a trusted colleague, and an IT specialist. Additional suspects appear at higher complexity."
+    }
+  },
   "descriptions": {
     "MISSING_PERSON.1": [
       "$client came in looking for answers. $subject vanished three days ago without a word. No note, no call, nothing. $pronounCap left behind a half-eaten meal and an unlocked door. The police say it's too early to file a report.",
@@ -695,6 +850,23 @@
             "description": "The scene at $subject's flat — an unlocked door, an uneaten meal — suggests $pron left in a hurry. A closer inspection reveals a torn envelope behind the sofa with a partial return address.",
             "method": "PHYSICAL_SEARCH"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -712,6 +884,23 @@
             "hint": "Neighbours may have overheard something relevant the night before $subject vanished.",
             "description": "The upstairs neighbour heard two voices arguing loudly around 10:30 p.m. One voice was $subject's; the other was unfamiliar. The argument ended with a door slamming.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       },
@@ -731,6 +920,23 @@
             "description": "The car sits undisturbed in the driveway with no sign of tampering. A taxi company operating in the area has records of a pickup from a nearby street at 11:15 p.m. on the night in question.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -748,6 +954,23 @@
             "hint": "$subject's phone records may reveal who $pron was communicating with before the message was sent.",
             "description": "Phone records show $subject exchanged six calls with an unregistered number in the two hours before sending the pin. The calls were brief — none longer than 40 seconds.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       },
@@ -767,6 +990,23 @@
             "description": "A co-worker in HR confirms $subject asked about emergency passport procedures, saying $pron had 'lost' the original. $subject seemed anxious and asked the colleague not to mention the enquiry.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -784,6 +1024,23 @@
             "hint": "The friend $subject confided in may know more than they initially let on.",
             "description": "$subject's friend recalls a conversation three days before the disappearance. $subject said someone was 'making threats' but wouldn't name them. The friend noticed $subject checking over $pron shoulder repeatedly.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       },
@@ -803,6 +1060,23 @@
             "description": "Ink oxidation analysis dates the note to approximately two weeks before the disappearance. This contradicts the claim it was left the day $subject vanished, suggesting it was prepared in advance — possibly under coercion.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -820,6 +1094,23 @@
             "hint": "Someone saw $subject leaving early that morning — they may recall useful details.",
             "description": "The regular delivery driver saw $subject step out of the front door at approximately 6:10 a.m. carrying a small sports bag. $subject looked around nervously before walking quickly toward the main road.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       },
@@ -839,6 +1130,23 @@
             "description": "The three sets of coordinates correspond to: a layby on the A34, a disused railway building, and a residential address in a neighbouring town. None are obviously connected to $subject's known routines.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -856,6 +1164,23 @@
             "hint": "The location of the incident is not somewhere $subject would normally be.",
             "description": "The junction is in a quiet residential area four miles from $subject's home and workplace. The only notable address nearby is a rented flat — the tenant moved in six weeks ago under a name that doesn't check out.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       },
@@ -875,6 +1200,23 @@
             "description": "The locksmith describes the payer as a man in his 40s, medium build, wearing a dark jacket. The description doesn't match anyone in $subject's known circle.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
+          }
         ]
       },
       {
@@ -892,6 +1234,23 @@
             "hint": "The gym has no record of $subject leaving — $pron may have exited through an alternative route.",
             "description": "The facility has a fire exit at the rear that opens onto a service road. The exit is not covered by cameras. A delivery driver who uses the same road each morning may have noticed something.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Reported the disappearance; knows $subject's habits and routines"
+          },
+          {
+            "name": "Last-known contact",
+            "role": "Last-Known Contact",
+            "reason": "Last person known to have seen $subject before the disappearance"
+          },
+          {
+            "name": "Neighbour",
+            "role": "Neighbour",
+            "reason": "Lives near $subject; may have noticed unusual activity"
           }
         ]
       }
@@ -913,6 +1272,23 @@
             "description": "Staff at the restaurant recognise $subject's photo. $subject has dined there several times, always with the same companion — described as someone of similar age, well-dressed, who arrives separately.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -930,6 +1306,23 @@
             "hint": "Hotel staff may be able to identify who $subject has been meeting.",
             "description": "Front-desk staff recall $subject checking in with the same guest each time. The guest always arrives by taxi. A partial surname was used on one booking.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       },
@@ -949,6 +1342,23 @@
             "description": "A tech-savvy friend of $client confirmed $subject's phone now uses app-level encryption on messaging. The browser history is cleared daily — an automated task was set up recently.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -966,6 +1376,23 @@
             "hint": "Property records may reveal whether $subject has rented a second address.",
             "description": "Council tax records show a flat in $subject's name registered three months ago. The flat is a one-bedroom property in a residential block — the sort of place someone might keep as a private retreat.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       },
@@ -985,6 +1412,23 @@
             "description": "The gym's access log shows no entry for $subject on any of the Thursday evenings in the past two months. $subject's membership card has not been used since the month before.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -1002,6 +1446,23 @@
             "hint": "The occupant of the address may be the person $subject has been visiting.",
             "description": "The flat is rented by a person who previously worked at $subject's company. They left 18 months ago. Social media shows they are single and share several interests with $subject.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       },
@@ -1021,6 +1482,23 @@
             "description": "A gym staff member recalls $subject often arriving with the same person. They train together and leave at the same time. The companion is a regular member whose name is on file.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -1038,6 +1516,23 @@
             "hint": "The visitor's vehicle registration could identify them.",
             "description": "A partial plate check narrows the vehicle to three registered owners in the area. Cross-referencing with $subject's known contacts may identify the visitor.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       },
@@ -1057,6 +1552,23 @@
             "description": "Location-tagged posts from a coastal hotel show $subject in the background of another guest's photo. A second person, partially cropped out, appears to be standing with $subject.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -1074,6 +1586,23 @@
             "hint": "The card may carry fingerprints or other identifying marks.",
             "description": "The card is a commercially available design. It carries a faint perfume and a fingerprint on the inside cover that does not match $subject or $client. The handwriting is neat and deliberate.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       },
@@ -1093,6 +1622,23 @@
             "description": "The odometer readings and fuel purchases indicate $subject is driving approximately 60 miles round trip — consistent with a destination outside the city, not the friend's address 10 minutes away.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
+          }
         ]
       },
       {
@@ -1110,6 +1656,23 @@
             "hint": "The person in the photo with $subject may be identifiable through the event's records.",
             "description": "The photo was posted by an acquaintance. In the original unedited version, the companion's face is partially visible. Reverse image searching and cross-referencing with $subject's contacts may identify them.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Suspects $subject of infidelity; can describe $subject's recent behaviour changes"
+          },
+          {
+            "name": "Mutual friend",
+            "role": "Mutual Friend",
+            "reason": "Close to both $client and $subject; may have overheard or noticed something"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Has seen $subject in suspicious circumstances"
           }
         ]
       }
@@ -1131,6 +1694,23 @@
             "description": "A pry bar found in $subject's garden shed matches the dimensions of the forced-entry marks. Tool-mark analysis could provide a definitive link.",
             "method": "PHYSICAL_SEARCH"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1148,6 +1728,23 @@
             "hint": "The dealer's security footage may show $subject handling the stolen items.",
             "description": "The dealer's CCTV captured the full transaction, including $subject placing the items on the counter. Stills from the footage clearly show $subject's face and the items in question.",
             "method": "SURVEILLANCE"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       },
@@ -1167,6 +1764,23 @@
             "description": "The bag is a distinctive make — a grey canvas sports bag with a diagonal stripe. A neighbour of $subject recalls seeing a similar bag in $subject's hallway during a recent visit.",
             "method": "PHYSICAL_SEARCH"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1184,6 +1798,23 @@
             "hint": "The landlord or letting agent can confirm whether the locks were changed.",
             "description": "The landlord confirms the locks were not replaced between tenancies. The missing key set would give full access to the property without any sign of forced entry.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       },
@@ -1203,6 +1834,23 @@
             "description": "$subject claims to have been watching television at home. No one else was present. Checking whether any online activity, smart-meter data, or CCTV from $subject's building corroborates this claim would be worthwhile.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1220,6 +1868,23 @@
             "hint": "$subject may have purchased the gloves recently — receipts or purchase history could confirm this.",
             "description": "A box of identical gloves was purchased at a hardware store 0.5 miles from $subject's home. The store's loyalty-card system may show whether $subject's card was used.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       },
@@ -1239,6 +1904,23 @@
             "description": "The anonymous listing uses a newly created account and a burner email address. However, the payment method linked to the account shares digits with a card registered to $subject.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1256,6 +1938,23 @@
             "hint": "$subject's employment history may include work on the property's security system.",
             "description": "$subject was employed by SecureHome Ltd for 18 months and was assigned to the installation team that fitted the property's alarm. $subject would have had access to the maintenance codes.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       },
@@ -1275,6 +1974,23 @@
             "description": "ANPR data from the main road 200 metres from the property may have captured the van's plate. The data is retained for 30 days.",
             "method": "SURVEILLANCE"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1292,6 +2008,23 @@
             "hint": "A colleague lent $subject tools shortly before the theft — they may be able to confirm what was borrowed.",
             "description": "The colleague confirms lending $subject a concrete cutting saw 'for a home renovation project'. The saw was returned two days after the theft with the blade heavily worn.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       },
@@ -1311,6 +2044,23 @@
             "description": "Recent photos of $subject at a building site show $pron wearing boots with an identical tread pattern. If $subject still has the boots, a direct comparison would be conclusive.",
             "method": "PHYSICAL_SEARCH"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
+          }
         ]
       },
       {
@@ -1328,6 +2078,23 @@
             "hint": "Checking whether the hidden key is still in place — or has been copied — may be revealing.",
             "description": "The key has been returned to its hiding place, but it shows fresh scratches consistent with key duplication. A local key-cutting shop may have records or CCTV.",
             "method": "PHYSICAL_SEARCH"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Owner of the stolen property; can describe the items and circumstances"
+          },
+          {
+            "name": "Witness",
+            "role": "Witness",
+            "reason": "Was present near the scene around the time of the theft"
+          },
+          {
+            "name": "Insurance adjuster",
+            "role": "Insurance Adjuster",
+            "reason": "Handling the claim; may have relevant documentation"
           }
         ]
       }
@@ -1349,6 +2116,23 @@
             "description": "Two accounts at different banks act as pass-throughs. Money enters from the victim's business account, sits for 48 hours, then moves to Greystone. Both intermediary accounts use variations of $subject's mother's maiden name.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1366,6 +2150,23 @@
             "hint": "Quarterly financial reports may contain irregularities that point to systematic fraud.",
             "description": "Comparing the filed quarterly reports with the raw accounting data reveals consistent overstatements in travel and consulting expenses. The differences amount to approximately £45,000 over nine months.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       },
@@ -1385,6 +2186,23 @@
             "description": "$subject recently purchased a property and a high-end vehicle. Neither purchase is explained by $subject's declared salary. A forensic accountant could quantify the discrepancy.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1402,6 +2220,23 @@
             "hint": "The bank account receiving payments for the fictitious supplier may be traceable to $subject.",
             "description": "Payments to Apex Logistics are directed to a business account opened six months ago. The account holder's phone number is a prepaid SIM, but the postal address used during registration is one street away from $subject's home.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       },
@@ -1421,6 +2256,23 @@
             "description": "The company's refund policy requires dual authorisation for amounts over £500. By keeping individual refunds below this threshold, $subject has avoided triggering the second-signature requirement.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1438,6 +2290,23 @@
             "hint": "The terms of the settlement may indicate how much was actually misappropriated.",
             "description": "Although the settlement is sealed, the former partner's solicitor may confirm whether it included an admission of liability. Public registry filings show the partnership was dissolved immediately after.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       },
@@ -1457,6 +2326,23 @@
             "description": "All deposits were made at the same branch, always at the counter rather than an ATM. A teller may recall $subject or be able to retrieve security footage from the relevant dates.",
             "method": "SURVEILLANCE"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1474,6 +2360,23 @@
             "hint": "The bank account receiving the ghost employee's salary may be linked to $subject.",
             "description": "The receiving account was opened with identification documents in the former employee's name. However, the account's contact address is a PO box — one that $subject rents under a different name.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       },
@@ -1493,6 +2396,23 @@
             "description": "The contractor — trading as 'Castle Repairs' — has received all three repair contracts. Their invoices include line items for materials that weren't delivered and labour hours that exceed the scope of work.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1510,6 +2430,23 @@
             "hint": "Clients may have noticed small unexplained deductions from their deposits.",
             "description": "Two clients have independently queried minor discrepancies in their returned deposits. Both were told it was a bank charge. Neither was shown documentation. Their statements could corroborate the pattern.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       },
@@ -1529,6 +2466,23 @@
             "description": "The company has no website, no employees other than $subject's spouse, and was incorporated just two months before the contract was signed. Its only revenue comes from this single contract.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
+          }
         ]
       },
       {
@@ -1546,6 +2500,23 @@
             "hint": "Colleagues who were supposedly on the same trips may confirm whether they took place.",
             "description": "The claims reference meetings with named colleagues. Two of the three named individuals confirm they were not on any trip with $subject on those dates. The third does not recall the meeting.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Discovered the fraud; can explain the financial discrepancies"
+          },
+          {
+            "name": "Accountant",
+            "role": "Accountant",
+            "reason": "Has access to the financial records and noticed irregularities"
+          },
+          {
+            "name": "Business associate",
+            "role": "Business Associate",
+            "reason": "Works with $subject; may know about $subject's recent activities"
           }
         ]
       }
@@ -1567,6 +2538,23 @@
             "description": "The blackmail messages contain unusual phrasing and spelling patterns that closely match $subject's professional emails. A forensic linguist could provide a formal comparison.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1584,6 +2572,23 @@
             "hint": "$subject's phone or cloud storage may contain the compromising material.",
             "description": "If $subject backed up photos to a cloud service, a court order could compel disclosure. Alternatively, metadata on the blackmail images may match $subject's device model and location data.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       },
@@ -1603,6 +2608,23 @@
             "description": "$subject made several luxury purchases — including a new laptop and a weekend trip — shortly after the second and third payments. The timing is consistent with receiving the blackmail proceeds.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1620,6 +2642,23 @@
             "hint": "The USB drive's file metadata may reveal when and where the material was created.",
             "description": "File creation timestamps show the images were transferred to the drive three weeks before the first blackmail message was sent. The files were copied from a device registered to $subject.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       },
@@ -1639,6 +2678,23 @@
             "description": "$subject attended the same social events as $client and was known to ask probing personal questions. A mutual acquaintance recalls $subject asking specifically about the incident referenced in the blackmail.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1656,6 +2712,23 @@
             "hint": "Locker rental records may identify who booked the drop-off point.",
             "description": "The locker was rented using a prepaid card and a false name. However, the rental terminal logs the device's Bluetooth identifiers — one of which matches a fitness tracker model $subject is known to wear.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       },
@@ -1675,6 +2748,23 @@
             "description": "A timeline analysis shows that on four occasions, private information shared with $subject appeared in blackmail messages within 24–48 hours. The pattern is too consistent to be coincidental.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1692,6 +2782,23 @@
             "hint": "Building access logs may confirm whether $subject was in the building when the photos were taken.",
             "description": "Key-card logs for the Meridian Building record entry and exit times. On the date the photos' metadata suggests they were taken, $subject's card was used to enter the building at 7:45 p.m. — outside normal working hours.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       },
@@ -1711,6 +2818,23 @@
             "description": "The coffee shop offers free Wi-Fi but logs device MAC addresses. Cross-referencing the MAC addresses with $subject's known devices — laptop or phone — could provide a definitive link.",
             "method": "SURVEILLANCE"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1728,6 +2852,23 @@
             "hint": "Text messages or emails from the time of the disagreement may contain incriminating language.",
             "description": "$client still has text messages from $subject sent during the dispute. One reads: 'I know things about you that would change everything. Don't think I won't use them.' The message predates the first blackmail demand by four months.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       },
@@ -1747,6 +2888,23 @@
             "description": "The exchange account shows regular sell orders converting received crypto to GBP, with bank transfers going to an account in $subject's name. The total matches the blackmail payments received.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
+          }
         ]
       },
       {
@@ -1764,6 +2922,23 @@
             "hint": "The voice distortion app used may be traceable through $subject's device.",
             "description": "The distortion effect matches a specific app available on both iOS and Android. If $subject's phone or purchase history shows the app was downloaded, it would be strong circumstantial evidence.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Receiving the threats; can share the demands and any communications"
+          },
+          {
+            "name": "Confidant",
+            "role": "Confidant",
+            "reason": "Trusted by $client; may know what secret is being leveraged"
+          },
+          {
+            "name": "Intermediary",
+            "role": "Intermediary",
+            "reason": "May have been used to deliver demands or payments"
           }
         ]
       }
@@ -1785,6 +2960,23 @@
             "description": "A search of pharmacy records shows a prescription for the same benzodiazepine was filled at a chemist near $subject's home two weeks before $victim's death. The prescription was issued under a name that doesn't check out.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1802,6 +2994,23 @@
             "hint": "Re-examining police interview transcripts may reveal the alibi change.",
             "description": "The original police transcripts are available through a freedom-of-information request. Comparing the two statements side by side makes the discrepancy unmistakable and raises questions about what $subject was doing between 9:22 and 10 p.m.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       },
@@ -1821,6 +3030,23 @@
             "description": "The neighbour is willing to provide a statement and can describe the vehicle and its occupant. They also recall the car leaving abruptly when $victim closed the curtains.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1838,6 +3064,23 @@
             "hint": "The friend who received $victim's message may still have it.",
             "description": "The friend's phone still contains the received message. They didn't understand it at the time but now recognise its significance. They are willing to share the message and provide a statement.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       },
@@ -1857,6 +3100,23 @@
             "description": "The original coroner's report was completed in unusual haste. A colleague of the coroner has expressed concerns privately about the methodology used and may be willing to discuss them.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1874,6 +3134,23 @@
             "hint": "The insurance broker who processed the policy may recall the circumstances of the application.",
             "description": "The broker recalls the application was submitted online with minimal verification. The medical section was completed without a doctor's examination, which the broker now admits should have raised a flag.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       },
@@ -1893,6 +3170,23 @@
             "description": "Although $subject's phone was switched off during the critical hours, a brief reconnection at 2:17 a.m. pinged a cell tower serving the area where $victim was found.",
             "method": "DOCUMENTS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1910,6 +3204,23 @@
             "hint": "The pub's CCTV may have captured the confrontation.",
             "description": "The pub's exterior camera covers part of the car park. Footage from the evening in question shows two figures in a heated exchange at approximately 8:45 p.m. The angle may be sufficient to confirm identities.",
             "method": "SURVEILLANCE"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       },
@@ -1929,6 +3240,23 @@
             "description": "A friend of $subject recalls $pron being furious after receiving a letter from a solicitor. $subject said $victim had 'made a huge mistake' and that $pron 'wasn't going to let it stand'.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1946,6 +3274,23 @@
             "hint": "DNA or blood traces on the weapon may connect it to $victim.",
             "description": "Preliminary blood analysis from the knife handle returned a partial match to $victim's blood type. Full DNA profiling is pending but expected to confirm the match.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       },
@@ -1965,6 +3310,23 @@
             "description": "The phone went inactive after the final call. Cell tower data from its last transmission places it near a waste bin behind a service station on the A12 — a route consistent with $subject's drive home.",
             "method": "PHYSICAL_SEARCH"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
+          }
         ]
       },
       {
@@ -1982,6 +3344,23 @@
             "hint": "The device used for the searches may contain additional evidence.",
             "description": "$subject's personal laptop contains a cleared browser history, but forensic data recovery has retrieved cached pages, bookmarks, and a downloaded PDF titled 'Forensic Countermeasures'. The laptop's MAC address matches the device used for the searches.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client",
+            "reason": "Hired you to investigate; provide case background"
+          },
+          {
+            "name": "Police liaison",
+            "role": "Police Contact",
+            "reason": "Can share initial police findings and scene report"
+          },
+          {
+            "name": "$victim's associate",
+            "role": "Victim's Associate",
+            "reason": "Knew $victim personally; may have information about recent events"
           }
         ]
       }
@@ -2003,6 +3382,23 @@
             "description": "A resident on $client's street recalls seeing someone parked in a silver car on multiple occasions, always facing $client's house. The description of the driver matches $subject.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2020,6 +3416,23 @@
             "hint": "The pattern of online activity may reveal $subject's monitoring habits.",
             "description": "The accounts engage with $client's posts within minutes of publication, suggesting real-time monitoring. Activity timestamps cluster around $subject's known work breaks and evening hours.",
             "method": "SURVEILLANCE"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       },
@@ -2039,6 +3452,23 @@
             "description": "The former partner has been contacted through their solicitor and is willing to provide a statement. They describe an escalating pattern that began with online monitoring and progressed to in-person following.",
             "method": "INTERVIEW"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2056,6 +3486,23 @@
             "hint": "The content of the gifts suggests $client's private conversations are being overheard.",
             "description": "One gift included a book that $client mentioned wanting during a phone call made from home. If the home is not bugged, $subject may be using a directional microphone or has access to $client's phone.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       },
@@ -2075,6 +3522,23 @@
             "description": "A neighbour with a front-facing dashcam has offered to check their recordings. Preliminary review of two dates shows a vehicle matching $subject's parked 50 metres from $client's front door.",
             "method": "SURVEILLANCE"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2092,6 +3556,23 @@
             "hint": "Co-workers who received or handled the letters may recall delivery details.",
             "description": "The receptionist at $client's office confirms the letters arrive by Royal Mail, always on a Monday morning. One letter was hand-delivered — the receptionist may have seen the person who dropped it off.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       },
@@ -2111,6 +3592,23 @@
             "description": "The tracker uploads location data to a cloud account. Gaining access to the account (with appropriate legal authority) would reveal when the device was placed and how the data has been used.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2128,6 +3626,23 @@
             "hint": "The pattern of $subject's approaches may establish a deliberate information-gathering campaign.",
             "description": "Mapping the contacts $subject has approached, the questions asked, and the dates of each encounter reveals a systematic effort to build a detailed profile of $client's daily life.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       },
@@ -2147,6 +3662,23 @@
             "description": "Two of the three IP addresses resolve to a residential broadband connection in $subject's postcode area. The third is a public Wi-Fi network at a café 200 metres from $subject's workplace.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2164,6 +3696,23 @@
             "hint": "Phone records may show a pattern of unwanted contact attempts.",
             "description": "Call logs show $subject attempted to call $client 23 times in the past week, predominantly between midnight and 4 a.m. Text messages sent from the same number include demands to meet.",
             "method": "DOCUMENTS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       },
@@ -2183,6 +3732,23 @@
             "description": "The school's external cameras cover the main gate and car park. Footage from the dates in question may show $subject's presence and vehicle, establishing a pattern of attending the school.",
             "method": "SURVEILLANCE"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
+          }
         ]
       },
       {
@@ -2200,6 +3766,23 @@
             "hint": "Platform abuse reports may trigger account disclosure that identifies $subject.",
             "description": "Formal reports to the social media platform may compel disclosure of the accounts' registration data. If the email addresses or phone numbers used match $subject's known contact details, the link is established.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Victim)",
+            "reason": "Being stalked; can describe the incidents and timeline"
+          },
+          {
+            "name": "Neighbour witness",
+            "role": "Neighbour Witness",
+            "reason": "Lives nearby; may have seen suspicious individuals or vehicles"
+          },
+          {
+            "name": "Friend of $client",
+            "role": "Friend of Client",
+            "reason": "Aware of $client's situation; may have witnessed an incident"
           }
         ]
       }
@@ -2221,6 +3804,23 @@
             "description": "USB audit logs show a removable storage device was connected to $subject's workstation during several of the late-night sessions. The device ID does not match any company-issued equipment.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2238,6 +3838,23 @@
             "hint": "$subject's phone gallery may contain images of confidential material.",
             "description": "If the phone can be examined, the gallery and recently deleted folder may contain photographs of the whiteboard content, meeting slides, or other restricted material.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       },
@@ -2257,6 +3874,23 @@
             "description": "The contact's vehicle registration was noted during surveillance. It is registered to an employee of the rival firm who works in their business development division.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2274,6 +3908,23 @@
             "hint": "The external email account may be traceable to $subject through associated recovery details.",
             "description": "The Gmail account's recovery phone number matches $subject's personal mobile. The account name — 'greyconsulting' — does not correspond to any registered business.",
             "method": "BACKGROUND_CHECK"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       },
@@ -2293,6 +3944,23 @@
             "description": "Metadata timestamps show the files were copied during $subject's logged working hours. The drive's serial number may link it to a purchase made by $subject.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2310,6 +3978,23 @@
             "hint": "Former employees of the rival firm may confirm that the leaked material was used.",
             "description": "A recently departed employee of the rival firm has indicated willingness to discuss how the competing product was developed. They claim the project team received a 'briefing document' that appeared to originate from an external source.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       },
@@ -2329,6 +4014,23 @@
             "description": "The consultancy — 'Apex Advisory' — has no public profile, one director (based overseas), and a virtual office address. Its bank account receives regular funding from the rival company and pays out exclusively to $subject.",
             "method": "BACKGROUND_CHECK"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2346,6 +4048,23 @@
             "hint": "The competitor's reception or security staff may recall $subject's visit.",
             "description": "A security guard at the building recalls someone matching $subject's description being met at the side entrance by a member of staff. The guard did not log the visit because the staff member vouched for the visitor.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       },
@@ -2365,6 +4084,23 @@
             "description": "If the files can be examined, their metadata and version numbers can be matched to specific revisions in the company's document management system, pinpointing when they were copied.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2382,6 +4118,23 @@
             "hint": "IT may be able to recover recordings or transcripts of the calls.",
             "description": "The company's phone system records outbound calls for quality and compliance purposes. If recordings exist for the calls made from the meeting room, they may contain direct evidence of information sharing.",
             "method": "FORENSICS"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       },
@@ -2401,6 +4154,23 @@
             "description": "If the Dropbox account can be accessed, its sharing history will show whether files were distributed to other accounts. Shared-link logs may reveal the email addresses of recipients.",
             "method": "FORENSICS"
           }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
+          }
         ]
       },
       {
@@ -2418,6 +4188,23 @@
             "hint": "The intended recipient at the rival firm may confirm whether they received the data.",
             "description": "The recipient's LinkedIn profile identifies them as head of new-business at the competitor. If approached as part of a formal investigation, they may be compelled to disclose what they received.",
             "method": "INTERVIEW"
+          }
+        ],
+        "contacts": [
+          {
+            "name": "$client",
+            "role": "Client (Employer)",
+            "reason": "Suspects a data leak; can explain what information was compromised"
+          },
+          {
+            "name": "IT specialist",
+            "role": "IT Specialist",
+            "reason": "Can provide system access logs and identify unusual data transfers"
+          },
+          {
+            "name": "Trusted colleague",
+            "role": "Trusted Colleague",
+            "reason": "Works closely with $subject; may have noticed unusual behaviour"
           }
         ]
       }

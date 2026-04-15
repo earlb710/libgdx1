@@ -67,6 +67,10 @@ public class InterviewTemplateEngine {
     /**
      * Builds interview scripts for all four key NPCs.
      *
+     * <p>Equivalent to {@link #buildAll(CaseType, String, String, String,
+     * String, String, PersonNameGenerator, int)} with {@code complexity = 1}
+     * (no reliability variance).
+     *
      * @param type          case category
      * @param client        client name
      * @param subject       subject/suspect name
@@ -82,27 +86,64 @@ public class InterviewTemplateEngine {
                                           String clientGender,
                                           String subjectGender,
                                           PersonNameGenerator nameGen) {
+        return buildAll(type, client, subject, victim,
+                clientGender, subjectGender, nameGen, 1);
+    }
+
+    /**
+     * Builds interview scripts for all key NPCs, with complexity-driven
+     * <strong>witness reliability variance</strong>.
+     *
+     * <p>At <b>complexity 1</b> all witnesses are fully reliable (reliability
+     * = 1.0).  At <b>complexity ≥ 2</b> some witness scripts may be generated
+     * with a lower reliability score (0.5–0.9), causing a subset of their
+     * responses to be randomly flagged as non-truthful.  At
+     * <b>complexity 3</b> an additional <em>contradictory witness</em> is
+     * appended whose accounts on key topics (whereabouts, last contact,
+     * observation) conflict with the primary witness — the player must
+     * determine which account is accurate.
+     *
+     * @param type          case category
+     * @param client        client name
+     * @param subject       subject/suspect name
+     * @param victim        victim name (may be empty for non-Murder cases)
+     * @param clientGender  {@code "M"} or {@code "F"}
+     * @param subjectGender {@code "M"} or {@code "F"}
+     * @param nameGen       name generator for witness/associate names
+     * @param complexity    1, 2, or 3
+     * @return list of interview scripts, one per interviewable NPC
+     */
+    public List<InterviewScript> buildAll(CaseType type,
+                                          String client, String subject,
+                                          String victim,
+                                          String clientGender,
+                                          String subjectGender,
+                                          PersonNameGenerator nameGen,
+                                          int complexity) {
         List<InterviewScript> scripts = new ArrayList<>();
         boolean isMurder = type == CaseType.MURDER;
         String targetPerson = isMurder ? victim : subject;
 
-        // --- Client script ---
+        // --- Client script (always reliable) ---
         InterviewScript clientScript = new InterviewScript("npc-client", client, "Client");
         buildClientInterview(clientScript, type, client, subject, victim, clientGender);
         scripts.add(clientScript);
 
-        // --- Subject (suspect) script ---
+        // --- Subject (suspect) script (always uses its own deception logic) ---
         InterviewScript subjectScript = new InterviewScript("npc-subject", subject,
                 isMurder ? "Subject (Suspect)" : "Subject");
         buildSubjectInterview(subjectScript, type, client, subject, victim, subjectGender);
         scripts.add(subjectScript);
 
         // --- Key Witness script ---
+        // At complexity ≥ 2, there is a chance the witness is unreliable
+        float witnessReliability = computeWitnessReliability(complexity);
         String witnessGender = RandomUtils.randomGender(random);
         String witnessName = nameGen.generateFull(witnessGender);
         InterviewScript witnessScript = new InterviewScript("npc-witness", witnessName,
-                "Key Witness");
-        buildWitnessInterview(witnessScript, type, client, subject, victim, targetPerson);
+                "Key Witness", witnessReliability);
+        buildWitnessInterview(witnessScript, type, client, subject, victim,
+                targetPerson, witnessReliability);
         scripts.add(witnessScript);
 
         // --- Associate script (victim's or subject's associate) ---
@@ -114,6 +155,19 @@ public class InterviewTemplateEngine {
         buildAssociateInterview(associateScript, type, client, subject, victim,
                 targetPerson, associateName);
         scripts.add(associateScript);
+
+        // --- Contradictory witness (complexity 3 only) ---
+        if (complexity >= 3) {
+            String contraGender = RandomUtils.randomGender(random);
+            String contraName = nameGen.generateFull(contraGender);
+            // Contradictory witness has low reliability (0.5–0.7)
+            float contraReliability = 0.5f + random.nextFloat() * 0.2f;
+            InterviewScript contraScript = new InterviewScript("npc-contra-witness",
+                    contraName, "Contradictory Witness", contraReliability);
+            buildContradictoryWitnessInterview(contraScript, type, client, subject,
+                    victim, targetPerson, witnessScript);
+            scripts.add(contraScript);
+        }
 
         return scripts;
     }
@@ -329,61 +383,70 @@ public class InterviewTemplateEngine {
 
     private void buildWitnessInterview(InterviewScript script, CaseType type,
                                        String client, String subject, String victim,
-                                       String targetPerson) {
+                                       String targetPerson, float reliability) {
         boolean isMurder = type == CaseType.MURDER;
         Map<String, String> vars = vars(client, subject, victim, targetPerson, "", "");
 
         // ALIBI
         script.addResponse(new InterviewResponse(InterviewTopic.ALIBI,
                 resolveQuestion("alibi", vars),
-                pickAndResolve("witness.alibi", vars), true, ""));
+                pickAndResolve("witness.alibi", vars),
+                reliableTruth(reliability), ""));
 
         // WHEREABOUTS of subject
         script.addResponse(new InterviewResponse(InterviewTopic.WHEREABOUTS,
                 resolveQuestion("witness.subjectWhereabouts", vars),
-                pickAndResolve("witness.subjectWhereabouts", vars), true, subject));
+                pickAndResolve("witness.subjectWhereabouts", vars),
+                reliableTruth(reliability), subject));
 
         // OPINION of subject — Empathy-gated
         script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
                 resolveQuestion("witness.opinion.subject", vars),
-                pickAndResolve("witness.opinion.subject", vars), true, subject,
+                pickAndResolve("witness.opinion.subject", vars),
+                reliableTruth(reliability), subject,
                 "Empathy", 6, pickAndResolve("witness.opinion.subject.alt", vars)));
 
         // OPINION of victim (murder only)
         if (isMurder) {
             script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
                     resolveQuestion("witness.opinion.victim", vars),
-                    pickAndResolve("witness.opinion.victim", vars), true, victim));
+                    pickAndResolve("witness.opinion.victim", vars),
+                    reliableTruth(reliability), victim));
         }
 
         // OBSERVATION — Perception-gated
         script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
                 resolveQuestion("witness.observation", vars),
-                pickAndResolve("witness.observation", vars), true, "",
+                pickAndResolve("witness.observation", vars),
+                reliableTruth(reliability), "",
                 "Perception", 6, pickAndResolve("witness.observation.alt", vars)));
 
         // LAST CONTACT
         script.addResponse(new InterviewResponse(InterviewTopic.LAST_CONTACT,
                 resolveQuestion("witness.lastContact", vars),
-                pickAndResolve("witness.lastContact", vars), true, targetPerson));
+                pickAndResolve("witness.lastContact", vars),
+                reliableTruth(reliability), targetPerson));
 
         // RELATIONSHIP
         script.addResponse(new InterviewResponse(InterviewTopic.RELATIONSHIP,
                 resolveQuestion("witness.relationship", vars),
-                pickAndResolve("witness.relationship", vars), true, targetPerson));
+                pickAndResolve("witness.relationship", vars),
+                reliableTruth(reliability), targetPerson));
 
         // MOTIVE — Intuition-gated (murder only)
         if (isMurder) {
             script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
                     resolveQuestion("witness.motive", vars),
-                    pickAndResolve("witness.motive", vars), true, victim,
+                    pickAndResolve("witness.motive", vars),
+                    reliableTruth(reliability), victim,
                     "Intuition", 5, pickAndResolve("witness.motive.alt", vars)));
         }
 
         // CONTACT_INFO — Charisma-gated
         script.addResponse(new InterviewResponse(InterviewTopic.CONTACT_INFO,
                 resolveQuestion("witness.contactInfo", vars),
-                pickAndResolve("witness.contactInfo", vars), true, subject,
+                pickAndResolve("witness.contactInfo", vars),
+                reliableTruth(reliability), subject,
                 "Charisma", 5, pickAndResolve("witness.contactInfo.alt", vars)));
 
         // PERSONALITY — Empathy-gated (victim for murder, subject otherwise)
@@ -391,7 +454,8 @@ public class InterviewTemplateEngine {
         Map<String, String> persVars = vars(client, subject, victim, targetForTraits, "", "");
         script.addResponse(new InterviewResponse(InterviewTopic.PERSONALITY,
                 resolveQuestion("witness.personality", persVars),
-                pickAndResolve("witness.personality", persVars), true, targetForTraits,
+                pickAndResolve("witness.personality", persVars),
+                reliableTruth(reliability), targetForTraits,
                 "Empathy", 5, pickAndResolve("witness.personality.alt", persVars)));
     }
 
@@ -540,5 +604,167 @@ public class InterviewTemplateEngine {
         Map<String, String> vars = new HashMap<String, String>();
         vars.put("otherName", otherName != null ? otherName : "");
         return pickAndResolve("dynamic.contactInfoAlt", vars);
+    }
+
+    // =========================================================================
+    // Witness reliability helpers
+    // =========================================================================
+
+    /**
+     * Computes the witness reliability score based on case complexity.
+     *
+     * <ul>
+     *   <li><b>Complexity 1</b> — always 1.0 (fully reliable).</li>
+     *   <li><b>Complexity 2</b> — 60 % chance of 1.0; otherwise 0.7–0.9.</li>
+     *   <li><b>Complexity 3</b> — 40 % chance of 1.0; otherwise 0.5–0.8.</li>
+     * </ul>
+     *
+     * @param complexity 1–3
+     * @return reliability score between 0.5 and 1.0
+     */
+    float computeWitnessReliability(int complexity) {
+        if (complexity <= 1) return InterviewScript.DEFAULT_RELIABILITY;
+        if (complexity == 2) {
+            // 60 % chance of fully reliable witness
+            if (random.nextInt(10) < 6) return InterviewScript.DEFAULT_RELIABILITY;
+            // 0.7 – 0.9
+            return 0.7f + random.nextFloat() * 0.2f;
+        }
+        // complexity >= 3
+        // 40 % chance of fully reliable witness
+        if (random.nextInt(10) < 4) return InterviewScript.DEFAULT_RELIABILITY;
+        // 0.5 – 0.8
+        return 0.5f + random.nextFloat() * 0.3f;
+    }
+
+    /**
+     * Returns {@code true} with probability equal to {@code reliability},
+     * and {@code false} otherwise.  Used to decide whether a witness's
+     * individual response is truthful or not.
+     *
+     * @param reliability the witness's reliability score (0.5–1.0)
+     * @return {@code true} if this particular response should be truthful
+     */
+    private boolean reliableTruth(float reliability) {
+        if (reliability >= InterviewScript.DEFAULT_RELIABILITY) return true;
+        return random.nextFloat() < reliability;
+    }
+
+    // =========================================================================
+    // Contradictory witness
+    // =========================================================================
+
+    /**
+     * Builds a contradictory witness script that deliberately conflicts with
+     * the primary witness on key topics: WHEREABOUTS, LAST_CONTACT, and
+     * OBSERVATION.  On other topics the contradictory witness gives their own
+     * independent (unreliable) answers.
+     *
+     * <p>The player must compare both witnesses' accounts and determine which
+     * is accurate.
+     *
+     * @param script         the empty script to populate
+     * @param type           case type
+     * @param client         client name
+     * @param subject        subject name
+     * @param victim         victim name (may be empty)
+     * @param targetPerson   primary target for questions
+     * @param primaryWitness the primary witness's completed script; used to
+     *                       generate contradicting responses
+     */
+    private void buildContradictoryWitnessInterview(InterviewScript script,
+                                                     CaseType type,
+                                                     String client,
+                                                     String subject,
+                                                     String victim,
+                                                     String targetPerson,
+                                                     InterviewScript primaryWitness) {
+        boolean isMurder = type == CaseType.MURDER;
+        Map<String, String> vars = vars(client, subject, victim, targetPerson, "", "");
+
+        // ALIBI — own claim, unreliable
+        script.addResponse(new InterviewResponse(InterviewTopic.ALIBI,
+                resolveQuestion("alibi", vars),
+                pickAndResolve("witness.alibi", vars), false, ""));
+
+        // WHEREABOUTS — contradicts primary witness
+        String whereaboutsText = buildContradiction(
+                primaryWitness, InterviewTopic.WHEREABOUTS,
+                "witness.subjectWhereabouts", vars, subject);
+        script.addResponse(new InterviewResponse(InterviewTopic.WHEREABOUTS,
+                resolveQuestion("witness.subjectWhereabouts", vars),
+                whereaboutsText, false, subject));
+
+        // OBSERVATION — contradicts primary witness
+        String observationText = buildContradiction(
+                primaryWitness, InterviewTopic.OBSERVATION,
+                "witness.observation", vars, "");
+        script.addResponse(new InterviewResponse(InterviewTopic.OBSERVATION,
+                resolveQuestion("witness.observation", vars),
+                observationText, false, ""));
+
+        // LAST CONTACT — contradicts primary witness
+        String lastContactText = buildContradiction(
+                primaryWitness, InterviewTopic.LAST_CONTACT,
+                "witness.lastContact", vars, targetPerson);
+        script.addResponse(new InterviewResponse(InterviewTopic.LAST_CONTACT,
+                resolveQuestion("witness.lastContact", vars),
+                lastContactText, false, targetPerson));
+
+        // RELATIONSHIP — own account (unreliable)
+        script.addResponse(new InterviewResponse(InterviewTopic.RELATIONSHIP,
+                resolveQuestion("witness.relationship", vars),
+                pickAndResolve("witness.relationship", vars), false, targetPerson));
+
+        // OPINION of subject
+        script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
+                resolveQuestion("witness.opinion.subject", vars),
+                pickAndResolve("witness.opinion.subject", vars), false, subject));
+
+        // OPINION of victim (murder only)
+        if (isMurder) {
+            script.addResponse(new InterviewResponse(InterviewTopic.OPINION,
+                    resolveQuestion("witness.opinion.victim", vars),
+                    pickAndResolve("witness.opinion.victim", vars), false, victim));
+        }
+
+        // MOTIVE (murder only)
+        if (isMurder) {
+            script.addResponse(new InterviewResponse(InterviewTopic.MOTIVE,
+                    resolveQuestion("witness.motive", vars),
+                    pickAndResolve("witness.motive", vars), false, victim));
+        }
+    }
+
+    /**
+     * Builds a contradicting answer text for a specific topic.  If the
+     * primary witness has a response on that topic, a fresh pick from the
+     * same pool is drawn (re-rolling until it differs from the primary's
+     * answer, up to 5 attempts).  If the primary has no such response, a
+     * simple pick is returned.
+     */
+    private String buildContradiction(InterviewScript primaryWitness,
+                                      InterviewTopic topic,
+                                      String poolKey,
+                                      Map<String, String> vars,
+                                      String aboutNpc) {
+        List<InterviewResponse> primaryResponses = primaryWitness.getResponsesByTopic(topic);
+        String primaryAnswer = "";
+        for (InterviewResponse r : primaryResponses) {
+            if (aboutNpc.isEmpty() || aboutNpc.equals(r.getAboutNpcName())) {
+                primaryAnswer = r.getAnswer();
+                break;
+            }
+        }
+
+        // Try up to 5 times to get a different answer from the same pool
+        for (int attempt = 0; attempt < 5; attempt++) {
+            String candidate = pickAndResolve(poolKey, vars);
+            if (!candidate.equals(primaryAnswer) || primaryAnswer.isEmpty()) {
+                return candidate;
+            }
+        }
+        // Fallback: just use whatever we drew
+        return pickAndResolve(poolKey, vars);
     }
 }

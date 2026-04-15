@@ -68,23 +68,88 @@ public class CaseTemplateData {
     }
 
     /**
-     * A coherent bundle of initial known facts and investigation leads
-     * for one case instance.  All strings may contain {@code $placeholder}
-     * tokens which are resolved at generation time.
+     * An initial contact within a {@link CaseSeed}: a person the
+     * investigator should approach early in the case (name, role, and
+     * a brief reason why they are relevant).  All strings may contain
+     * {@code $placeholder} tokens.
+     */
+    public static final class SeedContact {
+        private final String name;
+        private final String role;
+        private final String reason;
+
+        public SeedContact(String name, String role, String reason) {
+            this.name   = name;
+            this.role   = role;
+            this.reason = reason;
+        }
+
+        /** Display name of the contact (may contain $placeholders). */
+        public String getName()   { return name; }
+        /** Role or relationship to the case (e.g. "Client's neighbour"). */
+        public String getRole()   { return role; }
+        /** Why this person should be contacted (e.g. "last person to see $subject alive"). */
+        public String getReason() { return reason; }
+    }
+
+    /**
+     * A coherent bundle of initial known facts, investigation leads,
+     * and initial contacts for one case instance.  All strings may contain
+     * {@code $placeholder} tokens which are resolved at generation time.
      */
     public static final class CaseSeed {
-        private final List<String>   facts;
-        private final List<SeedLead> leads;
+        private final List<String>      facts;
+        private final List<SeedLead>    leads;
+        private final List<SeedContact> contacts;
 
-        public CaseSeed(List<String> facts, List<SeedLead> leads) {
-            this.facts = Collections.unmodifiableList(facts);
-            this.leads = Collections.unmodifiableList(leads);
+        public CaseSeed(List<String> facts, List<SeedLead> leads, List<SeedContact> contacts) {
+            this.facts    = Collections.unmodifiableList(facts);
+            this.leads    = Collections.unmodifiableList(leads);
+            this.contacts = Collections.unmodifiableList(contacts);
         }
 
         /** Initial known facts (added as clues on the case file). */
-        public List<String>   getFacts() { return facts; }
+        public List<String>      getFacts()    { return facts; }
         /** Initial investigation leads (added as case leads). */
-        public List<SeedLead> getLeads() { return leads; }
+        public List<SeedLead>    getLeads()    { return leads; }
+        /** Initial contacts the investigator should approach. */
+        public List<SeedContact> getContacts() { return contacts; }
+    }
+
+    /**
+     * Describes the NPC character requirements for a case type: the base
+     * roles, how many extra suspects are added at each complexity level,
+     * the labels for those extra suspects, and a human-readable summary.
+     */
+    public static final class CaseDescription {
+        private final List<String> roles;
+        private final String extraSuspectsComplexity2;
+        private final String extraSuspectsComplexity3;
+        private final List<String> suspectLabels;
+        private final String summary;
+
+        public CaseDescription(List<String> roles,
+                               String extraSuspectsComplexity2,
+                               String extraSuspectsComplexity3,
+                               List<String> suspectLabels,
+                               String summary) {
+            this.roles = Collections.unmodifiableList(roles);
+            this.extraSuspectsComplexity2 = extraSuspectsComplexity2;
+            this.extraSuspectsComplexity3 = extraSuspectsComplexity3;
+            this.suspectLabels = Collections.unmodifiableList(suspectLabels);
+            this.summary = summary;
+        }
+
+        /** Base NPC roles for this case type. */
+        public List<String> getRoles() { return roles; }
+        /** Human-readable count of extra suspects at complexity 2 (e.g. "1-2"). */
+        public String getExtraSuspectsComplexity2() { return extraSuspectsComplexity2; }
+        /** Human-readable count of extra suspects at complexity 3 (e.g. "2-3"). */
+        public String getExtraSuspectsComplexity3() { return extraSuspectsComplexity3; }
+        /** Labels for additional suspect roles. */
+        public List<String> getSuspectLabels() { return suspectLabels; }
+        /** Human-readable summary of NPC requirements for this case type. */
+        public String getSummary() { return summary; }
     }
 
     // -------------------------------------------------------------------------
@@ -94,13 +159,16 @@ public class CaseTemplateData {
     private final Map<String, List<String>> descriptions;
     private final Map<String, List<String>> objectives;
     private final Map<String, List<CaseSeed>> caseSeeds;
+    private final Map<String, CaseDescription> caseDescriptions;
 
     private CaseTemplateData(Map<String, List<String>> descriptions,
                               Map<String, List<String>> objectives,
-                              Map<String, List<CaseSeed>> caseSeeds) {
-        this.descriptions = descriptions;
-        this.objectives   = objectives;
-        this.caseSeeds    = caseSeeds;
+                              Map<String, List<CaseSeed>> caseSeeds,
+                              Map<String, CaseDescription> caseDescriptions) {
+        this.descriptions     = descriptions;
+        this.objectives       = objectives;
+        this.caseSeeds        = caseSeeds;
+        this.caseDescriptions = caseDescriptions;
     }
 
     // -------------------------------------------------------------------------
@@ -169,6 +237,27 @@ public class CaseTemplateData {
                             : Collections.<String>emptyList();
     }
 
+    /**
+     * Returns the {@link CaseDescription} for the given case-type name,
+     * or {@code null} if none is defined.
+     *
+     * @param caseTypeName uppercase case-type name, e.g. {@code "MURDER"}
+     * @return the case description, or {@code null}
+     */
+    public CaseDescription getCaseDescription(String caseTypeName) {
+        if (caseDescriptions == null || caseTypeName == null) return null;
+        return caseDescriptions.get(caseTypeName);
+    }
+
+    /**
+     * Returns an unmodifiable view of all case-description entries.
+     * Keys are uppercase case-type names (e.g. {@code "MURDER"}).
+     */
+    public Map<String, CaseDescription> getCaseDescriptions() {
+        if (caseDescriptions == null) return Collections.emptyMap();
+        return Collections.unmodifiableMap(caseDescriptions);
+    }
+
     // -------------------------------------------------------------------------
     // Factory
     // -------------------------------------------------------------------------
@@ -198,6 +287,16 @@ public class CaseTemplateData {
      *       ...
      *     ],
      *     ...
+     *   },
+     *   "caseDescriptions": {
+     *     "MURDER": {
+     *       "roles": ["Client", "Subject (Suspect)", "Victim", ...],
+     *       "extraSuspectsComplexity2": "1-2",
+     *       "extraSuspectsComplexity3": "2-3",
+     *       "suspectLabels": ["Suspect — Neighbour", ...],
+     *       "summary": "A murder case requires ..."
+     *     },
+     *     ...
      *   }
      * }
      * </pre>
@@ -210,6 +309,7 @@ public class CaseTemplateData {
         Map<String, List<String>> descriptions = new HashMap<String, List<String>>();
         Map<String, List<String>> objectives   = new HashMap<String, List<String>>();
         Map<String, List<CaseSeed>> seeds      = new HashMap<String, List<CaseSeed>>();
+        Map<String, CaseDescription> caseDescs = new HashMap<String, CaseDescription>();
 
         JsonReader reader = new JsonReader();
         JsonValue  root   = reader.parse(json);
@@ -217,8 +317,9 @@ public class CaseTemplateData {
         parseSection(root, "descriptions", descriptions);
         parseSection(root, "objectives",   objectives);
         parseSeedsSection(root, seeds);
+        parseCaseDescriptionsSection(root, caseDescs);
 
-        return new CaseTemplateData(descriptions, objectives, seeds);
+        return new CaseTemplateData(descriptions, objectives, seeds, caseDescs);
     }
 
     // -------------------------------------------------------------------------
@@ -271,9 +372,60 @@ public class CaseTemplateData {
                         leads.add(new SeedLead(hint, desc, meth));
                     }
                 }
-                seedList.add(new CaseSeed(facts, leads));
+                // Parse contacts array
+                List<SeedContact> contacts = new ArrayList<SeedContact>();
+                JsonValue contactsArr = seedVal.get("contacts");
+                if (contactsArr != null) {
+                    for (JsonValue c = contactsArr.child; c != null; c = c.next) {
+                        String cName   = c.has("name")   ? c.getString("name")   : "";
+                        String cRole   = c.has("role")   ? c.getString("role")   : "";
+                        String cReason = c.has("reason") ? c.getString("reason") : "";
+                        contacts.add(new SeedContact(cName, cRole, cReason));
+                    }
+                }
+                seedList.add(new CaseSeed(facts, leads, contacts));
             }
             target.put(key, seedList);
+        }
+    }
+
+    /**
+     * Parses the {@code "caseDescriptions"} section of the JSON.  Each
+     * top-level key is a case-type name (e.g. {@code "MURDER"}) mapping to
+     * an object with {@code roles}, {@code extraSuspectsComplexity2/3},
+     * {@code suspectLabels}, and {@code summary}.
+     */
+    private static void parseCaseDescriptionsSection(JsonValue root,
+                                                      Map<String, CaseDescription> target) {
+        JsonValue section = root.get("caseDescriptions");
+        if (section == null) return;
+        for (JsonValue entry = section.child; entry != null; entry = entry.next) {
+            String key = entry.name();
+
+            List<String> roles = new ArrayList<String>();
+            JsonValue rolesArr = entry.get("roles");
+            if (rolesArr != null) {
+                for (JsonValue r = rolesArr.child; r != null; r = r.next) {
+                    roles.add(r.asString());
+                }
+            }
+
+            String extra2 = entry.has("extraSuspectsComplexity2")
+                    ? entry.getString("extraSuspectsComplexity2") : "0";
+            String extra3 = entry.has("extraSuspectsComplexity3")
+                    ? entry.getString("extraSuspectsComplexity3") : "0";
+
+            List<String> suspectLabels = new ArrayList<String>();
+            JsonValue slArr = entry.get("suspectLabels");
+            if (slArr != null) {
+                for (JsonValue s = slArr.child; s != null; s = s.next) {
+                    suspectLabels.add(s.asString());
+                }
+            }
+
+            String summary = entry.has("summary") ? entry.getString("summary") : "";
+
+            target.put(key, new CaseDescription(roles, extra2, extra3, suspectLabels, summary));
         }
     }
 

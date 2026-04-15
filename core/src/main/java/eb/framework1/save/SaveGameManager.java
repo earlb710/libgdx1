@@ -260,6 +260,13 @@ public class SaveGameManager {
         }
         d.complexity  = cf.getComplexity();
         d.storyRoot   = cf.getStoryRoot() != null ? toStoryNodeData(cf.getStoryRoot()) : null;
+        d.knownFacts = new ArrayList<>();
+        for (KnownFact kf : cf.getKnownFacts()) {
+            KnownFactData kfd = new KnownFactData();
+            kfd.text   = kf.getText();
+            kfd.source = kf.getSource().name();
+            d.knownFacts.add(kfd);
+        }
         return d;
     }
 
@@ -304,6 +311,16 @@ public class SaveGameManager {
         }
         if (d.storyRoot != null) {
             cf.setStoryRoot(fromStoryNodeData(d.storyRoot));
+        }
+        if (d.knownFacts != null) {
+            for (KnownFactData kfd : d.knownFacts) {
+                if (kfd != null && kfd.text != null && !kfd.text.trim().isEmpty()) {
+                    FactSource src;
+                    try { src = FactSource.valueOf(kfd.source); }
+                    catch (Exception e) { src = FactSource.DISCOVERED; }
+                    cf.addKnownFact(kfd.text, src);
+                }
+            }
         }
         return cf;
     }
@@ -439,6 +456,8 @@ public class SaveGameManager {
         public java.util.List<NpcCharacterData> worldNpcs;
         /** {@link VisionTrait#name()} value; null in older saves → NONE. */
         public String visionTrait;
+        /** ID of the affair-partner NPC; null when no affair is active. */
+        public String affairPartnerId;
     }
 
     // -------------------------------------------------------------------------
@@ -498,6 +517,16 @@ public class SaveGameManager {
         public int complexity;
         /** Root of the story-progression tree; null for legacy/manual cases. */
         public StoryNodeData storyRoot;
+        /** Known facts with source categorisation. */
+        public java.util.List<KnownFactData> knownFacts;
+    }
+
+    /** Serialisable DTO for a {@link KnownFact}. */
+    static class KnownFactData {
+        /** Fact text. */
+        public String text;
+        /** {@link FactSource#name()} value. */
+        public String source;
     }
 
     // -------------------------------------------------------------------------

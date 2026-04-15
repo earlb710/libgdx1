@@ -350,7 +350,7 @@ Story tree chains (complexity ≥ 2):
   discovery.  At complexity 3, evidence-type facts also get 1–3 day delays.
 ```
 
-#### Fact table columns (13 total)
+#### Fact table columns (14 total)
 
 | Index | Name | Type | Notes |
 |---|---|---|---|
@@ -367,6 +367,20 @@ Story tree chains (complexity ≥ 2):
 | 10 | Importance | Integer | 0–5 |
 | 11 | Prerequisite Fact ID | String | ID of gating fact (evidence chain) |
 | 12 | Availability Day | Integer | In-game day when available (forensics) |
+| 13 | Source | String | Fact origin: CASE, POLICE, or DISCOVERED |
+
+**Source categories:**
+- **CASE** — client-provided information from the case briefing (seed facts,
+  case report date, client relationships).
+- **POLICE** — official police/forensic investigation results (scene evidence,
+  DNA analysis, toxicology, digital forensics, financial records, death dates).
+  All forensic lab results end up under POLICE.
+- **DISCOVERED** — facts uncovered by the investigator through interviews,
+  surveillance, or research (hidden disputes, unknown items, trait-driven facts).
+
+The `FactSource` enum and `KnownFact` class in the core model mirror this
+categorisation.  `CaseFile.getKnownFactsBySource(FactSource)` returns facts
+filtered by origin.
 
 `buildMotiveNarrative(motiveCode, subject, victim)` selects from a pool
 of ~10 unique sentence templates per motive code (10 codes, ~100 templates
