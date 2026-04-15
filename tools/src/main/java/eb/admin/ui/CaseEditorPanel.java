@@ -23,8 +23,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Admin panel for step-by-step case generation testing.
@@ -1156,10 +1158,7 @@ public class CaseEditorPanel extends JPanel {
 
         simulateStateLabel.setFont(simulateStateLabel.getFont().deriveFont(Font.BOLD));
 
-        simulateSummaryArea.setEditable(false);
-        simulateSummaryArea.setLineWrap(true);
-        simulateSummaryArea.setWrapStyleWord(true);
-        simulateSummaryArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        configureReadOnlyTextArea(simulateSummaryArea);
 
         JScrollPane summaryScroll = new JScrollPane(simulateSummaryArea);
         summaryScroll.setBorder(BorderFactory.createTitledBorder("Simulation Summary"));
@@ -1200,10 +1199,7 @@ public class CaseEditorPanel extends JPanel {
         JScrollPane questionScroll = new JScrollPane(simulateInterviewQuestionList);
         questionScroll.setBorder(BorderFactory.createTitledBorder("Questions"));
 
-        simulateInterviewDetailArea.setEditable(false);
-        simulateInterviewDetailArea.setLineWrap(true);
-        simulateInterviewDetailArea.setWrapStyleWord(true);
-        simulateInterviewDetailArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        configureReadOnlyTextArea(simulateInterviewDetailArea);
         simulateInterviewDetailArea.setText(
                 "Generate the full case to preview interview simulations.");
         JScrollPane detailScroll = new JScrollPane(simulateInterviewDetailArea);
@@ -1304,8 +1300,8 @@ public class CaseEditorPanel extends JPanel {
     private void refreshSimulationView() {
         boolean ready = isCaseFullyGenerated();
         simulateStateLabel.setText(ready
-                ? "Simulation ready — explore generated case behaviour below."
-                : "Simulation locked — generate the full case first (description, NPCs, story tree, leads/facts, and interviews).");
+                ? "Simulation ready - explore generated case behaviour below."
+                : "Generate all case components to unlock simulations.");
         simulateSummaryArea.setText(ready
                 ? buildSimulationSummary()
                 : "This tab becomes available only after the full case has been generated.\n\n"
@@ -1363,11 +1359,10 @@ public class CaseEditorPanel extends JPanel {
         Object previousSelection = simulateInterviewNpcCombo.getSelectedItem();
         simulateInterviewNpcCombo.removeAllItems();
 
-        List<String> names = new ArrayList<>();
+        Set<String> names = new LinkedHashSet<>();
         for (int i = 0; i < interviewModel.getRowCount(); i++) {
             String npcName = nullSafe(interviewModel.getValueAt(i, 0));
-            if (!npcName.isEmpty() && !names.contains(npcName)) {
-                names.add(npcName);
+            if (!npcName.isEmpty() && names.add(npcName)) {
                 simulateInterviewNpcCombo.addItem(npcName);
             }
         }
@@ -3702,6 +3697,13 @@ public class CaseEditorPanel extends JPanel {
 
     private static String nullSafe(Object o) {
         return o != null ? o.toString() : "";
+    }
+
+    private static void configureReadOnlyTextArea(JTextArea area) {
+        area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
     }
 
     private static void expandAll(JTree tree) {
