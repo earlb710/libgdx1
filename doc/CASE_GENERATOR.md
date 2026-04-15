@@ -59,8 +59,10 @@ The root of the story-progression tree (see §5 below).
 ### 5. `CaseStoryNode` — story-progression tree
 
 A four-level tree structure encoding every step of the investigation.
-Each sub-branch must be **fully completed before the next branch is unlocked**
-(sequential-unlock rule enforced by `isChildAvailable(int)`).
+By default each sub-branch must be **fully completed before the next branch is
+unlocked** (sequential-unlock rule enforced by `isChildAvailable(int)`), but a
+node can also be marked `parallel=true` so that all of its children are
+available at once.
 
 #### Tree levels
 
@@ -91,8 +93,20 @@ For complexity 3: **24 leaf actions** total
 | `isFullyComplete()` | True when the whole sub-tree is done |
 | `getNextActiveChild()` | The first unlocked-but-incomplete child |
 | `getNextAvailableAction()` | Recursively finds the first non-completed `ACTION` leaf (skipping fully-done branches) |
+| `getAvailableActions()` | Returns all currently reachable `ACTION` leaves across parallel branches |
 | `isChildAvailable(index)` | True when all prior siblings are complete |
+| `setParallel(boolean)` / `isParallel()` | Enable or inspect parallel child availability |
 | `complete()` | Mark a leaf `ACTION` node as done |
+
+#### Parallel progression
+
+- Each `PLOT_TWIST` phase is marked `parallel=true`, so its two
+  `MAJOR_PROGRESS` branches can be pursued in either order.
+- At complexity 3, the root node is also marked `parallel=true`, allowing the
+  optional side-case branch to remain available alongside the main phases.
+- `getNextAvailableAction()` still returns the first available action in
+  insertion order; use `getAvailableActions()` when the UI or runtime needs the
+  full set of simultaneously available investigation actions.
 
 ### 6. `CaseGenerator` — the generator (2 310 lines)
 
@@ -174,6 +188,18 @@ Wraps a list of `InterviewResponse` objects for one NPC.
 `CaseFile` stores `List<InterviewScript>` so every NPC's script is
 accessible at runtime.
 
+#### Witness reliability
+
+Each script also carries a `reliability` score from **0.5 to 1.0**:
+
+- **1.0** — fully reliable (default)
+- **0.5–0.9** — partially unreliable; some generated responses may be false
+
+`InterviewScript.isUnreliable()` returns `true` when reliability is below 1.0.
+The generator uses this score to flip some responses away from the truthful
+path, creating witnesses who are mistaken, evasive, or contradictory without
+changing the interview topics themselves.
+
 #### Interview generation (`CaseGenerator.buildInterviewScripts()`)
 
 Four dedicated builder methods generate scripts for the core cast:
@@ -203,6 +229,18 @@ answer pools (3–9 options per pool).
 |---|---|---|---|---|---|
 | Client / Witness / Associate | 100 % | 100 % | 100 % | 100 % | 100 % |
 | Subject / Suspect | **30 %** | **50 %** | **40 %** | **50 %** | **50 %** |
+
+#### Reliability by complexity
+
+| Complexity | Reliability behaviour |
+|---|---|
+| 1 | Witnesses use the default reliability of **1.0** |
+| 2 | ~40 % chance that the key witness is unreliable (**0.7–0.9**) |
+| 3 | ~60 % chance that the key witness is unreliable (**0.5–0.8**) and an additional **Contradictory Witness** may be generated |
+
+At complexity 3, the contradictory witness uses low reliability
+(roughly **0.5–0.7**) and is designed to conflict with other testimony on
+topics such as `WHEREABOUTS`, `LAST_CONTACT`, and `OBSERVATION`.
 
 ### 10. Phone & location system
 
@@ -442,6 +480,24 @@ file: **`assets/text/case_templates_en.json`**.
   "objectives": {
     "MISSING_PERSON.1": ["...", ...],
     ...
+  },
+  "caseSeeds": {
+    "MISSING_PERSON": [
+      {
+        "facts": ["..."],
+        "leads": [{"hint": "...", "description": "...", "method": "INTERVIEW"}],
+        "contacts": [{"name": "...", "role": "...", "reason": "..."}]
+      }
+    ]
+  },
+  "caseDescriptions": {
+    "MISSING_PERSON": {
+      "roles": ["Client", "Subject", "Key Witness"],
+      "extraSuspectsComplexity2": "1-2",
+      "extraSuspectsComplexity3": "2-3",
+      "suspectLabels": ["Friend", "Neighbour"],
+      "summary": "..."
+    }
   }
 }
 ```
@@ -462,6 +518,8 @@ Each pool contains **12 template strings** that use `$client`, `$subject`,
 - `pickDescription(caseTypeName, complexity, rng)` — random template from
   the matching pool; falls back to complexity 1 if no pool exists
 - `pickObjective(caseTypeName, complexity, rng)` — same pattern
+- `pickSeed(caseTypeName, rng)` — picks a coherent seed bundle for the case
+- `getCaseDescription(caseTypeName)` — returns admin-facing NPC-role metadata
 - Loaded at startup by `GameDataManager.loadCaseTemplates()` and by
   `CaseEditorPanel.loadCaseTemplates()` (admin tool)
 
@@ -475,6 +533,41 @@ Each pool contains **12 template strings** that use `$client`, `$subject`,
   `$victim`, `$pronounCap`, `$pron` token substitution
 - Complexity is determined **before** description generation so templates can
   vary by difficulty level
+
+#### `caseSeeds` — coherent starting information
+
+`caseSeeds` is keyed by case type name only (for example `MURDER`), not by
+complexity.  Each seed bundles together:
+
+- `facts[]` — appended to the case description under **"What we know so far:"**
+  and added as starting clues / CASE-sourced known facts
+- `leads[]` — converted into `CaseLead`s and listed in the objective under
+  **"Initial lines of enquiry:"**
+- `contacts[]` — turned into initial contact entries under
+  **"Initial contacts:"**
+
+Seed contacts support both principal placeholders (`$client`, `$subject`,
+`$victim`) and generic labels.  When a generic label is used, the generator
+creates a concrete NPC name and stores a CASE-sourced known fact in the form:
+
+> `Contact: Alice Smith — Neighbour (may have noticed unusual activity)`
+
+This keeps the opening case brief, case file, and generated NPC set aligned.
+
+#### `caseDescriptions` — NPC-role template metadata
+
+The `caseDescriptions` section stores per-case-type metadata for the admin
+tool's **Description & Objective** and **NPC Characters** workflow:
+
+- `roles[]` — base NPC roles expected for the case type
+- `extraSuspectsComplexity2` / `extraSuspectsComplexity3` — human-readable
+  ranges for additional suspects
+- `suspectLabels[]` — labels for those extra suspect roles
+- `summary` — short human-readable explanation shown in the editor
+
+These entries are edited through `CaseDescriptionTemplatePanel`, which merges
+changes back into `case_templates_en.json` while preserving the `descriptions`,
+`objectives`, and `caseSeeds` sections.
 
 ---
 
