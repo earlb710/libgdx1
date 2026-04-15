@@ -678,7 +678,7 @@ public class NarrativeTemplates {
                 pool = new String[]{
                     "An intense argument between " + subject + " and " + victim + " escalated into a violent confrontation.",
                     subject + "'s uncontrollable rage after discovering " + victim + "'s betrayal led to a fatal outburst.",
-                    "Years of suppressed emotion erupted when " + subject + " confronted " + victim + " about the affair.",
+                    "Years of suppressed emotion erupted when " + subject + " confronted " + victim + " about the betrayal.",
                     "A moment of blind fury during a heated exchange drove " + subject + " to act without thinking.",
                     "Neighbours reported shouting. The argument had been building for days. What happened next was not planned.",
                     "There was no calculation involved. " + subject + " reacted in the heat of the moment and has been living with it since.",
