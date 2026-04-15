@@ -456,6 +456,8 @@ public class SaveGameManager {
         public java.util.List<NpcCharacterData> worldNpcs;
         /** {@link VisionTrait#name()} value; null in older saves → NONE. */
         public String visionTrait;
+        /** ID of the affair-partner NPC; null when no affair is active. */
+        public String affairPartnerId;
     }
 
     // -------------------------------------------------------------------------

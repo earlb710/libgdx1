@@ -54,6 +54,12 @@ public class Profile {
     /** Vision impairment trait.  Defaults to {@link VisionTrait#NONE}. */
     private VisionTrait visionTrait = VisionTrait.NONE;
 
+    /**
+     * ID of the NPC the player is currently having an affair with, or
+     * {@code null} when no affair is active.  Matches {@link NpcCharacter#getId()}.
+     */
+    private String affairPartnerId = null;
+
     public Profile(String characterName, String gender, String difficulty) {
         this(characterName, gender, difficulty, null, new HashMap<>());
     }
@@ -653,6 +659,33 @@ public class Profile {
      */
     public void setVisionTrait(VisionTrait trait) {
         this.visionTrait = trait != null ? trait : VisionTrait.NONE;
+    }
+
+    // -------------------------------------------------------------------------
+    // Affair partner
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns the ID of the NPC the player is currently having an affair with,
+     * or {@code null} if no affair is active.
+     */
+    public String getAffairPartnerId() { return affairPartnerId; }
+
+    /**
+     * Sets the affair partner to the NPC with the given ID, or clears the
+     * affair when {@code npcId} is {@code null}.
+     *
+     * @param npcId the {@link NpcCharacter#getId()} of the affair partner,
+     *              or {@code null} to end the affair
+     */
+    public void setAffairPartnerId(String npcId) { this.affairPartnerId = npcId; }
+
+    /** Returns {@code true} when the player is currently having an affair. */
+    public boolean isHavingAffair() { return affairPartnerId != null && !affairPartnerId.isEmpty(); }
+
+    /** Returns {@code true} when the given NPC ID matches the active affair partner. */
+    public boolean isAffairPartner(String npcId) {
+        return npcId != null && npcId.equals(affairPartnerId);
     }
 
     /**
