@@ -38,6 +38,19 @@ Each lead carries:
 - `hint` — a vague clue always visible to the player
 - `discoveryMethod` — which technique reveals it
 - `discovered` flag — set by `discover()`
+- `expirationDay` — optional in-game deadline (`0` = never expires)
+
+#### Time-pressured leads
+
+- `CaseLead.setExpirationDay(day)` marks a lead as expiring after a given
+  in-game day.
+- `CaseLead.isExpired(currentDay)` returns `true` when the deadline has passed
+  and the lead was never discovered.
+- At complexity **≥ 2**, `CaseGenerator.assignLeadExpiration()` gives roughly
+  **30 %** of generated leads an `expirationDay` between **3 and 7**.
+
+This creates optional time pressure: some leads stay available indefinitely,
+while others become stale if the player waits too long.
 
 ### 4. `CaseFile` — the case record
 Stores all investigation data for one case:
@@ -85,7 +98,8 @@ ROOT
 
 For complexity 1: **8 leaf actions** total  
 For complexity 2: **16 leaf actions** total  
-For complexity 3: **24 leaf actions** total
+For complexity 3: **24 main-case leaf actions** total, plus an optional
+**2-action side case**
 
 #### Key API
 | Method | Purpose |
@@ -107,6 +121,21 @@ For complexity 3: **24 leaf actions** total
 - `getNextAvailableAction()` still returns the first available action in
   insertion order; use `getAvailableActions()` when the UI or runtime needs the
   full set of simultaneously available investigation actions.
+
+#### Side-case branch at complexity 3
+
+At complexity **≥ 3**, `CaseGenerator.addSideCaseNode()` appends an extra
+`PLOT_TWIST` child representing a **SIDE_CASE** branch:
+
+- It is a self-contained mini-investigation with **1 major**, **1 minor**, and
+  **2 `ACTION` leaves**:
+  - `Investigate the side lead`
+  - `Report findings`
+- Its title is case-type specific (for example *"Side Case — Suspicious
+  Associate of {subject}"* for murder or *"Side Case — Fence Operation Tip"*
+  for theft).
+- Because the root is marked `parallel=true`, this side case can be pursued at
+  any time alongside the main investigative phases.
 
 ### 6. `CaseGenerator` — the generator (2 310 lines)
 
@@ -143,6 +172,52 @@ uses PERCEPTION / INTELLIGENCE / STEALTH, never CHARISMA.
 sentence for every combination of attribute (7) × action category (4 + generic
 fallback). The narrative explains *how* the attribute helped or hindered the
 specific action. For full tables see `CASE_GENERATION_PIPELINE.md § Step 8`.
+
+#### Personality-trait generation
+
+The generator also creates hidden personality-trait maps for the key NPCs:
+
+- `generateTraitMap()` assigns **3–5** `PersonalityTrait` values per NPC
+  with non-zero scores from **−3 to +3**
+- Traits are generated for the client, subject, victim (when present), and any
+  newly created seed-contact NPCs
+- The resulting maps are stored on the `CaseFile` as NPC personality data
+
+#### Trait-colour narrative and leads
+
+- `buildTraitColour(subject, traits, gender)` appends **1–2** narrative
+  sentences to the case description based on strong likes / dislikes
+  (typically traits with magnitude **≥ 2**)
+- `addTraitDrivenLeads()` adds **1–2** additional
+  `DiscoveryMethod.SURVEILLANCE` leads based on notable traits
+- `traitLocation()` maps specific traits to plausible venues
+  (library, gym, gallery district, bus station, etc.)
+- `traitBehaviour()` turns strong positive / negative traits into behavioural
+  snippets that feed those surveillance leads
+
+This means personality traits are not just stored metadata — they actively
+influence the opening description and create extra investigative threads.
+
+#### Meeting dialogue (`MeetingQA`)
+
+The client appointment is also pre-generated as a list of immutable
+`MeetingQA` question/answer pairs stored on the `CaseFile` and consumed by
+`MeetPopup` at runtime.
+
+`buildMeetingDialogue(type, subject, objective, description, storyRoot)` always
+creates:
+
+1. **Four standard questions**
+   - *What exactly do you need me to do?*
+   - *Tell me more about the subject.*
+   - *How long has this been going on?*
+   - *Is there anyone else who knows about this?*
+2. **One extra question per `PLOT_TWIST` phase** in the story tree, using the
+   phase title and description as the Q&A content
+
+The first four answers are case-type-aware and summarise the objective,
+background, timeline, and likely contacts.  The per-phase questions ensure that
+every major branch of the story tree is represented in the initial meeting.
 
 ### 7. `InterviewTopic` enum — interview question categories
 
