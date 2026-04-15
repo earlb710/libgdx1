@@ -171,6 +171,7 @@ public class CaseEditorPanel extends JPanel {
 
     public CaseEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
+        simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
         setLayout(new BorderLayout(0, 4));
         add(buildSteps(), BorderLayout.CENTER);
     }
@@ -1160,10 +1161,6 @@ public class CaseEditorPanel extends JPanel {
         simulateSummaryArea.setWrapStyleWord(true);
         simulateSummaryArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
 
-        if (simulateTabs.getTabCount() == 0) {
-            simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
-        }
-
         JScrollPane summaryScroll = new JScrollPane(simulateSummaryArea);
         summaryScroll.setBorder(BorderFactory.createTitledBorder("Simulation Summary"));
 
@@ -1344,7 +1341,7 @@ public class CaseEditorPanel extends JPanel {
 
         StringBuilder sb = new StringBuilder();
         sb.append(caseType.isEmpty() ? "Generated case" : caseType)
-          .append(" — complexity ").append(complexity).append('\n');
+          .append(" - complexity ").append(complexity).append('\n');
         sb.append("Client: ").append(clientNameField.getText().trim()).append('\n');
         sb.append("Subject: ").append(subjectNameField.getText().trim()).append('\n');
         String victim = victimNameField.getText().trim();
@@ -1438,14 +1435,14 @@ public class CaseEditorPanel extends JPanel {
         StringBuilder sb = new StringBuilder();
         sb.append(npcName).append(" (").append(role).append(")\n");
         sb.append("Topic: ").append(topic);
-        if (!aboutNpc.isEmpty()) sb.append(" — about ").append(aboutNpc);
+        if (!aboutNpc.isEmpty()) sb.append(" - about ").append(aboutNpc);
         sb.append("\n\n");
         sb.append("Detective asks:\n").append(question).append("\n\n");
         sb.append("NPC answers:\n").append(answer).append("\n\n");
         sb.append(truthful ? "Truthfulness: truthful" : "Truthfulness: deceptive");
 
         if (!reqAttr.isEmpty() && reqValue > 0) {
-            sb.append("\n\nAttribute gate: ").append(reqAttr).append(" ≥ ").append(reqValue);
+            sb.append("\n\nAttribute gate: ").append(reqAttr).append(" >= ").append(reqValue);
             if (!altAnswer.isEmpty()) {
                 sb.append("\nFallback answer if the check fails:\n").append(altAnswer);
             }
