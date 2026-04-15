@@ -155,6 +155,16 @@ public class CaseEditorPanel extends JPanel {
 
     // Summary
     private final JTextArea summaryArea = new JTextArea(12, 60);
+    private final JTextArea simulateSummaryArea = new JTextArea(6, 60);
+    private final JLabel simulateStateLabel =
+            new JLabel("Generate the full case to unlock simulations.");
+    private final JTabbedPane simulateTabs = new JTabbedPane();
+    private final JComboBox<String> simulateInterviewNpcCombo = new JComboBox<>();
+    private final DefaultListModel<String> simulateInterviewQuestionModel = new DefaultListModel<>();
+    private final JList<String> simulateInterviewQuestionList =
+            new JList<>(simulateInterviewQuestionModel);
+    private final JTextArea simulateInterviewDetailArea = new JTextArea(12, 40);
+    private final List<Integer> simulateInterviewRowIndexes = new ArrayList<>();
 
     /** Cached copy of the loaded category data — set via {@link #loadData(CategoryData)}. */
     private CategoryData categoryData;
@@ -203,6 +213,12 @@ public class CaseEditorPanel extends JPanel {
         storyRoot.removeAllChildren();
         treeModel.reload();
         summaryArea.setText("");
+        simulateSummaryArea.setText("");
+        simulateInterviewNpcCombo.removeAllItems();
+        simulateInterviewQuestionModel.clear();
+        simulateInterviewRowIndexes.clear();
+        simulateInterviewDetailArea.setText("");
+        simulateStateLabel.setText("Generate the full case to unlock simulations.");
         categoryData = null;
     }
 
@@ -220,6 +236,7 @@ public class CaseEditorPanel extends JPanel {
         steps.addTab("6. Facts",                  buildFactsStep());
         steps.addTab("7. Interviews",             buildInterviewsStep());
         steps.addTab("Summary",                   buildSummaryStep());
+        steps.addTab("Simulate",                  buildSimulateStep());
         return steps;
     }
 
@@ -1132,6 +1149,86 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
+    private JPanel buildSimulateStep() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        simulateStateLabel.setFont(simulateStateLabel.getFont().deriveFont(Font.BOLD));
+
+        simulateSummaryArea.setEditable(false);
+        simulateSummaryArea.setLineWrap(true);
+        simulateSummaryArea.setWrapStyleWord(true);
+        simulateSummaryArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+
+        if (simulateTabs.getTabCount() == 0) {
+            simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
+        }
+
+        JScrollPane summaryScroll = new JScrollPane(simulateSummaryArea);
+        summaryScroll.setBorder(BorderFactory.createTitledBorder("Simulation Summary"));
+
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                summaryScroll, simulateTabs);
+        split.setDividerLocation(150);
+        split.setResizeWeight(0.25);
+
+        JButton refreshBtn = new JButton("Refresh Simulations");
+        refreshBtn.addActionListener(e -> {
+            refreshSimulationView();
+            statusLabel.setText(isCaseFullyGenerated()
+                    ? "Simulation view refreshed."
+                    : "Simulation is locked until the case is fully generated.");
+        });
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(refreshBtn);
+
+        panel.add(simulateStateLabel, BorderLayout.NORTH);
+        panel.add(split, BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
+
+        refreshSimulationView();
+        return panel;
+    }
+
+    private JPanel buildInterviewSimulationTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        top.add(new JLabel("NPC:"));
+        simulateInterviewNpcCombo.setPreferredSize(new Dimension(240, 28));
+        top.add(simulateInterviewNpcCombo);
+
+        simulateInterviewQuestionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane questionScroll = new JScrollPane(simulateInterviewQuestionList);
+        questionScroll.setBorder(BorderFactory.createTitledBorder("Questions"));
+
+        simulateInterviewDetailArea.setEditable(false);
+        simulateInterviewDetailArea.setLineWrap(true);
+        simulateInterviewDetailArea.setWrapStyleWord(true);
+        simulateInterviewDetailArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        simulateInterviewDetailArea.setText(
+                "Generate the full case to preview interview simulations.");
+        JScrollPane detailScroll = new JScrollPane(simulateInterviewDetailArea);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("Interview Simulation"));
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                questionScroll, detailScroll);
+        split.setDividerLocation(280);
+        split.setResizeWeight(0.35);
+
+        simulateInterviewNpcCombo.addActionListener(e -> refreshInterviewSimulationQuestions());
+        simulateInterviewQuestionList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                refreshInterviewSimulationDetail();
+            }
+        });
+
+        panel.add(top, BorderLayout.NORTH);
+        panel.add(split, BorderLayout.CENTER);
+        return panel;
+    }
+
     // -------------------------------------------------------------------------
     // Combo / column helpers
     // -------------------------------------------------------------------------
@@ -1194,6 +1291,168 @@ public class CaseEditorPanel extends JPanel {
         } else {
             motiveDesc.setText(" ");
         }
+    }
+
+    private boolean isCaseFullyGenerated() {
+        return getSelectedCaseTypeCode() != null
+                && !descriptionArea.getText().trim().isEmpty()
+                && !objectiveArea.getText().trim().isEmpty()
+                && npcModel.getRowCount() >= 2
+                && storyRoot.getChildCount() > 0
+                && leadsModel.getRowCount() > 0
+                && factsModel.getRowCount() > 0
+                && interviewModel.getRowCount() > 0;
+    }
+
+    private void refreshSimulationView() {
+        boolean ready = isCaseFullyGenerated();
+        simulateStateLabel.setText(ready
+                ? "Simulation ready — explore generated case behaviour below."
+                : "Simulation locked — generate the full case first (description, NPCs, story tree, leads/facts, and interviews).");
+        simulateSummaryArea.setText(ready
+                ? buildSimulationSummary()
+                : "This tab becomes available only after the full case has been generated.\n\n"
+                + "Required pieces:\n"
+                + "• description and objective\n"
+                + "• NPC characters\n"
+                + "• story tree\n"
+                + "• leads and facts\n"
+                + "• interview scripts");
+        simulateSummaryArea.setCaretPosition(0);
+
+        for (int i = 0; i < simulateTabs.getTabCount(); i++) {
+            simulateTabs.setEnabledAt(i, ready);
+        }
+
+        if (!ready) {
+            simulateInterviewNpcCombo.removeAllItems();
+            simulateInterviewQuestionModel.clear();
+            simulateInterviewRowIndexes.clear();
+            simulateInterviewDetailArea.setText(
+                    "Interview simulation is unavailable until the full case is generated.");
+            simulateInterviewDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        populateInterviewSimulationNpcChoices();
+    }
+
+    private String buildSimulationSummary() {
+        String caseType = nullSafe(caseTypeCombo.getSelectedItem());
+        int complexity = (complexitySpinner.getValue() instanceof Number)
+                ? ((Number) complexitySpinner.getValue()).intValue() : 1;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(caseType.isEmpty() ? "Generated case" : caseType)
+          .append(" — complexity ").append(complexity).append('\n');
+        sb.append("Client: ").append(clientNameField.getText().trim()).append('\n');
+        sb.append("Subject: ").append(subjectNameField.getText().trim()).append('\n');
+        String victim = victimNameField.getText().trim();
+        if (!victim.isEmpty()) {
+            sb.append("Victim: ").append(victim).append('\n');
+        }
+        sb.append('\n');
+        sb.append("Objective: ").append(objectiveArea.getText().trim()).append('\n');
+        sb.append('\n');
+        sb.append("Generated content: ")
+          .append(npcModel.getRowCount()).append(" NPCs, ")
+          .append(leadsModel.getRowCount()).append(" leads, ")
+          .append(factsModel.getRowCount()).append(" facts, ")
+          .append(interviewModel.getRowCount()).append(" interview responses.");
+        return sb.toString();
+    }
+
+    private void populateInterviewSimulationNpcChoices() {
+        Object previousSelection = simulateInterviewNpcCombo.getSelectedItem();
+        simulateInterviewNpcCombo.removeAllItems();
+
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < interviewModel.getRowCount(); i++) {
+            String npcName = nullSafe(interviewModel.getValueAt(i, 0));
+            if (!npcName.isEmpty() && !names.contains(npcName)) {
+                names.add(npcName);
+                simulateInterviewNpcCombo.addItem(npcName);
+            }
+        }
+
+        if (previousSelection != null && names.contains(previousSelection.toString())) {
+            simulateInterviewNpcCombo.setSelectedItem(previousSelection);
+        } else if (simulateInterviewNpcCombo.getItemCount() > 0) {
+            simulateInterviewNpcCombo.setSelectedIndex(0);
+        } else {
+            simulateInterviewQuestionModel.clear();
+            simulateInterviewRowIndexes.clear();
+            simulateInterviewDetailArea.setText("No interview data is available to simulate.");
+            simulateInterviewDetailArea.setCaretPosition(0);
+        }
+    }
+
+    private void refreshInterviewSimulationQuestions() {
+        simulateInterviewQuestionModel.clear();
+        simulateInterviewRowIndexes.clear();
+
+        String npcName = nullSafe(simulateInterviewNpcCombo.getSelectedItem());
+        if (npcName.isEmpty()) {
+            simulateInterviewDetailArea.setText("Select an NPC to preview interview questions.");
+            simulateInterviewDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        for (int i = 0; i < interviewModel.getRowCount(); i++) {
+            if (!npcName.equals(nullSafe(interviewModel.getValueAt(i, 0)))) continue;
+            String topic = nullSafe(interviewModel.getValueAt(i, 2));
+            String question = nullSafe(interviewModel.getValueAt(i, 3));
+            simulateInterviewQuestionModel.addElement("[" + topic + "] " + question);
+            simulateInterviewRowIndexes.add(i);
+        }
+
+        if (!simulateInterviewRowIndexes.isEmpty()) {
+            simulateInterviewQuestionList.setSelectedIndex(0);
+        } else {
+            simulateInterviewDetailArea.setText("No interview questions are available for " + npcName + ".");
+            simulateInterviewDetailArea.setCaretPosition(0);
+        }
+    }
+
+    private void refreshInterviewSimulationDetail() {
+        int selected = simulateInterviewQuestionList.getSelectedIndex();
+        if (selected < 0 || selected >= simulateInterviewRowIndexes.size()) {
+            simulateInterviewDetailArea.setText("Select a generated question to preview the simulation.");
+            simulateInterviewDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        int row = simulateInterviewRowIndexes.get(selected);
+        String npcName   = nullSafe(interviewModel.getValueAt(row, 0));
+        String role      = nullSafe(interviewModel.getValueAt(row, 1));
+        String topic     = nullSafe(interviewModel.getValueAt(row, 2));
+        String question  = nullSafe(interviewModel.getValueAt(row, 3));
+        String answer    = nullSafe(interviewModel.getValueAt(row, 4));
+        boolean truthful = Boolean.TRUE.equals(interviewModel.getValueAt(row, 5));
+        String aboutNpc  = nullSafe(interviewModel.getValueAt(row, 6));
+        String reqAttr   = nullSafe(interviewModel.getValueAt(row, 7));
+        Object reqValObj = interviewModel.getValueAt(row, 8);
+        int reqValue = reqValObj instanceof Number ? ((Number) reqValObj).intValue() : 0;
+        String altAnswer = nullSafe(interviewModel.getValueAt(row, 9));
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(npcName).append(" (").append(role).append(")\n");
+        sb.append("Topic: ").append(topic);
+        if (!aboutNpc.isEmpty()) sb.append(" — about ").append(aboutNpc);
+        sb.append("\n\n");
+        sb.append("Detective asks:\n").append(question).append("\n\n");
+        sb.append("NPC answers:\n").append(answer).append("\n\n");
+        sb.append(truthful ? "Truthfulness: truthful" : "Truthfulness: deceptive");
+
+        if (!reqAttr.isEmpty() && reqValue > 0) {
+            sb.append("\n\nAttribute gate: ").append(reqAttr).append(" ≥ ").append(reqValue);
+            if (!altAnswer.isEmpty()) {
+                sb.append("\nFallback answer if the check fails:\n").append(altAnswer);
+            }
+        }
+
+        simulateInterviewDetailArea.setText(sb.toString());
+        simulateInterviewDetailArea.setCaretPosition(0);
     }
 
     /** Finds the CategoryEntry matching the currently selected motive combo item. */
@@ -1755,6 +2014,7 @@ public class CaseEditorPanel extends JPanel {
             });
         }
         statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
+        refreshSimulationView();
     }
 
     private void generateRelationships() {
@@ -1975,6 +2235,7 @@ public class CaseEditorPanel extends JPanel {
 
         // Auto-generate NPC characters so step 3 is pre-populated
         generateNpcs();
+        refreshSimulationView();
     }
 
     /**
@@ -2461,6 +2722,7 @@ public class CaseEditorPanel extends JPanel {
 
         statusLabel.setText("Generated " + interviewModel.getRowCount()
                 + " interview responses for " + countInterviewedNpcs() + " NPCs.");
+        refreshSimulationView();
     }
 
     /**
@@ -2840,6 +3102,7 @@ public class CaseEditorPanel extends JPanel {
                 + chainedCount + " chained), "
                 + leadsModel.getRowCount() + " leads, "
                 + interviewModel.getRowCount() + " interview responses.");
+        refreshSimulationView();
     }
 
     // ---- Inline helpers for story-driven fact/lead creation ------------------
