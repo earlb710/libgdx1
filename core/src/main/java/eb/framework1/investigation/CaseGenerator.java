@@ -304,7 +304,13 @@ public class CaseGenerator {
             } catch (IllegalArgumentException e) {
                 dm = DiscoveryMethod.INTERVIEW;
             }
-            cf.addLead(new CaseLead("seed-lead-" + seedLeadIndex, desc, hint, dm));
+            CaseLead seedLead = new CaseLead("seed-lead-" + seedLeadIndex, desc, hint, dm);
+            cf.addLead(seedLead);
+            // Forensic seed leads create a physical evidence item on the case file
+            if (dm == DiscoveryMethod.FORENSICS) {
+                EvidenceItem item = pickEvidenceItemForForensicLead(desc);
+                cf.addEvidenceItem(item);
+            }
             seedLeadIndex++;
         }
 
@@ -329,9 +335,11 @@ public class CaseGenerator {
         }
         for (CaseLead lead : leads) {
             cf.addLead(lead);
-            // Forensic-method leads produce POLICE-sourced known facts
+            // Forensic-method leads produce POLICE-sourced known facts and a
+            // physical evidence item the player can collect and submit for analysis
             if (lead.getDiscoveryMethod() == DiscoveryMethod.FORENSICS) {
                 cf.addKnownFact(lead.getDescription(), FactSource.POLICE);
+                cf.addEvidenceItem(pickEvidenceItemForForensicLead(lead.getDescription()));
             }
         }
 
@@ -1157,6 +1165,76 @@ public class CaseGenerator {
             sb.append(items.get(i));
         }
         return sb.toString();
+    }
+
+    // =========================================================================
+    // Evidence item selection
+    // =========================================================================
+
+    /**
+     * Selects the most appropriate {@link EvidenceItem} from the predefined
+     * catalogue for a FORENSICS-method lead, based on keywords in the lead's
+     * description.
+     *
+     * <p>The matching is done in priority order so that more specific clues
+     * (e.g. "knife" before the generic "fingerprint" fallback) win.  If no
+     * keyword matches, a {@link EvidenceItem#DOCUMENT} is returned as a
+     * catch-all (forensic reports, linguistic analyses, etc.).
+     *
+     * @param description the lead's full description text
+     * @return a fresh, unsubmitted copy of the matched catalogue item
+     */
+    private static EvidenceItem pickEvidenceItemForForensicLead(String description) {
+        String d = description == null ? "" : description.toLowerCase();
+
+        // Specific physical objects — checked before generic modifiers
+        if (d.contains("glass"))                                    return EvidenceItem.createByName("Drinking Glass");
+        if (d.contains("knife") || d.contains("blade"))             return EvidenceItem.createByName("Kitchen Knife");
+        if (d.contains("firearm") || d.contains(" gun ")
+                || d.contains("pistol"))                            return EvidenceItem.createByName("Firearm");
+        if (d.contains("bullet") || d.contains("casing")
+                || d.contains("cartridge"))                         return EvidenceItem.createByName("Bullet Casing");
+        if (d.contains("syringe") || d.contains("needle"))          return EvidenceItem.createByName("Syringe");
+        if (d.contains("sedative") || d.contains("benzodiazepine")
+                || d.contains("poison") || d.contains("toxicolog")) return EvidenceItem.createByName("Syringe");
+        if (d.contains("shoe") || d.contains("footprint")
+                || d.contains("boot") || d.contains("tread")
+                || d.contains("muddy print") || d.contains("muddy"))return EvidenceItem.createByName("Shoe Print");
+        if (d.contains("tire") || d.contains("tyre"))               return EvidenceItem.createByName("Tire Impression");
+        if (d.contains("cigarette"))                                 return EvidenceItem.createByName("Cigarette");
+        if (d.contains("hair"))                                      return EvidenceItem.createByName("Hair Sample");
+        if (d.contains("glove") || d.contains("cloth")
+                || d.contains("fabric") || d.contains("fibre")
+                || d.contains("fiber") || d.contains("textile"))    return EvidenceItem.createByName("Cloth");
+        if (d.contains("burn") || d.contains("arson")
+                || d.contains("accelerant"))                         return EvidenceItem.createByName("Burned Material");
+        if (d.contains("paint"))                                     return EvidenceItem.createByName("Paint Chip");
+        if (d.contains("envelope"))                                  return EvidenceItem.createByName("Envelope");
+        if (d.contains("letter"))                                    return EvidenceItem.createByName("Letter");
+
+        // Digital / electronic evidence
+        if (d.contains("phone") || d.contains("mobile")
+                || d.contains("browser") || d.contains("device")
+                || d.contains("tracker") || d.contains("gallery")
+                || d.contains("ip address") || d.contains("cloud")
+                || d.contains("digital") || d.contains("usb")
+                || d.contains("metadata") || d.contains("internet"))return EvidenceItem.createByName("Mobile Phone");
+
+        // Document / paper-based evidence and generic fingerprint lifts
+        if (d.contains("handwriting") || d.contains("ink")
+                || d.contains("note") || d.contains("paper")
+                || d.contains("document") || d.contains("file")
+                || d.contains("message") || d.contains("report")
+                || d.contains("audio") || d.contains("voicemail")
+                || d.contains("linguist") || d.contains("phrasing")
+                || d.contains("timestamp") || d.contains("image")
+                || d.contains("photograph"))                        return EvidenceItem.createByName("Document");
+
+        // Generic fingerprint evidence — use a Drinking Glass as a proxy surface
+        if (d.contains("fingerprint"))                              return EvidenceItem.createByName("Drinking Glass");
+
+        // Default: a generic forensic document / report
+        return EvidenceItem.createByName("Document");
     }
 
     /** Pool of generic red-herring leads that can apply to any case type. */
