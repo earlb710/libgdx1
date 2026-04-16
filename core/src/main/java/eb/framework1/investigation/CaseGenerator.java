@@ -1190,7 +1190,7 @@ public class CaseGenerator {
         // Specific physical objects — checked before generic modifiers
         if (d.contains("glass"))                                    return EvidenceItem.createByName("Drinking Glass");
         if (d.contains("knife") || d.contains("blade"))             return EvidenceItem.createByName("Kitchen Knife");
-        if (d.contains("firearm") || d.contains(" gun ")
+        if (d.contains("firearm") || d.contains("gun")
                 || d.contains("pistol"))                            return EvidenceItem.createByName("Firearm");
         if (d.contains("bullet") || d.contains("casing")
                 || d.contains("cartridge"))                         return EvidenceItem.createByName("Bullet Casing");
@@ -1201,16 +1201,16 @@ public class CaseGenerator {
                 || d.contains("boot") || d.contains("tread")
                 || d.contains("muddy print") || d.contains("muddy"))return EvidenceItem.createByName("Shoe Print");
         if (d.contains("tire") || d.contains("tyre"))               return EvidenceItem.createByName("Tire Impression");
-        if (d.contains("cigarette"))                                 return EvidenceItem.createByName("Cigarette");
-        if (d.contains("hair"))                                      return EvidenceItem.createByName("Hair Sample");
+        if (d.contains("cigarette"))                                return EvidenceItem.createByName("Cigarette");
+        if (d.contains("hair"))                                     return EvidenceItem.createByName("Hair Sample");
         if (d.contains("glove") || d.contains("cloth")
                 || d.contains("fabric") || d.contains("fibre")
                 || d.contains("fiber") || d.contains("textile"))    return EvidenceItem.createByName("Cloth");
         if (d.contains("burn") || d.contains("arson")
-                || d.contains("accelerant"))                         return EvidenceItem.createByName("Burned Material");
-        if (d.contains("paint"))                                     return EvidenceItem.createByName("Paint Chip");
-        if (d.contains("envelope"))                                  return EvidenceItem.createByName("Envelope");
-        if (d.contains("letter"))                                    return EvidenceItem.createByName("Letter");
+                || d.contains("accelerant"))                        return EvidenceItem.createByName("Burned Material");
+        if (d.contains("paint"))                                    return EvidenceItem.createByName("Paint Chip");
+        if (d.contains("envelope"))                                 return EvidenceItem.createByName("Envelope");
+        if (d.contains("letter"))                                   return EvidenceItem.createByName("Letter");
 
         // Digital / electronic evidence
         if (d.contains("phone") || d.contains("mobile")
