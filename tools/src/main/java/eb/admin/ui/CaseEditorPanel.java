@@ -23,8 +23,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -161,6 +163,15 @@ public class CaseEditorPanel extends JPanel {
     private final JLabel simulateStateLabel =
             new JLabel("Generate the full case to unlock simulations.");
     private final JTabbedPane simulateTabs = new JTabbedPane();
+    private final DefaultListModel<String> simulateStoryActionModel = new DefaultListModel<>();
+    private final JList<String> simulateStoryActionList = new JList<>(simulateStoryActionModel);
+    private final JTextArea simulateStoryDetailArea = new JTextArea(8, 40);
+    private final JTextArea simulateStoryFactsArea = new JTextArea(10, 40);
+    private final JTextArea simulateStoryLeadsArea = new JTextArea(10, 40);
+    private final List<DefaultMutableTreeNode> simulateStoryAvailableNodes = new ArrayList<>();
+    private final Set<String> simulateStoryCompletedActions = new LinkedHashSet<>();
+    private final Set<String> simulateStoryKnownFactIds = new LinkedHashSet<>();
+    private final Set<String> simulateStoryKnownLeadIds = new LinkedHashSet<>();
     private final JComboBox<String> simulateInterviewNpcCombo = new JComboBox<>();
     private final DefaultListModel<String> simulateInterviewQuestionModel = new DefaultListModel<>();
     private final JList<String> simulateInterviewQuestionList =
@@ -173,6 +184,7 @@ public class CaseEditorPanel extends JPanel {
 
     public CaseEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
+        simulateTabs.addTab("Story Tree", buildStoryTreeSimulationTab());
         simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
         setLayout(new BorderLayout(0, 4));
         add(buildSteps(), BorderLayout.CENTER);
@@ -217,6 +229,14 @@ public class CaseEditorPanel extends JPanel {
         treeModel.reload();
         summaryArea.setText("");
         simulateSummaryArea.setText("");
+        simulateStoryActionModel.clear();
+        simulateStoryAvailableNodes.clear();
+        simulateStoryCompletedActions.clear();
+        simulateStoryKnownFactIds.clear();
+        simulateStoryKnownLeadIds.clear();
+        simulateStoryDetailArea.setText("");
+        simulateStoryFactsArea.setText("");
+        simulateStoryLeadsArea.setText("");
         simulateInterviewNpcCombo.removeAllItems();
         simulateInterviewQuestionModel.clear();
         simulateInterviewRowIndexes.clear();
@@ -1205,6 +1225,66 @@ public class CaseEditorPanel extends JPanel {
         return panel;
     }
 
+    private JPanel buildStoryTreeSimulationTab() {
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+
+        simulateStoryActionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        simulateStoryActionList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                refreshStoryTreeSimulationDetail();
+            }
+        });
+        JScrollPane actionsScroll = new JScrollPane(simulateStoryActionList);
+        actionsScroll.setBorder(BorderFactory.createTitledBorder("Available Actions"));
+
+        configureReadOnlyTextArea(simulateStoryDetailArea);
+        simulateStoryDetailArea.setText("Generate the full case to simulate the story tree.");
+        JScrollPane detailScroll = new JScrollPane(simulateStoryDetailArea);
+        detailScroll.setBorder(BorderFactory.createTitledBorder("Selected Action"));
+
+        configureReadOnlyTextArea(simulateStoryFactsArea);
+        JScrollPane factsScroll = new JScrollPane(simulateStoryFactsArea);
+        factsScroll.setBorder(BorderFactory.createTitledBorder("Known Facts"));
+
+        configureReadOnlyTextArea(simulateStoryLeadsArea);
+        JScrollPane leadsScroll = new JScrollPane(simulateStoryLeadsArea);
+        leadsScroll.setBorder(BorderFactory.createTitledBorder("Available Leads"));
+
+        JSplitPane knownSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, factsScroll, leadsScroll);
+        knownSplit.setDividerLocation(220);
+        knownSplit.setResizeWeight(0.6);
+
+        JSplitPane rightSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, detailScroll, knownSplit);
+        rightSplit.setDividerLocation(220);
+        rightSplit.setResizeWeight(0.4);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, actionsScroll, rightSplit);
+        split.setDividerLocation(320);
+        split.setResizeWeight(0.35);
+
+        JButton resetBtn = new JButton("Reset Story Simulation");
+        resetBtn.addActionListener(e -> {
+            resetStoryTreeSimulation();
+            statusLabel.setText(isCaseFullyGenerated()
+                    ? "Story-tree simulation reset."
+                    : "Story-tree simulation is unavailable until the full case is generated.");
+        });
+
+        JButton successBtn = new JButton("Apply Success Result");
+        successBtn.addActionListener(e -> applyStoryTreeSimulationResult(true));
+        JButton failureBtn = new JButton("Apply Failure Result");
+        failureBtn.addActionListener(e -> applyStoryTreeSimulationResult(false));
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+        buttons.add(resetBtn);
+        buttons.add(successBtn);
+        buttons.add(failureBtn);
+
+        panel.add(split, BorderLayout.CENTER);
+        panel.add(buttons, BorderLayout.SOUTH);
+        return panel;
+    }
+
     // -------------------------------------------------------------------------
     // Combo / column helpers
     // -------------------------------------------------------------------------
@@ -1301,6 +1381,16 @@ public class CaseEditorPanel extends JPanel {
         }
 
         if (!ready) {
+            simulateStoryActionModel.clear();
+            simulateStoryAvailableNodes.clear();
+            simulateStoryCompletedActions.clear();
+            simulateStoryKnownFactIds.clear();
+            simulateStoryKnownLeadIds.clear();
+            simulateStoryDetailArea.setText(
+                    "Story-tree simulation is unavailable until the full case is generated.");
+            simulateStoryFactsArea.setText("Known facts will appear here once simulation is available.");
+            simulateStoryLeadsArea.setText("Available leads will appear here once simulation is available.");
+            simulateStoryDetailArea.setCaretPosition(0);
             simulateInterviewNpcCombo.removeAllItems();
             simulateInterviewQuestionModel.clear();
             simulateInterviewRowIndexes.clear();
@@ -1310,7 +1400,454 @@ public class CaseEditorPanel extends JPanel {
             return;
         }
 
+        resetStoryTreeSimulation();
         populateInterviewSimulationNpcChoices();
+    }
+
+    private void resetStoryTreeSimulation() {
+        simulateStoryCompletedActions.clear();
+        simulateStoryKnownFactIds.clear();
+        simulateStoryKnownLeadIds.clear();
+
+        if (!isCaseFullyGenerated()) {
+            simulateStoryActionModel.clear();
+            simulateStoryAvailableNodes.clear();
+            simulateStoryDetailArea.setText(
+                    "Story-tree simulation is unavailable until the full case is generated.");
+            simulateStoryFactsArea.setText("Known facts will appear here once simulation is available.");
+            simulateStoryLeadsArea.setText("Available leads will appear here once simulation is available.");
+            simulateStoryDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if ("KNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) {
+                simulateStoryKnownFactIds.add(nullSafe(factsModel.getValueAt(r, 0)));
+            }
+        }
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            String leadId = nullSafe(leadsModel.getValueAt(r, 0));
+            if (leadId.startsWith("seed-lead-")) {
+                simulateStoryKnownLeadIds.add(leadId);
+            }
+        }
+
+        refreshStoryTreeSimulationState();
+    }
+
+    private void refreshStoryTreeSimulationState() {
+        simulateStoryActionModel.clear();
+        simulateStoryAvailableNodes.clear();
+
+        if (!isCaseFullyGenerated()) {
+            simulateStoryDetailArea.setText(
+                    "Story-tree simulation is unavailable until the full case is generated.");
+            simulateStoryFactsArea.setText("Known facts will appear here once simulation is available.");
+            simulateStoryLeadsArea.setText("Available leads will appear here once simulation is available.");
+            simulateStoryDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        List<DefaultMutableTreeNode> available = collectAvailableStorySimulationActions();
+        for (DefaultMutableTreeNode actionNode : available) {
+            simulateStoryAvailableNodes.add(actionNode);
+            simulateStoryActionModel.addElement(buildStorySimulationActionLabel(actionNode));
+        }
+
+        simulateStoryFactsArea.setText(buildStorySimulationKnownFactsText());
+        simulateStoryFactsArea.setCaretPosition(0);
+        simulateStoryLeadsArea.setText(buildStorySimulationKnownLeadsText());
+        simulateStoryLeadsArea.setCaretPosition(0);
+
+        if (!simulateStoryAvailableNodes.isEmpty()) {
+            simulateStoryActionList.setSelectedIndex(0);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("No further actions are currently available.\n\n");
+            sb.append("Completed actions: ").append(simulateStoryCompletedActions.size()).append('\n');
+            sb.append("Known facts: ").append(simulateStoryKnownFactIds.size()).append('\n');
+            sb.append("Known leads: ").append(simulateStoryKnownLeadIds.size()).append('\n');
+            sb.append("\nThe simulated story flow is complete.");
+            simulateStoryDetailArea.setText(sb.toString());
+            simulateStoryDetailArea.setCaretPosition(0);
+        }
+    }
+
+    private List<DefaultMutableTreeNode> collectAvailableStorySimulationActions() {
+        List<DefaultMutableTreeNode> result = new ArrayList<>();
+        List<DefaultMutableTreeNode> mainPhases = new ArrayList<>();
+        List<DefaultMutableTreeNode> sideCases = new ArrayList<>();
+
+        for (int i = 0; i < storyRoot.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) storyRoot.getChildAt(i);
+            String label = nullSafe(child.getUserObject());
+            if (label.startsWith("[PLOT_TWIST")) {
+                mainPhases.add(child);
+            } else if (label.startsWith("[SIDE_CASE")) {
+                sideCases.add(child);
+            }
+        }
+
+        for (DefaultMutableTreeNode phase : mainPhases) {
+            if (!isStorySimulationSubtreeComplete(phase)) {
+                collectAvailableStorySimulationActions(phase, result);
+                break;
+            }
+        }
+        for (DefaultMutableTreeNode sideCase : sideCases) {
+            if (!isStorySimulationSubtreeComplete(sideCase)) {
+                collectAvailableStorySimulationActions(sideCase, result);
+            }
+        }
+        return result;
+    }
+
+    private void collectAvailableStorySimulationActions(DefaultMutableTreeNode node,
+                                                        List<DefaultMutableTreeNode> result) {
+        String label = nullSafe(node.getUserObject());
+        if (label.startsWith("[ACTION:")) {
+            if (!simulateStoryCompletedActions.contains(storySimulationNodeKey(node))) {
+                result.add(node);
+            }
+            return;
+        }
+
+        List<DefaultMutableTreeNode> children = storySimulationChildren(node);
+        if (children.isEmpty()) return;
+
+        if (isStorySimulationParallelNode(label)) {
+            for (DefaultMutableTreeNode child : children) {
+                if (!isStorySimulationSubtreeComplete(child)) {
+                    collectAvailableStorySimulationActions(child, result);
+                }
+            }
+        } else {
+            for (DefaultMutableTreeNode child : children) {
+                if (!isStorySimulationSubtreeComplete(child)) {
+                    collectAvailableStorySimulationActions(child, result);
+                    return;
+                }
+            }
+        }
+    }
+
+    private boolean isStorySimulationSubtreeComplete(DefaultMutableTreeNode node) {
+        String label = nullSafe(node.getUserObject());
+        if (label.startsWith("[ACTION:")) {
+            return simulateStoryCompletedActions.contains(storySimulationNodeKey(node));
+        }
+
+        List<DefaultMutableTreeNode> children = storySimulationChildren(node);
+        if (children.isEmpty()) return true;
+        for (DefaultMutableTreeNode child : children) {
+            if (!isStorySimulationSubtreeComplete(child)) return false;
+        }
+        return true;
+    }
+
+    private List<DefaultMutableTreeNode> storySimulationChildren(DefaultMutableTreeNode node) {
+        List<DefaultMutableTreeNode> children = new ArrayList<>();
+        for (int i = 0; i < node.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+            String label = nullSafe(child.getUserObject());
+            if (label.startsWith("[MAJOR]")
+                    || label.startsWith("[MINOR]")
+                    || label.startsWith("[ACTION:")
+                    || label.startsWith("[RESULT]")) {
+                children.add(child);
+            }
+        }
+        return children;
+    }
+
+    private boolean isStorySimulationParallelNode(String label) {
+        return label.startsWith("[PLOT_TWIST:PARALLEL]")
+                || label.startsWith("[SIDE_CASE:PARALLEL]");
+    }
+
+    private String buildStorySimulationActionLabel(DefaultMutableTreeNode actionNode) {
+        StorySimulationResult result = parseStorySimulationResult(actionNode);
+        StringBuilder sb = new StringBuilder();
+        sb.append(buildStorySimulationBreadcrumb(actionNode));
+        if (result != null && !result.requirement.isEmpty()) {
+            sb.append(" [").append(result.requirement).append("]");
+        }
+        return sb.toString();
+    }
+
+    private String buildStorySimulationBreadcrumb(DefaultMutableTreeNode node) {
+        Object[] path = node.getUserObject() != null ? node.getPath() : new Object[0];
+        List<String> parts = new ArrayList<>();
+        for (Object part : path) {
+            if (!(part instanceof DefaultMutableTreeNode)) continue;
+            String label = nullSafe(((DefaultMutableTreeNode) part).getUserObject());
+            if (label.startsWith("[PLOT_TWIST")
+                    || label.startsWith("[SIDE_CASE")
+                    || label.startsWith("[MAJOR]")
+                    || label.startsWith("[MINOR]")
+                    || label.startsWith("[ACTION:")) {
+                parts.add(extractStorySimulationTitle(label));
+            }
+        }
+        return String.join(" > ", parts);
+    }
+
+    private static String extractStorySimulationTitle(String label) {
+        if (label == null || label.isEmpty()) return "";
+        if (label.startsWith("[ACTION:")) {
+            int close = label.indexOf(']');
+            return close > 8 ? label.substring(8, close).trim() : label;
+        }
+        if (label.startsWith("[") && label.contains("]")) {
+            int close = label.indexOf(']');
+            String tail = close + 1 < label.length() ? label.substring(close + 1).trim() : "";
+            return tail.isEmpty() ? label : tail;
+        }
+        return label;
+    }
+
+    private String storySimulationNodeKey(DefaultMutableTreeNode node) {
+        Object[] path = node.getPath();
+        StringBuilder sb = new StringBuilder();
+        for (Object part : path) {
+            if (part instanceof DefaultMutableTreeNode) {
+                if (sb.length() > 0) sb.append(" > ");
+                sb.append(nullSafe(((DefaultMutableTreeNode) part).getUserObject()));
+            }
+        }
+        return sb.toString();
+    }
+
+    private void refreshStoryTreeSimulationDetail() {
+        int selected = simulateStoryActionList.getSelectedIndex();
+        if (selected < 0 || selected >= simulateStoryAvailableNodes.size()) {
+            simulateStoryDetailArea.setText("Select an available action to inspect its outcomes.");
+            simulateStoryDetailArea.setCaretPosition(0);
+            return;
+        }
+
+        DefaultMutableTreeNode actionNode = simulateStoryAvailableNodes.get(selected);
+        StorySimulationResult result = parseStorySimulationResult(actionNode);
+        StringBuilder sb = new StringBuilder();
+        sb.append(buildStorySimulationBreadcrumb(actionNode)).append("\n\n");
+        if (result == null) {
+            sb.append("No result metadata is attached to this action node.");
+        } else {
+            sb.append("Result:\n").append(result.summary).append("\n\n");
+            if (!result.requirement.isEmpty()) {
+                sb.append("Requirement: ").append(result.requirement).append('\n');
+            }
+            if (!result.prerequisiteFactId.isEmpty()) {
+                sb.append("Prerequisite fact: ").append(result.prerequisiteFactId).append('\n');
+            }
+            if (result.availabilityDay > 0) {
+                sb.append("Availability day note: ").append(result.availabilityDay).append('\n');
+            }
+            sb.append('\n');
+            sb.append("Success reveals:\n").append(describeStorySimulationOutcome(result.okType, result.okId)).append("\n\n");
+            sb.append("Failure reveals:\n").append(describeStorySimulationOutcome(result.failType, result.failId));
+        }
+        simulateStoryDetailArea.setText(sb.toString());
+        simulateStoryDetailArea.setCaretPosition(0);
+    }
+
+    private void applyStoryTreeSimulationResult(boolean success) {
+        if (!isCaseFullyGenerated()) {
+            statusLabel.setText("Story-tree simulation is unavailable until the full case is generated.");
+            return;
+        }
+
+        int selected = simulateStoryActionList.getSelectedIndex();
+        if (selected < 0 || selected >= simulateStoryAvailableNodes.size()) {
+            statusLabel.setText("Select an available action before applying a result.");
+            return;
+        }
+
+        DefaultMutableTreeNode actionNode = simulateStoryAvailableNodes.get(selected);
+        StorySimulationResult result = parseStorySimulationResult(actionNode);
+        simulateStoryCompletedActions.add(storySimulationNodeKey(actionNode));
+
+        String revealed = "No additional fact or lead was revealed.";
+        if (result != null) {
+            revealed = success
+                    ? applyStorySimulationReveal(result.okType, result.okId)
+                    : applyStorySimulationReveal(result.failType, result.failId);
+        }
+
+        refreshStoryTreeSimulationState();
+        statusLabel.setText((success ? "Applied success result. " : "Applied failure result. ") + revealed);
+    }
+
+    private String applyStorySimulationReveal(String type, String id) {
+        if (type == null || type.isEmpty() || id == null || id.isEmpty()) {
+            return "No additional fact or lead was revealed.";
+        }
+        if ("fact".equals(type)) {
+            if (simulateStoryKnownFactIds.add(id)) {
+                return "Unlocked fact " + id + ".";
+            }
+            return "Fact " + id + " was already known.";
+        }
+        if ("lead".equals(type)) {
+            if (simulateStoryKnownLeadIds.add(id)) {
+                return "Unlocked lead " + id + ".";
+            }
+            return "Lead " + id + " was already known.";
+        }
+        return "No additional fact or lead was revealed.";
+    }
+
+    private String buildStorySimulationKnownFactsText() {
+        if (simulateStoryKnownFactIds.isEmpty()) {
+            return "No known facts are currently available.";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Known facts (").append(simulateStoryKnownFactIds.size()).append("):\n\n");
+        int index = 1;
+        for (String factId : simulateStoryKnownFactIds) {
+            Map<String, String> fact = findFactById(factId);
+            sb.append(index++).append(". ").append(factId);
+            String category = fact.get("category");
+            if (!category.isEmpty()) sb.append(" [").append(category).append(']');
+            sb.append('\n');
+            String factText = fact.get("text");
+            sb.append("   ").append(factText.isEmpty() ? "(fact details unavailable)" : factText).append('\n');
+            String source = fact.get("source");
+            if (!source.isEmpty()) {
+                sb.append("   Source: ").append(source).append('\n');
+            }
+            sb.append('\n');
+        }
+        return sb.toString().trim();
+    }
+
+    private String buildStorySimulationKnownLeadsText() {
+        if (simulateStoryKnownLeadIds.isEmpty()) {
+            return "No leads are currently available.";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Available leads (").append(simulateStoryKnownLeadIds.size()).append("):\n\n");
+        int index = 1;
+        for (String leadId : simulateStoryKnownLeadIds) {
+            Map<String, String> lead = findLeadById(leadId);
+            sb.append(index++).append(". ").append(leadId).append('\n');
+            String hint = lead.get("hint");
+            sb.append("   ").append(hint.isEmpty() ? "(lead details unavailable)" : hint).append('\n');
+            String method = lead.get("method");
+            if (!method.isEmpty()) {
+                sb.append("   Method: ").append(method).append('\n');
+            }
+            String desc = lead.get("description");
+            if (!desc.isEmpty()) {
+                sb.append("   Detail: ").append(desc).append('\n');
+            }
+            sb.append('\n');
+        }
+        return sb.toString().trim();
+    }
+
+    private String describeStorySimulationOutcome(String type, String id) {
+        if (type == null || type.isEmpty() || id == null || id.isEmpty()) {
+            return "No fact or lead is attached to this outcome.";
+        }
+        if ("fact".equals(type)) {
+            Map<String, String> fact = findFactById(id);
+            return id + (fact.get("text").isEmpty() ? "" : " — " + fact.get("text"));
+        }
+        if ("lead".equals(type)) {
+            Map<String, String> lead = findLeadById(id);
+            return id + (lead.get("hint").isEmpty() ? "" : " — " + lead.get("hint"));
+        }
+        return id;
+    }
+
+    private Map<String, String> findFactById(String factId) {
+        Map<String, String> result = new LinkedHashMap<>();
+        result.put("category", "");
+        result.put("text", "");
+        result.put("source", "");
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if (!factId.equals(nullSafe(factsModel.getValueAt(r, 0)))) continue;
+            result.put("category", nullSafe(factsModel.getValueAt(r, 1)));
+            result.put("text", nullSafe(factsModel.getValueAt(r, 2)));
+            result.put("source", nullSafe(factsModel.getValueAt(r, 13)));
+            return result;
+        }
+        return result;
+    }
+
+    private Map<String, String> findLeadById(String leadId) {
+        Map<String, String> result = new LinkedHashMap<>();
+        result.put("hint", "");
+        result.put("method", "");
+        result.put("description", "");
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            if (!leadId.equals(nullSafe(leadsModel.getValueAt(r, 0)))) continue;
+            result.put("hint", nullSafe(leadsModel.getValueAt(r, 1)));
+            result.put("method", nullSafe(leadsModel.getValueAt(r, 2)));
+            result.put("description", nullSafe(leadsModel.getValueAt(r, 3)));
+            return result;
+        }
+        return result;
+    }
+
+    private StorySimulationResult parseStorySimulationResult(DefaultMutableTreeNode actionNode) {
+        if (actionNode == null || actionNode.getChildCount() == 0) return null;
+        DefaultMutableTreeNode resultNode = (DefaultMutableTreeNode) actionNode.getChildAt(0);
+        String label = nullSafe(resultNode.getUserObject());
+        if (!label.startsWith("[RESULT]")) return null;
+
+        StorySimulationResult result = new StorySimulationResult();
+        String[] parts = label.split("\\s*\\|\\s*");
+        if (parts.length > 0) {
+            result.summary = parts[0].replace("[RESULT]", "").trim();
+        }
+        for (int i = 1; i < parts.length; i++) {
+            String part = parts[i].trim();
+            if (part.startsWith("req:")) {
+                result.requirement = part.substring(4).trim();
+            } else if (part.startsWith("action:")) {
+                result.actionTitle = part.substring(7).trim();
+            } else if (part.startsWith("ok:")) {
+                assignStorySimulationRef(result, true, part.substring(3).trim());
+            } else if (part.startsWith("fail:")) {
+                assignStorySimulationRef(result, false, part.substring(5).trim());
+            } else if (part.startsWith("prereq:")) {
+                result.prerequisiteFactId = part.substring(7).trim();
+            } else if (part.startsWith("avail_day:")) {
+                try {
+                    result.availabilityDay = Integer.parseInt(part.substring(10).trim());
+                } catch (NumberFormatException ignored) {
+                    result.availabilityDay = 0;
+                }
+            }
+        }
+        return result;
+    }
+
+    private void assignStorySimulationRef(StorySimulationResult result, boolean success, String ref) {
+        String[] parts = ref.split(":", 2);
+        String type = parts.length > 0 ? parts[0].trim() : "";
+        String id = parts.length > 1 ? parts[1].trim() : "";
+        if (success) {
+            result.okType = type;
+            result.okId = id;
+        } else {
+            result.failType = type;
+            result.failId = id;
+        }
+    }
+
+    private static class StorySimulationResult {
+        String summary = "";
+        String requirement = "";
+        String actionTitle = "";
+        String okType = "";
+        String okId = "";
+        String failType = "";
+        String failId = "";
+        String prerequisiteFactId = "";
+        int availabilityDay = 0;
     }
 
     private String buildSimulationSummary() {
