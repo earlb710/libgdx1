@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Admin panel for viewing and editing the {@code "caseDescriptions"} section
- * of {@code assets/text/case_templates_en.json}.
+ * Admin panel for viewing and editing the case-description metadata and
+ * template pools in {@code assets/text/case_templates_en.json}.
  *
  * <p>The panel shows a list of case types on the left and, for each selected
  * type, an editable view of the base NPC roles, extra-suspect ranges, suspect
- * labels, and a summary description.
+ * labels, summary description, and complexity-based description templates.
  *
  * <p>Changes can be saved back to disk — the panel merges its edits into the
  * full JSON file so other sections ({@code descriptions}, {@code objectives},
@@ -67,6 +67,7 @@ public class CaseDescriptionTemplatePanel extends JPanel {
     private final JTextField extraC2Field = new JTextField(6);
     private final JTextField extraC3Field = new JTextField(6);
     private final JTextArea  summaryArea  = new JTextArea(3, 40);
+    private final Map<Integer, DefaultTableModel> descriptionModels = new LinkedHashMap<>();
 
     /**
      * In-memory representation: case-type name → mutable data.
@@ -76,6 +77,7 @@ public class CaseDescriptionTemplatePanel extends JPanel {
 
     /** Currently selected case-type key (may be null). */
     private String selectedType = null;
+    private boolean loadingUi = false;
 
     // ── Status ────────────────────────────────────────────────────────────────
     private final JLabel localStatus = new JLabel(" ");
@@ -89,7 +91,14 @@ public class CaseDescriptionTemplatePanel extends JPanel {
         String extraSuspectsComplexity2   = "0";
         String extraSuspectsComplexity3   = "0";
         final List<String> suspectLabels  = new ArrayList<>();
+        final Map<Integer, List<String>> descriptionPools = new LinkedHashMap<>();
         String summary                    = "";
+
+        CaseDescEntry() {
+            for (int complexity = 1; complexity <= 3; complexity++) {
+                descriptionPools.put(complexity, new ArrayList<String>());
+            }
+        }
     }
 
     // =========================================================================
@@ -227,7 +236,51 @@ public class CaseDescriptionTemplatePanel extends JPanel {
         summaryScroll.setBorder(BorderFactory.createTitledBorder("Summary"));
         summaryScroll.setPreferredSize(new Dimension(0, 80));
 
-        // Assemble right side using vertical BoxLayout
+        JTabbedPane descriptionTabs = new JTabbedPane();
+        for (int complexity = 1; complexity <= 3; complexity++) {
+            DefaultTableModel model =
+                    new DefaultTableModel(new String[]{"#", "Template"}, 0) {
+                        @Override public boolean isCellEditable(int row, int col) {
+                            return col == 1;
+                        }
+                    };
+            JTable table = new JTable(model);
+            table.setRowHeight(24);
+            table.getColumnModel().getColumn(0).setPreferredWidth(30);
+            table.getColumnModel().getColumn(1).setPreferredWidth(600);
+
+            JButton addTemplateBtn = new JButton("Add Template");
+            JButton delTemplateBtn = new JButton("Delete Template");
+            final int currentComplexity = complexity;
+            addTemplateBtn.addActionListener(e -> {
+                int num = model.getRowCount() + 1;
+                model.addRow(new Object[]{num, ""});
+                commitCurrentType();
+            });
+            delTemplateBtn.addActionListener(e -> {
+                int row = table.getSelectedRow();
+                if (row >= 0) {
+                    model.removeRow(row);
+                    renumberRows(model);
+                    commitCurrentType();
+                }
+            });
+
+            JPanel templateButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 2));
+            templateButtons.add(addTemplateBtn);
+            templateButtons.add(delTemplateBtn);
+
+            JPanel templatePanel = new JPanel(new BorderLayout(0, 4));
+            JScrollPane templateScroll = new JScrollPane(table);
+            templateScroll.setBorder(BorderFactory.createTitledBorder(
+                    "Description Templates (Complexity " + currentComplexity + ")"));
+            templatePanel.add(templateScroll, BorderLayout.CENTER);
+            templatePanel.add(templateButtons, BorderLayout.SOUTH);
+
+            descriptionModels.put(complexity, model);
+            descriptionTabs.addTab("Complexity " + complexity, templatePanel);
+        }
+
         JPanel rightUpper = new JPanel(new GridLayout(1, 2, 6, 0));
         rightUpper.add(rolesPanel);
 
@@ -236,8 +289,15 @@ public class CaseDescriptionTemplatePanel extends JPanel {
         rightSuspectsCol.add(slPanel, BorderLayout.CENTER);
         rightUpper.add(rightSuspectsCol);
 
-        editor.add(rightUpper, BorderLayout.CENTER);
-        editor.add(summaryScroll, BorderLayout.SOUTH);
+        JPanel lowerPanel = new JPanel(new BorderLayout(0, 6));
+        lowerPanel.add(summaryScroll, BorderLayout.NORTH);
+        lowerPanel.add(descriptionTabs, BorderLayout.CENTER);
+
+        JSplitPane editorSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, rightUpper, lowerPanel);
+        editorSplit.setDividerLocation(220);
+        editorSplit.setResizeWeight(0.35);
+
+        editor.add(editorSplit, BorderLayout.CENTER);
 
         // ── Split ───────────────────────────────────────────────────────
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, typeScroll, editor);
@@ -263,29 +323,44 @@ public class CaseDescriptionTemplatePanel extends JPanel {
     private void loadTypeIntoUI(String key) {
         CaseDescEntry entry = entries.get(key);
         if (entry == null) return;
+        loadingUi = true;
 
-        // Roles
-        rolesModel.setRowCount(0);
-        for (int i = 0; i < entry.roles.size(); i++) {
-            rolesModel.addRow(new Object[]{i + 1, entry.roles.get(i)});
+        try {
+            // Roles
+            rolesModel.setRowCount(0);
+            for (int i = 0; i < entry.roles.size(); i++) {
+                rolesModel.addRow(new Object[]{i + 1, entry.roles.get(i)});
+            }
+
+            // Extra suspects
+            extraC2Field.setText(entry.extraSuspectsComplexity2);
+            extraC3Field.setText(entry.extraSuspectsComplexity3);
+
+            // Suspect labels
+            suspectLabelsModel.setRowCount(0);
+            for (int i = 0; i < entry.suspectLabels.size(); i++) {
+                suspectLabelsModel.addRow(new Object[]{i + 1, entry.suspectLabels.get(i)});
+            }
+
+            // Summary
+            summaryArea.setText(entry.summary);
+
+            for (int complexity = 1; complexity <= 3; complexity++) {
+                DefaultTableModel model = descriptionModels.get(complexity);
+                model.setRowCount(0);
+                List<String> templates = entry.descriptionPools.get(complexity);
+                for (int i = 0; i < templates.size(); i++) {
+                    model.addRow(new Object[]{i + 1, templates.get(i)});
+                }
+            }
+        } finally {
+            loadingUi = false;
         }
-
-        // Extra suspects
-        extraC2Field.setText(entry.extraSuspectsComplexity2);
-        extraC3Field.setText(entry.extraSuspectsComplexity3);
-
-        // Suspect labels
-        suspectLabelsModel.setRowCount(0);
-        for (int i = 0; i < entry.suspectLabels.size(); i++) {
-            suspectLabelsModel.addRow(new Object[]{i + 1, entry.suspectLabels.get(i)});
-        }
-
-        // Summary
-        summaryArea.setText(entry.summary);
     }
 
     /** Writes current UI state back into the in-memory entry for {@link #selectedType}. */
     private void commitCurrentType() {
+        if (loadingUi) return;
         if (selectedType == null) return;
         CaseDescEntry entry = entries.get(selectedType);
         if (entry == null) return;
@@ -304,6 +379,16 @@ public class CaseDescriptionTemplatePanel extends JPanel {
             entry.suspectLabels.add(lbl);
         }
         entry.summary = summaryArea.getText();
+
+        for (int complexity = 1; complexity <= 3; complexity++) {
+            List<String> templates = entry.descriptionPools.get(complexity);
+            templates.clear();
+            DefaultTableModel model = descriptionModels.get(complexity);
+            for (int r = 0; r < model.getRowCount(); r++) {
+                String template = String.valueOf(model.getValueAt(r, 1));
+                templates.add(template);
+            }
+        }
     }
 
     // =========================================================================
@@ -361,6 +446,37 @@ public class CaseDescriptionTemplatePanel extends JPanel {
                 }
             }
 
+            JsonObject descriptionsObj = root.getAsJsonObject("descriptions");
+            if (descriptionsObj != null) {
+                for (Map.Entry<String, JsonElement> e : descriptionsObj.entrySet()) {
+                    String key = e.getKey();
+                    int dot = key.lastIndexOf('.');
+                    if (dot <= 0 || dot >= key.length() - 1) continue;
+
+                    String typeKey = key.substring(0, dot);
+                    int complexity;
+                    try {
+                        complexity = Integer.parseInt(key.substring(dot + 1));
+                    } catch (NumberFormatException ex) {
+                        continue;
+                    }
+                    if (complexity < 1 || complexity > 3) continue;
+
+                    CaseDescEntry entry = entries.get(typeKey);
+                    if (entry == null) {
+                        entry = new CaseDescEntry();
+                        entries.put(typeKey, entry);
+                        typeListModel.addElement(typeKey);
+                    }
+
+                    List<String> templates = entry.descriptionPools.get(complexity);
+                    templates.clear();
+                    for (JsonElement template : e.getValue().getAsJsonArray()) {
+                        templates.add(template.getAsString());
+                    }
+                }
+            }
+
             currentFile = file;
             fileField.setText(file.getPath());
             localStatus.setText("Loaded " + entries.size() + " case description entries.");
@@ -399,6 +515,7 @@ public class CaseDescriptionTemplatePanel extends JPanel {
 
             // Build the caseDescriptions object
             JsonObject cdObj = new JsonObject();
+            JsonObject descriptionsObj = new JsonObject();
             for (Map.Entry<String, CaseDescEntry> e : entries.entrySet()) {
                 JsonObject val = new JsonObject();
                 CaseDescEntry entry = e.getValue();
@@ -417,8 +534,16 @@ public class CaseDescriptionTemplatePanel extends JPanel {
                 val.addProperty("summary", entry.summary);
 
                 cdObj.add(e.getKey(), val);
+
+                for (int complexity = 1; complexity <= 3; complexity++) {
+                    JsonArray templatesArr = new JsonArray();
+                    List<String> templates = entry.descriptionPools.get(complexity);
+                    for (String template : templates) templatesArr.add(template);
+                    descriptionsObj.add(e.getKey() + "." + complexity, templatesArr);
+                }
             }
             root.add("caseDescriptions", cdObj);
+            root.add("descriptions", descriptionsObj);
 
             Gson prettyGson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
             try (Writer w = new FileWriter(target, StandardCharsets.UTF_8)) {
