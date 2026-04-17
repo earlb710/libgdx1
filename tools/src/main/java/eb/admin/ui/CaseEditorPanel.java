@@ -863,6 +863,7 @@ public class CaseEditorPanel extends JPanel {
                         + "Completing it unlocks the next chapter and may change the direction "
                         + "of the case based on what has been discovered.";
             case "INIT_FACTS":
+                // Intentional fall-through: initial facts use the same help text.
             case "KNOWN_FACTS":
                 return "Known Facts & Leads\n\n"
                         + "These are the facts and leads available to the investigator at the "
