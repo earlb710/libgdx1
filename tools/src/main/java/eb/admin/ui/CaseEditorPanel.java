@@ -171,6 +171,22 @@ public class CaseEditorPanel extends JPanel {
     /** Cached copy of the loaded category data — set via {@link #loadData(CategoryData)}. */
     private CategoryData categoryData;
 
+    /** Resolved seed contacts from the most recent Step 2 generation. */
+    private final List<ResolvedSeedContact> resolvedSeedContacts = new ArrayList<>();
+
+    /** Concrete contact data derived from the selected case seed. */
+    private static final class ResolvedSeedContact {
+        final String name;
+        final String role;
+        final String reason;
+
+        ResolvedSeedContact(String name, String role, String reason) {
+            this.name = name;
+            this.role = role;
+            this.reason = reason;
+        }
+    }
+
     public CaseEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
         simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
@@ -210,6 +226,7 @@ public class CaseEditorPanel extends JPanel {
         objectiveArea.setText("");
         npcRequirementsArea.setText("");
         initialContactsArea.setText("");
+        resolvedSeedContacts.clear();
         leadsModel.setRowCount(0);
         factsModel.setRowCount(0);
         interviewModel.setRowCount(0);
@@ -405,14 +422,11 @@ public class CaseEditorPanel extends JPanel {
         split.setResizeWeight(0.6);
 
         // --- Buttons ---
-        JButton genNpcsBtn  = new JButton("Generate NPCs");
         JButton addNpcBtn   = new JButton("Add NPC");
         JButton delNpcBtn   = new JButton("Delete NPC");
-        JButton genRelsBtn  = new JButton("Generate Relationships");
         JButton addRelBtn   = new JButton("Add Relationship");
         JButton delRelBtn   = new JButton("Delete Relationship");
 
-        genNpcsBtn.addActionListener(e -> generateNpcs());
         addNpcBtn.addActionListener(e -> {
             npcModel.addRow(new Object[]{"", "", "M", 30, "", 5, 5, 5, false, 0L, 0, "", "", "", "", false, "", false, ""});
         });
@@ -420,7 +434,6 @@ public class CaseEditorPanel extends JPanel {
             int row = npcTable.getSelectedRow();
             if (row >= 0) npcModel.removeRow(row);
         });
-        genRelsBtn.addActionListener(e -> generateRelationships());
         addRelBtn.addActionListener(e -> {
             relationshipModel.addRow(new Object[]{"", "", "", 0});
         });
@@ -430,11 +443,9 @@ public class CaseEditorPanel extends JPanel {
         });
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-        buttons.add(genNpcsBtn);
         buttons.add(addNpcBtn);
         buttons.add(delNpcBtn);
         buttons.add(Box.createHorizontalStrut(18));
-        buttons.add(genRelsBtn);
         buttons.add(addRelBtn);
         buttons.add(delRelBtn);
 
@@ -868,6 +879,7 @@ public class CaseEditorPanel extends JPanel {
                         + "This phase represents a key turning point in the investigation. "
                         + "Completing it unlocks the next chapter and may change the direction "
                         + "of the case based on what has been discovered.";
+            case "INIT_FACTS":
             case "KNOWN_FACTS":
                 return "Known Facts & Leads\n\n"
                         + "These are the facts and leads available to the investigator at the "
@@ -1593,50 +1605,59 @@ public class CaseEditorPanel extends JPanel {
      */
     private String[] rolesForCaseType(String caseType, int complexity) {
         List<String> roles = new ArrayList<>();
-        switch (caseType) {
-            case "Missing Person":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client", "Subject (Missing)", "Witness",
-                        "Last-Known Contact", "Neighbour"));
-                break;
-            case "Infidelity":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client", "Subject (Partner)", "Other Party",
-                        "Mutual Friend", "Witness"));
-                break;
-            case "Theft":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client (Victim)", "Subject (Suspect)",
-                        "Witness", "Insurance Adjuster", "Fence/Dealer"));
-                break;
-            case "Fraud":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client (Victim)", "Subject (Perpetrator)",
-                        "Accountant", "Business Associate", "Insider Witness"));
-                break;
-            case "Blackmail":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client (Victim)", "Subject (Blackmailer)",
-                        "Witness", "Intermediary", "Confidant"));
-                break;
-            case "Murder":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client", "Subject (Suspect)", "Victim",
-                        "Key Witness", "Victim's Associate", "Police Contact"));
-                break;
-            case "Stalking":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client (Victim)", "Subject (Stalker)",
-                        "Neighbour Witness", "Ex-Partner", "Friend of Client"));
-                break;
-            case "Corporate Espionage":
-                roles.addAll(java.util.Arrays.asList(
-                        "Client (Employer)", "Subject (Leak)",
-                        "Rival Contact", "Trusted Colleague", "IT Specialist"));
-                break;
-            default:
-                roles.addAll(java.util.Arrays.asList("Client", "Subject", "Witness"));
-                break;
+        CaseType type = caseTypeFromDisplayName(caseType);
+        CaseTemplateData.CaseDescription caseDesc =
+                (type != null && caseTemplateData != null)
+                        ? caseTemplateData.getCaseDescription(type.name()) : null;
+
+        if (caseDesc != null && !caseDesc.getRoles().isEmpty()) {
+            roles.addAll(caseDesc.getRoles());
+        } else {
+            switch (caseType) {
+                case "Missing Person":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client", "Subject (Missing)", "Witness",
+                            "Last-Known Contact", "Neighbour"));
+                    break;
+                case "Infidelity":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client", "Subject (Partner)", "Other Party",
+                            "Mutual Friend", "Witness"));
+                    break;
+                case "Theft":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client (Victim)", "Subject (Suspect)",
+                            "Witness", "Insurance Adjuster", "Fence/Dealer"));
+                    break;
+                case "Fraud":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client (Victim)", "Subject (Perpetrator)",
+                            "Accountant", "Business Associate", "Insider Witness"));
+                    break;
+                case "Blackmail":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client (Victim)", "Subject (Blackmailer)",
+                            "Witness", "Intermediary", "Confidant"));
+                    break;
+                case "Murder":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client", "Subject (Suspect)", "Victim",
+                            "Key Witness", "Victim's Associate", "Police Contact"));
+                    break;
+                case "Stalking":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client (Victim)", "Subject (Stalker)",
+                            "Neighbour Witness", "Ex-Partner", "Friend of Client"));
+                    break;
+                case "Corporate Espionage":
+                    roles.addAll(java.util.Arrays.asList(
+                            "Client (Employer)", "Subject (Leak)",
+                            "Rival Contact", "Trusted Colleague", "IT Specialist"));
+                    break;
+                default:
+                    roles.addAll(java.util.Arrays.asList("Client", "Subject", "Witness"));
+                    break;
+            }
         }
 
         // Additional suspects based on complexity:
@@ -1655,6 +1676,9 @@ public class CaseEditorPanel extends JPanel {
                 "Suspect — Associate", "Suspect — Ex-Partner",
                 "Suspect — Acquaintance"
         };
+        if (caseDesc != null && !caseDesc.getSuspectLabels().isEmpty()) {
+            suspectLabels = caseDesc.getSuspectLabels().toArray(new String[0]);
+        }
         for (int s = 0; s < extraSuspects && s < suspectLabels.length; s++) {
             roles.add(suspectLabels[s]);
         }
@@ -1697,6 +1721,26 @@ public class CaseEditorPanel extends JPanel {
 
     private String randomName(String gender) {
         return nameGen.generateFull(gender);
+    }
+
+    /** Normalises a role label for fuzzy matching. */
+    private String normalizeRole(String role) {
+        if (role == null) return "";
+        return role.toLowerCase()
+                .replace("(", " ")
+                .replace(")", " ")
+                .replace("-", " ")
+                .replace("/", " ")
+                .replace("'", "")
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
+
+    /** Returns true if two role labels effectively describe the same NPC role. */
+    private boolean rolesMatch(String roleA, String roleB) {
+        String a = normalizeRole(roleA);
+        String b = normalizeRole(roleB);
+        return !a.isEmpty() && !b.isEmpty() && (a.contains(b) || b.contains(a));
     }
 
     private static final String[] HAIR_COLORS =
@@ -1819,11 +1863,33 @@ public class CaseEditorPanel extends JPanel {
         relationshipModel.setRowCount(0);
 
         int complexity = (int) complexitySpinner.getValue();
-        String[] roles = rolesForCaseType(caseType, complexity);
+        List<String> roles = new ArrayList<>(java.util.Arrays.asList(rolesForCaseType(caseType, complexity)));
+        List<String> preferredNames = new ArrayList<>();
+        for (int i = 0; i < roles.size(); i++) preferredNames.add(null);
         String client  = clientNameField.getText().trim();
         String subject = subjectNameField.getText().trim();
 
         String victim = victimNameField.getText().trim();
+
+        for (ResolvedSeedContact contact : resolvedSeedContacts) {
+            if (contact.name.equals(client) || contact.name.equals(subject)
+                    || (!victim.isEmpty() && contact.name.equals(victim))) {
+                continue;
+            }
+            boolean matched = false;
+            for (int i = 0; i < roles.size(); i++) {
+                if (preferredNames.get(i) == null && rolesMatch(contact.role, roles.get(i))) {
+                    roles.set(i, contact.role);
+                    preferredNames.set(i, contact.name);
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                roles.add(contact.role);
+                preferredNames.add(contact.name);
+            }
+        }
 
         // The primary subject's distinguishing attributes (all suspects share
         // opportunity but only the real perpetrator matches every attribute).
@@ -1833,8 +1899,8 @@ public class CaseEditorPanel extends JPanel {
         String perpetratorAcc   = ACCESS_LABELS[random.nextInt(ACCESS_LABELS.length)];
         String perpetratorAlibi = ALIBI_LABELS[random.nextInt(ALIBI_LABELS.length)];
 
-        for (int i = 0; i < roles.length; i++) {
-            String role   = roles[i];
+        for (int i = 0; i < roles.size(); i++) {
+            String role   = roles.get(i);
             String gender = random.nextBoolean() ? "M" : "F";
             String name;
             // Use the names from the name fields for the first two NPCs
@@ -1844,6 +1910,8 @@ public class CaseEditorPanel extends JPanel {
                 name = subject;
             } else if (role.equals("Victim") && !victim.isEmpty()) {
                 name = victim;
+            } else if (preferredNames.get(i) != null && !preferredNames.get(i).trim().isEmpty()) {
+                name = preferredNames.get(i).trim();
             } else {
                 name = randomName(gender);
             }
@@ -2005,7 +2073,7 @@ public class CaseEditorPanel extends JPanel {
                     alibi
             });
         }
-        statusLabel.setText("Generated " + roles.length + " NPCs for " + caseType + " case.");
+        statusLabel.setText("Generated " + roles.size() + " NPCs for " + caseType + " case.");
         refreshSimulationView();
     }
 
@@ -2029,41 +2097,102 @@ public class CaseEditorPanel extends JPanel {
             roles.add((String) npcModel.getValueAt(i, 0));
         }
 
-        // Always create client ↔ subject relationship
-        String relType = inferRelationshipType(roles.get(0), roles.get(1),
-                (String) caseTypeCombo.getSelectedItem());
-        int opinion1 = -20 + random.nextInt(41); // -20 to +20
-        relationshipModel.addRow(new Object[]{
-                names.get(0), names.get(1), relType, opinion1});
-        // Reverse relationship
-        int opinion2 = -20 + random.nextInt(41);
-        relationshipModel.addRow(new Object[]{
-                names.get(1), names.get(0), relType, opinion2});
+        int clientIdx = findFirstRoleIndex(roles, "Client");
+        int subjectIdx = findFirstRoleIndex(roles, "Subject");
+        int victimIdx = findFirstRoleIndex(roles, "Victim");
+        if (clientIdx < 0) clientIdx = 0;
+        if (subjectIdx < 0) subjectIdx = names.size() > 1 ? 1 : 0;
 
-        // Create relationships between additional NPCs and client or subject
-        for (int i = 2; i < names.size(); i++) {
-            // Link to either client (index 0) or subject (index 1)
-            int target = (i % 2 == 0) ? 0 : 1;
-            String type = inferRelationshipType(roles.get(i), roles.get(target),
-                    (String) caseTypeCombo.getSelectedItem());
-            int op = -10 + random.nextInt(51); // -10 to +40
-            relationshipModel.addRow(new Object[]{
-                    names.get(i), names.get(target), type, op});
+        Set<String> existing = new LinkedHashSet<>();
+
+        // Always create client ↔ subject relationship
+        addRelationshipPair(existing, names, roles, clientIdx, subjectIdx,
+                (String) caseTypeCombo.getSelectedItem(), -20, 20);
+
+        // If there is a victim, link them to the subject so the murder/stalking
+        // style cases have an explicit central relationship in the table.
+        if (victimIdx >= 0 && victimIdx != subjectIdx) {
+            addRelationshipPair(existing, names, roles, subjectIdx, victimIdx,
+                    (String) caseTypeCombo.getSelectedItem(), -20, 20);
         }
 
-        // Add one or two inter-NPC relationships for depth
+        // Create relationships between additional NPCs and the most sensible anchor
+        for (int i = 0; i < names.size(); i++) {
+            if (i == clientIdx || i == subjectIdx || i == victimIdx) continue;
+            int target = pickRelationshipAnchor(i, roles, clientIdx, subjectIdx, victimIdx);
+            if (target >= 0 && target != i) {
+                addRelationshipPair(existing, names, roles, i, target,
+                        (String) caseTypeCombo.getSelectedItem(), -10, 40);
+            }
+        }
+
+        // Add one inter-NPC relationship for depth
         if (names.size() >= 4) {
             String type = RELATIONSHIP_TYPES[random.nextInt(RELATIONSHIP_TYPES.length)];
             int op = -20 + random.nextInt(61); // -20 to +40
             int a = 2 + random.nextInt(names.size() - 2);
             int b = 2 + random.nextInt(names.size() - 2);
             if (a != b) {
-                relationshipModel.addRow(new Object[]{
-                        names.get(a), names.get(b), type, op});
+                String key = a + "->" + b;
+                if (!existing.contains(key)) {
+                    relationshipModel.addRow(new Object[]{
+                            names.get(a), names.get(b), type, op});
+                    existing.add(key);
+                }
             }
         }
 
         statusLabel.setText("Generated " + relationshipModel.getRowCount() + " relationships.");
+    }
+
+    private int findFirstRoleIndex(List<String> roles, String token) {
+        for (int i = 0; i < roles.size(); i++) {
+            if (roles.get(i) != null && roles.get(i).contains(token)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void addRelationshipPair(Set<String> existing, List<String> names, List<String> roles,
+                                     int from, int to, String caseType, int minOpinion, int maxOpinion) {
+        if (from < 0 || to < 0 || from == to) return;
+        String type = inferRelationshipType(roles.get(from), roles.get(to), caseType);
+        String forwardKey = from + "->" + to;
+        if (!existing.contains(forwardKey)) {
+            relationshipModel.addRow(new Object[]{
+                    names.get(from), names.get(to), type,
+                    minOpinion + random.nextInt(maxOpinion - minOpinion + 1)});
+            existing.add(forwardKey);
+        }
+        String reverseKey = to + "->" + from;
+        if (!existing.contains(reverseKey)) {
+            relationshipModel.addRow(new Object[]{
+                    names.get(to), names.get(from), type,
+                    minOpinion + random.nextInt(maxOpinion - minOpinion + 1)});
+            existing.add(reverseKey);
+        }
+    }
+
+    private int pickRelationshipAnchor(int index, List<String> roles,
+                                       int clientIdx, int subjectIdx, int victimIdx) {
+        String role = roles.get(index);
+        if (role == null) return subjectIdx;
+        if (role.contains("Insurance") || role.contains("Employer")) return clientIdx;
+        if (role.contains("Victim") || role.contains("Police")) {
+            return victimIdx >= 0 ? victimIdx : subjectIdx;
+        }
+        if (role.contains("Witness") || role.contains("Neighbour")
+                || role.contains("Friend") || role.contains("Other Party")
+                || role.contains("Ex-Partner") || role.contains("Last-Known Contact")
+                || role.contains("Associate") || role.contains("Confidant")
+                || role.contains("Intermediary") || role.contains("Fence")
+                || role.contains("Dealer") || role.contains("Rival")
+                || role.contains("Colleague") || role.contains("IT")
+                || role.contains("Insider") || role.contains("Accountant")) {
+            return subjectIdx;
+        }
+        return subjectIdx >= 0 ? subjectIdx : clientIdx;
     }
 
     /**
@@ -2105,20 +2234,30 @@ public class CaseEditorPanel extends JPanel {
         String caseTypeName = (String) caseTypeCombo.getSelectedItem();
         String client       = clientNameField.getText().trim();
         String subject      = subjectNameField.getText().trim();
+        resolvedSeedContacts.clear();
 
         if (caseTypeName == null || caseTypeName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a case type first.",
                     "Missing Data", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (client.isEmpty())  client  = "the client";
-        if (subject.isEmpty()) subject = "the subject";
 
         CaseType type          = caseTypeFromDisplayName(caseTypeName);
         String clientGender    = (String) clientGenderCombo.getSelectedItem();
         String subjectGender   = (String) subjectGenderCombo.getSelectedItem();
+        if (client.isEmpty()) {
+            client = randomName(clientGender);
+            clientNameField.setText(client);
+        }
+        if (subject.isEmpty()) {
+            subject = randomName(subjectGender);
+            subjectNameField.setText(subject);
+        }
         String victim          = victimNameField.getText().trim();
-        if (type == CaseType.MURDER && victim.isEmpty()) victim = "the victim";
+        if (type == CaseType.MURDER && victim.isEmpty()) {
+            victim = randomName(random.nextBoolean() ? "M" : "F");
+            victimNameField.setText(victim);
+        }
         int complexity         = (int) complexitySpinner.getValue();
 
         // Pick a coherent seed of facts + leads for this case type
@@ -2157,10 +2296,11 @@ public class CaseEditorPanel extends JPanel {
 
         descriptionArea.setText(desc);
         objectiveArea.setText(objBuilder.toString());
+        leadsModel.setRowCount(0);
+        factsModel.setRowCount(0);
 
         // Populate leads table with seed leads
         if (seed != null && !seed.getLeads().isEmpty()) {
-            leadsModel.setRowCount(0);
             int seedLeadIdx = 1;
             for (CaseTemplateData.SeedLead sl : seed.getLeads()) {
                 String hint = CaseGenerator.resolveCasePlaceholders(sl.getHint(),
@@ -2175,7 +2315,6 @@ public class CaseEditorPanel extends JPanel {
 
         // Populate facts table with seed facts (source = CASE)
         if (seed != null && !seed.getFacts().isEmpty()) {
-            factsModel.setRowCount(0);
             int seedFactIdx = 1;
             for (String rawFact : seed.getFacts()) {
                 String fact = CaseGenerator.resolveCasePlaceholders(rawFact,
@@ -2193,14 +2332,19 @@ public class CaseEditorPanel extends JPanel {
             StringBuilder contactsBuilder = new StringBuilder();
             contactsBuilder.append("Initial contacts (").append(seed.getContacts().size()).append("):\n");
             int contactIdx = 1;
-            int seedFactBase = factsModel.getRowCount();
             for (CaseTemplateData.SeedContact sc : seed.getContacts()) {
-                String contactName = CaseGenerator.resolveCasePlaceholders(sc.getName(),
+                String resolvedName = CaseGenerator.resolveCasePlaceholders(sc.getName(),
                         client, subject, victim, clientGender, subjectGender);
                 String contactRole = CaseGenerator.resolveCasePlaceholders(sc.getRole(),
                         client, subject, victim, clientGender, subjectGender);
                 String contactReason = CaseGenerator.resolveCasePlaceholders(sc.getReason(),
                         client, subject, victim, clientGender, subjectGender);
+                String contactName = resolvedName;
+                if (!resolvedName.equals(client) && !resolvedName.equals(subject)
+                        && !resolvedName.equals(victim)) {
+                    contactName = randomName(random.nextBoolean() ? "M" : "F");
+                }
+                resolvedSeedContacts.add(new ResolvedSeedContact(contactName, contactRole, contactReason));
                 contactsBuilder.append("  ").append(contactIdx).append(". ")
                         .append(contactName).append(" — ").append(contactRole)
                         .append(" (").append(contactReason).append(")\n");
@@ -2225,8 +2369,12 @@ public class CaseEditorPanel extends JPanel {
         // Build NPC requirements summary from the case description template
         buildNpcRequirements(type, complexity);
 
-        // Auto-generate NPC characters so step 3 is pre-populated
+        // Auto-generate NPCs, relationships, and initial story-tree preview
         generateNpcs();
+        generateRelationships();
+        rebuildInitialFactsStoryPreview();
+        statusLabel.setText("Generated description, objective, NPCs, relationships, and initial story tree for "
+                + caseTypeName + " case.");
         refreshSimulationView();
     }
 
@@ -2799,12 +2947,17 @@ public class CaseEditorPanel extends JPanel {
     }
 
     private void generateStoryTree() {
+        List<Object[]> initialFactRows = snapshotInitialFactRows();
+        List<Object[]> initialLeadRows = snapshotLeadRows();
         storyRoot.removeAllChildren();
 
-        // Clear models — facts, leads, and interviews are generated inline by the story
+        // Clear models, then restore Step 2 initial facts/leads before generating
+        // the rest of the story data inline.
         factsModel.setRowCount(0);
         leadsModel.setRowCount(0);
         interviewModel.setRowCount(0);
+        restoreFactRows(initialFactRows);
+        restoreLeadRows(initialLeadRows);
 
         int complexity = (int) complexitySpinner.getValue();
         String caseType = (String) caseTypeCombo.getSelectedItem();
@@ -2833,10 +2986,19 @@ public class CaseEditorPanel extends JPanel {
         List<CategoryEntry> methods = (categoryData != null)
                 ? categoryData.getDiscovery_methods() : new ArrayList<>();
 
-        // ---------- Seed: one KNOWN fact so the investigator has a starting point ----------
-        String seedFact = client + " has reported a suspicious incident involving " + victim + ".";
-        addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
-                client, victim, "", "", "", 0, "", 0, FactSource.CASE);
+        // ---------- Seed initial facts: preserve anything generated in Step 2 ----------
+        if (initialFactRows.isEmpty() && initialLeadRows.isEmpty()) {
+            String seedFact = client + " has reported a suspicious incident involving " + victim + ".";
+            String seedFactId = addFact(factIdCounter, "DATE", seedFact, "KNOWN", System.currentTimeMillis(),
+                    client, victim, "", "", "", 0, "", 0, FactSource.CASE);
+            initialFactRows.add(new Object[]{
+                    seedFactId, "DATE", seedFact, "KNOWN",
+                    System.currentTimeMillis(), client, victim, "", "", "", 0, "", 0,
+                    FactSource.CASE.name()});
+        } else {
+            factIdCounter[0] = factsModel.getRowCount() + 1;
+            leadIdCounter[0] = leadsModel.getRowCount() + 1;
+        }
 
         // ---------- UNKNOWN facts: these are what the investigator must solve ----------
         generateUnknownFacts(factIdCounter, caseType, subject, victim, client, motiveCode, complexity);
@@ -2974,22 +3136,20 @@ public class CaseEditorPanel extends JPanel {
             generateInterviews(true);
         }
 
-        // ---------- Build the KNOWN_FACTS section from whatever was generated ----------
+        // ---------- Build the INIT_FACTS section from Step 2 known facts/leads ----------
         DefaultMutableTreeNode knownSection = new DefaultMutableTreeNode(
-                "[KNOWN_FACTS] Known Facts & Leads");
-        for (int r = 0; r < factsModel.getRowCount(); r++) {
-            if ("KNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) {
-                String fId   = String.valueOf(factsModel.getValueAt(r, 0));
-                String fCat  = String.valueOf(factsModel.getValueAt(r, 1));
-                String fText = String.valueOf(factsModel.getValueAt(r, 2));
-                knownSection.add(new DefaultMutableTreeNode(
-                        "[FACT] " + fId + " (" + fCat + "): " + fText));
-            }
+                "[INIT_FACTS] Initial Facts & Leads");
+        for (Object[] row : initialFactRows) {
+            String fId   = String.valueOf(row[0]);
+            String fCat  = String.valueOf(row[1]);
+            String fText = String.valueOf(row[2]);
+            knownSection.add(new DefaultMutableTreeNode(
+                    "[FACT] " + fId + " (" + fCat + "): " + fText));
         }
-        for (int r = 0; r < leadsModel.getRowCount(); r++) {
-            String lId     = String.valueOf(leadsModel.getValueAt(r, 0));
-            String lHint   = String.valueOf(leadsModel.getValueAt(r, 1));
-            String lMethod = String.valueOf(leadsModel.getValueAt(r, 2));
+        for (Object[] row : initialLeadRows) {
+            String lId     = String.valueOf(row[0]);
+            String lHint   = String.valueOf(row[1]);
+            String lMethod = String.valueOf(row[2]);
             boolean redHerring = random.nextInt(100) < 25;
             String tag = redHerring ? "[LEAD:RED_HERRING]" : "[LEAD]";
             // Time pressure: ~30% of leads expire after 3–7 days at complexity ≥ 2
@@ -3095,6 +3255,66 @@ public class CaseEditorPanel extends JPanel {
                 + leadsModel.getRowCount() + " leads, "
                 + interviewModel.getRowCount() + " interview responses.");
         refreshSimulationView();
+    }
+
+    /** Rebuilds a lightweight story-tree preview from the current initial facts/leads only. */
+    private void rebuildInitialFactsStoryPreview() {
+        List<Object[]> initialFactRows = snapshotInitialFactRows();
+        List<Object[]> initialLeadRows = snapshotLeadRows();
+        storyRoot.removeAllChildren();
+        String caseType = (String) caseTypeCombo.getSelectedItem();
+        if (caseType == null) caseType = "Investigation";
+        storyRoot.setUserObject("Story Root [" + caseType + " / initial setup]");
+
+        DefaultMutableTreeNode initSection = new DefaultMutableTreeNode(
+                "[INIT_FACTS] Initial Facts & Leads");
+        for (Object[] row : initialFactRows) {
+            initSection.add(new DefaultMutableTreeNode(
+                    "[FACT] " + row[0] + " (" + row[1] + "): " + row[2]));
+        }
+        for (Object[] row : initialLeadRows) {
+            initSection.add(new DefaultMutableTreeNode(
+                    "[LEAD] " + row[0] + " via " + row[2] + ": " + row[1]));
+        }
+        storyRoot.add(initSection);
+        treeModel.reload();
+        expandAll(storyTree);
+    }
+
+    private List<Object[]> snapshotInitialFactRows() {
+        List<Object[]> rows = new ArrayList<>();
+        for (int r = 0; r < factsModel.getRowCount(); r++) {
+            if ("KNOWN".equals(String.valueOf(factsModel.getValueAt(r, 3)))) {
+                Object[] row = new Object[factsModel.getColumnCount()];
+                for (int c = 0; c < factsModel.getColumnCount(); c++) {
+                    row[c] = factsModel.getValueAt(r, c);
+                }
+                rows.add(row);
+            }
+        }
+        return rows;
+    }
+
+    private List<Object[]> snapshotLeadRows() {
+        List<Object[]> rows = new ArrayList<>();
+        for (int r = 0; r < leadsModel.getRowCount(); r++) {
+            String leadId = String.valueOf(leadsModel.getValueAt(r, 0));
+            if (!leadId.startsWith("seed-lead-")) continue;
+            Object[] row = new Object[leadsModel.getColumnCount()];
+            for (int c = 0; c < leadsModel.getColumnCount(); c++) {
+                row[c] = leadsModel.getValueAt(r, c);
+            }
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private void restoreFactRows(List<Object[]> rows) {
+        for (Object[] row : rows) factsModel.addRow(row);
+    }
+
+    private void restoreLeadRows(List<Object[]> rows) {
+        for (Object[] row : rows) leadsModel.addRow(row);
     }
 
     // ---- Inline helpers for story-driven fact/lead creation ------------------
