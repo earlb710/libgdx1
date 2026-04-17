@@ -171,22 +171,6 @@ public class CaseEditorPanel extends JPanel {
     /** Cached copy of the loaded category data — set via {@link #loadData(CategoryData)}. */
     private CategoryData categoryData;
 
-    /** Resolved seed contacts from the most recent Step 2 generation. */
-    private final List<ResolvedSeedContact> resolvedSeedContacts = new ArrayList<>();
-
-    /** Concrete contact data derived from the selected case seed. */
-    private static final class ResolvedSeedContact {
-        final String name;
-        final String role;
-        final String reason;
-
-        ResolvedSeedContact(String name, String role, String reason) {
-            this.name = name;
-            this.role = role;
-            this.reason = reason;
-        }
-    }
-
     public CaseEditorPanel(JLabel statusLabel) {
         this.statusLabel = statusLabel;
         simulateTabs.addTab("Interviews", buildInterviewSimulationTab());
@@ -226,7 +210,6 @@ public class CaseEditorPanel extends JPanel {
         objectiveArea.setText("");
         npcRequirementsArea.setText("");
         initialContactsArea.setText("");
-        resolvedSeedContacts.clear();
         leadsModel.setRowCount(0);
         factsModel.setRowCount(0);
         interviewModel.setRowCount(0);
@@ -1723,26 +1706,6 @@ public class CaseEditorPanel extends JPanel {
         return nameGen.generateFull(gender);
     }
 
-    /** Normalises a role label for fuzzy matching. */
-    private String normalizeRole(String role) {
-        if (role == null) return "";
-        return role.toLowerCase()
-                .replace("(", " ")
-                .replace(")", " ")
-                .replace("-", " ")
-                .replace("/", " ")
-                .replace("'", "")
-                .replaceAll("\\s+", " ")
-                .trim();
-    }
-
-    /** Returns true if two role labels effectively describe the same NPC role. */
-    private boolean rolesMatch(String roleA, String roleB) {
-        String a = normalizeRole(roleA);
-        String b = normalizeRole(roleB);
-        return !a.isEmpty() && !b.isEmpty() && (a.contains(b) || b.contains(a));
-    }
-
     private static final String[] HAIR_COLORS =
             {"black", "brown", "blonde", "red", "gray", "white"};
     private static final String[] BEARD_STYLES_M =
@@ -1864,32 +1827,10 @@ public class CaseEditorPanel extends JPanel {
 
         int complexity = (int) complexitySpinner.getValue();
         List<String> roles = new ArrayList<>(java.util.Arrays.asList(rolesForCaseType(caseType, complexity)));
-        List<String> preferredNames = new ArrayList<>();
-        for (int i = 0; i < roles.size(); i++) preferredNames.add(null);
         String client  = clientNameField.getText().trim();
         String subject = subjectNameField.getText().trim();
 
         String victim = victimNameField.getText().trim();
-
-        for (ResolvedSeedContact contact : resolvedSeedContacts) {
-            if (contact.name.equals(client) || contact.name.equals(subject)
-                    || (!victim.isEmpty() && contact.name.equals(victim))) {
-                continue;
-            }
-            boolean matched = false;
-            for (int i = 0; i < roles.size(); i++) {
-                if (preferredNames.get(i) == null && rolesMatch(contact.role, roles.get(i))) {
-                    roles.set(i, contact.role);
-                    preferredNames.set(i, contact.name);
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched) {
-                roles.add(contact.role);
-                preferredNames.add(contact.name);
-            }
-        }
 
         // The primary subject's distinguishing attributes (all suspects share
         // opportunity but only the real perpetrator matches every attribute).
@@ -1910,8 +1851,6 @@ public class CaseEditorPanel extends JPanel {
                 name = subject;
             } else if (role.equals("Victim") && !victim.isEmpty()) {
                 name = victim;
-            } else if (preferredNames.get(i) != null && !preferredNames.get(i).trim().isEmpty()) {
-                name = preferredNames.get(i).trim();
             } else {
                 name = randomName(gender);
             }
@@ -2234,7 +2173,6 @@ public class CaseEditorPanel extends JPanel {
         String caseTypeName = (String) caseTypeCombo.getSelectedItem();
         String client       = clientNameField.getText().trim();
         String subject      = subjectNameField.getText().trim();
-        resolvedSeedContacts.clear();
 
         if (caseTypeName == null || caseTypeName.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please select a case type first.",
@@ -2327,35 +2265,21 @@ public class CaseEditorPanel extends JPanel {
             }
         }
 
-        // Populate initial contacts from seed — both display text AND known facts
+        // Populate initial contacts from seed — display only on this tab
         if (seed != null && !seed.getContacts().isEmpty()) {
             StringBuilder contactsBuilder = new StringBuilder();
             contactsBuilder.append("Initial contacts (").append(seed.getContacts().size()).append("):\n");
             int contactIdx = 1;
             for (CaseTemplateData.SeedContact sc : seed.getContacts()) {
-                String resolvedName = CaseGenerator.resolveCasePlaceholders(sc.getName(),
+                String contactName = CaseGenerator.resolveCasePlaceholders(sc.getName(),
                         client, subject, victim, clientGender, subjectGender);
                 String contactRole = CaseGenerator.resolveCasePlaceholders(sc.getRole(),
                         client, subject, victim, clientGender, subjectGender);
                 String contactReason = CaseGenerator.resolveCasePlaceholders(sc.getReason(),
                         client, subject, victim, clientGender, subjectGender);
-                String contactName = resolvedName;
-                if (!resolvedName.equals(client) && !resolvedName.equals(subject)
-                        && !resolvedName.equals(victim)) {
-                    contactName = randomName(random.nextBoolean() ? "M" : "F");
-                }
-                resolvedSeedContacts.add(new ResolvedSeedContact(contactName, contactRole, contactReason));
                 contactsBuilder.append("  ").append(contactIdx).append(". ")
                         .append(contactName).append(" — ").append(contactRole)
                         .append(" (").append(contactReason).append(")\n");
-
-                // Create a CASE-sourced known fact for each contact
-                String factText = "Contact: " + contactName + " — " + contactRole
-                        + " (" + contactReason + ")";
-                factsModel.addRow(new Object[]{
-                        "contact-fact-" + contactIdx, "CONTACT", factText, "KNOWN",
-                        0L, contactName, "", "", "", "", 3, "", 0,
-                        FactSource.CASE.name()});
                 contactIdx++;
             }
             initialContactsArea.setText(contactsBuilder.toString());
