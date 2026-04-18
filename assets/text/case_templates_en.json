@@ -228,7 +228,7 @@
       "A mutual acquaintance forwarded $client a social media photo that clearly shows $subject at a weekend event — an event $subject claimed to have missed. Someone else's arm is around $subject's waist."
     ],
     "INFIDELITY.3": [
-      "$client suspects $subject has been seeing someone else. Late nights, unexplained receipts, a hotel sighting. The hotel has no record under $subject's name — but someone paid cash. The room was booked through a company account linked to a name $client recognises as $subject's ex-colleague. There may be more going on than a simple affair.",
+      "$client suspects $subject has been seeing someone else. Late nights, unexplained receipts, a hotel sighting. The hotel has no record under $subject's name — but someone paid cash. The room was booked through a company account linked to a name $client recognises as $subject's ex-colleague. There may be more going on than infidelity alone.",
       "$subject has been distant for weeks. A friend spotted $subject leaving a restaurant with someone — and was asked not to tell. That someone turns out to be a business associate of $client's employer. The implications are uncomfortable.",
       "Text messages at odd hours. A mutual friend saw $subject at a wine bar every Thursday. The wine bar's owner says $subject has been meeting the same person — and that person has been asking about $client's schedule.",
       "$subject has been working 'late' three nights a week — but leaves the office at 5:30. Phone records show regular calls to an unrecognised number after 10 p.m. That number was activated using $subject's own credit card. Someone else has been using it.",
@@ -238,7 +238,7 @@
       "Keys in $subject's jacket that don't fit their home. A locksmith confirmed they fit a city-centre flat. The flat's tenant moved in three months ago — around the same time $subject opened a new bank account $client didn't know about.",
       "New cologne, new clothes, gym membership — none of it for $client. A gym staffer says $subject often arrives with someone else. That someone else is also a client of $client's therapist — who recently cancelled $client's appointment without explanation.",
       "$client came home early. Two coffee cups. The security camera shows someone leaving thirty minutes earlier. The visitor's car is registered to a company — a company that shares an accountant with $subject.",
-      "$subject's best friend slipped at a dinner party, then went silent. A follow-up conversation revealed the friend knew about the affair for months — and had been asked to provide cover stories for specific dates.",
+      "$subject's best friend slipped at a dinner party, then went silent. A follow-up conversation revealed the friend knew about the relationship for months — and had been asked to provide cover stories for specific dates.",
       "A social media photo shows $subject at an event $pron claimed to have missed. Someone's arm is around $subject's waist. That someone has since deleted their entire online presence — the accounts were purged the same day $client confronted $subject."
     ],
     "THEFT.1": [
@@ -1543,7 +1543,7 @@
         ],
         "leads": [
           {
-            "hint": "$subject's friend may know details about the suspected affair.",
+            "hint": "$subject's friend may know details about the suspected infidelity.",
             "description": "The friend's slip referred to a 'weekend away' that $subject supposedly took alone — but the friend's phrasing suggested $subject was not alone. Pressed further, the friend became visibly uncomfortable.",
             "method": "INTERVIEW"
           },
@@ -2669,7 +2669,7 @@
         ],
         "leads": [
           {
-            "hint": "The blackmailer's knowledge of $client's private affairs narrows the pool of suspects.",
+            "hint": "The blackmailer's knowledge of $client's private life narrows the pool of suspects.",
             "description": "The messages reference a specific incident that only a handful of people knew about. Cross-referencing attendees, confidants, and anyone with access to $client's personal correspondence may isolate the source.",
             "method": "BACKGROUND_CHECK"
           },
